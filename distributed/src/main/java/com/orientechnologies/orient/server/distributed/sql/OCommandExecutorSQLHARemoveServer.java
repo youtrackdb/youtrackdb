@@ -42,6 +42,7 @@ import java.util.Map;
 @SuppressWarnings("unchecked")
 public class OCommandExecutorSQLHARemoveServer extends OCommandExecutorSQLAbstract
     implements OCommandDistributedReplicateRequest {
+
   public static final String NAME = "HA REMOVE SERVER";
 
   private OHaRemoveServerStatement parsedStatement;
@@ -60,7 +61,9 @@ public class OCommandExecutorSQLHARemoveServer extends OCommandExecutorSQLAbstra
     return this;
   }
 
-  /** Execute the command. */
+  /**
+   * Execute the command.
+   */
   public Object execute(final Map<Object, Object> iArgs) {
     final ODatabaseDocumentInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SERVER, "remove", ORole.PERMISSION_EXECUTE);
@@ -71,8 +74,9 @@ public class OCommandExecutorSQLHARemoveServer extends OCommandExecutorSQLAbstra
 
     final ODistributedPlugin dManager =
         (ODistributedPlugin) ((ODatabaseDocumentDistributed) database).getDistributedManager();
-    if (dManager == null || !dManager.isEnabled())
+    if (dManager == null || !dManager.isEnabled()) {
       throw new OCommandExecutionException("OrientDB is not started in distributed mode");
+    }
 
     final String databaseName = database.getName();
 

@@ -9,6 +9,7 @@ import org.junit.Test;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com) (l.garulli--at-orientdb.com)
  */
 public class HttpClusterTest extends BaseHttpDatabaseTest {
+
   @Test
   public void testExistentClass() throws Exception {
     Assert.assertEquals(

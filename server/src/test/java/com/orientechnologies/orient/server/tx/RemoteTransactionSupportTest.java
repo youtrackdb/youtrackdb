@@ -156,7 +156,6 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
     db.begin();
 
     db.command("insert into SomeTx set name ='Jane' ").close();
-    ;
     assertEquals(db.getTransaction().getEntryCount(), 1);
   }
 

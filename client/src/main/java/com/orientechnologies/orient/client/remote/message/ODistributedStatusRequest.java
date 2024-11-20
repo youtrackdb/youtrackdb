@@ -31,6 +31,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class ODistributedStatusRequest implements OBinaryRequest<ODistributedStatusResponse> {
+
   private ODocument status;
 
   public ODistributedStatusRequest() {}

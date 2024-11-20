@@ -27,6 +27,7 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
 import com.orientechnologies.orient.core.id.ORID;
@@ -85,7 +86,7 @@ public abstract class OClassImpl implements OClass {
   protected volatile OClusterSelectionStrategy clusterSelection; // @SINCE 1.7
   protected volatile int hashCode;
 
-  private static Set<String> reserved = new HashSet<String>();
+  private static final Set<String> reserved = new HashSet<String>();
 
   static {
     // reserved.add("select");
@@ -240,7 +241,7 @@ public abstract class OClassImpl implements OClass {
   @Override
   @Deprecated
   public OClass setSuperClass(OClass iSuperClass) {
-    setSuperClasses(iSuperClass != null ? Arrays.asList(iSuperClass) : Collections.EMPTY_LIST);
+    setSuperClasses(iSuperClass != null ? List.of(iSuperClass) : Collections.EMPTY_LIST);
     return this;
   }
 
@@ -257,7 +258,7 @@ public abstract class OClassImpl implements OClass {
   public List<OClass> getSuperClasses() {
     acquireSchemaReadLock();
     try {
-      return Collections.unmodifiableList((List<? extends OClass>) superClasses);
+      return Collections.unmodifiableList(superClasses);
     } finally {
       releaseSchemaReadLock();
     }
@@ -569,7 +570,7 @@ public abstract class OClassImpl implements OClass {
     properties.putAll(newProperties);
     customFields = document.field("customFields", OType.EMBEDDEDMAP);
     clusterSelection =
-        owner.getClusterSelectionFactory().getStrategy((String) document.field("clusterSelection"));
+        owner.getClusterSelectionFactory().getStrategy(document.field("clusterSelection"));
   }
 
   protected abstract OPropertyImpl createPropertyInstance();
@@ -809,14 +810,8 @@ public abstract class OClassImpl implements OClass {
       }
       final OClass other = (OClass) obj;
       if (name == null) {
-        if (other.getName() != null) {
-          return false;
-        }
-      } else if (!name.equals(other.getName())) {
-        return false;
-      }
-
-      return true;
+        return other.getName() == null;
+      } else return name.equals(other.getName());
     } finally {
       releaseSchemaReadLock();
     }
@@ -1068,11 +1063,7 @@ public abstract class OClassImpl implements OClass {
     if (s.startsWith("'") && s.endsWith("'")) {
       return true;
     }
-    if (s.startsWith("`") && s.endsWith("`")) {
-      return true;
-    }
-
-    return false;
+    return s.startsWith("`") && s.endsWith("`");
   }
 
   public abstract OClassImpl setEncryption(final String iValue);
@@ -1537,7 +1528,11 @@ public abstract class OClassImpl implements OClass {
       x = ((OResult) x).toElement();
     }
     if (x instanceof ORID) {
-      x = ((ORID) x).getRecord();
+      try {
+        x = ((ORID) x).getRecord();
+      } catch (ORecordNotFoundException e) {
+        return true;
+      }
     }
     if (x == null) {
       return true;
@@ -1545,11 +1540,8 @@ public abstract class OClassImpl implements OClass {
     if (!(x instanceof OElement)) {
       return false;
     }
-    if (x instanceof ODocument
-        && !linkedClass.getName().equalsIgnoreCase(((ODocument) x).getClassName())) {
-      return false;
-    }
-    return true;
+    return !(x instanceof ODocument)
+        || linkedClass.getName().equalsIgnoreCase(((ODocument) x).getClassName());
   }
 
   protected String getEscapedName(final String iName, final boolean iStrictSQL) {

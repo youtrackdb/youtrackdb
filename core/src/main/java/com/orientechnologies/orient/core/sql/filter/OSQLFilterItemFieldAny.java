@@ -29,6 +29,7 @@ import com.orientechnologies.orient.core.serialization.serializer.OStringSeriali
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFilterItemFieldAny extends OSQLFilterItemFieldMultiAbstract {
+
   public static final String NAME = "ANY";
   public static final String FULL_NAME = "ANY()";
 

@@ -71,8 +71,7 @@ public class OLuceneGeoSpatialIndexEngine extends OLuceneSpatialIndexEngineAbstr
         return newGeoSearch((Map<String, Object>) key, changes);
       }
     } catch (Exception e) {
-      if (e instanceof OException) {
-        OException forward = (OException) e;
+      if (e instanceof OException forward) {
         throw forward;
       } else {
         throw OException.wrapException(new OIndexEngineException("Error parsing lucene query"), e);

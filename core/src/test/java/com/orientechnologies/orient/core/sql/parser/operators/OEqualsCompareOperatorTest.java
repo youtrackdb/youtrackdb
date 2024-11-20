@@ -29,6 +29,7 @@ import org.junit.Test;
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class OEqualsCompareOperatorTest {
+
   @Test
   public void test() {
     OEqualsCompareOperator op = new OEqualsCompareOperator(-1);

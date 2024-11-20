@@ -34,8 +34,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.Assert;
 
-/** Insert records concurrently against the cluster */
+/**
+ * Insert records concurrently against the cluster
+ */
 public abstract class AbstractDistributedWriteTest extends AbstractServerClusterTest {
+
   protected final int delayWriter = 0;
   protected int writerCount = 5;
   protected volatile int count = 100;
@@ -45,6 +48,7 @@ public abstract class AbstractDistributedWriteTest extends AbstractServerCluster
   // OPartitionedDatabasePoolFactory();
 
   class Writer implements Callable<Void> {
+
     private final int serverId;
     private final int threadId;
 
@@ -60,7 +64,7 @@ public abstract class AbstractDistributedWriteTest extends AbstractServerCluster
         final ODatabaseDocumentInternal database = getDatabase(serverId);
 
         try {
-          if ((i + 1) % 100 == 0)
+          if ((i + 1) % 100 == 0) {
             System.out.println(
                 "\nWriter "
                     + threadId
@@ -71,13 +75,16 @@ public abstract class AbstractDistributedWriteTest extends AbstractServerCluster
                     + "/"
                     + count
                     + " records so far");
+          }
 
           final ODocument person = createRecord(database, i);
           updateRecord(database, i);
           checkRecord(database, i);
           checkIndex(database, person.field("name"), person.getIdentity());
 
-          if (delayWriter > 0) Thread.sleep(delayWriter);
+          if (delayWriter > 0) {
+            Thread.sleep(delayWriter);
+          }
 
         } catch (InterruptedException e) {
           System.out.println("Writer received interrupt (db=" + database.getURL());
@@ -150,11 +157,12 @@ public abstract class AbstractDistributedWriteTest extends AbstractServerCluster
           database.query(
               new OSQLSynchQuery<ODocument>(
                   "select from Person where name = 'Billy" + uniqueId + "'"));
-      if (result.size() == 0)
+      if (result.size() == 0) {
         Assert.assertTrue("No record found with name = 'Billy" + uniqueId + "'!", false);
-      else if (result.size() > 1)
+      } else if (result.size() > 1) {
         Assert.assertTrue(
             result.size() + " records found with name = 'Billy" + uniqueId + "'!", false);
+      }
 
       return result.get(0);
     }

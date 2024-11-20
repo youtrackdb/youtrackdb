@@ -10,6 +10,7 @@ import org.junit.Test;
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class OOptimizeDatabaseExecutionTest extends BaseMemoryDatabase {
+
   @Test
   public void test() {
     OSchema schema = db.getMetadata().getSchema();

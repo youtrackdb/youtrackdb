@@ -5,8 +5,11 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OProjection;
 
-/** Created by luigidellaquila on 12/07/16. */
+/**
+ * Created by luigidellaquila on 12/07/16.
+ */
 public class ProjectionCalculationStep extends AbstractExecutionStep {
+
   protected final OProjection projection;
 
   public ProjectionCalculationStep(

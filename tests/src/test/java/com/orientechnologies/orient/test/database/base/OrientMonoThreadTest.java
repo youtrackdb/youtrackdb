@@ -21,6 +21,7 @@ import org.testng.annotations.Test;
 
 @Test(enabled = false)
 public abstract class OrientMonoThreadTest extends SpeedTestMonoThread {
+
   public OrientMonoThreadTest(int iCycles) {
     super(iCycles);
   }

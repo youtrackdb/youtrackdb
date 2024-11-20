@@ -9,8 +9,10 @@ import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.Map;
+import java.util.Objects;
 
 public class ORid extends SimpleNode {
+
   protected OInteger cluster;
   protected OInteger position;
 
@@ -97,18 +99,25 @@ public class ORid extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     ORid oRid = (ORid) o;
 
-    if (cluster != null ? !cluster.equals(oRid.cluster) : oRid.cluster != null) return false;
-    if (position != null ? !position.equals(oRid.position) : oRid.position != null) return false;
-    if (expression != null ? !expression.equals(oRid.expression) : oRid.expression != null)
+    if (!Objects.equals(cluster, oRid.cluster)) {
       return false;
-    if (legacy != oRid.legacy) return false;
-
-    return true;
+    }
+    if (!Objects.equals(position, oRid.position)) {
+      return false;
+    }
+    if (!Objects.equals(expression, oRid.expression)) {
+      return false;
+    }
+    return legacy == oRid.legacy;
   }
 
   @Override

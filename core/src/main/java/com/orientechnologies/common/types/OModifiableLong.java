@@ -20,6 +20,7 @@
 package com.orientechnologies.common.types;
 
 public class OModifiableLong extends Number implements Comparable<OModifiableLong> {
+
   public long value;
 
   public OModifiableLong() {

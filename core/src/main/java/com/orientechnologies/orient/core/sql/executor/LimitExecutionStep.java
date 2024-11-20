@@ -5,8 +5,11 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OLimit;
 
-/** Created by luigidellaquila on 08/07/16. */
+/**
+ * Created by luigidellaquila on 08/07/16.
+ */
 public class LimitExecutionStep extends AbstractExecutionStep {
+
   private final OLimit limit;
 
   public LimitExecutionStep(OLimit limit, OCommandContext ctx, boolean profilingEnabled) {

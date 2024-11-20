@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public class OHashToken {
 
-  private byte[] binaryToken;
+  private final byte[] binaryToken;
 
   public OHashToken(byte[] binaryToken) {
     this.binaryToken = binaryToken;
@@ -17,8 +17,12 @@ public class OHashToken {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (!(obj instanceof OHashToken)) return false;
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof OHashToken)) {
+      return false;
+    }
     return Arrays.equals(this.binaryToken, ((OHashToken) obj).binaryToken);
   }
 }

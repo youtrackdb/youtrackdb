@@ -2,10 +2,8 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMap;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMultiValue;
+import com.orientechnologies.orient.core.db.record.OMap;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
@@ -62,7 +60,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
     return OExecutionStream.resultIterator(stream.iterator());
   }
 
-  private Stream<? extends OResult> findMatching(Set<ORID> rids, ORecord record) {
+  private static Stream<? extends OResult> findMatching(Set<ORID> rids, ORecord record) {
     OResultInternal rec = new OResultInternal(record);
     List<OResult> results = new ArrayList<>();
     for (ORID rid : rids) {
@@ -98,7 +96,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
             targetClusterNames.add(clusterName);
           }
         }
-        OSchema schema = ((ODatabaseSessionInternal) db).getMetadata().getImmutableSchemaSnapshot();
+        OSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
         assert this.classes != null;
         for (OIdentifier className : this.classes) {
           OClass clazz = schema.getClass(className.getStringValue());
@@ -113,10 +111,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
     }
 
     return targetClusterNames.stream()
-        .map(
-            clusterName ->
-                new ORecordIteratorCluster<>(
-                    (ODatabaseSessionInternal) db, db.getClusterIdByName(clusterName)))
+        .map(clusterName -> new ORecordIteratorCluster<>(db, db.getClusterIdByName(clusterName)))
         .collect(Collectors.toList());
   }
 
@@ -164,12 +159,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
       final Collection<?> values,
       final ORecord iRootObject,
       String prefix) {
-    final Iterator<?> it;
-    if (values instanceof ORecordLazyMultiValue) {
-      it = ((ORecordLazyMultiValue) values).rawIterator();
-    } else {
-      it = values.iterator();
-    }
+    final Iterator<?> it = values.iterator();
     List<String> result = new ArrayList<>();
     while (it.hasNext()) {
       result.addAll(checkObject(iSourceRIDs, it.next(), iRootObject, prefix));
@@ -183,8 +173,8 @@ public class FindReferencesStep extends AbstractExecutionStep {
       final ORecord iRootObject,
       String prefix) {
     final Iterator<?> it;
-    if (values instanceof ORecordLazyMap) {
-      it = ((ORecordLazyMap) values).rawIterator();
+    if (values instanceof OMap) {
+      it = ((OMap) values).rawIterator();
     } else {
       it = values.values().iterator();
     }

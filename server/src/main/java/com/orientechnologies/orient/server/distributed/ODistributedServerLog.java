@@ -28,6 +28,7 @@ import javax.annotation.Nonnull;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ODistributedServerLog {
+
   public enum DIRECTION {
     NONE,
     IN,

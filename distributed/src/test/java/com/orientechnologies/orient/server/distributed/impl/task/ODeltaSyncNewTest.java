@@ -15,7 +15,7 @@ public class ODeltaSyncNewTest {
   @Test
   public void testSerializationDeserialization() throws IOException {
     OTransactionSequenceStatus state =
-        new OTransactionSequenceStatus(new long[] {1, 2, 3, 4, 5, 6});
+        new OTransactionSequenceStatus(new long[]{1, 2, 3, 4, 5, 6});
     OSyncDatabaseNewDeltaTask task = new OSyncDatabaseNewDeltaTask(state);
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     task.toStream(new DataOutputStream(outputStream));

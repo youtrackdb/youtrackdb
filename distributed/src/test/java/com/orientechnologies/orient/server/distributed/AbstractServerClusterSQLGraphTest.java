@@ -37,10 +37,13 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 import junit.framework.Assert;
 
-/** Test distributed TX */
+/**
+ * Test distributed TX
+ */
 public abstract class AbstractServerClusterSQLGraphTest extends AbstractServerClusterInsertTest {
 
   class TxWriter implements Callable<Void> {
+
     private final int serverId;
     private final int threadId;
 
@@ -64,7 +67,7 @@ public abstract class AbstractServerClusterSQLGraphTest extends AbstractServerCl
         for (int i = 0; i < count; i += 2) {
           final ODatabaseDocument graph = pool.acquire();
           try {
-            if ((i + 1) % 100 == 0)
+            if ((i + 1) % 100 == 0) {
               System.out.println(
                   "\nWriter "
                       + graph.getURL()
@@ -73,6 +76,7 @@ public abstract class AbstractServerClusterSQLGraphTest extends AbstractServerCl
                       + "/"
                       + count
                       + " vertices so far");
+            }
 
             try {
               OVertex person1 = createVertex(graph, serverId, threadId, i);
@@ -97,7 +101,9 @@ public abstract class AbstractServerClusterSQLGraphTest extends AbstractServerCl
               throw e;
             }
 
-            if (delayWriter > 0) Thread.sleep(delayWriter);
+            if (delayWriter > 0) {
+              Thread.sleep(delayWriter);
+            }
 
           } catch (InterruptedException e) {
             System.out.println("Writer received interrupt (db=" + graph.getURL());
@@ -122,7 +128,8 @@ public abstract class AbstractServerClusterSQLGraphTest extends AbstractServerCl
     }
   }
 
-  protected void onAfterExecution() {}
+  protected void onAfterExecution() {
+  }
 
   @Override
   protected void onAfterDatabaseCreation(final ODatabaseDocument graph) {
@@ -165,11 +172,11 @@ public abstract class AbstractServerClusterSQLGraphTest extends AbstractServerCl
                 + uniqueId
                 + "', 'birthday': '"
                 + ODatabaseRecordThreadLocal.instance()
-                    .get()
-                    .getStorage()
-                    .getConfiguration()
-                    .getDateFormatInstance()
-                    .format(new Date())
+                .get()
+                .getStorage()
+                .getConfiguration()
+                .getDateFormatInstance()
+                .format(new Date())
                 + "', 'children': '"
                 + uniqueId
                 + "'}")) {

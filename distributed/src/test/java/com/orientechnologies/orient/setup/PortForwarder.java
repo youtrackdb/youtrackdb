@@ -22,6 +22,7 @@ import java.net.ServerSocket;
  * cluster is setup and runs.
  */
 public class PortForwarder {
+
   public static int MAX_PORT_FORWARD_RETRY = 5;
   public static int PORT_FORWARD_RETRY_INTERVAL_SECONDS = 5;
   public static int PORT_FORWARD_TIMEOUT_SECONDS = 10;
@@ -59,6 +60,7 @@ public class PortForwarder {
   }
 
   private class KubectlPortForwarder {
+
     private Process process;
 
     public int start() throws IOException {

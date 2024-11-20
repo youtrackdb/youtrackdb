@@ -24,8 +24,8 @@ import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.OStringCache;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.OMap;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMap;
 import com.orientechnologies.orient.core.db.record.OTrackedMultiValue;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBagDelegate;
@@ -39,7 +39,6 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OGlobalProperty;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -54,6 +53,7 @@ import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeRidBag;
 import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
@@ -174,11 +174,7 @@ public class HelperClasses {
   }
 
   public static String stringFromBytes(final byte[] bytes, final int offset, final int len) {
-    try {
-      return new String(bytes, offset, len, CHARSET_UTF_8);
-    } catch (UnsupportedEncodingException e) {
-      throw OException.wrapException(new OSerializationException("Error on string decoding"), e);
-    }
+    return new String(bytes, offset, len, StandardCharsets.UTF_8);
   }
 
   public static String stringFromBytesIntern(final byte[] bytes, final int offset, final int len) {
@@ -193,18 +189,14 @@ public class HelperClasses {
           }
         }
       }
-      return new String(bytes, offset, len, CHARSET_UTF_8).intern();
+      return new String(bytes, offset, len, StandardCharsets.UTF_8).intern();
     } catch (UnsupportedEncodingException e) {
       throw OException.wrapException(new OSerializationException("Error on string decoding"), e);
     }
   }
 
   public static byte[] bytesFromString(final String toWrite) {
-    try {
-      return toWrite.getBytes(CHARSET_UTF_8);
-    } catch (UnsupportedEncodingException e) {
-      throw OException.wrapException(new OSerializationException("Error on string encoding"), e);
-    }
+    return toWrite.getBytes(StandardCharsets.UTF_8);
   }
 
   public static long convertDayToTimezone(TimeZone from, TimeZone to, long time) {
@@ -238,10 +230,7 @@ public class HelperClasses {
   public static int writeOptimizedLink(final BytesContainer bytes, OIdentifiable link) {
     if (!link.getIdentity().isPersistent()) {
       try {
-        final ORecord real = link.getRecord();
-        if (real != null) {
-          link = real;
-        }
+        link = link.getRecord();
       } catch (ORecordNotFoundException ignored) {
         // IGNORE IT WILL FAIL THE ASSERT IN CASE
       }
@@ -327,9 +316,9 @@ public class HelperClasses {
   public static Map<Object, OIdentifiable> readLinkMap(
       final BytesContainer bytes, final ORecordElement owner, boolean justRunThrough) {
     int size = OVarIntSerializer.readAsInteger(bytes);
-    ORecordLazyMap result = null;
+    OMap result = null;
     if (!justRunThrough) {
-      result = new ORecordLazyMap(owner);
+      result = new OMap(owner);
     }
     while ((size--) > 0) {
       final String key = readString(bytes);
@@ -389,8 +378,7 @@ public class HelperClasses {
     Object[] entries = ((OEmbeddedRidBag) ridbag.getDelegate()).getEntries();
     for (int i = 0; i < entries.length; i++) {
       Object entry = entries[i];
-      if (entry instanceof OIdentifiable) {
-        OIdentifiable itemValue = (OIdentifiable) entry;
+      if (entry instanceof OIdentifiable itemValue) {
         if (db != null
             && !db.isClosed()
             && db.getTransaction().isActive()
@@ -509,7 +497,7 @@ public class HelperClasses {
       ridbag.getDelegate().setSize(size);
       for (int i = 0; i < size; i++) {
         OIdentifiable record = readLinkOptimizedEmbedded(bytes);
-        ((ORidBagDelegate) ridbag.getDelegate()).addInternal(record);
+        ridbag.getDelegate().addInternal(record);
       }
     } else {
       long fileId = OVarIntSerializer.readAsLong(bytes);
@@ -544,7 +532,11 @@ public class HelperClasses {
         new ORecordId(OVarIntSerializer.readAsInteger(bytes), OVarIntSerializer.readAsLong(bytes));
     OIdentifiable identifiable = null;
     if (rid.isTemporary()) {
-      identifiable = rid.getRecord();
+      try {
+        identifiable = rid.getRecord();
+      } catch (ORecordNotFoundException rnf) {
+        identifiable = rid;
+      }
     }
 
     if (identifiable == null) {
@@ -557,9 +549,13 @@ public class HelperClasses {
   private static OIdentifiable readLinkOptimizedSBTree(final BytesContainer bytes) {
     ORID rid =
         new ORecordId(OVarIntSerializer.readAsInteger(bytes), OVarIntSerializer.readAsLong(bytes));
-    final OIdentifiable identifiable;
-    if (rid.isTemporary() && rid.getRecord() != null) {
-      identifiable = rid.getRecord();
+    OIdentifiable identifiable;
+    if (rid.isTemporary()) {
+      try {
+        identifiable = rid.getRecord();
+      } catch (ORecordNotFoundException rnf) {
+        identifiable = rid;
+      }
     } else {
       identifiable = rid;
     }

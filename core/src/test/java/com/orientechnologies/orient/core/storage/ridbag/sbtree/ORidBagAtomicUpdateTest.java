@@ -941,7 +941,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     var th =
         new Thread(
             () -> {
-              try (var session = ((ODatabaseSessionInternal) db).copy()) {
+              try (var session = db.copy()) {
                 session.activateOnCurrentThread();
                 session.begin();
                 ODocument cmeDocument = session.load(rid);
@@ -988,7 +988,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     document = db.bindToSession(document);
     ridBag = document.field("ridBag");
     Assert.assertEquals(docsToAdd.size(), 10);
-    Assert.assertTrue(!ridBag.isEmbedded());
+    Assert.assertFalse(ridBag.isEmbedded());
 
     document = db.load(document.getIdentity());
 
@@ -1008,7 +1008,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     document = db.load(document.getIdentity());
     ridBag = document.field("ridBag");
 
-    Assert.assertTrue(!ridBag.isEmbedded());
+    Assert.assertFalse(ridBag.isEmbedded());
 
     for (OIdentifiable identifiable : ridBag) {
       Assert.assertTrue(docsToAdd.remove(identifiable));
@@ -1053,7 +1053,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     db.commit();
 
     Assert.assertEquals(docsToAdd.size(), 10);
-    Assert.assertTrue(!ridBag.isEmbedded());
+    Assert.assertFalse(ridBag.isEmbedded());
 
     document = db.load(document.getIdentity());
     document.field("ridBag");
@@ -1084,7 +1084,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     document = db.load(document.getIdentity());
     ridBag = document.field("ridBag");
 
-    Assert.assertTrue(!ridBag.isEmbedded());
+    Assert.assertFalse(ridBag.isEmbedded());
 
     for (OIdentifiable identifiable : ridBag) {
       Assert.assertTrue(docsToAdd.remove(identifiable));
@@ -1236,11 +1236,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
       if (level != levelKey.level) {
         return false;
       }
-      if (!rid.equals(levelKey.rid)) {
-        return false;
-      }
-
-      return true;
+      return rid.equals(levelKey.rid);
     }
 
     @Override

@@ -4,7 +4,9 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 
-/** Created by luigidellaquila on 23/03/15. */
+/**
+ * Created by luigidellaquila on 23/03/15.
+ */
 public class OLocalLiveResultListener implements OLiveResultListener, OCommandResultListener {
 
   private final OLiveResultListener underlying;

@@ -442,21 +442,21 @@ public class OMessageHelper {
       OResult row, OChannelDataOutput channel, ORecordSerializer recordSerializer)
       throws IOException {
     channel.writeByte(OQueryResponse.RECORD_TYPE_VERTEX);
-    writeDocument(channel, (ODocument) row.getElement().get().getRecord(), recordSerializer);
+    writeDocument(channel, row.getElement().get().getRecord(), recordSerializer);
   }
 
   private static void writeElement(
       OResult row, OChannelDataOutput channel, ORecordSerializer recordSerializer)
       throws IOException {
     channel.writeByte(OQueryResponse.RECORD_TYPE_ELEMENT);
-    writeDocument(channel, (ODocument) row.getElement().get().getRecord(), recordSerializer);
+    writeDocument(channel, row.getElement().get().getRecord(), recordSerializer);
   }
 
   private static void writeEdge(
       OResult row, OChannelDataOutput channel, ORecordSerializer recordSerializer)
       throws IOException {
     channel.writeByte(OQueryResponse.RECORD_TYPE_EDGE);
-    writeDocument(channel, (ODocument) row.getElement().get().getRecord(), recordSerializer);
+    writeDocument(channel, row.getElement().get().getRecord(), recordSerializer);
   }
 
   private static void writeDocument(

@@ -10,9 +10,9 @@ import java.util.Optional;
 
 public class OIndexCandidateImpl implements OIndexCandidate {
 
-  private String name;
+  private final String name;
   private Operation operation;
-  private OProperty property;
+  private final OProperty property;
 
   public OIndexCandidateImpl(String name, Operation operation, OProperty prop) {
     this.name = name;

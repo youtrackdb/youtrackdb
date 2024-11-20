@@ -22,7 +22,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-/** Created by tglman on 09/06/16. */
+/**
+ * Created by tglman on 09/06/16.
+ */
 public class OStorageRemoteAsyncOperationTest {
 
   private OStorageRemote storage;
@@ -34,6 +36,7 @@ public class OStorageRemoteAsyncOperationTest {
   @Mock private OStorageRemoteNodeSession nodeSession;
 
   private class CallStatus {
+
     public String status;
   }
 
@@ -246,7 +249,9 @@ public class OStorageRemoteAsyncOperationTest {
               public void read(OChannelDataInput network, OStorageRemoteSession session)
                   throws IOException {
                 try {
-                  if (callBackWait.await(10, TimeUnit.MILLISECONDS)) readDone.countDown();
+                  if (callBackWait.await(10, TimeUnit.MILLISECONDS)) {
+                    readDone.countDown();
+                  }
                 } catch (InterruptedException e) {
                   e.printStackTrace();
                 }
@@ -273,8 +278,12 @@ public class OStorageRemoteAsyncOperationTest {
     callBackWait.countDown();
 
     boolean called = readDone.await(200, TimeUnit.MILLISECONDS);
-    if (!called) fail("Read not called");
+    if (!called) {
+      fail("Read not called");
+    }
     called = callBackDone.await(200, TimeUnit.MILLISECONDS);
-    if (!called) fail("Callback not called");
+    if (!called) {
+      fail("Callback not called");
+    }
   }
 }

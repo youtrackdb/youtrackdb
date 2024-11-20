@@ -20,7 +20,9 @@ import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-/** Created by luigidellaquila on 15/06/17. */
+/**
+ * Created by luigidellaquila on 15/06/17.
+ */
 public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
 
   public static final String BEFORE_METADATA_KEY = "$$before$$";
@@ -33,7 +35,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
 
   private final Map<Object, Object> params;
 
-  private int token;
+  private final int token;
   private static final Random random = new Random();
 
   public LiveQueryListenerImpl(
@@ -183,10 +185,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
         return false;
       } else if (!(className.equalsIgnoreCase(recordClassName))) {
         OClass recordClass =
-            ((ODatabaseSessionInternal) this.execDb)
-                .getMetadata()
-                .getImmutableSchemaSnapshot()
-                .getClass(recordClassName);
+            this.execDb.getMetadata().getImmutableSchemaSnapshot().getClass(recordClassName);
         if (recordClass == null) {
           return false;
         }

@@ -17,8 +17,11 @@ import com.orientechnologies.orient.core.sql.parser.OInsertSetExpression;
 import java.util.Iterator;
 import java.util.List;
 
-/** Created by luigidellaquila on 20/03/17. */
+/**
+ * Created by luigidellaquila on 20/03/17.
+ */
 public class InsertIntoIndexStep extends AbstractExecutionStep {
+
   private final OIndexIdentifier targetIndex;
   private final OInsertBody body;
 
@@ -42,7 +45,7 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
   }
 
   private OResultInternal produce(OCommandContext ctx) {
-    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) ctx.getDatabase();
+    final ODatabaseSessionInternal database = ctx.getDatabase();
     OIndex index =
         database
             .getMetadata()

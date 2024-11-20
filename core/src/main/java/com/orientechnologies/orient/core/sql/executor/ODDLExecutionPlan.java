@@ -14,7 +14,7 @@ import java.util.List;
 public class ODDLExecutionPlan implements OInternalExecutionPlan {
 
   private final ODDLStatement statement;
-  private OCommandContext ctx;
+  private final OCommandContext ctx;
 
   private boolean executed = false;
 
@@ -69,12 +69,8 @@ public class ODDLExecutionPlan implements OInternalExecutionPlan {
   @Override
   public String prettyPrint(int depth, int indent) {
     String spaces = OExecutionStepInternal.getIndent(depth, indent);
-    StringBuilder result = new StringBuilder();
-    result.append(spaces);
-    result.append("+ DDL\n");
-    result.append("  ");
-    result.append(statement.toString());
-    return result.toString();
+    String result = spaces + "+ DDL\n" + "  " + statement.toString();
+    return result;
   }
 
   @Override

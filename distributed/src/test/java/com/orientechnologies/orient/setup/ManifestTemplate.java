@@ -7,6 +7,7 @@ import java.util.Map;
 import org.apache.commons.text.StringSubstitutor;
 
 public class ManifestTemplate {
+
   // list of keys used in the manifest templates.
   public static final String ORIENTDB_NODE_NAME = "orientdbNodeName";
   public static final String ORIENTDB_DB_VOL_SIZE = "databaseVolSize";

@@ -37,7 +37,9 @@ import org.locationtech.spatial4j.context.jts.JtsSpatialContext;
 import org.locationtech.spatial4j.shape.Shape;
 import org.locationtech.spatial4j.shape.jts.JtsGeometry;
 
-/** Created by Enrico Risa on 07/08/15. */
+/**
+ * Created by Enrico Risa on 07/08/15.
+ */
 public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
 
   protected static final String LINESTRINGWKT =

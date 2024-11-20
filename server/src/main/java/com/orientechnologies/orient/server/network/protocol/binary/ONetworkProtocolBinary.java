@@ -100,7 +100,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
   private long requests = 0;
   private HandshakeInfo handshakeInfo;
   private volatile OBinaryPushResponse expectedPushResponse;
-  private BlockingQueue<OBinaryPushResponse> pushResponse =
+  private final BlockingQueue<OBinaryPushResponse> pushResponse =
       new SynchronousQueue<OBinaryPushResponse>();
 
   private Function<Integer, OBinaryRequest<? extends OBinaryResponse>> factory =
@@ -1036,7 +1036,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
   }
 
   public String getRemoteAddress() {
-    final Socket socket = getChannel().socket;
+    final Socket socket = channel.socket;
     if (socket != null) {
       final InetSocketAddress remoteAddress = (InetSocketAddress) socket.getRemoteSocketAddress();
       return remoteAddress.getAddress().getHostAddress() + ":" + remoteAddress.getPort();

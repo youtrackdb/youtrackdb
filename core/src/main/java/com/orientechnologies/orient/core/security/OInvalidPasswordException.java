@@ -30,6 +30,7 @@ import com.orientechnologies.orient.core.exception.OSecurityException;
  */
 @SuppressWarnings("serial")
 public class OInvalidPasswordException extends OSecurityException {
+
   public OInvalidPasswordException(OInvalidPasswordException exception) {
     super(exception);
   }

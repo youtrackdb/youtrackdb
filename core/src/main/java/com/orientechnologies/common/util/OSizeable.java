@@ -20,7 +20,10 @@
 
 package com.orientechnologies.common.util;
 
-/** Interface that support size() */
+/**
+ * Interface that support size()
+ */
 public interface OSizeable {
+
   int size();
 }

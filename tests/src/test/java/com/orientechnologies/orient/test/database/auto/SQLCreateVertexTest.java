@@ -53,7 +53,7 @@ public class SQLCreateVertexTest extends DocumentDBBaseTest {
     List<String> resultMessages = new ArrayList<String>();
 
     for (OResult document : result) {
-      resultMessages.add(document.<String>getProperty("message"));
+      resultMessages.add(document.getProperty("message"));
     }
 
     //    issue #1787, works fine locally, not on CI

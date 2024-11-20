@@ -28,6 +28,7 @@ import java.util.List;
 
 @XmlRootElement(name = "security")
 public class OServerSecurityConfiguration {
+
   @XmlElementWrapper
   @XmlAnyElement
   @XmlElementRef(type = OServerUserConfiguration.class)

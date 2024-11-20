@@ -5,6 +5,7 @@ import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordInternal;
@@ -21,8 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OTransactionData {
-  private OTransactionId transactionId;
-  private List<OTransactionDataChange> changes = new ArrayList<>();
+
+  private final OTransactionId transactionId;
+  private final List<OTransactionDataChange> changes = new ArrayList<>();
 
   public OTransactionData(OTransactionId transactionId) {
     this.transactionId = transactionId;
@@ -89,10 +91,12 @@ public class OTransactionData {
                     case ORecordOperation.UPDATED:
                       {
                         if (x.getRecordType() == ODocument.RECORD_TYPE) {
-                          record = database.load(x.getId());
-                          if (record == null) {
+                          try {
+                            record = database.load(x.getId());
+                          } catch (ORecordNotFoundException rnf) {
                             record = new ODocument();
                           }
+
                           ((ODocument) record).deserializeFields();
                           ODocumentInternal.clearTransactionTrackData((ODocument) record);
                           ODocumentSerializerDelta.instance()
@@ -110,8 +114,9 @@ public class OTransactionData {
                       }
                     case ORecordOperation.DELETED:
                       {
-                        record = database.load(x.getId());
-                        if (record == null) {
+                        try {
+                          record = database.load(x.getId());
+                        } catch (ORecordNotFoundException rnf) {
                           record =
                               Orient.instance()
                                   .getRecordFactoryManager()

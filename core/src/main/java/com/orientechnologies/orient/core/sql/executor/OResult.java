@@ -18,7 +18,9 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 
-/** Created by luigidellaquila on 21/07/16. */
+/**
+ * Created by luigidellaquila on 21/07/16.
+ */
 public interface OResult {
 
   /**
@@ -27,8 +29,8 @@ public interface OResult {
    * @param name the property name
    * @param <T>
    * @return the property value. If the property value is a persistent record, it only returns the
-   *     RID. See also {@link #getElementProperty(String)} {@link #getVertexProperty(String)} {@link
-   *     #getEdgeProperty(String)} {@link #getBlobProperty(String)}
+   * RID. See also {@link #getElementProperty(String)} {@link #getVertexProperty(String)}
+   * {@link #getEdgeProperty(String)} {@link #getBlobProperty(String)}
    */
   <T> T getProperty(String name);
 
@@ -201,11 +203,10 @@ public interface OResult {
       }
       builder.append("]");
       jsonVal = builder.toString();
-    } else if (val instanceof Iterator) {
+    } else if (val instanceof Iterator iterator) {
       StringBuilder builder = new StringBuilder();
       builder.append("[");
       boolean first = true;
-      Iterator iterator = (Iterator) val;
       while (iterator.hasNext()) {
         if (!first) {
           builder.append(", ");

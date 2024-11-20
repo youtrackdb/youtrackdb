@@ -25,8 +25,8 @@ import java.util.List;
 /**
  * ResultSet interface that extends List interface for retro compatibility.
  *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @param <T>
+ * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @see OSQLAsynchQuery
  */
 public interface OLegacyResultSet<T> extends List<T>, Externalizable {

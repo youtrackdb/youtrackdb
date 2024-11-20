@@ -3,8 +3,10 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class OPermission extends SimpleNode {
+
   protected String permission;
 
   public OPermission(int id) {
@@ -34,15 +36,16 @@ public class OPermission extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OPermission that = (OPermission) o;
 
-    if (permission != null ? !permission.equals(that.permission) : that.permission != null)
-      return false;
-
-    return true;
+    return Objects.equals(permission, that.permission);
   }
 
   @Override

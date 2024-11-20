@@ -32,6 +32,7 @@ import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OQueryOperatorNot extends OQueryOperator {
+
   private OQueryOperator next;
 
   public OQueryOperatorNot() {
@@ -53,11 +54,14 @@ public class OQueryOperatorNot extends OQueryOperator {
       final Object iRight,
       OCommandContext iContext,
       final ODocumentSerializer serializer) {
-    if (next != null)
+    if (next != null) {
       return !(Boolean)
           next.evaluateRecord(iRecord, null, iCondition, iLeft, iRight, iContext, serializer);
+    }
 
-    if (iLeft == null) return false;
+    if (iLeft == null) {
+      return false;
+    }
     return !(Boolean) iLeft;
   }
 
@@ -72,10 +76,15 @@ public class OQueryOperatorNot extends OQueryOperator {
       final ORID beginRange = ((OSQLFilterCondition) iLeft).getBeginRidRange();
       final ORID endRange = ((OSQLFilterCondition) iLeft).getEndRidRange();
 
-      if (beginRange == null && endRange == null) return null;
-      else if (beginRange == null) return endRange;
-      else if (endRange == null) return null;
-      else return null;
+      if (beginRange == null && endRange == null) {
+        return null;
+      } else if (beginRange == null) {
+        return endRange;
+      } else if (endRange == null) {
+        return null;
+      } else {
+        return null;
+      }
     }
 
     return null;
@@ -87,10 +96,15 @@ public class OQueryOperatorNot extends OQueryOperator {
       final ORID beginRange = ((OSQLFilterCondition) iLeft).getBeginRidRange();
       final ORID endRange = ((OSQLFilterCondition) iLeft).getEndRidRange();
 
-      if (beginRange == null && endRange == null) return null;
-      else if (beginRange == null) return null;
-      else if (endRange == null) return beginRange;
-      else return null;
+      if (beginRange == null && endRange == null) {
+        return null;
+      } else if (beginRange == null) {
+        return null;
+      } else if (endRange == null) {
+        return beginRange;
+      } else {
+        return null;
+      }
     }
 
     return null;

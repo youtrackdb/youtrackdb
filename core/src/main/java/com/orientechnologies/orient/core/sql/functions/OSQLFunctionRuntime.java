@@ -26,6 +26,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandExecutorNotFoundException;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
@@ -105,7 +106,7 @@ public class OSQLFunctionRuntime extends OSQLFilterItemAbstract {
           final OSQLPredicate pred = new OSQLPredicate(text);
           runtimeParameters[i] =
               pred.evaluate(
-                  iCurrentRecord instanceof ORecord ? (ORecord) iCurrentRecord : null,
+                  iCurrentRecord instanceof ORecord ? iCurrentRecord : null,
                   (ODocument) iCurrentResult,
                   iContext);
           // REPLACE ORIGINAL PARAM
@@ -162,8 +163,12 @@ public class OSQLFunctionRuntime extends OSQLFilterItemAbstract {
   @Override
   public Object getValue(
       final OIdentifiable iRecord, Object iCurrentResult, OCommandContext iContext) {
-    final ODocument current = iRecord != null ? (ODocument) iRecord.getRecord() : null;
-    return execute(current, current, null, iContext);
+    try {
+      final ODocument current = iRecord != null ? (ODocument) iRecord.getRecord() : null;
+      return execute(current, current, null, iContext);
+    } catch (ORecordNotFoundException rnf) {
+      return null;
+    }
   }
 
   @Override
@@ -181,8 +186,7 @@ public class OSQLFunctionRuntime extends OSQLFilterItemAbstract {
           if (iParameters[i] instanceof String) {
             final Object v = OSQLHelper.parseValue(null, null, iParameters[i].toString(), null);
             if (v == OSQLHelper.VALUE_NOT_PARSED
-                || (v != null
-                    && OMultiValue.isMultiValue(v)
+                || (OMultiValue.isMultiValue(v)
                     && OMultiValue.getFirstValue(v) == OSQLHelper.VALUE_NOT_PARSED)) {
               continue;
             }

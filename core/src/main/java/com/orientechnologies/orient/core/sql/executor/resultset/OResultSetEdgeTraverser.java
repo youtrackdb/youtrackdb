@@ -5,6 +5,7 @@ import com.orientechnologies.orient.core.sql.executor.MatchEdgeTraverser;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 
 public final class OResultSetEdgeTraverser implements OExecutionStream {
+
   private final MatchEdgeTraverser trav;
   private OResult nextResult;
 

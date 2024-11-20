@@ -7,6 +7,7 @@ import java.text.Collator;
 import org.apache.commons.lang.ArrayUtils;
 
 public class StringKeyNormalizer implements KeyNormalizers {
+
   private final Collator instance = Collator.getInstance();
 
   @Override

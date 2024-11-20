@@ -27,7 +27,9 @@ import org.apache.lucene.spatial.prefix.RecursivePrefixTreeStrategy;
 import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
 import org.locationtech.spatial4j.context.SpatialContext;
 
-/** Created by Enrico Risa on 02/10/15. */
+/**
+ * Created by Enrico Risa on 02/10/15.
+ */
 public class OSpatialStrategyFactory {
 
   private final OShapeBuilder factory;

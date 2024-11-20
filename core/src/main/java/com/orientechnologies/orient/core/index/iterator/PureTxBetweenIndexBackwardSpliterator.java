@@ -10,7 +10,10 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 
 public class PureTxBetweenIndexBackwardSpliterator implements Spliterator<ORawPair<Object, ORID>> {
-  /** */
+
+  /**
+   *
+   */
   private final OIndexOneValue oIndexTxAwareOneValue;
 
   private final OTransactionIndexChanges indexChanges;
@@ -56,8 +59,9 @@ public class PureTxBetweenIndexBackwardSpliterator implements Spliterator<ORawPa
       result = this.oIndexTxAwareOneValue.calculateTxIndexEntry(nextKey, null, indexChanges);
       nextKey = indexChanges.getLowerKey(nextKey);
 
-      if (nextKey != null && ODefaultComparator.INSTANCE.compare(nextKey, firstKey) < 0)
+      if (nextKey != null && ODefaultComparator.INSTANCE.compare(nextKey, firstKey) < 0) {
         nextKey = null;
+      }
     } while (result == null && nextKey != null);
 
     if (result == null) {

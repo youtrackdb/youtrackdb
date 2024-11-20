@@ -11,6 +11,7 @@ import com.orientechnologies.orient.core.sql.executor.metadata.OPath;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -146,10 +147,7 @@ public class OContainsTextCondition extends OBooleanExpression {
     if (!left.needsAliases(aliases)) {
       return true;
     }
-    if (!right.needsAliases(aliases)) {
-      return true;
-    }
-    return false;
+    return !right.needsAliases(aliases);
   }
 
   @Override
@@ -173,15 +171,19 @@ public class OContainsTextCondition extends OBooleanExpression {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OContainsTextCondition that = (OContainsTextCondition) o;
 
-    if (left != null ? !left.equals(that.left) : that.left != null) return false;
-    if (right != null ? !right.equals(that.right) : that.right != null) return false;
-
-    return true;
+    if (!Objects.equals(left, that.left)) {
+      return false;
+    }
+    return Objects.equals(right, that.right);
   }
 
   @Override
@@ -212,10 +214,7 @@ public class OContainsTextCondition extends OBooleanExpression {
     if (left != null && !left.isCacheable()) {
       return false;
     }
-    if (right != null && !right.isCacheable()) {
-      return false;
-    }
-    return true;
+    return right == null || right.isCacheable();
   }
 
   public void setLeft(OExpression left) {
@@ -250,17 +249,15 @@ public class OContainsTextCondition extends OBooleanExpression {
   public boolean isFullTextIndexAware(String indexField) {
     if (left.isBaseIdentifier()) {
       String fieldName = left.getDefaultAlias().getStringValue();
-      if (indexField.equals(fieldName)) {
-        return true;
-      }
+      return indexField.equals(fieldName);
     }
     return false;
   }
 
   @Override
   public OExpression resolveKeyFrom(OBinaryCondition additional) {
-    if (getRight() != null) {
-      return getRight();
+    if (right != null) {
+      return right;
     } else {
       throw new UnsupportedOperationException("Cannot execute index query with " + this);
     }
@@ -268,7 +265,7 @@ public class OContainsTextCondition extends OBooleanExpression {
 
   @Override
   public OExpression resolveKeyTo(OBinaryCondition additional) {
-    return getRight();
+    return right;
   }
 }
 /* JavaCC - OriginalChecksum=b588492ba2cbd0f932055f1f64bbbecd (do not edit this line) */

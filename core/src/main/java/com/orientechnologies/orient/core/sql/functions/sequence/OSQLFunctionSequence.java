@@ -14,6 +14,7 @@ import com.orientechnologies.orient.core.sql.functions.OSQLFunctionConfigurableA
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionSequence extends OSQLFunctionConfigurableAbstract {
+
   public static final String NAME = "sequence";
 
   public OSQLFunctionSequence() {
@@ -31,11 +32,14 @@ public class OSQLFunctionSequence extends OSQLFunctionConfigurableAbstract {
     if (configuredParameters != null
         && configuredParameters.length > 0
         && configuredParameters[0] instanceof OSQLFilterItem) // old stuff
-    seqName =
+    {
+      seqName =
           (String)
               ((OSQLFilterItem) configuredParameters[0])
                   .getValue(iCurrentRecord, iCurrentResult, iContext);
-    else seqName = "" + iParams[0];
+    } else {
+      seqName = "" + iParams[0];
+    }
 
     OSequence result =
         ODatabaseRecordThreadLocal.instance()

@@ -57,8 +57,12 @@ public class OExpressionStatement extends OSimpleExecStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     OExpressionStatement that = (OExpressionStatement) o;
     return Objects.equals(expression, that.expression);
   }

@@ -63,7 +63,7 @@ public enum OAnsiCode {
 
   NULL("");
 
-  private String code;
+  private final String code;
 
   OAnsiCode(final String code) {
     this.code = code;
@@ -83,16 +83,18 @@ public enum OAnsiCode {
   static {
     final String ansiSupport = OGlobalConfiguration.LOG_SUPPORTS_ANSI.getValueAsString();
     if ("true".equalsIgnoreCase(ansiSupport))
-      // FORCE ANSI SUPPORT
+    // FORCE ANSI SUPPORT
+    {
       supportsColors = true;
-    else if ("auto".equalsIgnoreCase(ansiSupport)) {
+    } else if ("auto".equalsIgnoreCase(ansiSupport)) {
       // AUTOMATIC CHECK
-      if (System.console() != null && !System.getProperty("os.name").contains("Windows"))
-        supportsColors = true;
-      else supportsColors = false;
+      supportsColors =
+          System.console() != null && !System.getProperty("os.name").contains("Windows");
     } else
-      // DO NOT SUPPORT ANSI
+    // DO NOT SUPPORT ANSI
+    {
       supportsColors = false;
+    }
   }
 
   public static String format(final String message) {
@@ -118,8 +120,9 @@ public enum OAnsiCode {
                   final StringBuilder buffer = new StringBuilder();
 
                   final String[] codes = code.split(":");
-                  for (int i = 0; i < codes.length; ++i)
+                  for (int i = 0; i < codes.length; ++i) {
                     buffer.append(OAnsiCode.valueOf(codes[i].toUpperCase(Locale.ENGLISH)));
+                  }
 
                   if (pos > -1) {
                     buffer.append(text);

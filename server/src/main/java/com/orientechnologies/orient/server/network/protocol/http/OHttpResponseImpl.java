@@ -214,9 +214,12 @@ public class OHttpResponseImpl extends OHttpResponseAbstract {
   @Override
   public void checkConnection() throws IOException {
     final Socket socket;
-    if (getConnection().getProtocol() == null || getConnection().getProtocol().getChannel() == null)
+    if (getConnection().getProtocol() == null
+        || getConnection().getProtocol().getChannel() == null) {
       socket = null;
-    else socket = getConnection().getProtocol().getChannel().socket;
+    } else {
+      socket = getConnection().getProtocol().getChannel().socket;
+    }
     if (socket == null || socket.isClosed() || socket.isInputShutdown()) {
       OLogManager.instance()
           .debug(

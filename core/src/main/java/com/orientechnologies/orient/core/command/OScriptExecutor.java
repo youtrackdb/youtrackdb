@@ -4,14 +4,16 @@ import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.Map;
 
-/** Created by tglman on 25/01/17. */
+/**
+ * Created by tglman on 25/01/17.
+ */
 public interface OScriptExecutor {
 
   OResultSet execute(ODatabaseSessionInternal database, String script, Object... params);
 
   OResultSet execute(ODatabaseSessionInternal database, String script, Map params);
 
-  public Object executeFunction(
+  Object executeFunction(
       OCommandContext context, final String functionName, final Map<Object, Object> iArgs);
 
   void registerInterceptor(OScriptInterceptor interceptor);

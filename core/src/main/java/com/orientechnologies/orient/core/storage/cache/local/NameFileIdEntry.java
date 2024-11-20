@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.core.storage.cache.local;
 
 final class NameFileIdEntry {
+
   private final String name;
   private final int fileId;
   private final String fileSystemName;
@@ -28,20 +29,20 @@ final class NameFileIdEntry {
 
     final NameFileIdEntry that = (NameFileIdEntry) o;
 
-    if (getFileId() != that.getFileId()) {
+    if (fileId != that.fileId) {
       return false;
     }
-    if (!getName().equals(that.getName())) {
+    if (!name.equals(that.name)) {
       return false;
     }
-    return getFileSystemName().equals(that.getFileSystemName());
+    return fileSystemName.equals(that.fileSystemName);
   }
 
   @Override
   public int hashCode() {
-    int result = getName().hashCode();
-    result = 31 * result + getFileId();
-    result = 31 * result + getFileSystemName().hashCode();
+    int result = name.hashCode();
+    result = 31 * result + fileId;
+    result = 31 * result + fileSystemName.hashCode();
     return result;
   }
 

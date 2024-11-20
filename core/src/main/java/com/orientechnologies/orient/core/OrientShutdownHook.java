@@ -22,6 +22,7 @@ package com.orientechnologies.orient.core;
 import com.orientechnologies.common.log.OLogManager;
 
 public class OrientShutdownHook extends Thread {
+
   protected OrientShutdownHook() {
     try {
       Runtime.getRuntime().addShutdownHook(this);
@@ -31,7 +32,9 @@ public class OrientShutdownHook extends Thread {
     }
   }
 
-  /** Shutdown Orient engine. */
+  /**
+   * Shutdown Orient engine.
+   */
   @Override
   public void run() {
     try {

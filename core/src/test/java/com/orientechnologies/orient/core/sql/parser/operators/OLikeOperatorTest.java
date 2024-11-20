@@ -27,6 +27,7 @@ import org.junit.Test;
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class OLikeOperatorTest {
+
   @Test
   public void test() {
     OLikeOperator op = new OLikeOperator(-1);

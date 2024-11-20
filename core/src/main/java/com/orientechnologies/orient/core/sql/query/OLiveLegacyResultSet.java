@@ -11,7 +11,9 @@ import java.util.ListIterator;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-/** Created by luigidellaquila on 18/03/15. */
+/**
+ * Created by luigidellaquila on 18/03/15.
+ */
 public class OLiveLegacyResultSet<T> extends OConcurrentLegacyResultSet<T> {
 
   private final BlockingQueue<T> queue = new LinkedBlockingQueue<T>();
@@ -201,12 +203,13 @@ public class OLiveLegacyResultSet<T> extends OConcurrentLegacyResultSet<T> {
 
   protected void waitForCompletion() {
     synchronized (waitForCompletion) {
-      if (!completed)
+      if (!completed) {
         try {
           waitForCompletion.wait();
         } catch (InterruptedException e) {
           OLogManager.instance().error(this, "Thread was interrupted", e);
         }
+      }
     }
   }
 

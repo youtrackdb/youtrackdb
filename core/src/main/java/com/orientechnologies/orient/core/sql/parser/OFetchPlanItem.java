@@ -7,6 +7,7 @@ import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class OFetchPlanItem extends SimpleNode {
@@ -91,21 +92,28 @@ public class OFetchPlanItem extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OFetchPlanItem that = (OFetchPlanItem) o;
 
-    if (leftStar != that.leftStar) return false;
-    if (star != null ? !star.equals(that.star) : that.star != null) return false;
-    if (leftDepth != null ? !leftDepth.equals(that.leftDepth) : that.leftDepth != null)
+    if (leftStar != that.leftStar) {
       return false;
-    if (rightDepth != null ? !rightDepth.equals(that.rightDepth) : that.rightDepth != null)
+    }
+    if (!Objects.equals(star, that.star)) {
       return false;
-    if (fieldChain != null ? !fieldChain.equals(that.fieldChain) : that.fieldChain != null)
+    }
+    if (!Objects.equals(leftDepth, that.leftDepth)) {
       return false;
-
-    return true;
+    }
+    if (!Objects.equals(rightDepth, that.rightDepth)) {
+      return false;
+    }
+    return Objects.equals(fieldChain, that.fieldChain);
   }
 
   @Override

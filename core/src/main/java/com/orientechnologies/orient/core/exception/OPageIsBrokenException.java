@@ -7,6 +7,7 @@ import com.orientechnologies.common.exception.OHighLevelException;
  * switches to "read only" mode.
  */
 public class OPageIsBrokenException extends OStorageException implements OHighLevelException {
+
   @SuppressWarnings("unused")
   public OPageIsBrokenException(OStorageException exception) {
     super(exception);

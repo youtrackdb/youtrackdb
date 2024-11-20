@@ -9,8 +9,11 @@ import com.orientechnologies.orient.core.sql.parser.OExpression;
 import com.orientechnologies.orient.core.sql.parser.OIdentifier;
 import com.orientechnologies.orient.core.sql.parser.OProjectionItem;
 
-/** Created by luigidellaquila on 03/08/16. */
+/**
+ * Created by luigidellaquila on 03/08/16.
+ */
 public class LetExpressionStep extends AbstractExecutionStep {
+
   private OIdentifier varname;
   private OExpression expression;
 

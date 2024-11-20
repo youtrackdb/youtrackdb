@@ -11,9 +11,11 @@ import com.orientechnologies.orient.core.metadata.sequence.SequenceOrderType;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 public class OCreateSequenceStatement extends OSimpleExecStatement {
+
   public static final int TYPE_CACHED = 0;
   public static final int TYPE_ORDERED = 1;
 
@@ -235,20 +237,36 @@ public class OCreateSequenceStatement extends OSimpleExecStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OCreateSequenceStatement that = (OCreateSequenceStatement) o;
 
-    if (ifNotExists != that.ifNotExists) return false;
-    if (type != that.type) return false;
-    if (name != null ? !name.equals(that.name) : that.name != null) return false;
-    if (start != null ? !start.equals(that.start) : that.start != null) return false;
-    if (increment != null ? !increment.equals(that.increment) : that.increment != null)
+    if (ifNotExists != that.ifNotExists) {
       return false;
-    if (cache != null ? !cache.equals(that.cache) : that.cache != null) return false;
-    if (limitValue != null ? !limitValue.equals(that.limitValue) : that.limitValue != null)
+    }
+    if (type != that.type) {
       return false;
+    }
+    if (!Objects.equals(name, that.name)) {
+      return false;
+    }
+    if (!Objects.equals(start, that.start)) {
+      return false;
+    }
+    if (!Objects.equals(increment, that.increment)) {
+      return false;
+    }
+    if (!Objects.equals(cache, that.cache)) {
+      return false;
+    }
+    if (!Objects.equals(limitValue, that.limitValue)) {
+      return false;
+    }
     if (cyclic != that.cyclic) {
       return false;
     }

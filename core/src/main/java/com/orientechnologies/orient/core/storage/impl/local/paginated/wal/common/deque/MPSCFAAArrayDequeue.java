@@ -5,6 +5,7 @@ import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal
 import java.util.concurrent.atomic.AtomicReference;
 
 public final class MPSCFAAArrayDequeue<T> extends AtomicReference<Node<T>> {
+
   private volatile Node<T> head;
   private static final Object taken = new Object();
 
@@ -22,7 +23,9 @@ public final class MPSCFAAArrayDequeue<T> extends AtomicReference<Node<T>> {
       final int idx = tail.enqidx.getAndIncrement();
 
       if (idx > BUFFER_SIZE - 1) { // This node is full
-        if (tail != get()) continue;
+        if (tail != get()) {
+          continue;
+        }
         final Node<T> next = tail.getNext();
         if (next == null) {
           final Node<T> newNode = new Node<>(record, tail);

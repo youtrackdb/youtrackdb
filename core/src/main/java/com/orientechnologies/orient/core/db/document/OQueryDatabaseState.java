@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.util.ArrayList;
 
 public class OQueryDatabaseState {
+
   private OResultSet resultSet = null;
   private final IntArrayList usedClusters = new IntArrayList();
   private final ArrayList<String> usedIndexes = new ArrayList<>();

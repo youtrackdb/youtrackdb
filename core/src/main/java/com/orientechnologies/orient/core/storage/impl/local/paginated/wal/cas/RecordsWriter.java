@@ -1,7 +1,10 @@
 package com.orientechnologies.orient.core.storage.impl.local.paginated.wal.cas;
 
 final class RecordsWriter implements Runnable {
-  /** */
+
+  /**
+   *
+   */
   private final CASDiskWriteAheadLog wal;
 
   private final boolean forceSync;

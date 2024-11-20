@@ -29,7 +29,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by enricorisa on 26/09/14. */
+/**
+ * Created by enricorisa on 26/09/14.
+ */
 public class OLuceneCreateIndexTest extends OLuceneBaseTest {
 
   @Before

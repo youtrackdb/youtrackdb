@@ -15,6 +15,7 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import java.util.List;
 
 public class WhileStep extends AbstractExecutionStep {
+
   private final OBooleanExpression condition;
   private final List<OStatement> statements;
 
@@ -35,8 +36,9 @@ public class WhileStep extends AbstractExecutionStep {
     }
 
     while (condition.evaluate(new OResultInternal(), ctx)) {
-      if (OExecutionThreadLocal.isInterruptCurrentOperation())
+      if (OExecutionThreadLocal.isInterruptCurrentOperation()) {
         throw new OCommandInterruptedException("The command has been interrupted");
+      }
 
       OScriptExecutionPlan plan = initPlan(ctx);
       OExecutionStepInternal result = plan.executeFull();

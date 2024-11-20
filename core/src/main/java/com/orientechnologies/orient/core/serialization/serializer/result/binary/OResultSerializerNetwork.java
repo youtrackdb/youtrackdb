@@ -21,18 +21,17 @@
 package com.orientechnologies.orient.core.serialization.serializer.result.binary;
 
 import com.orientechnologies.common.collection.OMultiValue;
-import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.serialization.types.ODecimalSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.exception.OValidationException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.BytesContainer;
@@ -45,8 +44,8 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
 import java.io.IOException;
 import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -497,11 +496,10 @@ public class OResultSerializerNetwork {
 
     OVarIntSerializer.write(bytes, map.size());
     for (Object f : fieldNames) {
-      if (!(f instanceof String)) {
+      if (!(f instanceof String field)) {
         throw new OSerializationException(
             "Invalid key type for map: " + f + " (only Strings supported)");
       }
-      String field = (String) f;
       writeString(bytes, field);
       final Object value = map.get(field);
       if (value != null) {
@@ -533,9 +531,10 @@ public class OResultSerializerNetwork {
 
   private int writeOptimizedLink(final BytesContainer bytes, OIdentifiable link) {
     if (!link.getIdentity().isPersistent()) {
-      final ORecord real = link.getRecord();
-      if (real != null) {
-        link = real;
+      try {
+        link = link.getRecord();
+      } catch (ORecordNotFoundException rnf) {
+        // IGNORE THIS
       }
     }
     final int pos = OVarIntSerializer.write(bytes, link.getIdentity().getClusterId());
@@ -543,19 +542,16 @@ public class OResultSerializerNetwork {
     return pos;
   }
 
-  private int writeLinkCollection(
+  private void writeLinkCollection(
       final BytesContainer bytes, final Collection<OIdentifiable> value) {
     final int pos = OVarIntSerializer.write(bytes, value.size());
     for (OIdentifiable itemValue : value) {
-      // TODO: handle the null links
       if (itemValue == null) {
         writeNullLink(bytes);
       } else {
         writeOptimizedLink(bytes, itemValue);
       }
     }
-
-    return pos;
   }
 
   private void writeEmbeddedCollection(final BytesContainer bytes, final Collection<?> value) {
@@ -631,19 +627,11 @@ public class OResultSerializerNetwork {
   }
 
   private byte[] bytesFromString(final String toWrite) {
-    try {
-      return toWrite.getBytes(CHARSET_UTF_8);
-    } catch (UnsupportedEncodingException e) {
-      throw OException.wrapException(new OSerializationException("Error on string encoding"), e);
-    }
+    return toWrite.getBytes(StandardCharsets.UTF_8);
   }
 
   protected String stringFromBytes(final byte[] bytes, final int offset, final int len) {
-    try {
-      return new String(bytes, offset, len, CHARSET_UTF_8);
-    } catch (UnsupportedEncodingException e) {
-      throw OException.wrapException(new OSerializationException("Error on string decoding"), e);
-    }
+    return new String(bytes, offset, len, StandardCharsets.UTF_8);
   }
 
   private long convertDayToTimezone(TimeZone from, TimeZone to, long time) {

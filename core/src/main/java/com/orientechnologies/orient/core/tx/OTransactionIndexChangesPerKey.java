@@ -39,7 +39,8 @@ public class OTransactionIndexChangesPerKey {
   private final OTxIndexChangesList entries;
 
   public class OTransactionIndexEntry {
-    private OPERATION operation;
+
+    private final OPERATION operation;
     private OIdentifiable value;
 
     public OTransactionIndexEntry(final OIdentifiable iValue, final OPERATION iOperation) {

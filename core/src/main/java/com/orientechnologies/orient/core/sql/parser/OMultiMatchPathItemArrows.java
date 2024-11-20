@@ -3,6 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 public class OMultiMatchPathItemArrows extends OMultiMatchPathItem {
+
   public OMultiMatchPathItemArrows(int id) {
     super(id);
   }

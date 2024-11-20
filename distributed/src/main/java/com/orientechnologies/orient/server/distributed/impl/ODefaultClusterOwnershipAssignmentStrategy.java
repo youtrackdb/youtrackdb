@@ -46,6 +46,7 @@ import java.util.Set;
  */
 public class ODefaultClusterOwnershipAssignmentStrategy
     implements OClusterOwnershipAssignmentStrategy {
+
   private final ODistributedPlugin manager;
 
   public ODefaultClusterOwnershipAssignmentStrategy(final ODistributedPlugin manager) {
@@ -63,20 +64,28 @@ public class ODefaultClusterOwnershipAssignmentStrategy
     // FILTER OUT NON MASTER SERVER
     for (Iterator<String> it = availableNodes.iterator(); it.hasNext(); ) {
       final String node = it.next();
-      if (cfg.getServerRole(node) != ODistributedConfiguration.ROLES.MASTER) it.remove();
+      if (cfg.getServerRole(node) != ODistributedConfiguration.ROLES.MASTER) {
+        it.remove();
+      }
     }
 
     if (availableNodes.isEmpty())
-      // NO MASTER, AVOID REASSIGNMENT
+    // NO MASTER, AVOID REASSIGNMENT
+    {
       return EMPTY_LIST;
+    }
 
-    if (iClass.isAbstract()) return EMPTY_LIST;
+    if (iClass.isAbstract()) {
+      return EMPTY_LIST;
+    }
 
     final int[] clusterIds = iClass.getClusterIds();
     final Set<String> clusterNames = new HashSet<>(clusterIds.length);
     for (int clusterId : clusterIds) {
       final String clusterName = iDatabase.getClusterNameById(clusterId);
-      if (clusterName != null) clusterNames.add(clusterName);
+      if (clusterName != null) {
+        clusterNames.add(clusterName);
+      }
     }
 
     // RE-BALANCE THE CLUSTER BASED ON AN AVERAGE OF NUMBER OF NODES
@@ -107,7 +116,9 @@ public class ODefaultClusterOwnershipAssignmentStrategy
           for (int i = 1; ; ++i) {
             newClusterName = iClass.getName().toLowerCase(Locale.ENGLISH) + "_" + i;
             if (!allClusterNames.contains(newClusterName)
-                && !serversToCreateANewCluster.contains(newClusterName)) break;
+                && !serversToCreateANewCluster.contains(newClusterName)) {
+              break;
+            }
           }
 
           serversToCreateANewCluster.add(newClusterName);
@@ -134,7 +145,9 @@ public class ODefaultClusterOwnershipAssignmentStrategy
       // FILTER ALL THE CLUSTERS WITH A STATIC OWNER CFG
       for (Iterator<String> it = ownedClusters.iterator(); it.hasNext(); ) {
         final String cluster = it.next();
-        if (cfg.getConfiguredClusterOwner(cluster) != null) it.remove();
+        if (cfg.getConfiguredClusterOwner(cluster) != null) {
+          it.remove();
+        }
       }
 
       nodeOwners.add(new OPair<String, List<String>>(server, ownedClusters));
@@ -158,7 +171,9 @@ public class ODefaultClusterOwnershipAssignmentStrategy
     for (OPair<String, List<String>> owner : nodeOwners) {
       final String server = owner.getKey();
       final List<String> ownedClusters = owner.getValue();
-      if (!availableNodes.contains(server)) clustersOfClassToReassign.addAll(ownedClusters);
+      if (!availableNodes.contains(server)) {
+        clustersOfClassToReassign.addAll(ownedClusters);
+      }
     }
 
     int currentServerIndex = 0;
@@ -172,8 +187,9 @@ public class ODefaultClusterOwnershipAssignmentStrategy
       int targetClustersPerNode =
           nodesLeft < 1 ? 1 : (clusterNames.size() - clusterAssigned) / nodesLeft;
       if (targetClustersPerNode == 0
-          || (nodesLeft > 0 && (clusterNames.size() - clusterAssigned) % nodesLeft > 0))
+          || (nodesLeft > 0 && (clusterNames.size() - clusterAssigned) % nodesLeft > 0)) {
         targetClustersPerNode++;
+      }
 
       if (ownedClusters.size() > targetClustersPerNode && ownedClusters.size() > 0) {
         // REMOVE CLUSTERS IF THERE IS NO STATIC CFG OF THE OWNER
@@ -204,8 +220,10 @@ public class ODefaultClusterOwnershipAssignmentStrategy
           }
 
           if (!reassigned)
-            // CANNOT REASSIGN CURRENT CLUSTERS ON AVAILABLE NODES (CASE OF SHARDING)
+          // CANNOT REASSIGN CURRENT CLUSTERS ON AVAILABLE NODES (CASE OF SHARDING)
+          {
             break;
+          }
         }
       }
 

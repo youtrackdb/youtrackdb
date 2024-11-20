@@ -37,22 +37,24 @@ public class FetchPlanComplexNestedLevelsTest extends DocumentDBBaseTest {
     super.beforeClass();
 
     final OClass personTest = database.getMetadata().getSchema().getClass("PersonTest");
-    if (personTest == null)
+    if (personTest == null) {
       database
           .getMetadata()
           .getSchema()
           .createClass("PersonTest", database.getMetadata().getSchema().getClass("V"));
-    else if (personTest.getSuperClass() == null)
+    } else if (personTest.getSuperClass() == null) {
       personTest.setSuperClass(database.getMetadata().getSchema().getClass("V"));
+    }
 
     final OClass followTest = database.getMetadata().getSchema().getClass("FollowTest");
-    if (followTest == null)
+    if (followTest == null) {
       database
           .getMetadata()
           .getSchema()
           .createClass("FollowTest", database.getMetadata().getSchema().getClass("E"));
-    else if (followTest.getSuperClass() == null)
+    } else if (followTest.getSuperClass() == null) {
       followTest.setSuperClass(database.getMetadata().getSchema().getClass("E"));
+    }
 
     database.begin();
     database.command("create vertex PersonTest set name = 'A'").close();

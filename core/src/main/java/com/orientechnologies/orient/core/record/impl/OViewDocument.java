@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.record.OElement;
 
 public class OViewDocument extends ODocument {
 
-  private OView view;
+  private final OView view;
 
   public OViewDocument(ODatabaseSessionInternal database, int cluster) {
     view = database.getViewFromCluster(cluster);

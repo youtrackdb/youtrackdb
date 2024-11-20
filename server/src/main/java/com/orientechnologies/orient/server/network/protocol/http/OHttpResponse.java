@@ -135,7 +135,9 @@ public interface OHttpResponse {
   // Compress content string
   byte[] compress(String jsonStr);
 
-  /** Stores additional headers to send */
+  /**
+   * Stores additional headers to send
+   */
   void setHeader(String iHeader);
 
   OutputStream getOutputStream();

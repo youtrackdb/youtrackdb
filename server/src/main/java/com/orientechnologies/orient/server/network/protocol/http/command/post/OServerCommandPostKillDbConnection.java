@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.List;
 
 public class OServerCommandPostKillDbConnection extends OServerCommandAuthenticatedDbAbstract {
+
   private static final String[] NAMES = {"POST|dbconnection/*"};
 
   @Override
@@ -46,9 +47,7 @@ public class OServerCommandPostKillDbConnection extends OServerCommandAuthentica
     final List<OClientConnection> connections =
         server.getClientConnectionManager().getConnections();
     for (OClientConnection connection : connections) {
-      if (connection.getProtocol() instanceof ONetworkProtocolHttpAbstract) {
-        final ONetworkProtocolHttpAbstract http =
-            (ONetworkProtocolHttpAbstract) connection.getProtocol();
+      if (connection.getProtocol() instanceof ONetworkProtocolHttpAbstract http) {
         final OHttpRequest req = http.getRequest();
 
         if (req != null && req != iRequest && req.getSessionId().equals(iRequest.getSessionId())) {

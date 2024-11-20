@@ -11,6 +11,7 @@ import org.knowm.xchart.XYChart;
 import org.knowm.xchart.style.Styler;
 
 public class PlotterTest {
+
   private Plotter plotter;
 
   @Before

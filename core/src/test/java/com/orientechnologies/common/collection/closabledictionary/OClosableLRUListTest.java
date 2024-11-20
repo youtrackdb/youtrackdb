@@ -7,12 +7,13 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class OClosableLRUListTest {
+
   @Test
   public void tesMoveToTail() {
     OClosableLRUList<Long, CIItem> lruList = new OClosableLRUList<Long, CIItem>();
     OClosableEntry<Long, CIItem> firstEntry = new OClosableEntry<Long, CIItem>(new CIItem());
 
-    Assert.assertTrue(!lruList.contains(firstEntry));
+    Assert.assertFalse(lruList.contains(firstEntry));
     Assert.assertEquals(lruList.size(), 0);
 
     lruList.moveToTheTail(firstEntry);
@@ -94,7 +95,7 @@ public class OClosableLRUListTest {
     assertContent(lruList, new OClosableEntry[] {secondEntry, thirdEntry});
 
     Assert.assertEquals(lruList.size(), 2);
-    Assert.assertTrue(!lruList.contains(firstEntry));
+    Assert.assertFalse(lruList.contains(firstEntry));
     Assert.assertTrue(lruList.contains(secondEntry));
     Assert.assertTrue(lruList.contains(thirdEntry));
 
@@ -105,9 +106,9 @@ public class OClosableLRUListTest {
     assertContent(lruList, new OClosableEntry[] {secondEntry});
 
     Assert.assertEquals(lruList.size(), 1);
-    Assert.assertTrue(!lruList.contains(firstEntry));
+    Assert.assertFalse(lruList.contains(firstEntry));
     Assert.assertTrue(lruList.contains(secondEntry));
-    Assert.assertTrue(!lruList.contains(thirdEntry));
+    Assert.assertFalse(lruList.contains(thirdEntry));
 
     Assert.assertTrue(lruList.assertBackwardStructure());
     Assert.assertTrue(lruList.assertForwardStructure());
@@ -116,9 +117,9 @@ public class OClosableLRUListTest {
     assertContent(lruList, new OClosableEntry[] {});
 
     Assert.assertEquals(lruList.size(), 0);
-    Assert.assertTrue(!lruList.contains(firstEntry));
-    Assert.assertTrue(!lruList.contains(secondEntry));
-    Assert.assertTrue(!lruList.contains(thirdEntry));
+    Assert.assertFalse(lruList.contains(firstEntry));
+    Assert.assertFalse(lruList.contains(secondEntry));
+    Assert.assertFalse(lruList.contains(thirdEntry));
 
     Assert.assertTrue(lruList.assertBackwardStructure());
     Assert.assertTrue(lruList.assertForwardStructure());
@@ -127,9 +128,9 @@ public class OClosableLRUListTest {
     assertContent(lruList, new OClosableEntry[] {});
 
     Assert.assertEquals(lruList.size(), 0);
-    Assert.assertTrue(!lruList.contains(firstEntry));
-    Assert.assertTrue(!lruList.contains(secondEntry));
-    Assert.assertTrue(!lruList.contains(thirdEntry));
+    Assert.assertFalse(lruList.contains(firstEntry));
+    Assert.assertFalse(lruList.contains(secondEntry));
+    Assert.assertFalse(lruList.contains(thirdEntry));
 
     Assert.assertTrue(lruList.assertBackwardStructure());
     Assert.assertTrue(lruList.assertForwardStructure());
@@ -143,7 +144,7 @@ public class OClosableLRUListTest {
 
     Assert.assertEquals(lruList.size(), 2);
     Assert.assertTrue(lruList.contains(firstEntry));
-    Assert.assertTrue(!lruList.contains(secondEntry));
+    Assert.assertFalse(lruList.contains(secondEntry));
     Assert.assertTrue(lruList.contains(thirdEntry));
 
     Assert.assertTrue(lruList.assertBackwardStructure());
@@ -158,7 +159,7 @@ public class OClosableLRUListTest {
 
     Assert.assertEquals(lruList.size(), 2);
     Assert.assertTrue(lruList.contains(firstEntry));
-    Assert.assertTrue(!lruList.contains(secondEntry));
+    Assert.assertFalse(lruList.contains(secondEntry));
     Assert.assertTrue(lruList.contains(thirdEntry));
 
     Assert.assertTrue(lruList.assertBackwardStructure());
@@ -178,10 +179,10 @@ public class OClosableLRUListTest {
     lruList.moveToTheTail(thirdEntry);
 
     OClosableEntry<Long, CIItem> removed = lruList.poll();
-    Assert.assertTrue(removed == firstEntry);
+    Assert.assertSame(removed, firstEntry);
     Assert.assertEquals(lruList.size(), 2);
 
-    Assert.assertTrue(!lruList.contains(firstEntry));
+    Assert.assertFalse(lruList.contains(firstEntry));
     Assert.assertTrue(lruList.contains(secondEntry));
     Assert.assertTrue(lruList.contains(thirdEntry));
 
@@ -191,11 +192,11 @@ public class OClosableLRUListTest {
     Assert.assertTrue(lruList.assertForwardStructure());
 
     removed = lruList.poll();
-    Assert.assertTrue(removed == secondEntry);
+    Assert.assertSame(removed, secondEntry);
     Assert.assertEquals(lruList.size(), 1);
 
-    Assert.assertTrue(!lruList.contains(firstEntry));
-    Assert.assertTrue(!lruList.contains(secondEntry));
+    Assert.assertFalse(lruList.contains(firstEntry));
+    Assert.assertFalse(lruList.contains(secondEntry));
     Assert.assertTrue(lruList.contains(thirdEntry));
 
     assertContent(lruList, new OClosableEntry[] {thirdEntry});
@@ -204,12 +205,12 @@ public class OClosableLRUListTest {
     Assert.assertTrue(lruList.assertForwardStructure());
 
     removed = lruList.poll();
-    Assert.assertTrue(removed == thirdEntry);
+    Assert.assertSame(removed, thirdEntry);
     Assert.assertEquals(lruList.size(), 0);
 
-    Assert.assertTrue(!lruList.contains(firstEntry));
-    Assert.assertTrue(!lruList.contains(secondEntry));
-    Assert.assertTrue(!lruList.contains(thirdEntry));
+    Assert.assertFalse(lruList.contains(firstEntry));
+    Assert.assertFalse(lruList.contains(secondEntry));
+    Assert.assertFalse(lruList.contains(thirdEntry));
 
     assertContent(lruList, new OClosableEntry[] {});
 
@@ -217,10 +218,11 @@ public class OClosableLRUListTest {
     Assert.assertTrue(lruList.assertForwardStructure());
 
     removed = lruList.poll();
-    Assert.assertTrue(removed == null);
+    Assert.assertNull(removed);
   }
 
   public class CIItem implements OClosableItem {
+
     private volatile boolean open = true;
 
     @Override
@@ -246,9 +248,9 @@ public class OClosableLRUListTest {
     final Iterator<OClosableEntry<Long, CIItem>> iterator = entryList.iterator();
     for (OClosableEntry<Long, CIItem> entry : lruList) {
       Assert.assertTrue(iterator.hasNext());
-      Assert.assertTrue(entry == iterator.next());
+      Assert.assertSame(entry, iterator.next());
     }
 
-    Assert.assertTrue(!iterator.hasNext());
+    Assert.assertFalse(iterator.hasNext());
   }
 }

@@ -29,20 +29,23 @@ import com.orientechnologies.orient.core.serialization.OBinaryProtocol;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ORecordVersionHelper {
+
   public static final int SERIALIZED_SIZE = OBinaryProtocol.SIZE_INT;
 
   protected ORecordVersionHelper() {}
 
   public static int increment(final int version) {
-    if (isTombstone(version))
+    if (isTombstone(version)) {
       throw new IllegalStateException("Record was deleted and cannot be updated.");
+    }
 
     return version + 1;
   }
 
   public static int decrement(final int version) {
-    if (isTombstone(version))
+    if (isTombstone(version)) {
       throw new IllegalStateException("Record was deleted and cannot be updated.");
+    }
 
     return version - 1;
   }
@@ -89,16 +92,26 @@ public class ORecordVersionHelper {
 
   public static int compareTo(final int v1, final int v2) {
     final int myVersion;
-    if (isTombstone(v1)) myVersion = -v1;
-    else myVersion = v1;
+    if (isTombstone(v1)) {
+      myVersion = -v1;
+    } else {
+      myVersion = v1;
+    }
 
     final int otherVersion;
-    if (isTombstone(v2)) otherVersion = -v2;
-    else otherVersion = v2;
+    if (isTombstone(v2)) {
+      otherVersion = -v2;
+    } else {
+      otherVersion = v2;
+    }
 
-    if (myVersion == otherVersion) return 0;
+    if (myVersion == otherVersion) {
+      return 0;
+    }
 
-    if (myVersion < otherVersion) return -1;
+    if (myVersion < otherVersion) {
+      return -1;
+    }
 
     return 1;
   }

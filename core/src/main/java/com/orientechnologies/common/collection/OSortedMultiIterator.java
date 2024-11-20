@@ -34,8 +34,8 @@ public class OSortedMultiIterator<T extends OIdentifiable> implements Iterator<T
 
   private final OOrderBy orderBy;
 
-  private List<Iterator<T>> sourceIterators = new ArrayList<Iterator<T>>();
-  private List<T> heads = new ArrayList<T>();
+  private final List<Iterator<T>> sourceIterators = new ArrayList<Iterator<T>>();
+  private final List<T> heads = new ArrayList<T>();
 
   private int status = STATUS_INIT;
 

@@ -28,8 +28,11 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoper
 import java.io.IOException;
 import java.util.Comparator;
 
-/** Created by lomak_000 on 15.04.2015. */
+/**
+ * Created by lomak_000 on 15.04.2015.
+ */
 public interface OHashTable<K, V> {
+
   void create(
       OAtomicOperation atomicOperation,
       OBinarySerializer<K> keySerializer,
@@ -47,9 +50,9 @@ public interface OHashTable<K, V> {
    * the provided validator.
    *
    * @param atomicOperation
-   * @param key the key to put the value under.
-   * @param value the value to put.
-   * @param validator the operation validator.
+   * @param key             the key to put the value under.
+   * @param value           the value to put.
+   * @param validator       the operation validator.
    * @return {@code true} if the validator allowed the put, {@code false} otherwise.
    * @see IndexEngineValidator#validate(Object, Object, Object)
    */
@@ -102,7 +105,8 @@ public interface OHashTable<K, V> {
 
   String getName();
 
-  public static final class BucketPath {
+  final class BucketPath {
+
     public final BucketPath parent;
     public final int hashMapOffset;
     public final int itemIndex;
@@ -126,7 +130,8 @@ public interface OHashTable<K, V> {
     }
   }
 
-  public static final class BucketSplitResult {
+  final class BucketSplitResult {
+
     public final long updatedBucketPointer;
     public final long newBucketPointer;
     public final int newDepth;
@@ -138,7 +143,8 @@ public interface OHashTable<K, V> {
     }
   }
 
-  public static final class NodeSplitResult {
+  final class NodeSplitResult {
+
     public final long[] newNode;
     public final boolean allLeftHashMapsEqual;
     public final boolean allRightHashMapsEqual;
@@ -152,6 +158,7 @@ public interface OHashTable<K, V> {
   }
 
   final class KeyHashCodeComparator<K> implements Comparator<K> {
+
     private final Comparator<? super K> comparator = ODefaultComparator.INSTANCE;
 
     private final OHashFunction<K> keyHashFunction;
@@ -165,8 +172,12 @@ public interface OHashTable<K, V> {
       final long hashCodeOne = keyHashFunction.hashCode(keyOne);
       final long hashCodeTwo = keyHashFunction.hashCode(keyTwo);
 
-      if (greaterThanUnsigned(hashCodeOne, hashCodeTwo)) return 1;
-      if (lessThanUnsigned(hashCodeOne, hashCodeTwo)) return -1;
+      if (greaterThanUnsigned(hashCodeOne, hashCodeTwo)) {
+        return 1;
+      }
+      if (lessThanUnsigned(hashCodeOne, hashCodeTwo)) {
+        return -1;
+      }
 
       return comparator.compare(keyOne, keyTwo);
     }
@@ -181,6 +192,7 @@ public interface OHashTable<K, V> {
   }
 
   class RawEntry {
+
     public final byte[] key;
     public final byte[] value;
     public final long hashCode;
@@ -193,6 +205,7 @@ public interface OHashTable<K, V> {
   }
 
   class Entry<K, V> {
+
     public final K key;
     public final V value;
     public final long hashCode;

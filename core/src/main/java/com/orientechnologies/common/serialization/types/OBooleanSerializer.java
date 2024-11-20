@@ -31,7 +31,9 @@ import java.nio.ByteBuffer;
  */
 public class OBooleanSerializer implements OBinarySerializer<Boolean> {
 
-  /** size of boolean value in bytes */
+  /**
+   * size of boolean value in bytes
+   */
   public static final int BOOLEAN_SIZE = 1;
 
   public static final byte ID = 1;
@@ -102,13 +104,17 @@ public class OBooleanSerializer implements OBinarySerializer<Boolean> {
     return value;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void serializeInByteBufferObject(Boolean object, ByteBuffer buffer, Object... hints) {
     buffer.put(object ? (byte) 1 : (byte) 0);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Boolean deserializeFromByteBufferObject(ByteBuffer buffer) {
     return buffer.get() > 0;
@@ -119,7 +125,9 @@ public class OBooleanSerializer implements OBinarySerializer<Boolean> {
     return buffer.get(offset) > 0;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getObjectSizeInByteBuffer(ByteBuffer buffer) {
     return BOOLEAN_SIZE;
@@ -130,14 +138,18 @@ public class OBooleanSerializer implements OBinarySerializer<Boolean> {
     return BOOLEAN_SIZE;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Boolean deserializeFromByteBufferObject(
       ByteBuffer buffer, OWALChanges walChanges, int offset) {
     return walChanges.getByteValue(buffer, offset) > 0;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getObjectSizeInByteBuffer(ByteBuffer buffer, OWALChanges walChanges, int offset) {
     return BOOLEAN_SIZE;

@@ -29,6 +29,7 @@ import org.locationtech.jts.geom.LineString;
 import org.locationtech.spatial4j.shape.jts.JtsGeometry;
 
 public class OLineStringShapeBuilder extends OComplexShapeBuilder<JtsGeometry> {
+
   @Override
   public String getName() {
     return "OLineString";

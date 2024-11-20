@@ -199,10 +199,7 @@ public class OClassTrigger {
               try {
                 ODocument funcDoc = database.load(new ORecordId(fieldName));
                 func =
-                    database
-                        .getMetadata()
-                        .getFunctionLibrary()
-                        .getFunction((String) funcDoc.field("name"));
+                    database.getMetadata().getFunctionLibrary().getFunction(funcDoc.field("name"));
               } catch (ORecordNotFoundException rnf) {
                 // ignore
               }
@@ -252,9 +249,7 @@ public class OClassTrigger {
 
   private static ORecordHook.RESULT executeMethod(
       final ODocument iDocument, final Object[] clzMethod) {
-    if (clzMethod[0] instanceof Class && clzMethod[1] instanceof Method) {
-      Method method = (Method) clzMethod[1];
-      Class clz = (Class) clzMethod[0];
+    if (clzMethod[0] instanceof Class clz && clzMethod[1] instanceof Method method) {
       String result = null;
       try {
         result = (String) method.invoke(clz.newInstance(), iDocument);
@@ -284,7 +279,7 @@ public class OClassTrigger {
     try {
       final Bindings binding = scriptEngine.getBindings(ScriptContext.ENGINE_SCOPE);
 
-      scriptManager.bind(scriptEngine, binding, (ODatabaseSessionInternal) database, null, null);
+      scriptManager.bind(scriptEngine, binding, database, null, null);
       binding.put("doc", iDocument);
 
       String result = null;
@@ -301,8 +296,7 @@ public class OClassTrigger {
             scriptManager.throwErrorMessage(e, funcStr);
           }
         }
-        if (scriptEngine instanceof Invocable) {
-          final Invocable invocableEngine = (Invocable) scriptEngine;
+        if (scriptEngine instanceof Invocable invocableEngine) {
           Object[] empty = OCommonConst.EMPTY_OBJECT_ARRAY;
           result = (String) invocableEngine.invokeFunction(func.getName(), empty);
         }

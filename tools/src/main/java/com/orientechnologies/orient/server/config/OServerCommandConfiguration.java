@@ -24,6 +24,7 @@ import jakarta.xml.bind.annotation.*;
 @XmlRootElement(name = "command")
 @XmlType(propOrder = {"parameters", "implementation", "pattern"})
 public class OServerCommandConfiguration {
+
   @XmlAttribute(required = true)
   public String pattern;
 

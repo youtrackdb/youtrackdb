@@ -22,7 +22,9 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import java.util.HashSet;
 import java.util.Set;
 
-/** Created by Enrico Risa on 09/12/14. */
+/**
+ * Created by Enrico Risa on 09/12/14.
+ */
 public class OLuceneTxOperations {
 
   public final Set<OIdentifiable> removed = new HashSet<OIdentifiable>();

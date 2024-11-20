@@ -62,6 +62,7 @@ import java.util.Map;
 @SuppressWarnings("unchecked")
 public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
     implements OCommandDistributedReplicateRequest {
+
   public static final String KEYWORD_CREATE = "CREATE";
   public static final String KEYWORD_INDEX = "INDEX";
   public static final String KEYWORD_ON = "ON";
@@ -93,42 +94,49 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
 
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
-      if (pos == -1 || !word.toString().equals(KEYWORD_CREATE))
+      if (pos == -1 || !word.toString().equals(KEYWORD_CREATE)) {
         throw new OCommandSQLParsingException(
             "Keyword " + KEYWORD_CREATE + " not found. Use " + getSyntax(), parserText, oldPos);
+      }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
-      if (pos == -1 || !word.toString().equals(KEYWORD_INDEX))
+      if (pos == -1 || !word.toString().equals(KEYWORD_INDEX)) {
         throw new OCommandSQLParsingException(
             "Keyword " + KEYWORD_INDEX + " not found. Use " + getSyntax(), parserText, oldPos);
+      }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false);
-      if (pos == -1)
+      if (pos == -1) {
         throw new OCommandSQLParsingException(
             "Expected index name. Use " + getSyntax(), parserText, oldPos);
+      }
 
       indexName = decodeClassName(word.toString());
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
-      if (pos == -1)
+      if (pos == -1) {
         throw new OCommandSQLParsingException(
             "Index type requested. Use " + getSyntax(), parserText, oldPos + 1);
+      }
 
       if (word.toString().equals(KEYWORD_ON)) {
         oldPos = pos;
         pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
-        if (pos == -1)
+        if (pos == -1) {
           throw new OCommandSQLParsingException(
               "Expected class name. Use " + getSyntax(), parserText, oldPos);
+        }
         oldPos = pos;
         oClass = findClass(decodeClassName(word.toString()));
 
-        if (oClass == null) throw new OCommandExecutionException("Class " + word + " not found");
+        if (oClass == null) {
+          throw new OCommandExecutionException("Class " + word + " not found");
+        }
 
-        pos = parserTextUpperCase.indexOf(")");
+        pos = parserTextUpperCase.indexOf(')');
         if (pos == -1) {
           throw new OCommandSQLParsingException(
               "No right bracket found. Use " + getSyntax(), parserText, oldPos);
@@ -148,7 +156,9 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
           final int collatePos = fieldName.toUpperCase(Locale.ENGLISH).indexOf(" COLLATE ");
 
           if (collatePos > 0) {
-            if (collates == null) collates = new String[fields.length];
+            if (collates == null) {
+              collates = new String[fields.length];
+            }
 
             collates[i] =
                 fieldName
@@ -157,7 +167,9 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
                     .trim();
             fields[i] = fieldName.substring(0, collatePos);
           } else {
-            if (collates != null) collates[i] = null;
+            if (collates != null) {
+              collates[i] = null;
+            }
           }
           fields[i] = decodeClassName(fields[i]);
         }
@@ -170,16 +182,18 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
 
         oldPos = pos + 1;
         pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
-        if (pos == -1)
+        if (pos == -1) {
           throw new OCommandSQLParsingException(
               "Index type requested. Use " + getSyntax(), parserText, oldPos + 1);
+        }
       } else {
         if (indexName.indexOf('.') > 0) {
           final String[] parts = indexName.split("\\.");
 
           oClass = findClass(parts[0]);
-          if (oClass == null)
+          if (oClass == null) {
             throw new OCommandExecutionException("Class " + parts[0] + " not found");
+          }
 
           fields = new String[] {parts[1]};
         }
@@ -187,8 +201,9 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
 
       indexType = OClass.INDEX_TYPE.valueOf(word.toString());
 
-      if (indexType == null)
+      if (indexType == null) {
         throw new OCommandSQLParsingException("Index type is null", parserText, oldPos);
+      }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
@@ -198,7 +213,9 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
         pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false);
         oldPos = pos;
         engine = word.toString().toUpperCase(Locale.ENGLISH);
-      } else parserGoBack();
+      } else {
+        parserGoBack();
+      }
 
       final int configPos = parserTextUpperCase.indexOf(KEYWORD_METADATA, oldPos);
 
@@ -213,8 +230,11 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
           && !word.toString().equalsIgnoreCase("NULL")
           && !word.toString().equalsIgnoreCase(KEYWORD_METADATA)) {
         final String typesString;
-        if (configPos > -1) typesString = parserTextUpperCase.substring(oldPos, configPos).trim();
-        else typesString = parserTextUpperCase.substring(oldPos).trim();
+        if (configPos > -1) {
+          typesString = parserTextUpperCase.substring(oldPos, configPos).trim();
+        } else {
+          typesString = parserTextUpperCase.substring(oldPos).trim();
+        }
 
         if (word.toString().equalsIgnoreCase("RUNTIME")) {
           oldPos = pos;
@@ -250,12 +270,15 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
     return this;
   }
 
-  /** Execute the CREATE INDEX. */
+  /**
+   * Execute the CREATE INDEX.
+   */
   @SuppressWarnings("rawtypes")
   public Object execute(final Map<Object, Object> iArgs) {
-    if (indexName == null)
+    if (indexName == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
+    }
 
     final ODatabaseSessionInternal database = getDatabase();
     final OIndex idx;
@@ -268,14 +291,16 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
         if (collate != null) {
           final OCollate col = OSQLEngine.getCollate(collate);
           collatesList.add(col);
-        } else collatesList.add(null);
+        } else {
+          collatesList.add(null);
+        }
       }
     }
 
     if (fields == null || fields.length == 0) {
       OIndexFactory factory = OIndexes.getFactory(indexType.toString(), null);
 
-      if (keyTypes != null)
+      if (keyTypes != null) {
         idx =
             database
                 .getMetadata()
@@ -289,7 +314,7 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
                     null,
                     metadataDoc,
                     engine);
-      else if (serializerKeyId != 0) {
+      } else if (serializerKeyId != 0) {
         idx =
             database
                 .getMetadata()
@@ -316,7 +341,7 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
         final List<OType> fieldTypeList;
         if (keyTypes == null) {
           for (final String fieldName : fields) {
-            if (!fieldName.equals("@rid") && !oClass.existsProperty(fieldName))
+            if (!fieldName.equals("@rid") && !oClass.existsProperty(fieldName)) {
               throw new OIndexException(
                   "Index with name : '"
                       + indexName
@@ -325,9 +350,12 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
                       + "' because field: '"
                       + fieldName
                       + "' is absent in class definition.");
+            }
           }
           fieldTypeList = ((OClassImpl) oClass).extractFieldTypes(fields);
-        } else fieldTypeList = Arrays.asList(keyTypes);
+        } else {
+          fieldTypeList = Arrays.asList(keyTypes);
+        }
 
         final OIndexDefinition idxDef =
             OIndexDefinitionFactory.createIndexDefinition(
@@ -378,7 +406,9 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
 
   private void checkMapIndexSpecifier(final String fieldName, final String text, final int pos) {
     final String[] fieldNameParts = OPatternConst.PATTERN_SPACES.split(fieldName);
-    if (fieldNameParts.length == 1) return;
+    if (fieldNameParts.length == 1) {
+      return;
+    }
 
     if (fieldNameParts.length == 3) {
       if ("by".equals(fieldNameParts[1].toLowerCase(Locale.ENGLISH))) {

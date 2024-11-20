@@ -150,7 +150,7 @@ public class OServerCommandPostProperty extends OServerCommandAuthenticatedDbAbs
     final ODocument propertiesDoc = new ODocument().fromJSON(iRequest.getContent());
 
     for (String propertyName : propertiesDoc.fieldNames()) {
-      final Map<String, String> doc = (Map<String, String>) propertiesDoc.field(propertyName);
+      final Map<String, String> doc = propertiesDoc.field(propertyName);
       final OType propertyType = OType.valueOf(doc.get(PROPERTY_TYPE_JSON_FIELD));
       switch (propertyType) {
         case LINKLIST:

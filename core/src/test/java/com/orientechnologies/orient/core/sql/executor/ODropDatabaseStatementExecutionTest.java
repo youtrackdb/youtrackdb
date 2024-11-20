@@ -12,6 +12,7 @@ import org.junit.Test;
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class ODropDatabaseStatementExecutionTest {
+
   @Test
   public void testPlain() {
     String dbName = "ODropDatabaseStatementExecutionTest_testPlain";

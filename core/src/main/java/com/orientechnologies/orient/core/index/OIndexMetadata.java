@@ -26,6 +26,7 @@ import com.orientechnologies.orient.core.serialization.serializer.stream.OStream
 import com.orientechnologies.orient.core.serialization.serializer.stream.OStreamSerializerSBTreeIndexRIDContainer;
 import com.orientechnologies.orient.core.sharding.auto.OAutoShardingIndexFactory;
 import com.orientechnologies.orient.core.storage.index.hashindex.local.OHashIndexFactory;
+import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nonnull;
 
@@ -35,6 +36,7 @@ import javax.annotation.Nonnull;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OIndexMetadata {
+
   @Nonnull private final String name;
   private final OIndexDefinition indexDefinition;
   private final Set<String> clustersToIndex;
@@ -97,21 +99,28 @@ public class OIndexMetadata {
 
   @Override
   public boolean equals(final Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     final OIndexMetadata that = (OIndexMetadata) o;
 
-    if (algorithm != null ? !algorithm.equals(that.algorithm) : that.algorithm != null)
+    if (!Objects.equals(algorithm, that.algorithm)) {
       return false;
-    if (!clustersToIndex.equals(that.clustersToIndex)) return false;
-    if (indexDefinition != null
-        ? !indexDefinition.equals(that.indexDefinition)
-        : that.indexDefinition != null) return false;
-    if (!name.equals(that.name)) return false;
-    if (!type.equals(that.type)) return false;
-
-    return true;
+    }
+    if (!clustersToIndex.equals(that.clustersToIndex)) {
+      return false;
+    }
+    if (!Objects.equals(indexDefinition, that.indexDefinition)) {
+      return false;
+    }
+    if (!name.equals(that.name)) {
+      return false;
+    }
+    return type.equals(that.type);
   }
 
   @Override
@@ -130,13 +139,9 @@ public class OIndexMetadata {
 
   public boolean isMultivalue() {
     String t = type.toUpperCase();
-    if (OClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX.toString().equals(t)
+    return OClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX.toString().equals(t)
         || OClass.INDEX_TYPE.NOTUNIQUE.toString().equals(t)
-        || OClass.INDEX_TYPE.FULLTEXT.toString().equals(t)) {
-      return true;
-    } else {
-      return false;
-    }
+        || OClass.INDEX_TYPE.FULLTEXT.toString().equals(t);
   }
 
   public byte getValueSerializerId(int binaryFormatVersion) {

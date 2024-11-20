@@ -58,8 +58,7 @@ public class OSQLMethodValues extends OAbstractSQLMethod {
 
       return result;
     }
-    if (ioResult instanceof OResult) {
-      OResult res = (OResult) ioResult;
+    if (ioResult instanceof OResult res) {
       return res.getPropertyNames().stream()
           .map(field -> res.getProperty(field))
           .collect(Collectors.toList());

@@ -25,7 +25,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/** Tells that the field contains the embedded document bound to the POJO. Default is FALSE. */
+/**
+ * Tells that the field contains the embedded document bound to the POJO. Default is FALSE.
+ */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)

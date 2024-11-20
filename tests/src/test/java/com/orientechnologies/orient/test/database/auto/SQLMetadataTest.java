@@ -23,9 +23,12 @@ import org.testng.Assert;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-/** SQL test against metadata. */
+/**
+ * SQL test against metadata.
+ */
 @Test
 public class SQLMetadataTest extends DocumentDBBaseTest {
+
   @Parameters(value = "remote")
   public SQLMetadataTest(boolean remote) {
     super(remote);

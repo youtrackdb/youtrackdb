@@ -2,7 +2,9 @@
 /* JavaCCOptions:TOKEN_EXTENDS=,KEEP_LINE_COL=null,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.orientechnologies.orient.core.sql.parser;
 
-/** Describes the input token stream. */
+/**
+ * Describes the input token stream.
+ */
 public class Token implements java.io.Serializable {
 
   /**
@@ -17,19 +19,29 @@ public class Token implements java.io.Serializable {
    */
   public int kind;
 
-  /** The line number of the first character of this Token. */
+  /**
+   * The line number of the first character of this Token.
+   */
   public int beginLine;
 
-  /** The column number of the first character of this Token. */
+  /**
+   * The column number of the first character of this Token.
+   */
   public int beginColumn;
 
-  /** The line number of the last character of this Token. */
+  /**
+   * The line number of the last character of this Token.
+   */
   public int endLine;
 
-  /** The column number of the last character of this Token. */
+  /**
+   * The column number of the last character of this Token.
+   */
   public int endColumn;
 
-  /** The string image of the token. */
+  /**
+   * The string image of the token.
+   */
   public String image;
 
   /**
@@ -61,21 +73,29 @@ public class Token implements java.io.Serializable {
     return null;
   }
 
-  /** No-argument constructor */
+  /**
+   * No-argument constructor
+   */
   public Token() {}
 
-  /** Constructs a new token for the specified Image. */
+  /**
+   * Constructs a new token for the specified Image.
+   */
   public Token(int kind) {
     this(kind, null);
   }
 
-  /** Constructs a new token for the specified Image and Kind. */
+  /**
+   * Constructs a new token for the specified Image and Kind.
+   */
   public Token(int kind, String image) {
     this.kind = kind;
     this.image = image;
   }
 
-  /** Returns the image. */
+  /**
+   * Returns the image.
+   */
   public String toString() {
     return image;
   }

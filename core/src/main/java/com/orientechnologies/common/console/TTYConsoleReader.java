@@ -43,8 +43,11 @@ import java.util.Set;
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
 
-/** Custom implementation of TTY reader. Supports arrow keys + history. */
+/**
+ * Custom implementation of TTY reader. Supports arrow keys + history.
+ */
 public class TTYConsoleReader implements OConsoleReader {
+
   public static final int HORIZONTAL_TAB_CHAR = 9;
   public static final int NEW_LINE_CHAR = 10;
   public static final int VERTICAL_TAB_CHAR = 11;
@@ -63,8 +66,8 @@ public class TTYConsoleReader implements OConsoleReader {
   public static final int BACKSPACE_CHAR = 127;
   private static final int MAX_HISTORY_ENTRIES = 50;
   private static final Object signalLock = new Object();
-  private static String HISTORY_FILE_NAME = ".orientdb_history";
-  private static String ORIENTDB_HOME_DIR = ".orientdb";
+  private static final String HISTORY_FILE_NAME = ".orientdb_history";
+  private static final String ORIENTDB_HOME_DIR = ".orientdb";
   private static int cachedConsoleWidth = -1; // -1 for no cached value, -2 to indicate the error
 
   static {
@@ -121,9 +124,10 @@ public class TTYConsoleReader implements OConsoleReader {
       OLogManager.instance().error(this, "Error reading history file", ioe);
     }
 
-    if (inStream == null)
+    if (inStream == null) {
       throw new OSystemException(
           "Cannot access to the input stream. Check permissions of running process");
+    }
   }
 
   public String readPassword() throws IOException {
@@ -159,7 +163,9 @@ public class TTYConsoleReader implements OConsoleReader {
         if (ctrl) {
           if (next == RIGHT_CHAR) {
             cursorPosition = buffer.indexOf(" ", cursorPosition) + 1;
-            if (cursorPosition == 0) cursorPosition = buffer.length();
+            if (cursorPosition == 0) {
+              cursorPosition = buffer.length();
+            }
             updatePrompt(buffer);
           } else if (next == LEFT_CHAR) {
             if (cursorPosition > 1
@@ -169,7 +175,9 @@ public class TTYConsoleReader implements OConsoleReader {
             } else {
               cursorPosition = buffer.lastIndexOf(" ", cursorPosition) + 1;
             }
-            if (cursorPosition < 0) cursorPosition = 0;
+            if (cursorPosition < 0) {
+              cursorPosition = 0;
+            }
             updatePrompt(buffer);
           }
         } else {
@@ -201,7 +209,7 @@ public class TTYConsoleReader implements OConsoleReader {
                 if (historyBuffer != null) {
                   buffer = new StringBuffer(historyBuffer);
                 } else {
-                  buffer = new StringBuffer("");
+                  buffer = new StringBuffer();
                 }
               } else {
                 buffer = new StringBuffer(history.get(historyNum));
@@ -296,7 +304,9 @@ public class TTYConsoleReader implements OConsoleReader {
   public int getConsoleWidth() {
     synchronized (signalLock) {
       if (cachedConsoleWidth > 0) // we have cached value
-      return cachedConsoleWidth;
+      {
+        return cachedConsoleWidth;
+      }
 
       if (cachedConsoleWidth == -1) { // no cached value
         try {
@@ -308,7 +318,9 @@ public class TTYConsoleReader implements OConsoleReader {
 
           if (process.exitValue() == 0 && line != null) {
             cachedConsoleWidth = Integer.parseInt(line);
-          } else cachedConsoleWidth = -2;
+          } else {
+            cachedConsoleWidth = -2;
+          }
         } catch (IOException | NumberFormatException | InterruptedException ignore) {
           cachedConsoleWidth = -2;
         }
@@ -441,7 +453,9 @@ public class TTYConsoleReader implements OConsoleReader {
 
     final StringBuilder spaces = new StringBuilder();
     final int promptLengthDelta = oldTotalLength - newTotalLength;
-    for (int i = 0; i < promptLengthDelta; i++) spaces.append(' ');
+    for (int i = 0; i < promptLengthDelta; i++) {
+      spaces.append(' ');
+    }
     outStream.print(spaces);
 
     // 5. Reset the stream to the prompt beginning. We may do navigation relative to the updated
@@ -455,7 +469,9 @@ public class TTYConsoleReader implements OConsoleReader {
         moveCursorVertically(-1);
       }
       moveCursorVertically(-getWraps(newPrompt.length(), newText.length() - 1, consoleWidth));
-    } else moveCursorVertically(-getWraps(oldPromptLength, oldTextLength - 1, consoleWidth));
+    } else {
+      moveCursorVertically(-getWraps(oldPromptLength, oldTextLength - 1, consoleWidth));
+    }
 
     // 6. Place the stream at the right place.
 
@@ -490,7 +506,9 @@ public class TTYConsoleReader implements OConsoleReader {
     // 3. Clear the prompt.
 
     final StringBuilder spaces = new StringBuilder();
-    for (int i = 0; i < oldTotalLength; i++) spaces.append(' ');
+    for (int i = 0; i < oldTotalLength; i++) {
+      spaces.append(' ');
+    }
     outStream.print(spaces);
 
     // 4. Reset the stream to the prompt beginning.
@@ -529,13 +547,19 @@ public class TTYConsoleReader implements OConsoleReader {
   }
 
   private void moveCursorHorizontally(int delta) {
-    if (delta > 0) outStream.print("\033[" + delta + "C");
-    else if (delta < 0) outStream.print("\033[" + Math.abs(delta) + "D");
+    if (delta > 0) {
+      outStream.print("\033[" + delta + "C");
+    } else if (delta < 0) {
+      outStream.print("\033[" + Math.abs(delta) + "D");
+    }
   }
 
   private void moveCursorVertically(int delta) {
-    if (delta > 0) outStream.print("\033[" + delta + "B");
-    else if (delta < 0) outStream.print("\033[" + Math.abs(delta) + "A");
+    if (delta > 0) {
+      outStream.print("\033[" + delta + "B");
+    } else if (delta < 0) {
+      outStream.print("\033[" + Math.abs(delta) + "A");
+    }
   }
 
   private int getHintedHistoryIndexUp(int historyNum) {
@@ -574,9 +598,13 @@ public class TTYConsoleReader implements OConsoleReader {
     Path history = orientDBDir.resolve(HISTORY_FILE_NAME);
     try {
 
-      if (!read) Files.deleteIfExists(history);
+      if (!read) {
+        Files.deleteIfExists(history);
+      }
 
-      if (Files.exists(history)) return history.toFile();
+      if (Files.exists(history)) {
+        return history.toFile();
+      }
 
       return Files.createFile(history).toFile();
     } catch (IOException e) {

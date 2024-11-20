@@ -20,7 +20,6 @@ out
 
 #IntelliJ IDEA files
 *.iml
-.idea/
 
 tests/src/test/java/com/orientechnologies/orient/test/database/auto/_*.xml
 
@@ -123,6 +122,7 @@ buildNumber.properties
 # User-specific stuff:
 .idea/**/workspace.xml
 .idea/**/tasks.xml
+.idea/**/.gitignore
 .idea/dictionaries
 
 # Sensitive or high-churn files:

@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 public final class LRUList implements Iterable<OCacheEntry> {
+
   private int size;
 
   private OCacheEntry head;

@@ -12,7 +12,9 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by olena.kolesnyk on 31/07/2017. */
+/**
+ * Created by olena.kolesnyk on 31/07/2017.
+ */
 public class CheckRecordTypeStepTest extends TestUtilsFixture {
 
   @Test

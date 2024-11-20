@@ -120,5 +120,6 @@ public class AsyncIndexRemoteIT extends BareBoneBase3ServerTest {
   }
 
   @Override
-  protected void dbClient2(BareBonesServer[] servers) {}
+  protected void dbClient2(BareBonesServer[] servers) {
+  }
 }

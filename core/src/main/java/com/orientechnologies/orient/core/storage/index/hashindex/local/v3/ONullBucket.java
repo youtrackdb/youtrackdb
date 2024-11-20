@@ -29,13 +29,16 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODura
  * @since 4/25/14
  */
 public final class ONullBucket<V> extends ODurablePage {
+
   private final OBinarySerializer<V> valueSerializer;
 
   public ONullBucket(OCacheEntry cacheEntry, OBinarySerializer<V> valueSerializer, boolean isNew) {
     super(cacheEntry);
     this.valueSerializer = valueSerializer;
 
-    if (isNew) setByteValue(NEXT_FREE_POSITION, (byte) 0);
+    if (isNew) {
+      setByteValue(NEXT_FREE_POSITION, (byte) 0);
+    }
   }
 
   public void setValue(V value) {
@@ -50,7 +53,9 @@ public final class ONullBucket<V> extends ODurablePage {
   }
 
   public V getValue() {
-    if (getByteValue(NEXT_FREE_POSITION) == 0) return null;
+    if (getByteValue(NEXT_FREE_POSITION) == 0) {
+      return null;
+    }
 
     return deserializeFromDirectMemory(valueSerializer, NEXT_FREE_POSITION + 1);
   }

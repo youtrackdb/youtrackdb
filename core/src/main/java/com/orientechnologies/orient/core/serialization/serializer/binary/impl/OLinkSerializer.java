@@ -41,6 +41,7 @@ import java.nio.ByteBuffer;
  * @since 07.02.12
  */
 public class OLinkSerializer implements OBinarySerializer<OIdentifiable> {
+
   public static final byte ID = 9;
   private static final int CLUSTER_POS_SIZE = OLongSerializer.LONG_SIZE;
   public static final int RID_SIZE = OShortSerializer.SHORT_SIZE + CLUSTER_POS_SIZE;
@@ -103,11 +104,16 @@ public class OLinkSerializer implements OBinarySerializer<OIdentifiable> {
 
   @Override
   public OIdentifiable preprocess(OIdentifiable value, Object... hints) {
-    if (value == null) return null;
-    else return value.getIdentity();
+    if (value == null) {
+      return null;
+    } else {
+      return value.getIdentity();
+    }
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void serializeInByteBufferObject(
       OIdentifiable object, ByteBuffer buffer, Object... hints) {
@@ -120,7 +126,9 @@ public class OLinkSerializer implements OBinarySerializer<OIdentifiable> {
     buffer.put(stream);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public OIdentifiable deserializeFromByteBufferObject(ByteBuffer buffer) {
     final int clusterId = buffer.getShort();
@@ -146,7 +154,9 @@ public class OLinkSerializer implements OBinarySerializer<OIdentifiable> {
     return new ORecordId(clusterId, clusterPosition);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getObjectSizeInByteBuffer(ByteBuffer buffer) {
     return RID_SIZE;
@@ -157,7 +167,9 @@ public class OLinkSerializer implements OBinarySerializer<OIdentifiable> {
     return RID_SIZE;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public OIdentifiable deserializeFromByteBufferObject(
       ByteBuffer buffer, OWALChanges walChanges, int offset) {
@@ -173,7 +185,9 @@ public class OLinkSerializer implements OBinarySerializer<OIdentifiable> {
     return new ORecordId(clusterId, clusterPosition);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getObjectSizeInByteBuffer(ByteBuffer buffer, OWALChanges walChanges, int offset) {
     return RID_SIZE;

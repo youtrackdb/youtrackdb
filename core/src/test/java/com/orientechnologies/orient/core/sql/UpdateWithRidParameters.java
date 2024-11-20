@@ -23,7 +23,7 @@ public class UpdateWithRidParameters extends BaseMemoryDatabase {
     db.command("INSERT INTO testingClass2 SET id = ?", 456).close();
     ORID orid;
     try (OResultSet docs = db.query("SELECT FROM testingClass2 WHERE id = ?", 456)) {
-      orid = (ORID) docs.next().getProperty("@rid");
+      orid = docs.next().getProperty("@rid");
     }
 
     // This does not work. It silently adds a null instead of the ORID.

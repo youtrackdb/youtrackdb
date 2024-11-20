@@ -29,6 +29,7 @@ import com.orientechnologies.common.exception.OHighLevelException;
  */
 public class ODistributedConfigurationChangedException extends ONeedRetryException
     implements OHighLevelException {
+
   public ODistributedConfigurationChangedException(
       ODistributedConfigurationChangedException exception) {
     super(exception);

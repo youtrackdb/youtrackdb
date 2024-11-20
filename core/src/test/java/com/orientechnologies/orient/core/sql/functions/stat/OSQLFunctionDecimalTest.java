@@ -30,14 +30,14 @@ public class OSQLFunctionDecimalTest {
   public void testFromInteger() {
     function.execute(null, null, null, new Object[] {12}, null);
     Object result = function.getResult();
-    assertEquals(result, new BigDecimal(12));
+    assertEquals(result, BigDecimal.valueOf(12));
   }
 
   @Test
   public void testFromLong() {
-    function.execute(null, null, null, new Object[] {1287623847384l}, null);
+    function.execute(null, null, null, new Object[] {1287623847384L}, null);
     Object result = function.getResult();
-    assertEquals(result, new BigDecimal(1287623847384l));
+    assertEquals(result, new BigDecimal(1287623847384L));
   }
 
   @Test

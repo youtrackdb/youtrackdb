@@ -580,7 +580,7 @@ public final class OClusterPage extends ODurablePage {
     return -1;
   }
 
-  public final int getFreeSpace() {
+  public int getFreeSpace() {
     return getIntValue(FREE_SPACE_COUNTER_OFFSET);
   }
 
@@ -591,7 +591,7 @@ public final class OClusterPage extends ODurablePage {
     return Math.max(result, 0);
   }
 
-  public final int getRecordsCount() {
+  public int getRecordsCount() {
     return getIntValue(ENTRIES_COUNT_OFFSET);
   }
 

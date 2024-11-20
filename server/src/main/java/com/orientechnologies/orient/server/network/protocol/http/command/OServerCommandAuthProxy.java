@@ -23,7 +23,9 @@ import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 import java.util.Arrays;
 
-/** @author Luca Molino (molino.luca--at--gmail.com) */
+/**
+ * @author Luca Molino (molino.luca--at--gmail.com)
+ */
 public class OServerCommandAuthProxy extends OServerCommandPatternAbstract {
 
   public static final String DATABASE_CONF = "database";
@@ -36,15 +38,20 @@ public class OServerCommandAuthProxy extends OServerCommandPatternAbstract {
 
   public OServerCommandAuthProxy(OServerCommandConfiguration iConfig) {
     super(iConfig);
-    if (iConfig.parameters.length != 3)
+    if (iConfig.parameters.length != 3) {
       throw new OConfigurationException("AuthProxy Command requires database access data.");
+    }
 
     userName = "";
     userPassword = "";
     for (OServerEntryConfiguration conf : iConfig.parameters) {
-      if (conf.name.equals(USERNAME_CONF)) userName = conf.value;
-      else if (conf.name.equals(USERPASSWORD_CONF)) userPassword = conf.value;
-      else if (conf.name.equals(DATABASE_CONF)) databaseName = conf.value;
+      if (conf.name.equals(USERNAME_CONF)) {
+        userName = conf.value;
+      } else if (conf.name.equals(USERPASSWORD_CONF)) {
+        userPassword = conf.value;
+      } else if (conf.name.equals(DATABASE_CONF)) {
+        databaseName = conf.value;
+      }
     }
     authentication = userName + ":" + userPassword;
   }
@@ -61,9 +68,11 @@ public class OServerCommandAuthProxy extends OServerCommandPatternAbstract {
         || OServerCommandAuthenticatedDbAbstract.SESSIONID_LOGOUT.equals(iRequest.getSessionId())
         || iRequest.getSessionId().length() > 1
             && server.getHttpSessionManager().getSession(iRequest.getSessionId()) == null)
-      // AUTHENTICATED: CREATE THE SESSION
+    // AUTHENTICATED: CREATE THE SESSION
+    {
       iRequest.setSessionId(
           server.getHttpSessionManager().createSession(databaseName, userName, userPassword));
+    }
 
     return true;
   }

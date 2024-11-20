@@ -12,7 +12,10 @@ import com.orientechnologies.orient.core.config.OGlobalConfiguration;
  * OWALPage#MAGIC_NUMBER_OFFSET}
  */
 public interface OWALPage {
-  /** Size of the current instance of page in direct memory. */
+
+  /**
+   * Size of the current instance of page in direct memory.
+   */
   int PAGE_SIZE = OGlobalConfiguration.DISK_CACHE_PAGE_SIZE.getValueAsInteger() * 1024;
 
   /**
@@ -22,7 +25,9 @@ public interface OWALPage {
    */
   int MIN_RECORD_SIZE = OIntegerSerializer.INT_SIZE + 3;
 
-  /** Offset of position which stores CRC32 value of content stored on this page. */
+  /**
+   * Offset of position which stores CRC32 value of content stored on this page.
+   */
   int CRC_OFFSET = 0;
 
   /**
@@ -31,10 +36,14 @@ public interface OWALPage {
    */
   int MAGIC_NUMBER_OFFSET = CRC_OFFSET + OIntegerSerializer.INT_SIZE;
 
-  /** Offset of value which contains amount of space which is available to store new records. */
+  /**
+   * Offset of value which contains amount of space which is available to store new records.
+   */
   int FREE_SPACE_OFFSET = MAGIC_NUMBER_OFFSET + OLongSerializer.LONG_SIZE;
 
-  /** Returns content of record which is stored inside of specified position of page. */
+  /**
+   * Returns content of record which is stored inside of specified position of page.
+   */
   byte[] getRecord(int position);
 
   /**

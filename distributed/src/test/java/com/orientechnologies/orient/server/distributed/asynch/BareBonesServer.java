@@ -39,8 +39,9 @@ public class BareBonesServer {
       server = new OServer(false);
       server.startup(new File(configFileDir, configFileName));
       server.activate();
-      if (server.getDistributedManager() != null)
+      if (server.getDistributedManager() != null) {
         server.getDistributedManager().waitUntilNodeOnline();
+      }
     } catch (Exception e) {
       OLogManager.instance().error(this, "start", e);
     }

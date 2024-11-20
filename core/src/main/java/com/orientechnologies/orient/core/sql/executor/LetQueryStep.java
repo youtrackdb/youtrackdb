@@ -11,7 +11,9 @@ import com.orientechnologies.orient.core.sql.parser.OStatement;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Created by luigidellaquila on 03/08/16. */
+/**
+ * Created by luigidellaquila on 03/08/16.
+ */
 public class LetQueryStep extends AbstractExecutionStep {
 
   private final OIdentifier varName;

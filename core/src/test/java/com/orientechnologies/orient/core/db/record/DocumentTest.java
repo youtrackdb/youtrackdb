@@ -92,7 +92,7 @@ public class DocumentTest extends BaseMemoryDatabase {
 
     Number amountPlusVat = (Number) doc.eval("amount * 120 / 100");
 
-    Assert.assertEquals(amountPlusVat.longValue(), 360l);
+    Assert.assertEquals(amountPlusVat.longValue(), 360L);
   }
 
   @Test

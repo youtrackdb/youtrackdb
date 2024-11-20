@@ -6,7 +6,9 @@ import java.util.Collection;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by tglman on 10/06/16. */
+/**
+ * Created by tglman on 10/06/16.
+ */
 public class SaveLinkedTypeAnyTest extends BaseMemoryDatabase {
 
   @Test

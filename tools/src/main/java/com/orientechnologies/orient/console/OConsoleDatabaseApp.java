@@ -132,7 +132,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   private int lastPercentStep;
   private String currentDatabaseUserName;
   private String currentDatabaseUserPassword;
-  private int maxMultiValueEntries = 10;
+  private final int maxMultiValueEntries = 10;
 
   public OConsoleDatabaseApp(final String[] args) {
     super(args);
@@ -439,9 +439,9 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   public void listDatabases() throws IOException {
     if (orientDB != null) {
       final List<String> databases = orientDB.list();
-      message("\nFound %d databases:\n", databases.size());
+      message(String.format("\nFound %d databases:\n", databases.size()));
       for (String database : databases) {
-        message("\n* %s ", database);
+        message(String.format("\n* %s ", database));
       }
     } else {
       message(
@@ -778,15 +778,13 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     rs.close();
     float elapsedSeconds = getElapsedSecs(start);
 
-    setResultset((List<OIdentifiable>) result);
+    setResultset(result);
 
     int displayLimit = Integer.parseInt(properties.get(OConsoleProperties.LIMIT));
 
     dumpResultSet(displayLimit);
 
-    message(
-        "\nCreated '%s' edges in %f sec(s).\n",
-        ((List<OIdentifiable>) result).size(), elapsedSeconds);
+    message(String.format("\nCreated '%s' edges in %f sec(s).\n", result.size(), elapsedSeconds));
   }
 
   @ConsoleCommand(description = "Switches on storage profiling for upcoming set of commands")
@@ -819,7 +817,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       if (profilerDocument == null) {
         message(profilingWasNotSwitchedOn);
       } else {
-        message("Profiling result is : \n%s\n", profilerDocument.toJSON("prettyPrint"));
+        message(
+            String.format("Profiling result is : \n%s\n", profilerDocument.toJSON("prettyPrint")));
       }
     } else {
       message(profilingWasNotSwitchedOn);
@@ -1340,7 +1339,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       @ConsoleParameter(name = "text", description = "Commands to execute, one per line")
           String iText) {
     final String language;
-    final int languageEndPos = iText.indexOf(";");
+    final int languageEndPos = iText.indexOf(';');
     String[] splitted = iText.split(" ")[0].split(";")[0].split("\n")[0].split("\t");
     language = splitted[0];
     iText = iText.substring(language.length() + 1);
@@ -1386,12 +1385,14 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     if (currentResultSet != null) {
       dumpResultSet(-1);
       message(
-          "\nClient side script executed in %f sec(s). Returned %d records",
-          elapsedSeconds, currentResultSet.size());
+          String.format(
+              "\nClient side script executed in %f sec(s). Returned %d records",
+              elapsedSeconds, currentResultSet.size()));
     } else {
       message(
-          "\nClient side script executed in %f sec(s). Value returned is: %s",
-          elapsedSeconds, currentResult);
+          String.format(
+              "\nClient side script executed in %f sec(s). Value returned is: %s",
+              elapsedSeconds, currentResult));
     }
   }
 
@@ -1452,10 +1453,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       serverCfg.setUser(iServerUserName, hashedPassword, iPermissions);
       serverCfg.saveConfiguration();
 
-      message("\nServer user '%s' set correctly", iServerUserName);
+      message(String.format("\nServer user '%s' set correctly", iServerUserName));
 
     } catch (Exception e) {
-      error("\nError on loading %s file: %s", serverCfgFile, e.toString());
+      error(String.format("\nError on loading %s file: %s", serverCfgFile, e.toString()));
     }
   }
 
@@ -1481,17 +1482,17 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       final OServerConfigurationManager serverCfg = new OServerConfigurationManager(serverCfgFile);
 
       if (!serverCfg.existsUser(iServerUserName)) {
-        error("\nServer user '%s' not found in configuration", iServerUserName);
+        error(String.format("\nServer user '%s' not found in configuration", iServerUserName));
         return;
       }
 
       serverCfg.dropUser(iServerUserName);
       serverCfg.saveConfiguration();
 
-      message("\nServer user '%s' dropped correctly", iServerUserName);
+      message(String.format("\nServer user '%s' dropped correctly", iServerUserName));
 
     } catch (Exception e) {
-      error("\nError on loading %s file: %s", serverCfgFile, e.toString());
+      error(String.format("\nError on loading %s file: %s", serverCfgFile, e));
     }
   }
 
@@ -1517,12 +1518,12 @@ public class OConsoleDatabaseApp extends OConsoleApplication
         message("\nNo users found");
       } else {
         for (OServerUserConfiguration u : users) {
-          message("\n- '%s', permissions: %s", u.name, u.resources);
+          message(String.format("\n- '%s', permissions: %s", u.name, u.resources));
         }
       }
 
     } catch (Exception e) {
-      error("\nError on loading %s file: %s", serverCfgFile, e.toString());
+      error(String.format("\nError on loading %s file: %s", serverCfgFile, e.toString()));
     }
   }
 
@@ -1856,7 +1857,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       clusters.append(")");
     }
 
-    message("\nSupported clusters...: " + clusters.toString());
+    message("\nSupported clusters...: " + clusters);
     message("\nCluster selection....: " + cls.getClusterSelection().getName());
     message("\nOversize.............: " + cls.getClassOverSize());
 
@@ -2683,15 +2684,17 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     String fName = null;
     try {
       out.println(
-          new StringBuilder(
-                  "Executing incremental backup of database '" + currentDatabaseName + "' to: ")
-              .append(iText)
-              .append("..."));
+          "Executing incremental backup of database '"
+              + currentDatabaseName
+              + "' to: "
+              + iText
+              + "...");
       fName = currentDatabase.incrementalBackup(fileName);
 
       message(
-          "\nIncremental Backup executed in %.2f seconds stored in file %s",
-          ((float) (System.currentTimeMillis() - startTime) / 1000), fName);
+          String.format(
+              "\nIncremental Backup executed in %.2f seconds stored in file %s",
+              ((float) (System.currentTimeMillis() - startTime) / 1000), fName));
     } catch (ODatabaseExportException e) {
       printError(e);
     }
@@ -2706,10 +2709,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       throws IOException {
     checkForDatabase();
 
-    out.println(
-        new StringBuilder("Exporting current database to: ")
-            .append(iText)
-            .append(" in GZipped JSON format ..."));
+    out.println("Exporting current database to: " + iText + " in GZipped JSON format ...");
     final List<String> items = OStringSerializerHelper.smartSplit(iText, ' ');
     final String fileName =
         items.size() <= 1 || items.get(1).charAt(0) == '-' ? null : items.get(1);
@@ -3126,7 +3126,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     String[] p = iCommand.split(" ");
     List<String> parts = Arrays.stream(p).filter(x -> x.length() > 0).collect(Collectors.toList());
     if (parts.size() < 3) {
-      error("\n!Invalid syntax: '%s'", iCommand);
+      error(String.format("\n!Invalid syntax: '%s'", iCommand));
       return RESULT.ERROR;
     }
     String url = parts.get(2);
@@ -3211,17 +3211,11 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
     if (interactiveMode) {
       buffer.append("\r[");
-      for (int i = 0; i < completitionBar; ++i) {
-        buffer.append('=');
-      }
-      for (int i = completitionBar; i < 10; ++i) {
-        buffer.append(' ');
-      }
-      message("] %3.1f%% ", iPercent);
+      buffer.append("=".repeat(Math.max(0, completitionBar)));
+      buffer.append(" ".repeat(Math.max(0, 10 - completitionBar)));
+      message(String.format("] %3.1f%% ", iPercent));
     } else {
-      for (int i = lastPercentStep / 100; i < completitionBar; ++i) {
-        buffer.append('=');
-      }
+      buffer.append("=".repeat(Math.max(0, completitionBar - lastPercentStep / 100)));
     }
 
     message(buffer.toString());
@@ -3459,13 +3453,15 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     if (currentResultSet != null) {
       dumpResultSet(-1);
       message(
-          "\nServer side script executed in %f sec(s). Returned %d records",
-          elapsedSeconds, currentResultSet.size());
+          String.format(
+              "\nServer side script executed in %f sec(s). Returned %d records",
+              elapsedSeconds, currentResultSet.size()));
     } else {
       String lineFeed = currentResult instanceof Map<?, ?> ? "\n" : "";
       message(
-          "\nServer side script executed in %f sec(s). Value returned is: %s%s",
-          elapsedSeconds, lineFeed, currentResult);
+          String.format(
+              "\nServer side script executed in %f sec(s). Value returned is: %s%s",
+              elapsedSeconds, lineFeed, currentResult));
     }
   }
 
@@ -3499,12 +3495,12 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   private void dumpRecordDetails() {
     if (currentRecord == null) {
       return;
-    } else if (currentRecord instanceof ODocument) {
-      ODocument rec = (ODocument) currentRecord;
+    } else if (currentRecord instanceof ODocument rec) {
       if (rec.getClassName() != null || rec.getIdentity().isValid()) {
         message(
-            "\nDOCUMENT @class:%s @rid:%s @version:%d",
-            rec.getClassName(), rec.getIdentity().toString(), rec.getVersion());
+            String.format(
+                "\nDOCUMENT @class:%s @rid:%s @version:%d",
+                rec.getClassName(), rec.getIdentity().toString(), rec.getVersion()));
       }
 
       final List<ODocument> resultSet = new ArrayList<ODocument>();
@@ -3539,13 +3535,14 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
       formatter.writeRecords(resultSet, -1);
 
-    } else if (currentRecord instanceof OBlob) {
-      OBlob rec = (OBlob) currentRecord;
+    } else if (currentRecord instanceof OBlob rec) {
       message(
           "\n"
               + "+-------------------------------------------------------------------------------------------------+");
       message(
-          "\n| Bytes    - @rid: %s @version: %d", rec.getIdentity().toString(), rec.getVersion());
+          String.format(
+              "\n| Bytes    - @rid: %s @version: %d",
+              rec.getIdentity().toString(), rec.getVersion()));
       message(
           "\n"
               + "+-------------------------------------------------------------------------------------------------+");
@@ -3556,7 +3553,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
               Integer.parseInt(properties.get(OConsoleProperties.MAX_BINARY_DISPLAY)),
               Array.getLength(value));
       for (int i = 0; i < max; ++i) {
-        message("%03d", Array.getByte(value, i));
+        message(String.format("%03d", Array.getByte(value, i)));
       }
       message(
           "\n"
@@ -3567,10 +3564,11 @@ public class OConsoleDatabaseApp extends OConsoleApplication
           "\n"
               + "+-------------------------------------------------------------------------------------------------+");
       message(
-          "\n| %s - record id: %s   v.%d",
-          currentRecord.getClass().getSimpleName(),
-          currentRecord.getIdentity().toString(),
-          currentRecord.getVersion());
+          String.format(
+              "\n| %s - record id: %s   v.%d",
+              currentRecord.getClass().getSimpleName(),
+              currentRecord.getIdentity().toString(),
+              currentRecord.getVersion()));
       message(
           "\n"
               + "+-------------------------------------------------------------------------------------------------+");
@@ -3583,7 +3581,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
     for (ORecordSerializer s : ORecordSerializerFactory.instance().getFormats()) {
       if (s instanceof ORecordSerializerStringAbstract) {
-        message("\n- " + s.toString());
+        message("\n- " + s);
       }
     }
   }
@@ -3629,24 +3627,19 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     float elapsedSeconds = getElapsedSecs(start);
 
     if (iIncludeResult) {
-      message(iMessageSuccess, result, elapsedSeconds);
+      message(String.format(iMessageSuccess, result, elapsedSeconds));
     } else {
-      message(iMessageSuccess, elapsedSeconds);
+      message(String.format(iMessageSuccess, elapsedSeconds));
     }
 
     return result;
   }
 
   @Override
-  public void onMessage(String text, Object... args) {
-    message(text, args);
-  }
-
-  @Override
   protected void onException(Throwable e) {
     Throwable current = e;
     while (current != null) {
-      err.print("\nError: " + current.toString() + "\n");
+      err.print("\nError: " + current + "\n");
       current = current.getCause();
     }
   }

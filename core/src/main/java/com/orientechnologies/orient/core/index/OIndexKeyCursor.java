@@ -25,5 +25,6 @@ package com.orientechnologies.orient.core.index;
  * @since 4/22/14
  */
 public interface OIndexKeyCursor {
+
   Object next(int prefetchSize);
 }

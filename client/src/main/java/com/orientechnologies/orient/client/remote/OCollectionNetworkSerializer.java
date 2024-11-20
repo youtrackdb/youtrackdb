@@ -27,6 +27,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OCollectionNetworkSerializer {
+
   public static final OCollectionNetworkSerializer INSTANCE = new OCollectionNetworkSerializer();
 
   public OCollectionNetworkSerializer() {}

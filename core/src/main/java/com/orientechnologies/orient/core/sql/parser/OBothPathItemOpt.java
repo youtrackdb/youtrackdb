@@ -3,6 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 public class OBothPathItemOpt extends OBothPathItem {
+
   public OBothPathItemOpt(int id) {
     super(id);
   }

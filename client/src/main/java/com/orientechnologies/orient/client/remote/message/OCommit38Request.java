@@ -22,7 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/** Created by tglman on 30/12/16. */
+/**
+ * Created by tglman on 30/12/16.
+ */
 public class OCommit38Request implements OBinaryRequest<OCommit37Response> {
 
   private int txId;

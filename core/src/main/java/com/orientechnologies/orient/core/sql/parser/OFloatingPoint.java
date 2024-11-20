@@ -5,6 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.Map;
+import java.util.Objects;
 
 public class OFloatingPoint extends ONumber {
 
@@ -85,16 +86,19 @@ public class OFloatingPoint extends ONumber {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OFloatingPoint that = (OFloatingPoint) o;
 
-    if (sign != that.sign) return false;
-    if (stringValue != null ? !stringValue.equals(that.stringValue) : that.stringValue != null)
+    if (sign != that.sign) {
       return false;
-
-    return true;
+    }
+    return Objects.equals(stringValue, that.stringValue);
   }
 
   @Override

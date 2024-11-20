@@ -9,6 +9,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
+import java.util.Objects;
 
 public class ORebuildIndexStatement extends OSimpleExecStatement {
 
@@ -32,20 +33,25 @@ public class ORebuildIndexStatement extends OSimpleExecStatement {
     if (all) {
       long totalIndexed = 0;
       for (OIndex idx : database.getMetadata().getIndexManagerInternal().getIndexes(database)) {
-        if (idx.isAutomatic()) totalIndexed += idx.rebuild();
+        if (idx.isAutomatic()) {
+          totalIndexed += idx.rebuild();
+        }
       }
 
       result.setProperty("totalIndexed", totalIndexed);
     } else {
       final OIndex idx =
           database.getMetadata().getIndexManagerInternal().getIndex(database, name.getValue());
-      if (idx == null) throw new OCommandExecutionException("Index '" + name + "' not found");
+      if (idx == null) {
+        throw new OCommandExecutionException("Index '" + name + "' not found");
+      }
 
-      if (!idx.isAutomatic())
+      if (!idx.isAutomatic()) {
         throw new OCommandExecutionException(
             "Cannot rebuild index '"
                 + name
                 + "' because it's manual and there aren't indications of what to index");
+      }
 
       long val = idx.rebuild();
       result.setProperty("totalIndexed", val);
@@ -83,15 +89,19 @@ public class ORebuildIndexStatement extends OSimpleExecStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     ORebuildIndexStatement that = (ORebuildIndexStatement) o;
 
-    if (all != that.all) return false;
-    if (name != null ? !name.equals(that.name) : that.name != null) return false;
-
-    return true;
+    if (all != that.all) {
+      return false;
+    }
+    return Objects.equals(name, that.name);
   }
 
   @Override

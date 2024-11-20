@@ -31,6 +31,7 @@ import java.util.Map;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OCommandExecutorSQLRevoke extends OCommandExecutorSQLPermissionAbstract {
+
   public static final String KEYWORD_REVOKE = "REVOKE";
   private static final String KEYWORD_FROM = "FROM";
 
@@ -56,36 +57,47 @@ public class OCommandExecutorSQLRevoke extends OCommandExecutorSQLPermissionAbst
 
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
-      if (pos == -1 || !word.toString().equals(KEYWORD_REVOKE))
+      if (pos == -1 || !word.toString().equals(KEYWORD_REVOKE)) {
         throw new OCommandSQLParsingException(
             "Keyword " + KEYWORD_REVOKE + " not found. Use " + getSyntax(), parserText, oldPos);
+      }
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
-      if (pos == -1) throw new OCommandSQLParsingException("Invalid privilege", parserText, oldPos);
+      if (pos == -1) {
+        throw new OCommandSQLParsingException("Invalid privilege", parserText, oldPos);
+      }
 
       parsePrivilege(word, oldPos);
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
-      if (pos == -1 || !word.toString().equals(KEYWORD_ON))
+      if (pos == -1 || !word.toString().equals(KEYWORD_ON)) {
         throw new OCommandSQLParsingException(
             "Keyword " + KEYWORD_ON + " not found. Use " + getSyntax(), parserText, oldPos);
+      }
 
       pos = nextWord(parserText, parserText, pos, word, true);
-      if (pos == -1) throw new OCommandSQLParsingException("Invalid resource", parserText, oldPos);
+      if (pos == -1) {
+        throw new OCommandSQLParsingException("Invalid resource", parserText, oldPos);
+      }
 
       resource = word.toString();
 
       pos = nextWord(parserText, parserTextUpperCase, pos, word, true);
-      if (pos == -1 || !word.toString().equals(KEYWORD_FROM))
+      if (pos == -1 || !word.toString().equals(KEYWORD_FROM)) {
         throw new OCommandSQLParsingException(
             "Keyword " + KEYWORD_FROM + " not found. Use " + getSyntax(), parserText, oldPos);
+      }
 
       pos = nextWord(parserText, parserText, pos, word, true);
-      if (pos == -1) throw new OCommandSQLParsingException("Invalid role", parserText, oldPos);
+      if (pos == -1) {
+        throw new OCommandSQLParsingException("Invalid role", parserText, oldPos);
+      }
 
       final String roleName = word.toString();
       role = database.getMetadata().getSecurity().getRole(roleName);
-      if (role == null) throw new OCommandSQLParsingException("Invalid role: " + roleName);
+      if (role == null) {
+        throw new OCommandSQLParsingException("Invalid role: " + roleName);
+      }
     } finally {
       textRequest.setText(originalQuery);
     }
@@ -93,11 +105,14 @@ public class OCommandExecutorSQLRevoke extends OCommandExecutorSQLPermissionAbst
     return this;
   }
 
-  /** Execute the command. */
+  /**
+   * Execute the command.
+   */
   public Object execute(final Map<Object, Object> iArgs) {
-    if (role == null)
+    if (role == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not yet been parsed");
+    }
 
     role.revoke(resource, privilege);
     role.save();

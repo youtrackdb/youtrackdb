@@ -13,8 +13,11 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
-/** Created by frank on 30/10/2015. */
+/**
+ * Created by frank on 30/10/2015.
+ */
 public class OLuceneAnalyzerFactory {
+
   public Analyzer createAnalyzer(
       final OIndexDefinition index, final AnalyzerKind kind, final ODocument metadata) {
     if (index == null) {

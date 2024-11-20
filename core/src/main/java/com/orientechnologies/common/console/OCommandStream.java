@@ -26,6 +26,7 @@ import com.orientechnologies.common.concur.resource.OCloseable;
  * @author Artem Orobets (enisher-at-gmail.com)
  */
 public interface OCommandStream extends OCloseable {
+
   boolean hasNext();
 
   String nextCommand();

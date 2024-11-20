@@ -27,6 +27,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OGetSizeResponse implements OBinaryResponse {
+
   private long size;
 
   public OGetSizeResponse() {}

@@ -19,7 +19,9 @@ import java.io.IOException;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.spatial.SpatialStrategy;
 
-/** Created by Enrico Risa on 11/08/15. */
+/**
+ * Created by Enrico Risa on 11/08/15.
+ */
 public interface OLuceneSpatialIndexContainer {
 
   IndexSearcher searcher() throws IOException;

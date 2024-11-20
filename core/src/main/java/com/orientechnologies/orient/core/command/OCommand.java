@@ -25,12 +25,13 @@ package com.orientechnologies.orient.core.command;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OCommand {
+
   /**
    * Executes command.
    *
    * @return The result of command if any, otherwise null
    */
-  public Object execute();
+  Object execute();
 
-  public OCommandContext getContext();
+  OCommandContext getContext();
 }

@@ -111,7 +111,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
-/** Created by tglman on 30/03/17. */
+/**
+ * Created by tglman on 30/03/17.
+ */
 public class ODatabaseDocumentDistributed extends ODatabaseDocumentEmbedded {
 
   private final ODistributedPlugin distributedManager;
@@ -250,26 +252,33 @@ public class ODatabaseDocumentDistributed extends ODatabaseDocumentEmbedded {
       boolean servers, boolean db, boolean latency, boolean messages) {
     checkSecurity(ORule.ResourceGeneric.SERVER, "status", ORole.PERMISSION_READ);
 
-    if (distributedManager == null || !distributedManager.isEnabled())
+    if (distributedManager == null || !distributedManager.isEnabled()) {
       throw new OCommandExecutionException("OrientDB is not started in distributed mode");
+    }
 
     final String databaseName = getName();
 
     final ODistributedConfiguration cfg = distributedManager.getDatabaseConfiguration(databaseName);
 
     Map<String, Object> row = new HashMap<>();
-    if (servers) row.put("servers", distributedManager.getClusterConfiguration());
-    if (db) row.put("database", cfg.getDocument());
-    if (latency)
+    if (servers) {
+      row.put("servers", distributedManager.getClusterConfiguration());
+    }
+    if (db) {
+      row.put("database", cfg.getDocument());
+    }
+    if (latency) {
       row.put(
           "latency",
           ODistributedOutput.formatLatency(
               distributedManager, distributedManager.getClusterConfiguration()));
-    if (messages)
+    }
+    if (messages) {
       row.put(
           "messages",
           ODistributedOutput.formatMessages(
               distributedManager, distributedManager.getClusterConfiguration()));
+    }
 
     return row;
   }
@@ -278,8 +287,9 @@ public class ODatabaseDocumentDistributed extends ODatabaseDocumentEmbedded {
   public boolean removeHaServer(String serverName) {
     checkSecurity(ORule.ResourceGeneric.SERVER, "remove", ORole.PERMISSION_EXECUTE);
 
-    if (distributedManager == null || !distributedManager.isEnabled())
+    if (distributedManager == null || !distributedManager.isEnabled()) {
       throw new OCommandExecutionException("OrientDB is not started in distributed mode");
+    }
 
     final String databaseName = getName();
 
@@ -301,8 +311,9 @@ public class ODatabaseDocumentDistributed extends ODatabaseDocumentEmbedded {
 
   public ODistributedResponse executeTaskOnNode(ORemoteTask task, String nodeName) {
 
-    if (distributedManager == null || !distributedManager.isEnabled())
+    if (distributedManager == null || !distributedManager.isEnabled()) {
       throw new ODistributedException("OrientDB is not started in distributed mode");
+    }
 
     final String databaseName = getName();
 
@@ -337,8 +348,9 @@ public class ODatabaseDocumentDistributed extends ODatabaseDocumentEmbedded {
     // if provided a cluster name use it.
     if (rid.getClusterId() <= ORID.CLUSTER_POS_INVALID && iClusterName != null) {
       rid.setClusterId(getClusterIdByName(iClusterName));
-      if (rid.getClusterId() == -1)
+      if (rid.getClusterId() == -1) {
         throw new IllegalArgumentException("Cluster name '" + iClusterName + "' is not configured");
+      }
     }
     OClass schemaClass = null;
     // if cluster id is not set yet try to find it out
@@ -347,16 +359,18 @@ public class ODatabaseDocumentDistributed extends ODatabaseDocumentEmbedded {
         // Immutable Schema Class not support distributed yet.
         schemaClass = ((ODocument) record).getSchemaClass();
         if (schemaClass != null) {
-          if (schemaClass.isAbstract())
+          if (schemaClass.isAbstract()) {
             throw new OSchemaException(
                 "Document belongs to abstract class "
                     + schemaClass.getName()
                     + " and cannot be saved");
+          }
           rid.setClusterId(
               ((OClassDistributed) schemaClass).getClusterForNewInstance(this, (ODocument) record));
-        } else
+        } else {
           throw new ODatabaseException(
               "Cannot save (4) document " + record + ": no class or cluster defined");
+        }
       } else {
         throw new ODatabaseException(
             "Cannot save (5) document " + record + ": no class or cluster defined");
@@ -417,7 +431,9 @@ public class ODatabaseDocumentDistributed extends ODatabaseDocumentEmbedded {
       for (ORecordOperation txEntry : iTx.getRecordOperations()) {
         if (txEntry.type == ORecordOperation.CREATED || txEntry.type == ORecordOperation.UPDATED) {
           final ORecord record = txEntry.getRecord();
-          if (record instanceof ODocument) ((ODocument) record).validate();
+          if (record instanceof ODocument) {
+            ((ODocument) record).validate();
+          }
         }
       }
       ODistributedDatabase localDistributedDatabase = getDistributedShared();
@@ -487,7 +503,8 @@ public class ODatabaseDocumentDistributed extends ODatabaseDocumentEmbedded {
    * @param tx
    * @param txContext
    * @param isCoordinator specifies whether this node is the tx coordinator
-   * @param force whether to use the force flag for acquiring the promises required for this tx.
+   * @param force         whether to use the force flag for acquiring the promises required for this
+   *                      tx.
    */
   public void acquireLocksForTx(
       OTransactionInternal tx,
@@ -564,7 +581,7 @@ public class ODatabaseDocumentDistributed extends ODatabaseDocumentEmbedded {
     } catch (OConcurrentCreateException ex) {
       if (retryCount >= 0
           && retryCount
-              < getConfiguration().getValueAsInteger(DISTRIBUTED_CONCURRENT_TX_MAX_AUTORETRY)) {
+          < getConfiguration().getValueAsInteger(DISTRIBUTED_CONCURRENT_TX_MAX_AUTORETRY)) {
         if (ex.getExpectedRid().getClusterPosition() > ex.getActualRid().getClusterPosition()) {
           OLogManager.instance()
               .debug(
@@ -583,7 +600,7 @@ public class ODatabaseDocumentDistributed extends ODatabaseDocumentEmbedded {
     } catch (OConcurrentModificationException ex) {
       if (retryCount >= 0
           && retryCount
-              < getConfiguration().getValueAsInteger(DISTRIBUTED_CONCURRENT_TX_MAX_AUTORETRY)) {
+          < getConfiguration().getValueAsInteger(DISTRIBUTED_CONCURRENT_TX_MAX_AUTORETRY)) {
         if (ex.getEnhancedRecordVersion() > ex.getEnhancedDatabaseVersion()) {
           OLogManager.instance()
               .info(
@@ -604,15 +621,15 @@ public class ODatabaseDocumentDistributed extends ODatabaseDocumentEmbedded {
       // This error can happen only in deserialization before locks happen, no need to unlock
       if (retryCount >= 0
           && retryCount
-              < getConfiguration().getValueAsInteger(DISTRIBUTED_CONCURRENT_TX_MAX_AUTORETRY)) {
+          < getConfiguration().getValueAsInteger(DISTRIBUTED_CONCURRENT_TX_MAX_AUTORETRY)) {
         return false;
       }
       txContext.setStatus(FAILED);
       register(requestId, localDistributedDatabase, txContext);
       throw e;
     } catch (ODistributedRecordLockedException
-        | ODistributedKeyLockedException
-        | OInvalidSequentialException ex) {
+             | ODistributedKeyLockedException
+             | OInvalidSequentialException ex) {
       /// ?? do i've to save this state as well ?
       txContext.setStatus(TIMEDOUT);
       register(requestId, localDistributedDatabase, txContext);
@@ -841,7 +858,8 @@ public class ODatabaseDocumentDistributed extends ODatabaseDocumentEmbedded {
   /**
    * @param txContext
    * @param isCoordinator specifies whether this node is the tx coordinator
-   * @param force whether to use the force flag for acquiring the promises required for this tx.
+   * @param force         whether to use the force flag for acquiring the promises required for this
+   *                      tx.
    */
   public void internalBegin2pc(
       ONewDistributedTxContextImpl txContext, boolean isCoordinator, boolean force) {
@@ -1040,7 +1058,7 @@ public class ODatabaseDocumentDistributed extends ODatabaseDocumentEmbedded {
   public void twoPhaseDDL(String command) {
     if (isLocalEnv()) {
       // ALREADY DISTRIBUTED
-      super.command(command, new Object[] {}).close();
+      super.command(command, new Object[]{}).close();
       return;
     }
     checkNodeIsMaster(
@@ -1049,7 +1067,7 @@ public class ODatabaseDocumentDistributed extends ODatabaseDocumentEmbedded {
     // The plus 1 is for make sure it runs once even if retry is 0
     int nretry =
         getConfiguration()
-                .getValueAsInteger(OGlobalConfiguration.DISTRIBUTED_CONCURRENT_TX_MAX_AUTORETRY)
+            .getValueAsInteger(OGlobalConfiguration.DISTRIBUTED_CONCURRENT_TX_MAX_AUTORETRY)
             + 1;
 
     retry:
@@ -1154,6 +1172,7 @@ public class ODatabaseDocumentDistributed extends ODatabaseDocumentEmbedded {
       Collection<String> nodes, ORemoteTask task, Object localResult, long next) {
     ODistributedServerManager dManager = getDistributedManager();
     final class HoldResponseManager {
+
       ODistributedTxResponseManagerImpl responseManager;
     }
     ;
@@ -1256,7 +1275,9 @@ public class ODatabaseDocumentDistributed extends ODatabaseDocumentEmbedded {
         .releaseExclusiveLock(getName(), distributedManager.getLocalNodeName());
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void freeze(final boolean throwException) {
     ((ODistributedDatabaseImpl) getDistributedShared()).freezeStatus();
@@ -1283,9 +1304,11 @@ public class ODatabaseDocumentDistributed extends ODatabaseDocumentEmbedded {
     final ODistributedServerManager.DB_STATUS prevStatus =
         distributedManager.getDatabaseStatus(localNode, getName());
     if (prevStatus == ODistributedServerManager.DB_STATUS.ONLINE)
-      // SET STATUS = BACKUP
+    // SET STATUS = BACKUP
+    {
       distributedManager.setDatabaseStatus(
           localNode, getName(), ODistributedServerManager.DB_STATUS.BACKUP);
+    }
 
     try {
 
@@ -1301,22 +1324,26 @@ public class ODatabaseDocumentDistributed extends ODatabaseDocumentEmbedded {
   protected void checkNodeIsMaster(
       final String localNodeName, final ODistributedConfiguration dbCfg, final String operation) {
     final ODistributedConfiguration.ROLES nodeRole = dbCfg.getServerRole(localNodeName);
-    if (nodeRole != ODistributedConfiguration.ROLES.MASTER)
+    if (nodeRole != ODistributedConfiguration.ROLES.MASTER) {
       throw new OWriteOperationNotPermittedException(
           "Cannot execute write operation ("
               + operation
               + ") on node '"
               + localNodeName
               + "' because is non a master");
+    }
   }
 
   protected void handleDistributedException(
       final String iMessage, final Exception e, final Object... iParams) {
     if (e != null) {
-      if (e instanceof OException) throw (OException) e;
-      else if (e.getCause() instanceof OException) throw (OException) e.getCause();
-      else if (e.getCause() != null && e.getCause().getCause() instanceof OException)
+      if (e instanceof OException) {
+        throw (OException) e;
+      } else if (e.getCause() instanceof OException) {
+        throw (OException) e.getCause();
+      } else if (e.getCause() != null && e.getCause().getCause() instanceof OException) {
         throw (OException) e.getCause().getCause();
+      }
     }
 
     OLogManager.instance().error(this, iMessage, e, iParams);
@@ -1366,7 +1393,7 @@ public class ODatabaseDocumentDistributed extends ODatabaseDocumentEmbedded {
     ValidationResult second = localDistributedDatabase.validate(afterChangeId);
     if ((first == ValidationResult.ALREADY_PROMISED || first == ValidationResult.MISSING_PREVIOUS)
         && (second == ValidationResult.ALREADY_PROMISED
-            || second == ValidationResult.MISSING_PREVIOUS)) {
+        || second == ValidationResult.MISSING_PREVIOUS)) {
       ddlContext.setStatus(TIMEDOUT);
       return new OTxInvalidSequential();
     } else if (first == ValidationResult.ALREADY_PRESENT
@@ -1394,7 +1421,7 @@ public class ODatabaseDocumentDistributed extends ODatabaseDocumentEmbedded {
         String query = context.getQuery();
         OScenarioThreadLocal.executeAsDistributed(
             () -> {
-              command(query, new Object[] {});
+              command(query, new Object[]{});
               return null;
             });
 
@@ -1441,7 +1468,7 @@ public class ODatabaseDocumentDistributed extends ODatabaseDocumentEmbedded {
             String query = context.getQuery();
             OScenarioThreadLocal.executeAsDistributed(
                 () -> {
-                  command(query, new Object[] {});
+                  command(query, new Object[]{});
                   return null;
                 });
           } catch (RuntimeException | Error e) {

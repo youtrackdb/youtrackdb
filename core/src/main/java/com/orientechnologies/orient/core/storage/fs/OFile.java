@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 public interface OFile extends OClosableItem {
+
   int HEADER_SIZE = 1024;
 
   long allocateSpace(int size) throws IOException;

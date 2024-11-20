@@ -236,9 +236,9 @@ public class WWConflictAndNodeInDeadlockScenarioIT extends AbstractScenarioTest 
       // r1 on server3 has the values set by the client c1 or the values set by the client c2, but
       // not the old one
       if ((r1onServer3.field("firstName").equals("Luke")
-              && r1onServer3.field("lastName").equals("Skywalker"))
+          && r1onServer3.field("lastName").equals("Skywalker"))
           || r1onServer3.field("firstName").equals("Darth")
-              && r1onServer3.field("lastName").equals("Vader")) {
+          && r1onServer3.field("lastName").equals("Vader")) {
         assertTrue("The record on server3 has been updated by a client without exceptions!", true);
       } else {
         fail("The record on server3 has not been updated by any client!");
@@ -274,73 +274,77 @@ public class WWConflictAndNodeInDeadlockScenarioIT extends AbstractScenarioTest 
 
       // BACKUP LAST SERVER, RUN ASYNCHRONOUSLY
       new Thread(
-              new Runnable() {
-                @Override
-                public void run() {
-                  try {
-                    // CRASH LAST SERVER try {
-                    executeWhen(
-                        new Callable<Boolean>() {
-                          // CONDITION
-                          @Override
-                          public Boolean call() throws Exception {
-                            return server3inDeadlock.get();
+          new Runnable() {
+            @Override
+            public void run() {
+              try {
+                // CRASH LAST SERVER try {
+                executeWhen(
+                    new Callable<Boolean>() {
+                      // CONDITION
+                      @Override
+                      public Boolean call() throws Exception {
+                        return server3inDeadlock.get();
+                      }
+                    }, // ACTION
+                    new Callable() {
+                      @Override
+                      public Object call() throws Exception {
+
+                        banner("STARTING BACKUP SERVER " + (2));
+
+                        ODatabaseDocument g = getDatabase(2);
+
+                        backupInProgress = true;
+                        File file = null;
+                        try {
+                          file = File.createTempFile("orientdb_test_backup", ".zip");
+                          if (file.exists()) {
+                            Assert.assertTrue(file.delete());
                           }
-                        }, // ACTION
-                        new Callable() {
-                          @Override
-                          public Object call() throws Exception {
 
-                            banner("STARTING BACKUP SERVER " + (2));
+                          g.backup(
+                              new FileOutputStream(file),
+                              null,
+                              new Callable<Object>() {
+                                @Override
+                                public Object call() throws Exception {
 
-                            ODatabaseDocument g = getDatabase(2);
+                                  // SIMULATE LONG BACKUP UNTIL SPECIFIED BY VARIABLE
+                                  // 'server3inDeadlock'
+                                  while (server3inDeadlock.get()) {
+                                    Thread.sleep(1000);
+                                  }
 
-                            backupInProgress = true;
-                            File file = null;
-                            try {
-                              file = File.createTempFile("orientdb_test_backup", ".zip");
-                              if (file.exists()) Assert.assertTrue(file.delete());
+                                  return null;
+                                }
+                              },
+                              null,
+                              9,
+                              1000000);
 
-                              g.backup(
-                                  new FileOutputStream(file),
-                                  null,
-                                  new Callable<Object>() {
-                                    @Override
-                                    public Object call() throws Exception {
+                        } catch (IOException e) {
+                          e.printStackTrace();
+                        } finally {
+                          banner("COMPLETED BACKUP SERVER " + (2));
+                          backupInProgress = false;
 
-                                      // SIMULATE LONG BACKUP UNTIL SPECIFIED BY VARIABLE
-                                      // 'server3inDeadlock'
-                                      while (server3inDeadlock.get()) {
-                                        Thread.sleep(1000);
-                                      }
+                          g.close();
 
-                                      return null;
-                                    }
-                                  },
-                                  null,
-                                  9,
-                                  1000000);
-
-                            } catch (IOException e) {
-                              e.printStackTrace();
-                            } finally {
-                              banner("COMPLETED BACKUP SERVER " + (2));
-                              backupInProgress = false;
-
-                              g.close();
-
-                              if (file != null) file.delete();
-                            }
-                            return null;
+                          if (file != null) {
+                            file.delete();
                           }
-                        });
+                        }
+                        return null;
+                      }
+                    });
 
-                  } catch (Exception e) {
-                    e.printStackTrace();
-                    fail("Error on execution flow");
-                  }
-                }
-              })
+              } catch (Exception e) {
+                e.printStackTrace();
+                fail("Error on execution flow");
+              }
+            }
+          })
           .start();
     }
   }

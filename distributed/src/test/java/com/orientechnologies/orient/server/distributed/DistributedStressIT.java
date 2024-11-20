@@ -36,6 +36,7 @@ import org.junit.Test;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class DistributedStressIT extends AbstractServerClusterTest {
+
   private static final int SERVERS = 3;
 
   public String getDatabaseName() {
@@ -59,21 +60,21 @@ public class DistributedStressIT extends AbstractServerClusterTest {
     // root --ha-metrics true
     final OStressTester stressTester =
         OStressTesterCommandLineParser.getStressTester(
-            new String[] {
-              "-m",
-              "remote",
-              "-c",
-              "8",
-              "-tx",
-              "50",
-              "-w",
-              "GINSERT:V500F20Ssupernode",
-              "--remote-ip",
-              "localhost",
-              "--root-password",
-              "test",
-              "--ha-metrics",
-              "true"
+            new String[]{
+                "-m",
+                "remote",
+                "-c",
+                "8",
+                "-tx",
+                "50",
+                "-w",
+                "GINSERT:V500F20Ssupernode",
+                "--remote-ip",
+                "localhost",
+                "--root-password",
+                "test",
+                "--ha-metrics",
+                "true"
             });
 
     OLogManager.instance().flush();

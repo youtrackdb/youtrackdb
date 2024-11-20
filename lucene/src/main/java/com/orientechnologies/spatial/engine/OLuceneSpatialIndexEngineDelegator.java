@@ -42,7 +42,9 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.spatial.SpatialStrategy;
 
-/** Created by Enrico Risa on 04/09/15. */
+/**
+ * Created by Enrico Risa on 04/09/15.
+ */
 public class OLuceneSpatialIndexEngineDelegator
     implements OLuceneIndexEngine, OLuceneSpatialIndexContainer {
 
@@ -91,7 +93,9 @@ public class OLuceneSpatialIndexEngineDelegator
 
   @Override
   public void delete(OAtomicOperation atomicOperation) {
-    if (delegate != null) delegate.delete(atomicOperation);
+    if (delegate != null) {
+      delegate.delete(atomicOperation);
+    }
   }
 
   @Override

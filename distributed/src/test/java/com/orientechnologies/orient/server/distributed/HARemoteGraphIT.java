@@ -14,6 +14,7 @@ import com.orientechnologies.orient.setup.ServerRun;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class HARemoteGraphIT extends HALocalGraphIT {
+
   @Override
   protected String getDatabaseURL(final ServerRun server) {
     return "remote:localhost:2424;localhost:2425;localhost:2426/" + getDatabaseName();

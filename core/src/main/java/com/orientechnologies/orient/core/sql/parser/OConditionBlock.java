@@ -5,6 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import java.util.Map;
 
 public class OConditionBlock extends SimpleNode {
+
   public OConditionBlock(int id) {
     super(id);
   }

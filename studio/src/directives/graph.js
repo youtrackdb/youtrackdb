@@ -334,7 +334,7 @@ graph.directive('c3DataCenter', ["$http", "$compile", "$timeout", "$rootScope", 
         }
       });
       return colors.length > 0 ? colors[0] : "#d9534f";
-    };
+    }
 
 
     function changeIfMyServer(dc, s, status) {

@@ -4,6 +4,7 @@ import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Iterator;
@@ -24,10 +25,10 @@ public class ExpandStep extends AbstractExecutionStep {
       throw new OCommandExecutionException("Cannot expand without a target");
     }
     OExecutionStream resultSet = prev.start(ctx);
-    return resultSet.flatMap(this::nextResults);
+    return resultSet.flatMap(ExpandStep::nextResults);
   }
 
-  private OExecutionStream nextResults(OResult nextAggregateItem, OCommandContext ctx) {
+  private static OExecutionStream nextResults(OResult nextAggregateItem, OCommandContext ctx) {
     if (nextAggregateItem.getPropertyNames().isEmpty()) {
       return OExecutionStream.empty();
     }
@@ -41,12 +42,14 @@ public class ExpandStep extends AbstractExecutionStep {
       return OExecutionStream.empty();
     }
     if (projValue instanceof OIdentifiable) {
-      ORecord rec = ((OIdentifiable) projValue).getRecord();
-      if (rec == null) {
+      ORecord rec;
+      try {
+        rec = ((OIdentifiable) projValue).getRecord();
+      } catch (ORecordNotFoundException rnf) {
         return OExecutionStream.empty();
       }
-      OResultInternal res = new OResultInternal(rec);
 
+      OResultInternal res = new OResultInternal(rec);
       return OExecutionStream.singleton(res);
     } else if (projValue instanceof OResult) {
       return OExecutionStream.singleton((OResult) projValue);

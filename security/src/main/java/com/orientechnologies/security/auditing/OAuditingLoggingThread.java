@@ -30,14 +30,15 @@ import java.util.concurrent.BlockingQueue;
  * @author Luca Garulli
  */
 public class OAuditingLoggingThread extends Thread {
+
   private final String databaseName;
   private final BlockingQueue<ODocument> auditingQueue;
   private volatile boolean running = true;
   private volatile boolean waitForAllLogs = true;
-  private OrientDBInternal context;
+  private final OrientDBInternal context;
 
-  private String className;
-  private OSecuritySystem security;
+  private final String className;
+  private final OSecuritySystem security;
 
   public OAuditingLoggingThread(
       final String iDatabaseName,
@@ -69,8 +70,7 @@ public class OAuditingLoggingThread extends Thread {
               if (!schema.existsClass(className)) {
                 OClass clazz = schema.getClass(ODefaultAuditing.AUDITING_LOG_CLASSNAME);
                 OClass cls = schema.createClass(className, clazz);
-                cls.createIndex(
-                    className + ".date", OClass.INDEX_TYPE.NOTUNIQUE, new String[] {"date"});
+                cls.createIndex(className + ".date", OClass.INDEX_TYPE.NOTUNIQUE, "date");
               }
               return null;
             });
@@ -94,7 +94,9 @@ public class OAuditingLoggingThread extends Thread {
         if (security.getSyslog() != null) {
           byte byteOp = OAuditingOperation.UNSPECIFIED.getByte();
 
-          if (log.containsField("operation")) byteOp = log.field("operation");
+          if (log.containsField("operation")) {
+            byteOp = log.field("operation");
+          }
 
           String username = log.field("user");
           String message = log.field("note");

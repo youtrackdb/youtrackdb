@@ -49,9 +49,9 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
       new HashMap<String, OAuditingClassConfig>(20);
   private final OAuditingLoggingThread auditingThread;
 
-  private Map<ODatabaseSession, List<ODocument>> operations = new ConcurrentHashMap<>();
+  private final Map<ODatabaseSession, List<ODocument>> operations = new ConcurrentHashMap<>();
   private volatile LinkedBlockingQueue<ODocument> auditingQueue;
-  private Set<OAuditingCommandConfig> commands = new HashSet<OAuditingCommandConfig>();
+  private final Set<OAuditingCommandConfig> commands = new HashSet<OAuditingCommandConfig>();
   private boolean onGlobalCreate;
   private boolean onGlobalRead;
   private boolean onGlobalUpdate;
@@ -132,10 +132,10 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
   private class OAuditingSchemaConfig extends OAuditingConfig {
 
     private boolean onCreateClassEnabled = false;
-    private String onCreateClassMessage;
+    private final String onCreateClassMessage;
 
     private boolean onDropClassEnabled = false;
-    private String onDropClassMessage;
+    private final String onDropClassMessage;
 
     public OAuditingSchemaConfig(final ODocument cfg) {
       if (cfg.containsField("onCreateClassEnabled")) {
@@ -195,7 +195,7 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
     final ODocument classesCfg = iConfiguration.field("classes");
     if (classesCfg != null) {
       for (String c : classesCfg.fieldNames()) {
-        final OAuditingClassConfig cfg = new OAuditingClassConfig((ODocument) classesCfg.field(c));
+        final OAuditingClassConfig cfg = new OAuditingClassConfig(classesCfg.field(c));
         if (c.equals("*")) {
           defaultConfig = cfg;
         } else {
@@ -335,8 +335,7 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
   @Override
   public void onRecordAfterUpdate(final ORecord iRecord) {
 
-    if (iRecord instanceof ODocument) {
-      ODocument doc = (ODocument) iRecord;
+    if (iRecord instanceof ODocument doc) {
       ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
       OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(db, doc);
 
@@ -441,8 +440,7 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
         }
         note = cfg.onUpdateMessage;
 
-        if (iRecord instanceof ODocument && cfg.onUpdateChanges) {
-          final ODocument doc = (ODocument) iRecord;
+        if (iRecord instanceof ODocument doc && cfg.onUpdateChanges) {
           changes = new ODocument();
 
           for (String f : doc.getDirtyFields()) {

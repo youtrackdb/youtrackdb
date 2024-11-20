@@ -23,6 +23,7 @@ import com.orientechnologies.orient.core.db.OrientDBInternal;
 import com.orientechnologies.orient.core.storage.OStorage;
 
 public interface OEngine {
+
   String getName();
 
   OStorage createStorage(
@@ -44,7 +45,7 @@ public interface OEngine {
 
   /**
    * @return {@code true} if this engine has been started and not shutdown yet, {@code false}
-   *     otherwise.
+   * otherwise.
    */
   boolean isRunning();
 }

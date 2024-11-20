@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class OViewRefreshIT {
+
   private OrientDB orientDB;
 
   @Before
@@ -400,7 +401,7 @@ public class OViewRefreshIT {
 
       Thread.sleep(1000);
 
-      System.out.println("");
+      System.out.println();
       OResultSet result = db.query("SELECT FROM " + viewName);
       Assert.assertEquals(10, result.stream().count());
       result.close();

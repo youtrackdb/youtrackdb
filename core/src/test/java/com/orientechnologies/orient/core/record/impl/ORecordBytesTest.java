@@ -29,6 +29,7 @@ import org.junit.Test;
  * @author bogdan
  */
 public class ORecordBytesTest {
+
   private static final int SMALL_ARRAY = 3;
   private static final int BIG_ARRAY = 7;
   private static final int FULL_ARRAY = 5;
@@ -118,8 +119,7 @@ public class ORecordBytesTest {
 
     final int result = testedInstance.fromInputStream(is);
     Assert.assertEquals(result, data.length);
-    Assert.assertEquals(
-        (Integer) getFieldValue(testedInstance, "size"), Integer.valueOf(data.length));
+    Assert.assertEquals(getFieldValue(testedInstance, "size"), Integer.valueOf(data.length));
 
     final byte[] source = (byte[]) getFieldValue(testedInstance, "source");
     assertArrayEquals(source, data);
@@ -132,8 +132,7 @@ public class ORecordBytesTest {
 
     final int result = testedInstance.fromInputStream(is, 10);
     Assert.assertEquals(result, data.length);
-    Assert.assertEquals(
-        (Integer) getFieldValue(testedInstance, "size"), Integer.valueOf(data.length));
+    Assert.assertEquals(getFieldValue(testedInstance, "size"), Integer.valueOf(data.length));
 
     final byte[] source = (byte[]) getFieldValue(testedInstance, "source");
     assertArrayEquals(source, data);
@@ -146,8 +145,7 @@ public class ORecordBytesTest {
 
     final int result = testedInstance.fromInputStream(is, 15);
     Assert.assertEquals(result, data.length);
-    Assert.assertEquals(
-        (Integer) getFieldValue(testedInstance, "size"), Integer.valueOf(data.length));
+    Assert.assertEquals(getFieldValue(testedInstance, "size"), Integer.valueOf(data.length));
 
     final byte[] source = (byte[]) getFieldValue(testedInstance, "source");
     assertArrayEquals(source, data);
@@ -161,8 +159,7 @@ public class ORecordBytesTest {
 
     final int result = testedInstance.fromInputStream(is, 8);
     Assert.assertEquals(result, expected.length);
-    Assert.assertEquals(
-        (Integer) getFieldValue(testedInstance, "size"), Integer.valueOf(expected.length));
+    Assert.assertEquals(getFieldValue(testedInstance, "size"), Integer.valueOf(expected.length));
 
     final byte[] source = (byte[]) getFieldValue(testedInstance, "source");
     assertArrayEquals(source, expected);
@@ -172,7 +169,7 @@ public class ORecordBytesTest {
 
     private final byte[] data;
     private int pos = -1;
-    private int interrupt;
+    private final int interrupt;
 
     private NotFullyAvailableAtTheTimeInputStream(byte[] data, int interrupt) {
       this.data = data;

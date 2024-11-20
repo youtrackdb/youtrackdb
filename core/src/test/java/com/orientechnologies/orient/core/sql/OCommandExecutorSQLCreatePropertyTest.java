@@ -21,10 +21,10 @@ package com.orientechnologies.orient.core.sql;
 
 import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.BaseMemoryInternalDatabase;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
@@ -267,7 +267,7 @@ public class OCommandExecutorSQLCreatePropertyTest extends BaseMemoryInternalDat
     assertEquals(idProperty.getName(), PROP_ID);
     assertEquals(idProperty.getFullName(), PROP_FULL_ID);
     assertEquals(idProperty.getType(), OType.INTEGER);
-    assertEquals(idProperty.getLinkedType(), null);
+    assertNull(idProperty.getLinkedType());
     assertFalse(idProperty.isMandatory());
     assertFalse(idProperty.isNotNull());
     assertFalse(idProperty.isReadonly());
@@ -288,7 +288,7 @@ public class OCommandExecutorSQLCreatePropertyTest extends BaseMemoryInternalDat
     assertEquals(idProperty.getName(), PROP_ID);
     assertEquals(idProperty.getFullName(), PROP_FULL_ID);
     assertEquals(idProperty.getType(), OType.INTEGER);
-    assertEquals(idProperty.getLinkedType(), null);
+    assertNull(idProperty.getLinkedType());
     assertTrue(idProperty.isMandatory());
     assertEquals(idProperty.getDefaultValue(), "5");
   }
@@ -296,7 +296,7 @@ public class OCommandExecutorSQLCreatePropertyTest extends BaseMemoryInternalDat
   @Test
   public void testNonStrict() throws Exception {
 
-    ((ODatabaseSessionInternal) db).getStorage().setProperty(OStatement.CUSTOM_STRICT_SQL, "false");
+    db.getStorage().setProperty(OStatement.CUSTOM_STRICT_SQL, "false");
 
     db.command("CREATE CLASS company").close();
     db.command(
@@ -310,7 +310,7 @@ public class OCommandExecutorSQLCreatePropertyTest extends BaseMemoryInternalDat
     assertEquals(idProperty.getName(), PROP_ID);
     assertEquals(idProperty.getFullName(), PROP_FULL_ID);
     assertEquals(idProperty.getType(), OType.INTEGER);
-    assertEquals(idProperty.getLinkedType(), null);
+    assertNull(idProperty.getLinkedType());
     assertTrue(idProperty.isMandatory());
     assertFalse(idProperty.isNotNull());
     assertTrue(idProperty.isReadonly());

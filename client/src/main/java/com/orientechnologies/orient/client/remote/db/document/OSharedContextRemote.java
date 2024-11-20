@@ -13,7 +13,9 @@ import com.orientechnologies.orient.core.metadata.sequence.OSequenceLibraryImpl;
 import com.orientechnologies.orient.core.schedule.OSchedulerImpl;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
 
-/** Created by tglman on 13/06/17. */
+/**
+ * Created by tglman on 13/06/17.
+ */
 public class OSharedContextRemote extends OSharedContext {
 
   public OSharedContextRemote(OStorageInfo storage, OrientDBRemote orientDBRemote) {

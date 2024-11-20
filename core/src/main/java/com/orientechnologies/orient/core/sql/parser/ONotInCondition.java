@@ -8,6 +8,7 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class ONotInCondition extends OBooleanExpression {
@@ -21,7 +22,7 @@ public class ONotInCondition extends OBooleanExpression {
   protected OMathExpression rightMathExpression;
 
   private static final Object UNSET = new Object();
-  private Object inputFinalValue = UNSET;
+  private final Object inputFinalValue = UNSET;
 
   public ONotInCondition(int id) {
     super(id);
@@ -115,10 +116,7 @@ public class ONotInCondition extends OBooleanExpression {
     if (left != null && !left.supportsBasicCalculation()) {
       return false;
     }
-    if (rightMathExpression != null && !rightMathExpression.supportsBasicCalculation()) {
-      return false;
-    }
-    return true;
+    return rightMathExpression == null || rightMathExpression.supportsBasicCalculation();
   }
 
   @Override
@@ -154,16 +152,13 @@ public class ONotInCondition extends OBooleanExpression {
       return true;
     }
 
-    if (rightMathExpression != null && rightMathExpression.needsAliases(aliases)) {
-      return true;
-    }
-    return false;
+    return rightMathExpression != null && rightMathExpression.needsAliases(aliases);
   }
 
   @Override
   public ONotInCondition copy() {
     ONotInCondition result = new ONotInCondition(-1);
-    result.operator = operator == null ? null : (OBinaryCompareOperator) operator.copy();
+    result.operator = operator == null ? null : operator.copy();
     result.left = left == null ? null : left.copy();
     result.rightMathExpression = rightMathExpression == null ? null : rightMathExpression.copy();
     result.rightStatement = rightStatement == null ? null : rightStatement.copy();
@@ -195,35 +190,39 @@ public class ONotInCondition extends OBooleanExpression {
     if (rightStatement != null && rightStatement.refersToParent()) {
       return true;
     }
-    if (rightMathExpression != null && rightMathExpression.refersToParent()) {
-      return true;
-    }
-    return false;
+    return rightMathExpression != null && rightMathExpression.refersToParent();
   }
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     ONotInCondition that = (ONotInCondition) o;
 
-    if (left != null ? !left.equals(that.left) : that.left != null) return false;
-    if (operator != null ? !operator.equals(that.operator) : that.operator != null) return false;
-    if (rightStatement != null
-        ? !rightStatement.equals(that.rightStatement)
-        : that.rightStatement != null) return false;
-    if (right != null ? !right.equals(that.right) : that.right != null) return false;
-    if (rightParam != null ? !rightParam.equals(that.rightParam) : that.rightParam != null)
+    if (!Objects.equals(left, that.left)) {
       return false;
-    if (rightMathExpression != null
-        ? !rightMathExpression.equals(that.rightMathExpression)
-        : that.rightMathExpression != null) return false;
-    if (inputFinalValue != null
-        ? !inputFinalValue.equals(that.inputFinalValue)
-        : that.inputFinalValue != null) return false;
-
-    return true;
+    }
+    if (!Objects.equals(operator, that.operator)) {
+      return false;
+    }
+    if (!Objects.equals(rightStatement, that.rightStatement)) {
+      return false;
+    }
+    if (!Objects.equals(right, that.right)) {
+      return false;
+    }
+    if (!Objects.equals(rightParam, that.rightParam)) {
+      return false;
+    }
+    if (!Objects.equals(rightMathExpression, that.rightMathExpression)) {
+      return false;
+    }
+    return Objects.equals(inputFinalValue, that.inputFinalValue);
   }
 
   @Override
@@ -265,10 +264,7 @@ public class ONotInCondition extends OBooleanExpression {
       return false;
     }
 
-    if (rightMathExpression != null && !rightMathExpression.isCacheable()) {
-      return false;
-    }
-    return true;
+    return rightMathExpression == null || rightMathExpression.isCacheable();
   }
 }
 /* JavaCC - OriginalChecksum=8fb82bf72cc7d9cbdf2f9e2323ca8ee1 (do not edit this line) */

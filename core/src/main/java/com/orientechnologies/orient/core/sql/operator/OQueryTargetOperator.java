@@ -31,6 +31,7 @@ import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OQueryTargetOperator extends OQueryOperator {
+
   protected OQueryTargetOperator(
       final String iKeyword, final int iPrecedence, final boolean iLogical) {
     super(iKeyword, iPrecedence, false);

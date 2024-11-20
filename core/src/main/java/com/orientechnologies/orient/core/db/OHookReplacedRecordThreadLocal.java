@@ -23,7 +23,9 @@ import com.orientechnologies.orient.core.OOrientListenerAbstract;
 import com.orientechnologies.orient.core.Orient;
 import com.orientechnologies.orient.core.record.ORecord;
 
-/** Uses Thread Local to store information used by hooks. */
+/**
+ * Uses Thread Local to store information used by hooks.
+ */
 public class OHookReplacedRecordThreadLocal extends ThreadLocal<ORecord> {
 
   public static volatile OHookReplacedRecordThreadLocal INSTANCE =
@@ -35,7 +37,9 @@ public class OHookReplacedRecordThreadLocal extends ThreadLocal<ORecord> {
             new OOrientListenerAbstract() {
               @Override
               public void onStartup() {
-                if (INSTANCE == null) INSTANCE = new OHookReplacedRecordThreadLocal();
+                if (INSTANCE == null) {
+                  INSTANCE = new OHookReplacedRecordThreadLocal();
+                }
               }
 
               @Override

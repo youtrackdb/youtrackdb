@@ -27,19 +27,19 @@ public class OCustomSQLFunctionsTest extends BaseMemoryDatabase {
   @Test
   public void testAbsInt() {
     OResultSet result = db.query("select math_abs(-5) as abs");
-    assertTrue((Integer) result.next().getProperty("abs") == 5);
+    assertEquals(5, (int) (Integer) result.next().getProperty("abs"));
   }
 
   @Test
   public void testAbsDouble() {
     OResultSet result = db.query("select math_abs(-5.0d) as abs");
-    assertTrue((Double) result.next().getProperty("abs") == 5.0);
+    assertEquals(5.0, (Double) result.next().getProperty("abs"), 0.0);
   }
 
   @Test
   public void testAbsFloat() {
     OResultSet result = db.query("select math_abs(-5.0f) as abs");
-    assertTrue((Float) result.next().getProperty("abs") == 5.0);
+    assertEquals(5.0, (Float) result.next().getProperty("abs"), 0.0);
   }
 
   @Test(expected = OQueryParsingException.class)

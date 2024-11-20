@@ -85,42 +85,39 @@ public class OMatchStatementTest {
 
   @Test
   public void testFilterTypes() {
-    StringBuilder query = new StringBuilder();
-    query.append("MATCH {");
-    query.append("   class: 'v', ");
-    query.append("   as: foo, ");
-    query.append("   where: (name = 'foo' and surname = 'bar' or aaa in [1,2,3]), ");
-    query.append("   maxDepth: 10 ");
-    query.append("} return foo");
-    checkRightSyntax(query.toString());
+    String query =
+        "MATCH {"
+            + "   class: 'v', "
+            + "   as: foo, "
+            + "   where: (name = 'foo' and surname = 'bar' or aaa in [1,2,3]), "
+            + "   maxDepth: 10 "
+            + "} return foo";
+    checkRightSyntax(query);
   }
 
   @Test
   public void testFilterTypes2() {
-    StringBuilder query = new StringBuilder();
-    query.append("MATCH {");
-    query.append("   classes: ['V', 'E'], ");
-    query.append("   as: foo, ");
-    query.append("   where: (name = 'foo' and surname = 'bar' or aaa in [1,2,3]), ");
-    query.append("   maxDepth: 10 ");
-    query.append("} return foo");
-    checkRightSyntax(query.toString());
+    String query =
+        "MATCH {"
+            + "   classes: ['V', 'E'], "
+            + "   as: foo, "
+            + "   where: (name = 'foo' and surname = 'bar' or aaa in [1,2,3]), "
+            + "   maxDepth: 10 "
+            + "} return foo";
+    checkRightSyntax(query);
   }
 
   @Test
   public void testMultiPath() {
-    StringBuilder query = new StringBuilder();
-    query.append("MATCH {}");
-    query.append("  .(out().in(){class:'v'}.both('Foo')){maxDepth: 3}.out() return foo");
-    checkRightSyntax(query.toString());
+    String query =
+        "MATCH {}" + "  .(out().in(){class:'v'}.both('Foo')){maxDepth: 3}.out() return foo";
+    checkRightSyntax(query);
   }
 
   @Test
   public void testMultiPathArrows() {
-    StringBuilder query = new StringBuilder();
-    query.append("MATCH {}");
-    query.append("  .(-->{}<--{class:'v'}--){maxDepth: 3}-->{} return foo");
-    checkRightSyntax(query.toString());
+    String query = "MATCH {}" + "  .(-->{}<--{class:'v'}--){maxDepth: 3}-->{} return foo";
+    checkRightSyntax(query);
   }
 
   @Test

@@ -40,6 +40,7 @@ import java.util.Set;
  * @author Luca
  */
 public class OServerSideScriptInterpreter extends OServerPluginAbstract {
+
   protected Set<String> allowedLanguages = new HashSet<String>();
 
   protected OScriptInterceptor interceptor;
@@ -52,8 +53,10 @@ public class OServerSideScriptInterpreter extends OServerPluginAbstract {
     for (OServerParameterConfiguration param : iParams) {
       if (param.name.equalsIgnoreCase("enabled")) {
         if (Boolean.parseBoolean(param.value))
-          // ENABLE IT
+        // ENABLE IT
+        {
           enabled = true;
+        }
       } else if (param.name.equalsIgnoreCase("allowedLanguages")) {
         allowedLanguages =
             new HashSet<>(Arrays.asList(param.value.toLowerCase(Locale.ENGLISH).split(",")));
@@ -73,7 +76,9 @@ public class OServerSideScriptInterpreter extends OServerPluginAbstract {
   @Override
   public void startup() {
 
-    if (!enabled) return;
+    if (!enabled) {
+      return;
+    }
 
     OrientDBInternal.extract(server.getContext())
         .getScriptManager()
@@ -110,7 +115,9 @@ public class OServerSideScriptInterpreter extends OServerPluginAbstract {
 
   @Override
   public void shutdown() {
-    if (!enabled) return;
+    if (!enabled) {
+      return;
+    }
 
     if (interceptor != null) {
       OrientDBInternal.extract(server.getContext())
@@ -128,9 +135,13 @@ public class OServerSideScriptInterpreter extends OServerPluginAbstract {
   }
 
   private void checkLanguage(final String language) {
-    if (allowedLanguages.contains(language)) return;
+    if (allowedLanguages.contains(language)) {
+      return;
+    }
 
-    if ("js".equals(language) && allowedLanguages.contains("javascript")) return;
+    if ("js".equals(language) && allowedLanguages.contains("javascript")) {
+      return;
+    }
 
     throw new OSecurityException("Language '" + language + "' is not allowed to be executed");
   }

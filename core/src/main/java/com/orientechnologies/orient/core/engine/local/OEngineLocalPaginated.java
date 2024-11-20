@@ -46,6 +46,7 @@ import java.util.List;
  * @since 28.03.13
  */
 public class OEngineLocalPaginated extends OEngineAbstract {
+
   public static final String NAME = "plocal";
 
   private volatile OReadCache readCache;
@@ -126,8 +127,9 @@ public class OEngineLocalPaginated extends OEngineAbstract {
    * @see OReadCache#changeMaximumAmountOfMemory(long)
    */
   public void changeCacheSize(final long cacheSize) {
-    if (readCache != null)
+    if (readCache != null) {
       readCache.changeMaximumAmountOfMemory(calculateReadCacheMaxMemory(cacheSize));
+    }
 
     // otherwise memory size will be set during cache initialization.
   }

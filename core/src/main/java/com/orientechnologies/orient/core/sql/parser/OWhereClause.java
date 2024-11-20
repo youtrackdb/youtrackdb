@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class OWhereClause extends SimpleNode {
+
   protected OBooleanExpression baseExpression;
 
   private List<OAndBlock> flattened;
@@ -76,7 +77,7 @@ public class OWhereClause extends SimpleNode {
    * estimates how many items of this class will be returned applying this filter
    *
    * @return an estimation of the number of records of this class returned applying this filter, 0
-   *     if and only if sure that no records are returned
+   * if and only if sure that no records are returned
    */
   public long estimate(OClass oClass, long threshold, OCommandContext ctx) {
     long count = oClass.count();
@@ -93,8 +94,7 @@ public class OWhereClause extends SimpleNode {
     for (OAndBlock condition : flattenedConditions) {
 
       List<OBinaryCondition> indexedFunctConditions =
-          condition.getIndexedFunctionConditions(
-              oClass, (ODatabaseSessionInternal) ctx.getDatabase());
+          condition.getIndexedFunctionConditions(oClass, ctx.getDatabase());
 
       long conditionEstimation = Long.MAX_VALUE;
 
@@ -258,8 +258,7 @@ public class OWhereClause extends SimpleNode {
       OAndBlock condition, OCommandContext ctx) {
     Map<String, Object> result = new HashMap<>();
     for (OBooleanExpression expression : condition.subBlocks) {
-      if (expression instanceof OBinaryCondition) {
-        OBinaryCondition b = (OBinaryCondition) expression;
+      if (expression instanceof OBinaryCondition b) {
         if (b.operator instanceof OEqualsCompareOperator) {
           if (b.left.isBaseIdentifier() && b.right.isEarlyCalculated(ctx)) {
             result.put(b.left.toString(), b.right.execute((OResult) null, ctx));
@@ -314,12 +313,18 @@ public class OWhereClause extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OWhereClause that = (OWhereClause) o;
 
-    if (!Objects.equals(baseExpression, that.baseExpression)) return false;
+    if (!Objects.equals(baseExpression, that.baseExpression)) {
+      return false;
+    }
     return Objects.equals(flattened, that.flattened);
   }
 

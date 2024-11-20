@@ -7,6 +7,7 @@ import org.junit.Before;
  * @since 21.05.13
  */
 public class UnsafeConverterTest extends AbstractConverterTest {
+
   @Before
   public void beforeClass() {
     converter = new OUnsafeBinaryConverter();

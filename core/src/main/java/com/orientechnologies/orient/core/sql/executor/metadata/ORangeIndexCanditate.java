@@ -9,8 +9,8 @@ import java.util.Optional;
 
 public class ORangeIndexCanditate implements OIndexCandidate {
 
-  private String name;
-  private OProperty property;
+  private final String name;
+  private final OProperty property;
 
   public ORangeIndexCanditate(String name, OProperty property) {
     this.name = name;

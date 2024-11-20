@@ -1,13 +1,14 @@
 package com.orientechnologies.common.test;
 
 public interface SpeedTest {
-  public void cycle() throws Exception;
 
-  public void init() throws Exception;
+  void cycle() throws Exception;
 
-  public void deinit() throws Exception;
+  void init() throws Exception;
 
-  public void beforeCycle() throws Exception;
+  void deinit() throws Exception;
 
-  public void afterCycle() throws Exception;
+  void beforeCycle() throws Exception;
+
+  void afterCycle() throws Exception;
 }

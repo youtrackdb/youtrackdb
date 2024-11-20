@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,13 +27,11 @@ public class OMethodCall extends SimpleNode {
 
   static Set<String> graphMethods =
       new HashSet<String>(
-          Arrays.asList(
-              new String[] {"out", "in", "both", "outE", "inE", "bothE", "bothV", "outV", "inV"}));
+          Arrays.asList("out", "in", "both", "outE", "inE", "bothE", "bothV", "outV", "inV"));
 
   static Set<String> bidirectionalMethods =
       new HashSet<String>(
-          Arrays.asList(
-              new String[] {"out", "in", "both", "oute", "ine", "inv", "outv", "bothe", "bothv"}));
+          Arrays.asList("out", "in", "both", "oute", "ine", "inv", "outv", "bothe", "bothv"));
 
   protected OIdentifier methodName;
   protected List<OExpression> params = new ArrayList<OExpression>();
@@ -289,16 +288,19 @@ public class OMethodCall extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OMethodCall that = (OMethodCall) o;
 
-    if (methodName != null ? !methodName.equals(that.methodName) : that.methodName != null)
+    if (!Objects.equals(methodName, that.methodName)) {
       return false;
-    if (params != null ? !params.equals(that.params) : that.params != null) return false;
-
-    return true;
+    }
+    return Objects.equals(params, that.params);
   }
 
   @Override
@@ -355,10 +357,7 @@ public class OMethodCall extends SimpleNode {
   }
 
   public boolean isCacheable() {
-    if (resolveIsGraphFunction()) {
-      return true;
-    }
-    return false; // TODO
+    return resolveIsGraphFunction(); // TODO
   }
 
   public void addParam(OExpression param) {

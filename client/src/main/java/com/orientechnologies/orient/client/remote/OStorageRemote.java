@@ -109,8 +109,6 @@ import com.orientechnologies.orient.client.remote.message.OSubscribeSequencesReq
 import com.orientechnologies.orient.client.remote.message.OSubscribeStorageConfigurationRequest;
 import com.orientechnologies.orient.client.remote.message.OUnsubscribeLiveQueryRequest;
 import com.orientechnologies.orient.client.remote.message.OUnsubscribeRequest;
-import com.orientechnologies.orient.client.remote.message.OUpdateRecordRequest;
-import com.orientechnologies.orient.client.remote.message.OUpdateRecordResponse;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.command.OCommandRequestAsynch;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
@@ -181,6 +179,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import javax.annotation.Nonnull;
 
 /**
  * This object is bound to each remote ODatabase instances.
@@ -292,20 +291,20 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
 
   private String normalizeName(String name) {
     if (OStringSerializerHelper.contains(name, '/')) {
-      name = name.substring(name.lastIndexOf("/") + 1);
+      name = name.substring(name.lastIndexOf('/') + 1);
 
       if (OStringSerializerHelper.contains(name, '\\')) {
-        return name.substring(name.lastIndexOf("\\") + 1);
+        return name.substring(name.lastIndexOf('\\') + 1);
       } else {
         return name;
       }
 
     } else {
       if (OStringSerializerHelper.contains(name, '\\')) {
-        name = name.substring(name.lastIndexOf("\\") + 1);
+        name = name.substring(name.lastIndexOf('\\') + 1);
 
         if (OStringSerializerHelper.contains(name, '/')) {
-          return name.substring(name.lastIndexOf("/") + 1);
+          return name.substring(name.lastIndexOf('/') + 1);
         } else {
           return name;
         }
@@ -729,9 +728,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
         }
       }
       sessions.remove(session);
-      if (!checkForClose(iForce)) {
-        return;
-      }
+      if (!checkForClose(iForce)) {}
     }
   }
 
@@ -774,7 +771,6 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
 
     } finally {
       stateLock.writeLock().unlock();
-      ;
     }
   }
 
@@ -803,9 +799,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   public int removeUser() {
     if (users.get() < 1) {
       throw new IllegalStateException(
-          "Cannot remove user of the remote storage '"
-              + toString()
-              + "' because no user is using it");
+          "Cannot remove user of the remote storage '" + this + "' because no user is using it");
     }
 
     return users.decrementAndGet();
@@ -825,7 +819,6 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
 
     } finally {
       stateLock.readLock().unlock();
-      ;
     }
   }
 
@@ -886,7 +879,6 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   public ORecordMetadata getRecordMetadata(final ORID rid) {
-
     OGetRecordMetadataRequest request = new OGetRecordMetadataRequest(rid);
     OGetRecordMetadataResponse response =
         networkOperation(request, "Error on record metadata read " + rid);
@@ -896,12 +888,21 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
 
   @Override
   public boolean recordExists(ORID rid) {
+    if (getCurrentSession().commandExecuting)
+    // PENDING NETWORK OPERATION, CAN'T EXECUTE IT NOW
+    {
+      throw new IllegalStateException(
+          "Cannot execute the request because an asynchronous operation is in progress. Please use"
+              + " a different connection");
+    }
+
     var request = new ORecordExistsRequest(rid);
     var response = networkOperation(request, "Error on record existence check " + rid);
+
     return response.isRecordExists();
   }
 
-  public ORawBuffer readRecord(
+  public @Nonnull ORawBuffer readRecord(
       final ORecordId iRid,
       final boolean iIgnoreCache,
       boolean prefetchRecords,
@@ -910,7 +911,9 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     if (getCurrentSession().commandExecuting)
     // PENDING NETWORK OPERATION, CAN'T EXECUTE IT NOW
     {
-      return null;
+      throw new IllegalStateException(
+          "Cannot execute the request because an asynchronous operation is in progress. Please use"
+              + " a different connection");
     }
 
     OReadRecordRequest request = new OReadRecordRequest(iIgnoreCache, iRid, null, false);
@@ -946,42 +949,6 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
       throws UnsupportedOperationException {
     throw new UnsupportedOperationException(
         "This operations is part of internal API and is not supported in remote storage");
-  }
-
-  public OStorageOperationResult<Integer> updateRecord(
-      final ORecordId iRid,
-      final boolean updateContent,
-      final byte[] iContent,
-      final int iVersion,
-      final byte iRecordType,
-      final int iMode,
-      final ORecordCallback<Integer> iCallback) {
-
-    final OSBTreeCollectionManager collectionManager =
-        ODatabaseRecordThreadLocal.instance().get().getSbTreeCollectionManager();
-
-    ORecordCallback<OUpdateRecordResponse> realCallback = null;
-    if (iCallback != null) {
-      realCallback =
-          (iRID, response) -> {
-            iCallback.call(iRID, response.getVersion());
-            updateCollectionsFromChanges(collectionManager, response.getChanges());
-          };
-    }
-
-    OUpdateRecordRequest request =
-        new OUpdateRecordRequest(iRid, iContent, iVersion, updateContent, iRecordType);
-    OUpdateRecordResponse response =
-        asyncNetworkOperationNoRetry(
-            request, iMode, iRid, realCallback, "Error on update record " + iRid);
-
-    Integer resVersion = null;
-    if (response != null) {
-      // Returning given version in case of no answer from server
-      resVersion = response.getVersion();
-      updateCollectionsFromChanges(collectionManager, response.getChanges());
-    }
-    return new OStorageOperationResult<Integer>(resVersion);
   }
 
   public boolean cleanOutRecord(
@@ -1513,7 +1480,6 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
       return cluster.getId();
     } finally {
       stateLock.readLock().unlock();
-      ;
     }
   }
 
@@ -2039,7 +2005,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
    * Parse the URLs. Multiple URLs must be separated by semicolon (;)
    */
   protected void parseServerURLs() {
-    this.name = serverURLs.parseServerUrls(this.url, getClientConfiguration());
+    this.name = serverURLs.parseServerUrls(this.url, clientConfiguration);
   }
 
   /**
@@ -2123,14 +2089,13 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
         .warn(
             this,
             "DB is frozen will wait for "
-                + getClientConfiguration()
-                    .getValue(OGlobalConfiguration.CLIENT_DB_RELEASE_WAIT_TIMEOUT)
+                + clientConfiguration.getValue(OGlobalConfiguration.CLIENT_DB_RELEASE_WAIT_TIMEOUT)
                 + " ms. and then retry.");
     retry = true;
     try {
       Thread.sleep(
-          getClientConfiguration()
-              .getValueAsInteger(OGlobalConfiguration.CLIENT_DB_RELEASE_WAIT_TIMEOUT));
+          clientConfiguration.getValueAsInteger(
+              OGlobalConfiguration.CLIENT_DB_RELEASE_WAIT_TIMEOUT));
     } catch (InterruptedException ie) {
       retry = false;
 
@@ -2189,10 +2154,9 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
       db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     }
     ODatabaseSessionInternal internal = ODatabaseDocumentTxInternal.getInternal(db);
-    if (internal == null || !(internal instanceof ODatabaseDocumentRemote)) {
+    if (internal == null || !(internal instanceof ODatabaseDocumentRemote remote)) {
       return null;
     }
-    ODatabaseDocumentRemote remote = (ODatabaseDocumentRemote) internal;
     OStorageRemoteSession session = remote.getSessionMetadata();
     if (session == null) {
       session = new OStorageRemoteSession(sessionSerialId.decrementAndGet());
@@ -2254,8 +2218,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
             request,
             "Error sending import request",
             0,
-            getClientConfiguration()
-                .getValueAsInteger(OGlobalConfiguration.NETWORK_REQUEST_TIMEOUT));
+            clientConfiguration.getValueAsInteger(OGlobalConfiguration.NETWORK_REQUEST_TIMEOUT));
 
     for (String message : response.getMessages()) {
       listener.onMessage(message);
@@ -2368,15 +2331,14 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
 
   public OBinaryPushResponse executeUpdateSchema(OPushSchemaRequest request) {
     ODocument schema = request.getSchema();
-    ORecordInternal.setIdentity(schema, new ORecordId(getConfiguration().getSchemaRecordId()));
+    ORecordInternal.setIdentity(schema, new ORecordId(configuration.getSchemaRecordId()));
     ODatabaseDocumentRemote.updateSchema(this, schema);
     return null;
   }
 
   public OBinaryPushResponse executeUpdateIndexManager(OPushIndexManagerRequest request) {
     ODocument indexManager = request.getIndexManager();
-    ORecordInternal.setIdentity(
-        indexManager, new ORecordId(getConfiguration().getIndexMgrRecordId()));
+    ORecordInternal.setIdentity(indexManager, new ORecordId(configuration.getIndexMgrRecordId()));
     ODatabaseDocumentRemote.updateIndexManager(this, indexManager);
     return null;
   }

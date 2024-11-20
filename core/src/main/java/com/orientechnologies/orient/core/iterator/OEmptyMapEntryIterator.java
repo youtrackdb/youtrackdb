@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class OEmptyMapEntryIterator<K, V> implements Iterator<Map.Entry<K, V>> {
+
   public static final OEmptyMapEntryIterator INSTANCE = new OEmptyMapEntryIterator();
 
   public boolean hasNext() {

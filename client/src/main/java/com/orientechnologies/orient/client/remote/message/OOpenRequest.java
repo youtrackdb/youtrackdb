@@ -14,6 +14,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OOpenRequest implements OBinaryRequest<OOpenResponse> {
+
   private String driverName = OStorageRemote.DRIVER_NAME;
   private String driverVersion = OConstants.getRawVersion();
   private short protocolVersion = OChannelBinaryProtocol.CURRENT_PROTOCOL_VERSION;
@@ -39,7 +40,7 @@ public class OOpenRequest implements OBinaryRequest<OOpenResponse> {
   public void write(OChannelDataOutput network, OStorageRemoteSession session) throws IOException {
     network.writeString(driverName);
     network.writeString(driverVersion);
-    network.writeShort((short) protocolVersion);
+    network.writeShort(protocolVersion);
     network.writeString(clientId);
     network.writeString(recordFormat);
     network.writeBoolean(useToken);
@@ -60,9 +61,11 @@ public class OOpenRequest implements OBinaryRequest<OOpenResponse> {
     clientId = channel.readString();
     this.recordFormat = channel.readString();
 
-    if (this.protocolVersion > OChannelBinaryProtocol.PROTOCOL_VERSION_26)
+    if (this.protocolVersion > OChannelBinaryProtocol.PROTOCOL_VERSION_26) {
       useToken = channel.readBoolean();
-    else useToken = false;
+    } else {
+      useToken = false;
+    }
     if (this.protocolVersion > OChannelBinaryProtocol.PROTOCOL_VERSION_33) {
       supportsPush = channel.readBoolean();
       collectStats = channel.readBoolean();
@@ -71,8 +74,9 @@ public class OOpenRequest implements OBinaryRequest<OOpenResponse> {
       collectStats = true;
     }
     databaseName = channel.readString();
-    if (this.protocolVersion <= OChannelBinaryProtocol.PROTOCOL_VERSION_32)
+    if (this.protocolVersion <= OChannelBinaryProtocol.PROTOCOL_VERSION_32) {
       dbType = channel.readString();
+    }
     userName = channel.readString();
     userPassword = channel.readString();
   }

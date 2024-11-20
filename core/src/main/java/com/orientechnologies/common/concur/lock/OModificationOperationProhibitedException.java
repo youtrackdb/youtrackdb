@@ -32,6 +32,7 @@ import com.orientechnologies.orient.core.exception.OCoreException;
  */
 public class OModificationOperationProhibitedException extends OCoreException
     implements OHighLevelException {
+
   private static final long serialVersionUID = 1L;
 
   public OModificationOperationProhibitedException(

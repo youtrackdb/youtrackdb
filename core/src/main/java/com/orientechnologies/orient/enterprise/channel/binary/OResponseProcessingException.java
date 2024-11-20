@@ -27,6 +27,7 @@ import com.orientechnologies.common.exception.OSystemException;
  * @since 11/8/13
  */
 public class OResponseProcessingException extends OSystemException {
+
   public OResponseProcessingException(String message, Throwable cause) {
     super(message);
     initCause(cause);

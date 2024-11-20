@@ -5,6 +5,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class NonDaemonThreadFactory implements ThreadFactory {
+
   private final AtomicLong counter = new AtomicLong();
   private final String prefix;
 

@@ -26,6 +26,7 @@ import jakarta.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "resource")
 @XmlType(propOrder = {"resources", "roles"})
 public class OServerResourceConfiguration {
+
   @XmlAttribute public String name;
 
   @XmlAttribute public String roles;

@@ -25,7 +25,6 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -75,7 +74,7 @@ public class TruncateClassTest extends DocumentDBBaseTest {
     Assert.assertEquals(result.size(), 2);
     Set<Integer> set = new HashSet<Integer>();
     for (OResult document : result) {
-      set.addAll((Collection<Integer>) document.getProperty("data"));
+      set.addAll(document.getProperty("data"));
     }
     Assert.assertTrue(set.containsAll(Arrays.asList(5, 6, 7, 8, 9, -1)));
 

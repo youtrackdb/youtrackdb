@@ -28,8 +28,8 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWALCh
 import java.nio.ByteBuffer;
 
 /**
- * Serializer that is used for serialization of non {@link
- * com.orientechnologies.orient.core.index.OCompositeKey} keys in index.
+ * Serializer that is used for serialization of non
+ * {@link com.orientechnologies.orient.core.index.OCompositeKey} keys in index.
  *
  * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 31.03.12
@@ -141,7 +141,9 @@ public class OSimpleKeySerializer<T extends Comparable<?>> implements OBinarySer
     return (T) binarySerializer.preprocess(value);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void serializeInByteBufferObject(T object, ByteBuffer buffer, Object... hints) {
     init(object, hints);
@@ -149,7 +151,9 @@ public class OSimpleKeySerializer<T extends Comparable<?>> implements OBinarySer
     binarySerializer.serializeInByteBufferObject(object, buffer);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public T deserializeFromByteBufferObject(ByteBuffer buffer) {
     final byte typeId = buffer.get();
@@ -167,7 +171,9 @@ public class OSimpleKeySerializer<T extends Comparable<?>> implements OBinarySer
     return (T) binarySerializer.deserializeFromByteBufferObject(offset, buffer);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getObjectSizeInByteBuffer(ByteBuffer buffer) {
     final byte serializerId = buffer.get();
@@ -186,7 +192,9 @@ public class OSimpleKeySerializer<T extends Comparable<?>> implements OBinarySer
         + binarySerializer.getObjectSizeInByteBuffer(offset, buffer);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public T deserializeFromByteBufferObject(ByteBuffer buffer, OWALChanges walChanges, int offset) {
     final byte typeId = walChanges.getByteValue(buffer, offset++);
@@ -195,7 +203,9 @@ public class OSimpleKeySerializer<T extends Comparable<?>> implements OBinarySer
     return (T) binarySerializer.deserializeFromByteBufferObject(buffer, walChanges, offset);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getObjectSizeInByteBuffer(ByteBuffer buffer, OWALChanges walChanges, int offset) {
     return OBinarySerializerFactory.TYPE_IDENTIFIER_SIZE

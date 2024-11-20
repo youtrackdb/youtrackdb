@@ -9,7 +9,9 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
 
-/** Created by tglman on 13/06/17. */
+/**
+ * Created by tglman on 13/06/17.
+ */
 public class ORemoteErrorMessageTest {
 
   @Test

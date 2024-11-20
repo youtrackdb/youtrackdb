@@ -11,7 +11,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by frank on 19/05/2016. */
+/**
+ * Created by frank on 19/05/2016.
+ */
 public class OLuceneQueryParserTest extends OLuceneBaseTest {
 
   @Before

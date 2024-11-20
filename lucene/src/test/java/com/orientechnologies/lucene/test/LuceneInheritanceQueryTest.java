@@ -26,7 +26,9 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 10/08/15. */
+/**
+ * Created by Enrico Risa on 10/08/15.
+ */
 public class LuceneInheritanceQueryTest extends BaseLuceneTest {
 
   public LuceneInheritanceQueryTest() {}

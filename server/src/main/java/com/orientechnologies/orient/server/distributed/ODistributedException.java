@@ -27,6 +27,7 @@ import com.orientechnologies.common.exception.OSystemException;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ODistributedException extends OSystemException {
+
   private static final long serialVersionUID = 1L;
 
   public ODistributedException(final ODistributedException exception) {
@@ -39,7 +40,9 @@ public class ODistributedException extends OSystemException {
 
   @Override
   public boolean equals(final Object obj) {
-    if (obj == null || !obj.getClass().equals(getClass())) return false;
+    if (obj == null || !obj.getClass().equals(getClass())) {
+      return false;
+    }
 
     final String message = ((ODistributedException) obj).getMessage();
     return getMessage() != null && getMessage().equals(message);

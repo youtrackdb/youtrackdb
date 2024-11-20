@@ -15,8 +15,8 @@ import java.util.Map;
  */
 public class OPredicateCache {
 
-  private Map<String, OOrBlock> map;
-  private int mapSize;
+  private final Map<String, OOrBlock> map;
+  private final int mapSize;
 
   /**
    * @param size the size of the cache

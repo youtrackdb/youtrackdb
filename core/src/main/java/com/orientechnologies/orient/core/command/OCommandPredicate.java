@@ -29,14 +29,15 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OCommandPredicate {
+
   /**
    * Evaluates the predicate.
    *
-   * @param iRecord Target record
+   * @param iRecord        Target record
    * @param iCurrentResult TODO
-   * @param iContext Context of execution
+   * @param iContext       Context of execution
    * @return The result of predicate
    */
-  public Object evaluate(
+  Object evaluate(
       final OIdentifiable iRecord, ODocument iCurrentResult, final OCommandContext iContext);
 }

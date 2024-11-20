@@ -21,6 +21,7 @@ package com.orientechnologies.orient.server.network.protocol.http.command.patch;
 
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.OEmptyRecordId;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -81,8 +82,11 @@ public class OServerCommandPatchDocument extends OServerCommandDocumentAbstract 
                   throw new IllegalArgumentException("Invalid Record ID in request: " + recordId);
                 }
 
-                final ODocument currentDocument = db.load(recordId);
-                if (currentDocument == null) {
+                final ODocument currentDocument;
+
+                try {
+                  currentDocument = db.load(recordId);
+                } catch (ORecordNotFoundException rnf) {
                   return new ORawPair<>(false, recordId);
                 }
 

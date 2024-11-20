@@ -29,10 +29,13 @@ import com.orientechnologies.orient.server.network.protocol.http.multipart.OHttp
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-/** @author Luca Molino (molino.luca--at--gmail.com) */
+/**
+ * @author Luca Molino (molino.luca--at--gmail.com)
+ */
 public class OServerCommandPostImportDatabase
     extends OHttpMultipartRequestCommand<String, InputStream> implements OCommandOutputListener {
 
@@ -48,9 +51,12 @@ public class OServerCommandPostImportDatabase
       try {
         ODatabaseImport importer =
             new ODatabaseImport(
-                database, new ByteArrayInputStream(iRequest.getContent().getBytes("UTF8")), this);
-        for (Map.Entry<String, String> option : iRequest.getParameters().entrySet())
+                database,
+                new ByteArrayInputStream(iRequest.getContent().getBytes(StandardCharsets.UTF_8)),
+                this);
+        for (Map.Entry<String, String> option : iRequest.getParameters().entrySet()) {
           importer.setOption(option.getKey(), option.getValue());
+        }
         importer.importDatabase();
 
         iResponse.send(
@@ -72,7 +78,9 @@ public class OServerCommandPostImportDatabase
                 + "\"}",
             null);
       } finally {
-        if (database != null) database.close();
+        if (database != null) {
+          database.close();
+        }
         database = null;
       }
     } else if (iRequest.getMultipartStream() == null
@@ -94,8 +102,9 @@ public class OServerCommandPostImportDatabase
             database);
 
         ODatabaseImport importer = new ODatabaseImport(database, importData, this);
-        for (Map.Entry<String, String> option : iRequest.getParameters().entrySet())
+        for (Map.Entry<String, String> option : iRequest.getParameters().entrySet()) {
           importer.setOption(option.getKey(), option.getValue());
+        }
         importer.importDatabase();
 
         iResponse.send(
@@ -117,9 +126,13 @@ public class OServerCommandPostImportDatabase
                 + "\"}",
             null);
       } finally {
-        if (database != null) database.close();
+        if (database != null) {
+          database.close();
+        }
         database = null;
-        if (importData != null) importData.close();
+        if (importData != null) {
+          importData.close();
+        }
         importData = null;
       }
     }

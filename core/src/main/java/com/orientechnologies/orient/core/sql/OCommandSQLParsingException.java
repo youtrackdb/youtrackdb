@@ -78,7 +78,9 @@ public class OCommandSQLParsingException extends OCoreException {
       buffer.append("\nCommand: ");
       buffer.append(text);
       buffer.append("\n---------");
-      for (int i = 0; i < position - 1; ++i) buffer.append("-");
+      for (int i = 0; i < position - 1; ++i) {
+        buffer.append("-");
+      }
 
       buffer.append("^");
     }
@@ -117,7 +119,9 @@ public class OCommandSQLParsingException extends OCoreException {
 
   @Override
   public boolean equals(final Object obj) {
-    if (obj == null) return false;
+    if (obj == null) {
+      return false;
+    }
 
     return toString().equals(obj.toString());
   }

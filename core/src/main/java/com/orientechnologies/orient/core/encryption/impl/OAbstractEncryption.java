@@ -12,10 +12,11 @@ import javax.crypto.Cipher;
  * @author giastfader
  */
 public abstract class OAbstractEncryption implements OEncryption {
+
   /**
    * *
    *
-   * @param mode it can be Cipher.ENCRYPT_MODE or Cipher.DECRYPT_MODE
+   * @param mode   it can be Cipher.ENCRYPT_MODE or Cipher.DECRYPT_MODE
    * @param input
    * @param offset
    * @param length

@@ -3,8 +3,10 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class OMatchFilterItem extends SimpleNode {
+
   protected OExpression className;
   protected OExpression classNames;
   protected OIdentifier clusterName;
@@ -95,7 +97,6 @@ public class OMatchFilterItem extends SimpleNode {
     if (pathAlias != null) {
       builder.append("pathAlias: ");
       pathAlias.toString(params, builder);
-      return;
     }
   }
 
@@ -167,7 +168,6 @@ public class OMatchFilterItem extends SimpleNode {
     if (pathAlias != null) {
       builder.append("pathAlias: ");
       pathAlias.toGenericStatement(builder);
-      return;
     }
   }
 
@@ -192,31 +192,52 @@ public class OMatchFilterItem extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OMatchFilterItem that = (OMatchFilterItem) o;
 
-    if (className != null ? !className.equals(that.className) : that.className != null)
+    if (!Objects.equals(className, that.className)) {
       return false;
-    if (classNames != null ? !classNames.equals(that.classNames) : that.classNames != null)
+    }
+    if (!Objects.equals(classNames, that.classNames)) {
       return false;
-    if (clusterName != null ? !clusterName.equals(that.clusterName) : that.clusterName != null)
+    }
+    if (!Objects.equals(clusterName, that.clusterName)) {
       return false;
-    if (clusterId != null ? !clusterId.equals(that.clusterId) : that.clusterId != null)
+    }
+    if (!Objects.equals(clusterId, that.clusterId)) {
       return false;
-    if (rid != null ? !rid.equals(that.rid) : that.rid != null) return false;
-    if (alias != null ? !alias.equals(that.alias) : that.alias != null) return false;
-    if (filter != null ? !filter.equals(that.filter) : that.filter != null) return false;
-    if (whileCondition != null
-        ? !whileCondition.equals(that.whileCondition)
-        : that.whileCondition != null) return false;
-    if (depth != null ? !depth.equals(that.depth) : that.depth != null) return false;
-    if (maxDepth != null ? !maxDepth.equals(that.maxDepth) : that.maxDepth != null) return false;
-    if (optional != null ? !optional.equals(that.optional) : that.optional != null) return false;
-    if (depthAlias != null ? !depthAlias.equals(that.depthAlias) : that.depthAlias != null)
+    }
+    if (!Objects.equals(rid, that.rid)) {
       return false;
-    return pathAlias != null ? pathAlias.equals(that.pathAlias) : that.pathAlias == null;
+    }
+    if (!Objects.equals(alias, that.alias)) {
+      return false;
+    }
+    if (!Objects.equals(filter, that.filter)) {
+      return false;
+    }
+    if (!Objects.equals(whileCondition, that.whileCondition)) {
+      return false;
+    }
+    if (!Objects.equals(depth, that.depth)) {
+      return false;
+    }
+    if (!Objects.equals(maxDepth, that.maxDepth)) {
+      return false;
+    }
+    if (!Objects.equals(optional, that.optional)) {
+      return false;
+    }
+    if (!Objects.equals(depthAlias, that.depthAlias)) {
+      return false;
+    }
+    return Objects.equals(pathAlias, that.pathAlias);
   }
 
   @Override

@@ -41,6 +41,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @since 8/11/14
  */
 public class OPartitionedLockManager<T> implements OLockManager<T> {
+
   private static final int HASH_BITS = 0x7fffffff;
 
   private final int concurrencyLevel =
@@ -57,17 +58,24 @@ public class OPartitionedLockManager<T> implements OLockManager<T> {
   private final Comparator comparator =
       (one, two) -> {
         final int indexOne;
-        if (one == null) indexOne = 0;
-        else indexOne = index(one.hashCode());
+        if (one == null) {
+          indexOne = 0;
+        } else {
+          indexOne = index(one.hashCode());
+        }
 
         final int indexTwo;
-        if (two == null) indexTwo = 0;
-        else indexTwo = index(two.hashCode());
+        if (two == null) {
+          indexTwo = 0;
+        } else {
+          indexTwo = index(two.hashCode());
+        }
 
         return Integer.compare(indexOne, indexTwo);
       };
 
   private static final class SpinLockWrapper implements Lock {
+
     private final boolean readLock;
     private final OReadersWriterSpinLock spinLock;
 
@@ -98,8 +106,11 @@ public class OPartitionedLockManager<T> implements OLockManager<T> {
 
     @Override
     public void unlock() {
-      if (readLock) spinLock.releaseReadLock();
-      else spinLock.releaseWriteLock();
+      if (readLock) {
+        spinLock.releaseReadLock();
+      } else {
+        spinLock.releaseWriteLock();
+      }
     }
 
     @Override
@@ -124,7 +135,9 @@ public class OPartitionedLockManager<T> implements OLockManager<T> {
     if (useSpinLock) {
       OReadersWriterSpinLock[] lcks = new OReadersWriterSpinLock[concurrencyLevel];
 
-      for (int i = 0; i < lcks.length; i++) lcks[i] = new OReadersWriterSpinLock();
+      for (int i = 0; i < lcks.length; i++) {
+        lcks[i] = new OReadersWriterSpinLock();
+      }
 
       spinLocks = lcks;
       locks = null;
@@ -140,7 +153,9 @@ public class OPartitionedLockManager<T> implements OLockManager<T> {
       scalableRWLocks = lcks;
     } else {
       ReadWriteLock[] lcks = new ReadWriteLock[concurrencyLevel];
-      for (int i = 0; i < lcks.length; i++) lcks[i] = new ReentrantReadWriteLock();
+      for (int i = 0; i < lcks.length; i++) {
+        lcks[i] = new ReentrantReadWriteLock();
+      }
 
       locks = lcks;
       spinLocks = null;
@@ -230,8 +245,11 @@ public class OPartitionedLockManager<T> implements OLockManager<T> {
   @Override
   public Lock acquireExclusiveLock(T value) {
     final int index;
-    if (value == null) index = 0;
-    else index = index(value.hashCode());
+    if (value == null) {
+      index = 0;
+    } else {
+      index = index(value.hashCode());
+    }
 
     if (useSpinLock) {
       assert spinLocks != null;
@@ -257,7 +275,9 @@ public class OPartitionedLockManager<T> implements OLockManager<T> {
 
   public boolean tryAcquireExclusiveLock(final int value, final long timeout)
       throws InterruptedException {
-    if (useSpinLock) throw new IllegalStateException("Spin lock does not support try lock mode");
+    if (useSpinLock) {
+      throw new IllegalStateException("Spin lock does not support try lock mode");
+    }
 
     final int index = index(value);
 
@@ -278,7 +298,9 @@ public class OPartitionedLockManager<T> implements OLockManager<T> {
   @SafeVarargs
   @Override
   public final Lock[] acquireExclusiveLocksInBatch(final T... value) {
-    if (value == null) return new Lock[0];
+    if (value == null) {
+      return new Lock[0];
+    }
 
     final Lock[] locks = new Lock[value.length];
     final T[] sortedValues = getOrderedValues(value);
@@ -292,7 +314,9 @@ public class OPartitionedLockManager<T> implements OLockManager<T> {
 
   @SafeVarargs
   public final Lock[] acquireSharedLocksInBatch(final T... value) {
-    if (value == null) return new Lock[0];
+    if (value == null) {
+      return new Lock[0];
+    }
 
     final Lock[] locks = new Lock[value.length];
     final T[] sortedValues = getOrderedValues(value);
@@ -305,7 +329,9 @@ public class OPartitionedLockManager<T> implements OLockManager<T> {
   }
 
   public Lock[] acquireExclusiveLocksInBatch(Collection<T> values) {
-    if (values == null || values.isEmpty()) return new Lock[0];
+    if (values == null || values.isEmpty()) {
+      return new Lock[0];
+    }
 
     final Collection<T> valCopy = getOrderedValues(values);
 
@@ -372,8 +398,11 @@ public class OPartitionedLockManager<T> implements OLockManager<T> {
   @Override
   public Lock acquireSharedLock(final T value) {
     final int index;
-    if (value == null) index = 0;
-    else index = index(value.hashCode());
+    if (value == null) {
+      index = 0;
+    } else {
+      index = index(value.hashCode());
+    }
 
     return sharedLock(index);
   }
@@ -414,8 +443,11 @@ public class OPartitionedLockManager<T> implements OLockManager<T> {
 
   public void releaseSharedLock(final T value) {
     final int index;
-    if (value == null) index = 0;
-    else index = index(value.hashCode());
+    if (value == null) {
+      index = 0;
+    } else {
+      index = index(value.hashCode());
+    }
 
     releaseSLock(index);
   }
@@ -455,8 +487,11 @@ public class OPartitionedLockManager<T> implements OLockManager<T> {
 
   public void releaseExclusiveLock(final T value) {
     final int index;
-    if (value == null) index = 0;
-    else index = index(value.hashCode());
+    if (value == null) {
+      index = 0;
+    } else {
+      index = index(value.hashCode());
+    }
 
     releaseWLock(index);
   }

@@ -79,7 +79,7 @@ public abstract class OIndexOneValue extends OIndexAbstract {
     acquireSharedLock();
     Stream<ORID> stream;
     try {
-      while (true)
+      while (true) {
         try {
           if (apiVersion == 0) {
             final ORID rid = (ORID) storage.getIndexValue(indexId, key);
@@ -100,6 +100,7 @@ public abstract class OIndexOneValue extends OIndexAbstract {
         } catch (OInvalidIndexEngineIdException ignore) {
           doReloadIndexEngine();
         }
+      }
     } finally {
       releaseSharedLock();
     }
@@ -141,8 +142,11 @@ public abstract class OIndexOneValue extends OIndexAbstract {
     final List<Object> sortedKeys = new ArrayList<>(keys);
     final Comparator<Object> comparator;
 
-    if (ascSortOrder) comparator = ODefaultComparator.INSTANCE;
-    else comparator = Collections.reverseOrder(ODefaultComparator.INSTANCE);
+    if (ascSortOrder) {
+      comparator = ODefaultComparator.INSTANCE;
+    } else {
+      comparator = Collections.reverseOrder(ODefaultComparator.INSTANCE);
+    }
 
     sortedKeys.sort(comparator);
 
@@ -219,7 +223,7 @@ public abstract class OIndexOneValue extends OIndexAbstract {
     Stream<ORawPair<Object, ORID>> stream;
     acquireSharedLock();
     try {
-      while (true)
+      while (true) {
         try {
           stream =
               IndexStreamSecurityDecorator.decorateStream(
@@ -230,6 +234,7 @@ public abstract class OIndexOneValue extends OIndexAbstract {
         } catch (OInvalidIndexEngineIdException ignore) {
           doReloadIndexEngine();
         }
+      }
     } finally {
       releaseSharedLock();
     }
@@ -272,7 +277,7 @@ public abstract class OIndexOneValue extends OIndexAbstract {
     Stream<ORawPair<Object, ORID>> stream;
     acquireSharedLock();
     try {
-      while (true)
+      while (true) {
         try {
           stream =
               IndexStreamSecurityDecorator.decorateStream(
@@ -283,6 +288,7 @@ public abstract class OIndexOneValue extends OIndexAbstract {
         } catch (OInvalidIndexEngineIdException ignore) {
           doReloadIndexEngine();
         }
+      }
     } finally {
       releaseSharedLock();
     }
@@ -488,8 +494,11 @@ public abstract class OIndexOneValue extends OIndexAbstract {
     }
 
     for (OTransactionIndexEntry entry : changesPerKey.getEntriesAsList()) {
-      if (entry.getOperation() == OPERATION.REMOVE) result = null;
-      else if (entry.getOperation() == OPERATION.PUT) result = entry.getValue().getIdentity();
+      if (entry.getOperation() == OPERATION.REMOVE) {
+        result = null;
+      } else if (entry.getOperation() == OPERATION.PUT) {
+        result = entry.getValue().getIdentity();
+      }
     }
 
     if (result == null) {

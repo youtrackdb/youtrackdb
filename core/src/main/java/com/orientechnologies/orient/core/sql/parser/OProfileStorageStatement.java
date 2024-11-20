@@ -50,7 +50,9 @@ public class OProfileStorageStatement extends OSimpleExecStatement {
   }
 
   protected static Object getResult(OSQLAsynchQuery<ODocument> request) {
-    if (request instanceof OSQLSynchQuery) return ((OSQLSynchQuery<ODocument>) request).getResult();
+    if (request instanceof OSQLSynchQuery) {
+      return ((OSQLSynchQuery<ODocument>) request).getResult();
+    }
 
     return null;
   }
@@ -74,8 +76,12 @@ public class OProfileStorageStatement extends OSimpleExecStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OProfileStorageStatement that = (OProfileStorageStatement) o;
 

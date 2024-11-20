@@ -13,10 +13,12 @@ import com.orientechnologies.orient.core.sql.executor.metadata.OMultipleIndexCan
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
 public class OAndBlock extends OBooleanExpression {
+
   List<OBooleanExpression> subBlocks = new ArrayList<OBooleanExpression>();
 
   public OAndBlock(int id) {
@@ -29,7 +31,7 @@ public class OAndBlock extends OBooleanExpression {
 
   @Override
   public boolean evaluate(OIdentifiable currentRecord, OCommandContext ctx) {
-    if (getSubBlocks() == null) {
+    if (subBlocks == null) {
       return true;
     }
 
@@ -43,7 +45,7 @@ public class OAndBlock extends OBooleanExpression {
 
   @Override
   public boolean evaluate(OResult currentRecord, OCommandContext ctx) {
-    if (getSubBlocks() == null) {
+    if (subBlocks == null) {
       return true;
     }
 
@@ -150,7 +152,6 @@ public class OAndBlock extends OBooleanExpression {
         if (first) {
           result.add(subAndItem);
         } else {
-          ;
           for (OAndBlock oldResultItem : oldResult) {
             OAndBlock block = new OAndBlock(-1);
             block.subBlocks.addAll(oldResultItem.subBlocks);
@@ -195,15 +196,16 @@ public class OAndBlock extends OBooleanExpression {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OAndBlock andBlock = (OAndBlock) o;
 
-    if (subBlocks != null ? !subBlocks.equals(andBlock.subBlocks) : andBlock.subBlocks != null)
-      return false;
-
-    return true;
+    return Objects.equals(subBlocks, andBlock.subBlocks);
   }
 
   @Override

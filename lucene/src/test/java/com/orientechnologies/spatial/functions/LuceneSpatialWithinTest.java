@@ -23,7 +23,9 @@ import com.orientechnologies.spatial.BaseSpatialLuceneTest;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 28/09/15. */
+/**
+ * Created by Enrico Risa on 28/09/15.
+ */
 public class LuceneSpatialWithinTest extends BaseSpatialLuceneTest {
 
   @Test

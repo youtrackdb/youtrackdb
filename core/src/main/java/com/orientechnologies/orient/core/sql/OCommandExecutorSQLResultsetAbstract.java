@@ -31,7 +31,6 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorClass;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorClassDescendentOrder;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorClusters;
-import com.orientechnologies.orient.core.metadata.OMetadataDefault;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
@@ -101,7 +100,7 @@ public abstract class OCommandExecutorSQLResultsetAbstract extends OCommandExecu
 
   private static final class IndexValuesIterator implements Iterator<OIdentifiable> {
 
-    private Iterator<ORID> indexValuesIterator;
+    private final Iterator<ORID> indexValuesIterator;
 
     private IndexValuesIterator(String indexName, boolean ascOrder) {
       final ODatabaseSessionInternal database = getDatabase();
@@ -315,7 +314,7 @@ public abstract class OCommandExecutorSQLResultsetAbstract extends OCommandExecu
         var cached = db.getLocalCache().findRecord(record.getIdentity());
         if (cached != record) {
           if (cached != null) {
-            ((ORecordAbstract) record).copyTo(cached);
+            record.copyTo(cached);
             rec = cached;
           } else {
             db.getLocalCache().updateRecord(record);
@@ -342,11 +341,8 @@ public abstract class OCommandExecutorSQLResultsetAbstract extends OCommandExecu
         }
       }
 
-      if (limit > -1 && resultCount >= limit)
       // BREAK THE EXECUTION
-      {
-        return false;
-      }
+      return limit <= -1 || resultCount < limit;
     }
     return true;
   }
@@ -453,14 +449,14 @@ public abstract class OCommandExecutorSQLResultsetAbstract extends OCommandExecu
   }
 
   protected boolean filter(final ORecord iRecord, final OCommandContext iContext) {
-    if (iRecord instanceof ODocument) {
+    if (iRecord instanceof ODocument recordSchemaAware) {
       // CHECK THE TARGET CLASS
-      final ODocument recordSchemaAware = (ODocument) iRecord;
       Map<String, String> targetClasses = parsedTarget.getTargetClasses();
       // check only classes that specified in query will go to result set
       if ((targetClasses != null) && (!targetClasses.isEmpty())) {
         for (String targetClass : targetClasses.keySet()) {
-          if (!((OMetadataDefault) getDatabase().getMetadata())
+          if (!getDatabase()
+              .getMetadata()
               .getImmutableSchemaSnapshot()
               .getClass(targetClass)
               .isSuperClassOf(ODocumentInternal.getImmutableSchemaClass(recordSchemaAware))) {
@@ -483,7 +479,7 @@ public abstract class OCommandExecutorSQLResultsetAbstract extends OCommandExecu
       return true;
     }
     Boolean evaluate = (Boolean) compiledFilter.evaluate(iRecord, null, iContext);
-    return evaluate == null ? false : evaluate;
+    return evaluate != null && evaluate;
   }
 
   protected void assignLetClauses(final ORecord iRecord) {
@@ -511,8 +507,7 @@ public abstract class OCommandExecutorSQLResultsetAbstract extends OCommandExecu
           }
 
         } else {
-          if (letValue instanceof OSQLFunctionRuntime) {
-            final OSQLFunctionRuntime f = (OSQLFunctionRuntime) letValue;
+          if (letValue instanceof OSQLFunctionRuntime f) {
             if (f.getFunction().aggregateResults()) {
               f.execute(iRecord, iRecord, null, context);
               varValue = f.getFunction().getResult();

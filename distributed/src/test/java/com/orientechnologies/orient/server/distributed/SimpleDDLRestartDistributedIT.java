@@ -42,8 +42,10 @@ public class SimpleDDLRestartDistributedIT {
     try (OrientDB remoteServer2 =
         setup.createRemote(SimpleDServerConfig.SERVER2, OrientDBConfig.defaultConfig())) {
       try (ODatabaseSession server2Session = remoteServer2.open("test", "admin", "admin")) {
-        try (OResultSet result = server2Session.query("select from one")) {}
-        try (OResultSet result = server2Session.query("select from testClass")) {}
+        try (OResultSet result = server2Session.query("select from one")) {
+        }
+        try (OResultSet result = server2Session.query("select from testClass")) {
+        }
       }
     }
   }

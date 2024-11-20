@@ -27,13 +27,16 @@ import java.util.Map;
  * @since Mar 28, 2013
  */
 public interface OScheduler {
+
   enum STATUS {
     RUNNING,
     STOPPED,
     WAITING
   }
 
-  /** Creates a new scheduled event. */
+  /**
+   * Creates a new scheduled event.
+   */
   void scheduleEvent(OScheduledEvent event);
 
   /**
@@ -43,7 +46,9 @@ public interface OScheduler {
    */
   void removeEvent(String eventName);
 
-  /** Updates a scheduled event. */
+  /**
+   * Updates a scheduled event.
+   */
   void updateEvent(OScheduledEvent event);
 
   /**
@@ -60,15 +65,21 @@ public interface OScheduler {
    */
   OScheduledEvent getEvent(String eventName);
 
-  /** Loads the scheduled events from database in memory and schedule them. */
+  /**
+   * Loads the scheduled events from database in memory and schedule them.
+   */
   @Deprecated
   void load();
 
-  /** Shuts down the scheduler. */
+  /**
+   * Shuts down the scheduler.
+   */
   @Deprecated
   void close();
 
-  /** Creates the scheduler classes on database. */
+  /**
+   * Creates the scheduler classes on database.
+   */
   @Deprecated
   void create();
 }

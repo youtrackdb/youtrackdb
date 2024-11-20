@@ -19,13 +19,18 @@
  */
 package com.orientechnologies.orient.core.db.record;
 
+import com.orientechnologies.orient.core.record.impl.ODocument;
+
 /**
  * Base interface that represents a record element.
  *
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface ORecordElement {
-  /** Available record statuses. */
+
+  /**
+   * Available record statuses.
+   */
   enum STATUS {
     NOT_LOADED,
     LOADED,
@@ -47,4 +52,18 @@ public interface ORecordElement {
    * @return Returns record element which contains given one.
    */
   ORecordElement getOwner();
+
+  default ODocument getOwnerRecord() {
+    var owner = getOwner();
+
+    while (true) {
+      if (owner instanceof ODocument document) {
+        return document;
+      }
+      if (owner == null) {
+        return null;
+      }
+      owner = owner.getOwner();
+    }
+  }
 }

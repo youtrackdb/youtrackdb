@@ -4,7 +4,7 @@ import java.util.Collection;
 
 public class ValidationCollectionComparable implements Comparable<Object> {
 
-  private int size;
+  private final int size;
 
   public ValidationCollectionComparable(int size) {
     this.size = size;

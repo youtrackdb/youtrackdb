@@ -11,8 +11,6 @@ import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import java.util.Iterator;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class ORecordLazySetTest extends BaseMemoryDatabase {
@@ -42,57 +40,9 @@ public class ORecordLazySetTest extends BaseMemoryDatabase {
     db.commit();
   }
 
-  @Test
-  public void testConvertToRecord() {
-    ORecordLazySet set = new ORecordLazySet(new ODocument());
-    set.add(rid1);
-    set.add(rid2);
-    set.add(rid3);
-    set.convertLinks2Records();
-    assertEquals(set.size(), 3);
-    for (OIdentifiable oIdentifiable : set) {
-      assertTrue(oIdentifiable instanceof ODocument);
-    }
-  }
-
-  @Test
-  public void testConvertToLink() {
-    ORecordLazySet set = new ORecordLazySet(new ODocument());
-    set.add(rid1);
-    set.add(rid2);
-    set.add(rid3);
-
-    set.convertRecords2Links();
-    assertEquals(set.size(), 3);
-    Iterator<OIdentifiable> val = set.rawIterator();
-    while (val.hasNext()) {
-      assertTrue(val.next() instanceof ORecordId);
-    }
-    assertEquals(set.size(), 3);
-  }
-
-  @Test
-  @Ignore
-  public void testDocumentConvertToLink() {
-    ORecordLazySet set = new ORecordLazySet(new ODocument());
-    set.add(doc1);
-    set.add(doc2);
-    set.add(doc3);
-    for (OIdentifiable oIdentifiable : set) {
-      assertTrue(oIdentifiable instanceof ODocument);
-    }
-    set.convertRecords2Links();
-    assertEquals(set.size(), 3);
-    Iterator<OIdentifiable> val = set.rawIterator();
-    while (val.hasNext()) {
-      assertTrue(val.next() instanceof ORecordId);
-    }
-    assertEquals(set.size(), 3);
-  }
-
   @Test()
   public void testDocumentNotEmbedded() {
-    ORecordLazySet set = new ORecordLazySet(new ODocument());
+    OSet set = new OSet(new ODocument());
     ODocument doc = new ODocument();
     set.add(doc);
     assertFalse(doc.isEmbedded());
@@ -100,7 +50,7 @@ public class ORecordLazySetTest extends BaseMemoryDatabase {
 
   @Test()
   public void testSetAddRemove() {
-    ORecordLazySet set = new ORecordLazySet(new ODocument());
+    OSet set = new OSet(new ODocument());
     ODocument doc = new ODocument();
     set.add(doc);
     set.remove(doc);
@@ -109,7 +59,7 @@ public class ORecordLazySetTest extends BaseMemoryDatabase {
 
   @Test
   public void testSetRemoveNotPersistent() {
-    ORecordLazySet set = new ORecordLazySet(new ODocument());
+    OSet set = new OSet(new ODocument());
     doc1 = db.bindToSession(doc1);
     doc2 = db.bindToSession(doc2);
 
@@ -129,7 +79,7 @@ public class ORecordLazySetTest extends BaseMemoryDatabase {
 
     db.begin();
     ODocument doc = new ODocument(test);
-    ORecordLazySet set = new ORecordLazySet(doc);
+    OSet set = new OSet(doc);
     set.add(new ORecordId(5, 1000));
     doc.field("fi", set);
     db.save(doc);

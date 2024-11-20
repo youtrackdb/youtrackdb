@@ -19,9 +19,8 @@
  */
 package com.orientechnologies.orient.core.db.document;
 
-import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMultiValue;
+import com.orientechnologies.orient.core.db.record.OIdentifiableMultiValue;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -125,12 +124,11 @@ public class ODocumentFieldWalker {
               || OType.LINKBAG.equals(fieldType)
               || OType.LINKLIST.equals(fieldType)
               || OType.LINKSET.equals(fieldType)
-              || (fieldValue instanceof ORecordLazyMultiValue))) {
+              || (fieldValue instanceof OIdentifiableMultiValue))) {
         if (fieldWalker.goDeeper(fieldType, linkedType, fieldValue)) {
           if (fieldValue instanceof Map) {
             walkMap(session, (Map) fieldValue, fieldType, fieldWalker, walked);
-          } else if (fieldValue instanceof ODocument) {
-            final ODocument doc = (ODocument) fieldValue;
+          } else if (fieldValue instanceof ODocument doc) {
             if (OType.EMBEDDED.equals(fieldType) || doc.isEmbedded()) {
               var fdoc = (ODocument) fieldValue;
               if (fdoc.isUnloaded()) {
@@ -138,10 +136,11 @@ public class ODocumentFieldWalker {
               }
               walkDocument(session, fdoc, fieldWalker);
             }
-          } else if (OMultiValue.isIterable(fieldValue)) {
+          } else if (com.orientechnologies.common.collection.OMultiValue.isIterable(fieldValue)) {
             walkIterable(
                 session,
-                OMultiValue.getMultiValueIterable(fieldValue),
+                com.orientechnologies.common.collection.OMultiValue.getMultiValueIterable(
+                    fieldValue),
                 fieldType,
                 fieldWalker,
                 walked);
@@ -165,8 +164,7 @@ public class ODocumentFieldWalker {
       ODocumentFieldVisitor fieldWalker,
       Set<ODocument> walked) {
     for (Object value : map.values()) {
-      if (value instanceof ODocument) {
-        final ODocument doc = (ODocument) value;
+      if (value instanceof ODocument doc) {
         // only embedded documents are walked
         if (OType.EMBEDDEDMAP.equals(fieldType) || doc.isEmbedded()) {
           walkDocument(session, (ODocument) value, fieldWalker, walked);
@@ -182,8 +180,7 @@ public class ODocumentFieldWalker {
       ODocumentFieldVisitor fieldWalker,
       Set<ODocument> walked) {
     for (Object value : iterable) {
-      if (value instanceof ODocument) {
-        final ODocument doc = (ODocument) value;
+      if (value instanceof ODocument doc) {
         // only embedded documents are walked
         if (OType.EMBEDDEDLIST.equals(fieldType)
             || OType.EMBEDDEDSET.equals(fieldType)

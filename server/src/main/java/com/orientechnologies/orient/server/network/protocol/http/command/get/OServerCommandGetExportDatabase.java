@@ -33,6 +33,7 @@ import java.util.zip.GZIPOutputStream;
 
 public class OServerCommandGetExportDatabase extends OServerCommandAuthenticatedDbAbstract
     implements OCommandOutputListener {
+
   private static final String[] NAMES = {"GET|export/*"};
 
   @Override
@@ -68,7 +69,9 @@ public class OServerCommandGetExportDatabase extends OServerCommandAuthenticated
       } catch (SocketException e) {
       }
     } finally {
-      if (database != null) database.close();
+      if (database != null) {
+        database.close();
+      }
     }
   }
 

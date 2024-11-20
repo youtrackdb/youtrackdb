@@ -94,5 +94,6 @@ public class AsyncIndexIT extends BareBoneBase2ServerTest {
   }
 
   @Override
-  protected void dbClient2(BareBonesServer[] servers) {}
+  protected void dbClient2(BareBonesServer[] servers) {
+  }
 }

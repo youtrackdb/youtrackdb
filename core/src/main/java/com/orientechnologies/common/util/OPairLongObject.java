@@ -3,6 +3,7 @@ package com.orientechnologies.common.util;
 import it.unimi.dsi.fastutil.HashCommon;
 
 public final class OPairLongObject<V> implements Comparable<OPairLongObject<V>> {
+
   public final long key;
   public final V value;
 
@@ -36,9 +37,15 @@ public final class OPairLongObject<V> implements Comparable<OPairLongObject<V>> 
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
     OPairLongObject<?> other = (OPairLongObject<?>) obj;
     return key == other.key;
   }

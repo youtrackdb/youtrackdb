@@ -7,7 +7,6 @@ import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OSharedContext;
-import com.orientechnologies.orient.core.db.OSharedContextEmbedded;
 import com.orientechnologies.orient.core.db.viewmanager.ViewCreationListener;
 import com.orientechnologies.orient.core.db.viewmanager.ViewManager;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -105,7 +104,7 @@ public class OSchemaEmbedded extends OSchemaShared {
         throw new OSchemaException("Class '" + className + "' already exists in current database");
       }
       List<OClass> superClassesList = new ArrayList<OClass>();
-      if (superClasses != null && superClasses.length > 0) {
+      if (superClasses != null) {
         for (OClass superClass : superClasses) {
           // Filtering for null
           if (superClass != null) {
@@ -359,7 +358,7 @@ public class OSchemaEmbedded extends OSchemaShared {
         it.next().onCreateView(database, result);
       }
 
-      ViewManager viewMgr = ((OSharedContextEmbedded) database.getSharedContext()).getViewManager();
+      ViewManager viewMgr = database.getSharedContext().getViewManager();
       viewMgr.updateViewAsync(
           result.getName(),
           new ViewCreationListener() {
@@ -458,7 +457,9 @@ public class OSchemaEmbedded extends OSchemaShared {
 
   public OClass getOrCreateClass(
       ODatabaseSessionInternal database, final String iClassName, final OClass... superClasses) {
-    if (iClassName == null) return null;
+    if (iClassName == null) {
+      return null;
+    }
 
     acquireSchemaReadLock();
     try {
@@ -532,7 +533,7 @@ public class OSchemaEmbedded extends OSchemaShared {
                 database.getStorageInfo().getConfiguration().getMinimumClusters());
       }
       List<OClass> superClassesList = new ArrayList<OClass>();
-      if (superClasses != null && superClasses.length > 0) {
+      if (superClasses != null) {
         for (OClass superClass : superClasses) {
           if (superClass != null) {
             superClassesList.add(superClass);

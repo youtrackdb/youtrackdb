@@ -443,13 +443,13 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     d.field("string", "yeahyeahyeah");
     d.field("link", id);
     // d.field("embedded", new ODocument().field("test", "test"));
-    d.field("embeddedList", Arrays.asList("a"));
-    d.field("embeddedSet", new HashSet<String>(Arrays.asList("a")));
+    d.field("embeddedList", List.of("a"));
+    d.field("embeddedSet", new HashSet<String>(List.of("a")));
     Map<String, String> map = new HashMap<String, String>();
     map.put("some", "value");
     d.field("embeddedMap", map);
-    d.field("linkList", Arrays.asList(new ORecordId(40, 50)));
-    d.field("linkSet", new HashSet<ORecordId>(Arrays.asList(new ORecordId(40, 50))));
+    d.field("linkList", List.of(new ORecordId(40, 50)));
+    d.field("linkSet", new HashSet<ORecordId>(List.of(new ORecordId(40, 50))));
     HashMap<String, ORecordId> map1 = new HashMap<String, ORecordId>();
     map1.put("some", new ORecordId(40, 50));
     d.field("linkMap", map1);
@@ -612,7 +612,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     ODocument d = new ODocument(clazz);
     d.field("link", new ODocument(clazz1));
     d.field("embedded", new ODocument(clazz1));
-    List<ODocument> list = Arrays.asList(new ODocument(clazz1));
+    List<ODocument> list = List.of(new ODocument(clazz1));
     d.field("linkList", list);
     Set<ODocument> set = new HashSet<ODocument>(list);
     d.field("linkSet", set);
@@ -638,10 +638,10 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     map1.put("b", "a2");
     checkField(d, "linkMap", map1);
 
-    checkField(d, "linkList", Arrays.asList(new ODocument(clazz)));
-    checkField(d, "linkSet", new HashSet<ODocument>(Arrays.asList(new ODocument(clazz))));
-    checkField(d, "embeddedList", Arrays.asList(new ODocument(clazz)));
-    checkField(d, "embeddedSet", Arrays.asList(new ODocument(clazz)));
+    checkField(d, "linkList", List.of(new ODocument(clazz)));
+    checkField(d, "linkSet", new HashSet<ODocument>(List.of(new ODocument(clazz))));
+    checkField(d, "embeddedList", List.of(new ODocument(clazz)));
+    checkField(d, "embeddedSet", List.of(new ODocument(clazz)));
     ORidBag bag = new ORidBag();
     bag.add(new ODocument(clazz));
     checkField(d, "linkBag", bag);
@@ -661,7 +661,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     ODocument d = new ODocument(clazz);
     d.field("link", new ODocument(clazz1));
     d.field("embedded", new ODocument(clazz1));
-    List<ODocument> list = Arrays.asList(new ODocument(clazz1));
+    List<ODocument> list = List.of(new ODocument(clazz1));
     d.field("linkList", list);
     Set<ODocument> set = new HashSet<ODocument>(list);
     d.field("linkSet", set);

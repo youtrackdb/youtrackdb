@@ -15,6 +15,7 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class OBaseIdentifier extends SimpleNode {
@@ -118,12 +119,12 @@ public class OBaseIdentifier extends SimpleNode {
    * tests if current expression is an indexed funciton AND that function can also be executed
    * without using the index
    *
-   * @param target the query target
-   * @param context the execution context
+   * @param target   the query target
+   * @param context  the execution context
    * @param operator
    * @param right
    * @return true if current expression is an indexed funciton AND that function can also be
-   *     executed without using the index, false otherwise
+   * executed without using the index, false otherwise
    */
   public boolean canExecuteIndexedFunctionWithoutIndex(
       OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
@@ -134,14 +135,15 @@ public class OBaseIdentifier extends SimpleNode {
   }
 
   /**
-   * tests if current expression is an indexed function AND that function can be used on this target
+   * tests if current expression is an indexed function AND that function can be used on this
+   * target
    *
-   * @param target the query target
-   * @param context the execution context
+   * @param target   the query target
+   * @param context  the execution context
    * @param operator
    * @param right
    * @return true if current expression involves an indexed function AND that function can be used
-   *     on this target, false otherwise
+   * on this target, false otherwise
    */
   public boolean allowsIndexedFunctionExecutionOnTarget(
       OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
@@ -157,10 +159,10 @@ public class OBaseIdentifier extends SimpleNode {
    * excluded from further evaluation. In other cases the result from the index is a superset of the
    * expected result, so the function has to be executed anyway for further filtering
    *
-   * @param target the query target
+   * @param target  the query target
    * @param context the execution context
    * @return true if current expression is an indexed function AND the function has also to be
-   *     executed after the index search.
+   * executed after the index search.
    */
   public boolean executeIndexedFunctionAfterIndexSearch(
       OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
@@ -189,40 +191,28 @@ public class OBaseIdentifier extends SimpleNode {
     if (levelZero != null && levelZero.needsAliases(aliases)) {
       return true;
     }
-    if (suffix != null && suffix.needsAliases(aliases)) {
-      return true;
-    }
-    return false;
+    return suffix != null && suffix.needsAliases(aliases);
   }
 
   public boolean isAggregate() {
     if (levelZero != null && levelZero.isAggregate()) {
       return true;
     }
-    if (suffix != null && suffix.isAggregate()) {
-      return true;
-    }
-    return false;
+    return suffix != null && suffix.isAggregate();
   }
 
   public boolean isCount() {
     if (levelZero != null && levelZero.isCount()) {
       return true;
     }
-    if (suffix != null && suffix.isCount()) {
-      return true;
-    }
-    return false;
+    return suffix != null && suffix.isCount();
   }
 
   public boolean isEarlyCalculated(OCommandContext ctx) {
     if (levelZero != null && levelZero.isEarlyCalculated(ctx)) {
       return true;
     }
-    if (suffix != null && suffix.isEarlyCalculated(ctx)) {
-      return true;
-    }
-    return false;
+    return suffix != null && suffix.isEarlyCalculated(ctx);
   }
 
   public SimpleNode splitForAggregation(
@@ -255,10 +245,10 @@ public class OBaseIdentifier extends SimpleNode {
       } else if (suffix != null) {
         return suffix.getAggregationContext(ctx);
       } else {
-        throw new OCommandExecutionException("cannot aggregate on " + toString());
+        throw new OCommandExecutionException("cannot aggregate on " + this);
       }
     } else {
-      throw new OCommandExecutionException("cannot aggregate on " + toString());
+      throw new OCommandExecutionException("cannot aggregate on " + this);
     }
   }
 
@@ -275,16 +265,19 @@ public class OBaseIdentifier extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OBaseIdentifier that = (OBaseIdentifier) o;
 
-    if (levelZero != null ? !levelZero.equals(that.levelZero) : that.levelZero != null)
+    if (!Objects.equals(levelZero, that.levelZero)) {
       return false;
-    if (suffix != null ? !suffix.equals(that.suffix) : that.suffix != null) return false;
-
-    return true;
+    }
+    return Objects.equals(suffix, that.suffix);
   }
 
   @Override
@@ -298,10 +291,7 @@ public class OBaseIdentifier extends SimpleNode {
     if (levelZero != null && levelZero.refersToParent()) {
       return true;
     }
-    if (suffix != null && suffix.refersToParent()) {
-      return true;
-    }
-    return false;
+    return suffix != null && suffix.refersToParent();
   }
 
   public OSuffixIdentifier getSuffix() {
@@ -317,7 +307,7 @@ public class OBaseIdentifier extends SimpleNode {
     if (suffix != null) {
       suffix.applyRemove(result, ctx);
     } else {
-      throw new OCommandExecutionException("cannot apply REMOVE " + toString());
+      throw new OCommandExecutionException("cannot apply REMOVE " + this);
     }
   }
 

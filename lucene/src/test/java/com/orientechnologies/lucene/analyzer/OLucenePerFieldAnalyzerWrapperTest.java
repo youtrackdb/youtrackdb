@@ -9,7 +9,9 @@ import org.apache.lucene.analysis.it.ItalianAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.junit.Test;
 
-/** Created by frank on 30/11/2015. */
+/**
+ * Created by frank on 30/11/2015.
+ */
 public class OLucenePerFieldAnalyzerWrapperTest {
 
   @Test

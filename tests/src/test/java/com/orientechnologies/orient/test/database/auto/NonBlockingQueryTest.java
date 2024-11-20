@@ -16,6 +16,7 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 public class NonBlockingQueryTest extends DocumentDBBaseTest {
+
   @Parameters(value = "remote")
   public NonBlockingQueryTest(boolean remote) {
     super(remote);
@@ -76,7 +77,7 @@ public class NonBlockingQueryTest extends DocumentDBBaseTest {
                     return null;
                   }
                 }));
-    Assert.assertFalse(counter.get() == 1000);
+    Assert.assertNotEquals(counter.get(), 1000);
     try {
       future.get();
       Assert.assertEquals(counter.get(), 1000);
@@ -119,7 +120,7 @@ public class NonBlockingQueryTest extends DocumentDBBaseTest {
                     return null;
                   }
                 }));
-    Assert.assertFalse(counter.get() == 1);
+    Assert.assertNotEquals(counter.get(), 1);
     try {
       future.get();
       Assert.assertEquals(counter.get(), 1);

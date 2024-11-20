@@ -2,7 +2,6 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OImmutableSchema;
@@ -17,13 +16,14 @@ import com.orientechnologies.orient.core.sql.parser.OIdentifier;
  * @author Luigi Dell'Aquila (luigi.dellaquila - at - gmail.com)
  */
 public class CountFromClassStep extends AbstractExecutionStep {
+
   private final OIdentifier target;
   private final String alias;
 
   /**
-   * @param targetClass An identifier containing the name of the class to count
-   * @param alias the name of the property returned in the result-set
-   * @param ctx the query context
+   * @param targetClass      An identifier containing the name of the class to count
+   * @param alias            the name of the property returned in the result-set
+   * @param ctx              the query context
    * @param profilingEnabled true to enable the profiling of the execution (for SQL PROFILE)
    */
   public CountFromClassStep(
@@ -43,8 +43,7 @@ public class CountFromClassStep extends AbstractExecutionStep {
   }
 
   private OResult produce(OCommandContext ctx) {
-    OImmutableSchema schema =
-        ((ODatabaseSessionInternal) ctx.getDatabase()).getMetadata().getImmutableSchemaSnapshot();
+    OImmutableSchema schema = ctx.getDatabase().getMetadata().getImmutableSchemaSnapshot();
     OClass clazz = schema.getClass(target.getStringValue());
     if (clazz == null) {
       clazz = schema.getView(target.getStringValue());

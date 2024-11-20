@@ -4,8 +4,8 @@ import java.util.Objects;
 
 final class TreeEntry implements Comparable<TreeEntry> {
 
-  protected final int leftChild;
-  protected final int rightChild;
+  private final int leftChild;
+  private final int rightChild;
   private final EdgeKey key;
   private final int value;
 
@@ -27,13 +27,13 @@ final class TreeEntry implements Comparable<TreeEntry> {
     final TreeEntry that = (TreeEntry) o;
     return leftChild == that.leftChild
         && rightChild == that.rightChild
-        && Objects.equals(getKey(), that.getKey())
-        && Objects.equals(getValue(), that.getValue());
+        && Objects.equals(key, that.key)
+        && Objects.equals(value, that.value);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(leftChild, rightChild, getKey(), getValue());
+    return Objects.hash(leftChild, rightChild, key, value);
   }
 
   @Override
@@ -44,15 +44,15 @@ final class TreeEntry implements Comparable<TreeEntry> {
         + ", rightChild="
         + rightChild
         + ", key="
-        + getKey()
+        + key
         + ", value="
-        + getValue()
+        + value
         + '}';
   }
 
   @Override
   public int compareTo(final TreeEntry other) {
-    return getKey().compareTo(other.getKey());
+    return key.compareTo(other.key);
   }
 
   public EdgeKey getKey() {

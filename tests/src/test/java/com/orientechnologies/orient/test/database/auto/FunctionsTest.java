@@ -167,6 +167,6 @@ public class FunctionsTest extends DocumentDBBaseTest {
     params.put("theParam", theMap);
 
     OResultSet res1 = database.command("select testMapParamToFunction(:theParam) as a", params);
-    Assert.assertEquals((String) res1.next().getProperty("a"), "bar");
+    Assert.assertEquals(res1.next().getProperty("a"), "bar");
   }
 }

@@ -43,6 +43,7 @@ import java.io.IOException;
  * @author Luca Garulli (l.garulli--at--orientdb.com)
  */
 public class OCopyDatabaseChunkTask extends OAbstractRemoteTask {
+
   private static final long serialVersionUID = 1L;
   public static final int FACTORYID = 15;
 
@@ -51,7 +52,8 @@ public class OCopyDatabaseChunkTask extends OAbstractRemoteTask {
   private long offset;
   private boolean compressed;
 
-  public OCopyDatabaseChunkTask() {}
+  public OCopyDatabaseChunkTask() {
+  }
 
   public OCopyDatabaseChunkTask(
       final String iFileName, final int iChunkNum, final long iOffset, final boolean iCompressed) {

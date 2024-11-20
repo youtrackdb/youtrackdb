@@ -25,7 +25,9 @@ import java.math.BigDecimal;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by luigidellaquila on 02/07/15. */
+/**
+ * Created by luigidellaquila on 02/07/15.
+ */
 public class OMathExpressionTest {
 
   @Test
@@ -47,17 +49,17 @@ public class OMathExpressionTest {
 
       Assert.assertEquals(op.apply((short) 1, (short) 1).getClass(), Integer.class);
 
-      Assert.assertEquals(op.apply(1l, 1l).getClass(), Long.class);
+      Assert.assertEquals(op.apply(1L, 1L).getClass(), Long.class);
       Assert.assertEquals(op.apply(1f, 1f).getClass(), Float.class);
       Assert.assertEquals(op.apply(1d, 1d).getClass(), Double.class);
       Assert.assertEquals(op.apply(BigDecimal.ONE, BigDecimal.ONE).getClass(), BigDecimal.class);
 
-      Assert.assertEquals(op.apply(1l, 1).getClass(), Long.class);
+      Assert.assertEquals(op.apply(1L, 1).getClass(), Long.class);
       Assert.assertEquals(op.apply(1f, 1).getClass(), Float.class);
       Assert.assertEquals(op.apply(1d, 1).getClass(), Double.class);
       Assert.assertEquals(op.apply(BigDecimal.ONE, 1).getClass(), BigDecimal.class);
 
-      Assert.assertEquals(op.apply(1, 1l).getClass(), Long.class);
+      Assert.assertEquals(op.apply(1, 1L).getClass(), Long.class);
       Assert.assertEquals(op.apply(1, 1f).getClass(), Float.class);
       Assert.assertEquals(op.apply(1, 1d).getClass(), Double.class);
       Assert.assertEquals(op.apply(1, BigDecimal.ONE).getClass(), BigDecimal.class);

@@ -31,11 +31,12 @@ import java.io.IOException;
  *
  * <p>Adds methods to read and write bucket pointers.
  *
+ * @author Artem Orobets (enisher-at-gmail.com)
  * @see com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OBonsaiBucketPointer
  * @see com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OSBTreeBonsai
- * @author Artem Orobets (enisher-at-gmail.com)
  */
 public class OBonsaiBucketAbstract extends ODurablePage {
+
   public OBonsaiBucketAbstract(OCacheEntry cacheEntry) {
     super(cacheEntry);
   }
@@ -44,7 +45,7 @@ public class OBonsaiBucketAbstract extends ODurablePage {
    * Write a bucket pointer to specific location.
    *
    * @param pageOffset where to write
-   * @param value - pointer to write
+   * @param value      - pointer to write
    * @throws IOException
    */
   protected void setBucketPointer(int pageOffset, OBonsaiBucketPointer value) throws IOException {

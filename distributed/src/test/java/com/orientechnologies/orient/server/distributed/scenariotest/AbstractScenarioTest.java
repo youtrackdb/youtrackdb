@@ -68,11 +68,13 @@ public abstract class AbstractScenarioTest extends AbstractServerClusterInsertTe
     try (OResultSet result =
         database.query("select from Person where name = 'Billy" + uniqueId + "'")) {
 
-      if (!result.hasNext())
+      if (!result.hasNext()) {
         assertTrue("No record found with name = 'Billy" + uniqueId + "'!", false);
+      }
       ODocument doc = (ODocument) result.next().getElement().get();
-      if (result.hasNext())
+      if (result.hasNext()) {
         assertTrue("multiple records found with name = 'Billy" + uniqueId + "'!", false);
+      }
       //    ODatabaseRecordThreadLocal.instance().set(null);
       return doc;
     }
@@ -112,7 +114,9 @@ public abstract class AbstractScenarioTest extends AbstractServerClusterInsertTe
     try (OResultSet result = database.query("select count(*) as count from Person")) {
       baseCount = ((Number) result.next().getProperty("count")).intValue();
     } finally {
-      if (database != null) database.close();
+      if (database != null) {
+        database.close();
+      }
     }
 
     System.out.println("Creating Writers and Readers threads...");
@@ -133,8 +137,9 @@ public abstract class AbstractScenarioTest extends AbstractServerClusterInsertTe
             writer = createWriter(serverId, threadId++, server);
           } else if (storageType.equals("remote")) {
             writer = createWriter(serverId, threadId++, server);
-          } else
+          } else {
             throw new IllegalArgumentException("storageType " + storageType + " not supported");
+          }
           writerWorkers.add(writer);
         }
         serverId++;
@@ -251,8 +256,11 @@ public abstract class AbstractScenarioTest extends AbstractServerClusterInsertTe
 
         // checking records inserted on server0
         int i;
-        if (serverId == 0) i = 0;
-        else i = serverIndex2thresholdThread.get(serverId - 1);
+        if (serverId == 0) {
+          i = 0;
+        } else {
+          i = serverIndex2thresholdThread.get(serverId - 1);
+        }
 
         while (i < serverIndex2thresholdThread.get(serverId)) {
           for (int j = 0; j < 100; j++) {
@@ -409,7 +417,9 @@ public abstract class AbstractScenarioTest extends AbstractServerClusterInsertTe
           @Override
           public Boolean call(Void iArgument) {
 
-            if (fieldName == null) return false;
+            if (fieldName == null) {
+              return false;
+            }
 
             for (ServerRun server : serverInstance) {
 
@@ -440,7 +450,9 @@ public abstract class AbstractScenarioTest extends AbstractServerClusterInsertTe
                       expectedFieldValue);
 
               if (storedValue != null && !storedValue.equals(expectedFieldValue)
-                  || storedValue == null && expectedFieldValue != null) return false;
+                  || storedValue == null && expectedFieldValue != null) {
+                return false;
+              }
             }
             return true;
           }
@@ -480,7 +492,9 @@ public abstract class AbstractScenarioTest extends AbstractServerClusterInsertTe
       //// e.printStackTrace();
       // }
 
-      if (assertion != null) assertion.call(doc);
+      if (assertion != null) {
+        assertion.call(doc);
+      }
 
       return doc;
     } finally {
@@ -529,15 +543,19 @@ public abstract class AbstractScenarioTest extends AbstractServerClusterInsertTe
 
   protected String getDatabaseURL(final ServerRun server, String storageType) {
 
-    if (storageType.equals("plocal")) return this.getPlocalDatabaseURL(server);
-    else if (storageType.equals("remote")) return this.getRemoteDatabaseURL(server);
+    if (storageType.equals("plocal")) {
+      return this.getPlocalDatabaseURL(server);
+    } else if (storageType.equals("remote")) {
+      return this.getRemoteDatabaseURL(server);
+    }
     return null;
   }
 
   protected void simulateServerFault(ServerRun serverRun, String faultName) {
 
-    if (faultName.equals("shutdown")) serverRun.terminateServer();
-    else if (faultName.equals("net-fault")) {
+    if (faultName.equals("shutdown")) {
+      serverRun.terminateServer();
+    } else if (faultName.equals("net-fault")) {
       serverRun.crashServer();
     }
   }
@@ -681,7 +699,9 @@ public abstract class AbstractScenarioTest extends AbstractServerClusterInsertTe
           dbServer.commit();
         }
       } finally {
-        if (dbServer != null) dbServer.close();
+        if (dbServer != null) {
+          dbServer.close();
+        }
       }
 
       return null;
@@ -726,7 +746,9 @@ public abstract class AbstractScenarioTest extends AbstractServerClusterInsertTe
           dbServer.commit();
         }
       } finally {
-        if (dbServer != null) dbServer.close();
+        if (dbServer != null) {
+          dbServer.close();
+        }
       }
 
       return null;
@@ -762,7 +784,7 @@ public abstract class AbstractScenarioTest extends AbstractServerClusterInsertTe
 
     @Override
     public void onAfterRecordLock(ORecordId rid) {
-      if (delay > 0)
+      if (delay > 0) {
         try {
           OLogManager.instance()
               .info(
@@ -788,9 +810,11 @@ public abstract class AbstractScenarioTest extends AbstractServerClusterInsertTe
 
         } catch (InterruptedException e) {
         }
+      }
     }
 
     @Override
-    public void onAfterRecordUnlock(ORecordId rid) {}
+    public void onAfterRecordUnlock(ORecordId rid) {
+    }
   }
 }

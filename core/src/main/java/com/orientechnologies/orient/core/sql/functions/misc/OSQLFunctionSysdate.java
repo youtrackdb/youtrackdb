@@ -34,12 +34,15 @@ import java.util.TimeZone;
  * @see OSQLFunctionDate
  */
 public class OSQLFunctionSysdate extends OSQLFunctionAbstract {
+
   public static final String NAME = "sysdate";
 
   private final Date now;
   private SimpleDateFormat format;
 
-  /** Get the date at construction to have the same date for all the iteration. */
+  /**
+   * Get the date at construction to have the same date for all the iteration.
+   */
   public OSQLFunctionSysdate() {
     super(NAME, 0, 2);
     now = new Date();
@@ -51,12 +54,17 @@ public class OSQLFunctionSysdate extends OSQLFunctionAbstract {
       Object iCurrentResult,
       final Object[] iParams,
       OCommandContext iContext) {
-    if (iParams.length == 0) return now;
+    if (iParams.length == 0) {
+      return now;
+    }
 
     if (format == null) {
       format = new SimpleDateFormat((String) iParams[0]);
-      if (iParams.length == 2) format.setTimeZone(TimeZone.getTimeZone(iParams[1].toString()));
-      else format.setTimeZone(ODateHelper.getDatabaseTimeZone());
+      if (iParams.length == 2) {
+        format.setTimeZone(TimeZone.getTimeZone(iParams[1].toString()));
+      } else {
+        format.setTimeZone(ODateHelper.getDatabaseTimeZone());
+      }
     }
 
     return format.format(now);

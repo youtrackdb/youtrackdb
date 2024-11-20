@@ -199,8 +199,7 @@ public interface OIndexManager {
    * fields does not matter.
    *
    * <p>All indexes sorted by their count of parameters in ascending order. If there are indexes
-   * for
-   * the given set of fields in super class they will be taken into account.
+   * for the given set of fields in super class they will be taken into account.
    *
    * @param className name of class which is indexed.
    * @param fields    Field names.
@@ -215,8 +214,7 @@ public interface OIndexManager {
    * fields does not matter.
    *
    * <p>All indexes sorted by their count of parameters in ascending order. If there are indexes
-   * for
-   * the given set of fields in super class they will be taken into account.
+   * for the given set of fields in super class they will be taken into account.
    *
    * @param className name of class which is indexed.
    * @param fields    Field names.

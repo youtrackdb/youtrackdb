@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class OAlterClusterStatement extends ODDLStatement {
@@ -89,7 +90,7 @@ public class OAlterClusterStatement extends ODDLStatement {
                             + "'. Supported attributes are: "
                             + noDeprecatedValues(OCluster.ATTRIBUTES.values())));
 
-    final OStorage storage = ((ODatabaseSessionInternal) ctx.getDatabase()).getStorage();
+    final OStorage storage = ctx.getDatabase().getStorage();
     for (final int clusterId : clustersToUpdate) {
       storage.setClusterAttribute(clusterId, attribute, finalValue);
 
@@ -120,7 +121,7 @@ public class OAlterClusterStatement extends ODDLStatement {
   }
 
   private IntArrayList getClusters(OCommandContext ctx) {
-    ODatabaseSessionInternal database = (ODatabaseSessionInternal) ctx.getDatabase();
+    ODatabaseSessionInternal database = ctx.getDatabase();
     if (starred) {
       IntArrayList result = new IntArrayList();
       for (String clusterName : database.getClusterNames()) {
@@ -141,19 +142,25 @@ public class OAlterClusterStatement extends ODDLStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OAlterClusterStatement that = (OAlterClusterStatement) o;
 
-    if (starred != that.starred) return false;
-    if (name != null ? !name.equals(that.name) : that.name != null) return false;
-    if (attributeName != null
-        ? !attributeName.equals(that.attributeName)
-        : that.attributeName != null) return false;
-    return attributeValue != null
-        ? attributeValue.equals(that.attributeValue)
-        : that.attributeValue == null;
+    if (starred != that.starred) {
+      return false;
+    }
+    if (!Objects.equals(name, that.name)) {
+      return false;
+    }
+    if (!Objects.equals(attributeName, that.attributeName)) {
+      return false;
+    }
+    return Objects.equals(attributeValue, that.attributeValue);
   }
 
   @Override

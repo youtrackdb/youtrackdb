@@ -28,6 +28,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OSharedResourceAbstract {
+
   protected final ReadWriteLock lock = new ReentrantReadWriteLock();
 
   protected void acquireSharedLock() {

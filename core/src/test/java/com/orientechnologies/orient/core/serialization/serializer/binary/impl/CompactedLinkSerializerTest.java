@@ -7,6 +7,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class CompactedLinkSerializerTest {
+
   @Test
   public void testSerializeOneByte() {
     final OCompactedLinkSerializer linkSerializer = new OCompactedLinkSerializer();

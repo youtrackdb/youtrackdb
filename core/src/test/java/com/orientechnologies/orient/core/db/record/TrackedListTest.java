@@ -14,6 +14,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class TrackedListTest {
+
   @Test
   public void testAddNotificationOne() {
     final ODocument doc = new ODocument();
@@ -441,11 +442,14 @@ public class TrackedListTest {
             (List) trackedList.getTimeLine().getMultiValueChangeEvents()));
   }
 
-  /** Test that {@link OTrackedList} is serialised correctly. */
+  /**
+   * Test that {@link OTrackedList} is serialised correctly.
+   */
   @Test
   public void testSerialization() throws Exception {
 
     class NotSerializableDocument extends ODocument {
+
       private static final long serialVersionUID = 1L;
 
       private void writeObject(ObjectOutputStream oos) throws IOException {

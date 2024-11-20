@@ -36,6 +36,7 @@ import java.io.IOException;
  * @author Luca Garulli (l.garulli--at--orientechnologies.com)
  */
 public class ServerRun {
+
   private final String serverId;
   private String rootPath;
   public OServer server;
@@ -68,7 +69,9 @@ public class ServerRun {
 
   public String getBinaryProtocolAddress() {
     final OServerNetworkListener prot = server.getListenerByProtocol(ONetworkProtocolBinary.class);
-    if (prot == null) return null;
+    if (prot == null) {
+      return null;
+    }
     return prot.getListeningAddress(true);
   }
 
@@ -168,7 +171,9 @@ public class ServerRun {
 
     System.setProperty("ORIENTDB_HOME", getServerHome());
 
-    if (server == null) server = OServerMain.create(false);
+    if (server == null) {
+      server = OServerMain.create(false);
+    }
 
     server.setServerRootDirectory(getServerHome());
     server.startup(getClass().getClassLoader().getResourceAsStream(iServerConfigFile));

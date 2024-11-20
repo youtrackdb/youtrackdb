@@ -71,10 +71,12 @@ public abstract class OAbstractProfiler extends OSharedResourceAbstract
   private static long statsLastAutoDump = 0;
 
   public interface OProfilerHookValue {
+
     Object getValue();
   }
 
   public class OProfilerHookRuntime {
+
     public OProfilerHookValue hook;
     public METRIC_TYPE type;
 
@@ -85,6 +87,7 @@ public abstract class OAbstractProfiler extends OSharedResourceAbstract
   }
 
   public class OProfilerHookStatic {
+
     public Object value;
     public METRIC_TYPE type;
 
@@ -95,6 +98,7 @@ public abstract class OAbstractProfiler extends OSharedResourceAbstract
   }
 
   private static final class MemoryChecker implements Runnable {
+
     @Override
     public void run() {
       try {
@@ -106,8 +110,10 @@ public abstract class OAbstractProfiler extends OSharedResourceAbstract
             final OReadCache dk = ((OLocalPaginatedStorage) s).getReadCache();
             final OWriteCache wk = ((OLocalPaginatedStorage) s).getWriteCache();
             if (dk == null || wk == null)
-              // NOT YET READY
+            // NOT YET READY
+            {
               continue;
+            }
 
             final long totalDiskCacheUsedMemory =
                 (dk.getUsedMemory() + wk.getExclusiveWriteCachePagesSize()) / OFileUtils.MEGABYTE;
@@ -251,25 +257,28 @@ public abstract class OAbstractProfiler extends OSharedResourceAbstract
 
           final String[] hooks = Orient.instance().getProfiler().getHookAsString();
           for (String h : hooks) {
-            if (h.startsWith("db.") && h.endsWith("createRecord"))
+            if (h.startsWith("db.") && h.endsWith("createRecord")) {
               lastCreateRecords += (Long) Orient.instance().getProfiler().getHookValue(h);
-            else if (h.startsWith("db.") && h.endsWith("readRecord"))
+            } else if (h.startsWith("db.") && h.endsWith("readRecord")) {
               lastReadRecords += (Long) Orient.instance().getProfiler().getHookValue(h);
-            else if (h.startsWith("db.") && h.endsWith("updateRecord"))
+            } else if (h.startsWith("db.") && h.endsWith("updateRecord")) {
               lastUpdateRecords += (Long) Orient.instance().getProfiler().getHookValue(h);
-            else if (h.startsWith("db.") && h.endsWith("deleteRecord"))
+            } else if (h.startsWith("db.") && h.endsWith("deleteRecord")) {
               lastDeleteRecords += (Long) Orient.instance().getProfiler().getHookValue(h);
-            else if (h.startsWith("db.") && h.endsWith("txCommit"))
+            } else if (h.startsWith("db.") && h.endsWith("txCommit")) {
               lastTxCommit += (Long) Orient.instance().getProfiler().getHookValue(h);
-            else if (h.startsWith("db.") && h.endsWith("txRollback"))
+            } else if (h.startsWith("db.") && h.endsWith("txRollback")) {
               lastTxRollback += (Long) Orient.instance().getProfiler().getHookValue(h);
+            }
           }
 
           final List<String> chronos = Orient.instance().getProfiler().getChronos();
           for (String c : chronos) {
             final OProfilerEntry chrono = Orient.instance().getProfiler().getChrono(c);
             if (chrono != null) {
-              if (c.startsWith("db.") && c.contains(".command.")) lastCommands += chrono.entries;
+              if (c.startsWith("db.") && c.contains(".command.")) {
+                lastCommands += chrono.entries;
+              }
             }
           }
 
@@ -376,8 +385,10 @@ public abstract class OAbstractProfiler extends OSharedResourceAbstract
   @Override
   public void onStartup() {
     if (OGlobalConfiguration.PROFILER_ENABLED.getValueAsBoolean())
-      // ACTIVATE RECORDING OF THE PROFILER
+    // ACTIVATE RECORDING OF THE PROFILER
+    {
       startRecording();
+    }
     installMemoryChecker();
   }
 
@@ -400,14 +411,18 @@ public abstract class OAbstractProfiler extends OSharedResourceAbstract
   }
 
   public boolean startRecording() {
-    if (isRecording()) return false;
+    if (isRecording()) {
+      return false;
+    }
 
     recordingFrom = System.currentTimeMillis();
     return true;
   }
 
   public boolean stopRecording() {
-    if (!isRecording()) return false;
+    if (!isRecording()) {
+      return false;
+    }
 
     recordingFrom = -1;
     return true;
@@ -530,7 +545,9 @@ public abstract class OAbstractProfiler extends OSharedResourceAbstract
                   },
                   ms,
                   ms);
-    } else OLogManager.instance().info(this, "Auto dump of profiler disabled", iSeconds);
+    } else {
+      OLogManager.instance().info(this, "Auto dump of profiler disabled", iSeconds);
+    }
   }
 
   @Override
@@ -542,10 +559,11 @@ public abstract class OAbstractProfiler extends OSharedResourceAbstract
   public Map<String, OPair<String, METRIC_TYPE>> getMetadata() {
     final Map<String, OPair<String, METRIC_TYPE>> metadata =
         new HashMap<String, OPair<String, METRIC_TYPE>>();
-    for (Entry<String, String> entry : dictionary.entrySet())
+    for (Entry<String, String> entry : dictionary.entrySet()) {
       metadata.put(
           entry.getKey(),
           new OPair<String, METRIC_TYPE>(entry.getValue(), types.get(entry.getKey())));
+    }
     return metadata;
   }
 
@@ -579,33 +597,27 @@ public abstract class OAbstractProfiler extends OSharedResourceAbstract
 
   @Override
   public void unregisterHookValue(final String iName) {
-    if (iName != null) hooks.remove(iName);
+    if (iName != null) {
+      hooks.remove(iName);
+    }
   }
 
   @Override
   public String getSystemMetric(final String iMetricName) {
-    final StringBuilder buffer = new StringBuilder("system.".length() + iMetricName.length() + 1);
-    buffer.append("system.");
-    buffer.append(iMetricName);
-    return buffer.toString();
+    String buffer = "system." + iMetricName;
+    return buffer;
   }
 
   @Override
   public String getProcessMetric(final String iMetricName) {
-    final StringBuilder buffer = new StringBuilder("process.".length() + iMetricName.length() + 1);
-    buffer.append("process.");
-    buffer.append(iMetricName);
-    return buffer.toString();
+    String buffer = "process." + iMetricName;
+    return buffer;
   }
 
   @Override
   public String getDatabaseMetric(final String iDatabaseName, final String iMetricName) {
-    final StringBuilder buffer = new StringBuilder(128);
-    buffer.append("db.");
-    buffer.append(iDatabaseName != null ? iDatabaseName : "*");
-    buffer.append('.');
-    buffer.append(iMetricName);
-    return buffer.toString();
+    String buffer = "db." + (iDatabaseName != null ? iDatabaseName : "*") + '.' + iMetricName;
+    return buffer;
   }
 
   @Override
@@ -617,15 +629,19 @@ public abstract class OAbstractProfiler extends OSharedResourceAbstract
     final long memoryCheckInterval =
         OGlobalConfiguration.PROFILER_MEMORYCHECK_INTERVAL.getValueAsLong();
 
-    if (memoryCheckInterval > 0)
+    if (memoryCheckInterval > 0) {
       Orient.instance().scheduleTask(new MemoryChecker(), memoryCheckInterval, memoryCheckInterval);
+    }
   }
 
-  /** Updates the metric metadata. */
+  /**
+   * Updates the metric metadata.
+   */
   protected void updateMetadata(
       final String iName, final String iDescription, final METRIC_TYPE iType) {
-    if (iDescription != null && dictionary.putIfAbsent(iName, iDescription) == null)
+    if (iDescription != null && dictionary.putIfAbsent(iName, iDescription) == null) {
       types.put(iName, iType);
+    }
   }
 
   @Override

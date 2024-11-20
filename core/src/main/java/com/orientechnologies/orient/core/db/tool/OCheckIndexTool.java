@@ -66,7 +66,7 @@ public class OCheckIndexTool extends ODatabaseTool {
       }
       checkIndex(database, index);
     }
-    message("Total errors found on indexes: " + getTotalErrors());
+    message("Total errors found on indexes: " + totalErrors);
   }
 
   private boolean canCheck(OIndex index) {
@@ -114,8 +114,7 @@ public class OCheckIndexTool extends ODatabaseTool {
         step = currentStep;
       }
       ORecord record = iter.next();
-      if (record instanceof ODocument) {
-        ODocument doc = (ODocument) record;
+      if (record instanceof ODocument doc) {
         checkThatRecordIsIndexed(session, doc, index, fields);
       }
       count++;

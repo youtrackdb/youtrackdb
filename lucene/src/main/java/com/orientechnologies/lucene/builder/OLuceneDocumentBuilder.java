@@ -33,7 +33,9 @@ import java.util.Map;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 
-/** Created by Enrico Risa on 02/09/15. */
+/**
+ * Created by Enrico Risa on 02/09/15.
+ */
 public class OLuceneDocumentBuilder {
 
   public Document build(
@@ -94,7 +96,9 @@ public class OLuceneDocumentBuilder {
   }
 
   public static Boolean isSorted(String field, ODocument metadata) {
-    if (metadata == null) return true;
+    if (metadata == null) {
+      return true;
+    }
     Boolean sorted = true;
     try {
       Boolean localSorted = metadata.field("*_index_sorted");

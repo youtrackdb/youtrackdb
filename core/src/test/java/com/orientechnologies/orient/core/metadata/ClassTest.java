@@ -32,8 +32,7 @@ public class ClassTest extends BaseMemoryInternalDatabase {
 
     final OStorage storage = db.getStorage();
 
-    if (storage instanceof OAbstractPaginatedStorage) {
-      final OAbstractPaginatedStorage paginatedStorage = (OAbstractPaginatedStorage) storage;
+    if (storage instanceof OAbstractPaginatedStorage paginatedStorage) {
       final OWriteCache writeCache = paginatedStorage.getWriteCache();
       Assert.assertTrue(
           writeCache.exists(
@@ -91,12 +90,12 @@ public class ClassTest extends BaseMemoryInternalDatabase {
 
     oClass.setName("ClassNameNew");
 
-    Assert.assertTrue(!writeCache.exists("classname" + OPaginatedCluster.DEF_EXTENSION));
+    assertFalse(writeCache.exists("classname" + OPaginatedCluster.DEF_EXTENSION));
     Assert.assertTrue(writeCache.exists("classnamenew" + OPaginatedCluster.DEF_EXTENSION));
 
     oClass.setName("ClassName");
 
-    Assert.assertTrue(!writeCache.exists("classnamenew" + OPaginatedCluster.DEF_EXTENSION));
+    assertFalse(writeCache.exists("classnamenew" + OPaginatedCluster.DEF_EXTENSION));
     Assert.assertTrue(writeCache.exists("classname" + OPaginatedCluster.DEF_EXTENSION));
   }
 

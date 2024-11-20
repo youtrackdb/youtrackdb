@@ -15,7 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/** Created by luigidellaquila on 26/10/16. */
+/**
+ * Created by luigidellaquila on 26/10/16.
+ */
 public class DepthFirstTraverseStep extends AbstractTraverseStep {
 
   public DepthFirstTraverseStep(
@@ -274,7 +276,7 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
     if (whileClause != null) {
       result.append("\n");
       result.append(spaces);
-      result.append("WHILE " + whileClause.toString());
+      result.append("WHILE " + whileClause);
     }
     return result.toString();
   }

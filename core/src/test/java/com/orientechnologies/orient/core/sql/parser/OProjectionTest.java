@@ -25,7 +25,9 @@ import java.io.InputStream;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by luigidellaquila on 02/07/15. */
+/**
+ * Created by luigidellaquila on 02/07/15.
+ */
 public class OProjectionTest {
 
   @Test
@@ -51,7 +53,6 @@ public class OProjectionTest {
 
     try {
       getParserFor("select expand(foo), bar  from V").parse();
-      ;
       Assert.fail();
     } catch (OCommandSQLParsingException ex) {
 

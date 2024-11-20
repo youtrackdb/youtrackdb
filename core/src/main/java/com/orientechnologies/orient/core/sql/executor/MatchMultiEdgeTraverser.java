@@ -16,8 +16,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
-/** Created by luigidellaquila on 14/10/16. */
+/**
+ * Created by luigidellaquila on 14/10/16.
+ */
 public class MatchMultiEdgeTraverser extends MatchEdgeTraverser {
+
   public MatchMultiEdgeTraverser(OResult lastUpstreamRecord, EdgeTraversal edge) {
     super(lastUpstreamRecord, edge);
   }
@@ -98,8 +101,7 @@ public class MatchMultiEdgeTraverser extends MatchEdgeTraverser {
                 rightSide.add(converted);
               }
             }
-          } else if (nextSteps instanceof Iterator) {
-            Iterator iterator = (Iterator) nextSteps;
+          } else if (nextSteps instanceof Iterator iterator) {
             while (iterator.hasNext()) {
               OResultInternal converted = toOResultInternal(iterator.next());
               if (converted != null

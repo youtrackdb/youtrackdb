@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import org.apache.hc.client5.http.ClientProtocolException;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
@@ -19,10 +18,9 @@ public class HttpDisabledTokenTest extends BaseHttpDatabaseTest {
   protected String getServerCfg() {
     return "/com/orientechnologies/orient/server/network/orientdb-server-config-httponly-notoken.xml";
   }
-  ;
 
   @Test
-  public void testTokenRequest() throws ClientProtocolException, IOException {
+  public void testTokenRequest() throws IOException {
     HttpPost request = new HttpPost(getBaseURL() + "/token/" + getDatabaseName());
     request.setEntity(new StringEntity("grant_type=password&username=admin&password=admin"));
     final CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -31,7 +29,7 @@ public class HttpDisabledTokenTest extends BaseHttpDatabaseTest {
     HttpEntity entity = response.getEntity();
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     entity.writeTo(out);
-    assertTrue(out.toString().toString().contains("unsupported_grant_type"));
+    assertTrue(out.toString().contains("unsupported_grant_type"));
   }
 
   @Override

@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.exception;
 import com.orientechnologies.common.exception.OHighLevelException;
 
 public class OSchemaNotCreatedException extends OSchemaException implements OHighLevelException {
+
   public OSchemaNotCreatedException(String message) {
     super(message);
   }

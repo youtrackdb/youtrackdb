@@ -1,7 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.BaseMemoryDatabase;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import org.junit.Assert;
@@ -54,8 +53,7 @@ public class OCreateClusterStatementExecutionTest extends BaseMemoryDatabase {
     String clusterName = "testBlob";
     OResultSet result = db.command("create blob cluster " + clusterName);
     Assert.assertTrue(db.getClusterIdByName(clusterName) > 0);
-    Assert.assertTrue(
-        ((ODatabaseSessionInternal) db).getStorage().getClusterIdByName(clusterName) >= 0);
+    Assert.assertTrue(db.getStorage().getClusterIdByName(clusterName) >= 0);
     // TODO test that it's a blob cluster
     result.close();
   }

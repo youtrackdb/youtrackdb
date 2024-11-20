@@ -34,7 +34,9 @@ import org.locationtech.spatial4j.distance.DistanceUtils;
 import org.locationtech.spatial4j.shape.Point;
 import org.locationtech.spatial4j.shape.Shape;
 
-/** Created by Enrico Risa on 11/08/15. */
+/**
+ * Created by Enrico Risa on 11/08/15.
+ */
 public class SpatialQueryBuilderNear extends SpatialQueryBuilderAbstract {
 
   public static final String NAME = "near";

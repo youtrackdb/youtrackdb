@@ -4,6 +4,7 @@ import com.orientechnologies.common.serialization.types.OLongSerializer;
 import java.nio.ByteBuffer;
 
 public class OFileTruncatedWALRecord extends OOperationUnitBodyRecord {
+
   private long fileId;
 
   public OFileTruncatedWALRecord() {}

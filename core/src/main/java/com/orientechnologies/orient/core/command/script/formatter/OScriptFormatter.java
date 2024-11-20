@@ -28,7 +28,8 @@ import com.orientechnologies.orient.core.metadata.function.OFunction;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OScriptFormatter {
-  public String getFunctionDefinition(OFunction iFunction);
 
-  public String getFunctionInvoke(OFunction iFunction, final Object[] iArgs);
+  String getFunctionDefinition(OFunction iFunction);
+
+  String getFunctionInvoke(OFunction iFunction, final Object[] iArgs);
 }

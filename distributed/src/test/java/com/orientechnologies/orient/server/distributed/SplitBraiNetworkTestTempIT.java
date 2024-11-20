@@ -33,6 +33,7 @@ import org.junit.Test;
  * network (using a proxy) and then it re-merges the cluster again.
  */
 public class SplitBraiNetworkTestTempIT extends AbstractHARemoveNode {
+
   static final int SERVERS = 3;
 
   private OProxyServer hzProxy;
@@ -99,9 +100,15 @@ public class SplitBraiNetworkTestTempIT extends AbstractHARemoveNode {
       executeMultipleTest();
 
     } finally {
-      if (server1And2Proxy != null) server1And2Proxy.shutdown();
-      if (server3Proxy != null) server3Proxy.shutdown();
-      if (hzProxy != null) hzProxy.shutdown();
+      if (server1And2Proxy != null) {
+        server1And2Proxy.shutdown();
+      }
+      if (server3Proxy != null) {
+        server3Proxy.shutdown();
+      }
+      if (hzProxy != null) {
+        hzProxy.shutdown();
+      }
     }
   }
 
@@ -140,7 +147,9 @@ public class SplitBraiNetworkTestTempIT extends AbstractHARemoveNode {
 
               switch (state) {
                 case 0:
-                  if (i + 15 > size) return;
+                  if (i + 15 > size) {
+                    return;
+                  }
 
                   if (b == 0) {
                     start = i;
@@ -149,12 +158,12 @@ public class SplitBraiNetworkTestTempIT extends AbstractHARemoveNode {
                   break;
                 case 1:
                   if (b == 0) {
-                    final byte[] portAsBytes = new byte[] {0, 0, buffer[++i], buffer[++i]};
+                    final byte[] portAsBytes = new byte[]{0, 0, buffer[++i], buffer[++i]};
                     final int port = OIntegerSerializer.INSTANCE.deserialize(portAsBytes, 0);
                     if (port >= 2434 && port < 2440) {
                       i++;
                       final byte[] ipSizeAsBytes =
-                          new byte[] {buffer[++i], buffer[++i], buffer[++i], buffer[++i]};
+                          new byte[]{buffer[++i], buffer[++i], buffer[++i], buffer[++i]};
                       final int ipSize = OIntegerSerializer.INSTANCE.deserialize(ipSizeAsBytes, 0);
                       if (ipSize > 0 && ipSize <= 15) {
                         // CHECK IT'S AN IP ADDRESS
@@ -185,7 +194,9 @@ public class SplitBraiNetworkTestTempIT extends AbstractHARemoveNode {
                       }
                     }
                     state = 0;
-                  } else state = 0;
+                  } else {
+                    state = 0;
+                  }
                   break;
               }
             }
@@ -223,8 +234,10 @@ public class SplitBraiNetworkTestTempIT extends AbstractHARemoveNode {
                     final String[] parts = listen.split(":");
                     final int port = Integer.parseInt(parts[1]);
                     if (port >= 2424 && port <= 2430)
-                      // PATCH THE PORT
+                    // PATCH THE PORT
+                    {
                       map.put("listen", parts[0] + ":" + (port + 1000));
+                    }
                   }
                 }
               }

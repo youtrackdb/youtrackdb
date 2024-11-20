@@ -27,7 +27,8 @@ import java.util.ListIterator;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OLazyIteratorListWrapper<T> implements OLazyIterator<T> {
-  private ListIterator<T> underlying;
+
+  private final ListIterator<T> underlying;
 
   public OLazyIteratorListWrapper(ListIterator<T> iUnderlying) {
     underlying = iUnderlying;

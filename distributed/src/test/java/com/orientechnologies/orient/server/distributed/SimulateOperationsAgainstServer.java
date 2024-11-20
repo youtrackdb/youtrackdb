@@ -29,15 +29,18 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
-/** Executes random operations against multiple servers */
+/**
+ * Executes random operations against multiple servers
+ */
 public class SimulateOperationsAgainstServer {
+
   protected static final int delay = 0;
   private static final int MAX_RETRY = 30;
   protected final AtomicLong totalOperations = new AtomicLong();
   protected int count = 1000;
   protected int threads = 20;
   protected String[] urls =
-      new String[] {"remote:localhost:2424/test", "remote:localhost:2425/test"};
+      new String[]{"remote:localhost:2424/test", "remote:localhost:2425/test"};
   protected String className = "Customer";
   protected String userName = "admin";
   protected String userPassword = "admin";
@@ -92,11 +95,12 @@ public class SimulateOperationsAgainstServer {
 
                   totalOperations.addAndGet(1);
 
-                  if (delay > 0)
+                  if (delay > 0) {
                     try {
                       Thread.sleep(delay);
                     } catch (InterruptedException e) {
                     }
+                  }
 
                 } catch (Exception e) {
                   e.printStackTrace();
@@ -141,7 +145,9 @@ public class SimulateOperationsAgainstServer {
 
       int browsed = 0;
       for (OIdentifiable r : result) {
-        if (browsed++ > iMax) return;
+        if (browsed++ > iMax) {
+          return;
+        }
 
         r.getRecord().toString();
       }
@@ -166,9 +172,9 @@ public class SimulateOperationsAgainstServer {
                 new OSQLSynchQuery<Object>(
                     "select from " + className + " skip " + iSkip + " limit 1"));
 
-        if (result == null || result.isEmpty())
+        if (result == null || result.isEmpty()) {
           log(threadId, iCycle, dbUrl, " update no item " + iSkip + " because out of range");
-        else {
+        } else {
           doc = (ODocument) result.get(0);
           doc.field("updated", "" + (doc.getVersion() + 1));
           doc.save();
@@ -190,7 +196,9 @@ public class SimulateOperationsAgainstServer {
                 + "/"
                 + MAX_RETRY
                 + "...");
-        if (doc != null) doc.reload(null, true);
+        if (doc != null) {
+          doc.reload(null, true);
+        }
 
       } catch (ORecordNotFoundException e) {
         log(threadId, iCycle, dbUrl, " update no item " + iSkip + " because not found");
@@ -217,9 +225,9 @@ public class SimulateOperationsAgainstServer {
                 new OSQLSynchQuery<Object>(
                     "select from " + className + " skip " + iSkip + " limit 1"));
 
-        if (result == null || result.isEmpty())
+        if (result == null || result.isEmpty()) {
           log(threadId, iCycle, dbUrl, " delete no item " + iSkip + " because out of range");
-        else {
+        } else {
           doc = result.get(0).getRecord();
           doc.delete();
           log(threadId, iCycle, dbUrl, " deleted item " + iSkip + " RID=" + result.get(0));
@@ -237,7 +245,9 @@ public class SimulateOperationsAgainstServer {
                 + "/"
                 + MAX_RETRY
                 + "...");
-        if (doc != null) doc.reload(null, true);
+        if (doc != null) {
+          doc.reload(null, true);
+        }
       } catch (ORecordNotFoundException e) {
         log(threadId, iCycle, dbUrl, " delete no item " + iSkip + " because not found");
       } finally {

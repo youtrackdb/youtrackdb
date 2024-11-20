@@ -6,7 +6,7 @@ import java.util.Set;
 
 public class OPropertyAccess {
 
-  private Set<String> filtered;
+  private final Set<String> filtered;
 
   public OPropertyAccess(ODatabaseSession session, ODocument document, OSecurityInternal security) {
     filtered = security.getFilteredProperties(session, document);

@@ -6,7 +6,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 05/10/16. */
+/**
+ * Created by Enrico Risa on 05/10/16.
+ */
 public class OLuceneNullTest extends OLuceneBaseTest {
 
   @Before

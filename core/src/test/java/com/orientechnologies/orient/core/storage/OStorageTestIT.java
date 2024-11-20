@@ -28,6 +28,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class OStorageTestIT {
+
   private OrientDB orientDB;
 
   private static Path buildPath;

@@ -22,8 +22,9 @@ package com.orientechnologies.orient.server.plugin.mail;
 import java.net.PasswordAuthentication;
 
 public class OSMTPAuthenticator {
-  private String userName;
-  private String password;
+
+  private final String userName;
+  private final String password;
 
   public OSMTPAuthenticator(String userName, String password) {
     this.userName = userName;

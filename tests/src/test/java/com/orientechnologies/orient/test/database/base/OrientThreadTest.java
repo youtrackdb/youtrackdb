@@ -19,6 +19,7 @@ import com.orientechnologies.common.test.SpeedTestMultiThreads;
 import com.orientechnologies.common.test.SpeedTestThread;
 
 public abstract class OrientThreadTest extends SpeedTestThread {
+
   protected OrientThreadTest(SpeedTestMultiThreads iParent, int threadId) {
     super(iParent, threadId);
   }

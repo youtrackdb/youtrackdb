@@ -6,6 +6,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
+import java.util.Objects;
 
 public class OSleepStatement extends OSimpleExecStatement {
 
@@ -56,14 +57,16 @@ public class OSleepStatement extends OSimpleExecStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OSleepStatement that = (OSleepStatement) o;
 
-    if (millis != null ? !millis.equals(that.millis) : that.millis != null) return false;
-
-    return true;
+    return Objects.equals(millis, that.millis);
   }
 
   @Override

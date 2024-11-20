@@ -15,6 +15,7 @@ import org.junit.Test;
  * @since 4/15/14
  */
 public class OSBTreeNullBucketV2Test {
+
   @Test
   public void testEmptyBucket() {
     OByteBufferPool bufferPool = new OByteBufferPool(1024);

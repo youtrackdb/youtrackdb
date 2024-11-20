@@ -26,6 +26,7 @@ import org.junit.Test;
  * @since 13.03.13
  */
 public class LocalHashTableV3IterationTestIT {
+
   private static final int KEYS_COUNT = 500000;
 
   private ODatabaseSessionInternal db;
@@ -36,7 +37,9 @@ public class LocalHashTableV3IterationTestIT {
   @Before
   public void beforeClass() throws Exception {
     String buildDirectory = System.getProperty("buildDirectory");
-    if (buildDirectory == null) buildDirectory = ".";
+    if (buildDirectory == null) {
+      buildDirectory = ".";
+    }
 
     db = new ODatabaseDocumentTx("plocal:" + buildDirectory + "/localHashTableV3IterationTest");
     if (db.exists()) {
@@ -58,15 +61,14 @@ public class LocalHashTableV3IterationTestIT {
             (OAbstractPaginatedStorage) db.getStorage());
 
     atomicOperationsManager =
-        ((OAbstractPaginatedStorage) ((ODatabaseSessionInternal) db).getStorage())
-            .getAtomicOperationsManager();
+        ((OAbstractPaginatedStorage) db.getStorage()).getAtomicOperationsManager();
     atomicOperationsManager.executeInsideAtomicOperation(
         null,
         atomicOperation ->
             localHashTable.create(
                 atomicOperation,
                 OIntegerSerializer.INSTANCE,
-                OBinarySerializerFactory.getInstance().<String>getObjectSerializer(OType.STRING),
+                OBinarySerializerFactory.getInstance().getObjectSerializer(OType.STRING),
                 null,
                 null,
                 hashFunction,

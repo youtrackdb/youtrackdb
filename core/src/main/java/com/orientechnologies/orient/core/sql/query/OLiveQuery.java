@@ -62,7 +62,7 @@ public class OLiveQuery<T> extends OSQLSynchQuery<T> {
     if (database.isRemote()) {
       BackwardOLiveQueryResultListener listener = new BackwardOLiveQueryResultListener();
       OLiveQueryMonitor monitor = database.live(getText(), listener, iArgs);
-      listener.token = (int) monitor.getMonitorId();
+      listener.token = monitor.getMonitorId();
       ODocument doc = new ODocument();
       doc.setProperty("token", listener.token);
       OLegacyResultSet<ODocument> result = new OBasicLegacyResultSet<>();

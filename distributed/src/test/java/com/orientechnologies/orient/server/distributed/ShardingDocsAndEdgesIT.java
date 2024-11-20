@@ -68,54 +68,54 @@ public class ShardingDocsAndEdgesIT extends AbstractServerClusterTest {
 
     // test 0
     queryResult = execute(USA, "select from `cluster:" + clusterNodeUSA + "`");
-    compare(queryResult, new String[] {"mike"});
+    compare(queryResult, new String[]{"mike"});
 
     queryResult = execute(USA, "select from `cluster:" + clusterNodeEUR + "`");
-    compare(queryResult, new String[] {});
+    compare(queryResult, new String[]{});
 
     queryResult = execute(USA, "select from `Client-Type`");
-    compare(queryResult, new String[] {"mike"});
+    compare(queryResult, new String[]{"mike"});
 
     queryResult = execute(EUR, "select from `cluster:" + clusterNodeUSA + "`");
-    compare(queryResult, new String[] {"mike"});
+    compare(queryResult, new String[]{"mike"});
 
     queryResult = execute(EUR, "select from `cluster:" + clusterNodeEUR + "`");
-    compare(queryResult, new String[] {});
+    compare(queryResult, new String[]{});
 
     queryResult = execute(EUR, "select from `Client-Type`");
-    compare(queryResult, new String[] {"mike"});
+    compare(queryResult, new String[]{"mike"});
 
     execute(EUR, "insert into `cluster:" + clusterNodeEUR + "` set name = 'phoebe'");
     Thread.sleep(1000);
 
     // test 6
     queryResult = execute(USA, "select from `cluster:" + clusterNodeUSA + "`");
-    compare(queryResult, new String[] {"mike"});
+    compare(queryResult, new String[]{"mike"});
 
     queryResult = execute(USA, "select from `cluster:" + clusterNodeEUR + "`");
-    compare(queryResult, new String[] {"phoebe"});
+    compare(queryResult, new String[]{"phoebe"});
 
     queryResult = execute(USA, "select from `Client-Type`");
-    compare(queryResult, new String[] {"mike", "phoebe"});
+    compare(queryResult, new String[]{"mike", "phoebe"});
 
     queryResult = execute(EUR, "select from `cluster:" + clusterNodeUSA + "`");
-    compare(queryResult, new String[] {"mike"});
+    compare(queryResult, new String[]{"mike"});
 
     queryResult = execute(EUR, "select from `cluster:" + clusterNodeEUR + "`");
-    compare(queryResult, new String[] {"phoebe"});
+    compare(queryResult, new String[]{"phoebe"});
 
     queryResult = execute(EUR, "select from `Client-Type`");
-    compare(queryResult, new String[] {"mike", "phoebe"});
+    compare(queryResult, new String[]{"mike", "phoebe"});
 
     /*
      * verify that 'select from V returns' the same as 'select from Client-Type' on both nodes
      */
     // test 12
     queryResult = execute(USA, "select from V");
-    compare(queryResult, new String[] {"mike", "phoebe"});
+    compare(queryResult, new String[]{"mike", "phoebe"});
     // test 13
     queryResult = execute(EUR, "select from V");
-    compare(queryResult, new String[] {"mike", "phoebe"});
+    compare(queryResult, new String[]{"mike", "phoebe"});
 
     // LINE A
     execute(

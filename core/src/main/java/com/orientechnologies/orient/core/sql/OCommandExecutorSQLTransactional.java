@@ -31,6 +31,7 @@ import java.util.Map;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OCommandExecutorSQLTransactional extends OCommandExecutorSQLDelegate {
+
   public static final String KEYWORD_TRANSACTIONAL = "TRANSACTIONAL";
 
   @SuppressWarnings("unchecked")
@@ -46,16 +47,22 @@ public class OCommandExecutorSQLTransactional extends OCommandExecutorSQLDelegat
     var database = getDatabase();
     boolean txbegun = database.getTransaction() == null || !database.getTransaction().isActive();
 
-    if (txbegun) database.begin();
+    if (txbegun) {
+      database.begin();
+    }
 
     try {
       final Object result = super.execute(iArgs);
 
-      if (txbegun) database.commit();
+      if (txbegun) {
+        database.commit();
+      }
 
       return result;
     } catch (Exception e) {
-      if (txbegun) database.rollback();
+      if (txbegun) {
+        database.rollback();
+      }
       throw OException.wrapException(
           new OCommandExecutionException("Transactional command failed"), e);
     }

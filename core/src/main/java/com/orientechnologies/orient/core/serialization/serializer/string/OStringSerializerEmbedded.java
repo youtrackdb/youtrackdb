@@ -27,9 +27,10 @@ import com.orientechnologies.orient.core.record.impl.ODocumentEmbedded;
 import com.orientechnologies.orient.core.serialization.ODocumentSerializable;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerSchemaAware2CSV;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 public class OStringSerializerEmbedded implements OStringSerializer {
+
   public static final OStringSerializerEmbedded INSTANCE = new OStringSerializerEmbedded();
   public static final String NAME = "em";
   public static final String SEPARATOR = "|";
@@ -41,19 +42,19 @@ public class OStringSerializerEmbedded implements OStringSerializer {
    */
   public Object fromStream(final String iStream) {
     if (iStream == null || iStream.length() == 0)
-      // NULL VALUE
+    // NULL VALUE
+    {
       return null;
-
-    final ODocument instance = new ODocumentEmbedded();
-    try {
-      ORecordSerializerSchemaAware2CSV.INSTANCE.fromStream(
-          iStream.getBytes("UTF-8"), instance, null);
-    } catch (UnsupportedEncodingException e) {
-      throw OException.wrapException(new OSerializationException("Error decoding string"), e);
     }
 
+    final ODocument instance = new ODocumentEmbedded();
+    ORecordSerializerSchemaAware2CSV.INSTANCE.fromStream(
+        iStream.getBytes(StandardCharsets.UTF_8), instance, null);
+
     final String className = instance.field(ODocumentSerializable.CLASS_NAME);
-    if (className == null) return instance;
+    if (className == null) {
+      return instance;
+    }
 
     Class<?> clazz = null;
     try {
@@ -66,7 +67,9 @@ public class OStringSerializerEmbedded implements OStringSerializer {
               e);
     }
 
-    if (clazz == null) return instance;
+    if (clazz == null) {
+      return instance;
+    }
 
     if (ODocumentSerializable.class.isAssignableFrom(clazz)) {
       try {
@@ -90,26 +93,24 @@ public class OStringSerializerEmbedded implements OStringSerializer {
     return instance;
   }
 
-  /** Serialize the class name size + class name + object content */
+  /**
+   * Serialize the class name size + class name + object content
+   */
   public StringBuilder toStream(final StringBuilder iOutput, Object iValue) {
     if (iValue != null) {
-      if (iValue instanceof ODocumentSerializable)
+      if (iValue instanceof ODocumentSerializable) {
         iValue = ((ODocumentSerializable) iValue).toDocument();
+      }
 
-      if (!(iValue instanceof OSerializableStream))
+      if (!(iValue instanceof OSerializableStream stream)) {
         throw new OSerializationException(
             "Cannot serialize the object since it's not implements the OSerializableStream"
                 + " interface");
+      }
 
-      OSerializableStream stream = (OSerializableStream) iValue;
       iOutput.append(iValue.getClass().getName());
       iOutput.append(SEPARATOR);
-      try {
-        iOutput.append(new String(stream.toStream(), "UTF-8"));
-      } catch (UnsupportedEncodingException e) {
-        throw OException.wrapException(
-            new OSerializationException("Error serializing embedded object"), e);
-      }
+      iOutput.append(new String(stream.toStream(), StandardCharsets.UTF_8));
     }
 
     return iOutput;

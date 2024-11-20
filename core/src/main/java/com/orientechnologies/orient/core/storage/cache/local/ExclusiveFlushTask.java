@@ -3,7 +3,10 @@ package com.orientechnologies.orient.core.storage.cache.local;
 import java.util.concurrent.CountDownLatch;
 
 final class ExclusiveFlushTask implements Runnable {
-  /** */
+
+  /**
+   *
+   */
   private final OWOWCache cache;
 
   private final CountDownLatch cacheBoundaryLatch;

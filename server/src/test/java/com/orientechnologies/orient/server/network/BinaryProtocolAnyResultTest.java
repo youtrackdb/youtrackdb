@@ -17,7 +17,9 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-/** Created by tglman on 26/04/16. */
+/**
+ * Created by tglman on 26/04/16.
+ */
 public class BinaryProtocolAnyResultTest {
 
   private OServer server;

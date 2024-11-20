@@ -9,6 +9,7 @@ import com.orientechnologies.orient.core.sql.executor.metadata.OIndexCandidate;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexFinder;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -90,15 +91,16 @@ public class OParenthesisBlock extends OBooleanExpression {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OParenthesisBlock that = (OParenthesisBlock) o;
 
-    if (subElement != null ? !subElement.equals(that.subElement) : that.subElement != null)
-      return false;
-
-    return true;
+    return Objects.equals(subElement, that.subElement);
   }
 
   @Override

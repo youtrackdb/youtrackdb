@@ -22,6 +22,7 @@ import java.util.Map;
  * @author Emrul Islam <emrul@emrul.com> Copyright 2014 Emrul Islam
  */
 public class OServerCommandPostAuthToken extends OServerCommandAbstract {
+
   private static final String[] NAMES = {"POST|token/*"};
   private static final String RESPONSE_FORMAT = "indent:-1,attribSameRow";
   private volatile OTokenHandler tokenHandler;

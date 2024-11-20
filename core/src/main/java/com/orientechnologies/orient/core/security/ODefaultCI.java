@@ -27,6 +27,7 @@ import com.orientechnologies.orient.core.exception.OSecurityException;
  * @author S. Colin Leister
  */
 public class ODefaultCI implements OCredentialInterceptor {
+
   private String username;
   private String password;
 

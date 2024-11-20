@@ -369,8 +369,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
       Assert.assertTrue(customReferencesBack.get(0) instanceof ODocument);
       Assert.assertTrue(customReferencesBack.get(1) instanceof ODocument);
     } else {
-      Assert.assertTrue(
-          false, "Wrong type received: " + resultset.get(0).field("customReferences"));
+      Assert.fail("Wrong type received: " + resultset.get(0).field("customReferences"));
     }
 
     resultset =
@@ -442,7 +441,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
       Collection<ODocument> races = record.field("races");
       boolean found = false;
       for (ODocument race : races) {
-        if (((String) race.field("name")).toLowerCase(Locale.ENGLISH).substring(0, 1).equals("e")) {
+        if (((String) race.field("name")).toLowerCase(Locale.ENGLISH).charAt(0) == 'e') {
           found = true;
           break;
         }
@@ -597,7 +596,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
   public void queryAllOperator() {
     List<ODocument> result = executeQuery("select from Account where all() is null", database);
 
-    Assert.assertTrue(result.size() == 0);
+    Assert.assertEquals(result.size(), 0);
   }
 
   @Test
@@ -656,7 +655,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
     Assert.assertEquals(page.size(), 10);
 
     for (int i = 0; i < page.size(); ++i) {
-      Assert.assertEquals((Object) page.get(i), (Object) result.get(10 + i));
+      Assert.assertEquals(page.get(i), (Object) result.get(10 + i));
     }
   }
 
@@ -677,7 +676,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
     Assert.assertEquals(page.size(), 10);
 
     for (int i = 0; i < page.size(); ++i) {
-      Assert.assertEquals((Object) page.get(i), (Object) result.get(10 + i));
+      Assert.assertEquals(page.get(i), (Object) result.get(10 + i));
     }
   }
 
@@ -690,7 +689,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
     Assert.assertEquals(page.size(), 10);
 
     for (int i = 0; i < page.size(); ++i) {
-      Assert.assertEquals((Object) page.get(i), (Object) result.get(10 + i));
+      Assert.assertEquals(page.get(i), (Object) result.get(10 + i));
     }
   }
 
@@ -703,7 +702,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
     Assert.assertEquals(page.size(), 10);
 
     for (int i = 0; i < page.size(); ++i) {
-      Assert.assertEquals((Object) page.get(i), (Object) result.get(10 + i));
+      Assert.assertEquals(page.get(i), (Object) result.get(10 + i));
     }
   }
 
@@ -905,7 +904,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
         executeQuery("select from Profile where @rid > ? LIMIT 3", database, last);
 
     int iterationCount = 0;
-    Assert.assertTrue(!resultset.isEmpty());
+    Assert.assertFalse(resultset.isEmpty());
     while (!resultset.isEmpty()) {
       Assert.assertTrue(resultset.size() <= 3);
 
@@ -1926,8 +1925,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
 
     try {
       Set<String> names =
-          new HashSet<String>(
-              Arrays.asList(new String[] {"Luca", "Jill", "Sara", "Tania", "Gianluca", "Marco"}));
+          new HashSet<String>(Arrays.asList("Luca", "Jill", "Sara", "Tania", "Gianluca", "Marco"));
       for (String n : names) {
         database.begin();
         new ODocument("PersonMultipleClusters").field("First", n).save();
@@ -1980,7 +1978,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
     Assert.assertEquals(result.size(), 1);
 
     for (OIdentifiable r : result) {
-      Assert.assertEquals(((ODocument) r.getRecord()).<Object>field("name"), null);
+      Assert.assertNull(((ODocument) r.getRecord()).field("name"));
     }
   }
 
@@ -2048,7 +2046,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
     Assert.assertEquals(result.size(), 3);
 
     Map<Object, Object> params = new HashMap<Object, Object>();
-    params.put("values", Arrays.asList(new String[] {"2", "3", "antani"}));
+    params.put("values", Arrays.asList("2", "3", "antani"));
     result =
         database
             .query(

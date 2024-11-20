@@ -4,7 +4,6 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OViewConfig;
@@ -15,6 +14,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class OCreateViewStatement extends ODDLStatement {
@@ -53,7 +53,7 @@ public class OCreateViewStatement extends ODDLStatement {
     result.setProperty("viewName", name.getStringValue());
 
     schema.createView(
-        (ODatabaseSessionInternal) ctx.getDatabase(),
+        ctx.getDatabase(),
         name.getStringValue(),
         statement.toString(),
         metadata == null ? new HashMap<>() : metadata.toMap(new OResultInternal(), ctx));
@@ -87,9 +87,10 @@ public class OCreateViewStatement extends ODDLStatement {
                     + value);
           }
           if (Boolean.TRUE.equals(value)) {
-            if (!metadataMap.containsKey("originRidField"))
+            if (!metadataMap.containsKey("originRidField")) {
               throw new OCommandSQLParsingException(
                   "Updatable view needs a originRidField defined");
+            }
           }
           break;
         case "updateIntervalSeconds":
@@ -227,16 +228,25 @@ public class OCreateViewStatement extends ODDLStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OCreateViewStatement that = (OCreateViewStatement) o;
 
-    if (ifNotExists != that.ifNotExists) return false;
-    if (name != null ? !name.equals(that.name) : that.name != null) return false;
-    if (statement != null ? !statement.equals(that.statement) : that.statement != null)
+    if (ifNotExists != that.ifNotExists) {
       return false;
-    return metadata != null ? metadata.equals(that.metadata) : that.metadata == null;
+    }
+    if (!Objects.equals(name, that.name)) {
+      return false;
+    }
+    if (!Objects.equals(statement, that.statement)) {
+      return false;
+    }
+    return Objects.equals(metadata, that.metadata);
   }
 
   @Override

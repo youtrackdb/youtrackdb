@@ -37,6 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author S. Colin Leister
  */
 public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstract {
+
   // Holds a map of the users specified in the security.json file.
   private ConcurrentHashMap<String, OSecurityUser> usersMap =
       new ConcurrentHashMap<String, OSecurityUser>();
@@ -62,7 +63,9 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
           if (userCfg != null) {
             String checkName = userCfg.getName();
 
-            if (!isCaseSensitive()) checkName = checkName.toLowerCase(Locale.ENGLISH);
+            if (!isCaseSensitive()) {
+              checkName = checkName.toLowerCase(Locale.ENGLISH);
+            }
 
             usersMap.put(checkName, userCfg);
           }
@@ -82,7 +85,9 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
       final String resources = userDoc.field("resources");
       String password = userDoc.field("password");
 
-      if (password == null) password = "";
+      if (password == null) {
+        password = "";
+      }
       userCfg = new OImmutableUser(user, OSecurityUser.SERVER_USER_TYPE);
       // userCfg.addRole(OSecurityShared.createRole(null, user));
     }
@@ -123,15 +128,15 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
   // OSecurityAuthenticator
   // If not supported by the authenticator, return false.
   public boolean isAuthorized(final String username, final String resource) {
-    if (username == null || resource == null) return false;
+    if (username == null || resource == null) {
+      return false;
+    }
 
     OSecurityUser userCfg = getUser(username);
 
     if (userCfg != null) {
       // TODO: to verify if this logic match previous logic
-      if (userCfg.checkIfAllowed(resource, ORole.PERMISSION_ALL) != null) {
-        return true;
-      }
+      return userCfg.checkIfAllowed(resource, ORole.PERMISSION_ALL) != null;
 
       // Total Access
       /*
@@ -156,7 +161,9 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
       if (username != null) {
         String checkName = username;
 
-        if (!isCaseSensitive()) checkName = username.toLowerCase(Locale.ENGLISH);
+        if (!isCaseSensitive()) {
+          checkName = username.toLowerCase(Locale.ENGLISH);
+        }
 
         if (usersMap.containsKey(checkName)) {
           userCfg = usersMap.get(checkName);

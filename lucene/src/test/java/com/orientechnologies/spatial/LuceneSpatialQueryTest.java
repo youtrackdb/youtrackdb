@@ -37,7 +37,9 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-/** Created by enricorisa on 02/10/14. */
+/**
+ * Created by enricorisa on 02/10/14.
+ */
 public class LuceneSpatialQueryTest extends BaseLuceneTest {
 
   @Before
@@ -122,8 +124,6 @@ public class LuceneSpatialQueryTest extends BaseLuceneTest {
       }
 
     } catch (Exception e) {
-
-    } finally {
 
     }
   }

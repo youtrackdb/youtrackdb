@@ -12,8 +12,11 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-/** Created by luigidellaquila on 21/06/17. */
+/**
+ * Created by luigidellaquila on 21/06/17.
+ */
 public class ODistributedResultSet implements OResultSet {
+
   private String queryId;
   private List<OResult> data;
   private ODatabaseDocumentDistributed database;

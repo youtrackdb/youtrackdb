@@ -114,14 +114,9 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
             final ORecord rec = rid.getRecord();
             entry = new ORecordOperation(rec, ORecordOperation.DELETED);
             int deleteVersion = operation.getVersion();
-            if (rec == null) {
-              throw new ORecordNotFoundException(rid.getIdentity());
-            } else {
-              ORecordInternal.setVersion(rec, deleteVersion);
-              entry.setRecord(rec);
-            }
+            ORecordInternal.setVersion(rec, deleteVersion);
+            entry.setRecord(rec);
             break;
-
           default:
             throw new OTransactionException("Unrecognized tx command: " + recordStatus);
         }

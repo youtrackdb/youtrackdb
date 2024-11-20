@@ -38,7 +38,7 @@ public enum OErrorCode {
 
   static {
     for (OErrorCode code : OErrorCode.values()) {
-      codes[code.getCode()] = code;
+      codes[code.code] = code;
     }
   }
 

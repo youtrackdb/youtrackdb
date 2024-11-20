@@ -21,7 +21,6 @@ package com.orientechnologies.orient.client.remote;
 
 import com.orientechnologies.orient.core.config.OStorageClusterConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.storage.OCluster;
 import com.orientechnologies.orient.core.storage.OPhysicalPosition;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
@@ -29,6 +28,7 @@ import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.impl.local.OClusterBrowsePage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import java.io.IOException;
+import javax.annotation.Nonnull;
 
 /**
  * Remote cluster implementation
@@ -36,6 +36,7 @@ import java.io.IOException;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OClusterRemote implements OCluster {
+
   private String name;
   private int id;
 
@@ -111,14 +112,8 @@ public class OClusterRemote implements OCluster {
   }
 
   @Override
-  public ORawBuffer readRecord(long clusterPosition, boolean prefetchRecords) {
+  public @Nonnull ORawBuffer readRecord(long clusterPosition, boolean prefetchRecords) {
     throw new UnsupportedOperationException("readRecord");
-  }
-
-  @Override
-  public ORawBuffer readRecordIfVersionIsNotLatest(long clusterPosition, int recordVersion)
-      throws ORecordNotFoundException {
-    throw new UnsupportedOperationException("readRecordIfVersionIsNotLatest");
   }
 
   @Override

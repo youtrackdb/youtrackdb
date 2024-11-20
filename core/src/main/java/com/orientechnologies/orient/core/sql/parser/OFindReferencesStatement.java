@@ -11,9 +11,11 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class OFindReferencesStatement extends OStatement {
+
   protected ORid rid;
   protected OStatement subQuery;
 
@@ -146,16 +148,22 @@ public class OFindReferencesStatement extends OStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OFindReferencesStatement that = (OFindReferencesStatement) o;
 
-    if (rid != null ? !rid.equals(that.rid) : that.rid != null) return false;
-    if (subQuery != null ? !subQuery.equals(that.subQuery) : that.subQuery != null) return false;
-    if (targets != null ? !targets.equals(that.targets) : that.targets != null) return false;
-
-    return true;
+    if (!Objects.equals(rid, that.rid)) {
+      return false;
+    }
+    if (!Objects.equals(subQuery, that.subQuery)) {
+      return false;
+    }
+    return Objects.equals(targets, that.targets);
   }
 
   @Override

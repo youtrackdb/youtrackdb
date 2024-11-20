@@ -10,7 +10,9 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Test;
 
-/** Created by tglman on 01/06/16. */
+/**
+ * Created by tglman on 01/06/16.
+ */
 public class HookReadTest extends BaseMemoryDatabase {
 
   public void beforeTests() {
@@ -30,8 +32,9 @@ public class HookReadTest extends BaseMemoryDatabase {
             if (iType == TYPE.AFTER_READ
                 && !((ODocument) iRecord)
                     .getClassName()
-                    .equalsIgnoreCase(OSecurityPolicy.class.getSimpleName()))
+                    .equalsIgnoreCase(OSecurityPolicy.class.getSimpleName())) {
               ((ODocument) iRecord).field("read", "test");
+            }
             return RESULT.RECORD_CHANGED;
           }
 

@@ -3,8 +3,11 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 
-/** Created by luigidellaquila on 17/10/16. */
+/**
+ * Created by luigidellaquila on 17/10/16.
+ */
 public class OptionalMatchEdgeTraverser extends MatchEdgeTraverser {
+
   public static final OResult EMPTY_OPTIONAL = new OResultInternal();
 
   public OptionalMatchEdgeTraverser(OResult lastUpstreamRecord, EdgeTraversal edge) {
@@ -51,10 +54,6 @@ public class OptionalMatchEdgeTraverser extends MatchEdgeTraverser {
     if (elem == EMPTY_OPTIONAL) {
       return true;
     }
-    if (elem instanceof OResult && EMPTY_OPTIONAL == ((OResult) elem).getElement().orElse(null)) {
-      return true;
-    }
-
-    return false;
+    return elem instanceof OResult && EMPTY_OPTIONAL == ((OResult) elem).getElement().orElse(null);
   }
 }

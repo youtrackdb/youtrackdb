@@ -34,6 +34,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OUpdateRecordRequest implements OBinaryAsyncRequest<OUpdateRecordResponse> {
+
   private ORecordId rid;
   private byte[] rawContent;
   private ORecord content;
@@ -75,7 +76,9 @@ public class OUpdateRecordRequest implements OBinaryAsyncRequest<OUpdateRecordRe
   public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
       throws IOException {
     rid = channel.readRID();
-    if (protocolVersion >= 23) updateContent = channel.readBoolean();
+    if (protocolVersion >= 23) {
+      updateContent = channel.readBoolean();
+    }
     byte[] bts = channel.readBytes();
     version = channel.readVersion();
     recordType = channel.readByte();
@@ -96,7 +99,7 @@ public class OUpdateRecordRequest implements OBinaryAsyncRequest<OUpdateRecordRe
     network.writeBytes(rawContent);
     network.writeVersion(version);
     network.writeByte(recordType);
-    network.writeByte((byte) mode);
+    network.writeByte(mode);
   }
 
   public ORecord getContent() {

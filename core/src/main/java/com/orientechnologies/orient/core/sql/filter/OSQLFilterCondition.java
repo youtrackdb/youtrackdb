@@ -257,8 +257,8 @@ public class OSQLFilterCondition {
   }
 
   public List<String> getInvolvedFields(final List<String> list) {
-    extractInvolvedFields(getLeft(), list);
-    extractInvolvedFields(getRight(), list);
+    extractInvolvedFields(left, list);
+    extractInvolvedFields(right, list);
 
     return list;
   }
@@ -339,11 +339,11 @@ public class OSQLFilterCondition {
         || OStringSerializerHelper.contains(stringValue, ',')) {
       return (int) Float.parseFloat(stringValue);
     } else {
-      return stringValue.length() > 0 ? new Integer(stringValue) : new Integer(0);
+      return !stringValue.isEmpty() ? Integer.valueOf(stringValue) : Integer.valueOf(0);
     }
   }
 
-  protected Float getFloat(final Object iValue) {
+  protected static Float getFloat(final Object iValue) {
     if (iValue == null) {
       return null;
     }
@@ -354,7 +354,7 @@ public class OSQLFilterCondition {
       return null;
     }
 
-    return stringValue.length() > 0 ? new Float(stringValue) : new Float(0);
+    return !stringValue.isEmpty() ? Float.valueOf(stringValue) : Float.valueOf(0);
   }
 
   protected Date getDate(final Object value) {
@@ -397,7 +397,7 @@ public class OSQLFilterCondition {
       return formatter.parse(stringValue);
     } catch (ParseException ignore) {
       try {
-        return new Date(new Double(stringValue).longValue());
+        return new Date(Double.valueOf(stringValue).longValue());
       } catch (Exception pe2) {
         throw OException.wrapException(
             new OQueryParsingException(
@@ -424,17 +424,16 @@ public class OSQLFilterCondition {
       return iValue;
     }
 
-    if (iCurrentRecord != null) {
-      iCurrentRecord = iCurrentRecord.getRecord();
-      if (iCurrentRecord != null
-          && ((ORecord) iCurrentRecord).getInternalStatus() == ORecordElement.STATUS.NOT_LOADED) {
-        try {
+    try {
+      if (iCurrentRecord != null) {
+        iCurrentRecord = iCurrentRecord.getRecord();
+        if (((ORecord) iCurrentRecord).getInternalStatus() == ORecordElement.STATUS.NOT_LOADED) {
           var db = iContext.getDatabase();
           iCurrentRecord = db.bindToSession(iCurrentRecord);
-        } catch (ORecordNotFoundException ignore) {
-          return null;
         }
       }
+    } catch (ORecordNotFoundException ignore) {
+      return null;
     }
 
     if (binaryEvaluation
@@ -457,9 +456,8 @@ public class OSQLFilterCondition {
       return ((OSQLFilterCondition) iValue).evaluate(iCurrentRecord, iCurrentResult, iContext);
     }
 
-    if (iValue instanceof OSQLFunctionRuntime) {
+    if (iValue instanceof OSQLFunctionRuntime f) {
       // STATELESS FUNCTION: EXECUTE IT
-      final OSQLFunctionRuntime f = (OSQLFunctionRuntime) iValue;
       return f.execute(iCurrentRecord, iCurrentRecord, iCurrentResult, iContext);
     }
 
@@ -518,7 +516,7 @@ public class OSQLFilterCondition {
       {
         if (r instanceof Integer && !(l instanceof Number || l instanceof Collection)) {
           if (l instanceof String && ((String) l).indexOf('.') > -1) {
-            result = new Object[] {new Float((String) l).intValue(), r};
+            result = new Object[] {Float.valueOf((String) l).intValue(), r};
           } else if (l instanceof Date) {
             result = new Object[] {((Date) l).getTime(), r};
           } else if (!(l instanceof OQueryRuntimeValueMulti)
@@ -529,7 +527,7 @@ public class OSQLFilterCondition {
           }
         } else if (l instanceof Integer && !(r instanceof Number || r instanceof Collection)) {
           if (r instanceof String && ((String) r).indexOf('.') > -1) {
-            result = new Object[] {l, new Float((String) r).intValue()};
+            result = new Object[] {l, Float.valueOf((String) r).intValue()};
           } else if (r instanceof Date) {
             result = new Object[] {l, ((Date) r).getTime()};
           } else if (!(r instanceof OQueryRuntimeValueMulti)

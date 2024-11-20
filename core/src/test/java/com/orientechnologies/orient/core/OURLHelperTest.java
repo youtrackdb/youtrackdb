@@ -8,7 +8,9 @@ import com.orientechnologies.orient.core.util.OURLHelper;
 import java.io.File;
 import org.junit.Test;
 
-/** Created by tglman on 21/02/17. */
+/**
+ * Created by tglman on 21/02/17.
+ */
 public class OURLHelperTest {
 
   @Test

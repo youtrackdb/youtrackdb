@@ -18,6 +18,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class OByteBufferPoolTest {
+
   @BeforeClass
   public static void beforeClass() {
     OGlobalConfiguration.DIRECT_MEMORY_TRACK_MODE.setValue(true);
@@ -191,6 +192,7 @@ public class OByteBufferPoolTest {
   }
 
   private static final class Allocator implements Callable<Void> {
+
     private final OByteBufferPool pool;
     private final ThreadLocalRandom random = ThreadLocalRandom.current();
     private final AtomicBoolean stop;

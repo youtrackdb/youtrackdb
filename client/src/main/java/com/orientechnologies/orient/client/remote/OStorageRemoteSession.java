@@ -34,8 +34,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-/** Created by tglman on 31/03/16. */
+/**
+ * Created by tglman on 31/03/16.
+ */
 public class OStorageRemoteSession {
+
   public boolean commandExecuting = false;
   protected int serverURLIndex = -1;
   protected String connectionUserName = null;
@@ -52,8 +55,8 @@ public class OStorageRemoteSession {
    * Make the retry to happen only on the current session, if the current session is invalid or the
    * server is offline it kill the operation.
    *
-   * <p>this is for avoid to send to the server wrong request expecting a specific state that is not
-   * there anymore.
+   * <p>this is for avoid to send to the server wrong request expecting a specific state that is
+   * not there anymore.
    */
   private int stickToSession = 0;
 
@@ -98,13 +101,17 @@ public class OStorageRemoteSession {
   }
 
   public Integer getSessionId() {
-    if (sessions.isEmpty()) return -1;
+    if (sessions.isEmpty()) {
+      return -1;
+    }
     final OStorageRemoteNodeSession curSession = sessions.values().iterator().next();
     return curSession.getSessionId();
   }
 
   public String getServerUrl() {
-    if (sessions.isEmpty()) return null;
+    if (sessions.isEmpty()) {
+      return null;
+    }
     final OStorageRemoteNodeSession curSession = sessions.values().iterator().next();
     return curSession.getServerURL();
   }

@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 public class DoubleKeyNormalizer implements KeyNormalizers {
+
   @Override
   public byte[] execute(Object key, int decomposition) throws IOException {
     final double matKey = (double) key;

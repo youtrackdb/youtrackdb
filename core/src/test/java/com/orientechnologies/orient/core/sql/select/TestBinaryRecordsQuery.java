@@ -16,6 +16,7 @@ import org.junit.Test;
  * Created by tglman on 15/04/16.
  */
 public class TestBinaryRecordsQuery extends BaseMemoryDatabase {
+
   @Before
   public void beforeTest() {
     super.beforeTest();

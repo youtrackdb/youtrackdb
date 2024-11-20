@@ -5,6 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.Map;
+import java.util.Objects;
 
 public class OFromClause extends SimpleNode {
 
@@ -46,14 +47,16 @@ public class OFromClause extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OFromClause that = (OFromClause) o;
 
-    if (item != null ? !item.equals(that.item) : that.item != null) return false;
-
-    return true;
+    return Objects.equals(item, that.item);
   }
 
   @Override

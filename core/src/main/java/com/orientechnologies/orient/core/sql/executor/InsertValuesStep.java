@@ -10,8 +10,11 @@ import com.orientechnologies.orient.core.sql.parser.OIdentifier;
 import com.orientechnologies.orient.core.sql.parser.OUpdateItem;
 import java.util.List;
 
-/** Created by luigidellaquila on 11/08/16. */
+/**
+ * Created by luigidellaquila on 11/08/16.
+ */
 public class InsertValuesStep extends AbstractExecutionStep {
+
   private final List<OIdentifier> identifiers;
   private final List<List<OExpression>> values;
 

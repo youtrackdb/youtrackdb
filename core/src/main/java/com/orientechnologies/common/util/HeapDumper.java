@@ -5,6 +5,7 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
 public class HeapDumper {
+
   // This is the name of the HotSpot Diagnostic MBean
   private static final String HOTSPOT_BEAN_NAME = "com.sun.management:type=HotSpotDiagnostic";
 

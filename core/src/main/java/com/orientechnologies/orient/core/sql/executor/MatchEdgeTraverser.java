@@ -13,8 +13,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-/** Created by luigidellaquila on 23/09/16. */
+/**
+ * Created by luigidellaquila on 23/09/16.
+ */
 public class MatchEdgeTraverser {
+
   protected OResult sourceRecord;
   protected EdgeTraversal edge;
   protected OMatchPathItem item;

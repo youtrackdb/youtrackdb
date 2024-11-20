@@ -24,10 +24,11 @@ import com.orientechnologies.orient.core.command.OCommandRequestTextAbstract;
 /**
  * Execute a configured function.
  *
- * @see OCommandExecutorFunction
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
+ * @see OCommandExecutorFunction
  */
 public class OCommandFunction extends OCommandRequestTextAbstract {
+
   private static final long serialVersionUID = 1L;
 
   public OCommandFunction() {}

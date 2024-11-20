@@ -3,7 +3,9 @@ package com.orientechnologies.orient.core.sql.parser;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by luigidellaquila on 26/04/16. */
+/**
+ * Created by luigidellaquila on 26/04/16.
+ */
 public class OIdentifierTest {
 
   @Test

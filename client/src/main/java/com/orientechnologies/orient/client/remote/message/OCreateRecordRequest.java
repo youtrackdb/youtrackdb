@@ -35,6 +35,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OCreateRecordRequest implements OBinaryAsyncRequest<OCreateRecordResponse> {
+
   private ORecord content;
   private byte[] rawContent;
   private ORecordId rid;
@@ -75,7 +76,7 @@ public class OCreateRecordRequest implements OBinaryAsyncRequest<OCreateRecordRe
     network.writeShort((short) rid.getClusterId());
     network.writeBytes(rawContent);
     network.writeByte(recordType);
-    network.writeByte((byte) mode);
+    network.writeByte(mode);
   }
 
   public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)

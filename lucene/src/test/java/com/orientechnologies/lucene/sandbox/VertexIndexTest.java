@@ -22,7 +22,9 @@ import org.apache.lucene.store.RAMDirectory;
 import org.junit.After;
 import org.junit.Test;
 
-/** Created by frank on 9/28/15. */
+/**
+ * Created by frank on 9/28/15.
+ */
 public class VertexIndexTest {
 
   @Test

@@ -169,8 +169,8 @@ public class SimpleConnectionStrategiesIT {
     ODatabaseSession session1 = remote1.open(databaseName, "admin", "admin");
     assertTrue(
         ((OStorageRemote) ((ODatabaseDocumentInternal) session1).getStorage())
-                .getServerURLs()
-                .size()
+            .getServerURLs()
+            .size()
             > 1);
     session1.close();
     remote1.close();
@@ -202,8 +202,8 @@ public class SimpleConnectionStrategiesIT {
     ODatabaseSession session1 = pool1.acquire();
     assertTrue(
         ((OStorageRemote) ((ODatabaseDocumentInternal) session1).getStorage())
-                .getServerURLs()
-                .size()
+            .getServerURLs()
+            .size()
             > 1);
     session1.close();
     pool1.close();

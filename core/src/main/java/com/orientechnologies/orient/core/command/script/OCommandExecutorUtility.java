@@ -33,12 +33,13 @@ import java.util.Map;
  * @see OCommandScript
  */
 public class OCommandExecutorUtility {
+
   private static final Method java8MethodIsArray;
 
   static {
     Method isArray = null;
 
-    if (!OGlobalConfiguration.SCRIPT_POLYGLOT_USE_GRAAL.getValueAsBoolean())
+    if (!OGlobalConfiguration.SCRIPT_POLYGLOT_USE_GRAAL.getValueAsBoolean()) {
       try {
         isArray =
             Class.forName("jdk.nashorn.api.scripting.JSObject").getDeclaredMethod("isArray", null);
@@ -47,6 +48,7 @@ public class OCommandExecutorUtility {
           | NoSuchMethodException
           | SecurityException ignore) {
       }
+    }
 
     java8MethodIsArray = isArray;
   }

@@ -23,7 +23,9 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-/** @author marko */
+/**
+ * @author marko
+ */
 public class OSequenceActionRequest {
 
   private OSequenceAction action = null;
@@ -117,7 +119,7 @@ public class OSequenceActionRequest {
   public void serialize(DataOutput out) throws IOException {
     if (action != null) {
       out.writeInt(action.getActionType());
-      byte[] sequenceNameBytes = action.getSequenceName().getBytes(StandardCharsets.UTF_8.name());
+      byte[] sequenceNameBytes = action.getSequenceName().getBytes(StandardCharsets.UTF_8);
       out.writeInt(sequenceNameBytes.length);
       out.write(sequenceNameBytes);
       serializeLong(action.getCurrentValue(), out);
@@ -148,7 +150,7 @@ public class OSequenceActionRequest {
       int nameLength = in.readInt();
       byte[] nameBytes = new byte[nameLength];
       in.readFully(nameBytes);
-      String sequenceName = new String(nameBytes, StandardCharsets.UTF_8.name());
+      String sequenceName = new String(nameBytes, StandardCharsets.UTF_8);
       Long currentValue = deserializeLong(in);
       byte sequenceTypeByte = in.readByte();
       OSequence.SEQUENCE_TYPE sequenceType = OSequence.SEQUENCE_TYPE.fromVal(sequenceTypeByte);

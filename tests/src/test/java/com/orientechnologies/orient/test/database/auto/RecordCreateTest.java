@@ -6,6 +6,7 @@ import org.testng.annotations.Test;
 
 @Test
 public class RecordCreateTest extends DocumentDBBaseTest {
+
   @Parameters(value = "remote")
   public RecordCreateTest(boolean remote) {
     super(remote);

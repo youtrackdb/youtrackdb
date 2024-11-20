@@ -355,7 +355,9 @@ public final class DistributedConfigReloadIT {
     th.printStackTrace();
   }
 
-  /** @return */
+  /**
+   * @return
+   */
   private static String getDate() {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     return formatter.format(new Date());
@@ -363,7 +365,9 @@ public final class DistributedConfigReloadIT {
 
   private ODatabasePool graphReadFactory;
 
-  /** @return */
+  /**
+   * @return
+   */
   public String getDBURL() {
     String dataBaseURL =
         System.getProperty("db.url", "localhost:2424;localhost:2425;localhost:2426");
@@ -393,7 +397,9 @@ public final class DistributedConfigReloadIT {
     return orientDB;
   }
 
-  /** */
+  /**
+   *
+   */
   public boolean checkAndCreateDatabase(String dbName) {
     boolean isNewDB = false;
     try {

@@ -10,6 +10,7 @@ import com.orientechnologies.orient.core.sql.executor.ODeleteVertexExecutionPlan
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class ODeleteVertexStatement extends OStatement {
 
@@ -136,21 +137,31 @@ public class ODeleteVertexStatement extends OStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     ODeleteVertexStatement that = (ODeleteVertexStatement) o;
 
-    if (from != that.from) return false;
-    if (returnBefore != that.returnBefore) return false;
-    if (fromClause != null ? !fromClause.equals(that.fromClause) : that.fromClause != null)
+    if (from != that.from) {
       return false;
-    if (whereClause != null ? !whereClause.equals(that.whereClause) : that.whereClause != null)
+    }
+    if (returnBefore != that.returnBefore) {
       return false;
-    if (limit != null ? !limit.equals(that.limit) : that.limit != null) return false;
-    if (batch != null ? !batch.equals(that.batch) : that.batch != null) return false;
-
-    return true;
+    }
+    if (!Objects.equals(fromClause, that.fromClause)) {
+      return false;
+    }
+    if (!Objects.equals(whereClause, that.whereClause)) {
+      return false;
+    }
+    if (!Objects.equals(limit, that.limit)) {
+      return false;
+    }
+    return Objects.equals(batch, that.batch);
   }
 
   @Override

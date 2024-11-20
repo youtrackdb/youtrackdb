@@ -70,7 +70,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     this.desc = desc;
     this.orderAsc = orderAsc;
 
-    ODatabaseSessionInternal database = (ODatabaseSessionInternal) ctx.getDatabase();
+    ODatabaseSessionInternal database = ctx.getDatabase();
     database.queryStartUsingViewIndex(desc.getIndex().getName());
   }
 
@@ -81,7 +81,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       prev.start(ctx).close(ctx);
     }
 
-    List<Stream<ORawPair<Object, ORID>>> streams = init(desc, isOrderAsc(), ctx);
+    List<Stream<ORawPair<Object, ORID>>> streams = init(desc, orderAsc, ctx);
 
     OExecutionStreamProducer res =
         new OExecutionStreamProducer() {
@@ -139,7 +139,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
 
   private void updateIndexStats() {
     // stats
-    OQueryStats stats = OQueryStats.get((ODatabaseSessionInternal) ctx.getDatabase());
+    OQueryStats stats = OQueryStats.get(ctx.getDatabase());
     OIndex index = desc.getIndex();
     OBooleanExpression condition = desc.getKeyCondition();
     OBinaryCondition additionalRangeCondition = desc.getAdditionalRangeCondition();

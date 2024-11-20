@@ -37,17 +37,20 @@ public enum OIndexReuseType {
    */
   INDEX_UNION,
 
-  /** Index cna be used to calculate result of given operator. */
+  /**
+   * Index cna be used to calculate result of given operator.
+   */
   NO_INDEX,
 
   /**
-   * Result of execution of this operator can be replaced by call to one of {@link
-   * com.orientechnologies.orient.core.index.OIndex} methods.
+   * Result of execution of this operator can be replaced by call to one of
+   * {@link com.orientechnologies.orient.core.index.OIndex} methods.
    */
   INDEX_METHOD,
   /**
-   * Result of execution of this operator can be replaced by call to one of {@link
-   * com.orientechnologies.orient.core.index.OIndex} methods depending on user implementation.
+   * Result of execution of this operator can be replaced by call to one of
+   * {@link com.orientechnologies.orient.core.index.OIndex} methods depending on user
+   * implementation.
    */
   INDEX_OPERATOR
 }

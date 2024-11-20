@@ -25,8 +25,8 @@ import com.orientechnologies.orient.core.db.record.ORecordOperation;
 /**
  * Listener for OLiveQuery.
  *
- * @see: OLiveQuery
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ * @see: OLiveQuery
  */
 public interface OLiveResultListener {
 

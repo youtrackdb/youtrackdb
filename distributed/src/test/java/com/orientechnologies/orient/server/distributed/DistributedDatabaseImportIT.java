@@ -44,7 +44,8 @@ public class DistributedDatabaseImportIT {
     final ODatabaseSession session = ctx1.open("db-to-export", "admin", "admin");
     session.createClass("testa");
     final ODatabaseExport export =
-        new ODatabaseExport((ODatabaseDocumentInternal) session, exportFileName, iText -> {});
+        new ODatabaseExport((ODatabaseDocumentInternal) session, exportFileName, iText -> {
+        });
     export.exportDatabase();
     export.close();
     session.close();
@@ -53,7 +54,8 @@ public class DistributedDatabaseImportIT {
         "create database ? plocal users(admin identified by 'admin' role admin)", "imported-db");
     final ODatabaseSession session1 = ctx1.open("imported-db", "admin", "admin");
     final ODatabaseImport imp =
-        new ODatabaseImport((ODatabaseDocumentInternal) session1, exportFileName, iText -> {});
+        new ODatabaseImport((ODatabaseDocumentInternal) session1, exportFileName, iText -> {
+        });
     imp.importDatabase();
     imp.close();
     session1.close();
@@ -72,7 +74,9 @@ public class DistributedDatabaseImportIT {
     } finally {
       setup.teardown();
       File file = new File(exportFileName);
-      if (file.exists()) file.delete();
+      if (file.exists()) {
+        file.delete();
+      }
       ODatabaseDocumentTx.closeAll();
     }
   }

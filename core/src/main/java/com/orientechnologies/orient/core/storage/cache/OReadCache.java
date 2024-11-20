@@ -26,9 +26,9 @@ import java.io.IOException;
  * This class is heart of OrientDB storage model it presents disk backed data cache which works with
  * direct memory.
  *
- * <p>Model of this cache is based on page model. All direct memory area is mapped to disk files and
- * each file is split on pages. Page is smallest unit of work. The amount of RAM which can be used
- * for data manipulation is limited so only a subset of data will be really loaded into RAM on
+ * <p>Model of this cache is based on page model. All direct memory area is mapped to disk files
+ * and each file is split on pages. Page is smallest unit of work. The amount of RAM which can be
+ * used for data manipulation is limited so only a subset of data will be really loaded into RAM on
  * demand, if there is not enough RAM to store all data, part of them will by flushed to the disk.
  * If disk cache is closed all changes will be flushed to the disk.
  *
@@ -36,6 +36,7 @@ import java.io.IOException;
  * @since 14.03.13
  */
 public interface OReadCache {
+
   /**
    * Minimum size of memory which may be allocated by cache (in pages). This parameter is used only
    * if related flag is set in constrictor of cache.

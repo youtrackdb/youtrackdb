@@ -6,31 +6,37 @@ import com.orientechnologies.orient.core.exception.OConfigurationException;
 import java.io.File;
 import java.util.Optional;
 
-/** Created by Enrico Risa on 17/11/16. */
+/**
+ * Created by Enrico Risa on 17/11/16.
+ */
 public class OURLHelper {
 
   public static OURLConnection parse(String url) {
-    if (url.endsWith("/")) url = url.substring(0, url.length() - 1);
+    if (url.endsWith("/")) {
+      url = url.substring(0, url.length() - 1);
+    }
     url = url.replace('\\', '/');
 
     int typeIndex = url.indexOf(':');
-    if (typeIndex <= 0)
+    if (typeIndex <= 0) {
       throw new OConfigurationException(
           "Error in database URL: the engine was not specified. Syntax is: "
               + Orient.URL_SYNTAX
               + ". URL was: "
               + url);
+    }
 
     String databaseReference = url.substring(typeIndex + 1);
     String type = url.substring(0, typeIndex);
 
-    if (!"remote".equals(type) && !"plocal".equals(type) && !"memory".equals(type))
+    if (!"remote".equals(type) && !"plocal".equals(type) && !"memory".equals(type)) {
       throw new OConfigurationException(
           "Error on opening database: the engine '"
               + type
               + "' was not found. URL was: "
               + url
               + ". Registered engines are: [\"memory\",\"remote\",\"plocal\"]");
+    }
 
     int index = databaseReference.lastIndexOf('/');
     String path;
@@ -57,16 +63,19 @@ public class OURLHelper {
       url = url.substring(1, url.length() - 1);
     }
 
-    if (url.endsWith("/")) url = url.substring(0, url.length() - 1);
+    if (url.endsWith("/")) {
+      url = url.substring(0, url.length() - 1);
+    }
     url = url.replace('\\', '/');
 
     int typeIndex = url.indexOf(':');
-    if (typeIndex <= 0)
+    if (typeIndex <= 0) {
       throw new OConfigurationException(
           "Error in database URL: the engine was not specified. Syntax is: "
               + Orient.URL_SYNTAX
               + ". URL was: "
               + url);
+    }
 
     String databaseReference = url.substring(typeIndex + 1);
     String type = url.substring(0, typeIndex);
@@ -83,13 +92,14 @@ public class OURLHelper {
       type = "embedded";
     }
 
-    if (!"embedded".equals(type) && !"remote".equals(type))
+    if (!"embedded".equals(type) && !"remote".equals(type)) {
       throw new OConfigurationException(
           "Error on opening database: the engine '"
               + type
               + "' was not found. URL was: "
               + url
               + ". Registered engines are: [\"embedded\",\"remote\"]");
+    }
 
     String dbName;
     String baseUrl;

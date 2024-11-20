@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class OUpdateExecutionPlan extends OSelectExecutionPlan {
 
-  private List<OResult> result = new ArrayList<>();
+  private final List<OResult> result = new ArrayList<>();
   private int next = 0;
 
   public OUpdateExecutionPlan(OCommandContext ctx) {

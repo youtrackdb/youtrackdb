@@ -30,7 +30,9 @@ public class ORidSet implements Set<ORID> {
 
   protected int maxArraySize;
 
-  /** instantiates an ORidSet with a bucket size of Integer.MAX_VALUE / 10 */
+  /**
+   * instantiates an ORidSet with a bucket size of Integer.MAX_VALUE / 10
+   */
   public ORidSet() {
     this(Integer.MAX_VALUE / 10);
   }
@@ -59,10 +61,9 @@ public class ORidSet implements Set<ORID> {
     if (size == 0L && negatives.size() == 0) {
       return false;
     }
-    if (!(o instanceof ORID)) {
+    if (!(o instanceof ORID identifiable)) {
       throw new IllegalArgumentException();
     }
-    ORID identifiable = ((ORID) o);
     if (identifiable == null) {
       throw new IllegalArgumentException();
     }
@@ -195,10 +196,9 @@ public class ORidSet implements Set<ORID> {
 
   @Override
   public boolean remove(Object o) {
-    if (!(o instanceof ORID)) {
+    if (!(o instanceof ORID identifiable)) {
       throw new IllegalArgumentException();
     }
-    ORID identifiable = ((ORID) o);
     if (identifiable == null) {
       throw new IllegalArgumentException();
     }

@@ -27,5 +27,6 @@ import java.util.Iterator;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OLazyIterator<T> extends Iterator<T> {
+
   T update(T iValue);
 }

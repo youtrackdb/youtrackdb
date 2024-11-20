@@ -30,6 +30,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OGetClusterDataRangeRequest implements OBinaryRequest<OGetClusterDataRangeResponse> {
+
   private int clusterId;
 
   public OGetClusterDataRangeRequest(int iClusterId) {

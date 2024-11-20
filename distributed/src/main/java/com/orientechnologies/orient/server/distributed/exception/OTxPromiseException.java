@@ -3,6 +3,7 @@ package com.orientechnologies.orient.server.distributed.exception;
 import com.orientechnologies.common.exception.OSystemException;
 
 public class OTxPromiseException extends OSystemException {
+
   private static final long serialVersionUID = 1L;
   private final int requestedVersion;
   private final int existingVersion;

@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @since 8/19/14
  */
 public class ReadersWriterSpinLockBenchmark {
+
   private final OReadersWriterSpinLock spinLock = new OReadersWriterSpinLock();
   private final ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -30,7 +31,9 @@ public class ReadersWriterSpinLockBenchmark {
   public void benchmark() throws Exception {
     List<Future> futures = new ArrayList<Future>();
 
-    for (int i = 0; i < 8; i++) futures.add(executorService.submit(new Reader()));
+    for (int i = 0; i < 8; i++) {
+      futures.add(executorService.submit(new Reader()));
+    }
 
     latch.countDown();
 
@@ -38,7 +41,9 @@ public class ReadersWriterSpinLockBenchmark {
 
     stop = true;
 
-    for (Future future : futures) future.get();
+    for (Future future : futures) {
+      future.get();
+    }
 
     System.out.println(
         "Average acquire read lock interval : "
@@ -53,7 +58,7 @@ public class ReadersWriterSpinLockBenchmark {
   private void consumeCPU(int cycles) {
     long c1 = c;
     for (int i = 0; i < cycles; i++) {
-      c1 += c1 * 31 + i * 51;
+      c1 += c1 * 31 + i * 51L;
     }
     c = c1;
   }

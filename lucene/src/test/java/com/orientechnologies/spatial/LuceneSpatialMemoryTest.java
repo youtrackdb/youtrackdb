@@ -128,11 +128,7 @@ public class LuceneSpatialMemoryTest {
                     }
                   })
               .setOperation(SpatialOperation.IsWithin);
-      OIndex index =
-          ((ODatabaseSessionInternal) db)
-              .getMetadata()
-              .getIndexManagerInternal()
-              .getIndex((ODatabaseSessionInternal) db, "Point.ll");
+      OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Point.ll");
 
       Collection coll;
       try (Stream<ORID> stream = index.getInternal().getRids(oSpatialCompositeKey)) {
@@ -211,11 +207,7 @@ public class LuceneSpatialMemoryTest {
                   })
               .setOperation(SpatialOperation.IsWithin);
 
-      OIndex index =
-          ((ODatabaseSessionInternal) db)
-              .getMetadata()
-              .getIndexManagerInternal()
-              .getIndex((ODatabaseSessionInternal) db, "Point.ll");
+      OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Point.ll");
 
       Collection coll;
       try (Stream<ORID> stream = index.getInternal().getRids(oSpatialCompositeKey)) {

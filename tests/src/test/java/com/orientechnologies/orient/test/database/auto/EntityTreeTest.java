@@ -240,6 +240,7 @@ public class EntityTreeTest extends DocumentDBBaseTest {
 
   @Test
   public void childNLevelUpdateTest() {
+    database.begin();
     var p = database.newInstance("Planet");
     var near = database.newInstance("Planet");
     var sat = database.newInstance("Satellite");
@@ -251,7 +252,6 @@ public class EntityTreeTest extends DocumentDBBaseTest {
     near.setProperty("satellites", Collections.singletonList(satNear));
     p.setProperty("satellites", Collections.singletonList(sat));
 
-    database.begin();
     database.save(p);
     database.commit();
 
@@ -262,7 +262,9 @@ public class EntityTreeTest extends DocumentDBBaseTest {
     near = sat.getElementProperty("near");
     satNear = near.<List<OIdentifiable>>getProperty("satellites").get(0).getElement();
     Assert.assertEquals(satNear.<Long>getProperty("diameter"), 10);
+
     satNear.setProperty("diameter", 100);
+    satNear.save();
 
     database.save(p);
     database.commit();

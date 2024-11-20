@@ -22,6 +22,7 @@ package com.orientechnologies.common.concur.lock;
 import com.orientechnologies.common.exception.OSystemException;
 
 public class OLockException extends OSystemException {
+
   private static final long serialVersionUID = 2215169397325875189L;
 
   public OLockException(OLockException exception) {

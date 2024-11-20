@@ -7,7 +7,9 @@ import com.orientechnologies.orient.core.sql.parser.OMatchPathItem;
 import com.orientechnologies.orient.core.sql.parser.ORid;
 import com.orientechnologies.orient.core.sql.parser.OWhereClause;
 
-/** Created by luigidellaquila on 15/10/16. */
+/**
+ * Created by luigidellaquila on 15/10/16.
+ */
 public class MatchReverseEdgeTraverser extends MatchEdgeTraverser {
 
   private final String startingPointAlias;
@@ -49,8 +51,7 @@ public class MatchReverseEdgeTraverser extends MatchEdgeTraverser {
     if (qR instanceof OIdentifiable) {
       return OExecutionStream.singleton(new OResultInternal((OIdentifiable) qR));
     }
-    if (qR instanceof Iterable) {
-      Iterable iterable = (Iterable) qR;
+    if (qR instanceof Iterable iterable) {
       return OExecutionStream.iterator(iterable.iterator());
     }
     return OExecutionStream.empty();

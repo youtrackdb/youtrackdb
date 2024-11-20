@@ -47,6 +47,7 @@ import java.util.Set;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com) (OrientDB - l.garulli--at--orientdb.com)
  */
 public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
+
   protected static final List<String> TABLE_TYPES = Arrays.asList("TABLE", "SYSTEM TABLE");
   private final OrientJdbcConnection connection;
   private final ODatabaseSessionInternal database;
@@ -637,8 +638,8 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
 
       if (OrientJdbcUtils.like(functionName, procedureNamePattern)) {
         OResultInternal element = new OResultInternal();
-        element.setProperty("PROCEDURE_CAT", (Object) null);
-        element.setProperty("PROCEDURE_SCHEM", (Object) null);
+        element.setProperty("PROCEDURE_CAT", null);
+        element.setProperty("PROCEDURE_SCHEM", null);
         element.setProperty("PROCEDURE_NAME", functionName);
         element.setProperty("REMARKS", "");
         element.setProperty("PROCEDURE_TYPE", procedureResultUnknown);
@@ -719,9 +720,11 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
       final String className = cls.getName();
       final String type;
 
-      if (OMetadataInternal.SYSTEM_CLUSTER.contains(cls.getName().toLowerCase(Locale.ENGLISH)))
+      if (OMetadataInternal.SYSTEM_CLUSTER.contains(cls.getName().toLowerCase(Locale.ENGLISH))) {
         type = "SYSTEM TABLE";
-      else type = "TABLE";
+      } else {
+        type = "TABLE";
+      }
 
       if (tableTypes.contains(type)
           && (tableNamePattern == null
@@ -734,9 +737,9 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
         doc.setProperty("TABLE_SCHEM", database.getName());
         doc.setProperty("TABLE_NAME", className);
         doc.setProperty("TABLE_TYPE", type);
-        doc.setProperty("REMARKS", (Object) null);
-        doc.setProperty("TYPE_NAME", (Object) null);
-        doc.setProperty("REF_GENERATION", (Object) null);
+        doc.setProperty("REMARKS", null);
+        doc.setProperty("TYPE_NAME", null);
+        doc.setProperty("REF_GENERATION", null);
         resultSet.add(doc);
       }
     }
@@ -874,7 +877,9 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
     final Set<OIndex> uniqueIndexes = new HashSet<>();
 
     for (OIndex oIndex : classIndexes) {
-      if (oIndex.getType().equals(INDEX_TYPE.UNIQUE.name())) uniqueIndexes.add(oIndex);
+      if (oIndex.getType().equals(INDEX_TYPE.UNIQUE.name())) {
+        uniqueIndexes.add(oIndex);
+      }
     }
 
     final OInternalResultSet resultSet = new OInternalResultSet();
@@ -1097,7 +1102,9 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
     final Set<OIndex> indexes = new HashSet<>();
 
     for (OIndex oIndex : classIndexes) {
-      if (!unique || oIndex.getType().equals(INDEX_TYPE.UNIQUE.name())) indexes.add(oIndex);
+      if (!unique || oIndex.getType().equals(INDEX_TYPE.UNIQUE.name())) {
+        indexes.add(oIndex);
+      }
     }
 
     final OInternalResultSet resultSet = new OInternalResultSet();
@@ -1111,7 +1118,7 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
       res.setProperty("TABLE_SCHEM", schema);
       res.setProperty("TABLE_NAME", table);
       res.setProperty("NON_UNIQUE", notUniqueIndex);
-      res.setProperty("INDEX_QUALIFIER", (Object) null);
+      res.setProperty("INDEX_QUALIFIER", null);
       res.setProperty("INDEX_NAME", idx.getName());
       res.setProperty("TYPE", idx.getType());
       res.setProperty("ORDINAL_POSITION", 0);
@@ -1197,12 +1204,12 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
     OInternalResultSet resultSet = new OInternalResultSet();
     for (OClass cls : classes) {
       final OResultInternal res = new OResultInternal();
-      res.setProperty("TYPE_CAT", (Object) null);
-      res.setProperty("TYPE_SCHEM", (Object) null);
+      res.setProperty("TYPE_CAT", null);
+      res.setProperty("TYPE_SCHEM", null);
       res.setProperty("TYPE_NAME", cls.getName());
       res.setProperty("CLASS_NAME", cls.getName());
       res.setProperty("DATA_TYPE", java.sql.Types.STRUCT);
-      res.setProperty("REMARKS", (Object) null);
+      res.setProperty("REMARKS", null);
       resultSet.add(res);
     }
 
@@ -1371,8 +1378,8 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
     OInternalResultSet resultSet = new OInternalResultSet();
     for (String fName : database.getMetadata().getFunctionLibrary().getFunctionNames()) {
       final OResultInternal res = new OResultInternal();
-      res.setProperty("FUNCTION_CAT", (Object) null);
-      res.setProperty("FUNCTION_SCHEM", (Object) null);
+      res.setProperty("FUNCTION_CAT", null);
+      res.setProperty("FUNCTION_SCHEM", null);
       res.setProperty("FUNCTION_NAME", fName);
       res.setProperty("REMARKS", "");
       res.setProperty("FUNCTION_TYPE", procedureResultUnknown);
@@ -1400,8 +1407,8 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
 
     for (String p : f.getParameters()) {
       final OResultInternal res = new OResultInternal();
-      res.setProperty("FUNCTION_CAT", (Object) null);
-      res.setProperty("FUNCTION_SCHEM", (Object) null);
+      res.setProperty("FUNCTION_CAT", null);
+      res.setProperty("FUNCTION_SCHEM", null);
       res.setProperty("FUNCTION_NAME", f.getName());
       res.setProperty("COLUMN_NAME", p);
       res.setProperty("COLUMN_TYPE", procedureColumnIn);
@@ -1411,8 +1418,8 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
     }
 
     final OResultInternal res = new OResultInternal();
-    res.setProperty("FUNCTION_CAT", (Object) null);
-    res.setProperty("FUNCTION_SCHEM", (Object) null);
+    res.setProperty("FUNCTION_CAT", null);
+    res.setProperty("FUNCTION_SCHEM", null);
     res.setProperty("FUNCTION_NAME", f.getName());
     res.setProperty("COLUMN_NAME", "return");
     res.setProperty("COLUMN_TYPE", procedureColumnReturn);

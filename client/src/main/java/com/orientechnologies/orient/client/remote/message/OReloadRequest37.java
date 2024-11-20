@@ -30,6 +30,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OReloadRequest37 implements OBinaryRequest<OReloadResponse37> {
+
   @Override
   public void write(OChannelDataOutput network, OStorageRemoteSession session) throws IOException {}
 

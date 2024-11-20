@@ -12,7 +12,9 @@ import java.util.function.Consumer;
 
 public final class SpliteratorForward implements Spliterator<ORawPairObjectInteger<EdgeKey>> {
 
-  /** */
+  /**
+   *
+   */
   private final BTree bTree;
 
   private final EdgeKey fromKey;
@@ -68,7 +70,7 @@ public final class SpliteratorForward implements Spliterator<ORawPairObjectInteg
   }
 
   public void clearCache() {
-    getDataCache().clear();
+    dataCache.clear();
     cacheIterator = Collections.emptyIterator();
   }
 

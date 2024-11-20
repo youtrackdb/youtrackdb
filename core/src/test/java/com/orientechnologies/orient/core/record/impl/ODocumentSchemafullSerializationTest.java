@@ -60,7 +60,7 @@ public abstract class ODocumentSchemafullSerializationTest extends BaseMemoryInt
   private static final String ANY_FIELD = "anyField";
   @Rule public TestName name = new TestName();
   private OClass simple;
-  private ORecordSerializer serializer;
+  private final ORecordSerializer serializer;
   private OClass embSimp;
   private OClass address;
   private OClass embMapSimple;
@@ -341,14 +341,14 @@ public abstract class ODocumentSchemafullSerializationTest extends BaseMemoryInt
     byte[] res = serializer.toStream(document);
     ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[] {});
     assertEquals(document.fields(), extr.fields());
-    assertEquals(extr.<Object>field(ANY_FIELD), false);
+    assertEquals(extr.field(ANY_FIELD), false);
 
     extr.field(ANY_FIELD, false);
 
     res = serializer.toStream(extr);
     ODocument extr2 = (ODocument) serializer.fromStream(res, new ODocument(), new String[] {});
     assertEquals(extr.fields(), extr2.fields());
-    assertEquals(extr2.<Object>field(ANY_FIELD), false);
+    assertEquals(extr2.field(ANY_FIELD), false);
   }
 
   @Test

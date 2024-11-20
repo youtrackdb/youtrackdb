@@ -62,6 +62,7 @@ import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
  * @author Claudio Tesoriero
  */
 public class OSQLFunctionCoalesce extends OSQLFunctionAbstract {
+
   public static final String NAME = "coalesce";
 
   public OSQLFunctionCoalesce() {
@@ -77,7 +78,9 @@ public class OSQLFunctionCoalesce extends OSQLFunctionAbstract {
       OCommandContext iContext) {
     int length = iParams.length;
     for (int i = 0; i < length; i++) {
-      if (iParams[i] != null) return iParams[i];
+      if (iParams[i] != null) {
+        return iParams[i];
+      }
     }
     return null;
   }

@@ -3,15 +3,17 @@ package com.orientechnologies.orient.server.network.protocol.binary;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
 
-/** Created by tglman on 29/12/16. */
+/**
+ * Created by tglman on 29/12/16.
+ */
 public class HandshakeInfo {
 
   private short protocolVersion;
   private String driverName;
   private String driverVersion;
-  private byte encoding;
-  private byte errorEncoding;
-  private ORecordSerializer serializer;
+  private final byte encoding;
+  private final byte errorEncoding;
+  private final ORecordSerializer serializer;
 
   public HandshakeInfo(
       short protocolVersion,

@@ -55,11 +55,13 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OServerPluginManager implements OService {
+
   private static final int CHECK_DELAY = 5000;
   private OServer server;
-  private ConcurrentHashMap<String, OServerPluginInfo> activePlugins =
+  private final ConcurrentHashMap<String, OServerPluginInfo> activePlugins =
       new ConcurrentHashMap<String, OServerPluginInfo>();
-  private ConcurrentHashMap<String, String> loadedPlugins = new ConcurrentHashMap<String, String>();
+  private final ConcurrentHashMap<String, String> loadedPlugins =
+      new ConcurrentHashMap<String, String>();
   private volatile TimerTask autoReloadTimerTask;
   private String directory;
 
@@ -77,18 +79,27 @@ public class OServerPluginManager implements OService {
     directory =
         OSystemVariableResolver.resolveSystemVariables("${ORIENTDB_HOME}", ".") + "/plugins/";
 
-    if (server.getConfiguration() != null && server.getConfiguration().properties != null)
+    if (server.getConfiguration() != null && server.getConfiguration().properties != null) {
       for (OServerEntryConfiguration p : server.getConfiguration().properties) {
-        if (p.name.equals("plugin.hotReload")) hotReload = Boolean.parseBoolean(p.value);
-        else if (p.name.equals("plugin.dynamic")) dynamic = Boolean.parseBoolean(p.value);
-        else if (p.name.equals("plugin.loadAtStartup"))
+        if (p.name.equals("plugin.hotReload")) {
+          hotReload = Boolean.parseBoolean(p.value);
+        } else if (p.name.equals("plugin.dynamic")) {
+          dynamic = Boolean.parseBoolean(p.value);
+        } else if (p.name.equals("plugin.loadAtStartup")) {
           loadAtStartup = Boolean.parseBoolean(p.value);
-        else if (p.name.equals("plugin.directory")) directory = p.value;
+        } else if (p.name.equals("plugin.directory")) {
+          directory = p.value;
+        }
       }
+    }
 
-    if (!dynamic) return;
+    if (!dynamic) {
+      return;
+    }
 
-    if (loadAtStartup) updatePlugins();
+    if (loadAtStartup) {
+      updatePlugins();
+    }
 
     if (hotReload) {
       autoReloadTimerTask =
@@ -97,7 +108,9 @@ public class OServerPluginManager implements OService {
   }
 
   public OServerPluginInfo getPluginByName(final String iName) {
-    if (iName == null) return null;
+    if (iName == null) {
+      return null;
+    }
     return activePlugins.get(iName);
   }
 
@@ -116,8 +129,9 @@ public class OServerPluginManager implements OService {
   public void registerPlugin(final OServerPluginInfo iPlugin) {
     final String pluginName = iPlugin.getName();
 
-    if (activePlugins.containsKey(pluginName))
+    if (activePlugins.containsKey(pluginName)) {
       throw new IllegalStateException("Plugin '" + pluginName + "' already registered");
+    }
     activePlugins.putIfAbsent(pluginName, iPlugin);
   }
 
@@ -154,7 +168,9 @@ public class OServerPluginManager implements OService {
       }
     }
 
-    if (autoReloadTimerTask != null) autoReloadTimerTask.cancel();
+    if (autoReloadTimerTask != null) {
+      autoReloadTimerTask.cancel();
+    }
   }
 
   @Override
@@ -168,20 +184,26 @@ public class OServerPluginManager implements OService {
     if (!pluginFile.isDirectory()
         && !pluginFileName.endsWith(".jar")
         && !pluginFileName.endsWith(".zip"))
-      // SKIP IT
+    // SKIP IT
+    {
       return null;
+    }
 
     if (pluginFile.isHidden())
-      // HIDDEN FILE, SKIP IT
+    // HIDDEN FILE, SKIP IT
+    {
       return null;
+    }
 
     OServerPluginInfo currentPluginData = getPluginByFile(pluginFileName);
 
     final long fileLastModified = pluginFile.lastModified();
     if (currentPluginData != null) {
       if (fileLastModified <= currentPluginData.getLoadedOn())
-        // ALREADY LOADED, SKIPT IT
+      // ALREADY LOADED, SKIPT IT
+      {
         return pluginFileName;
+      }
 
       // SHUTDOWN PREVIOUS INSTANCE
       try {
@@ -204,14 +226,17 @@ public class OServerPluginManager implements OService {
 
   protected void registerStaticDirectory(final OServerPluginInfo iPluginData) {
     Object pluginWWW = iPluginData.getParameter("www");
-    if (pluginWWW == null) pluginWWW = iPluginData.getName();
+    if (pluginWWW == null) {
+      pluginWWW = iPluginData.getName();
+    }
 
     final OServerNetworkListener httpListener =
         server.getListenerByProtocol(ONetworkProtocolHttpAbstract.class);
 
-    if (httpListener == null)
+    if (httpListener == null) {
       throw new OConfigurationException(
           "HTTP listener not registered while installing Static Content command");
+    }
 
     final OServerCommandGetStaticContent command =
         (OServerCommandGetStaticContent)
@@ -221,9 +246,11 @@ public class OServerPluginManager implements OService {
       final URL wwwURL = iPluginData.getClassLoader().findResource("www/");
 
       final OCallable<Object, String> callback;
-      if (wwwURL != null) callback = createStaticLinkCallback(iPluginData, wwwURL);
-      else
-        // LET TO THE COMMAND TO CONTROL IT
+      if (wwwURL != null) {
+        callback = createStaticLinkCallback(iPluginData, wwwURL);
+      } else
+      // LET TO THE COMMAND TO CONTROL IT
+      {
         callback =
             new OCallable<Object, String>() {
               @Override
@@ -231,6 +258,7 @@ public class OServerPluginManager implements OService {
                 return iPluginData.getInstance().getContent(iArgument);
               }
             };
+      }
 
       command.registerVirtualFolder(pluginWWW.toString(), callback);
     }
@@ -294,7 +322,9 @@ public class OServerPluginManager implements OService {
   private void updatePlugins() {
     // load plugins.directory from server configuration or default to $ORIENTDB_HOME/plugins
     final File pluginsDirectory = new File(directory);
-    if (!pluginsDirectory.exists()) pluginsDirectory.mkdirs();
+    if (!pluginsDirectory.exists()) {
+      pluginsDirectory.mkdirs();
+    }
 
     final File[] plugins = pluginsDirectory.listFiles();
 
@@ -303,14 +333,19 @@ public class OServerPluginManager implements OService {
       currentDynamicPlugins.add(entry.getKey());
     }
 
-    if (plugins != null)
+    if (plugins != null) {
       for (File plugin : plugins) {
         final String pluginName = updatePlugin(plugin);
-        if (pluginName != null) currentDynamicPlugins.remove(pluginName);
+        if (pluginName != null) {
+          currentDynamicPlugins.remove(pluginName);
+        }
       }
+    }
 
     // REMOVE MISSING PLUGIN
-    for (String pluginName : currentDynamicPlugins) uninstallPluginByFile(pluginName);
+    for (String pluginName : currentDynamicPlugins) {
+      uninstallPluginByFile(pluginName);
+    }
   }
 
   private void installDynamicPlugin(final File pluginFile) {
@@ -358,8 +393,10 @@ public class OServerPluginManager implements OService {
         final ODocument properties = new ODocument().fromJSON(pluginConfigFile);
 
         if (properties.containsField("name"))
-          // OVERWRITE PLUGIN NAME
+        // OVERWRITE PLUGIN NAME
+        {
           pluginName = properties.field("name");
+        }
 
         final String pluginClass = properties.field("javaClass");
 

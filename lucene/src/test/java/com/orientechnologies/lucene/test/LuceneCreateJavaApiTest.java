@@ -34,8 +34,11 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 07/07/15. */
+/**
+ * Created by Enrico Risa on 07/07/15.
+ */
 public class LuceneCreateJavaApiTest extends BaseLuceneTest {
+
   public static final String SONG_CLASS = "Song";
 
   @Before
@@ -222,7 +225,7 @@ public class LuceneCreateJavaApiTest extends BaseLuceneTest {
     song.createIndex(
         SONG_CLASS + "." + OType.EMBEDDEDMAP.getName(),
         OClass.INDEX_TYPE.FULLTEXT.toString(),
-        new String[] {"String" + OType.EMBEDDEDMAP.getName() + " by value"});
+        "String" + OType.EMBEDDEDMAP.getName() + " by value");
     Assert.assertEquals(1, song.getIndexes().size());
     return song;
   }

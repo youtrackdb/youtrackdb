@@ -35,9 +35,11 @@ import com.orientechnologies.orient.server.distributed.task.OAbstractRemoteTask;
  * @author Luca Garulli (l.garulli--at--orientdb.com)
  */
 public class OEnterpriseStatsTask extends OAbstractRemoteTask {
+
   public static final int FACTORYID = 29;
 
-  public OEnterpriseStatsTask() {}
+  public OEnterpriseStatsTask() {
+  }
 
   @Override
   public Object execute(

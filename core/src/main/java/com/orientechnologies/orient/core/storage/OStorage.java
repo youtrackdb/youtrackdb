@@ -39,6 +39,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
+import javax.annotation.Nonnull;
 
 /**
  * This is the gateway interface between the Database side and the storage. Provided implementations
@@ -48,9 +49,10 @@ import java.util.TimeZone;
  * @see com.orientechnologies.orient.core.storage.memory.ODirectMemoryStorage
  */
 public interface OStorage extends OBackupable, OStorageInfo {
-  public String CLUSTER_DEFAULT_NAME = "default";
 
-  public enum STATUS {
+  String CLUSTER_DEFAULT_NAME = "default";
+
+  enum STATUS {
     CLOSED,
     OPEN,
     MIGRATION,
@@ -77,6 +79,7 @@ public interface OStorage extends OBackupable, OStorageInfo {
   boolean isClosed();
 
   // CRUD OPERATIONS
+  @Nonnull
   ORawBuffer readRecord(
       ORecordId iRid,
       boolean iIgnoreCache,
@@ -152,10 +155,14 @@ public interface OStorage extends OBackupable, OStorageInfo {
 
   long count(int[] iClusterIds, boolean countTombstones);
 
-  /** Returns the size of the database. */
+  /**
+   * Returns the size of the database.
+   */
   long getSize();
 
-  /** Returns the total number of records. */
+  /**
+   * Returns the total number of records.
+   */
   long countRecords();
 
   void setDefaultClusterId(final int defaultClusterId);
@@ -177,7 +184,9 @@ public interface OStorage extends OBackupable, OStorageInfo {
 
   void synch();
 
-  /** Execute the command request and return the result back. */
+  /**
+   * Execute the command request and return the result back.
+   */
   Object command(OCommandRequestText iCommand);
 
   /**
@@ -196,10 +205,14 @@ public interface OStorage extends OBackupable, OStorageInfo {
 
   OPhysicalPosition[] floorPhysicalPositions(int clusterId, OPhysicalPosition physicalPosition);
 
-  /** Returns the current storage's status */
+  /**
+   * Returns the current storage's status
+   */
   STATUS getStatus();
 
-  /** Returns the storage's type. */
+  /**
+   * Returns the storage's type.
+   */
   String getType();
 
   OStorage getUnderlying();

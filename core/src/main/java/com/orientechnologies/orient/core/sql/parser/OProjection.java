@@ -118,7 +118,7 @@ public class OProjection extends SimpleNode {
     initExcludes(iContext);
     if (isExpand()) {
       throw new IllegalStateException(
-          "This is an expand projection, it cannot be calculated as a single result" + toString());
+          "This is an expand projection, it cannot be calculated as a single result" + this);
     }
 
     if (items.size() == 0
@@ -189,7 +189,7 @@ public class OProjection extends SimpleNode {
 
   public OLegacyResultSet calculateExpand(OCommandContext iContext, OResult iRecord) {
     if (!isExpand()) {
-      throw new IllegalStateException("This is not an expand projection:" + toString());
+      throw new IllegalStateException("This is not an expand projection:" + this);
     }
     throw new UnsupportedOperationException("Implement expand in projection");
   }
@@ -211,8 +211,8 @@ public class OProjection extends SimpleNode {
 
   public OProjection getExpandContent() {
     OProjection result = new OProjection(-1);
-    result.setItems(new ArrayList<>());
-    result.getItems().add(this.getItems().get(0).getExpandContent());
+    result.items = new ArrayList<>();
+    result.items.add(this.items.get(0).getExpandContent());
     return result;
   }
 
@@ -231,14 +231,16 @@ public class OProjection extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OProjection that = (OProjection) o;
 
-    if (items != null ? !items.equals(that.items) : that.items != null) return false;
-
-    return true;
+    return Objects.equals(items, that.items);
   }
 
   @Override

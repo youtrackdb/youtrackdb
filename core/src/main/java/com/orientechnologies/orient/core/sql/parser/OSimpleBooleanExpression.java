@@ -2,7 +2,9 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import java.util.List;
 
-/** Created by luigidellaquila on 21/11/16. */
+/**
+ * Created by luigidellaquila on 21/11/16.
+ */
 public interface OSimpleBooleanExpression {
 
   /**
@@ -10,7 +12,7 @@ public interface OSimpleBooleanExpression {
    * returns the name of involved pattern aliases ("something" in this case)
    *
    * @return a list of pattern aliases involved in this condition. Null it does not involve the
-   *     pattern
+   * pattern
    */
   List<String> getMatchPatternInvolvedAliases();
 }

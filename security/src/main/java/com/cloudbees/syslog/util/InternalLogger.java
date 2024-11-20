@@ -56,10 +56,12 @@ public class InternalLogger {
     InternalLogger.level = level;
   }
 
-  private DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
+  private final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
   private final String name;
 
-  /** use java.util.logger to find the logger level if not specified by system property. */
+  /**
+   * use java.util.logger to find the logger level if not specified by system property.
+   */
   private final Logger julLogger;
 
   public InternalLogger(String name) {
@@ -68,11 +70,15 @@ public class InternalLogger {
   }
 
   public boolean isLoggable(Level level) {
-    if (level == null) return false;
+    if (level == null) {
+      return false;
+    }
 
-    if (this.level == null) return julLogger.isLoggable(level);
+    if (InternalLogger.level == null) {
+      return julLogger.isLoggable(level);
+    }
 
-    return level.intValue() >= this.level.intValue();
+    return level.intValue() >= InternalLogger.level.intValue();
   }
 
   public void finest(String msg) {
@@ -111,7 +117,9 @@ public class InternalLogger {
    * @param t
    */
   public synchronized void log(Level level, String msg, Throwable t) {
-    if (!isLoggable(level)) return;
+    if (!isLoggable(level)) {
+      return;
+    }
     System.err.println(
         df.format(new Date())
             + " ["
@@ -122,6 +130,8 @@ public class InternalLogger {
             + level.getName()
             + ": "
             + msg);
-    if (t != null) t.printStackTrace();
+    if (t != null) {
+      t.printStackTrace();
+    }
   }
 }

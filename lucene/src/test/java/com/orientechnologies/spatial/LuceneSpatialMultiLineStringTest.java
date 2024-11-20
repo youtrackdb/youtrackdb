@@ -26,7 +26,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 08/09/15. */
+/**
+ * Created by Enrico Risa on 08/09/15.
+ */
 public class LuceneSpatialMultiLineStringTest extends BaseSpatialLuceneTest {
 
   protected static String WKT =

@@ -11,6 +11,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 public class OEdgeDocument extends ODocument implements OEdgeInternal {
+
   public OEdgeDocument(ODatabaseSession session, String cl) {
     super(session, cl);
   }

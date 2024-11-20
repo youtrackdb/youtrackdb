@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface ODistributedResponseManager {
+
   boolean setLocalResult(String localNodeName, Object localResult);
 
   ODistributedResponse getFinalResponse();

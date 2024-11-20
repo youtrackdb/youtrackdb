@@ -32,7 +32,9 @@ import com.orientechnologies.spatial.shape.OShapeBuilder;
 import com.orientechnologies.spatial.shape.OShapeFactory;
 import java.util.List;
 
-/** Created by Enrico Risa on 12/08/15. */
+/**
+ * Created by Enrico Risa on 12/08/15.
+ */
 public abstract class OLuceneSpatialOperator extends OQueryTargetOperator {
 
   protected OShapeBuilder factory;

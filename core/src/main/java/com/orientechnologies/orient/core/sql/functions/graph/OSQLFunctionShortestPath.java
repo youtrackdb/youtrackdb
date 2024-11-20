@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
+
   public static final String NAME = "shortestPath";
   public static final String PARAM_MAX_DEPTH = "maxDepth";
 
@@ -45,6 +46,7 @@ public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
   }
 
   private class OShortestPathContext {
+
     private OVertex sourceVertex;
     private OVertex destinationVertex;
     private ODirection directionLeft = ODirection.BOTH;
@@ -66,7 +68,9 @@ public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
     private OVertex currentRight;
     public Integer maxDepth;
 
-    /** option that decides whether or not to return the edge information */
+    /**
+     * option that decides whether or not to return the edge information
+     */
     public Boolean edge;
   }
 
@@ -159,44 +163,61 @@ public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
       if (ctx.maxDepth != null && ctx.maxDepth <= depth) {
         break;
       }
-      if (ctx.queueLeft.isEmpty() || ctx.queueRight.isEmpty()) break;
+      if (ctx.queueLeft.isEmpty() || ctx.queueRight.isEmpty()) {
+        break;
+      }
 
-      if (Thread.interrupted())
+      if (Thread.interrupted()) {
         throw new OCommandExecutionException("The shortestPath() function has been interrupted");
+      }
 
-      if (!OCommandExecutorAbstract.checkInterruption(iContext)) break;
+      if (!OCommandExecutorAbstract.checkInterruption(iContext)) {
+        break;
+      }
 
       List<ORID> neighborIdentity;
 
       if (ctx.queueLeft.size() <= ctx.queueRight.size()) {
         // START EVALUATING FROM LEFT
         neighborIdentity = walkLeft(ctx);
-        if (neighborIdentity != null) return neighborIdentity;
+        if (neighborIdentity != null) {
+          return neighborIdentity;
+        }
         depth++;
         if (ctx.maxDepth != null && ctx.maxDepth <= depth) {
           break;
         }
 
-        if (ctx.queueLeft.isEmpty()) break;
+        if (ctx.queueLeft.isEmpty()) {
+          break;
+        }
 
         neighborIdentity = walkRight(ctx);
-        if (neighborIdentity != null) return neighborIdentity;
+        if (neighborIdentity != null) {
+          return neighborIdentity;
+        }
 
       } else {
 
         // START EVALUATING FROM RIGHT
         neighborIdentity = walkRight(ctx);
-        if (neighborIdentity != null) return neighborIdentity;
+        if (neighborIdentity != null) {
+          return neighborIdentity;
+        }
 
         depth++;
         if (ctx.maxDepth != null && ctx.maxDepth <= depth) {
           break;
         }
 
-        if (ctx.queueRight.isEmpty()) break;
+        if (ctx.queueRight.isEmpty()) {
+          break;
+        }
 
         neighborIdentity = walkLeft(ctx);
-        if (neighborIdentity != null) return neighborIdentity;
+        if (neighborIdentity != null) {
+          return neighborIdentity;
+        }
       }
 
       depth++;
@@ -318,7 +339,7 @@ public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
           neighbors = ctx.current.getVertices(ctx.directionLeft, ctx.edgeTypeParam);
         }
         for (OVertex neighbor : neighbors) {
-          final OVertex v = (OVertex) neighbor;
+          final OVertex v = neighbor;
           final ORID neighborIdentity = v.getIdentity();
 
           if (ctx.rightVisited.contains(neighborIdentity)) {
@@ -382,7 +403,7 @@ public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
           neighbors = ctx.currentRight.getVertices(ctx.directionRight, ctx.edgeTypeParam);
         }
         for (OVertex neighbor : neighbors) {
-          final OVertex v = (OVertex) neighbor;
+          final OVertex v = neighbor;
           final ORID neighborIdentity = v.getIdentity();
 
           if (ctx.leftVisited.contains(neighborIdentity)) {

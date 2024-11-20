@@ -8,6 +8,7 @@ import com.orientechnologies.orient.core.sql.executor.OUpdateExecutionPlanner;
 import java.util.stream.Collectors;
 
 public class OUpdateEdgeStatement extends OUpdateStatement {
+
   public OUpdateEdgeStatement(int id) {
     super(id);
   }

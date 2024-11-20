@@ -30,7 +30,10 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OFetchListener {
-  /** Returns true if the listener fetches he fields. */
+
+  /**
+   * Returns true if the listener fetches he fields.
+   */
   boolean requireFieldProcessing();
 
   /**

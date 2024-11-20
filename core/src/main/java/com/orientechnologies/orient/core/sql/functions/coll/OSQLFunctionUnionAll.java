@@ -37,6 +37,7 @@ import java.util.List;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionUnionAll extends OSQLFunctionMultiValueAbstract<Collection<Object>> {
+
   public static final String NAME = "unionAll";
 
   public OSQLFunctionUnionAll() {
@@ -54,11 +55,14 @@ public class OSQLFunctionUnionAll extends OSQLFunctionMultiValueAbstract<Collect
       Object value = iParams[0];
       if (value != null) {
 
-        if (value instanceof OSQLFilterItemVariable)
+        if (value instanceof OSQLFilterItemVariable) {
           value =
               ((OSQLFilterItemVariable) value).getValue(iCurrentRecord, iCurrentResult, iContext);
+        }
 
-        if (context == null) context = new ArrayList<Object>();
+        if (context == null) {
+          context = new ArrayList<Object>();
+        }
 
         OMultiValue.add(context, value);
       }
@@ -70,9 +74,10 @@ public class OSQLFunctionUnionAll extends OSQLFunctionMultiValueAbstract<Collect
           new OMultiCollectionIterator<OIdentifiable>();
       for (Object value : iParams) {
         if (value != null) {
-          if (value instanceof OSQLFilterItemVariable)
+          if (value instanceof OSQLFilterItemVariable) {
             value =
                 ((OSQLFilterItemVariable) value).getValue(iCurrentRecord, iCurrentResult, iContext);
+          }
 
           result.add(value);
         }

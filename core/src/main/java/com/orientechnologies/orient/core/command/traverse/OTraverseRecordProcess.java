@@ -22,7 +22,6 @@ package com.orientechnologies.orient.core.command.traverse;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMultiValue;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -76,13 +75,12 @@ public class OTraverseRecordProcess extends OTraverseAbstractProcess<OIdentifiab
       pop();
     } else {
       final ORecord targetRec = target.getRecord();
-      if (!(targetRec instanceof ODocument))
+      if (!(targetRec instanceof ODocument targetDoc))
       // SKIP IT
       {
         return pop();
       }
 
-      ODocument targetDoc = (ODocument) targetRec;
       if (targetDoc.isUnloaded()) {
         targetDoc = ODatabaseSession.getActiveSession().bindToSession(targetDoc);
       }
@@ -178,23 +176,18 @@ public class OTraverseRecordProcess extends OTraverseAbstractProcess<OIdentifiab
         final OTraverseAbstractProcess<?> subProcess;
 
         if (fieldValue instanceof Iterator<?> || OMultiValue.isMultiValue(fieldValue)) {
-          final Iterator<?> coll;
-          if (fieldValue instanceof ORecordLazyMultiValue) {
-            coll = ((ORecordLazyMultiValue) fieldValue).rawIterator();
-          } else {
-            coll = (Iterator<Object>) OMultiValue.getMultiValueIterator(fieldValue);
-          }
+          final Iterator<?> coll = OMultiValue.getMultiValueIterator(fieldValue);
 
           subProcess =
               new OTraverseMultiValueProcess(
-                  command, (Iterator<Object>) coll, getPath().appendField(field.toString()));
+                  command, (Iterator<Object>) coll, path.appendField(field.toString()));
         } else if (fieldValue instanceof OIdentifiable
             && ((OIdentifiable) fieldValue).getRecord() instanceof ODocument) {
           subProcess =
               new OTraverseRecordProcess(
                   command,
                   ((OIdentifiable) fieldValue).getRecord(),
-                  getPath().appendField(field.toString()));
+                  path.appendField(field.toString()));
         } else {
           continue;
         }

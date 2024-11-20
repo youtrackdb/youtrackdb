@@ -11,8 +11,11 @@ import com.orientechnologies.orient.core.sql.parser.OMoveVertexStatement;
 import com.orientechnologies.orient.core.sql.parser.OSelectStatement;
 import com.orientechnologies.orient.core.sql.parser.OUpdateOperations;
 
-/** Created by luigidellaquila on 08/08/16. */
+/**
+ * Created by luigidellaquila on 08/08/16.
+ */
 public class OMoveVertexExecutionPlanner {
+
   private final OFromItem source;
   private final OIdentifier targetClass;
   private final OCluster targetCluster;
@@ -60,7 +63,7 @@ public class OMoveVertexExecutionPlanner {
    * updates the actual OIdentifiable
    *
    * @param plan the execution plan
-   * @param ctx the executino context
+   * @param ctx  the executino context
    */
   private void convertToModifiableResult(
       OUpdateExecutionPlan plan, OCommandContext ctx, boolean profilingEnabled) {

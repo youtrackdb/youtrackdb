@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class OTransactionPhase1TaskTest {
+
   private ODatabaseSession session;
   private OServer server;
 
@@ -49,7 +50,9 @@ public class OTransactionPhase1TaskTest {
 
   @After
   public void after() {
-    if (session != null) session.close();
+    if (session != null) {
+      session.close();
+    }
     server.getContext().drop(OTransactionPhase1TaskTest.class.getSimpleName());
     server.shutdown();
   }

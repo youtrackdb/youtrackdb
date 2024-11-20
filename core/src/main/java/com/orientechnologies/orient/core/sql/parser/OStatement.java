@@ -107,7 +107,7 @@ public class OStatement extends SimpleNode {
   /**
    * creates an execution plan for current statement
    *
-   * @param ctx the context that will be used to execute the statement
+   * @param ctx     the context that will be used to execute the statement
    * @param profile true to enable profiling, false to disable it
    * @return an execution plan
    */

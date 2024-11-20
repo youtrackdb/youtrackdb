@@ -26,6 +26,7 @@ import java.io.IOException;
  * @since 29.04.13
  */
 public class OLogSequenceNumber implements Comparable<OLogSequenceNumber> {
+
   private final long segment;
   private final int position;
 
@@ -73,11 +74,18 @@ public class OLogSequenceNumber implements Comparable<OLogSequenceNumber> {
 
   @Override
   public int compareTo(final OLogSequenceNumber otherNumber) {
-    if (segment > otherNumber.segment) return 1;
-    if (segment < otherNumber.segment) return -1;
+    if (segment > otherNumber.segment) {
+      return 1;
+    }
+    if (segment < otherNumber.segment) {
+      return -1;
+    }
 
-    if (position > otherNumber.position) return 1;
-    else if (position < otherNumber.position) return -1;
+    if (position > otherNumber.position) {
+      return 1;
+    } else if (position < otherNumber.position) {
+      return -1;
+    }
 
     return 0;
   }

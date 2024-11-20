@@ -26,9 +26,12 @@ import org.graalvm.polyglot.HostAccess;
 import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Value;
 
-/** Created by Luca Garulli */
+/**
+ * Created by Luca Garulli
+ */
 public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
     implements OResourcePoolListener<ODatabaseSessionInternal, Context> {
+
   private final OScriptTransformer transformer;
   protected ConcurrentHashMap<String, OResourcePool<ODatabaseSessionInternal, Context>>
       contextPools =
@@ -75,10 +78,14 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
             .allowHostClassLoading(false)
             .allowHostClassLookup(
                 s -> {
-                  if (allowedPackaged.contains(s)) return true;
+                  if (allowedPackaged.contains(s)) {
+                    return true;
+                  }
 
                   final int pos = s.lastIndexOf('.');
-                  if (pos > -1) return allowedPackaged.contains(s.substring(0, pos) + ".*");
+                  if (pos > -1) {
+                    return allowedPackaged.contains(s.substring(0, pos) + ".*");
+                  }
                   return false;
                 })
             .build();
@@ -147,7 +154,7 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
   public Object executeFunction(
       OCommandContext context, final String functionName, final Map<Object, Object> iArgs) {
 
-    ODatabaseSessionInternal database = (ODatabaseSessionInternal) context.getDatabase();
+    ODatabaseSessionInternal database = context.getDatabase();
     if (database == null) {
       database = ODatabaseRecordThreadLocal.instance().get();
     }
@@ -173,8 +180,9 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
         finalResult = null;
       } else if (result.hasArrayElements()) {
         final List<Object> array = new ArrayList<>((int) result.getArraySize());
-        for (int i = 0; i < result.getArraySize(); ++i)
+        for (int i = 0; i < result.getArraySize(); ++i) {
           array.add(new OResultInternal(result.getArrayElement(i).asHostObject()));
+        }
         finalResult = array;
       } else if (result.isHostObject()) {
         finalResult = result.asHostObject();

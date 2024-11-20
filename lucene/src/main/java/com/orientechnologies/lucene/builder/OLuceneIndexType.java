@@ -23,7 +23,7 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.index.OCompositeKey;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -50,8 +50,11 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.util.BytesRef;
 
-/** Created by enricorisa on 21/03/14. */
+/**
+ * Created by enricorisa on 21/03/14.
+ */
 public class OLuceneIndexType {
+
   public static final String RID_HASH = "_RID_HASH";
 
   public static Field createField(
@@ -66,7 +69,7 @@ public class OLuceneIndexType {
   public static String extractId(Document doc) {
     String value = doc.get(RID_HASH);
     if (value != null) {
-      int pos = value.indexOf("|");
+      int pos = value.indexOf('|');
       if (pos > 0) {
         return value.substring(0, pos);
       } else {
@@ -95,8 +98,7 @@ public class OLuceneIndexType {
   public static List<Field> createFields(
       String fieldName, Object value, Field.Store store, Boolean sort) {
     List<Field> fields = new ArrayList<>();
-    if (value instanceof Number) {
-      Number number = (Number) value;
+    if (value instanceof Number number) {
       if (value instanceof Long) {
         fields.add(new NumericDocValuesField(fieldName, number.longValue()));
         fields.add(new LongPoint(fieldName, number.longValue()));
@@ -113,8 +115,7 @@ public class OLuceneIndexType {
       fields.add(new NumericDocValuesField(fieldName, number.longValue()));
       fields.add(new IntPoint(fieldName, number.intValue()));
       return fields;
-    } else if (value instanceof Date) {
-      Date date = (Date) value;
+    } else if (value instanceof Date date) {
       fields.add(new NumericDocValuesField(fieldName, date.getTime()));
       fields.add(new LongPoint(fieldName, date.getTime()));
       return fields;
@@ -141,10 +142,9 @@ public class OLuceneIndexType {
             BooleanClause.Occur.SHOULD);
       }
       query = queryBuilder.build();
-    } else if (key instanceof OCompositeKey) {
+    } else if (key instanceof OCompositeKey keys) {
       final BooleanQuery.Builder queryBuilder = new BooleanQuery.Builder();
       int i = 0;
-      OCompositeKey keys = (OCompositeKey) key;
       for (String idx : index.getFields()) {
         String val = (String) keys.getKeys().get(i);
         queryBuilder.add(new TermQuery(new Term(idx, val)), BooleanClause.Occur.MUST);
@@ -172,13 +172,10 @@ public class OLuceneIndexType {
         keyString = key.toString();
       }
       MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
-      byte[] bytes = sha256.digest(keyString.getBytes("UTF-8"));
+      byte[] bytes = sha256.digest(keyString.getBytes(StandardCharsets.UTF_8));
       return Base64.getEncoder().encodeToString(bytes);
     } catch (NoSuchAlgorithmException e) {
       throw OException.wrapException(new OLuceneIndexException("fail to find sha algorithm"), e);
-
-    } catch (UnsupportedEncodingException e) {
-      throw OException.wrapException(new OLuceneIndexException("fail to find utf-8 encoding"), e);
     }
   }
 

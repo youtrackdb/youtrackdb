@@ -22,8 +22,12 @@ public class OSecurityResourceCluster extends OSecurityResource {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     OSecurityResourceCluster that = (OSecurityResourceCluster) o;
     return Objects.equals(clusterName, that.clusterName);
   }

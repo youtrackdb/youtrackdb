@@ -27,12 +27,13 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.List;
 
 public class OSystemDBImporter extends Thread {
+
   private boolean enabled = false;
   private List<String> databaseList;
-  private String auditingClass = "AuditingLog";
+  private final String auditingClass = "AuditingLog";
   private int limit = 1000; // How many records to import during each iteration.
   private int sleepPeriod = 1000; // How long to sleep (in ms) after importing 'limit' records.
-  private OrientDBInternal context;
+  private final OrientDBInternal context;
   private boolean isRunning = true;
 
   public boolean isEnabled() {
@@ -50,7 +51,7 @@ public class OSystemDBImporter extends Thread {
       }
 
       if (jsonConfig.containsField("databases")) {
-        databaseList = (List<String>) jsonConfig.field("databases");
+        databaseList = jsonConfig.field("databases");
       }
 
       if (jsonConfig.containsField("limit")) {
@@ -77,7 +78,9 @@ public class OSystemDBImporter extends Thread {
     try {
       if (enabled && databaseList != null) {
         for (String dbName : databaseList) {
-          if (!isRunning) break;
+          if (!isRunning) {
+            break;
+          }
 
           importDB(dbName);
         }
@@ -126,20 +129,25 @@ public class OSystemDBImporter extends Thread {
           try {
             OElement copy = new ODocument();
 
-            if (doc.hasProperty("date"))
+            if (doc.hasProperty("date")) {
               copy.setProperty("date", doc.getProperty("date"), OType.DATETIME);
+            }
 
-            if (doc.hasProperty("operation"))
+            if (doc.hasProperty("operation")) {
               copy.setProperty("operation", doc.getProperty("operation"), OType.BYTE);
+            }
 
-            if (doc.hasProperty("record"))
+            if (doc.hasProperty("record")) {
               copy.setProperty("record", doc.getProperty("record"), OType.LINK);
+            }
 
-            if (doc.hasProperty("changes"))
+            if (doc.hasProperty("changes")) {
               copy.setProperty("changes", doc.getProperty("changes"), OType.EMBEDDED);
+            }
 
-            if (doc.hasProperty("note"))
+            if (doc.hasProperty("note")) {
               copy.setProperty("note", doc.getProperty("note"), OType.STRING);
+            }
 
             try {
               // Convert user RID to username.
@@ -148,7 +156,9 @@ public class OSystemDBImporter extends Thread {
                 ODocument userDoc = doc.getProperty("user");
                 final String username = userDoc.field("name");
 
-                if (username != null) copy.setProperty("user", username);
+                if (username != null) {
+                  copy.setProperty("user", username);
+                }
               }
             } catch (Exception userEx) {
             }
@@ -182,10 +192,11 @@ public class OSystemDBImporter extends Thread {
 
         Thread.sleep(sleepPeriod);
 
-        if (lastRID != null)
+        if (lastRID != null) {
           sql =
               String.format(
                   "select from %s where @rid > %s order by @rid limit ?", auditingClass, lastRID);
+        }
       }
 
       OLogManager.instance()

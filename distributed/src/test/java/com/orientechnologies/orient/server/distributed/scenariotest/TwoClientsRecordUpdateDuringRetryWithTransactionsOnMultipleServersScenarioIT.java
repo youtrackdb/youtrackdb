@@ -32,14 +32,13 @@ import org.junit.Test;
 
 /**
  * @author Andrea Iacono (a.iacono--at--orientdb.com) Checks for consistency on the cluster with
- *     these steps: - 2 server (quorum=2) - record1 is inserted on server1 - record1 (version 1) is
- *     propagated to the other server - introduce a delay after record locking for the two servers
- *     (different for each one) - the two clients at the same time update the same record on
- *     different servers - the server1 immediately commits the transaction and tries to update the
- *     record to server2, which has the record locked - meanwhile (while server1 is retrying)
- *     server2 commits and starts to try to update server1 as well - since server1 has started
- *     first, it's the one which finishes first and rollback - server2 can now successfully update
- *     the record on server1
+ * these steps: - 2 server (quorum=2) - record1 is inserted on server1 - record1 (version 1) is
+ * propagated to the other server - introduce a delay after record locking for the two servers
+ * (different for each one) - the two clients at the same time update the same record on different
+ * servers - the server1 immediately commits the transaction and tries to update the record to
+ * server2, which has the record locked - meanwhile (while server1 is retrying) server2 commits and
+ * starts to try to update server1 as well - since server1 has started first, it's the one which
+ * finishes first and rollback - server2 can now successfully update the record on server1
  */
 
 // TODO Temporary Ignored

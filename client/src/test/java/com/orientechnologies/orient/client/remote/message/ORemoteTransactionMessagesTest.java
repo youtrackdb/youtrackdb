@@ -71,7 +71,7 @@ public class ORemoteTransactionMessagesTest {
     assertEquals(readRequest.getIndexChanges().size(), 1);
     assertEquals(readRequest.getIndexChanges().get(0).getName(), "some");
     OTransactionIndexChanges val = readRequest.getIndexChanges().get(0).getKeyChanges();
-    assertEquals(val.cleared, false);
+    assertFalse(val.cleared);
     assertEquals(val.changesPerKey.size(), 1);
     OTransactionIndexChangesPerKey entryChange = val.changesPerKey.firstEntry().getValue();
     assertEquals(entryChange.key, "key");
@@ -110,7 +110,7 @@ public class ORemoteTransactionMessagesTest {
     assertEquals(readRequest.getIndexChanges().size(), 1);
     assertEquals(readRequest.getIndexChanges().get(0).getName(), "some");
     OTransactionIndexChanges val = readRequest.getIndexChanges().get(0).getKeyChanges();
-    assertEquals(val.cleared, false);
+    assertFalse(val.cleared);
     assertEquals(val.changesPerKey.size(), 1);
     OTransactionIndexChangesPerKey entryChange = val.changesPerKey.firstEntry().getValue();
     assertEquals(entryChange.key, "key");
@@ -213,7 +213,7 @@ public class ORemoteTransactionMessagesTest {
     assertEquals(readResponse.getIndexChanges().size(), 1);
     assertEquals(readResponse.getIndexChanges().get(0).getName(), "some");
     OTransactionIndexChanges val = readResponse.getIndexChanges().get(0).getKeyChanges();
-    assertEquals(val.cleared, false);
+    assertFalse(val.cleared);
     assertEquals(val.changesPerKey.size(), 1);
     OTransactionIndexChangesPerKey entryChange = val.changesPerKey.firstEntry().getValue();
     assertEquals(entryChange.key, "key");
@@ -265,7 +265,7 @@ public class ORemoteTransactionMessagesTest {
     assertEquals(readResponse.getIndexChanges().size(), 1);
     assertEquals(readResponse.getIndexChanges().get(0).getName(), "some");
     OTransactionIndexChanges val = readResponse.getIndexChanges().get(0).getKeyChanges();
-    assertEquals(val.cleared, false);
+    assertFalse(val.cleared);
     assertEquals(val.changesPerKey.size(), 1);
     OTransactionIndexChangesPerKey entryChange = val.changesPerKey.firstEntry().getValue();
     assertEquals(entryChange.key, "key");
@@ -305,7 +305,7 @@ public class ORemoteTransactionMessagesTest {
     assertEquals(readResponse.getIndexChanges().size(), 1);
     assertEquals(readResponse.getIndexChanges().get(0).getName(), "some");
     OTransactionIndexChanges val = readResponse.getIndexChanges().get(0).getKeyChanges();
-    assertEquals(val.cleared, true);
+    assertTrue(val.cleared);
     assertEquals(val.changesPerKey.size(), 1);
     OTransactionIndexChangesPerKey entryChange = val.changesPerKey.firstEntry().getValue();
     assertEquals(entryChange.key, "key");

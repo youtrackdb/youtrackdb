@@ -7,7 +7,9 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-/** Created by frank on 25/05/2017. */
+/**
+ * Created by frank on 25/05/2017.
+ */
 public abstract class OSQLFunctionFactoryTemplate implements OSQLFunctionFactory {
 
   private final Map<String, Object> functions;
@@ -38,10 +40,13 @@ public abstract class OSQLFunctionFactoryTemplate implements OSQLFunctionFactory
   public OSQLFunction createFunction(final String name) throws OCommandExecutionException {
     final Object obj = functions.get(name);
 
-    if (obj == null) throw new OCommandExecutionException("Unknown function name :" + name);
+    if (obj == null) {
+      throw new OCommandExecutionException("Unknown function name :" + name);
+    }
 
-    if (obj instanceof OSQLFunction) return (OSQLFunction) obj;
-    else {
+    if (obj instanceof OSQLFunction) {
+      return (OSQLFunction) obj;
+    } else {
       // it's a class
       final Class<?> clazz = (Class<?>) obj;
       try {

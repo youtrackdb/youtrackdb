@@ -564,7 +564,7 @@ public class OCompositeIndexDefinition extends OAbstractIndexDefinition {
     private final Object[] params;
     private final List<OIndexDefinition> indexDefinitions;
     private final int multiValueIndex;
-    private ODatabaseSessionInternal session;
+    private final ODatabaseSessionInternal session;
 
     private CompositeWrapperMap(
         ODatabaseSessionInternal session,

@@ -8,6 +8,7 @@ import java.util.TreeMap;
 import org.junit.After;
 
 public abstract class SpeedTestGroup {
+
   protected static final int TIME_WAIT = 1000;
 
   protected List<SpeedTestAbstract> tests = new ArrayList<SpeedTestAbstract>();
@@ -56,11 +57,11 @@ public abstract class SpeedTestGroup {
 
       i = 1;
       long refValue = 0;
-      for (Entry<Long, String> entry : result.getValue().entrySet())
+      for (Entry<Long, String> entry : result.getValue().entrySet()) {
         if (i == 1) {
           System.out.println(" " + i++ + ": " + entry.getValue() + " = " + entry.getKey());
           refValue = entry.getKey();
-        } else
+        } else {
           System.out.println(
               " "
                   + i++
@@ -71,6 +72,8 @@ public abstract class SpeedTestGroup {
                   + " (+"
                   + (entry.getKey() * 100 / refValue - 100)
                   + "%)");
+        }
+      }
 
       System.out.println();
     }

@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class OSecurityResource {
 
-  private static Map<String, OSecurityResource> cache = new ConcurrentHashMap<>();
+  private static final Map<String, OSecurityResource> cache = new ConcurrentHashMap<>();
 
   public static OSecurityResource getInstance(String resource) {
     OSecurityResource result = cache.get(resource);
@@ -140,8 +140,12 @@ public abstract class OSecurityResource {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     OSecurityResource that = (OSecurityResource) o;
     return Objects.equals(resourceString, that.resourceString);
   }

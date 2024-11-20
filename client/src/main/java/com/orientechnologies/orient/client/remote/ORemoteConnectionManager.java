@@ -45,6 +45,7 @@ import java.util.concurrent.TimeUnit;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ORemoteConnectionManager {
+
   public static final String PARAM_MAX_POOL = "maxpool";
 
   protected final ConcurrentMap<String, ORemoteConnectionPool> connections;
@@ -95,10 +96,14 @@ public class ORemoteConnectionManager {
       if (clientConfiguration != null) {
         final Object max =
             clientConfiguration.getValue(OGlobalConfiguration.CLIENT_CHANNEL_MAX_POOL);
-        if (max != null) maxPool = Integer.parseInt(max.toString());
+        if (max != null) {
+          maxPool = Integer.parseInt(max.toString());
+        }
 
         final Object netLockTimeout = clientConfiguration.getValue(NETWORK_LOCK_TIMEOUT);
-        if (netLockTimeout != null) localTimeout = Integer.parseInt(netLockTimeout.toString());
+        if (netLockTimeout != null) {
+          localTimeout = Integer.parseInt(netLockTimeout.toString());
+        }
       }
 
       pool = new ORemoteConnectionPool(maxPool);
@@ -128,7 +133,9 @@ public class ORemoteConnectionManager {
   }
 
   public void release(final OChannelBinaryAsynchClient conn) {
-    if (conn == null) return;
+    if (conn == null) {
+      return;
+    }
 
     conn.markReturned();
     final ORemoteConnectionPool pool = connections.get(conn.getServerURL());
@@ -146,12 +153,15 @@ public class ORemoteConnectionManager {
   }
 
   public void remove(final OChannelBinaryAsynchClient conn) {
-    if (conn == null) return;
+    if (conn == null) {
+      return;
+    }
 
     final ORemoteConnectionPool pool = connections.get(conn.getServerURL());
-    if (pool == null)
+    if (pool == null) {
       throw new IllegalStateException(
           "Connection cannot be released because the pool doesn't exist anymore");
+    }
 
     pool.getPool().remove(conn);
 
@@ -174,14 +184,18 @@ public class ORemoteConnectionManager {
 
   public int getMaxResources(final String url) {
     final ORemoteConnectionPool pool = connections.get(url);
-    if (pool == null) return 0;
+    if (pool == null) {
+      return 0;
+    }
 
     return pool.getPool().getMaxResources();
   }
 
   public int getAvailableConnections(final String url) {
     final ORemoteConnectionPool pool = connections.get(url);
-    if (pool == null) return 0;
+    if (pool == null) {
+      return 0;
+    }
 
     return pool.getPool().getAvailableResources();
   }
@@ -191,21 +205,27 @@ public class ORemoteConnectionManager {
       return 0;
     }
     final ORemoteConnectionPool pool = connections.get(url);
-    if (pool == null) return 0;
+    if (pool == null) {
+      return 0;
+    }
 
     return pool.getPool().getInPoolResources();
   }
 
   public int getCreatedInstancesInPool(final String url) {
     final ORemoteConnectionPool pool = connections.get(url);
-    if (pool == null) return 0;
+    if (pool == null) {
+      return 0;
+    }
 
     return pool.getPool().getCreatedInstances();
   }
 
   public void closePool(final String url) {
     final ORemoteConnectionPool pool = connections.remove(url);
-    if (pool == null) return;
+    if (pool == null) {
+      return;
+    }
 
     closePool(pool);
   }
@@ -213,13 +233,14 @@ public class ORemoteConnectionManager {
   protected void closePool(ORemoteConnectionPool pool) {
     final List<OChannelBinaryAsynchClient> conns =
         new ArrayList<OChannelBinaryAsynchClient>(pool.getPool().getAllResources());
-    for (OChannelBinaryAsynchClient c : conns)
+    for (OChannelBinaryAsynchClient c : conns) {
       try {
         // Unregister the listener that make the connection return to the closing pool.
         c.close();
       } catch (Exception e) {
         OLogManager.instance().debug(this, "Cannot close binary channel", e);
       }
+    }
     pool.getPool().close();
   }
 

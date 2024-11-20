@@ -3,6 +3,7 @@ package com.orientechnologies.orient.client.remote;
 import java.util.Map;
 
 public class TreeEntry<EK, EV> implements Map.Entry<EK, EV> {
+
   private final EK key;
   private final EV value;
 

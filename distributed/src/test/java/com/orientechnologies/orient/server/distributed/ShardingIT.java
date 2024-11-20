@@ -169,8 +169,9 @@ public class ShardingIT extends AbstractServerClusterTest {
               .getServerInstance()
               .openDatabase(getDatabaseName(), "admin", "admin");
       try {
-        for (int i = 0; i < vertices.length; ++i)
+        for (int i = 0; i < vertices.length; ++i) {
           System.out.println("Created vertex " + i + ": " + vertices[i].getRecord());
+        }
       } finally {
         graph.close();
       }

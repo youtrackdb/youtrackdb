@@ -311,10 +311,9 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
           if (fetchPlanString.length() > 0) {
             // BUILD THE SERVER SIDE RECORD TO ACCES TO THE FETCH
             // PLAN
-            if (record instanceof ODocument) {
+            if (record instanceof ODocument doc) {
               final OFetchPlan fetchPlan = OFetchHelper.buildFetchPlan(fetchPlanString);
 
-              final ODocument doc = (ODocument) record;
               final OFetchListener listener =
                   new ORemoteFetchListener() {
                     @Override
@@ -1286,7 +1285,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
       // be
       // sent as it is, not streamed
       while (rs.hasNext() && (rs.isDetached() || i < request.getRecordsPerPage())) {
-        rsCopy.add((OResult) rs.next());
+        rsCopy.add(rs.next());
         i++;
       }
       boolean hasNext = rs.hasNext();

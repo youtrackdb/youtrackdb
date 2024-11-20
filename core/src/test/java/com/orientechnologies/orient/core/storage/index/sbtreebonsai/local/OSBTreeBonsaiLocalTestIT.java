@@ -30,6 +30,7 @@ import org.junit.Test;
  * @since 12.08.13
  */
 public class OSBTreeBonsaiLocalTestIT {
+
   private static final int KEYS_COUNT = 500000;
   protected static OSBTreeBonsaiLocal<Integer, OIdentifiable> sbTree;
   protected static ODatabaseSessionInternal db;
@@ -38,7 +39,9 @@ public class OSBTreeBonsaiLocalTestIT {
   @BeforeClass
   public static void beforeClass() throws Exception {
     String buildDirectory = System.getProperty("buildDirectory");
-    if (buildDirectory == null) buildDirectory = "./target";
+    if (buildDirectory == null) {
+      buildDirectory = "./target";
+    }
 
     db = new ODatabaseDocumentTx("plocal:" + buildDirectory + "/localSBTreeBonsaiTest");
     if (db.exists()) {
@@ -53,8 +56,7 @@ public class OSBTreeBonsaiLocalTestIT {
             "actualSBTreeBonsaiLocalTest", ".irs", (OAbstractPaginatedStorage) db.getStorage());
 
     atomicOperationsManager =
-        ((OAbstractPaginatedStorage) ((ODatabaseSessionInternal) db).getStorage())
-            .getAtomicOperationsManager();
+        ((OAbstractPaginatedStorage) db.getStorage()).getAtomicOperationsManager();
     atomicOperationsManager.executeInsideAtomicOperation(
         null, atomicOperation -> sbTree.createComponent(atomicOperation));
 
@@ -107,7 +109,9 @@ public class OSBTreeBonsaiLocalTestIT {
     Assert.assertEquals(0, (int) sbTree.firstKey());
     Assert.assertEquals(KEYS_COUNT - 1, (int) sbTree.lastKey());
 
-    for (int i = KEYS_COUNT; i < 2 * KEYS_COUNT; i++) Assert.assertNull(sbTree.get(i));
+    for (int i = KEYS_COUNT; i < 2 * KEYS_COUNT; i++) {
+      Assert.assertNull(sbTree.get(i));
+    }
   }
 
   @Test
@@ -128,7 +132,9 @@ public class OSBTreeBonsaiLocalTestIT {
     Assert.assertEquals(sbTree.firstKey(), keys.first());
     Assert.assertEquals(sbTree.lastKey(), keys.last());
 
-    for (int key : keys) Assert.assertEquals(sbTree.get(key), new ORecordId(key % 32000, key));
+    for (int key : keys) {
+      Assert.assertEquals(sbTree.get(key), new ORecordId(key % 32000, key));
+    }
   }
 
   @Test
@@ -157,7 +163,9 @@ public class OSBTreeBonsaiLocalTestIT {
     Assert.assertEquals(sbTree.firstKey(), keys.first());
     Assert.assertEquals(sbTree.lastKey(), keys.last());
 
-    for (int key : keys) Assert.assertEquals(sbTree.get(key), new ORecordId(key % 32000, key));
+    for (int key : keys) {
+      Assert.assertEquals(sbTree.get(key), new ORecordId(key % 32000, key));
+    }
   }
 
   @Test
@@ -265,8 +273,11 @@ public class OSBTreeBonsaiLocalTestIT {
         (int) sbTree.lastKey(), (KEYS_COUNT - 1) % 3 == 0 ? KEYS_COUNT - 2 : KEYS_COUNT - 1);
 
     for (int i = 0; i < KEYS_COUNT; i++) {
-      if (i % 3 == 0) Assert.assertNull(sbTree.get(i));
-      else Assert.assertEquals(sbTree.get(i), new ORecordId(i % 32000, i));
+      if (i % 3 == 0) {
+        Assert.assertNull(sbTree.get(i));
+      } else {
+        Assert.assertEquals(sbTree.get(i), new ORecordId(i % 32000, i));
+      }
     }
   }
 
@@ -307,12 +318,16 @@ public class OSBTreeBonsaiLocalTestIT {
     Assert.assertEquals((int) sbTree.lastKey(), 2 * KEYS_COUNT - 2);
 
     for (int i = 0; i < KEYS_COUNT; i++) {
-      if (i % 3 == 0) Assert.assertNull(sbTree.get(i));
-      else Assert.assertEquals(sbTree.get(i), new ORecordId(i % 32000, i));
+      if (i % 3 == 0) {
+        Assert.assertNull(sbTree.get(i));
+      } else {
+        Assert.assertEquals(sbTree.get(i), new ORecordId(i % 32000, i));
+      }
 
-      if (i % 2 == 0)
+      if (i % 2 == 0) {
         Assert.assertEquals(
             sbTree.get(KEYS_COUNT + i), new ORecordId((KEYS_COUNT + i) % 32000, KEYS_COUNT + i));
+      }
     }
   }
 
@@ -398,9 +413,13 @@ public class OSBTreeBonsaiLocalTestIT {
 
     Assert.assertEquals((int) sbTree.firstKey(), 56);
 
-    for (int i = 0; i < 56; i++) Assert.assertNull(sbTree.get(i));
+    for (int i = 0; i < 56; i++) {
+      Assert.assertNull(sbTree.get(i));
+    }
 
-    for (int i = 56; i < 110; i++) Assert.assertEquals(sbTree.get(i), new ORecordId(i % 32000, i));
+    for (int i = 56; i < 110; i++) {
+      Assert.assertEquals(sbTree.get(i), new ORecordId(i % 32000, i));
+    }
   }
 
   @Test
@@ -420,9 +439,13 @@ public class OSBTreeBonsaiLocalTestIT {
 
     Assert.assertEquals((int) sbTree.lastKey(), 50);
 
-    for (int i = 110; i > 50; i--) Assert.assertNull(sbTree.get(i));
+    for (int i = 110; i > 50; i--) {
+      Assert.assertNull(sbTree.get(i));
+    }
 
-    for (int i = 50; i >= 0; i--) Assert.assertEquals(sbTree.get(i), new ORecordId(i % 32000, i));
+    for (int i = 50; i >= 0; i--) {
+      Assert.assertEquals(sbTree.get(i), new ORecordId(i % 32000, i));
+    }
   }
 
   @Test
@@ -514,13 +537,19 @@ public class OSBTreeBonsaiLocalTestIT {
     for (int i = 0; i < 100; i++) {
       int upperBorder = keyValues.lastKey() + 5000;
       int fromKey;
-      if (upperBorder > 0) fromKey = random.nextInt(upperBorder);
-      else fromKey = random.nextInt(Integer.MAX_VALUE);
+      if (upperBorder > 0) {
+        fromKey = random.nextInt(upperBorder);
+      } else {
+        fromKey = random.nextInt(Integer.MAX_VALUE);
+      }
 
       if (random.nextBoolean()) {
         Integer includedKey = keyValues.ceilingKey(fromKey);
-        if (includedKey != null) fromKey = includedKey;
-        else fromKey = keyValues.floorKey(fromKey);
+        if (includedKey != null) {
+          fromKey = includedKey;
+        } else {
+          fromKey = keyValues.floorKey(fromKey);
+        }
       }
 
       int maxValuesToFetch = 10000;
@@ -539,7 +568,9 @@ public class OSBTreeBonsaiLocalTestIT {
         fetchedValues++;
       }
 
-      if (valuesIterator.hasNext()) Assert.assertEquals(fetchedValues, maxValuesToFetch);
+      if (valuesIterator.hasNext()) {
+        Assert.assertEquals(fetchedValues, maxValuesToFetch);
+      }
 
       Assert.assertEquals(result.size(), 0);
     }
@@ -550,13 +581,19 @@ public class OSBTreeBonsaiLocalTestIT {
     for (int i = 0; i < 100; i++) {
       int upperBorder = keyValues.lastKey() + 5000;
       int toKey;
-      if (upperBorder > 0) toKey = random.nextInt(upperBorder) - 5000;
-      else toKey = random.nextInt(Integer.MAX_VALUE) - 5000;
+      if (upperBorder > 0) {
+        toKey = random.nextInt(upperBorder) - 5000;
+      } else {
+        toKey = random.nextInt(Integer.MAX_VALUE) - 5000;
+      }
 
       if (random.nextBoolean()) {
         Integer includedKey = keyValues.ceilingKey(toKey);
-        if (includedKey != null) toKey = includedKey;
-        else toKey = keyValues.floorKey(toKey);
+        if (includedKey != null) {
+          toKey = includedKey;
+        } else {
+          toKey = keyValues.floorKey(toKey);
+        }
       }
 
       int maxValuesToFetch = 10000;
@@ -576,7 +613,9 @@ public class OSBTreeBonsaiLocalTestIT {
         fetchedValues++;
       }
 
-      if (valuesIterator.hasNext()) Assert.assertEquals(fetchedValues, maxValuesToFetch);
+      if (valuesIterator.hasNext()) {
+        Assert.assertEquals(fetchedValues, maxValuesToFetch);
+      }
 
       Assert.assertEquals(result.size(), 0);
     }
@@ -590,25 +629,38 @@ public class OSBTreeBonsaiLocalTestIT {
     for (int i = 0; i < 100; i++) {
       int upperBorder = keyValues.lastKey() + 5000;
       int fromKey;
-      if (upperBorder > 0) fromKey = random.nextInt(upperBorder);
-      else fromKey = random.nextInt(Integer.MAX_VALUE - 1);
+      if (upperBorder > 0) {
+        fromKey = random.nextInt(upperBorder);
+      } else {
+        fromKey = random.nextInt(Integer.MAX_VALUE - 1);
+      }
 
       if (random.nextBoolean()) {
         Integer includedKey = keyValues.ceilingKey(fromKey);
-        if (includedKey != null) fromKey = includedKey;
-        else fromKey = keyValues.floorKey(fromKey);
+        if (includedKey != null) {
+          fromKey = includedKey;
+        } else {
+          fromKey = keyValues.floorKey(fromKey);
+        }
       }
 
       int toKey = random.nextInt() + fromKey + 1;
-      if (toKey < 0) toKey = Integer.MAX_VALUE;
+      if (toKey < 0) {
+        toKey = Integer.MAX_VALUE;
+      }
 
       if (random.nextBoolean()) {
         Integer includedKey = keyValues.ceilingKey(toKey);
-        if (includedKey != null) toKey = includedKey;
-        else toKey = keyValues.floorKey(toKey);
+        if (includedKey != null) {
+          toKey = includedKey;
+        } else {
+          toKey = keyValues.floorKey(toKey);
+        }
       }
 
-      if (fromKey > toKey) toKey = fromKey;
+      if (fromKey > toKey) {
+        toKey = fromKey;
+      }
 
       int maxValuesToFetch = 10000;
 
@@ -627,7 +679,9 @@ public class OSBTreeBonsaiLocalTestIT {
         fetchedValues++;
       }
 
-      if (valuesIterator.hasNext()) Assert.assertEquals(fetchedValues, maxValuesToFetch);
+      if (valuesIterator.hasNext()) {
+        Assert.assertEquals(fetchedValues, maxValuesToFetch);
+      }
 
       Assert.assertEquals(result.size(), 0);
     }

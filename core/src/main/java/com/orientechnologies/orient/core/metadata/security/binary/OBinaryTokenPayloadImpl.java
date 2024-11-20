@@ -5,9 +5,9 @@ import com.orientechnologies.orient.core.metadata.security.jwt.OBinaryTokenPaylo
 import com.orientechnologies.orient.core.metadata.security.jwt.OTokenMetaInfo;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 public class OBinaryTokenPayloadImpl implements OBinaryTokenPayload {
+
   private String userName;
   private String database;
   private long expiry;
@@ -110,13 +110,15 @@ public class OBinaryTokenPayloadImpl implements OBinaryTokenPayload {
   }
 
   @Override
-  public void serialize(DataOutputStream output, OTokenMetaInfo serializer)
-      throws UnsupportedEncodingException, IOException {
-    String toWrite = this.getDatabase();
+  public void serialize(DataOutputStream output, OTokenMetaInfo serializer) throws IOException {
+    String toWrite = this.database;
     OBinaryTokenSerializer.writeString(output, toWrite);
-    if (this.getDatabaseType() == null) output.writeByte(-1);
-    else output.writeByte(serializer.getDbTypeID(this.getDatabaseType()));
-    ORID id = this.getUserRid();
+    if (this.databaseType == null) {
+      output.writeByte(-1);
+    } else {
+      output.writeByte(serializer.getDbTypeID(this.databaseType));
+    }
+    ORID id = this.userRid;
     if (id == null) {
       output.writeShort(-1);
       output.writeLong(-1);
@@ -124,15 +126,15 @@ public class OBinaryTokenPayloadImpl implements OBinaryTokenPayload {
       output.writeShort(id.getClusterId());
       output.writeLong(id.getClusterPosition());
     }
-    output.writeLong(this.getExpiry());
-    output.writeBoolean(this.isServerUser());
-    if (this.isServerUser()) {
-      OBinaryTokenSerializer.writeString(output, this.getUserName());
+    output.writeLong(this.expiry);
+    output.writeBoolean(this.serverUser);
+    if (this.serverUser) {
+      OBinaryTokenSerializer.writeString(output, this.userName);
     }
-    output.writeShort(this.getProtocolVersion());
-    OBinaryTokenSerializer.writeString(output, this.getSerializer());
-    OBinaryTokenSerializer.writeString(output, this.getDriverName());
-    OBinaryTokenSerializer.writeString(output, this.getDriverVersion());
+    output.writeShort(this.protocolVersion);
+    OBinaryTokenSerializer.writeString(output, this.serializer);
+    OBinaryTokenSerializer.writeString(output, this.driverName);
+    OBinaryTokenSerializer.writeString(output, this.driverVersion);
   }
 
   @Override

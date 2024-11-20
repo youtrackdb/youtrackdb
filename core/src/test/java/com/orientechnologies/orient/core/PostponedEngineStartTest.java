@@ -50,6 +50,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.Callable;
+import javax.annotation.Nonnull;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -290,7 +291,7 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public ORawBuffer readRecord(
+        public @Nonnull ORawBuffer readRecord(
             ORecordId iRid,
             boolean iIgnoreCache,
             boolean prefetchRecords,

@@ -26,7 +26,8 @@ import com.orientechnologies.orient.core.serialization.serializer.record.binary.
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
 
 /**
- * Base equality operator that not admit NULL in the LEFT and in the RIGHT operands. Abstract class.
+ * Base equality operator that not admit NULL in the LEFT and in the RIGHT operands. Abstract
+ * class.
  *
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
@@ -63,7 +64,9 @@ public abstract class OQueryOperatorEqualityNotNulls extends OQueryOperatorEqual
       final Object iRight,
       OCommandContext iContext,
       final ODocumentSerializer serializer) {
-    if (iLeft == null || iRight == null) return false;
+    if (iLeft == null || iRight == null) {
+      return false;
+    }
 
     return super.evaluateRecord(
         iRecord, iCurrentResult, iCondition, iLeft, iRight, iContext, serializer);

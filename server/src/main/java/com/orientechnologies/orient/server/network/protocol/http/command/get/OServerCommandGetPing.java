@@ -6,6 +6,7 @@ import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandAbstract;
 
 public class OServerCommandGetPing extends OServerCommandAbstract {
+
   private static final String[] NAMES = {"GET|ping"};
 
   @Override

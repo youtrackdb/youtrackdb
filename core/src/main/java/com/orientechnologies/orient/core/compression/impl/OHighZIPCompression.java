@@ -28,6 +28,7 @@ import java.util.zip.ZipOutputStream;
  * @author Luca Garulli
  */
 public class OHighZIPCompression extends OZIPCompression {
+
   public static final OHighZIPCompression INSTANCE = new OHighZIPCompression();
   public static final String NAME = "high-zip";
 

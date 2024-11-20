@@ -21,6 +21,7 @@ package com.orientechnologies.orient.core.record.impl;
 
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -28,7 +29,6 @@ import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
@@ -69,16 +69,18 @@ public class OEdgeDelegate implements OEdgeInternal {
       return vOut;
     }
 
-    final ODocument doc = getRecord();
-    if (doc == null) {
+    final ODocument doc;
+    try {
+      doc = getRecord();
+    } catch (ORecordNotFoundException rnf) {
       return null;
     }
 
     Object result = doc.getProperty(DIRECTION_OUT);
-    if (!(result instanceof OElement)) {
+    if (!(result instanceof OElement v)) {
       return null;
     }
-    OElement v = (OElement) result;
+
     if (!v.isVertex()) {
       return null; // TODO optional...?
     }
@@ -92,8 +94,10 @@ public class OEdgeDelegate implements OEdgeInternal {
       return vOut;
     }
 
-    final ODocument doc = getRecord();
-    if (doc == null) {
+    final ODocument doc;
+    try {
+      doc = getRecord();
+    } catch (ORecordNotFoundException rnf) {
       return null;
     }
 
@@ -124,8 +128,10 @@ public class OEdgeDelegate implements OEdgeInternal {
       return vIn;
     }
 
-    final ODocument doc = getRecord();
-    if (doc == null) {
+    final ODocument doc;
+    try {
+      doc = getRecord();
+    } catch (ORecordNotFoundException rnf) {
       return null;
     }
 
@@ -147,8 +153,11 @@ public class OEdgeDelegate implements OEdgeInternal {
       return vIn;
     }
 
-    final ODocument doc = getRecord();
-    if (doc == null) {
+    final ODocument doc;
+
+    try {
+      doc = getRecord();
+    } catch (ORecordNotFoundException rnf) {
       return null;
     }
 
@@ -186,7 +195,7 @@ public class OEdgeDelegate implements OEdgeInternal {
     OVertexInternal.removeOutgoingEdge(from, this);
     OVertexInternal.removeIncomingEdge(to, this);
 
-    var db = ((ORecordAbstract) from.getRecord()).getDatabase();
+    var db = element.getDatabase();
     this.element =
         db.newRegularEdge(
                 lightweightEdgeType == null ? "E" : lightweightEdgeType.getName(), from, to)

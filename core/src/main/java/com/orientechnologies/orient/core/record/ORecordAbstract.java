@@ -303,6 +303,7 @@ public abstract class ORecordAbstract implements ORecord {
     return getDatabase().load(recordId);
   }
 
+  @SuppressWarnings("MethodMayBeStatic")
   public ODatabaseSessionInternal getDatabase() {
     return ODatabaseRecordThreadLocal.instance().get();
   }
@@ -323,7 +324,6 @@ public abstract class ORecordAbstract implements ORecord {
 
   public void delete() {
     checkForBinding();
-    //noinspection resource
     getDatabase().delete(this);
   }
 

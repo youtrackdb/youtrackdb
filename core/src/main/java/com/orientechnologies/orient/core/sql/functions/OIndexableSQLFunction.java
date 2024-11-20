@@ -38,18 +38,19 @@ public interface OIndexableSQLFunction extends OSQLFunction {
    * returns all the entries belonging to the target that match the binary condition where this
    * function appears
    *
-   * @param target the query target
-   * @param operator the operator after the function, eg. in <code>
-   *     select from Foo where myFunction(name) &gt; 4</code> the operator is &gt;
+   * @param target     the query target
+   * @param operator   the operator after the function, eg. in <code> select from Foo where
+   *                   myFunction(name) &gt; 4</code> the operator is &gt;
    * @param rightValue the value that has to be compared to the function result, eg. in <code>
-   *     select from Foo where myFunction(name) &gt; 4</code> the right value is 4
-   * @param ctx the command context for this query
-   * @param args the function arguments, eg. in <code>select from Foo where myFunction(name) &gt; 4
-   *     </code> the arguments are [name]
+   *                   select from Foo where myFunction(name) &gt; 4</code> the right value is 4
+   * @param ctx        the command context for this query
+   * @param args       the function arguments, eg. in <code>select from Foo where myFunction(name)
+   *                   &gt; 4
+   *                   </code> the arguments are [name]
    * @return an iterable of records that match the condition; null means that the execution could
-   *     not be performed for some reason.
+   * not be performed for some reason.
    */
-  public Iterable<OIdentifiable> searchFromTarget(
+  Iterable<OIdentifiable> searchFromTarget(
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
@@ -59,18 +60,19 @@ public interface OIndexableSQLFunction extends OSQLFunction {
   /**
    * estimates the number of entries returned by searchFromTarget() with these parameters
    *
-   * @param target the query target
-   * @param operator the operator after the function, eg. in <code>
-   *     select from Foo where myFunction(name) &gt; 4</code> the operator is &gt;
+   * @param target     the query target
+   * @param operator   the operator after the function, eg. in <code> select from Foo where
+   *                   myFunction(name) &gt; 4</code> the operator is &gt;
    * @param rightValue the value that has to be compared to the function result, eg. in <code>
-   *     select from Foo where myFunction(name) &gt; 4</code> the right value is 4
-   * @param ctx the command context for this query
-   * @param args the function arguments, eg. in <code>select from Foo where myFunction(name) &gt; 4
-   *     </code> the arguments are [name]
+   *                   select from Foo where myFunction(name) &gt; 4</code> the right value is 4
+   * @param ctx        the command context for this query
+   * @param args       the function arguments, eg. in <code>select from Foo where myFunction(name)
+   *                   &gt; 4
+   *                   </code> the arguments are [name]
    * @return an estimantion of how many entries will be returned by searchFromTarget() with these
-   *     parameters, -1 if the estimation cannot be done
+   * parameters, -1 if the estimation cannot be done
    */
-  public long estimate(
+  long estimate(
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
@@ -81,17 +83,18 @@ public interface OIndexableSQLFunction extends OSQLFunction {
    * checks if the function can be used even on single records, not as an indexed function (even if
    * the index does not exist at all)
    *
-   * @param target the query target
-   * @param operator the operator after the function, eg. in <code>
-   *     select from Foo where myFunction(name) &gt; 4</code> the operator is &gt;
+   * @param target     the query target
+   * @param operator   the operator after the function, eg. in <code> select from Foo where
+   *                   myFunction(name) &gt; 4</code> the operator is &gt;
    * @param rightValue the value that has to be compared to the function result, eg. in <code>
-   *     select from Foo where myFunction(name) &gt; 4</code> the right value is 4
-   * @param ctx the command context for this query
-   * @param args the function arguments, eg. in <code>select from Foo where myFunction(name) &gt; 4
-   *     </code> the arguments are [name]
+   *                   select from Foo where myFunction(name) &gt; 4</code> the right value is 4
+   * @param ctx        the command context for this query
+   * @param args       the function arguments, eg. in <code>select from Foo where myFunction(name)
+   *                   &gt; 4
+   *                   </code> the arguments are [name]
    * @return true if the funciton can be calculated without the index. False otherwise
    */
-  public boolean canExecuteInline(
+  boolean canExecuteInline(
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
@@ -102,17 +105,18 @@ public interface OIndexableSQLFunction extends OSQLFunction {
    * Checks if this function can be used to fetch data from this target and with these arguments
    * (eg. if the index exists on this target and it's defined on these fields)
    *
-   * @param target the query target
-   * @param operator the operator after the function, eg. in <code>
-   *     select from Foo where myFunction(name) &gt; 4</code> the operator is &gt;
+   * @param target     the query target
+   * @param operator   the operator after the function, eg. in <code> select from Foo where
+   *                   myFunction(name) &gt; 4</code> the operator is &gt;
    * @param rightValue the value that has to be compared to the function result, eg. in <code>
-   *     select from Foo where myFunction(name) &gt; 4</code> the right value is 4
-   * @param ctx the command context for this query
-   * @param args the function arguments, eg. in <code>select from Foo where myFunction(name) &gt; 4
-   *     </code> the arguments are [name]
+   *                   select from Foo where myFunction(name) &gt; 4</code> the right value is 4
+   * @param ctx        the command context for this query
+   * @param args       the function arguments, eg. in <code>select from Foo where myFunction(name)
+   *                   &gt; 4
+   *                   </code> the arguments are [name]
    * @return True if the funciton can be used to fetch from an index. False otherwise
    */
-  public boolean allowsIndexedExecution(
+  boolean allowsIndexedExecution(
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,
@@ -123,18 +127,19 @@ public interface OIndexableSQLFunction extends OSQLFunction {
    * Checks if this function should be called even if the method {@link #searchFromTarget} is
    * executed.
    *
-   * @param target the query target
-   * @param operator the operator after the function, eg. in <code>
-   *     select from Foo where myFunction(name) &gt; 4</code> the operator is &gt;
+   * @param target     the query target
+   * @param operator   the operator after the function, eg. in <code> select from Foo where
+   *                   myFunction(name) &gt; 4</code> the operator is &gt;
    * @param rightValue the value that has to be compared to the function result, eg. in <code>
-   *     select from Foo where myFunction(name) &gt; 4</code> the right value is 4
-   * @param ctx the command context for this query
-   * @param args the function arguments, eg. in <code>select from Foo where myFunction(name) &gt; 4
-   *     </code> the arguments are [name]
+   *                   select from Foo where myFunction(name) &gt; 4</code> the right value is 4
+   * @param ctx        the command context for this query
+   * @param args       the function arguments, eg. in <code>select from Foo where myFunction(name)
+   *                   &gt; 4
+   *                   </code> the arguments are [name]
    * @return True if this function should be called even if the method {@link #searchFromTarget} is
-   *     executed. False otherwise
+   * executed. False otherwise
    */
-  public boolean shouldExecuteAfterSearch(
+  boolean shouldExecuteAfterSearch(
       OFromClause target,
       OBinaryCompareOperator operator,
       Object rightValue,

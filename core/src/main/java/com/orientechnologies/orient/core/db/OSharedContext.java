@@ -24,8 +24,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-/** Created by tglman on 15/06/16. */
+/**
+ * Created by tglman on 15/06/16.
+ */
 public abstract class OSharedContext extends OListenerManger<OMetadataUpdateListener> {
+
   protected static final OProfiler PROFILER = Orient.instance().getProfiler();
 
   protected OrientDBInternal orientDB;

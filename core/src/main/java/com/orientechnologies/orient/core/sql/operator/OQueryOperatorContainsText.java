@@ -37,6 +37,7 @@ import java.util.stream.Stream;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OQueryOperatorContainsText extends OQueryTargetOperator {
+
   private boolean ignoreCase = true;
 
   public OQueryOperatorContainsText(final boolean iIgnoreCase) {
@@ -53,7 +54,9 @@ public class OQueryOperatorContainsText extends OQueryTargetOperator {
     return "<left> CONTAINSTEXT[( noignorecase ] )] <right>";
   }
 
-  /** This is executed on non-indexed fields. */
+  /**
+   * This is executed on non-indexed fields.
+   */
   @Override
   public Object evaluateRecord(
       final OIdentifiable iRecord,
@@ -63,7 +66,9 @@ public class OQueryOperatorContainsText extends OQueryTargetOperator {
       final Object iRight,
       OCommandContext iContext,
       final ODocumentSerializer serializer) {
-    if (iLeft == null || iRight == null) return false;
+    if (iLeft == null || iRight == null) {
+      return false;
+    }
 
     return iLeft.toString().indexOf(iRight.toString()) > -1;
   }

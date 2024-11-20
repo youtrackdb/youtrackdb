@@ -41,6 +41,7 @@ import java.util.Map;
  */
 public class OCommandExecutorSQLTruncateCluster extends OCommandExecutorSQLAbstract
     implements OCommandDistributedReplicateRequest {
+
   public static final String KEYWORD_TRUNCATE = "TRUNCATE";
   public static final String KEYWORD_CLUSTER = "CLUSTER";
   private String clusterName;
@@ -61,21 +62,24 @@ public class OCommandExecutorSQLTruncateCluster extends OCommandExecutorSQLAbstr
 
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
-      if (pos == -1 || !word.toString().equals(KEYWORD_TRUNCATE))
+      if (pos == -1 || !word.toString().equals(KEYWORD_TRUNCATE)) {
         throw new OCommandSQLParsingException(
             "Keyword " + KEYWORD_TRUNCATE + " not found. Use " + getSyntax(), parserText, oldPos);
+      }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
-      if (pos == -1 || !word.toString().equals(KEYWORD_CLUSTER))
+      if (pos == -1 || !word.toString().equals(KEYWORD_CLUSTER)) {
         throw new OCommandSQLParsingException(
             "Keyword " + KEYWORD_CLUSTER + " not found. Use " + getSyntax(), parserText, oldPos);
+      }
 
       oldPos = pos;
       pos = nextWord(parserText, parserText, oldPos, word, true);
-      if (pos == -1)
+      if (pos == -1) {
         throw new OCommandSQLParsingException(
             "Expected cluster name. Use " + getSyntax(), parserText, oldPos);
+      }
 
       clusterName = decodeClusterName(word.toString());
 
@@ -88,9 +92,10 @@ public class OCommandExecutorSQLTruncateCluster extends OCommandExecutorSQLAbstr
       }
 
       final var database = getDatabase();
-      if (database.getClusterIdByName(clusterName) == -1)
+      if (database.getClusterIdByName(clusterName) == -1) {
         throw new OCommandSQLParsingException(
             "Cluster '" + clusterName + "' not found", parserText, oldPos);
+      }
     } finally {
       textRequest.setText(originalQuery);
     }
@@ -101,11 +106,14 @@ public class OCommandExecutorSQLTruncateCluster extends OCommandExecutorSQLAbstr
     return decodeClassName(s);
   }
 
-  /** Execute the command. */
+  /**
+   * Execute the command.
+   */
   public Object execute(final Map<Object, Object> iArgs) {
-    if (clusterName == null)
+    if (clusterName == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
+    }
 
     final ODatabaseSessionInternal database = getDatabase();
 

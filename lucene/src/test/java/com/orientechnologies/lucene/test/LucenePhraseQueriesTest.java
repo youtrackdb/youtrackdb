@@ -9,7 +9,9 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by frank on 18/11/2016. */
+/**
+ * Created by frank on 18/11/2016.
+ */
 public class LucenePhraseQueriesTest extends BaseLuceneTest {
 
   @Before

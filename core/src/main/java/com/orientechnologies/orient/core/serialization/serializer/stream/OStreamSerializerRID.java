@@ -27,6 +27,7 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWALCh
 import java.nio.ByteBuffer;
 
 public class OStreamSerializerRID implements OBinarySerializer<OIdentifiable> {
+
   public static final OStreamSerializerRID INSTANCE = new OStreamSerializerRID();
   public static final byte ID = 16;
 
@@ -76,14 +77,18 @@ public class OStreamSerializerRID implements OBinarySerializer<OIdentifiable> {
     return value;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void serializeInByteBufferObject(
       OIdentifiable object, ByteBuffer buffer, Object... hints) {
     OLinkSerializer.INSTANCE.serializeInByteBufferObject(object, buffer);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public OIdentifiable deserializeFromByteBufferObject(ByteBuffer buffer) {
     return OLinkSerializer.INSTANCE.deserializeFromByteBufferObject(buffer);
@@ -94,7 +99,9 @@ public class OStreamSerializerRID implements OBinarySerializer<OIdentifiable> {
     return OLinkSerializer.INSTANCE.deserializeFromByteBufferObject(offset, buffer);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getObjectSizeInByteBuffer(ByteBuffer buffer) {
     return OLinkSerializer.INSTANCE.getObjectSizeInByteBuffer(buffer);
@@ -105,14 +112,18 @@ public class OStreamSerializerRID implements OBinarySerializer<OIdentifiable> {
     return OLinkSerializer.INSTANCE.getObjectSizeInByteBuffer(offset, buffer);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public OIdentifiable deserializeFromByteBufferObject(
       ByteBuffer buffer, OWALChanges walChanges, int offset) {
     return OLinkSerializer.INSTANCE.deserializeFromByteBufferObject(buffer, walChanges, offset);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getObjectSizeInByteBuffer(ByteBuffer buffer, OWALChanges walChanges, int offset) {
     return OLinkSerializer.INSTANCE.getObjectSizeInByteBuffer(buffer, walChanges, offset);

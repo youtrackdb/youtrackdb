@@ -21,12 +21,14 @@ import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 import com.orientechnologies.spatial.shape.OShapeFactory;
 import org.locationtech.spatial4j.shape.Shape;
 
-/** Created by Enrico Risa on 06/08/15. */
+/**
+ * Created by Enrico Risa on 06/08/15.
+ */
 public class OSTEnvelopFunction extends OSQLFunctionAbstract {
 
   public static final String NAME = "ST_Envelope";
 
-  private OShapeFactory factory = OShapeFactory.INSTANCE;
+  private final OShapeFactory factory = OShapeFactory.INSTANCE;
 
   public OSTEnvelopFunction() {
     super(NAME, 1, 1);

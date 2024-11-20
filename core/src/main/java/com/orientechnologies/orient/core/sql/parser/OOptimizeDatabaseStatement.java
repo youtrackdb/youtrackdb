@@ -15,12 +15,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class OOptimizeDatabaseStatement extends OSimpleExecStatement {
 
   protected List<OCommandLineOption> options = new ArrayList<OCommandLineOption>();
-  private int batch = 1000;
+  private final int batch = 1000;
 
   public OOptimizeDatabaseStatement(int id) {
     super(id);
@@ -187,11 +188,7 @@ public class OOptimizeDatabaseStatement extends OSimpleExecStatement {
 
     OOptimizeDatabaseStatement that = (OOptimizeDatabaseStatement) o;
 
-    if (options != null ? !options.equals(that.options) : that.options != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(options, that.options);
   }
 
   @Override

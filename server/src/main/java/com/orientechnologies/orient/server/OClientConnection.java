@@ -49,21 +49,22 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class OClientConnection {
+
   private final int id;
   private final long since;
-  private Set<ONetworkProtocol> protocols =
+  private final Set<ONetworkProtocol> protocols =
       Collections.newSetFromMap(new WeakHashMap<ONetworkProtocol, Boolean>());
   private volatile ONetworkProtocol protocol;
   private volatile ODatabaseSessionInternal database;
   private volatile OSecurityUser serverUser;
   private ONetworkProtocolData data = new ONetworkProtocolData();
-  private OClientConnectionStats stats = new OClientConnectionStats();
-  private Lock lock = new ReentrantLock();
+  private final OClientConnectionStats stats = new OClientConnectionStats();
+  private final Lock lock = new ReentrantLock();
   private Boolean tokenBased;
   private byte[] tokenBytes;
   private OParsedToken token;
   private boolean disconnectOnAfter;
-  private OBinaryRequestExecutor executor;
+  private final OBinaryRequestExecutor executor;
 
   public OClientConnection(final int id, final ONetworkProtocol protocol) {
     this.id = id;
@@ -74,17 +75,17 @@ public class OClientConnection {
   }
 
   public void close() {
-    if (getDatabase() != null) {
-      if (!getDatabase().isClosed()) {
-        getDatabase().activateOnCurrentThread();
+    if (database != null) {
+      if (!database.isClosed()) {
+        database.activateOnCurrentThread();
         try {
-          getDatabase().close();
+          database.close();
         } catch (Exception e) {
           // IGNORE IT (ALREADY CLOSED?)
         }
       }
 
-      setDatabase(null);
+      database = null;
     }
   }
 
@@ -96,7 +97,9 @@ public class OClientConnection {
     lock.lock();
   }
 
-  /** Releases an acquired connection. */
+  /**
+   * Releases an acquired connection.
+   */
   public void release() {
     lock.unlock();
   }
@@ -104,31 +107,27 @@ public class OClientConnection {
   @Override
   public String toString() {
     Object address;
-    if (getProtocol() != null
-        && getProtocol().getChannel() != null
-        && getProtocol().getChannel().socket != null) {
-      address = getProtocol().getChannel().socket.getRemoteSocketAddress();
+    if (protocol != null && protocol.getChannel() != null && protocol.getChannel().socket != null) {
+      address = protocol.getChannel().socket.getRemoteSocketAddress();
     } else {
       address = "?";
     }
-    return "OClientConnection [id="
-        + getId()
-        + ", source="
-        + address
-        + ", since="
-        + getSince()
-        + "]";
+    return "OClientConnection [id=" + id + ", source=" + address + ", since=" + since + "]";
   }
 
-  /** Returns the remote network address in the format <ip>:<port>. */
+  /**
+   * Returns the remote network address in the format <ip>:<port>.
+   */
   public String getRemoteAddress() {
     Socket socket = null;
-    if (getProtocol() != null) {
-      socket = getProtocol().getChannel().socket;
+    if (protocol != null) {
+      socket = protocol.getChannel().socket;
     } else {
       for (ONetworkProtocol protocol : this.protocols) {
         socket = protocol.getChannel().socket;
-        if (socket != null) break;
+        if (socket != null) {
+          break;
+        }
       }
     }
 
@@ -141,21 +140,26 @@ public class OClientConnection {
 
   @Override
   public int hashCode() {
-    return getId();
+    return id;
   }
 
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
     final OClientConnection other = (OClientConnection) obj;
-    if (getId() != other.getId()) return false;
-    return true;
+    return id == other.id;
   }
 
   public OChannelBinary getChannel() {
-    return (OChannelBinary) getProtocol().getChannel();
+    return (OChannelBinary) protocol.getChannel();
   }
 
   public ONetworkProtocol getProtocol() {
@@ -169,14 +173,17 @@ public class OClientConnection {
   public void validateSession(
       byte[] tokenFromNetwork, OTokenHandler handler, ONetworkProtocolBinary protocol) {
     if (tokenFromNetwork == null || tokenFromNetwork.length == 0) {
-      if (!protocols.contains(protocol))
+      if (!protocols.contains(protocol)) {
         throw new OTokenSecurityException("No valid session found, provide a token");
+      }
     } else {
       // IF the byte from the network are the same of the one i have a don't check them
       if (tokenBytes != null && tokenBytes.length > 0) {
         if (Arrays.equals(
             tokenBytes, tokenFromNetwork)) // SAME SESSION AND TOKEN NO NEED CHECK VALIDITY
-        return;
+        {
+          return;
+        }
       }
 
       OParsedToken token = null;
@@ -202,7 +209,9 @@ public class OClientConnection {
       if (tokenBased == null) {
         tokenBased = Boolean.TRUE;
       }
-      if (!Arrays.equals(this.tokenBytes, tokenFromNetwork)) cleanSession();
+      if (!Arrays.equals(this.tokenBytes, tokenFromNetwork)) {
+        cleanSession();
+      }
       this.tokenBytes = tokenFromNetwork;
       this.token = token;
       protocols.add(protocol);
@@ -219,10 +228,13 @@ public class OClientConnection {
   }
 
   public void endOperation() {
-    if (database != null)
+    if (database != null) {
       if (!database.isClosed()
           && !database.getTransaction().isActive()
-          && database.getLocalCache() != null) database.getLocalCache().clear();
+          && database.getLocalCache() != null) {
+        database.getLocalCache().clear();
+      }
+    }
 
     stats.lastCommandExecutionTime = System.currentTimeMillis() - stats.lastCommandReceived;
     stats.totalCommandExecutionTime += stats.lastCommandExecutionTime;
@@ -236,14 +248,16 @@ public class OClientConnection {
 
   public void init(final OServer server) {
     if (database == null) {
-      setData(server.getTokenHandler().getProtocolDataFromToken(this, token.getToken()));
+      data = server.getTokenHandler().getProtocolDataFromToken(this, token.getToken());
 
-      if (data == null) throw new OTokenSecurityException("missing in token data");
+      if (data == null) {
+        throw new OTokenSecurityException("missing in token data");
+      }
 
       final String db = token.getToken().getDatabase();
       final String type = token.getToken().getDatabaseType();
       if (db != null && type != null) {
-        setDatabase(server.openDatabase(db, token));
+        database = server.openDatabase(db, token);
       }
     }
   }

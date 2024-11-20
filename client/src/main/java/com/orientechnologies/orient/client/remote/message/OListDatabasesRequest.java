@@ -11,6 +11,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OListDatabasesRequest implements OBinaryRequest<OListDatabasesResponse> {
+
   @Override
   public void write(OChannelDataOutput network, OStorageRemoteSession session) throws IOException {}
 

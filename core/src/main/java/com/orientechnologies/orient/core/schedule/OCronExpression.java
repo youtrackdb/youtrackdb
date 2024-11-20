@@ -199,8 +199,8 @@ public final class OCronExpression implements Serializable, Cloneable {
   private static final int ALL_SPEC = ALL_SPEC_INT;
   private static final int NO_SPEC = NO_SPEC_INT;
 
-  protected static final Object2IntOpenHashMap<String> monthMap = new Object2IntOpenHashMap<>(20);
-  protected static final Object2IntOpenHashMap<String> dayMap = new Object2IntOpenHashMap<>(60);
+  private static final Object2IntOpenHashMap<String> monthMap = new Object2IntOpenHashMap<>(20);
+  private static final Object2IntOpenHashMap<String> dayMap = new Object2IntOpenHashMap<>(60);
 
   static {
     monthMap.defaultReturnValue(-1);
@@ -247,6 +247,7 @@ public final class OCronExpression implements Serializable, Cloneable {
   public static final int MAX_YEAR = Calendar.getInstance().get(Calendar.YEAR) + 100;
 
   private class ValueSet {
+
     public int value;
     public int pos;
   }
@@ -255,9 +256,9 @@ public final class OCronExpression implements Serializable, Cloneable {
    * Constructs a new <CODE>CronExpression</CODE> based on the specified parameter.
    *
    * @param cronExpression String representation of the cron expression the new object should
-   *     represent
+   *                       represent
    * @throws java.text.ParseException if the string expression cannot be parsed into a valid <CODE>
-   *     CronExpression</CODE>
+   *                                  CronExpression</CODE>
    */
   public OCronExpression(String cronExpression) throws ParseException {
     if (cronExpression == null) {
@@ -279,14 +280,14 @@ public final class OCronExpression implements Serializable, Cloneable {
      * We don't call the other constructor here since we need to swallow the ParseException. We also elide some of the sanity
      * checking as it is not logically trippable.
      */
-    this.cronExpression = expression.getCronExpression();
+    this.cronExpression = expression.cronExpression;
     try {
       buildExpression(cronExpression);
     } catch (ParseException ex) {
       throw new AssertionError(ex);
     }
     if (expression.getTimeZone() != null) {
-      setTimeZone((TimeZone) expression.getTimeZone().clone());
+      timeZone = (TimeZone) expression.getTimeZone().clone();
     }
   }
 
@@ -349,7 +350,9 @@ public final class OCronExpression implements Serializable, Cloneable {
     // the second immediately following it.
     while (difference == 1000) {
       newDate = getTimeAfter(lastDate);
-      if (newDate == null) break;
+      if (newDate == null) {
+        break;
+      }
 
       difference = newDate.getTime() - lastDate.getTime();
 
@@ -361,7 +364,9 @@ public final class OCronExpression implements Serializable, Cloneable {
     return new Date(lastDate.getTime() + 1000);
   }
 
-  /** Returns the time zone for which this <code>CronExpression</code> will be resolved. */
+  /**
+   * Returns the time zone for which this <code>CronExpression</code> will be resolved.
+   */
   public TimeZone getTimeZone() {
     if (timeZone == null) {
       timeZone = TimeZone.getDefault();
@@ -370,7 +375,9 @@ public final class OCronExpression implements Serializable, Cloneable {
     return timeZone;
   }
 
-  /** Sets the time zone for which this <code>CronExpression</code> will be resolved. */
+  /**
+   * Sets the time zone for which this <code>CronExpression</code> will be resolved.
+   */
   public void setTimeZone(TimeZone timeZone) {
     this.timeZone = timeZone;
   }
@@ -389,7 +396,8 @@ public final class OCronExpression implements Serializable, Cloneable {
   //
   // Expression Parsing Functions
   //
-  ////////////////////////////////////////////////////////////////////////////
+
+  /// /////////////////////////////////////////////////////////////////////////
 
   synchronized void buildExpression(String expression) throws ParseException {
     try {
@@ -485,11 +493,11 @@ public final class OCronExpression implements Serializable, Cloneable {
       OLogManager.instance().error(this, "Exception is suppressed, original exception is ", e);
 
       //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
-      throw new ParseException("Illegal cron expression format (" + e.toString() + ")", 0);
+      throw new ParseException("Illegal cron expression format (" + e + ")", 0);
     }
   }
 
-  protected int storeExpressionVals(int pos, String s, int type) throws ParseException {
+  private int storeExpressionVals(int pos, String s, int type) throws ParseException {
 
     int incr = 0;
     int i = skipWhiteSpace(pos, s);
@@ -638,8 +646,9 @@ public final class OCronExpression implements Serializable, Cloneable {
         if (c == '-') {
           ValueSet vs = getValue(0, s, i + 1);
           lastdayOffset = vs.value;
-          if (lastdayOffset > 30)
+          if (lastdayOffset > 30) {
             throw new ParseException("Offset from last day must be <= 30", i + 1);
+          }
           i = vs.pos;
         }
         if (s.length() > i) {
@@ -673,7 +682,7 @@ public final class OCronExpression implements Serializable, Cloneable {
     return i;
   }
 
-  protected int checkNext(int pos, String s, int val, int type) throws ParseException {
+  private int checkNext(int pos, String s, int val, int type) throws ParseException {
 
     int end = -1;
     int i = pos;
@@ -687,8 +696,9 @@ public final class OCronExpression implements Serializable, Cloneable {
 
     if (c == 'L') {
       if (type == DAY_OF_WEEK) {
-        if (val < 1 || val > 7)
+        if (val < 1 || val > 7) {
           throw new ParseException("Day-of-Week values must be between 1 and 7", -1);
+        }
         lastdayOfWeek = true;
       } else {
         throw new ParseException("'L' option is not valid here. (pos=" + i + ")", i);
@@ -705,11 +715,12 @@ public final class OCronExpression implements Serializable, Cloneable {
       } else {
         throw new ParseException("'W' option is not valid here. (pos=" + i + ")", i);
       }
-      if (val > 31)
+      if (val > 31) {
         throw new ParseException(
             "The 'W' option does not make sense with values larger than 31 (max number of days in a"
                 + " month)",
             i);
+      }
       IntRBTreeSet set = getSet(type);
       set.add(val);
       i++;
@@ -811,43 +822,43 @@ public final class OCronExpression implements Serializable, Cloneable {
   }
 
   public String getExpressionSummary() {
-    StringBuilder buf = new StringBuilder();
 
-    buf.append("seconds: ");
-    buf.append(getExpressionSetSummary(seconds));
-    buf.append("\n");
-    buf.append("minutes: ");
-    buf.append(getExpressionSetSummary(minutes));
-    buf.append("\n");
-    buf.append("hours: ");
-    buf.append(getExpressionSetSummary(hours));
-    buf.append("\n");
-    buf.append("daysOfMonth: ");
-    buf.append(getExpressionSetSummary(daysOfMonth));
-    buf.append("\n");
-    buf.append("months: ");
-    buf.append(getExpressionSetSummary(months));
-    buf.append("\n");
-    buf.append("daysOfWeek: ");
-    buf.append(getExpressionSetSummary(daysOfWeek));
-    buf.append("\n");
-    buf.append("lastdayOfWeek: ");
-    buf.append(lastdayOfWeek);
-    buf.append("\n");
-    buf.append("nearestWeekday: ");
-    buf.append(nearestWeekday);
-    buf.append("\n");
-    buf.append("NthDayOfWeek: ");
-    buf.append(nthdayOfWeek);
-    buf.append("\n");
-    buf.append("lastdayOfMonth: ");
-    buf.append(lastdayOfMonth);
-    buf.append("\n");
-    buf.append("years: ");
-    buf.append(getExpressionSetSummary(years));
-    buf.append("\n");
+    String buf =
+        "seconds: "
+            + getExpressionSetSummary(seconds)
+            + "\n"
+            + "minutes: "
+            + getExpressionSetSummary(minutes)
+            + "\n"
+            + "hours: "
+            + getExpressionSetSummary(hours)
+            + "\n"
+            + "daysOfMonth: "
+            + getExpressionSetSummary(daysOfMonth)
+            + "\n"
+            + "months: "
+            + getExpressionSetSummary(months)
+            + "\n"
+            + "daysOfWeek: "
+            + getExpressionSetSummary(daysOfWeek)
+            + "\n"
+            + "lastdayOfWeek: "
+            + lastdayOfWeek
+            + "\n"
+            + "nearestWeekday: "
+            + nearestWeekday
+            + "\n"
+            + "NthDayOfWeek: "
+            + nthdayOfWeek
+            + "\n"
+            + "lastdayOfMonth: "
+            + lastdayOfMonth
+            + "\n"
+            + "years: "
+            + getExpressionSetSummary(years)
+            + "\n";
 
-    return buf.toString();
+    return buf;
   }
 
   private String getExpressionSetSummary(IntRBTreeSet set) {
@@ -875,18 +886,14 @@ public final class OCronExpression implements Serializable, Cloneable {
     return buf.toString();
   }
 
-  protected int skipWhiteSpace(int i, String s) {
-    for (; i < s.length() && (s.charAt(i) == ' ' || s.charAt(i) == '\t'); i++) {
-      ;
-    }
+  private int skipWhiteSpace(int i, String s) {
+    for (; i < s.length() && (s.charAt(i) == ' ' || s.charAt(i) == '\t'); i++) {}
 
     return i;
   }
 
   private int findNextWhiteSpace(int i, String s) {
-    for (; i < s.length() && (s.charAt(i) != ' ' || s.charAt(i) != '\t'); i++) {
-      ;
-    }
+    for (; i < s.length() && (s.charAt(i) != ' ' || s.charAt(i) != '\t'); i++) {}
 
     return i;
   }
@@ -1041,7 +1048,7 @@ public final class OCronExpression implements Serializable, Cloneable {
     };
   }
 
-  protected ValueSet getValue(int v, String s, int i) {
+  private ValueSet getValue(int v, String s, int i) {
     char c = s.charAt(i);
     StringBuilder s1 = new StringBuilder(String.valueOf(v));
     while (c >= '0' && c <= '9') {
@@ -1059,17 +1066,17 @@ public final class OCronExpression implements Serializable, Cloneable {
     return val;
   }
 
-  protected int getNumericValue(String s, int i) {
+  private int getNumericValue(String s, int i) {
     int endOfVal = findNextWhiteSpace(i, s);
     String val = s.substring(i, endOfVal);
     return Integer.parseInt(val);
   }
 
-  protected int getMonthNumber(String s) {
+  private int getMonthNumber(String s) {
     return monthMap.getInt(s);
   }
 
-  protected int getDayOfWeekNumber(String s) {
+  private int getDayOfWeekNumber(String s) {
     return dayMap.getInt(s);
   }
 
@@ -1077,7 +1084,8 @@ public final class OCronExpression implements Serializable, Cloneable {
   //
   // Computation Functions
   //
-  ////////////////////////////////////////////////////////////////////////////
+
+  /// /////////////////////////////////////////////////////////////////////////
 
   public synchronized Date getTimeAfter(Date afterTime) {
 
@@ -1338,10 +1346,7 @@ public final class OCronExpression implements Serializable, Cloneable {
             daysToAdd = dow + (7 - cDow);
           }
 
-          boolean dayShifted = false;
-          if (daysToAdd > 0) {
-            dayShifted = true;
-          }
+          boolean dayShifted = daysToAdd > 0;
 
           day += daysToAdd;
           int weekOfMonth = day / 7;
@@ -1485,10 +1490,10 @@ public final class OCronExpression implements Serializable, Cloneable {
    * Advance the calendar to the particular hour paying particular attention to daylight saving
    * problems.
    *
-   * @param cal the calendar to operate on
+   * @param cal  the calendar to operate on
    * @param hour the hour to set
    */
-  protected void setCalendarHour(Calendar cal, int hour) {
+  private void setCalendarHour(Calendar cal, int hour) {
     cal.set(java.util.Calendar.HOUR_OF_DAY, hour);
     if (cal.get(java.util.Calendar.HOUR_OF_DAY) != hour && hour != 24) {
       cal.set(java.util.Calendar.HOUR_OF_DAY, hour + 1);
@@ -1512,11 +1517,11 @@ public final class OCronExpression implements Serializable, Cloneable {
     return null;
   }
 
-  protected boolean isLeapYear(int year) {
+  private boolean isLeapYear(int year) {
     return ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0));
   }
 
-  protected int getLastDayOfMonth(int monthNum, int year) {
+  private int getLastDayOfMonth(int monthNum, int year) {
 
     switch (monthNum) {
       case 1:

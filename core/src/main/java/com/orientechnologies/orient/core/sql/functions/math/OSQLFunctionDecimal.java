@@ -31,6 +31,7 @@ import java.util.List;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionDecimal extends OSQLFunctionMathAbstract {
+
   public static final String NAME = "decimal";
   private Object result;
 
@@ -51,20 +52,25 @@ public class OSQLFunctionDecimal extends OSQLFunctionMathAbstract {
 
     if (inputValue instanceof BigDecimal) {
       result = inputValue;
+      return result;
     }
     if (inputValue instanceof BigInteger) {
       result = new BigDecimal((BigInteger) inputValue);
+      return result;
     }
     if (inputValue instanceof Integer) {
-      result = new BigDecimal(((Integer) inputValue));
+      result = BigDecimal.valueOf(((Integer) inputValue));
+      return result;
     }
 
     if (inputValue instanceof Long) {
       result = new BigDecimal(((Long) inputValue));
+      return result;
     }
 
     if (inputValue instanceof Number) {
-      result = new BigDecimal(((Number) inputValue).doubleValue());
+      result = BigDecimal.valueOf(((Number) inputValue).doubleValue());
+      return result;
     }
 
     try {
@@ -75,7 +81,7 @@ public class OSQLFunctionDecimal extends OSQLFunctionMathAbstract {
     } catch (Exception ignore) {
       result = null;
     }
-    return getResult();
+    return result;
   }
 
   public boolean aggregateResults() {

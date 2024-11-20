@@ -417,7 +417,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
    */
   public ODatabaseSession setStatus(final STATUS status) {
     checkIfActive();
-    setStatusInternal(status);
+    this.status = status;
     return this;
   }
 
@@ -578,8 +578,10 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     }
 
     try {
-      final ORecord rec = id.getRecord();
-      if (rec == null) {
+      final ORecord rec;
+      try {
+        rec = id.getRecord();
+      } catch (ORecordNotFoundException e) {
         return ORecordHook.RESULT.RECORD_NOT_CHANGED;
       }
 
@@ -892,9 +894,6 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     }
 
     var result = executeReadRecord((ORecordId) rid);
-    if (result == null) {
-      throw new ORecordNotFoundException(rid);
-    }
 
     assert !result.isUnloaded();
     return (T) result;
@@ -919,7 +918,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         throw new ORecordNotFoundException(rid);
       }
 
-      var cachedRecord = getLocalCache().findRecord(rid);
+      var cachedRecord = localCache.findRecord(rid);
       if (record == null) {
         record = cachedRecord;
       }
@@ -934,7 +933,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
           ODocumentInternal.checkClass((ODocument) record, this);
         }
 
-        getLocalCache().updateRecord(record);
+        localCache.updateRecord(record);
 
         assert !record.isUnloaded();
         return (RET) record;
@@ -972,7 +971,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
         throw new ODatabaseException("Record type is different from the one in the database");
       }
 
-      ORecordInternal.setRecordSerializer(record, getSerializer());
+      ORecordInternal.setRecordSerializer(record, serializer);
       ORecordInternal.fill(record, rid, recordBuffer.version, recordBuffer.buffer, false, this);
 
       if (record instanceof ODocument) {
@@ -986,7 +985,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
       ORecordInternal.fromStream(record, recordBuffer.buffer, this);
       afterReadOperations(record);
 
-      getLocalCache().updateRecord(record);
+      localCache.updateRecord(record);
       assert !record.isUnloaded();
 
       return (RET) record;
@@ -1238,14 +1237,16 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
           inVertex.getIdentity(), "The vertex " + inVertex.getIdentity() + " has been deleted");
     }
 
-    outDocument = currentVertex.getRecord();
-    if (outDocument == null) {
+    try {
+      outDocument = currentVertex.getRecord();
+    } catch (ORecordNotFoundException e) {
       throw new IllegalArgumentException(
           "source vertex is invalid (rid=" + currentVertex.getIdentity() + ")");
     }
 
-    inDocument = inVertex.getRecord();
-    if (inDocument == null) {
+    try {
+      inDocument = inVertex.getRecord();
+    } catch (ORecordNotFoundException e) {
       throw new IllegalArgumentException(
           "source vertex is invalid (rid=" + inVertex.getIdentity() + ")");
     }
@@ -1296,7 +1297,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
 
   private boolean checkDeletedInTx(OVertex currentVertex) {
     ORID id;
-    if (currentVertex.getRecord() != null) {
+    if (!currentVertex.getRecord().exists()) {
       id = currentVertex.getRecord().getIdentity();
     } else {
       return false;
@@ -1618,7 +1619,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
 
       try {
         // ROLLBACK TX AT DB LEVEL
-        ((OTransactionAbstract) currentTx).internalRollback();
+        currentTx.internalRollback();
       } catch (Exception re) {
         OLogManager.instance()
             .error(
@@ -1897,7 +1898,7 @@ public abstract class ODatabaseDocumentAbstract extends OListenerManger<ODatabas
     if (currentDatabase != this) {
       throw new IllegalStateException(
           "The current database instance ("
-              + toString()
+              + this
               + ") is not active on the current thread ("
               + Thread.currentThread()
               + "). Current active database is: "

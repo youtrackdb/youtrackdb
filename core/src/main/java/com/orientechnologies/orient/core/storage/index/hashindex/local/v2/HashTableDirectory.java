@@ -33,6 +33,7 @@ import java.io.IOException;
  * @since 5/14/14
  */
 public class HashTableDirectory extends ODurableComponent {
+
   static final int ITEM_SIZE = OLongSerializer.LONG_SIZE;
 
   private static final int LEVEL_SIZE = LocalHashTableV2.MAX_LEVEL_SIZE;

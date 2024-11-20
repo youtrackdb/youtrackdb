@@ -6,7 +6,9 @@ import static org.junit.Assert.assertNotNull;
 import com.orientechnologies.orient.core.id.ORecordId;
 import org.junit.Test;
 
-/** Created by tglman on 22/02/17. */
+/**
+ * Created by tglman on 22/02/17.
+ */
 public class RecordNotFoundExceptionTest {
 
   @Test

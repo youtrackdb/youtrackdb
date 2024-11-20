@@ -31,14 +31,15 @@ import java.util.Set;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OSecurity {
-  static final String RESTRICTED_CLASSNAME = "ORestricted";
-  @Deprecated static final String IDENTITY_CLASSNAME = OIdentity.CLASS_NAME;
-  static final String ALLOW_ALL_FIELD = "_allow";
-  static final String ALLOW_READ_FIELD = "_allowRead";
-  static final String ALLOW_UPDATE_FIELD = "_allowUpdate";
-  static final String ALLOW_DELETE_FIELD = "_allowDelete";
-  static final String ONCREATE_IDENTITY_TYPE = "onCreate.identityType";
-  static final String ONCREATE_FIELD = "onCreate.fields";
+
+  String RESTRICTED_CLASSNAME = "ORestricted";
+  @Deprecated String IDENTITY_CLASSNAME = OIdentity.CLASS_NAME;
+  String ALLOW_ALL_FIELD = "_allow";
+  String ALLOW_READ_FIELD = "_allowRead";
+  String ALLOW_UPDATE_FIELD = "_allowUpdate";
+  String ALLOW_DELETE_FIELD = "_allowDelete";
+  String ONCREATE_IDENTITY_TYPE = "onCreate.identityType";
+  String ONCREATE_FIELD = "onCreate.fields";
 
   @Deprecated
   boolean isAllowed(final Set<OIdentifiable> iAllowAll, final Set<OIdentifiable> iAllowOperation);
@@ -46,16 +47,15 @@ public interface OSecurity {
   /**
    * Record level security: allows a user to access to a record.
    *
-   * @param iDocument ODocument instance to give access
+   * @param iDocument      ODocument instance to give access
    * @param iOperationType Operation type to use based on the permission to allow:
-   *     <ul>
-   *       <li>ALLOW_ALL, to provide full access (RUD)
-   *       <li>ALLOW_READ, to provide read access
-   *       <li>ALLOW_UPDATE, to provide update access
-   *       <li>ALLOW_DELETE, to provide delete access
-   *     </ul>
-   *
-   * @param iUserName User name to provide the access
+   *                       <ul>
+   *                         <li>ALLOW_ALL, to provide full access (RUD)
+   *                         <li>ALLOW_READ, to provide read access
+   *                         <li>ALLOW_UPDATE, to provide update access
+   *                         <li>ALLOW_DELETE, to provide delete access
+   *                       </ul>
+   * @param iUserName      User name to provide the access
    * @return The OIdentity instance allowed
    */
   @Deprecated
@@ -65,16 +65,15 @@ public interface OSecurity {
   /**
    * Record level security: allows a role to access to a record.
    *
-   * @param iDocument ODocument instance to give access
+   * @param iDocument      ODocument instance to give access
    * @param iOperationType Operation type to use based on the permission to allow:
-   *     <ul>
-   *       <li>ALLOW_ALL, to provide full access (RUD)
-   *       <li>ALLOW_READ, to provide read access
-   *       <li>ALLOW_UPDATE, to provide update access
-   *       <li>ALLOW_DELETE, to provide delete access
-   *     </ul>
-   *
-   * @param iRoleName Role name to provide the access
+   *                       <ul>
+   *                         <li>ALLOW_ALL, to provide full access (RUD)
+   *                         <li>ALLOW_READ, to provide read access
+   *                         <li>ALLOW_UPDATE, to provide update access
+   *                         <li>ALLOW_DELETE, to provide delete access
+   *                       </ul>
+   * @param iRoleName      Role name to provide the access
    * @return The OIdentity instance allowed
    */
   @Deprecated
@@ -84,16 +83,15 @@ public interface OSecurity {
   /**
    * Record level security: deny a user to access to a record.
    *
-   * @param iDocument ODocument instance to give access
+   * @param iDocument      ODocument instance to give access
    * @param iOperationType Operation type to use based on the permission to deny:
-   *     <ul>
-   *       <li>ALLOW_ALL, to provide full access (RUD)
-   *       <li>ALLOW_READ, to provide read access
-   *       <li>ALLOW_UPDATE, to provide update access
-   *       <li>ALLOW_DELETE, to provide delete access
-   *     </ul>
-   *
-   * @param iUserName User name to deny the access
+   *                       <ul>
+   *                         <li>ALLOW_ALL, to provide full access (RUD)
+   *                         <li>ALLOW_READ, to provide read access
+   *                         <li>ALLOW_UPDATE, to provide update access
+   *                         <li>ALLOW_DELETE, to provide delete access
+   *                       </ul>
+   * @param iUserName      User name to deny the access
    * @return The OIdentity instance denied
    */
   @Deprecated
@@ -103,16 +101,15 @@ public interface OSecurity {
   /**
    * Record level security: deny a role to access to a record.
    *
-   * @param iDocument ODocument instance to give access
+   * @param iDocument      ODocument instance to give access
    * @param iOperationType Operation type to use based on the permission to deny:
-   *     <ul>
-   *       <li>ALLOW_ALL, to provide full access (RUD)
-   *       <li>ALLOW_READ, to provide read access
-   *       <li>ALLOW_UPDATE, to provide update access
-   *       <li>ALLOW_DELETE, to provide delete access
-   *     </ul>
-   *
-   * @param iRoleName Role name to deny the access
+   *                       <ul>
+   *                         <li>ALLOW_ALL, to provide full access (RUD)
+   *                         <li>ALLOW_READ, to provide read access
+   *                         <li>ALLOW_UPDATE, to provide update access
+   *                         <li>ALLOW_DELETE, to provide delete access
+   *                       </ul>
+   * @param iRoleName      Role name to deny the access
    * @return The OIdentity instance denied
    */
   @Deprecated

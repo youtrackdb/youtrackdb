@@ -50,8 +50,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.Assert;
 
-/** Insert records concurrently against the cluster */
+/**
+ * Insert records concurrently against the cluster
+ */
 public abstract class AbstractServerClusterInsertTest extends AbstractDistributedWriteTest {
+
   protected volatile int delayWriter = 0;
   protected volatile int delayReader = 1000;
   protected static int writerCount = 5;
@@ -65,6 +68,7 @@ public abstract class AbstractServerClusterInsertTest extends AbstractDistribute
   protected String indexName = "Person.name";
 
   protected class BaseWriter implements Callable<Void> {
+
     protected final ServerRun serverRun;
     protected final int serverId;
     protected final int threadId;
@@ -90,7 +94,9 @@ public abstract class AbstractServerClusterInsertTest extends AbstractDistribute
 
           int retry;
           for (retry = 0; retry < maxRetries; retry++) {
-            if (useTransactions) database.begin();
+            if (useTransactions) {
+              database.begin();
+            }
 
             try {
               final ODocument person = createRecord(database, id, uid);
@@ -101,9 +107,11 @@ public abstract class AbstractServerClusterInsertTest extends AbstractDistribute
                 checkIndex(database, (String) person.field("name"), person.getIdentity());
               }
 
-              if (useTransactions) database.commit();
+              if (useTransactions) {
+                database.commit();
+              }
 
-              if ((i + 1) % 100 == 0)
+              if ((i + 1) % 100 == 0) {
                 System.out.println(
                     "\nWriter "
                         + database.getURL()
@@ -112,8 +120,11 @@ public abstract class AbstractServerClusterInsertTest extends AbstractDistribute
                         + "/"
                         + count
                         + " records so far");
+              }
 
-              if (delayWriter > 0) Thread.sleep(delayWriter);
+              if (delayWriter > 0) {
+                Thread.sleep(delayWriter);
+              }
 
               // OK
               break;
@@ -128,7 +139,9 @@ public abstract class AbstractServerClusterInsertTest extends AbstractDistribute
             } catch (ONeedRetryException e) {
               System.out.println("Writer received exception (db=" + database.getURL());
 
-              if (retry >= maxRetries) e.printStackTrace();
+              if (retry >= maxRetries) {
+                e.printStackTrace();
+              }
 
             } catch (ODistributedException e) {
               if (!(e.getCause() instanceof ORecordDuplicatedException)) {
@@ -188,11 +201,15 @@ public abstract class AbstractServerClusterInsertTest extends AbstractDistribute
             System.out.println(
                 "EXCEPTION " + e.getCause().getCause() + " RETRY " + retry + " ON CREATE RECORD");
             Thread.sleep(200);
-          } else throw e;
+          } else {
+            throw e;
+          }
         }
       }
 
-      if (!useTransactions) Assert.assertTrue(person.getIdentity().isPersistent());
+      if (!useTransactions) {
+        Assert.assertTrue(person.getIdentity().isPersistent());
+      }
 
       return person;
     }
@@ -234,11 +251,12 @@ public abstract class AbstractServerClusterInsertTest extends AbstractDistribute
           database.query(
               new OSQLSynchQuery<ODocument>("select from Person where name = ?"),
               "Billy" + uniqueId);
-      if (result.size() == 0)
+      if (result.size() == 0) {
         Assert.assertTrue("No record found with name = 'Billy" + uniqueId + "'!", false);
-      else if (result.size() > 1)
+      } else if (result.size() > 1) {
         Assert.assertTrue(
             result.size() + " records found with name = 'Billy" + uniqueId + "'!", false);
+      }
 
       return result.get(0);
     }
@@ -258,9 +276,10 @@ public abstract class AbstractServerClusterInsertTest extends AbstractDistribute
     }
 
     private void checkClusterStrategy(ODatabaseDocument database) {
-      if (!database.getURL().startsWith("remote:"))
+      if (!database.getURL().startsWith("remote:")) {
         Assert.assertTrue(
             database.getMetadata().getSchema().getClass("Person") instanceof OClassDistributed);
+      }
     }
 
     protected void deleteRecord(ODatabaseDocument database, ODocument doc) {
@@ -281,6 +300,7 @@ public abstract class AbstractServerClusterInsertTest extends AbstractDistribute
   }
 
   class Reader implements Callable<Void> {
+
     private final ServerRun serverRun;
 
     public Reader(final ServerRun serverRun) {
@@ -294,7 +314,9 @@ public abstract class AbstractServerClusterInsertTest extends AbstractDistribute
           try {
             printStats(serverRun);
 
-            if (delayReader > 0) Thread.sleep(delayReader);
+            if (delayReader > 0) {
+              Thread.sleep(delayReader);
+            }
 
           } catch (Exception e) {
             break;
@@ -551,7 +573,9 @@ public abstract class AbstractServerClusterInsertTest extends AbstractDistribute
   }
 
   protected void checkIndexedEntries(final List<ServerRun> checkOnServers) {
-    if (indexName == null) return;
+    if (indexName == null) {
+      return;
+    }
 
     final Map<String, Long> result = new HashMap<String, Long>();
 
@@ -580,7 +604,9 @@ public abstract class AbstractServerClusterInsertTest extends AbstractDistribute
           Assert.assertEquals(
               "Index count is different by index content", indexSize, index.getInternal().size());
 
-          if (indexSize != expected) printMissingIndexEntries(server, database);
+          if (indexSize != expected) {
+            printMissingIndexEntries(server, database);
+          }
 
         } finally {
           database.close();
@@ -666,7 +692,9 @@ public abstract class AbstractServerClusterInsertTest extends AbstractDistribute
     int activeServers = 0;
     for (int s = 0; s < checkOnServers.size(); ++s) {
       ServerRun server = checkOnServers.get(s);
-      if (!server.isActive()) continue;
+      if (!server.isActive()) {
+        continue;
+      }
 
       activeServers++;
 
@@ -679,9 +707,10 @@ public abstract class AbstractServerClusterInsertTest extends AbstractDistribute
                 new StringBuilder(
                     server.getServerInstance().getDistributedManager().getLocalNodeName());
             records.put(rec, servers);
-          } else
+          } else {
             servers.append(
                 "," + server.getServerInstance().getDistributedManager().getLocalNodeName());
+          }
         }
 
       } finally {
@@ -701,7 +730,9 @@ public abstract class AbstractServerClusterInsertTest extends AbstractDistribute
 
     for (int s = 0; s < checkOnServers.size(); ++s) {
       ServerRun server = checkOnServers.get(s);
-      if (!server.isActive()) continue;
+      if (!server.isActive()) {
+        continue;
+      }
 
       final ODatabaseDocument database = getDatabase(server);
       try {

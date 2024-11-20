@@ -7,7 +7,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by tglman on 01/06/16. */
+/**
+ * Created by tglman on 01/06/16.
+ */
 public class OrientShutDownTest {
 
   private int test = 0;

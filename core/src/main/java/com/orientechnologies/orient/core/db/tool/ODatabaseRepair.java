@@ -20,6 +20,7 @@
 package com.orientechnologies.orient.core.db.tool;
 
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -59,18 +60,17 @@ public class ODatabaseRepair extends ODatabaseTool {
   }
 
   protected long removeBrokenLinks() {
-    long fixedLinks = 0l;
-    long modifiedDocuments = 0l;
-    long errors = 0l;
+    long fixedLinks = 0L;
+    long modifiedDocuments = 0L;
+    long errors = 0L;
 
     message("\n- Removing broken links...");
     for (String clusterName : database.getClusterNames()) {
       for (ORecord rec : database.browseCluster(clusterName)) {
         try {
-          if (rec instanceof ODocument) {
+          if (rec instanceof ODocument doc) {
             boolean changed = false;
 
-            final ODocument doc = (ODocument) rec;
             for (String fieldName : doc.fieldNames()) {
               final Object fieldValue = doc.rawField(fieldName);
 
@@ -150,8 +150,9 @@ public class ODatabaseRepair extends ODatabaseTool {
 
       if (id.isValid()) {
         if (id.isPersistent()) {
-          final ORecord connected = ((OIdentifiable) fieldValue).getRecord();
-          if (connected == null) {
+          try {
+            final ORecord connected = ((OIdentifiable) fieldValue).getRecord();
+          } catch (ORecordNotFoundException rnf) {
             return true;
           }
         } else {

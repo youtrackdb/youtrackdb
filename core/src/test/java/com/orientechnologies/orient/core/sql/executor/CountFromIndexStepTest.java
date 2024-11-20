@@ -13,7 +13,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-/** Created by olena.kolesnyk on 28/07/2017. */
+/**
+ * Created by olena.kolesnyk on 28/07/2017.
+ */
 @RunWith(Parameterized.class)
 public class CountFromIndexStepTest extends TestUtilsFixture {
 
@@ -22,7 +24,7 @@ public class CountFromIndexStepTest extends TestUtilsFixture {
   private static final String ALIAS = "size";
   private String indexName;
 
-  private OIndexIdentifier.Type identifierType;
+  private final OIndexIdentifier.Type identifierType;
 
   public CountFromIndexStepTest(OIndexIdentifier.Type identifierType) {
     this.identifierType = identifierType;

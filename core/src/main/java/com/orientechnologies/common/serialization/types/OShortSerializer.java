@@ -33,9 +33,12 @@ import java.nio.ByteOrder;
  * @since 18.01.12
  */
 public class OShortSerializer implements OBinarySerializer<Short> {
+
   public static final byte ID = 12;
 
-  /** size of short value in bytes */
+  /**
+   * size of short value in bytes
+   */
   public static final int SHORT_SIZE = 2;
 
   private static final OBinaryConverter CONVERTER = OBinaryConverterFactory.getConverter();
@@ -115,13 +118,17 @@ public class OShortSerializer implements OBinarySerializer<Short> {
     return value;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void serializeInByteBufferObject(Short object, ByteBuffer buffer, Object... hints) {
     buffer.putShort(object);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Short deserializeFromByteBufferObject(ByteBuffer buffer) {
     return buffer.getShort();
@@ -132,7 +139,9 @@ public class OShortSerializer implements OBinarySerializer<Short> {
     return buffer.getShort(offset);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getObjectSizeInByteBuffer(ByteBuffer buffer) {
     return SHORT_SIZE;
@@ -143,14 +152,18 @@ public class OShortSerializer implements OBinarySerializer<Short> {
     return SHORT_SIZE;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Short deserializeFromByteBufferObject(
       ByteBuffer buffer, OWALChanges walChanges, int offset) {
     return walChanges.getShortValue(buffer, offset);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getObjectSizeInByteBuffer(ByteBuffer buffer, OWALChanges walChanges, int offset) {
     return SHORT_SIZE;

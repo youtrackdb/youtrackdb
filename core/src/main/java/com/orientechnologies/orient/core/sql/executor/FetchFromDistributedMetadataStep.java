@@ -29,7 +29,7 @@ public class FetchFromDistributedMetadataStep extends AbstractExecutionStep {
   }
 
   private OResult produce(OCommandContext ctx) {
-    ODatabaseSessionInternal session = (ODatabaseSessionInternal) ctx.getDatabase();
+    ODatabaseSessionInternal session = ctx.getDatabase();
     OSharedContextEmbedded value = (OSharedContextEmbedded) session.getSharedContext();
     ODocument doc = value.loadDistributedConfig(session);
     OResultInternal result = new OResultInternal();

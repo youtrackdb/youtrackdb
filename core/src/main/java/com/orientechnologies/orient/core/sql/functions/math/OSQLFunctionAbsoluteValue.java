@@ -34,6 +34,7 @@ import java.util.List;
  * @author Michael MacFadden
  */
 public class OSQLFunctionAbsoluteValue extends OSQLFunctionMathAbstract {
+
   public static final String NAME = "abs";
   private Object result;
 
@@ -69,7 +70,7 @@ public class OSQLFunctionAbsoluteValue extends OSQLFunctionMathAbstract {
       throw new IllegalArgumentException("Argument to absolute value must be a number.");
     }
 
-    return getResult();
+    return result;
   }
 
   public boolean aggregateResults() {

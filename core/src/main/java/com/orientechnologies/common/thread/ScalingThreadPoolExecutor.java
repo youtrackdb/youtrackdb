@@ -15,19 +15,20 @@ class ScalingThreadPoolExecutor extends OThreadPoolExecutorWithLogging {
 
   /**
    * An optionally bounded work queue for a {@link ThreadPoolExecutor} that causes the pool to scale
-   * beyond the {@link ThreadPoolExecutor#getCorePoolSize() core pool size}. <br>
-   * This is achieved by defining a target queue capacity, and wiring the {@link
-   * RejectedExecutionHandler} for the thread pool to re-queue using {@link #safeOffer(Runnable)}.
+   * beyond the {@link ThreadPoolExecutor#getCorePoolSize() core pool size}. <br> This is achieved
+   * by defining a target queue capacity, and wiring the {@link RejectedExecutionHandler} for the
+   * thread pool to re-queue using {@link #safeOffer(Runnable)}.
    * <br>
    * The work queue will probabilistically reject {@link #offer(Runnable) offers} to the work queue
    * (with that probability growing to 100% as the indicated capacity is reached). The rejection of
    * the offer will trigger pool growth in the thread pool, and once the max pool size has been
-   * reached will cause {@link RejectedExecutionHandler#rejectedExecution(Runnable,
-   * ThreadPoolExecutor) rejection}. <br>
-   * The implementation of {@link RejectedExecutionHandler} for the executor will then add it
+   * reached will cause
+   * {@link RejectedExecutionHandler#rejectedExecution(Runnable, ThreadPoolExecutor) rejection}.
+   * <br> The implementation of {@link RejectedExecutionHandler} for the executor will then add it
    * directly to the work queue, bypassing the rejection logic.
    */
   private static class ScalingQueue extends LinkedBlockingQueue<Runnable> {
+
     private final int targetCapacity;
 
     private final Random rand = new Random();

@@ -163,7 +163,7 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
 
     try {
       database.commit();
-      Assert.assertTrue(false);
+      Assert.fail();
     } catch (OTransactionException e) {
       Assert.assertTrue(true);
     } finally {
@@ -211,7 +211,7 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
       Assert.assertEquals(banana.getIdentity().getClusterId(), fruitClass.getDefaultClusterId());
       Assert.assertEquals(kumquat.getIdentity().getClusterId(), fruitClass.getDefaultClusterId());
 
-      Assert.assertTrue(false);
+      Assert.fail();
 
     } catch (ORecordDuplicatedException e) {
       Assert.assertTrue(true);

@@ -17,6 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -129,7 +130,7 @@ public class OJson extends SimpleNode {
   public Object toObjectDetermineType(OResult source, OCommandContext ctx) {
     String className = getClassNameForDocument(ctx);
     String type = getTypeForDocument(ctx);
-    if (className != null || (type != null && "d".equalsIgnoreCase(type))) {
+    if (className != null || ("d".equalsIgnoreCase(type))) {
       return toDocument(source, ctx, className);
     } else {
       return toMap(source, ctx);
@@ -139,7 +140,7 @@ public class OJson extends SimpleNode {
   public Object toObjectDetermineType(OIdentifiable source, OCommandContext ctx) {
     String className = getClassNameForDocument(ctx);
     String type = getTypeForDocument(ctx);
-    if (className != null || (type != null && "d".equalsIgnoreCase(type))) {
+    if (className != null || ("d".equalsIgnoreCase(type))) {
       OUpdatableResult element = null;
       if (source != null) {
         var identity = source.getIdentity();
@@ -250,11 +251,7 @@ public class OJson extends SimpleNode {
 
     OJson oJson = (OJson) o;
 
-    if (items != null ? !items.equals(oJson.items) : oJson.items != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(items, oJson.items);
   }
 
   @Override

@@ -20,7 +20,9 @@ import java.util.HashMap;
 import java.util.List;
 import org.junit.Test;
 
-/** Created by tglman on 09/05/17. */
+/**
+ * Created by tglman on 09/05/17.
+ */
 public class ORemotePushMessagesTest {
 
   @Test

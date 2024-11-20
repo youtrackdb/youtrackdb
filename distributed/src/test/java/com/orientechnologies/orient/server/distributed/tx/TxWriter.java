@@ -13,8 +13,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-/** TxWriter issues transactions to only one server. */
+/**
+ * TxWriter issues transactions to only one server.
+ */
 public class TxWriter {
+
   private final TxWriterConfig config;
   private final List<TxStat> txStats = new LinkedList<>();
   private final Random random;

@@ -36,6 +36,7 @@ package com.orientechnologies.orient.core.compression;
  * @since 05.06.13
  */
 public interface OCompression {
+
   byte[] compress(byte[] content);
 
   byte[] compress(byte[] content, final int offset, final int length);

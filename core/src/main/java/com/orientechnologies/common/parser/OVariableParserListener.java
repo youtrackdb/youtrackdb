@@ -25,5 +25,6 @@ package com.orientechnologies.common.parser;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com) (luca.garulli--at--assetdata.it
  */
 public interface OVariableParserListener {
+
   Object resolve(String iVariable);
 }

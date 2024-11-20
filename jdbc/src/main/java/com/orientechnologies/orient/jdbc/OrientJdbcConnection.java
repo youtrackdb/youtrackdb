@@ -52,13 +52,13 @@ public class OrientJdbcConnection implements Connection {
 
   private ODatabaseSession database;
   private String dbUrl;
-  private Properties info;
-  private OrientDB orientDB;
+  private final Properties info;
+  private final OrientDB orientDB;
   private boolean readOnly;
   private boolean autoCommit;
   private ODatabaseSession.STATUS status;
 
-  private boolean orientDBisPrivate;
+  private final boolean orientDBisPrivate;
 
   public OrientJdbcConnection(final String jdbcdDUrl, final Properties info) {
 
@@ -253,7 +253,7 @@ public class OrientJdbcConnection implements Connection {
   public void setHoldability(int holdability) throws SQLException {}
 
   public DatabaseMetaData getMetaData() throws SQLException {
-    return new OrientJdbcDatabaseMetaData(this, (ODatabaseSessionInternal) getDatabase());
+    return new OrientJdbcDatabaseMetaData(this, (ODatabaseSessionInternal) database);
   }
 
   public int getTransactionIsolation() throws SQLException {
@@ -339,7 +339,9 @@ public class OrientJdbcConnection implements Connection {
     return OGlobalConfiguration.NETWORK_SOCKET_TIMEOUT.getValueAsInteger();
   }
 
-  /** No schema is supported. */
+  /**
+   * No schema is supported.
+   */
   public String getSchema() throws SQLException {
     return null;
   }

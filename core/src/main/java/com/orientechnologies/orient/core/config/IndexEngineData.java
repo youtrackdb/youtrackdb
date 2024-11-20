@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 
 public final class IndexEngineData {
+
   private final int indexId;
   @Nonnull private final String name;
   private final String algorithm;
@@ -62,8 +63,11 @@ public final class IndexEngineData {
     this.keySize = keySize;
     this.encryption = encryption;
     this.encryptionOptions = encryptionOptions;
-    if (engineProperties == null) this.engineProperties = null;
-    else this.engineProperties = new HashMap<>(engineProperties);
+    if (engineProperties == null) {
+      this.engineProperties = null;
+    } else {
+      this.engineProperties = new HashMap<>(engineProperties);
+    }
   }
 
   public IndexEngineData(
@@ -100,8 +104,11 @@ public final class IndexEngineData {
     this.keySize = keySize;
     this.encryption = encryption;
     this.encryptionOptions = encryptionOptions;
-    if (engineProperties == null) this.engineProperties = null;
-    else this.engineProperties = new HashMap<>(engineProperties);
+    if (engineProperties == null) {
+      this.engineProperties = null;
+    } else {
+      this.engineProperties = new HashMap<>(engineProperties);
+    }
   }
 
   public int getIndexId() {
@@ -168,7 +175,9 @@ public final class IndexEngineData {
   }
 
   public Map<String, String> getEngineProperties() {
-    if (engineProperties == null) return null;
+    if (engineProperties == null) {
+      return null;
+    }
 
     return Collections.unmodifiableMap(engineProperties);
   }

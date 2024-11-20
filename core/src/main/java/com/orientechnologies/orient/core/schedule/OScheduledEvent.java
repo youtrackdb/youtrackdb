@@ -362,14 +362,14 @@ public class OScheduledEvent extends ODocumentWrapper {
     }
 
     private boolean isEventAlreadyExecuted() {
-      final ORecord rec = event.getDocument().getIdentity().getRecord();
-      if (rec == null) {
-        // SKIP EXECUTION BECAUSE THE EVENT WAS DELETED
+      final ORecord rec;
+      try {
+        rec = event.getDocument().getIdentity().getRecord();
+      } catch (ORecordNotFoundException e) {
         return true;
       }
 
       final ODocument updated = ODatabaseSession.getActiveSession().load(rec.getIdentity());
-
       final Long currentExecutionId = updated.field(PROP_EXEC_ID);
       if (currentExecutionId == null) {
         return false;

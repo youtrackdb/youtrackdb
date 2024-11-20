@@ -26,7 +26,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 29/04/15. */
+/**
+ * Created by Enrico Risa on 29/04/15.
+ */
 public class OLuceneGetSearcherTest extends OLuceneBaseTest {
 
   @Before
@@ -42,7 +44,7 @@ public class OLuceneGetSearcherTest extends OLuceneBaseTest {
 
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Person.isDeleted");
 
-    Assert.assertEquals(true, index.getInternal() instanceof OLuceneIndexNotUnique);
+    Assert.assertTrue(index.getInternal() instanceof OLuceneIndexNotUnique);
 
     OLuceneIndexNotUnique idx = (OLuceneIndexNotUnique) index.getInternal();
 

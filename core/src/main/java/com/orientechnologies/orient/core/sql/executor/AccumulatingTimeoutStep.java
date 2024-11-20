@@ -6,7 +6,9 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import com.orientechnologies.orient.core.sql.executor.resultset.OTimeoutResultSet;
 import com.orientechnologies.orient.core.sql.parser.OTimeout;
 
-/** Created by luigidellaquila on 08/08/16. */
+/**
+ * Created by luigidellaquila on 08/08/16.
+ */
 public class AccumulatingTimeoutStep extends AbstractExecutionStep {
 
   private final OTimeout timeout;

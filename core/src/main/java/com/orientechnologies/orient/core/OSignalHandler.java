@@ -31,10 +31,12 @@ import sun.misc.SignalHandler;
 
 @SuppressWarnings("restriction")
 public class OSignalHandler implements SignalHandler {
-  private Hashtable<Signal, SignalHandler> redefinedHandlers = new Hashtable(4);
-  private List<OSignalListener> listeners = new ArrayList<OSignalListener>();
+
+  private final Hashtable<Signal, SignalHandler> redefinedHandlers = new Hashtable(4);
+  private final List<OSignalListener> listeners = new ArrayList<OSignalListener>();
 
   public interface OSignalListener {
+
     void onSignal(Signal signal);
   }
 
@@ -82,7 +84,9 @@ public class OSignalHandler implements SignalHandler {
       }
     }
 
-    for (OSignalListener l : listeners) l.onSignal(signal);
+    for (OSignalListener l : listeners) {
+      l.onSignal(signal);
+    }
   }
 
   public void installDefaultSignals() {

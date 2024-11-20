@@ -24,6 +24,7 @@ import org.junit.Test;
 
 @Ignore
 public class ColumnSecurityTest {
+
   static String DB_NAME = "test";
   static OrientDB context;
   private ODatabaseSession db;

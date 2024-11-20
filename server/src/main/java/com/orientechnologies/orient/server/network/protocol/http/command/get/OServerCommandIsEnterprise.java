@@ -26,7 +26,9 @@ import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandAuthenticatedServerAbstract;
 import java.io.IOException;
 
-/** This command is called in order to know if the running instance of orientdb is EE or not. */
+/**
+ * This command is called in order to know if the running instance of orientdb is EE or not.
+ */
 public class OServerCommandIsEnterprise extends OServerCommandAuthenticatedServerAbstract {
 
   private static final String[] NAMES = {"GET|isEE"};

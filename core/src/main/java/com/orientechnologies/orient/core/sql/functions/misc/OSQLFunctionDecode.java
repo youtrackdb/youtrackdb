@@ -30,7 +30,9 @@ public class OSQLFunctionDecode extends OSQLFunctionAbstract {
 
   public static final String NAME = "decode";
 
-  /** Get the date at construction to have the same date for all the iteration. */
+  /**
+   * Get the date at construction to have the same date for all the iteration.
+   */
   public OSQLFunctionDecode() {
     super(NAME, 2, 2);
   }

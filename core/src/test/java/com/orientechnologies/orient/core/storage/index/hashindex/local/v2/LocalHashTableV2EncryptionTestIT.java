@@ -16,6 +16,7 @@ import org.junit.After;
 import org.junit.Before;
 
 public class LocalHashTableV2EncryptionTestIT extends LocalHashTableV2Base {
+
   private OrientDB orientDB;
 
   private static final String DB_NAME = "localHashTableEncryptionTest";

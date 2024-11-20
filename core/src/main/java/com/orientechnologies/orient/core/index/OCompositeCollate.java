@@ -23,8 +23,11 @@ import com.orientechnologies.orient.core.collate.OCollate;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Collate implementation used on composite indexes. */
+/**
+ * Collate implementation used on composite indexes.
+ */
 public class OCompositeCollate implements OCollate {
+
   private static final long serialVersionUID = 8683726773893639905L;
   private final OAbstractIndexDefinition oCompositeIndexDefinition;
 
@@ -50,8 +53,7 @@ public class OCompositeCollate implements OCollate {
   @Override
   public Object transform(final Object obj) {
     final List<Object> keys;
-    if (obj instanceof OCompositeKey) {
-      final OCompositeKey compositeKey = (OCompositeKey) obj;
+    if (obj instanceof OCompositeKey compositeKey) {
       keys = compositeKey.getKeys();
     } else if (obj instanceof List) {
       keys = (List<Object>) obj;
@@ -70,21 +72,25 @@ public class OCompositeCollate implements OCollate {
       transformedKey.addKey(collate.transform(key));
     }
 
-    for (int i = size; i < keys.size(); i++) transformedKey.addKey(keys.get(i));
+    for (int i = size; i < keys.size(); i++) {
+      transformedKey.addKey(keys.get(i));
+    }
 
     return transformedKey;
   }
 
   @Override
   public boolean equals(final Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     final OCompositeCollate that = (OCompositeCollate) o;
 
-    if (!collates.equals(that.collates)) return false;
-
-    return true;
+    return collates.equals(that.collates);
   }
 
   @Override

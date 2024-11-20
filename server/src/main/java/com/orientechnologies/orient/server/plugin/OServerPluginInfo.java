@@ -31,6 +31,7 @@ import java.util.Map;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OServerPluginInfo {
+
   private final String name;
   private final String version;
   private final String description;
@@ -64,14 +65,18 @@ public class OServerPluginInfo {
   }
 
   public void shutdown(boolean closeClassLoader) {
-    if (instance != null) instance.sendShutdown();
+    if (instance != null) {
+      instance.sendShutdown();
+    }
 
     if (pluginClassLoader != null && closeClassLoader) {
       // JAVA7 ONLY
       Method m;
       try {
         m = pluginClassLoader.getClass().getMethod("close");
-        if (m != null) m.invoke(pluginClassLoader);
+        if (m != null) {
+          m.invoke(pluginClassLoader);
+        }
       } catch (NoSuchMethodException e) {
       } catch (Exception e) {
         OLogManager.instance().error(this, "Error on closing plugin classloader", e);

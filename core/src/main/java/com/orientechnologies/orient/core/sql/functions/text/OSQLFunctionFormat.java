@@ -29,6 +29,7 @@ import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionFormat extends OSQLFunctionAbstract {
+
   public static final String NAME = "format";
 
   public OSQLFunctionFormat() {
@@ -43,7 +44,7 @@ public class OSQLFunctionFormat extends OSQLFunctionAbstract {
       OCommandContext iContext) {
     final Object[] args = new Object[params.length - 1];
 
-    for (int i = 0; i < args.length; ++i) args[i] = params[i + 1];
+    System.arraycopy(params, 1, args, 0, args.length);
 
     return String.format((String) params[0], args);
   }

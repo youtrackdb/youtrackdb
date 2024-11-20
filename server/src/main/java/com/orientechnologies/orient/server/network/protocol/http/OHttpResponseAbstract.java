@@ -26,6 +26,7 @@ import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -98,17 +99,16 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       final boolean iKeepAlive,
       OClientConnection connection,
       OContextConfiguration contextConfiguration) {
-    setStreaming(
-        contextConfiguration.getValueAsBoolean(OGlobalConfiguration.NETWORK_HTTP_STREAMING));
+    streaming = contextConfiguration.getValueAsBoolean(OGlobalConfiguration.NETWORK_HTTP_STREAMING);
     out = iOutStream;
     httpVersion = iHttpVersion;
-    setAdditionalHeaders(iAdditionalHeaders);
-    setCharacterSet(iResponseCharSet);
-    setServerInfo(iServerInfo);
-    setSessionId(iSessionId);
-    setCallbackFunction(iCallbackFunction);
-    setKeepAlive(iKeepAlive);
-    this.setConnection(connection);
+    additionalHeaders = iAdditionalHeaders;
+    characterSet = iResponseCharSet;
+    serverInfo = iServerInfo;
+    sessionId = iSessionId;
+    callbackFunction = iCallbackFunction;
+    keepAlive = iKeepAlive;
+    this.connection = connection;
     this.contextConfiguration = contextConfiguration;
   }
 
@@ -127,8 +127,8 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
 
   @Override
   public void writeHeaders(final String iContentType, final boolean iKeepAlive) throws IOException {
-    if (getHeaders() != null) {
-      writeLine(getHeaders());
+    if (headers != null) {
+      writeLine(headers);
     }
 
     // Set up a date formatter that prints the date in the Http-date format as
@@ -137,13 +137,13 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
     sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
 
     writeLine("Date: " + sdf.format(new Date()));
-    writeLine("Content-Type: " + iContentType + "; charset=" + getCharacterSet());
-    writeLine("Server: " + getServerInfo());
+    writeLine("Content-Type: " + iContentType + "; charset=" + characterSet);
+    writeLine("Server: " + serverInfo);
     writeLine("Connection: " + (iKeepAlive ? "Keep-Alive" : "close"));
 
     // SET CONTENT ENCDOING
-    if (getContentEncoding() != null && getContentEncoding().length() > 0) {
-      writeLine("Content-Encoding: " + getContentEncoding());
+    if (contentEncoding != null && contentEncoding.length() > 0) {
+      writeLine("Content-Encoding: " + contentEncoding);
     }
 
     // INCLUDE COMMON CUSTOM HEADERS
@@ -157,13 +157,13 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
   @Override
   public void writeLine(final String iContent) throws IOException {
     writeContent(iContent);
-    getOut().write(OHttpUtils.EOL);
+    out.write(OHttpUtils.EOL);
   }
 
   @Override
   public void writeContent(final String iContent) throws IOException {
     if (iContent != null) {
-      getOut().write(iContent.getBytes(utf8));
+      out.write(iContent.getBytes(utf8));
     }
   }
 
@@ -326,9 +326,8 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
               while (it.hasNext()) {
                 final Object r = it.next();
 
-                if (r instanceof OResult) {
+                if (r instanceof OResult result) {
 
-                  OResult result = (OResult) r;
                   records.add(result.toElement());
 
                   result
@@ -339,17 +338,15 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
                     colNames.add(fieldName);
                   }
 
-                } else if (r != null && r instanceof OIdentifiable) {
-                  final ORecord rec = ((OIdentifiable) r).getRecord();
-                  if (rec != null) {
-                    if (rec instanceof ODocument) {
-                      final ODocument doc = (ODocument) rec;
+                } else if (r instanceof OIdentifiable) {
+                  try {
+                    final ORecord rec = ((OIdentifiable) r).getRecord();
+                    if (rec instanceof ODocument doc) {
                       records.add(doc);
-
-                      for (String fieldName : doc.fieldNames()) {
-                        colNames.add(fieldName);
-                      }
+                      Collections.addAll(colNames, doc.fieldNames());
                     }
+                  } catch (ORecordNotFoundException rnf) {
+                    // IGNORE IT
                   }
                 }
               }
@@ -403,7 +400,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
       }
 
       final String sendFormat = iFormat;
-      if (isStreaming()) {
+      if (streaming) {
         sendStream(
             OHttpUtils.STATUS_OK_CODE,
             OHttpUtils.STATUS_OK_DESCRIPTION,
@@ -501,21 +498,19 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
           if (entry instanceof OResult) {
             objectJson = ((OResult) entry).toJSON();
             buffer.append(objectJson);
-          } else if (entry instanceof OIdentifiable) {
-            ORecord rec = ((OIdentifiable) entry).getRecord();
-            if (rec != null) {
-              try {
-                if (rec.getIdentity().isValid() && rec.isUnloaded()) {
-                  rec = databaseDocumentInternal.bindToSession(rec);
-                }
-
-                objectJson = rec.toJSON(format);
-
-                buffer.append(objectJson);
-              } catch (Exception e) {
-                OLogManager.instance()
-                    .error(this, "Error transforming record " + rec.getIdentity() + " to JSON", e);
+          } else if (entry instanceof OIdentifiable identifiable) {
+            try {
+              ORecord rec = identifiable.getRecord();
+              if (rec.getIdentity().isValid() && rec.isUnloaded()) {
+                rec = databaseDocumentInternal.bindToSession(rec);
               }
+
+              objectJson = rec.toJSON(format);
+
+              buffer.append(objectJson);
+            } catch (Exception e) {
+              OLogManager.instance()
+                  .error(this, "Error transforming record " + identifiable + " to JSON", e);
             }
           } else if (OMultiValue.isMultiValue(entry)) {
             buffer.append("[");
@@ -626,19 +621,19 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
   @Override
   @Deprecated
   public void setHeader(final String iHeader) {
-    setHeaders(iHeader);
+    headers = iHeader;
   }
 
   @Override
   public OutputStream getOutputStream() {
-    return getOut();
+    return out;
   }
 
   @Override
   public void flush() throws IOException {
-    getOut().flush();
-    if (!isKeepAlive()) {
-      getOut().close();
+    out.flush();
+    if (!keepAlive) {
+      out.close();
     }
   }
 

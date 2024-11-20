@@ -30,7 +30,9 @@ import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 29/04/15. */
+/**
+ * Created by Enrico Risa on 29/04/15.
+ */
 public class OLuceneBooleanIndexTest extends OLuceneBaseTest {
 
   @Before

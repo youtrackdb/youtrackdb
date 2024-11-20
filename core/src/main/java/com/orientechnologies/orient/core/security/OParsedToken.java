@@ -4,9 +4,9 @@ import com.orientechnologies.orient.core.metadata.security.OToken;
 
 public class OParsedToken {
 
-  private OToken token;
-  private byte[] tokenBytes;
-  private byte[] signature;
+  private final OToken token;
+  private final byte[] tokenBytes;
+  private final byte[] signature;
 
   public OParsedToken(OToken token, byte[] tokenBytes, byte[] signature) {
     super();

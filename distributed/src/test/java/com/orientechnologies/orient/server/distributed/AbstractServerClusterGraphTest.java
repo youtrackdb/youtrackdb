@@ -35,13 +35,17 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 import org.junit.Assert;
 
-/** Test distributed TX */
+/**
+ * Test distributed TX
+ */
 public abstract class AbstractServerClusterGraphTest extends AbstractServerClusterInsertTest {
+
   protected ORID rootVertexId;
   protected Object lock = new Object();
   private ODatabasePool dbPool;
 
   class TxWriter implements Callable<Void> {
+
     private final int serverId;
     private final int threadId;
 
@@ -74,9 +78,10 @@ public abstract class AbstractServerClusterGraphTest extends AbstractServerClust
       try {
         graph.begin();
         for (int i = 1; i <= count; i++) {
-          if (i % 100 == 0)
+          if (i % 100 == 0) {
             System.out.println(
                 "\nWriter " + graph.getURL() + " managed " + i + "/" + count + " vertices so far");
+          }
 
           for (int retry = 0; retry < 100; retry++) {
             try {
@@ -94,7 +99,9 @@ public abstract class AbstractServerClusterGraphTest extends AbstractServerClust
                 graph.commit();
                 graph.begin();
                 itemInTx = 0;
-              } else itemInTx++;
+              } else {
+                itemInTx++;
+              }
 
               break;
 
@@ -111,7 +118,9 @@ public abstract class AbstractServerClusterGraphTest extends AbstractServerClust
             }
           }
 
-          if (delayWriter > 0) Thread.sleep(delayWriter);
+          if (delayWriter > 0) {
+            Thread.sleep(delayWriter);
+          }
         }
       } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
@@ -156,7 +165,8 @@ public abstract class AbstractServerClusterGraphTest extends AbstractServerClust
     provider.createProperty("totalPurchased", OType.DECIMAL);
   }
 
-  protected void setFactorySettings(ODatabasePool pool) {}
+  protected void setFactorySettings(ODatabasePool pool) {
+  }
 
   @Override
   public void executeTest() throws Exception {

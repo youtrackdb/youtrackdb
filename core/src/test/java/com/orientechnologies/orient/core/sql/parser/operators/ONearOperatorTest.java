@@ -26,6 +26,7 @@ import org.junit.Test;
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class ONearOperatorTest {
+
   @Test
   public void test() {
     OLuceneOperator op = new OLuceneOperator(-1);

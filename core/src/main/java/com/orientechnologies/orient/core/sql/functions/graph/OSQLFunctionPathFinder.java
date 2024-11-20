@@ -38,6 +38,7 @@ import java.util.Set;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OSQLFunctionPathFinder extends OSQLFunctionMathAbstract {
+
   protected Set<OVertex> unSettledNodes;
   protected Map<ORID, OVertex> predecessors;
   protected Map<ORID, Float> distance;
@@ -71,15 +72,25 @@ public abstract class OSQLFunctionPathFinder extends OSQLFunctionMathAbstract {
       unSettledNodes.remove(node);
       findMinimalDistances(node);
 
-      if (distance.size() > maxDistances) maxDistances = distance.size();
-      if (unSettledNodes.size() > maxUnSettled) maxUnSettled = unSettledNodes.size();
-      if (predecessors.size() > maxPredecessors) maxPredecessors = predecessors.size();
+      if (distance.size() > maxDistances) {
+        maxDistances = distance.size();
+      }
+      if (unSettledNodes.size() > maxUnSettled) {
+        maxUnSettled = unSettledNodes.size();
+      }
+      if (predecessors.size() > maxPredecessors) {
+        maxPredecessors = predecessors.size();
+      }
 
       if (!isVariableEdgeWeight() && distance.containsKey(paramDestinationVertex.getIdentity()))
-        // FOUND
+      // FOUND
+      {
         break;
+      }
 
-      if (!OCommandExecutorAbstract.checkInterruption(context)) break;
+      if (!OCommandExecutorAbstract.checkInterruption(context)) {
+        break;
+      }
     }
 
     context.setVariable("maxDistances", maxDistances);
@@ -103,7 +114,9 @@ public abstract class OSQLFunctionPathFinder extends OSQLFunctionMathAbstract {
     final LinkedList<OVertex> path = new LinkedList<OVertex>();
     OVertex step = paramDestinationVertex;
     // Check if a path exists
-    if (predecessors.get(step.getIdentity()) == null) return null;
+    if (predecessors.get(step.getIdentity()) == null) {
+      return null;
+    }
 
     path.add(step);
     while (predecessors.get(step.getIdentity()) != null) {
@@ -142,8 +155,10 @@ public abstract class OSQLFunctionPathFinder extends OSQLFunctionMathAbstract {
     final Set<OVertex> neighbors = new HashSet<OVertex>();
     if (node != null) {
       for (OVertex v : node.getVertices(paramDirection)) {
-        final OVertex ov = (OVertex) v;
-        if (ov != null && isNotSettled(ov)) neighbors.add(ov);
+        final OVertex ov = v;
+        if (ov != null && isNotSettled(ov)) {
+          neighbors.add(ov);
+        }
       }
     }
     return neighbors;
@@ -170,7 +185,9 @@ public abstract class OSQLFunctionPathFinder extends OSQLFunctionMathAbstract {
   }
 
   protected float getShortestDistance(final OVertex destination) {
-    if (destination == null) return Float.MAX_VALUE;
+    if (destination == null) {
+      return Float.MAX_VALUE;
+    }
 
     final Float d = distance.get(destination.getIdentity());
     return d == null ? Float.MAX_VALUE : d;

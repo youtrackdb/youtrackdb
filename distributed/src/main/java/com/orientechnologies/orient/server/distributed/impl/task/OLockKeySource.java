@@ -6,6 +6,7 @@ import com.orientechnologies.orient.server.distributed.impl.task.transaction.OTr
 import java.util.SortedSet;
 
 public interface OLockKeySource {
+
   SortedSet<ORID> getRids();
 
   SortedSet<OTransactionUniqueKey> getUniqueKeys();

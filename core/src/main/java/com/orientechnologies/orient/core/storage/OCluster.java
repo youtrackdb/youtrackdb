@@ -21,10 +21,10 @@ package com.orientechnologies.orient.core.storage;
 
 import com.orientechnologies.orient.core.config.OStorageClusterConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.storage.impl.local.OClusterBrowsePage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import java.io.IOException;
+import javax.annotation.Nonnull;
 
 public interface OCluster {
 
@@ -72,11 +72,11 @@ public interface OCluster {
   /**
    * Creates a new record in the cluster.
    *
-   * @param content the content of the record.
-   * @param recordVersion the current version
-   * @param recordType the type of the record
+   * @param content           the content of the record.
+   * @param recordVersion     the current version
+   * @param recordType        the type of the record
    * @param allocatedPosition the eventual allocated position or null if there is no allocated
-   *     position.
+   *                          position.
    * @return the position where the record si created.
    */
   OPhysicalPosition createRecord(
@@ -95,10 +95,8 @@ public interface OCluster {
       byte recordType,
       OAtomicOperation atomicOperation);
 
+  @Nonnull
   ORawBuffer readRecord(long clusterPosition, boolean prefetchRecords) throws IOException;
-
-  ORawBuffer readRecordIfVersionIsNotLatest(long clusterPosition, int recordVersion)
-      throws IOException, ORecordNotFoundException;
 
   boolean exists();
 
@@ -131,7 +129,9 @@ public interface OCluster {
 
   String getName();
 
-  /** Returns the size of the records contained in the cluster in bytes. */
+  /**
+   * Returns the size of the records contained in the cluster in bytes.
+   */
   long getRecordsSize() throws IOException;
 
   String compression();

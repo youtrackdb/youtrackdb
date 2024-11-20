@@ -38,6 +38,7 @@ import java.util.NavigableMap;
  * @since 11/26/13
  */
 public class ORidBagUpdateSerializationOperation implements ORecordSerializationOperation {
+
   private final NavigableMap<OIdentifiable, Change> changedValues;
 
   private final OBonsaiCollectionPointer collectionPointer;

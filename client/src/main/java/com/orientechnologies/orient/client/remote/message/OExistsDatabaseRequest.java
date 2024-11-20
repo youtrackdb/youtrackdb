@@ -11,6 +11,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OExistsDatabaseRequest implements OBinaryRequest<OExistsDatabaseResponse> {
+
   private String databaseName;
   private String storageType;
 

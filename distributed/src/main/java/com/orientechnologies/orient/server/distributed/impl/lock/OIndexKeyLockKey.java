@@ -3,6 +3,7 @@ package com.orientechnologies.orient.server.distributed.impl.lock;
 import java.util.Objects;
 
 public class OIndexKeyLockKey implements OLockKey {
+
   private String index;
   private Object key;
 
@@ -13,8 +14,12 @@ public class OIndexKeyLockKey implements OLockKey {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     OIndexKeyLockKey that = (OIndexKeyLockKey) o;
     return Objects.equals(index, that.index) && Objects.equals(key, that.key);
   }

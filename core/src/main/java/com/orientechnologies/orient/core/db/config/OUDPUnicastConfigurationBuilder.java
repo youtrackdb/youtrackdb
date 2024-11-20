@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class OUDPUnicastConfigurationBuilder {
 
-  private OUDPUnicastConfiguration confguration = new OUDPUnicastConfiguration();
+  private final OUDPUnicastConfiguration confguration = new OUDPUnicastConfiguration();
 
   public OUDPUnicastConfigurationBuilder setEnabled(boolean enabled) {
     confguration.setEnabled(enabled);

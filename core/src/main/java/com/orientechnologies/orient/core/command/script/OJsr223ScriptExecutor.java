@@ -23,8 +23,11 @@ import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
-/** Created by tglman on 25/01/17. */
+/**
+ * Created by tglman on 25/01/17.
+ */
 public class OJsr223ScriptExecutor extends OAbstractScriptExecutor {
+
   private final OScriptTransformer transformer;
 
   public OJsr223ScriptExecutor(String language, OScriptTransformer scriptTransformer) {
@@ -59,11 +62,11 @@ public class OJsr223ScriptExecutor extends OAbstractScriptExecutor {
         scriptManager.acquireDatabaseEngine(database.getName(), language);
     try {
 
-      if (!(scriptEngine instanceof Compilable))
+      if (!(scriptEngine instanceof Compilable c)) {
         throw new OCommandExecutionException(
             "Language '" + language + "' does not support compilation");
+      }
 
-      final Compilable c = (Compilable) scriptEngine;
       try {
         compiledScript = c.compile(script);
       } catch (ScriptException e) {
@@ -99,7 +102,7 @@ public class OJsr223ScriptExecutor extends OAbstractScriptExecutor {
   public Object executeFunction(
       OCommandContext context, final String functionName, final Map<Object, Object> iArgs) {
 
-    ODatabaseSessionInternal db = (ODatabaseSessionInternal) context.getDatabase();
+    ODatabaseSessionInternal db = context.getDatabase();
     if (db == null) {
       db = ODatabaseRecordThreadLocal.instance().get();
     }
@@ -123,14 +126,15 @@ public class OJsr223ScriptExecutor extends OAbstractScriptExecutor {
       try {
         final Object result;
 
-        if (scriptEngine instanceof Invocable) {
+        if (scriptEngine instanceof Invocable invocableEngine) {
           // INVOKE AS FUNCTION. PARAMS ARE PASSED BY POSITION
-          final Invocable invocableEngine = (Invocable) scriptEngine;
           Object[] args = null;
           if (iArgs != null) {
             args = new Object[iArgs.size()];
             int i = 0;
-            for (Entry<Object, Object> arg : iArgs.entrySet()) args[i++] = arg.getValue();
+            for (Entry<Object, Object> arg : iArgs.entrySet()) {
+              args[i++] = arg.getValue();
+            }
           } else {
             args = OCommonConst.EMPTY_OBJECT_ARRAY;
           }

@@ -4,6 +4,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 
 final class UpdateBucketSearchResult {
+
   private final IntList insertionIndexes;
   private final LongArrayList path;
   private final int itemIndex;

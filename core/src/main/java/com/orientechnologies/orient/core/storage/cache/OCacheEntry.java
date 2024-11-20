@@ -31,6 +31,7 @@ import java.io.Closeable;
  * @since 7/23/13
  */
 public interface OCacheEntry extends Closeable {
+
   OCachePointer getCachePointer();
 
   void clearCachePointer();

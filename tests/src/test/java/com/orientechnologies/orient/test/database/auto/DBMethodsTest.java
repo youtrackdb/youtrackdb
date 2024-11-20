@@ -10,6 +10,7 @@ import org.testng.annotations.Test;
  */
 @Test
 public class DBMethodsTest extends DocumentDBBaseTest {
+
   @Parameters(value = "remote")
   public DBMethodsTest(boolean remote) {
     super(remote);

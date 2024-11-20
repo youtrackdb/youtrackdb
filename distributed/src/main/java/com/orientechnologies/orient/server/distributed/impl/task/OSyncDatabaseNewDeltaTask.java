@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class OSyncDatabaseNewDeltaTask extends OAbstractRemoteTask {
+
   public static final int CHUNK_MAX_SIZE = 8388608; // 8MB
 
   public static final int FACTORYID = 57;
@@ -31,7 +32,8 @@ public class OSyncDatabaseNewDeltaTask extends OAbstractRemoteTask {
     this.lastState = lastState;
   }
 
-  public OSyncDatabaseNewDeltaTask() {}
+  public OSyncDatabaseNewDeltaTask() {
+  }
 
   @Override
   public String getName() {

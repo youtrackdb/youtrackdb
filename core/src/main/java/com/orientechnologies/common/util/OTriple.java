@@ -27,6 +27,7 @@ package com.orientechnologies.common.util;
  */
 public class OTriple<K extends Comparable<K>, V extends Comparable<V>, SV>
     implements Comparable<OTriple<K, V, SV>> {
+
   public K key;
   public OPair<V, SV> value;
 
@@ -75,14 +76,19 @@ public class OTriple<K extends Comparable<K>, V extends Comparable<V>, SV>
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (getClass() != obj.getClass()) return false;
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
     OTriple<?, ?, ?> other = (OTriple<?, ?, ?>) obj;
     if (key == null) {
-      if (other.key != null) return false;
-    } else if (!key.equals(other.key)) return false;
-    return true;
+      return other.key == null;
+    } else return key.equals(other.key);
   }
 
   public int compareTo(final OTriple<K, V, SV> o) {

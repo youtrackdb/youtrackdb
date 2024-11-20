@@ -33,8 +33,11 @@ import java.nio.file.Path;
  * @since 7/22/14
  */
 public class OFileUtilsJava7 {
+
   public static boolean delete(File file) throws IOException {
-    if (!file.exists()) return true;
+    if (!file.exists()) {
+      return true;
+    }
 
     try {
       final FileSystem fileSystem = FileSystems.getDefault();

@@ -24,6 +24,7 @@ import com.orientechnologies.common.factory.OConfigurableStatelessFactory;
  */
 public class ORecordConflictStrategyFactory
     extends OConfigurableStatelessFactory<String, ORecordConflictStrategy> {
+
   public ORecordConflictStrategyFactory() {
     final OVersionRecordConflictStrategy def = new OVersionRecordConflictStrategy();
 

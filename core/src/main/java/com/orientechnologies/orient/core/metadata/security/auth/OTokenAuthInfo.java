@@ -5,7 +5,7 @@ import java.util.Optional;
 
 public class OTokenAuthInfo implements OAuthenticationInfo {
 
-  private OParsedToken token;
+  private final OParsedToken token;
 
   public OTokenAuthInfo(OParsedToken iToken) {
     this.token = iToken;

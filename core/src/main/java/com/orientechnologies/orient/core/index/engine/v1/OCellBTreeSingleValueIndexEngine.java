@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 
 public final class OCellBTreeSingleValueIndexEngine
     implements OSingleValueIndexEngine, OCellBTreeIndexEngine {
+
   private static final String DATA_FILE_EXTENSION = ".cbt";
   private static final String NULL_BUCKET_FILE_EXTENSION = ".nbt";
 
@@ -31,7 +32,7 @@ public final class OCellBTreeSingleValueIndexEngine
   private final OVersionPositionMap versionPositionMap;
   private final String name;
   private final int id;
-  private OAbstractPaginatedStorage storage;
+  private final OAbstractPaginatedStorage storage;
 
   public OCellBTreeSingleValueIndexEngine(
       int id, String name, OAbstractPaginatedStorage storage, int version) {

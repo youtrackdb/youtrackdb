@@ -49,7 +49,9 @@ public class OLiveQueryPlugin extends OServerPluginAbstract implements ODatabase
     super.config(iServer, iParams);
     for (OServerParameterConfiguration param : iParams) {
       if (param.name.equalsIgnoreCase("enabled")) {
-        if (Boolean.parseBoolean(param.value)) enabled = true;
+        if (Boolean.parseBoolean(param.value)) {
+          enabled = true;
+        }
       }
     }
   }

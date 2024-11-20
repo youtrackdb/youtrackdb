@@ -27,8 +27,11 @@ import java.util.stream.Collectors;
 import org.locationtech.jts.geom.*;
 import org.locationtech.spatial4j.shape.jts.JtsGeometry;
 
-/** Created by enricorisa on 24/04/14. */
+/**
+ * Created by enricorisa on 24/04/14.
+ */
 public class OPolygonShapeBuilder extends OComplexShapeBuilder<JtsGeometry> {
+
   @Override
   public String getName() {
     return "OPolygon";

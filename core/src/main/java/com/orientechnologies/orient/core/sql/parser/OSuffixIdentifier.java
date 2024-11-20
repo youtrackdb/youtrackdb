@@ -2,11 +2,13 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.orientechnologies.orient.core.sql.parser;
 
+import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.util.OResettable;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.OContextualRecordId;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
@@ -19,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class OSuffixIdentifier extends SimpleNode {
@@ -83,30 +86,32 @@ public class OSuffixIdentifier extends SimpleNode {
             return meta.get(varName);
           }
         }
-        OElement rec = iCurrentRecord.getRecord();
-        if (rec == null) {
+        try {
+          OElement rec = iCurrentRecord.getRecord();
+          if (rec.isUnloaded()) {
+            rec = getDatabase().bindToSession(rec);
+          }
+
+          Object result = rec.getProperty(varName);
+          if (result == null && ctx != null) {
+            result = ctx.getVariable(varName);
+          }
+          return result;
+        } catch (OCommandExecutionException rnf) {
           return null;
         }
-
-        if (rec.isUnloaded()) {
-          rec = getDatabase().bindToSession(rec);
-        }
-
-        Object result = rec.getProperty(varName);
-        if (result == null && ctx != null) {
-          result = ctx.getVariable(varName);
-        }
-        return result;
       }
       return varName;
     }
     if (recordAttribute != null && iCurrentRecord != null) {
-      OElement rec =
-          iCurrentRecord instanceof OElement
-              ? (OElement) iCurrentRecord
-              : iCurrentRecord.getRecord();
-      if (rec != null) {
+      try {
+        OElement rec =
+            iCurrentRecord instanceof OElement
+                ? (OElement) iCurrentRecord
+                : iCurrentRecord.getRecord();
         return recordAttribute.evaluate(rec, ctx);
+      } catch (ORecordNotFoundException rnf) {
+        return null;
       }
     }
 
@@ -284,20 +289,17 @@ public class OSuffixIdentifier extends SimpleNode {
   }
 
   public boolean isEarlyCalculated(OCommandContext ctx) {
-    if (identifier != null && identifier.isEarlyCalculated(ctx)) {
-      return true;
-    }
-    return false;
+    return identifier != null && identifier.isEarlyCalculated(ctx);
   }
 
   public void aggregate(Object value, OCommandContext ctx) {
     throw new UnsupportedOperationException(
-        "this operation does not support plain aggregation: " + toString());
+        "this operation does not support plain aggregation: " + this);
   }
 
   public AggregationContext getAggregationContext(OCommandContext ctx) {
     throw new UnsupportedOperationException(
-        "this operation does not support plain aggregation: " + toString());
+        "this operation does not support plain aggregation: " + this);
   }
 
   public OSuffixIdentifier copy() {
@@ -322,16 +324,10 @@ public class OSuffixIdentifier extends SimpleNode {
     if (star != that.star) {
       return false;
     }
-    if (identifier != null ? !identifier.equals(that.identifier) : that.identifier != null) {
+    if (!Objects.equals(identifier, that.identifier)) {
       return false;
     }
-    if (recordAttribute != null
-        ? !recordAttribute.equals(that.recordAttribute)
-        : that.recordAttribute != null) {
-      return false;
-    }
-
-    return true;
+    return Objects.equals(recordAttribute, that.recordAttribute);
   }
 
   @Override
@@ -345,10 +341,7 @@ public class OSuffixIdentifier extends SimpleNode {
   public void extractSubQueries(SubQueryCollector collector) {}
 
   public boolean refersToParent() {
-    if (identifier != null && identifier.getStringValue().equalsIgnoreCase("$parent")) {
-      return true;
-    }
-    return false;
+    return identifier != null && identifier.getStringValue().equalsIgnoreCase("$parent");
   }
 
   public void setValue(Object target, Object value, OCommandContext ctx) {
@@ -369,9 +362,16 @@ public class OSuffixIdentifier extends SimpleNode {
     if (target instanceof OElement) {
       doc = (OElement) target;
     } else {
-      ORecord rec = target.getRecord();
-      if (rec instanceof OElement) {
-        doc = (OElement) rec;
+      try {
+        ORecord rec = target.getRecord();
+        if (rec instanceof OElement) {
+          doc = (OElement) rec;
+        }
+      } catch (ORecordNotFoundException rnf) {
+        throw OException.wrapException(
+            new OCommandExecutionException(
+                "Cannot set record attribute " + recordAttribute + " on existing document"),
+            rnf);
       }
     }
     if (doc != null) {
@@ -397,8 +397,7 @@ public class OSuffixIdentifier extends SimpleNode {
     if (target == null) {
       return;
     }
-    if (target instanceof OResultInternal) {
-      OResultInternal intTarget = (OResultInternal) target;
+    if (target instanceof OResultInternal intTarget) {
       if (identifier != null) {
         intTarget.setProperty(identifier.getStringValue(), value);
       } else if (recordAttribute != null) {

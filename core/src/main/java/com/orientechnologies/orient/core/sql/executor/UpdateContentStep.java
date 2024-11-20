@@ -2,7 +2,6 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
@@ -18,8 +17,11 @@ import com.orientechnologies.orient.core.sql.parser.OJson;
 import java.util.HashMap;
 import java.util.Map;
 
-/** Created by luigidellaquila on 09/08/16. */
+/**
+ * Created by luigidellaquila on 09/08/16.
+ */
 public class UpdateContentStep extends AbstractExecutionStep {
+
   private OJson json;
   private OInputParameter inputParameter;
 
@@ -59,7 +61,7 @@ public class UpdateContentStep extends AbstractExecutionStep {
       fieldsToPreserve = new ODocument();
 
       final OClass restricted =
-          ((ODatabaseSessionInternal) ctx.getDatabase())
+          ctx.getDatabase()
               .getMetadata()
               .getImmutableSchemaSnapshot()
               .getClass(OSecurity.RESTRICTED_CLASSNAME);
@@ -74,14 +76,13 @@ public class UpdateContentStep extends AbstractExecutionStep {
           if (preDefaultValues == null) {
             preDefaultValues = new HashMap<>();
           }
-          preDefaultValues.put(prop.getName(), record.<Object>getPropertyInternal(prop.getName()));
+          preDefaultValues.put(prop.getName(), record.getPropertyInternal(prop.getName()));
         }
       }
     }
 
     OClass recordClass =
-        ODocumentInternal.getImmutableSchemaClass(
-            (ODatabaseSessionInternal) ctx.getDatabase(), record.getRecord());
+        ODocumentInternal.getImmutableSchemaClass(ctx.getDatabase(), record.getRecord());
     if (recordClass != null && recordClass.isSubClassOf("V")) {
       for (String fieldName : record.getPropertyNamesInternal()) {
         if (fieldName.startsWith("in_") || fieldName.startsWith("out_")) {
@@ -107,7 +108,7 @@ public class UpdateContentStep extends AbstractExecutionStep {
     } else if (inputParameter != null) {
       Object val = inputParameter.getValue(ctx.getInputParameters());
       if (val instanceof OElement) {
-        doc.merge((ODocument) ((OElement) val).getRecord(), false, false);
+        doc.merge(((OElement) val).getRecord(), false, false);
       } else if (val instanceof Map<?, ?> map) {
         //noinspection unchecked
         doc.merge(new ODocument().fromMap((Map<String, ?>) map), false, false);

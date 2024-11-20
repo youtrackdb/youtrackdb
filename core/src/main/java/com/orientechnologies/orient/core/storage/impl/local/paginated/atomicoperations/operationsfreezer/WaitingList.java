@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.storage.impl.local.paginated.atomicope
 import java.util.concurrent.atomic.AtomicReference;
 
 final class WaitingList {
+
   private final AtomicReference<WaitingListNode> head = new AtomicReference<>();
   private final AtomicReference<WaitingListNode> tail = new AtomicReference<>();
 

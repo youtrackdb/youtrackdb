@@ -10,8 +10,11 @@ import com.orientechnologies.orient.core.sql.parser.OReturnStatement;
 import com.orientechnologies.orient.core.sql.parser.OStatement;
 import java.util.List;
 
-/** Created by luigidellaquila on 19/09/16. */
+/**
+ * Created by luigidellaquila on 19/09/16.
+ */
 public class IfStep extends AbstractExecutionStep {
+
   protected OBooleanExpression condition;
   public List<OStatement> positiveStatements;
   public List<OStatement> negativeStatements;
@@ -36,11 +39,8 @@ public class IfStep extends AbstractExecutionStep {
       return positivePlan;
     } else {
       OScriptExecutionPlan negativePlan = initNegativePlan(ctx);
-      if (negativePlan != null) {
-        return negativePlan;
-      }
+      return negativePlan;
     }
-    return null;
   }
 
   public OScriptExecutionPlan initPositivePlan(OCommandContext ctx) {

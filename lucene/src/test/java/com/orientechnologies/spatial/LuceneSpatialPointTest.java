@@ -29,10 +29,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 07/08/15. */
+/**
+ * Created by Enrico Risa on 07/08/15.
+ */
 public class LuceneSpatialPointTest extends BaseSpatialLuceneTest {
 
-  private static String PWKT = "POINT(-160.2075374 21.9029803)";
+  private static final String PWKT = "POINT(-160.2075374 21.9029803)";
 
   @Before
   public void init() {

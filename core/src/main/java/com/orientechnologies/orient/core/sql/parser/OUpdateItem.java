@@ -3,7 +3,6 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -19,11 +18,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class OUpdateItem extends SimpleNode {
+
   public static final int OPERATOR_EQ = 0;
   public static final int OPERATOR_PLUSASSIGN = 1;
   public static final int OPERATOR_MINUSASSIGN = 2;
@@ -104,18 +105,25 @@ public class OUpdateItem extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OUpdateItem that = (OUpdateItem) o;
 
-    if (operator != that.operator) return false;
-    if (left != null ? !left.equals(that.left) : that.left != null) return false;
-    if (leftModifier != null ? !leftModifier.equals(that.leftModifier) : that.leftModifier != null)
+    if (operator != that.operator) {
       return false;
-    if (right != null ? !right.equals(that.right) : that.right != null) return false;
-
-    return true;
+    }
+    if (!Objects.equals(left, that.left)) {
+      return false;
+    }
+    if (!Objects.equals(leftModifier, that.leftModifier)) {
+      return false;
+    }
+    return Objects.equals(right, that.right);
   }
 
   @Override
@@ -299,7 +307,7 @@ public class OUpdateItem extends SimpleNode {
     if (item instanceof OElement) {
       OClass currentType = ((OElement) item).getSchemaType().orElse(null);
       if (currentType == null || !currentType.isSubClassOf(linkedClass)) {
-        OElement result = ((ODatabaseSession) ctx.getDatabase()).newElement(linkedClass.getName());
+        OElement result = ctx.getDatabase().newElement(linkedClass.getName());
         for (String prop : ((OElement) item).getPropertyNames()) {
           result.setProperty(prop, ((OElement) item).getProperty(prop));
         }
@@ -308,7 +316,7 @@ public class OUpdateItem extends SimpleNode {
         return item;
       }
     } else if (item instanceof Map) {
-      OElement result = ((ODatabaseSession) ctx.getDatabase()).newElement(linkedClass.getName());
+      OElement result = ctx.getDatabase().newElement(linkedClass.getName());
       ((Map<String, Object>) item)
           .entrySet().stream().forEach(x -> result.setProperty(x.getKey(), x.getValue()));
       return result;

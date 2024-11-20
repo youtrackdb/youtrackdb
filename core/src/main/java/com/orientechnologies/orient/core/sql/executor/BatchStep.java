@@ -5,7 +5,9 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OBatch;
 
-/** Created by luigidellaquila on 14/02/17. */
+/**
+ * Created by luigidellaquila on 14/02/17.
+ */
 public class BatchStep extends AbstractExecutionStep {
 
   private final Integer batchSize;

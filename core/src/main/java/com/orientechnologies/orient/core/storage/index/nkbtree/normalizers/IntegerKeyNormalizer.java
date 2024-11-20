@@ -9,6 +9,7 @@ import java.nio.ByteOrder;
  * INT_MAX + 1 (byteswap if little endian)
  */
 public class IntegerKeyNormalizer implements KeyNormalizers {
+
   @Override
   public byte[] execute(Object key, int decomposition) throws IOException {
     final ByteBuffer bb = ByteBuffer.allocate(5);

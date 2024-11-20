@@ -37,29 +37,46 @@ import java.util.Set;
  * @author Luca Garulli (l.garulli--at--orientdb.com)
  */
 public interface ODistributedServerManager {
+
   String FILE_DISTRIBUTED_DB_CONFIG = "distributed-config.json";
 
-  /** Server status. */
+  /**
+   * Server status.
+   */
   enum NODE_STATUS {
-    /** The server was never started or the shutdown is complete. */
+    /**
+     * The server was never started or the shutdown is complete.
+     */
     OFFLINE,
 
-    /** The server is STARTING. */
+    /**
+     * The server is STARTING.
+     */
     STARTING,
 
-    /** The server is ONLINE. */
+    /**
+     * The server is ONLINE.
+     */
     ONLINE,
 
-    /** The server starts to merge to another cluster. */
+    /**
+     * The server starts to merge to another cluster.
+     */
     MERGING,
 
-    /** The server is shutting down. */
+    /**
+     * The server is shutting down.
+     */
     SHUTTINGDOWN
-  };
+  }
 
-  /** Database status. */
+  /**
+   * Database status.
+   */
   enum DB_STATUS {
-    /** The database is not installed. In this status the server does not receive any request. */
+    /**
+     * The database is not installed. In this status the server does not receive any request.
+     */
     NOT_AVAILABLE,
 
     /**
@@ -82,16 +99,18 @@ public interface ODistributedServerManager {
      */
     ONLINE,
 
-    /** The database is ONLINE, but is not involved in the quorum. */
+    /**
+     * The database is ONLINE, but is not involved in the quorum.
+     */
     BACKUP
   }
 
   /**
    * Checks the node status if it's one of the statuses received as argument.
    *
-   * @param iNodeName Node name
+   * @param iNodeName     Node name
    * @param iDatabaseName Database name
-   * @param statuses vararg of statuses
+   * @param statuses      vararg of statuses
    * @return true if the node's status is equals to one of the passed statuses, otherwise false
    */
   boolean isNodeStatusEqualsTo(String iNodeName, String iDatabaseName, DB_STATUS... statuses);
@@ -164,10 +183,14 @@ public interface ODistributedServerManager {
       OModifiableDistributedConfiguration cfg,
       boolean canCreateNewClusters);
 
-  /** Available means not OFFLINE, so ONLINE or SYNCHRONIZING. */
+  /**
+   * Available means not OFFLINE, so ONLINE or SYNCHRONIZING.
+   */
   boolean isNodeAvailable(String iNodeName, String databaseName);
 
-  /** Returns true if the node status is ONLINE. */
+  /**
+   * Returns true if the node status is ONLINE.
+   */
   boolean isNodeOnline(String iNodeName, String databaseName);
 
   int getTotalNodes(String iDatabaseName);
@@ -201,9 +224,9 @@ public interface ODistributedServerManager {
    * @param iClusterNames
    * @param iTargetNodeNames
    * @param iTask
-   * @param messageId Message Id as long
+   * @param messageId        Message Id as long
    * @param iExecutionMode
-   * @param localResult It's the result of the request executed locally
+   * @param localResult      It's the result of the request executed locally
    * @return
    */
   ODistributedResponse sendRequest(
@@ -259,10 +282,10 @@ public interface ODistributedServerManager {
   /**
    * Executes an operation protected by a distributed lock (one per database).
    *
-   * @param <T> Return type
-   * @param databaseName Database name
+   * @param <T>            Return type
+   * @param databaseName   Database name
    * @param timeoutLocking
-   * @param iCallback Operation @return The operation's result of type T
+   * @param iCallback      Operation @return The operation's result of type T
    */
   <T> T executeInDistributedDatabaseLock(
       String databaseName,

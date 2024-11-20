@@ -25,7 +25,9 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-/** Created by tglman on 06/07/16. */
+/**
+ * Created by tglman on 06/07/16.
+ */
 public class OrientDBRemoteTest {
 
   private static final String SERVER_DIRECTORY = "./target/dbfactory";
@@ -86,8 +88,9 @@ public class OrientDBRemoteTest {
 
   @Test
   public void testPool() {
-    if (!factory.exists("test"))
+    if (!factory.exists("test")) {
       factory.execute("create database test memory users (admin identified by 'admin' role admin)");
+    }
 
     ODatabasePool pool = new ODatabasePool(factory, "test", "admin", "admin");
     ODatabaseSessionInternal db = (ODatabaseSessionInternal) pool.acquire();
@@ -101,10 +104,11 @@ public class OrientDBRemoteTest {
   @Test
   @Ignore
   public void testCachedPool() {
-    if (!factory.exists("testdb"))
+    if (!factory.exists("testdb")) {
       factory.execute(
           "create database testdb memory users (admin identified by 'admin' role admin, reader"
               + " identified by 'reader' role reader, writer identified by 'writer' role writer)");
+    }
 
     ODatabasePool poolAdmin1 = factory.cachedPool("testdb", "admin", "admin");
     ODatabasePool poolAdmin2 = factory.cachedPool("testdb", "admin", "admin");
@@ -129,9 +133,10 @@ public class OrientDBRemoteTest {
 
   @Test
   public void testCachedPoolFactoryCleanUp() throws Exception {
-    if (!factory.exists("testdb"))
+    if (!factory.exists("testdb")) {
       factory.execute(
           "create database testdb memory users (admin identified by 'admin' role admin)");
+    }
 
     ODatabasePool poolAdmin1 = factory.cachedPool("testdb", "admin", "admin");
     ODatabasePool poolAdmin2 = factory.cachedPool("testdb", "admin", "admin");
@@ -155,10 +160,11 @@ public class OrientDBRemoteTest {
   @Test
   @Ignore
   public void testMultiThread() {
-    if (!factory.exists("test"))
+    if (!factory.exists("test")) {
       factory.execute(
           "create database test memory users (admin identified by 'admin' role admin, reader"
               + " identified by 'reader' role reader, writer identified by 'writer' role writer)");
+    }
 
     ODatabasePool pool = new ODatabasePool(factory, "test", "admin", "admin");
 

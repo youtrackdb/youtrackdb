@@ -42,6 +42,7 @@ import java.util.Set;
  * @see ORole
  */
 public class OUser extends OIdentity implements OSecurityUser {
+
   public static final String ADMIN = "admin";
   public static final String CLASS_NAME = "OUser";
   public static final String PASSWORD_FIELD = "password";
@@ -51,7 +52,9 @@ public class OUser extends OIdentity implements OSecurityUser {
   // AVOID THE INVOCATION OF SETTER
   protected Set<ORole> roles = new HashSet<ORole>();
 
-  /** Constructor used in unmarshalling. */
+  /**
+   * Constructor used in unmarshalling.
+   */
   public OUser() {}
 
   public OUser(final String iName) {
@@ -67,7 +70,9 @@ public class OUser extends OIdentity implements OSecurityUser {
     setAccountStatus(STATUSES.ACTIVE);
   }
 
-  /** Create the user by reading the source document. */
+  /**
+   * Create the user by reading the source document.
+   */
   public OUser(final ODocument iSource) {
     fromStream(iSource);
   }
@@ -82,12 +87,15 @@ public class OUser extends OIdentity implements OSecurityUser {
   public static boolean encodePassword(
       ODatabaseSessionInternal session, final ODocument iDocument) {
     final String name = iDocument.field("name");
-    if (name == null) throw new OSecurityException("User name not found");
+    if (name == null) {
+      throw new OSecurityException("User name not found");
+    }
 
-    final String password = (String) iDocument.field("password");
+    final String password = iDocument.field("password");
 
-    if (password == null)
+    if (password == null) {
       throw new OSecurityException("User '" + iDocument.field("name") + "' has no password");
+    }
     OSecuritySystem security = session.getSharedContext().getOrientDB().getSecuritySystem();
     security.validatePassword(name, password);
 
@@ -101,25 +109,31 @@ public class OUser extends OIdentity implements OSecurityUser {
 
   @Override
   public void fromStream(final ODocument iSource) {
-    if (getDocument() != null) return;
+    if (getDocument() != null) {
+      return;
+    }
 
     setDocument(iSource);
 
     roles = new HashSet<>();
     final Collection<OIdentifiable> loadedRoles = iSource.field("roles");
-    if (loadedRoles != null)
+    if (loadedRoles != null) {
       for (final OIdentifiable d : loadedRoles) {
         if (d != null) {
           ORole role = createRole(d.getRecord());
-          if (role != null) roles.add(role);
-        } else
+          if (role != null) {
+            roles.add(role);
+          }
+        } else {
           OLogManager.instance()
               .warn(
                   this,
                   "User '%s' is declared to have a role that does not exist in the database. "
                       + " Ignoring it.",
                   getName());
+        }
       }
+    }
   }
 
   /**
@@ -136,7 +150,7 @@ public class OUser extends OIdentity implements OSecurityUser {
    *
    * @param iOperation Requested operation
    * @return The role that has granted the permission if any, otherwise a OSecurityAccessException
-   *     exception is raised
+   * exception is raised
    * @throws OSecurityAccessException
    */
   public ORole allow(
@@ -148,15 +162,16 @@ public class OUser extends OIdentity implements OSecurityUser {
         final ODocument doc = document;
         document = null;
         fromStream(doc);
-      } else
+      } else {
         throw new OSecurityAccessException(
             document.getDatabase().getName(),
             "User '" + document.field("name") + "' has no role defined");
+      }
     }
 
     final ORole role = checkIfAllowed(resourceGeneric, resourceSpecific, iOperation);
 
-    if (role == null)
+    if (role == null) {
       throw new OSecurityAccessException(
           document.getDatabase().getName(),
           "User '"
@@ -167,6 +182,7 @@ public class OUser extends OIdentity implements OSecurityUser {
               + resourceGeneric
               + "."
               + resourceSpecific);
+    }
 
     return role;
   }
@@ -181,14 +197,16 @@ public class OUser extends OIdentity implements OSecurityUser {
   public ORole checkIfAllowed(
       final ORule.ResourceGeneric resourceGeneric, String resourceSpecific, final int iOperation) {
     for (ORole r : roles) {
-      if (r == null)
+      if (r == null) {
         OLogManager.instance()
             .warn(
                 this,
                 "User '%s' has a null role, ignoring it. Consider fixing this user's roles before"
                     + " continuing",
                 getName());
-      else if (r.allow(resourceGeneric, resourceSpecific, iOperation)) return r;
+      } else if (r.allow(resourceGeneric, resourceSpecific, iOperation)) {
+        return r;
+      }
     }
 
     return null;
@@ -201,8 +219,9 @@ public class OUser extends OIdentity implements OSecurityUser {
     final ORule.ResourceGeneric resourceGeneric =
         ORule.mapLegacyResourceToGenericResource(iResource);
 
-    if (resourceSpecific == null || resourceSpecific.equals("*"))
+    if (resourceSpecific == null || resourceSpecific.equals("*")) {
       return allow(resourceGeneric, null, iOperation);
+    }
 
     return allow(resourceGeneric, resourceSpecific, iOperation);
   }
@@ -214,8 +233,9 @@ public class OUser extends OIdentity implements OSecurityUser {
     final ORule.ResourceGeneric resourceGeneric =
         ORule.mapLegacyResourceToGenericResource(iResource);
 
-    if (resourceSpecific == null || resourceSpecific.equals("*"))
+    if (resourceSpecific == null || resourceSpecific.equals("*")) {
       return checkIfAllowed(resourceGeneric, null, iOperation);
+    }
 
     return checkIfAllowed(resourceGeneric, resourceSpecific, iOperation);
   }
@@ -227,8 +247,9 @@ public class OUser extends OIdentity implements OSecurityUser {
     final ORule.ResourceGeneric resourceGeneric =
         ORule.mapLegacyResourceToGenericResource(iResource);
 
-    if (resourceSpecific == null || resourceSpecific.equals("*"))
+    if (resourceSpecific == null || resourceSpecific.equals("*")) {
       return isRuleDefined(resourceGeneric, null);
+    }
 
     return isRuleDefined(resourceGeneric, resourceSpecific);
   }
@@ -240,21 +261,24 @@ public class OUser extends OIdentity implements OSecurityUser {
    */
   public boolean isRuleDefined(
       final ORule.ResourceGeneric resourceGeneric, String resourceSpecific) {
-    for (ORole r : roles)
-      if (r == null)
+    for (ORole r : roles) {
+      if (r == null) {
         OLogManager.instance()
             .warn(
                 this,
                 "User '%s' has a null role, bypass it. Consider to fix this user roles before to"
                     + " continue",
                 getName());
-      else if (r.hasRule(resourceGeneric, resourceSpecific)) return true;
+      } else if (r.hasRule(resourceGeneric, resourceSpecific)) {
+        return true;
+      }
+    }
 
     return false;
   }
 
   public boolean checkPassword(final String iPassword) {
-    return OSecurityManager.checkPassword(iPassword, (String) getDocument().field(PASSWORD_FIELD));
+    return OSecurityManager.checkPassword(iPassword, getDocument().field(PASSWORD_FIELD));
   }
 
   public String getName() {
@@ -277,7 +301,9 @@ public class OUser extends OIdentity implements OSecurityUser {
 
   public STATUSES getAccountStatus() {
     final String status = getDocument().field("status");
-    if (status == null) throw new OSecurityException("User '" + getName() + "' has no status");
+    if (status == null) {
+      throw new OSecurityException("User '" + getName() + "' has no status");
+    }
     return STATUSES.valueOf(status);
   }
 
@@ -290,13 +316,16 @@ public class OUser extends OIdentity implements OSecurityUser {
   }
 
   public OUser addRole(final String iRole) {
-    if (iRole != null)
+    if (iRole != null) {
       addRole(getDocument().getDatabase().getMetadata().getSecurity().getRole(iRole));
+    }
     return this;
   }
 
   public OUser addRole(final OSecurityRole iRole) {
-    if (iRole != null) roles.add((ORole) iRole);
+    if (iRole != null) {
+      roles.add((ORole) iRole);
+    }
 
     final HashSet<ODocument> persistentRoles = new HashSet<ODocument>();
     for (ORole r : roles) {
@@ -330,12 +359,16 @@ public class OUser extends OIdentity implements OSecurityUser {
   public boolean hasRole(final String iRoleName, final boolean iIncludeInherited) {
     for (Iterator<ORole> it = roles.iterator(); it.hasNext(); ) {
       final ORole role = it.next();
-      if (role.getName().equals(iRoleName)) return true;
+      if (role.getName().equals(iRoleName)) {
+        return true;
+      }
 
       if (iIncludeInherited) {
         ORole r = role.getParentRole();
         while (r != null) {
-          if (r.getName().equals(iRoleName)) return true;
+          if (r.getName().equals(iRoleName)) {
+            return true;
+          }
           r = r.getParentRole();
         }
       }

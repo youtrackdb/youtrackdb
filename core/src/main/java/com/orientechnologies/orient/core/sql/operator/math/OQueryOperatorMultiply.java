@@ -50,22 +50,30 @@ public class OQueryOperatorMultiply extends OQueryOperator {
       Object iRight,
       OCommandContext iContext,
       final ODocumentSerializer serializer) {
-    if (iRight == null || iLeft == null) return null;
+    if (iRight == null || iLeft == null) {
+      return null;
+    }
 
-    if (iLeft instanceof Date) iLeft = ((Date) iLeft).getTime();
-    if (iRight instanceof Date) iRight = ((Date) iRight).getTime();
+    if (iLeft instanceof Date) {
+      iLeft = ((Date) iLeft).getTime();
+    }
+    if (iRight instanceof Date) {
+      iRight = ((Date) iRight).getTime();
+    }
 
-    if (iLeft instanceof Number && iRight instanceof Number) {
-      final Number l = (Number) iLeft;
-      final Number r = (Number) iRight;
+    if (iLeft instanceof Number l && iRight instanceof Number r) {
       Class maxPrecisionClass = getMaxPrecisionClass(l, r);
-      if (Integer.class.equals(maxPrecisionClass))
+      if (Integer.class.equals(maxPrecisionClass)) {
         return tryDownscaleToInt(l.longValue() * r.longValue());
-      else if (Long.class.equals(maxPrecisionClass)) return l.longValue() * r.longValue();
-      else if (Short.class.equals(maxPrecisionClass)) return l.shortValue() * r.shortValue();
-      else if (Float.class.equals(maxPrecisionClass)) return l.floatValue() * r.floatValue();
-      else if (Double.class.equals(maxPrecisionClass)) return l.doubleValue() * r.doubleValue();
-      else if (BigDecimal.class.equals(maxPrecisionClass)) {
+      } else if (Long.class.equals(maxPrecisionClass)) {
+        return l.longValue() * r.longValue();
+      } else if (Short.class.equals(maxPrecisionClass)) {
+        return l.shortValue() * r.shortValue();
+      } else if (Float.class.equals(maxPrecisionClass)) {
+        return l.floatValue() * r.floatValue();
+      } else if (Double.class.equals(maxPrecisionClass)) {
+        return l.doubleValue() * r.doubleValue();
+      } else if (BigDecimal.class.equals(maxPrecisionClass)) {
         return (toBigDecimal(l)).multiply(toBigDecimal(r));
       }
     }
@@ -78,10 +86,10 @@ public class OQueryOperatorMultiply extends OQueryOperator {
       return (BigDecimal) number;
     }
     if (number instanceof Double) {
-      return new BigDecimal(number.doubleValue());
+      return BigDecimal.valueOf(number.doubleValue());
     }
     if (number instanceof Float) {
-      return new BigDecimal(number.floatValue());
+      return BigDecimal.valueOf(number.floatValue());
     }
     if (number instanceof Long) {
       return new BigDecimal(number.longValue());

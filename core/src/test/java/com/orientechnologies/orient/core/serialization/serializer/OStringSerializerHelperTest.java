@@ -22,7 +22,7 @@ public class OStringSerializerHelperTest {
   public void test() {
     final List<String> stringItems = new ArrayList<String>();
     final String text =
-        "['f\\\'oo', 'don\\\'t can\\\'t', \"\\\"bar\\\"\", 'b\\\"a\\\'z', \"q\\\"u\\'x\"]";
+        "['f\\'oo', 'don\\'t can\\'t', \"\\\"bar\\\"\", 'b\\\"a\\'z', \"q\\\"u\\'x\"]";
     final int startPos = 0;
 
     OStringSerializerHelper.getCollection(
@@ -36,8 +36,8 @@ public class OStringSerializerHelperTest {
     assertEquals(OIOUtils.getStringContent(stringItems.get(0)), "f'oo");
     assertEquals(OIOUtils.getStringContent(stringItems.get(1)), "don't can't");
     assertEquals(OIOUtils.getStringContent(stringItems.get(2)), "\"bar\"");
-    assertEquals(OIOUtils.getStringContent(stringItems.get(3)), "b\"a\'z");
-    assertEquals(OIOUtils.getStringContent(stringItems.get(4)), "q\"u\'x");
+    assertEquals(OIOUtils.getStringContent(stringItems.get(3)), "b\"a'z");
+    assertEquals(OIOUtils.getStringContent(stringItems.get(4)), "q\"u'x");
   }
 
   @Test

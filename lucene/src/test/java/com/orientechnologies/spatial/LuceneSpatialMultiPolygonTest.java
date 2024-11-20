@@ -33,7 +33,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.locationtech.spatial4j.context.jts.JtsSpatialContext;
 
-/** Created by Enrico Risa on 07/08/15. */
+/**
+ * Created by Enrico Risa on 07/08/15.
+ */
 public class LuceneSpatialMultiPolygonTest extends BaseSpatialLuceneTest {
 
   private static final String MULTIWKT =
@@ -239,7 +241,7 @@ public class LuceneSpatialMultiPolygonTest extends BaseSpatialLuceneTest {
     db.begin();
     db.command(
             "insert into Place set name = 'TestInsert' , location = ST_GeomFromText('"
-                + outputStream.toString()
+                + outputStream
                 + "')")
         .close();
 

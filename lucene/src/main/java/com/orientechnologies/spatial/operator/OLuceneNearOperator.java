@@ -45,7 +45,7 @@ import org.locationtech.spatial4j.shape.SpatialRelation;
 
 public class OLuceneNearOperator extends OQueryTargetOperator {
 
-  private OShapeFactory factory = OShapeFactory.INSTANCE;
+  private final OShapeFactory factory = OShapeFactory.INSTANCE;
 
   public OLuceneNearOperator() {
     super("NEAR", 5, false);
@@ -112,7 +112,6 @@ public class OLuceneNearOperator extends OQueryTargetOperator {
     for (Object obj : right) {
       if (obj instanceof Number) {
         params[i] = ((Double) OType.convert(obj, Double.class)).doubleValue();
-        ;
         i++;
       }
     }

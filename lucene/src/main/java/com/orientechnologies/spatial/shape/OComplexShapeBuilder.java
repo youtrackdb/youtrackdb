@@ -32,7 +32,9 @@ import org.locationtech.spatial4j.shape.ShapeCollection;
 import org.locationtech.spatial4j.shape.jts.JtsGeometry;
 import org.locationtech.spatial4j.shape.jts.JtsPoint;
 
-/** Created by Enrico Risa on 13/08/15. */
+/**
+ * Created by Enrico Risa on 13/08/15.
+ */
 public abstract class OComplexShapeBuilder<T extends Shape> extends OShapeBuilder<T> {
 
   protected List<List<Double>> coordinatesFromLineString(LineString ring) {
@@ -179,9 +181,6 @@ public abstract class OComplexShapeBuilder<T extends Shape> extends OShapeBuilde
       Geometry geom = ((JtsGeometry) shape).getGeom();
       return geom instanceof Polygon;
     }
-    if (shape instanceof Rectangle) {
-      return true;
-    }
-    return false;
+    return shape instanceof Rectangle;
   }
 }

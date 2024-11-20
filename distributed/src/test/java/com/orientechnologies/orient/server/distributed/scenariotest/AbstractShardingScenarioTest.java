@@ -68,11 +68,15 @@ public class AbstractShardingScenarioTest extends AbstractScenarioTest {
               .map((v) -> v.getVertex().get())
               .collect(Collectors.toList());
 
-      if (result.size() == 0) fail("No record found with name = '" + uniqueId + "'!");
-      else if (result.size() > 1)
+      if (result.size() == 0) {
+        fail("No record found with name = '" + uniqueId + "'!");
+      } else if (result.size() > 1) {
         fail(result.size() + " records found with name = '" + uniqueId + "'!");
+      }
 
-      if (result.size() > 0) return result.get(0);
+      if (result.size() > 0) {
+        return result.get(0);
+      }
 
     } catch (Exception e) {
       e.printStackTrace();
@@ -263,8 +267,11 @@ public class AbstractShardingScenarioTest extends AbstractScenarioTest {
 
         // checking records inserted on server0
         int i;
-        if (serverId == 0) i = 0;
-        else i = serverIndex2thresholdThread.get(serverId - 1);
+        if (serverId == 0) {
+          i = 0;
+        } else {
+          i = serverIndex2thresholdThread.get(serverId - 1);
+        }
 
         while (i < serverIndex2thresholdThread.get(serverId)) {
           for (int j = 0; j < 100; j++) {
@@ -329,6 +336,7 @@ public class AbstractShardingScenarioTest extends AbstractScenarioTest {
    */
 
   protected class ShardWriter implements Callable<Void> {
+
     protected final String databaseUrl;
     protected int serverId;
     protected final String shardName;
@@ -374,7 +382,7 @@ public class AbstractShardingScenarioTest extends AbstractScenarioTest {
                 checkVertex(graph, id);
                 // checkIndex(graph, (String) client.getProperty("name"), client.getIdentity());
 
-                if ((i + 1) % 100 == 0)
+                if ((i + 1) % 100 == 0) {
                   System.out.println(
                       "\nDBStartupWriter "
                           + graph.getURL()
@@ -383,8 +391,11 @@ public class AbstractShardingScenarioTest extends AbstractScenarioTest {
                           + "/"
                           + count
                           + " records so far");
+                }
 
-                if (delayWriter > 0) Thread.sleep(delayWriter);
+                if (delayWriter > 0) {
+                  Thread.sleep(delayWriter);
+                }
 
                 // OK
                 break;
@@ -398,7 +409,9 @@ public class AbstractShardingScenarioTest extends AbstractScenarioTest {
               } catch (ONeedRetryException e) {
                 System.out.println("DBStartupWriter received exception (db=" + graph.getURL());
 
-                if (retry >= maxRetries) e.printStackTrace();
+                if (retry >= maxRetries) {
+                  e.printStackTrace();
+                }
 
                 break;
               } catch (ODistributedException e) {

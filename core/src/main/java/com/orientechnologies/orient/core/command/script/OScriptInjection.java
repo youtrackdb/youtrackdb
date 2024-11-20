@@ -29,6 +29,7 @@ import javax.script.ScriptEngine;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OScriptInjection {
+
   void bind(ScriptEngine engine, Bindings binding, ODatabaseSession database);
 
   void unbind(ScriptEngine engine, Bindings binding);

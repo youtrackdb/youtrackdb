@@ -4,6 +4,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 
 public class OMapperExecutionStream implements OExecutionStream {
+
   private final OExecutionStream upstream;
   private final OResultMapper mapper;
 

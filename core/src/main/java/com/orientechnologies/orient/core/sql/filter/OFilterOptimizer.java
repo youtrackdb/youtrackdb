@@ -31,6 +31,7 @@ import java.util.Map;
  * @author Artem Orobets (enisher-at-gmail.com)
  */
 public class OFilterOptimizer {
+
   public void optimize(OSQLFilter filter, OIndexSearchResult indexMatch) {
     filter.setRootCondition(optimize(filter.getRootCondition(), indexMatch));
   }
@@ -61,14 +62,20 @@ public class OFilterOptimizer {
         return condition;
 
       case INDEX_INTERSECTION:
-        if (condition.getLeft() instanceof OSQLFilterCondition)
+        if (condition.getLeft() instanceof OSQLFilterCondition) {
           condition.setLeft(optimize((OSQLFilterCondition) condition.getLeft(), indexMatch));
+        }
 
-        if (condition.getRight() instanceof OSQLFilterCondition)
+        if (condition.getRight() instanceof OSQLFilterCondition) {
           condition.setRight(optimize((OSQLFilterCondition) condition.getRight(), indexMatch));
+        }
 
-        if (condition.getLeft() == null) return (OSQLFilterCondition) condition.getRight();
-        if (condition.getRight() == null) return (OSQLFilterCondition) condition.getLeft();
+        if (condition.getLeft() == null) {
+          return (OSQLFilterCondition) condition.getRight();
+        }
+        if (condition.getRight() == null) {
+          return (OSQLFilterCondition) condition.getLeft();
+        }
         return condition;
 
       case INDEX_OPERATOR:
@@ -87,13 +94,14 @@ public class OFilterOptimizer {
       OQueryOperator operator,
       Object fieldCandidate,
       Object valueCandidate) {
-    if (fieldCandidate instanceof OSQLFilterItemField) {
-      final OSQLFilterItemField field = (OSQLFilterItemField) fieldCandidate;
-      if (operator instanceof OQueryOperatorEquals)
+    if (fieldCandidate instanceof OSQLFilterItemField field) {
+      if (operator instanceof OQueryOperatorEquals) {
         for (Map.Entry<String, Object> e : indexMatch.fieldValuePairs.entrySet()) {
-          if (isSameField(field, e.getKey()) && isSameValue(valueCandidate, e.getValue()))
+          if (isSameField(field, e.getKey()) && isSameValue(valueCandidate, e.getValue())) {
             return true;
+          }
         }
+      }
 
       return operator.equals(indexMatch.lastOperator)
           && isSameField(field, indexMatch.lastField)
@@ -103,8 +111,9 @@ public class OFilterOptimizer {
   }
 
   private boolean isSameValue(Object valueCandidate, Object lastValue) {
-    if (lastValue == null || valueCandidate == null)
+    if (lastValue == null || valueCandidate == null) {
       return lastValue == null && valueCandidate == null;
+    }
 
     return lastValue.equals(valueCandidate)
         || lastValue.equals(OSQLHelper.getValue(valueCandidate));

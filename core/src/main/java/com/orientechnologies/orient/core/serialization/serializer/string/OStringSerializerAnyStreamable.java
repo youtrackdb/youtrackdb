@@ -27,6 +27,7 @@ import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import java.util.Base64;
 
 public class OStringSerializerAnyStreamable implements OStringSerializer {
+
   public static final OStringSerializerAnyStreamable INSTANCE =
       new OStringSerializerAnyStreamable();
   public static final String NAME = "st";
@@ -37,8 +38,10 @@ public class OStringSerializerAnyStreamable implements OStringSerializer {
    */
   public Object fromStream(final String iStream) {
     if (iStream == null || iStream.length() == 0)
-      // NULL VALUE
+    // NULL VALUE
+    {
       return null;
+    }
 
     OSerializableStream instance = null;
 
@@ -70,12 +73,12 @@ public class OStringSerializerAnyStreamable implements OStringSerializer {
    */
   public StringBuilder toStream(final StringBuilder iOutput, Object iValue) {
     if (iValue != null) {
-      if (!(iValue instanceof OSerializableStream))
+      if (!(iValue instanceof OSerializableStream stream)) {
         throw new OSerializationException(
             "Cannot serialize the object since it's not implements the OSerializableStream"
                 + " interface");
+      }
 
-      OSerializableStream stream = (OSerializableStream) iValue;
       iOutput.append(iValue.getClass().getName());
       iOutput.append(OStringSerializerEmbedded.SEPARATOR);
       iOutput.append(Base64.getEncoder().encodeToString(stream.toStream()));

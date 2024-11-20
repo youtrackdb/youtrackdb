@@ -28,6 +28,7 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFilterItemParameter implements OSQLFilterItem {
+
   private final String name;
   private Object value = NOT_SETTED;
 
@@ -44,8 +45,11 @@ public class OSQLFilterItemParameter implements OSQLFilterItem {
 
   @Override
   public String toString() {
-    if (value == NOT_SETTED) return name.equals("?") ? "?" : ":" + name;
-    else return value == null ? "null" : value.toString();
+    if (value == NOT_SETTED) {
+      return name.equals("?") ? "?" : ":" + name;
+    } else {
+      return value == null ? "null" : value.toString();
+    }
   }
 
   public String getName() {

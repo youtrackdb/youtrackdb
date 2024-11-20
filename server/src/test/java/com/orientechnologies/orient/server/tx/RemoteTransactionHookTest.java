@@ -18,7 +18,9 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-/** Created by tglman on 23/05/17. */
+/**
+ * Created by tglman on 23/05/17.
+ */
 public class RemoteTransactionHookTest {
 
   private static final String SERVER_DIRECTORY = "./target/hook-transaction";
@@ -133,6 +135,7 @@ public class RemoteTransactionHookTest {
   }
 
   public static class CountCallHookServer extends CountCallHook {
+
     public CountCallHookServer(ODatabaseSession database) {
       super(database);
       instance = this;
@@ -142,6 +145,7 @@ public class RemoteTransactionHookTest {
   }
 
   public static class CountCallHook extends ODocumentHookAbstract {
+
     private int beforeCreate = 0;
     private int beforeUpdate = 0;
     private int beforeDelete = 0;

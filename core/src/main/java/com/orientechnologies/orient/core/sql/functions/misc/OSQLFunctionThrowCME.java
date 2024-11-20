@@ -25,11 +25,16 @@ import com.orientechnologies.orient.core.exception.OConcurrentModificationExcept
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 
-/** Mostly used for testing purpose. It just throws an OConcurrentModificationException */
+/**
+ * Mostly used for testing purpose. It just throws an OConcurrentModificationException
+ */
 public class OSQLFunctionThrowCME extends OSQLFunctionAbstract {
+
   public static final String NAME = "throwCME";
 
-  /** Get the date at construction to have the same date for all the iteration. */
+  /**
+   * Get the date at construction to have the same date for all the iteration.
+   */
   public OSQLFunctionThrowCME() {
     super(NAME, 4, 4);
   }

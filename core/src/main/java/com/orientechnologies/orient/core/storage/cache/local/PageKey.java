@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.core.storage.cache.local;
 
 final class PageKey implements Comparable<PageKey> {
+
   final int fileId;
   final long pageIndex;
 

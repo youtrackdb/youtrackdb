@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
 public final class CASObjectArray<T> {
+
   private final AtomicInteger size = new AtomicInteger();
   private final AtomicReferenceArray<AtomicReferenceArray<T>> containers =
       new AtomicReferenceArray<>(32);

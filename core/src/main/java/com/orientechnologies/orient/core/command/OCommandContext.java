@@ -55,7 +55,7 @@ public interface OCommandContext {
   /**
    * Updates a counter. Used to record metrics.
    *
-   * @param iName Metric's name
+   * @param iName  Metric's name
    * @param iValue delta to add or subtract
    * @return
    */
@@ -73,13 +73,15 @@ public interface OCommandContext {
    * @return false if it the timeout is elapsed and strategy is "return"
    * @throws OTimeoutException if the strategy is "exception" (default)
    */
-  public boolean checkTimeout();
+  boolean checkTimeout();
 
-  public Map<Object, Object> getInputParameters();
+  Map<Object, Object> getInputParameters();
 
-  public void setInputParameters(Map<Object, Object> inputParameters);
+  void setInputParameters(Map<Object, Object> inputParameters);
 
-  /** Creates a copy of execution context. */
+  /**
+   * Creates a copy of execution context.
+   */
   OCommandContext copy();
 
   /**

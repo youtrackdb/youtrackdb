@@ -41,6 +41,7 @@ import java.util.Set;
  * @since 10/21/14
  */
 public class OImmutableProperty implements OProperty {
+
   private final String name;
   private final String fullName;
   private final OType type;
@@ -74,8 +75,11 @@ public class OImmutableProperty implements OProperty {
     type = property.getType();
     description = property.getDescription();
 
-    if (property.getLinkedClass() != null) linkedClassName = property.getLinkedClass().getName();
-    else linkedClassName = null;
+    if (property.getLinkedClass() != null) {
+      linkedClassName = property.getLinkedClass().getName();
+    } else {
+      linkedClassName = null;
+    }
 
     linkedType = property.getLinkedType();
     notNull = property.isNotNull();
@@ -87,7 +91,9 @@ public class OImmutableProperty implements OProperty {
     regexp = property.getRegexp();
     customProperties = new HashMap<String, String>();
 
-    for (String key : property.getCustomKeys()) customProperties.put(key, property.getCustom(key));
+    for (String key : property.getCustomKeys()) {
+      customProperties.put(key, property.getCustom(key));
+    }
 
     this.owner = owner;
     id = property.getId();
@@ -247,9 +253,13 @@ public class OImmutableProperty implements OProperty {
 
   @Override
   public OClass getLinkedClass() {
-    if (linkedClassName == null) return null;
+    if (linkedClassName == null) {
+      return null;
+    }
 
-    if (linkedClass != null) return linkedClass;
+    if (linkedClass != null) {
+      return linkedClass;
+    }
 
     OSchema schema = ((OImmutableClass) owner).getSchema();
     linkedClass = schema.getClass(linkedClassName);
@@ -439,35 +449,37 @@ public class OImmutableProperty implements OProperty {
 
   @Override
   public Object get(ATTRIBUTES attribute) {
-    if (attribute == null) throw new IllegalArgumentException("attribute is null");
+    if (attribute == null) {
+      throw new IllegalArgumentException("attribute is null");
+    }
 
     switch (attribute) {
       case LINKEDCLASS:
         return getLinkedClass();
       case LINKEDTYPE:
-        return getLinkedType();
+        return linkedType;
       case MIN:
-        return getMin();
+        return min;
       case MANDATORY:
-        return isMandatory();
+        return mandatory;
       case READONLY:
-        return isReadonly();
+        return readOnly;
       case MAX:
-        return getMax();
+        return max;
       case DEFAULT:
-        return getDefaultValue();
+        return defaultValue;
       case NAME:
-        return getName();
+        return name;
       case NOTNULL:
-        return isNotNull();
+        return notNull;
       case REGEXP:
-        return getRegexp();
+        return regexp;
       case TYPE:
-        return getType();
+        return type;
       case COLLATE:
-        return getCollate();
+        return collate;
       case DESCRIPTION:
-        return getDescription();
+        return description;
     }
 
     throw new IllegalArgumentException("Cannot find attribute '" + attribute + "'");
@@ -493,19 +505,24 @@ public class OImmutableProperty implements OProperty {
 
   @Override
   public boolean equals(final Object obj) {
-    if (this == obj) return true;
-    if (!super.equals(obj)) return false;
-    if (!OProperty.class.isAssignableFrom(obj.getClass())) return false;
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (!OProperty.class.isAssignableFrom(obj.getClass())) {
+      return false;
+    }
     OProperty other = (OProperty) obj;
     if (owner == null) {
-      if (other.getOwnerClass() != null) return false;
-    } else if (!owner.equals(other.getOwnerClass())) return false;
-    return true;
+      return other.getOwnerClass() == null;
+    } else return owner.equals(other.getOwnerClass());
   }
 
   @Override
   public String toString() {
-    return getName() + " (type=" + getType() + ")";
+    return name + " (type=" + type + ")";
   }
 
   public Comparable<Object> getMaxComparable() {

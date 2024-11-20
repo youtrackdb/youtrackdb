@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class OServerCommandGetGephi extends OServerCommandAuthenticatedDbAbstract {
+
   private static final String[] NAMES = {"GET|gephi/*"};
 
   public OServerCommandGetGephi() {}
@@ -65,7 +66,6 @@ public class OServerCommandGetGephi extends OServerCommandAuthenticatedDbAbstrac
 
     var db = getProfiledDatabaseInstance(iRequest);
 
-    ;
     try {
 
       final OResultSet resultSet;
@@ -92,7 +92,9 @@ public class OServerCommandGetGephi extends OServerCommandAuthenticatedDbAbstrac
       sendRecordsContent(iRequest, iResponse, resultSet, fetchPlan, limit);
 
     } finally {
-      if (db != null) db.close();
+      if (db != null) {
+        db.close();
+      }
     }
 
     return false;
@@ -122,7 +124,9 @@ public class OServerCommandGetGephi extends OServerCommandAuthenticatedDbAbstrac
 
   protected void generateGraphDbOutput(
       final OResultSet resultSet, int limit, final OJSONWriter json) throws IOException {
-    if (resultSet == null) return;
+    if (resultSet == null) {
+      return;
+    }
 
     // CREATE A SET TO SPEED UP SEARCHES ON VERTICES
     final Set<OVertex> vertexes = new HashSet<>();

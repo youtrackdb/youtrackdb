@@ -17,6 +17,7 @@ import com.orientechnologies.orient.core.sql.query.OSQLAsynchQuery;
 import java.util.Map;
 
 public class OServerStatement extends SimpleNode {
+
   public OServerStatement(int id) {
     super(id);
   }
@@ -102,7 +103,7 @@ public class OServerStatement extends SimpleNode {
   /**
    * creates an execution plan for current statement
    *
-   * @param ctx the context that will be used to execute the statement
+   * @param ctx     the context that will be used to execute the statement
    * @param profile true to enable profiling, false to disable it
    * @return an execution plan
    */

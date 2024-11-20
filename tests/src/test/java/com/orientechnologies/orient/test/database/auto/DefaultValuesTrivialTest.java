@@ -32,6 +32,7 @@ import org.testng.annotations.Test;
  * @since 3/3/2015
  */
 public class DefaultValuesTrivialTest {
+
   private static final int DOCUMENT_COUNT = 50;
 
   private ODatabaseSessionInternal database;

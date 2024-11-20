@@ -3,6 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 public class OArrayConcatExpressionElement extends OExpression {
+
   public OArrayConcatExpressionElement(int id) {
     super(id);
   }

@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 
 public class ODistributedDatabaseChunk implements OStreamable {
+
   public String filePath;
   public long offset;
   public byte[] buffer;
@@ -42,7 +43,8 @@ public class ODistributedDatabaseChunk implements OStreamable {
   public long walSegment;
   public int walPosition;
 
-  public ODistributedDatabaseChunk() {}
+  public ODistributedDatabaseChunk() {
+  }
 
   public ODistributedDatabaseChunk(final OSyncSource backgroundBackup, final int iMaxSize)
       throws IOException {
@@ -58,7 +60,7 @@ public class ODistributedDatabaseChunk implements OStreamable {
       int read = 0;
       read = in.read(local);
       if (read == -1) {
-        buffer = new byte[] {};
+        buffer = new byte[]{};
         last = true;
       } else {
         if (local.length == read) {
@@ -110,19 +112,22 @@ public class ODistributedDatabaseChunk implements OStreamable {
 
     // WHILE UNTIL THE CHUNK IS AVAILABLE
     for (int retry = 0; fileSize <= iOffset; ++retry) {
-      if (fileSize == 0 || iOffset > fileSize)
+      if (fileSize == 0 || iOffset > fileSize) {
         try {
           // WAIT FOR ASYNCH WRITE
           Thread.sleep(300);
         } catch (InterruptedException e) {
         }
+      }
 
       // UPDATE FILE SIZE
       fileSize = iFile.length();
 
       if (completedFile.exists())
-        // BACKUP FINISHED
+      // BACKUP FINISHED
+      {
         break;
+      }
     }
 
     final int toRead = (int) Math.min(iMaxSize, fileSize - offset);

@@ -30,6 +30,7 @@ import java.util.Map.Entry;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OCommandParameters implements Iterable<Map.Entry<Object, Object>> {
+
   private final Map<Object, Object> parameters;
   private int counter = 0;
 
@@ -38,8 +39,11 @@ public class OCommandParameters implements Iterable<Map.Entry<Object, Object>> {
   }
 
   public OCommandParameters(final Map<Object, Object> iArgs) {
-    if (iArgs != null) parameters = iArgs;
-    else parameters = new HashMap<Object, Object>();
+    if (iArgs != null) {
+      parameters = iArgs;
+    } else {
+      parameters = new HashMap<Object, Object>();
+    }
   }
 
   public void set(final Object k, final Object v) {
@@ -51,9 +55,10 @@ public class OCommandParameters implements Iterable<Map.Entry<Object, Object>> {
   }
 
   public Object getNext() {
-    if (parameters.size() <= counter)
+    if (parameters.size() <= counter) {
       throw new IndexOutOfBoundsException(
           "Parameter " + counter + " not found. Total parameters received: " + parameters.size());
+    }
 
     return parameters.get(counter++);
   }

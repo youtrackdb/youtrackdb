@@ -110,6 +110,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+import javax.annotation.Nonnull;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
@@ -426,7 +427,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
             if (f.getPath().endsWith(WAL_SEGMENT_EXTENSION)) {
               String walName = f.getName();
               final int segmentIndex =
-                  walName.lastIndexOf(".", walName.length() - WAL_SEGMENT_EXTENSION.length() - 1);
+                  walName.lastIndexOf('.', walName.length() - WAL_SEGMENT_EXTENSION.length() - 1);
               String ending = walName.substring(segmentIndex);
               final boolean renamed = f.renameTo(new File(f.getParent(), getName() + ending));
               assert renamed;
@@ -1168,12 +1169,12 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
   }
 
   private void checkNoBackupInStorageDir(final File backupDirectory) {
-    if (getStoragePath() == null || backupDirectory == null) {
+    if (storagePath == null || backupDirectory == null) {
       return;
     }
 
     boolean invalid = false;
-    final File storageDir = getStoragePath().toFile();
+    final File storageDir = storagePath.toFile();
     if (backupDirectory.equals(storageDir)) {
       invalid = true;
     }
@@ -1721,7 +1722,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
               ((OClusterBasedStorageConfiguration) configuration)
                   .load(contextConfiguration, atomicOperation));
     } else {
-      if (Files.exists(getStoragePath().resolve("database.ocf"))) {
+      if (Files.exists(storagePath.resolve("database.ocf"))) {
         final OStorageConfigurationSegment oldConfig = new OStorageConfigurationSegment(this);
         oldConfig.load(contextConfiguration);
 
@@ -1734,7 +1735,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
         configuration = atomicConfiguration;
 
         oldConfig.close();
-        Files.deleteIfExists(getStoragePath().resolve("database.ocf"));
+        Files.deleteIfExists(storagePath.resolve("database.ocf"));
       }
 
       if (configuration == null) {
@@ -1828,7 +1829,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
         final String walName = zipEntry.getName();
         final int segmentIndex =
             walName.lastIndexOf(
-                ".", walName.length() - CASDiskWriteAheadLog.WAL_SEGMENT_EXTENSION.length() - 1);
+                '.', walName.length() - CASDiskWriteAheadLog.WAL_SEGMENT_EXTENSION.length() - 1);
         final String storageName = getName();
 
         if (segmentIndex < 0) {
@@ -1850,7 +1851,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
       final long expectedFileId = OLongSerializer.INSTANCE.deserialize(binaryFileId, 0);
       long fileId;
 
-      var rootDirectory = getStoragePath();
+      var rootDirectory = storagePath;
       var zipEntryPath = rootDirectory.resolve(zipEntry.getName()).normalize();
 
       if (!zipEntryPath.startsWith(rootDirectory)) {
@@ -1984,7 +1985,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
   }
 
   @Override
-  public ORawBuffer readRecord(
+  public @Nonnull ORawBuffer readRecord(
       ORecordId iRid,
       boolean iIgnoreCache,
       boolean prefetchRecords,

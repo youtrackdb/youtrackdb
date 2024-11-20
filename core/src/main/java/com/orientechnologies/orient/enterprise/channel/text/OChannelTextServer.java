@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 public class OChannelTextServer extends OChannelText {
+
   public OChannelTextServer(final Socket iSocket, final OContextConfiguration iConfiguration)
       throws IOException {
     super(iSocket, iConfiguration);

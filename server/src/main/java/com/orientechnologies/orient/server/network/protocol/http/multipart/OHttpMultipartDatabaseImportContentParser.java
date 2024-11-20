@@ -23,7 +23,9 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
-/** @author Luca Molino (molino.luca--at--gmail.com) */
+/**
+ * @author Luca Molino (molino.luca--at--gmail.com)
+ */
 public class OHttpMultipartDatabaseImportContentParser
     implements OHttpMultipartContentParser<InputStream> {
 
@@ -36,8 +38,9 @@ public class OHttpMultipartDatabaseImportContentParser
       throws IOException {
     final String fileName = headers.get(OHttpUtils.MULTIPART_CONTENT_FILENAME);
 
-    if (fileName.endsWith(".gz") || fileName.endsWith(".gzip"))
+    if (fileName.endsWith(".gz") || fileName.endsWith(".gzip")) {
       return new GZIPInputStream(in, 16384); // 16KB
+    }
 
     return in;
   }

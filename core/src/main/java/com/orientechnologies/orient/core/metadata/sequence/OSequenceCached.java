@@ -116,7 +116,6 @@ public class OSequenceCached extends OSequence {
   }
 
   private void checkSecurity() {
-    //noinspection resource
     getDatabase()
         .checkSecurity(
             ORule.ResourceGeneric.CLASS,

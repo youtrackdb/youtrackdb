@@ -117,7 +117,7 @@ public class OVarIntSerializer {
    * @param bytes to read bytes from
    * @return decode value
    * @throws IllegalArgumentException if variable-length value does not terminate after 9 bytes have
-   *     been read
+   *                                  been read
    */
   public static long readSignedVarLong(final BytesContainer bytes) {
     final long raw = readUnsignedVarLong(bytes);
@@ -134,7 +134,7 @@ public class OVarIntSerializer {
    * @param bytes to read bytes from
    * @return decode value
    * @throws IllegalArgumentException if variable-length value does not terminate after 9 bytes have
-   *     been read
+   *                                  been read
    */
   public static long readSignedVarLong(final DataInput bytes) throws IOException {
     final long raw = readUnsignedVarLong(bytes);
@@ -151,7 +151,7 @@ public class OVarIntSerializer {
    * @param bytes to read bytes from
    * @return decode value
    * @throws IllegalArgumentException if variable-length value does not terminate after 9 bytes have
-   *     been read
+   *                                  been read
    */
   public static long readUnsignedVarLong(final BytesContainer bytes) {
     long value = 0L;
@@ -160,8 +160,9 @@ public class OVarIntSerializer {
     while (((b = bytes.bytes[bytes.offset++]) & 0x80L) != 0) {
       value |= (b & 0x7F) << i;
       i += 7;
-      if (i > 63)
+      if (i > 63) {
         throw new IllegalArgumentException("Variable length quantity is too long (must be <= 63)");
+      }
     }
     return value | (b << i);
   }
@@ -170,7 +171,7 @@ public class OVarIntSerializer {
    * @param bytes to read bytes from
    * @return decode value
    * @throws IllegalArgumentException if variable-length value does not terminate after 9 bytes have
-   *     been read
+   *                                  been read
    */
   public static long readUnsignedVarLong(final DataInput bytes) throws IOException {
     long value = 0L;
@@ -179,8 +180,9 @@ public class OVarIntSerializer {
     while (((b = bytes.readByte()) & 0x80L) != 0) {
       value |= (b & 0x7F) << i;
       i += 7;
-      if (i > 63)
+      if (i > 63) {
         throw new IllegalArgumentException("Variable length quantity is too long (must be <= 63)");
+      }
     }
     return value | (b << i);
   }

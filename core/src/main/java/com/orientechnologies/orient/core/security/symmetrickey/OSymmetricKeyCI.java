@@ -37,6 +37,7 @@ import com.orientechnologies.orient.core.security.OCredentialInterceptor;
  * @author S. Colin Leister
  */
 public class OSymmetricKeyCI implements OCredentialInterceptor {
+
   private String username;
   private String encodedJSON = "";
 
@@ -48,13 +49,17 @@ public class OSymmetricKeyCI implements OCredentialInterceptor {
     return this.encodedJSON;
   }
 
-  /** The usual password field should be a JSON representation. */
+  /**
+   * The usual password field should be a JSON representation.
+   */
   public void intercept(final String url, final String username, final String password)
       throws OSecurityException {
-    if (username == null || username.isEmpty())
+    if (username == null || username.isEmpty()) {
       throw new OSecurityException("OSymmetricKeyCI username is not valid!");
-    if (password == null || password.isEmpty())
+    }
+    if (password == null || password.isEmpty()) {
       throw new OSecurityException("OSymmetricKeyCI password is not valid!");
+    }
 
     this.username = username;
 
@@ -77,17 +82,24 @@ public class OSymmetricKeyCI implements OCredentialInterceptor {
     }
 
     // Override algorithm and transform, if they exist in the JSON document.
-    if (jsonDoc.containsField("algorithm")) algorithm = jsonDoc.field("algorithm");
-    if (jsonDoc.containsField("transform")) transform = jsonDoc.field("transform");
+    if (jsonDoc.containsField("algorithm")) {
+      algorithm = jsonDoc.field("algorithm");
+    }
+    if (jsonDoc.containsField("transform")) {
+      transform = jsonDoc.field("transform");
+    }
 
     // Just in case the default configuration gets changed, check it.
-    if (transform == null || transform.isEmpty())
+    if (transform == null || transform.isEmpty()) {
       throw new OSecurityException("OSymmetricKeyCI.intercept() cipher transformation is required");
+    }
 
     // If the algorithm is not set, either as a default in the global configuration or in the JSON
     // document,
     // then determine the algorithm from the cipher transformation.
-    if (algorithm == null) algorithm = OSymmetricKey.separateAlgorithm(transform);
+    if (algorithm == null) {
+      algorithm = OSymmetricKey.separateAlgorithm(transform);
+    }
 
     OSymmetricKey key = null;
 
@@ -99,23 +111,29 @@ public class OSymmetricKeyCI implements OCredentialInterceptor {
       key.setDefaultCipherTransform(transform);
     } else // "keyFile" has priority over "keyStore".
     if (jsonDoc.containsField("keyFile")) {
-      key = OSymmetricKey.fromFile(algorithm, (String) jsonDoc.field("keyFile"));
+      key = OSymmetricKey.fromFile(algorithm, jsonDoc.field("keyFile"));
       key.setDefaultCipherTransform(transform);
     } else if (jsonDoc.containsField("keyStore")) {
       ODocument ksDoc = jsonDoc.field("keyStore");
 
-      if (ksDoc.containsField("file")) keystoreFile = ksDoc.field("file");
+      if (ksDoc.containsField("file")) {
+        keystoreFile = ksDoc.field("file");
+      }
 
-      if (keystoreFile == null || keystoreFile.isEmpty())
+      if (keystoreFile == null || keystoreFile.isEmpty()) {
         throw new OSecurityException("OSymmetricKeyCI.intercept() keystore file is required");
+      }
 
       // Specific to Keystore, but override if present in the JSON document.
-      if (ksDoc.containsField("password")) keystorePassword = ksDoc.field("password");
+      if (ksDoc.containsField("password")) {
+        keystorePassword = ksDoc.field("password");
+      }
 
       String keyAlias = ksDoc.field("keyAlias");
 
-      if (keyAlias == null || keyAlias.isEmpty())
+      if (keyAlias == null || keyAlias.isEmpty()) {
         throw new OSecurityException("OSymmetricKeyCI.intercept() keystore key alias is required");
+      }
 
       // keyPassword may be null.
       String keyPassword = ksDoc.field("keyPassword");
@@ -129,8 +147,9 @@ public class OSymmetricKeyCI implements OCredentialInterceptor {
     }
 
     // This should never happen, but...
-    if (key == null)
+    if (key == null) {
       throw new OSecurityException("OSymmetricKeyCI.intercept() OSymmetricKey is null");
+    }
 
     encodedJSON = key.encrypt(transform, username);
   }

@@ -14,7 +14,9 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 import java.util.Map;
 
-/** Created by tglman on 17/05/17. */
+/**
+ * Created by tglman on 17/05/17.
+ */
 public class OSubscribeLiveQueryRequest implements OBinaryRequest<OSubscribeLiveQueryResponse> {
 
   private String query;

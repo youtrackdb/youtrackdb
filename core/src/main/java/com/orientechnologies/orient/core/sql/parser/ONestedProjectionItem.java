@@ -6,6 +6,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.Map;
+import java.util.Objects;
 
 public class ONestedProjectionItem extends SimpleNode {
 
@@ -61,9 +62,7 @@ public class ONestedProjectionItem extends SimpleNode {
       if (fieldString.equals(propertyName)) {
         return true;
       }
-      if (rightWildcard && propertyName.startsWith(fieldString)) {
-        return true;
-      }
+      return rightWildcard && propertyName.startsWith(fieldString);
     }
     return false;
   }
@@ -116,19 +115,31 @@ public class ONestedProjectionItem extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     ONestedProjectionItem that = (ONestedProjectionItem) o;
 
-    if (exclude != that.exclude) return false;
-    if (star != that.star) return false;
-    if (rightWildcard != that.rightWildcard) return false;
-    if (expression != null ? !expression.equals(that.expression) : that.expression != null)
+    if (exclude != that.exclude) {
       return false;
-    if (expansion != null ? !expansion.equals(that.expansion) : that.expansion != null)
+    }
+    if (star != that.star) {
       return false;
-    return alias != null ? alias.equals(that.alias) : that.alias == null;
+    }
+    if (rightWildcard != that.rightWildcard) {
+      return false;
+    }
+    if (!Objects.equals(expression, that.expression)) {
+      return false;
+    }
+    if (!Objects.equals(expansion, that.expansion)) {
+      return false;
+    }
+    return Objects.equals(alias, that.alias);
   }
 
   @Override

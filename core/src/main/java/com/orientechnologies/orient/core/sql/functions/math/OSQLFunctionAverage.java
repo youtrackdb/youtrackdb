@@ -36,6 +36,7 @@ import java.util.Map;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionAverage extends OSQLFunctionMathAbstract {
+
   public static final String NAME = "avg";
 
   private Number sum;
@@ -52,13 +53,19 @@ public class OSQLFunctionAverage extends OSQLFunctionMathAbstract {
       final Object[] iParams,
       OCommandContext iContext) {
     if (iParams.length == 1) {
-      if (iParams[0] instanceof Number) sum((Number) iParams[0]);
-      else if (OMultiValue.isMultiValue(iParams[0]))
-        for (Object n : OMultiValue.getMultiValueIterable(iParams[0])) sum((Number) n);
+      if (iParams[0] instanceof Number) {
+        sum((Number) iParams[0]);
+      } else if (OMultiValue.isMultiValue(iParams[0])) {
+        for (Object n : OMultiValue.getMultiValueIterable(iParams[0])) {
+          sum((Number) n);
+        }
+      }
 
     } else {
       sum = null;
-      for (int i = 0; i < iParams.length; ++i) sum((Number) iParams[i]);
+      for (int i = 0; i < iParams.length; ++i) {
+        sum((Number) iParams[i]);
+      }
     }
 
     return getResult();
@@ -68,9 +75,12 @@ public class OSQLFunctionAverage extends OSQLFunctionMathAbstract {
     if (value != null) {
       total++;
       if (sum == null)
-        // FIRST TIME
+      // FIRST TIME
+      {
         sum = value;
-      else sum = OType.increment(sum, value);
+      } else {
+        sum = OType.increment(sum, value);
+      }
     }
   }
 
@@ -98,8 +108,11 @@ public class OSQLFunctionAverage extends OSQLFunctionMathAbstract {
       int dTotal = 0;
       for (Object iParameter : resultsToMerge) {
         final Map<String, Object> item = (Map<String, Object>) iParameter;
-        if (dSum == null) dSum = (Number) item.get("sum");
-        else dSum = OType.increment(dSum, (Number) item.get("sum"));
+        if (dSum == null) {
+          dSum = (Number) item.get("sum");
+        } else {
+          dSum = OType.increment(dSum, (Number) item.get("sum"));
+        }
 
         dTotal += (Integer) item.get("total");
       }
@@ -107,7 +120,9 @@ public class OSQLFunctionAverage extends OSQLFunctionMathAbstract {
       return computeAverage(dSum, dTotal);
     }
 
-    if (!resultsToMerge.isEmpty()) return resultsToMerge.get(0);
+    if (!resultsToMerge.isEmpty()) {
+      return resultsToMerge.get(0);
+    }
 
     return null;
   }
@@ -118,12 +133,17 @@ public class OSQLFunctionAverage extends OSQLFunctionMathAbstract {
   }
 
   private Object computeAverage(Number iSum, int iTotal) {
-    if (iSum instanceof Integer) return iSum.intValue() / iTotal;
-    else if (iSum instanceof Long) return iSum.longValue() / iTotal;
-    else if (iSum instanceof Float) return iSum.floatValue() / iTotal;
-    else if (iSum instanceof Double) return iSum.doubleValue() / iTotal;
-    else if (iSum instanceof BigDecimal)
+    if (iSum instanceof Integer) {
+      return iSum.intValue() / iTotal;
+    } else if (iSum instanceof Long) {
+      return iSum.longValue() / iTotal;
+    } else if (iSum instanceof Float) {
+      return iSum.floatValue() / iTotal;
+    } else if (iSum instanceof Double) {
+      return iSum.doubleValue() / iTotal;
+    } else if (iSum instanceof BigDecimal) {
       return ((BigDecimal) iSum).divide(new BigDecimal(iTotal), RoundingMode.HALF_UP);
+    }
 
     return null;
   }

@@ -19,10 +19,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
 public class OBinaryCondition extends OBooleanExpression {
+
   protected OExpression left;
   protected OBinaryCompareOperator operator;
   protected OExpression right;
@@ -166,10 +168,10 @@ public class OBinaryCondition extends OBooleanExpression {
    * tests if current expression involves an indexed funciton AND that function can also be executed
    * without using the index
    *
-   * @param target the query target
+   * @param target  the query target
    * @param context the execution context
    * @return true if current expression involves an indexed function AND that function can be used
-   *     on this target, false otherwise
+   * on this target, false otherwise
    */
   public boolean canExecuteIndexedFunctionWithoutIndex(
       OFromClause target, OCommandContext context) {
@@ -181,10 +183,10 @@ public class OBinaryCondition extends OBooleanExpression {
    * tests if current expression involves an indexed function AND that function can be used on this
    * target
    *
-   * @param target the query target
+   * @param target  the query target
    * @param context the execution context
    * @return true if current expression involves an indexed function AND that function can be used
-   *     on this target, false otherwise
+   * on this target, false otherwise
    */
   public boolean allowsIndexedFunctionExecutionOnTarget(
       OFromClause target, OCommandContext context) {
@@ -198,10 +200,10 @@ public class OBinaryCondition extends OBooleanExpression {
    * can be excluded from further evaluation. In other cases the result from the index is a superset
    * of the expected result, so the function has to be executed anyway for further filtering
    *
-   * @param target the query target
+   * @param target  the query target
    * @param context the execution context
    * @return true if current expression involves an indexed function AND the function has also to be
-   *     executed after the index search.
+   * executed after the index search.
    */
   public boolean executeIndexedFunctionAfterIndexSearch(
       OFromClause target, OCommandContext context) {
@@ -222,17 +224,14 @@ public class OBinaryCondition extends OBooleanExpression {
     if (left.needsAliases(aliases)) {
       return true;
     }
-    if (right.needsAliases(aliases)) {
-      return true;
-    }
-    return false;
+    return right.needsAliases(aliases);
   }
 
   @Override
   public OBinaryCondition copy() {
     OBinaryCondition result = new OBinaryCondition(-1);
     result.left = left.copy();
-    result.operator = (OBinaryCompareOperator) operator.copy();
+    result.operator = operator.copy();
     result.right = right.copy();
     return result;
   }
@@ -268,16 +267,12 @@ public class OBinaryCondition extends OBooleanExpression {
   private boolean checkCanTransformToUpdate() {
     if (left == null
         || left.mathExpression == null
-        || !(left.mathExpression instanceof OBaseExpression)) {
+        || !(left.mathExpression instanceof OBaseExpression base)) {
       return false;
     }
-    OBaseExpression base = (OBaseExpression) left.mathExpression;
-    if (base.getIdentifier() == null
-        || base.getIdentifier().suffix == null
-        || base.getIdentifier().suffix.getIdentifier() == null) {
-      return false;
-    }
-    return true;
+    return base.getIdentifier() != null
+        && base.getIdentifier().suffix != null
+        && base.getIdentifier().suffix.getIdentifier() != null;
   }
 
   public OExpression getLeft() {
@@ -306,16 +301,22 @@ public class OBinaryCondition extends OBooleanExpression {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OBinaryCondition that = (OBinaryCondition) o;
 
-    if (left != null ? !left.equals(that.left) : that.left != null) return false;
-    if (operator != null ? !operator.equals(that.operator) : that.operator != null) return false;
-    if (right != null ? !right.equals(that.right) : that.right != null) return false;
-
-    return true;
+    if (!Objects.equals(left, that.left)) {
+      return false;
+    }
+    if (!Objects.equals(operator, that.operator)) {
+      return false;
+    }
+    return Objects.equals(right, that.right);
   }
 
   @Override
@@ -380,8 +381,7 @@ public class OBinaryCondition extends OBooleanExpression {
       newIdentifier.levelZero.collection = newColl;
       newBase.setIdentifier(newIdentifier);
       return result;
-    } else if (left.mathExpression instanceof OBaseExpression) {
-      OBaseExpression base = (OBaseExpression) left.mathExpression;
+    } else if (left.mathExpression instanceof OBaseExpression base) {
       if (base.getIdentifier() != null
           && base.getIdentifier().levelZero != null
           && base.getIdentifier().levelZero.collection != null) {
@@ -536,10 +536,7 @@ public class OBinaryCondition extends OBooleanExpression {
               && info.isMap()
               && info.isIndexByKey()) {
             return true;
-          } else if (info.allowsRange() && operator.isRangeOperator()) {
-            return true;
-          }
-          return false;
+          } else return info.allowsRange() && operator.isRangeOperator();
         }
       }
     }
@@ -548,15 +545,14 @@ public class OBinaryCondition extends OBooleanExpression {
 
   @Override
   public boolean createRangeWith(OBooleanExpression match) {
-    if (!(match instanceof OBinaryCondition)) {
+    if (!(match instanceof OBinaryCondition metchingCondition)) {
       return false;
     }
-    OBinaryCondition metchingCondition = (OBinaryCondition) match;
-    if (!metchingCondition.getLeft().equals(this.getLeft())) {
+    if (!metchingCondition.left.equals(this.left)) {
       return false;
     }
-    OBinaryCompareOperator leftOperator = metchingCondition.getOperator();
-    OBinaryCompareOperator rightOperator = this.getOperator();
+    OBinaryCompareOperator leftOperator = metchingCondition.operator;
+    OBinaryCompareOperator rightOperator = this.operator;
     if (leftOperator instanceof OGeOperator || leftOperator instanceof OGtOperator) {
       return rightOperator instanceof OLeOperator || rightOperator instanceof OLtOperator;
     }
@@ -568,15 +564,15 @@ public class OBinaryCondition extends OBooleanExpression {
 
   @Override
   public OExpression resolveKeyFrom(OBinaryCondition additional) {
-    OBinaryCompareOperator operator = getOperator();
+    OBinaryCompareOperator operator = this.operator;
     if ((operator instanceof OEqualsCompareOperator)
         || (operator instanceof OGtOperator)
         || (operator instanceof OGeOperator)
         || (operator instanceof OContainsKeyOperator)
         || (operator instanceof OContainsValueOperator)) {
-      return getRight();
+      return right;
     } else if (additional != null) {
-      return additional.getRight();
+      return additional.right;
     } else {
       return null;
       //      throw new UnsupportedOperationException("Cannot execute index query with " + this);
@@ -585,15 +581,15 @@ public class OBinaryCondition extends OBooleanExpression {
 
   @Override
   public OExpression resolveKeyTo(OBinaryCondition additional) {
-    OBinaryCompareOperator operator = this.getOperator();
+    OBinaryCompareOperator operator = this.operator;
     if ((operator instanceof OEqualsCompareOperator)
         || (operator instanceof OLtOperator)
         || (operator instanceof OLeOperator)
         || (operator instanceof OContainsKeyOperator)
         || (operator instanceof OContainsValueOperator)) {
-      return getRight();
+      return right;
     } else if (additional != null) {
-      return additional.getRight();
+      return additional.right;
     } else {
       return null;
       //      throw new UnsupportedOperationException("Cannot execute index query with " + this);

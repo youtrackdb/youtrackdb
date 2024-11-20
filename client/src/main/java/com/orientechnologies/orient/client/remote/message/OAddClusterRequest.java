@@ -30,6 +30,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public final class OAddClusterRequest implements OBinaryRequest<OAddClusterResponse> {
+
   private int requestedId = -1;
   private String clusterName;
 
@@ -49,17 +50,23 @@ public final class OAddClusterRequest implements OBinaryRequest<OAddClusterRespo
   public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
       throws IOException {
     String type = "";
-    if (protocolVersion < 24) type = channel.readString();
+    if (protocolVersion < 24) {
+      type = channel.readString();
+    }
 
     this.clusterName = channel.readString();
 
     if (protocolVersion < 24 || type.equalsIgnoreCase("PHYSICAL"))
-      // Skipping location is just for compatibility
+    // Skipping location is just for compatibility
+    {
       channel.readString();
+    }
 
     if (protocolVersion < 24)
-      // Skipping data segment name is just for compatibility
+    // Skipping data segment name is just for compatibility
+    {
       channel.readString();
+    }
 
     this.requestedId = channel.readShort();
   }

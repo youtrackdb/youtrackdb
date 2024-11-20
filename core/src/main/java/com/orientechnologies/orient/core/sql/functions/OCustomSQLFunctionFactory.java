@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
  * @author Fabrizio Fortino
  */
 public class OCustomSQLFunctionFactory implements OSQLFunctionFactory {
+
   private static final Map<String, Object> FUNCTIONS = new HashMap<>();
 
   static {
@@ -73,10 +74,13 @@ public class OCustomSQLFunctionFactory implements OSQLFunctionFactory {
   public OSQLFunction createFunction(final String name) {
     final Object obj = FUNCTIONS.get(name);
 
-    if (obj == null) throw new OCommandExecutionException("Unknown function name :" + name);
+    if (obj == null) {
+      throw new OCommandExecutionException("Unknown function name :" + name);
+    }
 
-    if (obj instanceof OSQLFunction) return (OSQLFunction) obj;
-    else {
+    if (obj instanceof OSQLFunction) {
+      return (OSQLFunction) obj;
+    } else {
       // it's a class
       final Class<?> clazz = (Class<?>) obj;
       try {

@@ -60,6 +60,7 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 @Warmup(iterations = 1, batchSize = 1)
 @Fork(0)
 public class KeyNormalizerVsSerializerBenchmark {
+
   private KeyNormalizer keyNormalizer;
   private ByteOrder byteOrder;
 
@@ -77,6 +78,7 @@ public class KeyNormalizerVsSerializerBenchmark {
   }
 
   private class Pair {
+
     private RunResult serializer;
     private RunResult normalizer;
 

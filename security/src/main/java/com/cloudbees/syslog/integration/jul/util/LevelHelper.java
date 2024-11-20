@@ -19,7 +19,9 @@ import com.cloudbees.syslog.Severity;
 import java.util.*;
 import java.util.logging.Level;
 
-/** @author <a href="mailto:cleclerc@cloudbees.com">Cyrille Le Clerc</a> */
+/**
+ * @author <a href="mailto:cleclerc@cloudbees.com">Cyrille Le Clerc</a>
+ */
 public class LevelHelper {
 
   public static final List<Level> levels =
@@ -72,7 +74,9 @@ public class LevelHelper {
    * @return
    */
   public static Level findLevel(String name) {
-    if (name == null || name.isEmpty()) return null;
+    if (name == null || name.isEmpty()) {
+      return null;
+    }
     return Level.parse(name);
   }
 
@@ -80,7 +84,9 @@ public class LevelHelper {
     return julLevelToSyslogSeverity.get(level);
   }
 
-  /** Compare on {@link java.util.logging.Level#intValue()} */
+  /**
+   * Compare on {@link java.util.logging.Level#intValue()}
+   */
   public static Comparator<Level> comparator() {
     return new Comparator<Level>() {
       @Override

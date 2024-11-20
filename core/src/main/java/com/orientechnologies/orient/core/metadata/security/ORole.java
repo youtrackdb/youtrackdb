@@ -70,7 +70,8 @@ public class ORole extends OIdentity implements OSecurityRole {
   protected ALLOW_MODES mode = ALLOW_MODES.DENY_ALL_BUT;
   protected ORole parentRole;
 
-  private Map<ORule.ResourceGeneric, ORule> rules = new HashMap<ORule.ResourceGeneric, ORule>();
+  private final Map<ORule.ResourceGeneric, ORule> rules =
+      new HashMap<ORule.ResourceGeneric, ORule>();
 
   /**
    * Constructor used in unmarshalling.
@@ -192,7 +193,7 @@ public class ORole extends OIdentity implements OSecurityRole {
       if (storedRules != null) {
         for (ODocument ruleDoc : storedRules) {
           final ORule.ResourceGeneric resourceGeneric =
-              ORule.ResourceGeneric.valueOf(ruleDoc.<String>field("resourceGeneric"));
+              ORule.ResourceGeneric.valueOf(ruleDoc.field("resourceGeneric"));
           if (resourceGeneric == null) {
             continue;
           }

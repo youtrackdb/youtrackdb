@@ -174,7 +174,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
     final List<ODocument> result = database.query(new OSQLSynchQuery<ODocument>(query));
 
     Assert.assertEquals(result.size(), 1);
-    List<Integer> values = new ArrayList<Integer>(Arrays.asList(2));
+    List<Integer> values = new ArrayList<Integer>(List.of(2));
 
     for (ODocument document : result) {
       Assert.assertTrue(values.remove((Integer) document.field("a")));
@@ -312,7 +312,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
     final List<ODocument> result = database.query(new OSQLSynchQuery<ODocument>(query));
 
     Assert.assertEquals(result.size(), 1);
-    List<Integer> values = new ArrayList<Integer>(Arrays.asList(2));
+    List<Integer> values = new ArrayList<Integer>(List.of(2));
 
     for (ODocument document : result) {
       Assert.assertTrue(values.remove((Integer) document.field("ai")));
@@ -392,7 +392,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
     final List<ODocument> result = database.query(new OSQLSynchQuery<ODocument>(query));
 
     Assert.assertEquals(result.size(), 1);
-    List<Integer> values = new ArrayList<Integer>(Arrays.asList(3));
+    List<Integer> values = new ArrayList<Integer>(List.of(3));
 
     for (ODocument document : result) {
       Assert.assertTrue(values.remove((Integer) document.field("a")));
@@ -410,7 +410,7 @@ public class BetweenConversionTest extends DocumentDBBaseTest {
     final List<ODocument> result = database.query(new OSQLSynchQuery<ODocument>(query));
 
     Assert.assertEquals(result.size(), 1);
-    List<Integer> values = new ArrayList<Integer>(Arrays.asList(1));
+    List<Integer> values = new ArrayList<Integer>(List.of(1));
 
     for (ODocument document : result) {
       Assert.assertTrue(values.remove((Integer) document.field("a")));

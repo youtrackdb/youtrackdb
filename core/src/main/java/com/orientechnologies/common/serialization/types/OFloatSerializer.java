@@ -36,7 +36,9 @@ public class OFloatSerializer implements OBinarySerializer<Float> {
 
   public static final byte ID = 7;
 
-  /** size of float value in bytes */
+  /**
+   * size of float value in bytes
+   */
   public static final int FLOAT_SIZE = 4;
 
   private static final OBinaryConverter CONVERTER = OBinaryConverterFactory.getConverter();
@@ -108,13 +110,17 @@ public class OFloatSerializer implements OBinarySerializer<Float> {
     return value;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void serializeInByteBufferObject(Float object, ByteBuffer buffer, Object... hints) {
     buffer.putInt(Float.floatToIntBits(object));
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Float deserializeFromByteBufferObject(ByteBuffer buffer) {
     return Float.intBitsToFloat(buffer.getInt());
@@ -125,20 +131,26 @@ public class OFloatSerializer implements OBinarySerializer<Float> {
     return Float.intBitsToFloat(buffer.getInt(offset));
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getObjectSizeInByteBuffer(ByteBuffer buffer) {
     return FLOAT_SIZE;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Float deserializeFromByteBufferObject(
       ByteBuffer buffer, OWALChanges walChanges, int offset) {
     return Float.intBitsToFloat(walChanges.getIntValue(buffer, offset));
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getObjectSizeInByteBuffer(ByteBuffer buffer, OWALChanges walChanges, int offset) {
     return FLOAT_SIZE;

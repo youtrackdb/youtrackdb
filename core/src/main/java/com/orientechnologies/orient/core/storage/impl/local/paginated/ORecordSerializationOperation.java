@@ -28,5 +28,6 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoper
  * @since 11/26/13
  */
 public interface ORecordSerializationOperation {
+
   void execute(OAtomicOperation atomicOperation, OAbstractPaginatedStorage paginatedStorage);
 }

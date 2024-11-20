@@ -10,6 +10,7 @@ import org.junit.Before;
  */
 public class OPropertyEmbeddedRidBagIndexDefinitionTest
     extends OPropertyRidBagAbstractIndexDefinition {
+
   private int topThreshold;
   private int bottomThreshold;
 

@@ -42,7 +42,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class OSchedulerImpl {
 
-  private ConcurrentHashMap<String, OScheduledEvent> events =
+  private final ConcurrentHashMap<String, OScheduledEvent> events =
       new ConcurrentHashMap<String, OScheduledEvent>();
 
   private final OrientDBInternal orientDB;

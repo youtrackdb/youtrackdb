@@ -24,7 +24,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/** Created by tglman on 25/01/17. */
+/**
+ * Created by tglman on 25/01/17.
+ */
 public class OSqlScriptExecutor extends OAbstractScriptExecutor {
 
   public OSqlScriptExecutor() {
@@ -133,7 +135,7 @@ public class OSqlScriptExecutor extends OAbstractScriptExecutor {
   public Object executeFunction(
       OCommandContext context, final String functionName, final Map<Object, Object> iArgs) {
 
-    ODatabaseSessionInternal db = (ODatabaseSessionInternal) context.getDatabase();
+    ODatabaseSessionInternal db = context.getDatabase();
     if (db == null) {
       db = ODatabaseRecordThreadLocal.instance().get();
     }

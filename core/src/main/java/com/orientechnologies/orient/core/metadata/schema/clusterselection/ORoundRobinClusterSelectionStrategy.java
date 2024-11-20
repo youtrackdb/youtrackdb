@@ -25,8 +25,9 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ORoundRobinClusterSelectionStrategy implements OClusterSelectionStrategy {
+
   public static final String NAME = "round-robin";
-  private AtomicLong pointer = new AtomicLong(0);
+  private final AtomicLong pointer = new AtomicLong(0);
 
   public int getCluster(final OClass iClass, final ODocument doc) {
     return getCluster(iClass, iClass.getClusterIds(), doc);
@@ -34,8 +35,10 @@ public class ORoundRobinClusterSelectionStrategy implements OClusterSelectionStr
 
   public int getCluster(final OClass clazz, final int[] clusters, final ODocument doc) {
     if (clusters.length == 1)
-      // ONLY ONE: RETURN THE FIRST ONE
+    // ONLY ONE: RETURN THE FIRST ONE
+    {
       return clusters[0];
+    }
 
     return clusters[(int) (pointer.getAndIncrement() % clusters.length)];
   }

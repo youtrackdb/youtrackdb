@@ -738,7 +738,7 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
     for (int i = 0; i < 5; i++) {
       ODocument document = result.get(i);
       Assert.assertEquals((int) document.<Integer>field("firstProp"), i / 2 + 6);
-      Assert.assertEquals(document.<String>field("prop4"), "prop" + (i + 12));
+      Assert.assertEquals(document.field("prop4"), "prop" + (i + 12));
     }
 
     final ODocument explain = database.command(new OCommandSQL("explain " + query)).execute();
@@ -1029,15 +1029,15 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
 
     ODocument document = result.get(0);
     Assert.assertEquals((int) document.<Integer>field("firstProp"), 2);
-    Assert.assertEquals(document.<String>field("prop4"), "prop4");
+    Assert.assertEquals(document.field("prop4"), "prop4");
 
     document = result.get(1);
     Assert.assertEquals((int) document.<Integer>field("firstProp"), 2);
-    Assert.assertEquals(document.<String>field("prop4"), "prop5");
+    Assert.assertEquals(document.field("prop4"), "prop5");
 
     document = result.get(2);
     Assert.assertEquals((int) document.<Integer>field("firstProp"), 10);
-    Assert.assertEquals(document.<String>field("prop4"), "prop20");
+    Assert.assertEquals(document.field("prop4"), "prop20");
 
     final ODocument explain = database.command(new OCommandSQL("explain " + query)).execute();
 
@@ -1058,15 +1058,15 @@ public class OrderByIndexReuseTest extends DocumentDBBaseTest {
 
     ODocument document = result.get(0);
     Assert.assertEquals((int) document.<Integer>field("firstProp"), 47);
-    Assert.assertEquals(document.<String>field("prop4"), "prop94");
+    Assert.assertEquals(document.field("prop4"), "prop94");
 
     document = result.get(1);
     Assert.assertEquals((int) document.<Integer>field("firstProp"), 47);
-    Assert.assertEquals(document.<String>field("prop4"), "prop95");
+    Assert.assertEquals(document.field("prop4"), "prop95");
 
     document = result.get(2);
     Assert.assertEquals((int) document.<Integer>field("firstProp"), 45);
-    Assert.assertEquals(document.<String>field("prop4"), "prop90");
+    Assert.assertEquals(document.field("prop4"), "prop90");
 
     final ODocument explain = database.command(new OCommandSQL("explain " + query)).execute();
 

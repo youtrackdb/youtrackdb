@@ -27,6 +27,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
  * @author Artem Orobets (enisher-at-gmail.com)
  */
 public class OOriginalRecordsReturnHandler extends ORecordsReturnHandler {
+
   public OOriginalRecordsReturnHandler(Object returnExpression, OCommandContext context) {
     super(returnExpression, context);
   }

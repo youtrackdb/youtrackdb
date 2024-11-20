@@ -22,6 +22,7 @@ package com.orientechnologies.orient.server;
 import com.orientechnologies.common.log.OLogManager;
 
 public class OServerMain {
+
   private static OServer instance;
 
   public static OServer create() throws Exception {

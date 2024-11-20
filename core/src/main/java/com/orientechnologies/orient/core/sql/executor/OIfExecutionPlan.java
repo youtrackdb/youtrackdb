@@ -1,6 +1,8 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-/** Created by luigidellaquila on 08/08/16. */
+/**
+ * Created by luigidellaquila on 08/08/16.
+ */
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Collections;
@@ -44,9 +46,7 @@ public class OIfExecutionPlan implements OInternalExecutionPlan {
 
   @Override
   public String prettyPrint(int depth, int indent) {
-    StringBuilder result = new StringBuilder();
-    result.append(step.prettyPrint(depth, indent));
-    return result.toString();
+    return step.prettyPrint(depth, indent);
   }
 
   public void chain(IfStep step) {
@@ -76,7 +76,7 @@ public class OIfExecutionPlan implements OInternalExecutionPlan {
 
   @Override
   public long getCost() {
-    return 0l;
+    return 0L;
   }
 
   @Override

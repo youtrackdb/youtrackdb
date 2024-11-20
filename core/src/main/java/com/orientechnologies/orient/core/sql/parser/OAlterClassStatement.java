@@ -14,15 +14,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class OAlterClassStatement extends ODDLStatement {
 
-  /** the name of the class */
+  /**
+   * the name of the class
+   */
   protected OIdentifier name;
 
-  /** the class property to be altered */
+  /**
+   * the class property to be altered
+   */
   public OClass.ATTRIBUTES property;
 
   protected OIdentifier identifierValue;
@@ -249,39 +254,55 @@ public class OAlterClassStatement extends ODDLStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OAlterClassStatement that = (OAlterClassStatement) o;
 
-    if (unsafe != that.unsafe) return false;
-    if (name != null ? !name.equals(that.name) : that.name != null) return false;
-    if (property != that.property) return false;
-    if (identifierValue != null
-        ? !identifierValue.equals(that.identifierValue)
-        : that.identifierValue != null) return false;
-    if (identifierListValue != null
-        ? !identifierListValue.equals(that.identifierListValue)
-        : that.identifierListValue != null) return false;
-    if (add != null ? !add.equals(that.add) : that.add != null) return false;
-    if (remove != null ? !remove.equals(that.remove) : that.remove != null) return false;
-    if (numberValue != null ? !numberValue.equals(that.numberValue) : that.numberValue != null)
+    if (unsafe != that.unsafe) {
       return false;
-    if (booleanValue != null ? !booleanValue.equals(that.booleanValue) : that.booleanValue != null)
+    }
+    if (!Objects.equals(name, that.name)) {
       return false;
-    if (customKey != null ? !customKey.equals(that.customKey) : that.customKey != null)
+    }
+    if (property != that.property) {
       return false;
-    if (customValue != null ? !customValue.equals(that.customValue) : that.customValue != null)
+    }
+    if (!Objects.equals(identifierValue, that.identifierValue)) {
       return false;
-    if (defaultClusterId != null
-        ? !defaultClusterId.equals(that.defaultClusterId)
-        : that.defaultClusterId != null) return false;
-    if (defaultClusterName != null
-        ? !defaultClusterName.equals(that.defaultClusterName)
-        : that.defaultClusterName != null) return false;
-    return customString != null
-        ? customString.equals(that.customString)
-        : that.customString == null;
+    }
+    if (!Objects.equals(identifierListValue, that.identifierListValue)) {
+      return false;
+    }
+    if (!Objects.equals(add, that.add)) {
+      return false;
+    }
+    if (!Objects.equals(remove, that.remove)) {
+      return false;
+    }
+    if (!Objects.equals(numberValue, that.numberValue)) {
+      return false;
+    }
+    if (!Objects.equals(booleanValue, that.booleanValue)) {
+      return false;
+    }
+    if (!Objects.equals(customKey, that.customKey)) {
+      return false;
+    }
+    if (!Objects.equals(customValue, that.customValue)) {
+      return false;
+    }
+    if (!Objects.equals(defaultClusterId, that.defaultClusterId)) {
+      return false;
+    }
+    if (!Objects.equals(defaultClusterName, that.defaultClusterName)) {
+      return false;
+    }
+    return Objects.equals(customString, that.customString);
   }
 
   @Override
@@ -321,7 +342,7 @@ public class OAlterClassStatement extends ODDLStatement {
           } catch (Exception e) {
             OException x =
                 OException.wrapException(
-                    new OCommandExecutionException("Invalid class name: " + toString()), e);
+                    new OCommandExecutionException("Invalid class name: " + this), e);
             throw x;
           }
           break;
@@ -332,11 +353,11 @@ public class OAlterClassStatement extends ODDLStatement {
             } catch (Exception e) {
               OException x =
                   OException.wrapException(
-                      new OCommandExecutionException("Invalid class name: " + toString()), e);
+                      new OCommandExecutionException("Invalid class name: " + this), e);
               throw x;
             }
           } else {
-            throw new OCommandExecutionException("Invalid class name: " + toString());
+            throw new OCommandExecutionException("Invalid class name: " + this);
           }
           break;
         case ADDCLUSTER:
@@ -345,7 +366,7 @@ public class OAlterClassStatement extends ODDLStatement {
           } else if (numberValue != null) {
             oClass.addClusterId(numberValue.getValue().intValue());
           } else {
-            throw new OCommandExecutionException("Invalid cluster value: " + toString());
+            throw new OCommandExecutionException("Invalid cluster value: " + this);
           }
           break;
         case REMOVECLUSTER:
@@ -353,12 +374,12 @@ public class OAlterClassStatement extends ODDLStatement {
           if (identifierValue != null) {
             clusterId = ctx.getDatabase().getClusterIdByName(identifierValue.getStringValue());
             if (clusterId < 0) {
-              throw new OCommandExecutionException("Cluster not found: " + toString());
+              throw new OCommandExecutionException("Cluster not found: " + this);
             }
           } else if (numberValue != null) {
             clusterId = numberValue.getValue().intValue();
           } else {
-            throw new OCommandExecutionException("Invalid cluster value: " + toString());
+            throw new OCommandExecutionException("Invalid cluster value: " + this);
           }
           oClass.removeClusterId(clusterId);
           break;
@@ -366,7 +387,7 @@ public class OAlterClassStatement extends ODDLStatement {
           if (identifierValue != null) {
             oClass.setDescription(identifierValue.getStringValue());
           } else {
-            throw new OCommandExecutionException("Invalid class name: " + toString());
+            throw new OCommandExecutionException("Invalid class name: " + this);
           }
           break;
         case ENCRYPTION:
@@ -448,12 +469,12 @@ public class OAlterClassStatement extends ODDLStatement {
 
   private void doSetSuperclass(OCommandContext ctx, OClass oClass, OIdentifier superclassName) {
     if (superclassName == null) {
-      throw new OCommandExecutionException("Invalid superclass name: " + toString());
+      throw new OCommandExecutionException("Invalid superclass name: " + this);
     }
     OClass superclass =
         ctx.getDatabase().getMetadata().getSchema().getClass(superclassName.getStringValue());
     if (superclass == null) {
-      throw new OCommandExecutionException("superclass not found: " + toString());
+      throw new OCommandExecutionException("superclass not found: " + this);
     }
     if (Boolean.TRUE.equals(add)) {
       oClass.addSuperClass(superclass);
@@ -467,14 +488,14 @@ public class OAlterClassStatement extends ODDLStatement {
   private void doSetSuperclasses(
       OCommandContext ctx, OClass oClass, List<OIdentifier> superclassNames) {
     if (superclassNames == null) {
-      throw new OCommandExecutionException("Invalid superclass name: " + toString());
+      throw new OCommandExecutionException("Invalid superclass name: " + this);
     }
     List<OClass> superclasses = new ArrayList<>();
     for (OIdentifier superclassName : superclassNames) {
       OClass superclass =
           ctx.getDatabase().getMetadata().getSchema().getClass(superclassName.getStringValue());
       if (superclass == null) {
-        throw new OCommandExecutionException("superclass not found: " + toString());
+        throw new OCommandExecutionException("superclass not found: " + this);
       }
       superclasses.add(superclass);
     }

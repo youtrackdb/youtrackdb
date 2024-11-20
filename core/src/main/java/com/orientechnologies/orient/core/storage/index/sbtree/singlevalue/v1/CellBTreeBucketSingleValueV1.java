@@ -41,6 +41,7 @@ import java.util.Objects;
  * @since 8/7/13
  */
 public final class CellBTreeBucketSingleValueV1<K> extends ODurablePage {
+
   private static final int RID_SIZE = OShortSerializer.SHORT_SIZE + OLongSerializer.LONG_SIZE;
 
   private static final int FREE_POINTER_OFFSET = NEXT_FREE_POSITION;
@@ -542,10 +543,11 @@ public final class CellBTreeBucketSingleValueV1<K> extends ODurablePage {
   }
 
   public static final class SBTreeEntry<K> implements Comparable<SBTreeEntry<K>> {
+
     private final Comparator<? super K> comparator = ODefaultComparator.INSTANCE;
 
-    protected final int leftChild;
-    protected final int rightChild;
+    private final int leftChild;
+    private final int rightChild;
     public final K key;
     public final ORID value;
 

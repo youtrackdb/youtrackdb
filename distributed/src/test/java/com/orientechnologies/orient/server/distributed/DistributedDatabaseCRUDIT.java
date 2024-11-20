@@ -505,7 +505,9 @@ public final class DistributedDatabaseCRUDIT {
   // ---------------------------------------------------------------
   // ----------------------------------------------------------------------------------------------------------------
 
-  /** @return */
+  /**
+   * @return
+   */
   public String getDBURL() {
     return "remote:" + "localhost:2424;localhost:2425;localhost:2426" + "/" + dbName;
   }
@@ -532,7 +534,9 @@ public final class DistributedDatabaseCRUDIT {
     return graphReadFactory;
   }
 
-  /** */
+  /**
+   *
+   */
   public void checkAndCreateDatabase(String dbName) {
     try {
       OServerAdmin serverAdmin = new OServerAdmin(getDBURL()).connect("root", "root");
@@ -634,7 +638,9 @@ public final class DistributedDatabaseCRUDIT {
     th.printStackTrace();
   }
 
-  /** @return */
+  /**
+   * @return
+   */
   private static String getDate() {
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     return formatter.format(new Date());
@@ -653,6 +659,7 @@ public final class DistributedDatabaseCRUDIT {
   }
 
   public static class WorkerThreadFactory implements ThreadFactory {
+
     private int counter = 0;
     private String prefix = "worker";
 

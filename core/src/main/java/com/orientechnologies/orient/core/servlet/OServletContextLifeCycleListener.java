@@ -33,6 +33,7 @@ import javax.servlet.annotation.WebListener;
 @SuppressWarnings("unused")
 @WebListener
 public class OServletContextLifeCycleListener implements ServletContextListener {
+
   @Override
   public void contextInitialized(ServletContextEvent sce) {
     if (OGlobalConfiguration.INIT_IN_SERVLET_CONTEXT_LISTENER.getValueAsBoolean()) {

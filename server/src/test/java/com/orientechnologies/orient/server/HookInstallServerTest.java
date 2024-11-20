@@ -22,6 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class HookInstallServerTest {
+
   private static final String SERVER_DIRECTORY = "./target/dbfactory";
 
   public static class MyHook extends ODocumentHookAbstract {

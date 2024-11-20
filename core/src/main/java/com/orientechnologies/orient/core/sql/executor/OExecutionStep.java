@@ -3,7 +3,9 @@ package com.orientechnologies.orient.core.sql.executor;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/** Created by luigidellaquila on 20/07/16. */
+/**
+ * Created by luigidellaquila on 20/07/16.
+ */
 public interface OExecutionStep {
 
   String getName();
@@ -22,7 +24,7 @@ public interface OExecutionStep {
    * @return the absolute cost (in nanoseconds) of the execution of this step, -1 if not calculated
    */
   default long getCost() {
-    return -1l;
+    return -1L;
   }
 
   default OResult toResult() {

@@ -14,9 +14,11 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class OArrayRangeSelector extends SimpleNode {
+
   protected Integer from;
   protected Integer to;
   protected boolean newRange = false;
@@ -160,10 +162,7 @@ public class OArrayRangeSelector extends SimpleNode {
     if (fromSelector != null && fromSelector.needsAliases(aliases)) {
       return true;
     }
-    if (toSelector != null && toSelector.needsAliases(aliases)) {
-      return true;
-    }
-    return false;
+    return toSelector != null && toSelector.needsAliases(aliases);
   }
 
   public OArrayRangeSelector copy() {
@@ -181,21 +180,31 @@ public class OArrayRangeSelector extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OArrayRangeSelector that = (OArrayRangeSelector) o;
 
-    if (newRange != that.newRange) return false;
-    if (included != that.included) return false;
-    if (from != null ? !from.equals(that.from) : that.from != null) return false;
-    if (to != null ? !to.equals(that.to) : that.to != null) return false;
-    if (fromSelector != null ? !fromSelector.equals(that.fromSelector) : that.fromSelector != null)
+    if (newRange != that.newRange) {
       return false;
-    if (toSelector != null ? !toSelector.equals(that.toSelector) : that.toSelector != null)
+    }
+    if (included != that.included) {
       return false;
-
-    return true;
+    }
+    if (!Objects.equals(from, that.from)) {
+      return false;
+    }
+    if (!Objects.equals(to, that.to)) {
+      return false;
+    }
+    if (!Objects.equals(fromSelector, that.fromSelector)) {
+      return false;
+    }
+    return Objects.equals(toSelector, that.toSelector);
   }
 
   @Override
@@ -222,10 +231,7 @@ public class OArrayRangeSelector extends SimpleNode {
     if (fromSelector != null && fromSelector.refersToParent()) {
       return true;
     }
-    if (toSelector != null && toSelector.refersToParent()) {
-      return true;
-    }
-    return false;
+    return toSelector != null && toSelector.refersToParent();
   }
 
   /**
@@ -353,7 +359,7 @@ public class OArrayRangeSelector extends SimpleNode {
     }
     if (from == null || to == null) {
       throw new OCommandExecutionException(
-          "Invalid range expression: " + toString() + " one of the elements is null");
+          "Invalid range expression: " + this + " one of the elements is null");
     }
     if (included) {
       to++;
@@ -365,8 +371,7 @@ public class OArrayRangeSelector extends SimpleNode {
       return;
     }
     int range = to - from;
-    if (currentValue instanceof List) {
-      List list = (List) currentValue;
+    if (currentValue instanceof List list) {
       for (int i = 0; i < range; i++) {
         if (list.size() > from) {
           list.remove(from);

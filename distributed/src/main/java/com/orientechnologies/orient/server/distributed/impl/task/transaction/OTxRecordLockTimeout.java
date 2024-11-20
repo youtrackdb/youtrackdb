@@ -3,6 +3,7 @@ package com.orientechnologies.orient.server.distributed.impl.task.transaction;
 import com.orientechnologies.orient.core.id.ORID;
 
 public class OTxRecordLockTimeout implements OTransactionResultPayload {
+
   public static final int ID = 2;
   private String node;
   private ORID lockedId;

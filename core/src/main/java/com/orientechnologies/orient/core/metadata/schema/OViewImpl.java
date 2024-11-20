@@ -236,7 +236,9 @@ public abstract class OViewImpl extends OClassImpl implements OView {
 
       final ODatabaseSessionInternal database = getDatabase();
       final OIndexManagerAbstract idxManager = database.getMetadata().getIndexManagerInternal();
-      if (idxManager == null) return new HashSet<>();
+      if (idxManager == null) {
+        return new HashSet<>();
+      }
 
       return activeIndexNames.stream()
           .map(name -> idxManager.getIndex(database, name))
@@ -253,7 +255,9 @@ public abstract class OViewImpl extends OClassImpl implements OView {
     try {
       final ODatabaseSessionInternal database = getDatabase();
       final OIndexManagerAbstract idxManager = database.getMetadata().getIndexManagerInternal();
-      if (idxManager == null) return;
+      if (idxManager == null) {
+        return;
+      }
 
       activeIndexNames.stream()
           .map(name -> idxManager.getIndex(database, name))

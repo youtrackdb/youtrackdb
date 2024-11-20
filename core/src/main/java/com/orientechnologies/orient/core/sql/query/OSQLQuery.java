@@ -27,7 +27,6 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.metadata.schema.OImmutableSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.query.OQueryAbstract;
@@ -52,6 +51,7 @@ import java.util.Set;
  */
 @SuppressWarnings("serial")
 public abstract class OSQLQuery<T> extends OQueryAbstract<T> implements OCommandRequestText {
+
   protected String text;
 
   public OSQLQuery() {}
@@ -60,13 +60,17 @@ public abstract class OSQLQuery<T> extends OQueryAbstract<T> implements OCommand
     text = iText.trim();
   }
 
-  /** Delegates to the OQueryExecutor the query execution. */
+  /**
+   * Delegates to the OQueryExecutor the query execution.
+   */
   @SuppressWarnings("unchecked")
   public List<T> run(final Object... iArgs) {
     final ODatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().get();
-    if (database == null) throw new OQueryParsingException("No database configured");
+    if (database == null) {
+      throw new OQueryParsingException("No database configured");
+    }
 
-    ((OMetadataInternal) database.getMetadata()).makeThreadLocalSchemaSnapshot();
+    database.getMetadata().makeThreadLocalSchemaSnapshot();
     try {
       setParameters(iArgs);
       Object o = database.getStorage().command(this);
@@ -77,11 +81,13 @@ public abstract class OSQLQuery<T> extends OQueryAbstract<T> implements OCommand
       }
 
     } finally {
-      ((OMetadataInternal) database.getMetadata()).clearThreadLocalSchemaSnapshot();
+      database.getMetadata().clearThreadLocalSchemaSnapshot();
     }
   }
 
-  /** Returns only the first record if any. */
+  /**
+   * Returns only the first record if any.
+   */
   public T runFirst(final Object... iArgs) {
     setLimit(1);
     final List<T> result = execute(iArgs);
@@ -139,7 +145,9 @@ public abstract class OSQLQuery<T> extends OQueryAbstract<T> implements OCommand
 
   protected Map<Object, Object> deserializeQueryParameters(
       final byte[] paramBuffer, ORecordSerializer serializer) {
-    if (paramBuffer == null || paramBuffer.length == 0) return Collections.emptyMap();
+    if (paramBuffer == null || paramBuffer.length == 0) {
+      return Collections.emptyMap();
+    }
 
     final ODocument param = new ODocument();
 
@@ -151,17 +159,21 @@ public abstract class OSQLQuery<T> extends OQueryAbstract<T> implements OCommand
 
     final Map<Object, Object> result = new HashMap<Object, Object>();
     for (Entry<String, Object> p : params.entrySet()) {
-      if (Character.isDigit(p.getKey().charAt(0)))
+      if (Character.isDigit(p.getKey().charAt(0))) {
         result.put(Integer.parseInt(p.getKey()), p.getValue());
-      else result.put(p.getKey(), p.getValue());
+      } else {
+        result.put(p.getKey(), p.getValue());
+      }
     }
     return result;
   }
 
   protected byte[] serializeQueryParameters(final Map<Object, Object> params) {
     if (params == null || params.size() == 0)
-      // NO PARAMETER, JUST SEND 0
+    // NO PARAMETER, JUST SEND 0
+    {
       return OCommonConst.EMPTY_BYTE_ARRAY;
+    }
 
     final ODocument param = new ODocument();
     param.field("params", convertToRIDsIfPossible(params));
@@ -206,7 +218,9 @@ public abstract class OSQLQuery<T> extends OQueryAbstract<T> implements OCommand
         newParams.put(entry.getKey(), newMap);
       } else if (value instanceof OIdentifiable) {
         newParams.put(entry.getKey(), ((OIdentifiable) value).getIdentity());
-      } else newParams.put(entry.getKey(), value);
+      } else {
+        newParams.put(entry.getKey(), value);
+      }
     }
 
     return newParams;

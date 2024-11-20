@@ -30,6 +30,7 @@ import org.locationtech.jts.geom.MultiLineString;
 import org.locationtech.spatial4j.shape.jts.JtsGeometry;
 
 public class OMultiLineStringShapeBuilder extends OComplexShapeBuilder<JtsGeometry> {
+
   @Override
   public String getName() {
     return "OMultiLineString";
@@ -89,7 +90,7 @@ public class OMultiLineStringShapeBuilder extends OComplexShapeBuilder<JtsGeomet
     List<List<List<Double>>> coordinates = new ArrayList<List<List<Double>>>();
     ODocument doc = new ODocument(getName() + "Z");
     for (int i = 0; i < geometry.getNumGeometries(); i++) {
-      final Geometry lineString = (LineString) geometry.getGeometryN(i);
+      final Geometry lineString = geometry.getGeometryN(i);
       coordinates.add(coordinatesFromLineStringZ(lineString));
     }
 

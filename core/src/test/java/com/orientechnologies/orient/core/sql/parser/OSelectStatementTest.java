@@ -2,6 +2,8 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -61,9 +63,9 @@ public class OSelectStatementTest {
     SimpleNode stm = checkRightSyntax("select from Foo");
     assertTrue(stm instanceof OSelectStatement);
     OSelectStatement select = (OSelectStatement) stm;
-    assertTrue(select.getProjection() == null);
-    assertTrue(select.getTarget() != null);
-    assertTrue(select.getWhereClause() == null);
+    assertNull(select.getProjection());
+    assertNotNull(select.getTarget());
+    assertNull(select.getWhereClause());
   }
 
   @Test
@@ -71,11 +73,11 @@ public class OSelectStatementTest {
     SimpleNode stm = checkRightSyntax("select bar from Foo");
     assertTrue(stm instanceof OSelectStatement);
     OSelectStatement select = (OSelectStatement) stm;
-    assertTrue(select.getProjection() != null);
-    assertTrue(select.getProjection().getItems() != null);
+    assertNotNull(select.getProjection());
+    assertNotNull(select.getProjection().getItems());
     assertEquals(select.getProjection().getItems().size(), 1);
-    assertTrue(select.getTarget() != null);
-    assertTrue(select.getWhereClause() == null);
+    assertNotNull(select.getTarget());
+    assertNull(select.getWhereClause());
   }
 
   @Test
@@ -162,7 +164,7 @@ public class OSelectStatementTest {
   @Test
   public void testMath1() {
     SimpleNode result =
-        checkRightSyntax("" + "select * from sqlSelectIndexReuseTestClass where prop1 = 1 + 1");
+        checkRightSyntax("select * from sqlSelectIndexReuseTestClass where prop1 = 1 + 1");
     // result.dump("    ");
     assertTrue(result instanceof OSelectStatement);
     OSelectStatement select = (OSelectStatement) result;
@@ -170,7 +172,7 @@ public class OSelectStatementTest {
 
   public void testMath2() {
     SimpleNode result =
-        checkRightSyntax("" + "select * from sqlSelectIndexReuseTestClass where prop1 = foo + 1");
+        checkRightSyntax("select * from sqlSelectIndexReuseTestClass where prop1 = foo + 1");
     // result.dump("    ");
     assertTrue(result instanceof OSelectStatement);
     OSelectStatement select = (OSelectStatement) result;
@@ -180,7 +182,7 @@ public class OSelectStatementTest {
   public void testMath5() {
     SimpleNode result =
         checkRightSyntax(
-            "" + "select * from sqlSelectIndexReuseTestClass where prop1 = foo + 1 * bar - 5");
+            "select * from sqlSelectIndexReuseTestClass where prop1 = foo + 1 * bar - 5");
 
     assertTrue(result instanceof OSelectStatement);
     OSelectStatement select = (OSelectStatement) result;
@@ -188,8 +190,7 @@ public class OSelectStatementTest {
 
   @Test
   public void testFetchPlan1() {
-    SimpleNode result =
-        checkRightSyntax("" + "select 'Ay' as a , 'bEE' as b from Foo fetchplan *:1");
+    SimpleNode result = checkRightSyntax("select 'Ay' as a , 'bEE' as b from Foo fetchplan *:1");
 
     assertTrue(result instanceof OSelectStatement);
     OSelectStatement select = (OSelectStatement) result;
@@ -197,7 +198,7 @@ public class OSelectStatementTest {
 
   @Test
   public void testFetchPlan2() {
-    SimpleNode result = checkRightSyntax("" + "select 'Ay' as a , 'bEE' as b fetchplan *:1");
+    SimpleNode result = checkRightSyntax("select 'Ay' as a , 'bEE' as b fetchplan *:1");
 
     assertTrue(result instanceof OSelectWithoutTargetStatement);
     OSelectWithoutTargetStatement select = (OSelectWithoutTargetStatement) result;

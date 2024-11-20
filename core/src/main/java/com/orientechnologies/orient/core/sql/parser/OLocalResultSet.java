@@ -13,7 +13,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-/** Created by luigidellaquila on 07/07/16. */
+/**
+ * Created by luigidellaquila on 07/07/16.
+ */
 public class OLocalResultSet implements OResultSet {
 
   private OExecutionStream stream = null;

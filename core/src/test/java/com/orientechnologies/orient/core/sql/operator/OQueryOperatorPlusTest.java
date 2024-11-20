@@ -25,8 +25,11 @@ import java.math.BigDecimal;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by luigidellaquila on 29/03/16. */
+/**
+ * Created by luigidellaquila on 29/03/16.
+ */
 public class OQueryOperatorPlusTest {
+
   @Test
   public void test() {
     OQueryOperator operator = new OQueryOperatorPlus();
@@ -45,11 +48,11 @@ public class OQueryOperatorPlusTest {
             null,
             null,
             null,
-            10l,
-            10l,
+            10L,
+            10L,
             null,
             ORecordSerializerBinary.INSTANCE.getCurrentSerializer()),
-        10l + 10l);
+        10L + 10L);
     Assert.assertEquals(
         operator.evaluateRecord(
             null,

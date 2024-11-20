@@ -21,7 +21,7 @@ public class ODropSequenceStatementExecutionTest extends BaseMemoryDatabase {
           .getSequenceLibrary()
           .createSequence(name, OSequence.SEQUENCE_TYPE.CACHED, new OSequence.CreateParams());
     } catch (ODatabaseException exc) {
-      Assert.assertTrue("Creating sequence failed", false);
+      Assert.fail("Creating sequence failed");
     }
 
     Assert.assertNotNull(db.getMetadata().getSequenceLibrary().getSequence(name));
@@ -66,7 +66,7 @@ public class ODropSequenceStatementExecutionTest extends BaseMemoryDatabase {
           .getSequenceLibrary()
           .createSequence(name, OSequence.SEQUENCE_TYPE.CACHED, new OSequence.CreateParams());
     } catch (ODatabaseException exc) {
-      Assert.assertTrue("Creating sequence failed", false);
+      Assert.fail("Creating sequence failed");
     }
 
     Assert.assertNotNull(db.getMetadata().getSequenceLibrary().getSequence(name));

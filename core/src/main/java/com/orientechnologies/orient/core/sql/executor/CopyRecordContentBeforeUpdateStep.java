@@ -4,7 +4,6 @@ import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHookV2;
-import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -19,6 +18,7 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class CopyRecordContentBeforeUpdateStep extends AbstractExecutionStep {
+
   public CopyRecordContentBeforeUpdateStep(OCommandContext ctx, boolean profilingEnabled) {
     super(ctx, profilingEnabled);
   }
@@ -33,7 +33,7 @@ public class CopyRecordContentBeforeUpdateStep extends AbstractExecutionStep {
   private OResult mapResult(OResult result, OCommandContext ctx) {
     if (result instanceof OUpdatableResult) {
       OResultInternal prevValue = new OResultInternal();
-      ORecord rec = result.toElement().getRecord();
+      var rec = result.toElement();
       prevValue.setProperty("@rid", rec.getIdentity());
       prevValue.setProperty("@version", rec.getVersion());
       if (rec instanceof ODocument) {

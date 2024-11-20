@@ -11,7 +11,10 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 
 public class PureTxBetweenIndexForwardSpliterator implements Spliterator<ORawPair<Object, ORID>> {
-  /** */
+
+  /**
+   *
+   */
   private final OIndexOneValue oIndexTxAwareOneValue;
 
   private final OTransactionIndexChanges indexChanges;

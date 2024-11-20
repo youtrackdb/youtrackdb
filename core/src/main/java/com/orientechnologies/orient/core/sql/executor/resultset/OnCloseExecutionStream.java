@@ -5,8 +5,8 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 
 public class OnCloseExecutionStream implements OExecutionStream {
 
-  private OExecutionStream source;
-  private OnClose onClose;
+  private final OExecutionStream source;
+  private final OnClose onClose;
 
   public OnCloseExecutionStream(OExecutionStream source, OnClose onClose) {
     this.source = source;

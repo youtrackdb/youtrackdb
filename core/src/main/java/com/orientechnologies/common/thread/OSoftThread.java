@@ -25,6 +25,7 @@ import com.orientechnologies.common.util.OService;
 import com.orientechnologies.common.util.OUncaughtExceptionHandler;
 
 public abstract class OSoftThread extends Thread implements OService {
+
   private volatile boolean shutdownFlag;
 
   private boolean dumpExceptions = true;
@@ -68,9 +69,13 @@ public abstract class OSoftThread extends Thread implements OService {
         execute();
         afterExecution();
       } catch (Exception e) {
-        if (dumpExceptions) OLogManager.instance().error(this, "Error during thread execution", e);
+        if (dumpExceptions) {
+          OLogManager.instance().error(this, "Error during thread execution", e);
+        }
       } catch (Error e) {
-        if (dumpExceptions) OLogManager.instance().error(this, "Error during thread execution", e);
+        if (dumpExceptions) {
+          OLogManager.instance().error(this, "Error during thread execution", e);
+        }
         shutdown();
         throw e;
       }
@@ -83,11 +88,7 @@ public abstract class OSoftThread extends Thread implements OService {
     this.dumpExceptions = dumpExceptions;
   }
 
-  protected void beforeExecution() throws InterruptedException {
-    return;
-  }
+  protected void beforeExecution() throws InterruptedException {}
 
-  protected void afterExecution() throws InterruptedException {
-    return;
-  }
+  protected void afterExecution() throws InterruptedException {}
 }

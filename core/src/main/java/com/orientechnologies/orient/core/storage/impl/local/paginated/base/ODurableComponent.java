@@ -41,6 +41,7 @@ import javax.annotation.Nonnull;
  * @since 8/27/13
  */
 public abstract class ODurableComponent extends OSharedResourceAbstract {
+
   protected final OAtomicOperationsManager atomicOperationsManager;
   protected final OAbstractPaginatedStorage storage;
   protected final OReadCache readCache;

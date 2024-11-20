@@ -9,6 +9,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OStorageRecoverEventListener {
+
   void onScannedEdge(ODocument edge);
 
   void onRemovedEdge(ODocument edge);

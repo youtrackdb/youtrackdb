@@ -28,10 +28,10 @@ import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.OIdentifiableMultiValue;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMultiValue;
 import com.orientechnologies.orient.core.db.record.OTrackedMultiValue;
 import com.orientechnologies.orient.core.db.record.ridbag.embedded.OEmbeddedRidBag;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -91,7 +91,7 @@ import java.util.UUID;
 public class ORidBag
     implements OStringBuilderSerializable,
         Iterable<OIdentifiable>,
-        ORecordLazyMultiValue,
+        OIdentifiableMultiValue,
         OTrackedMultiValue<OIdentifiable, OIdentifiable>,
         OCollection<OIdentifiable>,
         ORecordElement {
@@ -108,8 +108,8 @@ public class ORidBag
   public ORidBag(final ORidBag ridBag) {
     initThresholds();
     init();
-    for (Iterator<OIdentifiable> it = ridBag.rawIterator(); it.hasNext(); ) {
-      add(it.next());
+    for (OIdentifiable identifiable : ridBag) {
+      add(identifiable);
     }
   }
 
@@ -202,21 +202,6 @@ public class ORidBag
   }
 
   @Override
-  public Iterator<OIdentifiable> rawIterator() {
-    return delegate.rawIterator();
-  }
-
-  @Override
-  public void convertLinks2Records() {
-    delegate.convertLinks2Records();
-  }
-
-  @Override
-  public boolean convertRecords2Links() {
-    return delegate.convertRecords2Links();
-  }
-
-  @Override
   public boolean detach() {
     return delegate.detach();
   }
@@ -237,10 +222,7 @@ public class ORidBag
     if (getOwner() instanceof ORecord && !((ORecord) getOwner()).getIdentity().isPersistent()) {
       return true;
     }
-    if (bottomThreshold >= size()) {
-      return true;
-    }
-    return false;
+    return bottomThreshold >= size();
   }
 
   public int toStream(BytesContainer bytesContainer) throws OSerializationException {
@@ -434,7 +416,7 @@ public class ORidBag
     if (newPointer.isValid()) {
       if (isEmbedded()) {
         replaceWithSBTree(newPointer);
-      } else if (getDelegate() instanceof OSBTreeRidBag) {
+      } else if (delegate instanceof OSBTreeRidBag) {
         ((OSBTreeRidBag) delegate).setCollectionPointer(newPointer);
         ((OSBTreeRidBag) delegate).clearChanges();
       }
@@ -467,11 +449,9 @@ public class ORidBag
         return true;
       }
     } else if (iMergeSingleItemsOfMultiValueFields) {
-      final Iterator<OIdentifiable> iter = otherValue.rawIterator();
-      while (iter.hasNext()) {
-        final OIdentifiable value = iter.next();
+      for (OIdentifiable value : otherValue) {
         if (value != null) {
-          final Iterator<OIdentifiable> localIter = rawIterator();
+          final Iterator<OIdentifiable> localIter = iterator();
           boolean found = false;
           while (localIter.hasNext()) {
             final OIdentifiable v = localIter.next();
@@ -563,17 +543,16 @@ public class ORidBag
 
   @Override
   public boolean equals(Object other) {
-    if (!(other instanceof ORidBag)) {
+    if (!(other instanceof ORidBag otherRidbag)) {
       return false;
     }
 
-    ORidBag otherRidbag = (ORidBag) other;
     if (!delegate.getClass().equals(otherRidbag.delegate.getClass())) {
       return false;
     }
 
-    Iterator<OIdentifiable> firstIter = delegate.rawIterator();
-    Iterator<OIdentifiable> secondIter = otherRidbag.delegate.rawIterator();
+    Iterator<OIdentifiable> firstIter = delegate.iterator();
+    Iterator<OIdentifiable> secondIter = otherRidbag.delegate.iterator();
     while (firstIter.hasNext()) {
       if (!secondIter.hasNext()) {
         return false;
@@ -585,11 +564,7 @@ public class ORidBag
         return false;
       }
     }
-    if (secondIter.hasNext()) {
-      return false;
-    }
-
-    return true;
+    return !secondIter.hasNext();
   }
 
   @Override
@@ -642,8 +617,8 @@ public class ORidBag
   }
 
   public void setRecordAndField(ORecordId id, String fieldName) {
-    if (this.getDelegate() instanceof ORemoteTreeRidBag) {
-      ((ORemoteTreeRidBag) this.getDelegate()).setRecordAndField(id, fieldName);
+    if (this.delegate instanceof ORemoteTreeRidBag) {
+      ((ORemoteTreeRidBag) this.delegate).setRecordAndField(id, fieldName);
     }
     this.ownerRecord = id;
     this.fieldName = fieldName;

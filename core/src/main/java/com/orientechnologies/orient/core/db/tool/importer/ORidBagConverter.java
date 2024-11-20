@@ -3,7 +3,9 @@ package com.orientechnologies.orient.core.db.tool.importer;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 
-/** Created by tglman on 28/07/17. */
+/**
+ * Created by tglman on 28/07/17.
+ */
 public final class ORidBagConverter extends OAbstractCollectionConverter<ORidBag> {
 
   public ORidBagConverter(OConverterData converterData) {
@@ -22,10 +24,13 @@ public final class ORidBagConverter extends OAbstractCollectionConverter<ORidBag
           }
         };
 
-    for (OIdentifiable identifiable : value)
+    for (OIdentifiable identifiable : value) {
       updated = convertSingleValue(identifiable, callback, updated);
+    }
 
-    if (updated) return result;
+    if (updated) {
+      return result;
+    }
 
     return value;
   }

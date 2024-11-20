@@ -35,20 +35,21 @@ import java.util.concurrent.Callable;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com) (l.garulli-at-orientdb.com)
  */
 public interface OBackupable {
+
   /**
    * Executes a backup of the database. During the backup the database will be frozen in read-only
    * mode.
    *
-   * @param out OutputStream used to write the backup content. Use a FileOutputStream to make the
-   *     backup persistent on disk
-   * @param options Backup options as Map<String, Object> object
-   * @param callable Callback to execute when the database is locked
-   * @param iListener Listener called for backup messages
+   * @param out              OutputStream used to write the backup content. Use a FileOutputStream
+   *                         to make the backup persistent on disk
+   * @param options          Backup options as Map<String, Object> object
+   * @param callable         Callback to execute when the database is locked
+   * @param iListener        Listener called for backup messages
    * @param compressionLevel ZIP Compression level between 1 (the minimum) and 9 (maximum). The
-   *     bigger is the compression, the smaller will be the final backup content, but will consume
-   *     more CPU and time to execute
-   * @param bufferSize Buffer size in bytes, the bigger is the buffer, the more efficient will be
-   *     the compression
+   *                         bigger is the compression, the smaller will be the final backup
+   *                         content, but will consume more CPU and time to execute
+   * @param bufferSize       Buffer size in bytes, the bigger is the buffer, the more efficient will
+   *                         be the compression
    * @throws IOException
    * @see ODatabaseExport
    */
@@ -65,10 +66,10 @@ public interface OBackupable {
    * Executes a restore of a database backup. During the restore the database will be frozen in
    * read-only mode.
    *
-   * @param in InputStream used to read the backup content. Use a FileInputStream to read a backup
-   *     on a disk
-   * @param options Backup options as Map<String, Object> object
-   * @param callable Callback to execute when the database is locked
+   * @param in        InputStream used to read the backup content. Use a FileInputStream to read a
+   *                  backup on a disk
+   * @param options   Backup options as Map<String, Object> object
+   * @param callable  Callback to execute when the database is locked
    * @param iListener Listener called for backup messages
    * @throws IOException
    * @see ODatabaseImport

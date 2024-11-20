@@ -10,7 +10,8 @@ import org.junit.Test;
  * @since 11.07.12
  */
 public class UnsafeComparatorTest {
-  private OUnsafeByteArrayComparator comparator = OUnsafeByteArrayComparator.INSTANCE;
+
+  private final OUnsafeByteArrayComparator comparator = OUnsafeByteArrayComparator.INSTANCE;
 
   @Test
   public void testOneByteArray() {

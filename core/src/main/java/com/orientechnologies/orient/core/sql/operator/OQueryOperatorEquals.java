@@ -120,7 +120,7 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
   protected static boolean comparesValues(
       final Object iValue, final ORecord iRecord, final boolean iConsiderIn) {
     // ORID && RECORD
-    final ORID other = ((ORecord) iRecord).getIdentity();
+    final ORID other = iRecord.getIdentity();
 
     if (!other.isPersistent() && iRecord instanceof ODocument) {
       // ODOCUMENT AS RESULT OF SUB-QUERY: GET THE FIRST FIELD IF ANY

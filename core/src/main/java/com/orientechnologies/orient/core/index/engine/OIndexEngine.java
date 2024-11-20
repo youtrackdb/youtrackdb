@@ -30,6 +30,7 @@ import java.io.IOException;
  * @since 6/29/13
  */
 public interface OIndexEngine extends OBaseIndexEngine {
+
   int VERSION = 0;
 
   Object get(Object key);
@@ -46,9 +47,9 @@ public interface OIndexEngine extends OBaseIndexEngine {
    * the provided validator.
    *
    * @param atomicOperation
-   * @param key the key to put the value under.
-   * @param value the value to put.
-   * @param validator the operation validator.
+   * @param key             the key to put the value under.
+   * @param value           the value to put.
+   * @param validator       the operation validator.
    * @return {@code true} if the validator allowed the put, {@code false} otherwise.
    * @see IndexEngineValidator#validate(Object, Object, Object)
    */

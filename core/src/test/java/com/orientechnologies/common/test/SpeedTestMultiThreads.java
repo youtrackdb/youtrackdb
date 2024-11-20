@@ -3,6 +3,7 @@ package com.orientechnologies.common.test;
 import java.lang.reflect.Constructor;
 
 public abstract class SpeedTestMultiThreads extends SpeedTestAbstract {
+
   protected final Class<? extends SpeedTestThread> threadClass;
   protected final int threads;
   protected long threadCycles;
@@ -23,7 +24,7 @@ public abstract class SpeedTestMultiThreads extends SpeedTestAbstract {
   public void cycle() throws InterruptedException {
     final SpeedTestThread[] ts = new SpeedTestThread[threads];
     SpeedTestThread t;
-    for (int i = 0; i < threads; ++i)
+    for (int i = 0; i < threads; ++i) {
       try {
         final Constructor<? extends SpeedTestThread> c =
             threadClass.getConstructor(SpeedTestMultiThreads.class, Integer.TYPE);
@@ -36,6 +37,7 @@ public abstract class SpeedTestMultiThreads extends SpeedTestAbstract {
         e.printStackTrace();
         return;
       }
+    }
 
     for (int i = 0; i < threads; ++i) {
       ts[i].join();

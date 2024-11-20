@@ -16,6 +16,7 @@
 package com.orientechnologies.orient.core.sql.method.misc;
 
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.method.OSQLMethod;
 
@@ -50,7 +51,7 @@ public abstract class OAbstractSQLMethod implements OSQLMethod {
   @Override
   public String getSyntax() {
     final StringBuilder sb = new StringBuilder("<field>.");
-    sb.append(getName());
+    sb.append(name);
     sb.append('(');
     for (int i = 0; i < minparams; i++) {
       if (i != 0) {
@@ -98,13 +99,17 @@ public abstract class OAbstractSQLMethod implements OSQLMethod {
     if (iRecord == null) {
       return null;
     }
-    // SEARCH FOR FIELD
-    return ((ODocument) iRecord.getRecord()).field(iValue);
+    try {
+      // SEARCH FOR FIELD
+      return ((ODocument) iRecord.getRecord()).field(iValue);
+    } catch (ORecordNotFoundException rnf) {
+      return null;
+    }
   }
 
   @Override
   public int compareTo(OSQLMethod o) {
-    return this.getName().compareTo(o.getName());
+    return this.name.compareTo(o.getName());
   }
 
   @Override

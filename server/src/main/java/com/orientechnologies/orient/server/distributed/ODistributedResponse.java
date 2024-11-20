@@ -25,15 +25,20 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
 
-/** @author Luca Garulli (l.garulli--(at)--orientdb.com) */
+/**
+ * @author Luca Garulli (l.garulli--(at)--orientdb.com)
+ */
 public class ODistributedResponse {
+
   private ODistributedResponseManager distributedResponseManager;
   private ODistributedRequestId requestId;
   private String executorNodeName;
   private String senderNodeName;
   private Object payload;
 
-  /** Constructor used by serializer. */
+  /**
+   * Constructor used by serializer.
+   */
   public ODistributedResponse() {}
 
   public ODistributedResponse(
@@ -55,8 +60,9 @@ public class ODistributedResponse {
 
   @Override
   public boolean equals(final Object obj) {
-    if (obj instanceof ODistributedResponse && ((ODistributedResponse) obj).payload != null)
+    if (obj instanceof ODistributedResponse && ((ODistributedResponse) obj).payload != null) {
       return ((ODistributedResponse) obj).payload.equals(payload);
+    }
 
     return false;
   }
@@ -104,9 +110,13 @@ public class ODistributedResponse {
 
   @Override
   public String toString() {
-    if (payload == null) return "null";
+    if (payload == null) {
+      return "null";
+    }
 
-    if (payload.getClass().isArray()) return Arrays.toString((Object[]) payload);
+    if (payload.getClass().isArray()) {
+      return Arrays.toString((Object[]) payload);
+    }
 
     return payload.toString();
   }

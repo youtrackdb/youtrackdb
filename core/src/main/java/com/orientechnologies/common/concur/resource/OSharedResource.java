@@ -25,6 +25,7 @@ package com.orientechnologies.common.concur.resource;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OSharedResource {
+
   void acquireSharedLock();
 
   void releaseSharedLock();

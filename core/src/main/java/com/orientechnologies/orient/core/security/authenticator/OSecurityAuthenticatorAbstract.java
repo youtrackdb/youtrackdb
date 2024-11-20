@@ -33,6 +33,7 @@ import javax.security.auth.Subject;
  * @author S. Colin Leister
  */
 public abstract class OSecurityAuthenticatorAbstract implements OSecurityAuthenticator {
+
   private String name = "";
   private boolean debug = false;
   private boolean enabled = true;
@@ -90,9 +91,11 @@ public abstract class OSecurityAuthenticatorAbstract implements OSecurityAuthent
     String header;
 
     // Default to Basic.
-    if (databaseName != null)
+    if (databaseName != null) {
       header = "WWW-Authenticate: Basic realm=\"OrientDB db-" + databaseName + "\"";
-    else header = "WWW-Authenticate: Basic realm=\"OrientDB Server\"";
+    } else {
+      header = "WWW-Authenticate: Basic realm=\"OrientDB Server\"";
+    }
 
     return header;
   }

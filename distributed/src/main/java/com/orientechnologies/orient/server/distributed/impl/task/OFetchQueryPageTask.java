@@ -14,7 +14,9 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-/** Created by luigidellaquila on 28/06/17. */
+/**
+ * Created by luigidellaquila on 28/06/17.
+ */
 public class OFetchQueryPageTask extends OAbstractRemoteTask {
 
   public static final int FACTORYID = 41;
@@ -25,7 +27,8 @@ public class OFetchQueryPageTask extends OAbstractRemoteTask {
     this.queryId = queryId;
   }
 
-  public OFetchQueryPageTask() {}
+  public OFetchQueryPageTask() {
+  }
 
   @Override
   public String getName() {

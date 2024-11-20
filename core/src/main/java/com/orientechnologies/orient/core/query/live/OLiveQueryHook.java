@@ -42,7 +42,7 @@ public class OLiveQueryHook {
 
     protected Map<ODatabaseSession, List<ORecordOperation>> pendingOps = new ConcurrentHashMap<>();
     private OLiveQueryQueueThread queueThread = new OLiveQueryQueueThread();
-    private Object threadLock = new Object();
+    private final Object threadLock = new Object();
 
     @Override
     public void close() {

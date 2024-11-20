@@ -29,6 +29,7 @@ import java.nio.ByteBuffer;
  * @since 5/21/14
  */
 public class OFileCreatedWALRecord extends OOperationUnitBodyRecord {
+
   private String fileName;
   private long fileId;
 

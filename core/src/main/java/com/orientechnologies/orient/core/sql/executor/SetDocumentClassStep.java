@@ -2,7 +2,6 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OIdentifier;
@@ -13,6 +12,7 @@ import com.orientechnologies.orient.core.sql.parser.OIdentifier;
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class SetDocumentClassStep extends AbstractExecutionStep {
+
   private final String targetClass;
 
   public SetDocumentClassStep(
@@ -31,14 +31,12 @@ public class SetDocumentClassStep extends AbstractExecutionStep {
 
   private OResult mapResult(OResult result, OCommandContext ctx) {
     if (result.isElement()) {
-      OIdentifiable element = result.toElement().getRecord();
-      if (element instanceof ODocument doc) {
-        doc.setClassName(targetClass);
-        if (!(result instanceof OResultInternal)) {
-          result = new OUpdatableResult(doc);
-        } else {
-          ((OResultInternal) result).setElement(doc);
-        }
+      var element = result.toElement();
+      ((ODocument) element).setClassName(targetClass);
+      if (!(result instanceof OResultInternal)) {
+        result = new OUpdatableResult(element);
+      } else {
+        ((OResultInternal) result).setIdentifiable(element);
       }
     }
     return result;

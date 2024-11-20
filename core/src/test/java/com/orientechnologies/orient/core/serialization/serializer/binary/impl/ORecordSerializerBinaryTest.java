@@ -15,12 +15,10 @@
  */
 package com.orientechnologies.orient.core.serialization.serializer.binary.impl;
 
-import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OrientDB;
 import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -28,7 +26,7 @@ import com.orientechnologies.orient.core.serialization.serializer.record.binary.
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerBinary;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.OResultBinary;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.OVarIntSerializer;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -118,11 +116,7 @@ public class ORecordSerializerBinaryTest {
   }
 
   protected static String stringFromBytes(final byte[] bytes, final int offset, final int len) {
-    try {
-      return new String(bytes, offset, len, "UTF-8");
-    } catch (UnsupportedEncodingException e) {
-      throw OException.wrapException(new OSerializationException("Error on string decoding"), e);
-    }
+    return new String(bytes, offset, len, StandardCharsets.UTF_8);
   }
 
   protected static String readString(final BytesContainer bytes) {
@@ -207,7 +201,7 @@ public class ORecordSerializerBinaryTest {
         deserializedBytes, container.offset + embeddedBytesViaGet.getOffset(), true);
     deserializedBytes =
         Arrays.copyOfRange(deserializedBytes, container.offset, deserializedBytes.length);
-    Assert.assertTrue(Arrays.equals(embeddedNativeBytes, deserializedBytes));
+    Assert.assertArrayEquals(embeddedNativeBytes, deserializedBytes);
   }
 
   @Test

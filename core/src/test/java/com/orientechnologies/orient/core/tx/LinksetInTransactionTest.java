@@ -39,7 +39,7 @@ public class LinksetInTransactionTest extends BaseMemoryDatabase {
     links.add(link2);
     withLinks1.save();
 
-    /* Remove all from ORecordLazySet - if only link2 removed all OK */
+    /* Remove all from OSet - if only link2 removed all OK */
     links = withLinks1.getProperty("links");
     links.remove(link1);
     links = withLinks1.getProperty("links");
@@ -48,9 +48,9 @@ public class LinksetInTransactionTest extends BaseMemoryDatabase {
 
     /* All seems OK before commit */
     links = withLinks1.getProperty("links");
-    Assert.assertTrue(links.size() == 0);
+    Assert.assertEquals(0, links.size());
     links = withLinks1.getProperty("links");
-    Assert.assertTrue(links.size() == 0);
+    Assert.assertEquals(0, links.size());
     db.commit();
 
     withLinks1 = db.bindToSession(withLinks1);

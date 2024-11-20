@@ -19,6 +19,7 @@ import org.junit.Before;
  * @since 19.02.13
  */
 public class LocalHashTableV2TestIT extends LocalHashTableV2Base {
+
   private OrientDB orientDB;
 
   private static final String DB_NAME = "localHashTableTest";

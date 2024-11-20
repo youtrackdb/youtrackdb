@@ -47,6 +47,7 @@ import java.util.stream.Collectors;
  */
 @SuppressWarnings("unchecked")
 public abstract class OIndexRemote implements OIndex {
+
   public static final String QUERY_GET_VALUES_BEETWEN_SELECT = "select from index:`%s` where ";
   public static final String QUERY_GET_VALUES_BEETWEN_INCLUSIVE_FROM_CONDITION = "key >= ?";
   public static final String QUERY_GET_VALUES_BEETWEN_EXCLUSIVE_FROM_CONDITION = "key > ?";
@@ -113,7 +114,7 @@ public abstract class OIndexRemote implements OIndex {
   }
 
   public OIndexRemote delete() {
-    getDatabase().indexQuery(getName(), String.format(QUERY_DROP, name)).close();
+    getDatabase().indexQuery(name, String.format(QUERY_DROP, name)).close();
     return this;
   }
 
@@ -128,7 +129,7 @@ public abstract class OIndexRemote implements OIndex {
 
   public boolean contains(final Object iKey) {
     try (OResultSet result =
-        getDatabase().indexQuery(getName(), String.format(QUERY_CONTAINS, name), iKey)) {
+        getDatabase().indexQuery(name, String.format(QUERY_CONTAINS, name), iKey)) {
       if (!result.hasNext()) {
         return false;
       }
@@ -138,11 +139,11 @@ public abstract class OIndexRemote implements OIndex {
 
   public long count(final Object iKey) {
     try (OResultSet result =
-        getDatabase().indexQuery(getName(), String.format(QUERY_COUNT, name), iKey)) {
+        getDatabase().indexQuery(name, String.format(QUERY_COUNT, name), iKey)) {
       if (!result.hasNext()) {
         return 0;
       }
-      return (Long) result.next().getProperty("size");
+      return result.next().getProperty("size");
     }
   }
 
@@ -154,19 +155,26 @@ public abstract class OIndexRemote implements OIndex {
       final int maxValuesToFetch) {
     final StringBuilder query = new StringBuilder(QUERY_COUNT_RANGE);
 
-    if (iFromInclusive) query.append(QUERY_GET_VALUES_BEETWEN_INCLUSIVE_FROM_CONDITION);
-    else query.append(QUERY_GET_VALUES_BEETWEN_EXCLUSIVE_FROM_CONDITION);
+    if (iFromInclusive) {
+      query.append(QUERY_GET_VALUES_BEETWEN_INCLUSIVE_FROM_CONDITION);
+    } else {
+      query.append(QUERY_GET_VALUES_BEETWEN_EXCLUSIVE_FROM_CONDITION);
+    }
 
     query.append(QUERY_GET_VALUES_AND_OPERATOR);
 
-    if (iToInclusive) query.append(QUERY_GET_VALUES_BEETWEN_INCLUSIVE_TO_CONDITION);
-    else query.append(QUERY_GET_VALUES_BEETWEN_EXCLUSIVE_TO_CONDITION);
+    if (iToInclusive) {
+      query.append(QUERY_GET_VALUES_BEETWEN_INCLUSIVE_TO_CONDITION);
+    } else {
+      query.append(QUERY_GET_VALUES_BEETWEN_EXCLUSIVE_TO_CONDITION);
+    }
 
-    if (maxValuesToFetch > 0) query.append(QUERY_GET_VALUES_LIMIT).append(maxValuesToFetch);
+    if (maxValuesToFetch > 0) {
+      query.append(QUERY_GET_VALUES_LIMIT).append(maxValuesToFetch);
+    }
 
-    try (OResultSet rs =
-        getDatabase().indexQuery(getName(), query.toString(), iRangeFrom, iRangeTo)) {
-      return (Long) rs.next().getProperty("value");
+    try (OResultSet rs = getDatabase().indexQuery(name, query.toString(), iRangeFrom, iRangeTo)) {
+      return rs.next().getProperty("value");
     }
   }
 
@@ -186,11 +194,11 @@ public abstract class OIndexRemote implements OIndex {
     ODatabaseSessionInternal database = getDatabase();
     if (database.getTransaction().isActive()) {
       OTransaction singleTx = database.getTransaction();
-      singleTx.addIndexEntry(this, getName(), OTransactionIndexChanges.OPERATION.PUT, key, value);
+      singleTx.addIndexEntry(this, name, OTransactionIndexChanges.OPERATION.PUT, key, value);
     } else {
       database.begin();
       OTransaction singleTx = database.getTransaction();
-      singleTx.addIndexEntry(this, getName(), OTransactionIndexChanges.OPERATION.PUT, key, value);
+      singleTx.addIndexEntry(this, name, OTransactionIndexChanges.OPERATION.PUT, key, value);
       database.commit();
     }
     return this;
@@ -199,10 +207,10 @@ public abstract class OIndexRemote implements OIndex {
   public boolean remove(final Object key) {
     ODatabaseSessionInternal database = getDatabase();
     if (database.getTransaction().isActive()) {
-      database.getTransaction().addIndexEntry(this, getName(), OPERATION.REMOVE, key, null);
+      database.getTransaction().addIndexEntry(this, name, OPERATION.REMOVE, key, null);
     } else {
       database.begin();
-      database.getTransaction().addIndexEntry(this, getName(), OPERATION.REMOVE, key, null);
+      database.getTransaction().addIndexEntry(this, name, OPERATION.REMOVE, key, null);
       database.commit();
     }
     return true;
@@ -212,10 +220,10 @@ public abstract class OIndexRemote implements OIndex {
 
     ODatabaseSessionInternal database = getDatabase();
     if (database.getTransaction().isActive()) {
-      database.getTransaction().addIndexEntry(this, getName(), OPERATION.REMOVE, key, rid);
+      database.getTransaction().addIndexEntry(this, name, OPERATION.REMOVE, key, rid);
     } else {
       database.begin();
-      database.getTransaction().addIndexEntry(this, getName(), OPERATION.REMOVE, key, rid);
+      database.getTransaction().addIndexEntry(this, name, OPERATION.REMOVE, key, rid);
       database.commit();
     }
     return true;
@@ -223,10 +231,14 @@ public abstract class OIndexRemote implements OIndex {
 
   @Override
   public int getVersion() {
-    if (configuration == null) return -1;
+    if (configuration == null) {
+      return -1;
+    }
 
     final Integer version = configuration.field(OIndexInternal.INDEX_VERSION);
-    if (version != null) return version;
+    if (version != null) {
+      return version;
+    }
 
     return -1;
   }
@@ -237,7 +249,7 @@ public abstract class OIndexRemote implements OIndex {
 
   public long rebuild() {
     try (OResultSet rs = getDatabase().command(String.format(QUERY_REBUILD, name))) {
-      return (Long) rs.next().getProperty("totalIndexed");
+      return rs.next().getProperty("totalIndexed");
     }
   }
 
@@ -247,17 +259,19 @@ public abstract class OIndexRemote implements OIndex {
   }
 
   public long getSize() {
-    try (OResultSet result =
-        getDatabase().indexQuery(getName(), String.format(QUERY_SIZE, name)); ) {
-      if (result.hasNext()) return (Long) result.next().getProperty("size");
+    try (OResultSet result = getDatabase().indexQuery(name, String.format(QUERY_SIZE, name))) {
+      if (result.hasNext()) {
+        return result.next().getProperty("size");
+      }
     }
     return 0;
   }
 
   public long getKeySize() {
-    try (OResultSet result =
-        getDatabase().indexQuery(getName(), String.format(QUERY_KEY_SIZE, name))) {
-      if (result.hasNext()) return (Long) result.next().getProperty("size");
+    try (OResultSet result = getDatabase().indexQuery(name, String.format(QUERY_KEY_SIZE, name))) {
+      if (result.hasNext()) {
+        return result.next().getProperty("size");
+      }
     }
     return 0;
   }
@@ -308,7 +322,9 @@ public abstract class OIndexRemote implements OIndex {
   }
 
   public OType[] getKeyTypes() {
-    if (indexDefinition != null) return indexDefinition.getTypes();
+    if (indexDefinition != null) {
+      return indexDefinition.getTypes();
+    }
     return new OType[0];
   }
 
@@ -323,10 +339,7 @@ public abstract class OIndexRemote implements OIndex {
 
     try (OResultSet rs =
         getDatabase()
-            .indexQuery(
-                getName(),
-                String.format(QUERY_GET_ENTRIES, name, params.toString()),
-                iKeys.toArray())) {
+            .indexQuery(name, String.format(QUERY_GET_ENTRIES, name, params), iKeys.toArray())) {
       return rs.stream().map((res) -> (ODocument) res.toElement()).collect(Collectors.toList());
     }
   }
@@ -337,8 +350,12 @@ public abstract class OIndexRemote implements OIndex {
 
   @Override
   public boolean equals(final Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     final OIndexRemote that = (OIndexRemote) o;
 
@@ -400,9 +417,8 @@ public abstract class OIndexRemote implements OIndex {
     try (OResultSet res =
         getDatabase()
             .indexQuery(
-                getName(),
-                String.format(
-                    QUERY_ITERATE_ENTRIES, name, params.toString(), ascSortOrder ? "ASC" : "DESC"),
+                name,
+                String.format(QUERY_ITERATE_ENTRIES, name, params, ascSortOrder ? "ASC" : "DESC"),
                 keys.toArray())) {
 
       res.forEachRemaining(x -> copy.add(x));
@@ -412,7 +428,9 @@ public abstract class OIndexRemote implements OIndex {
 
       @Override
       public Map.Entry<Object, OIdentifiable> nextEntry() {
-        if (!copy.hasNext()) return null;
+        if (!copy.hasNext()) {
+          return null;
+        }
         final OResult next = copy.next();
         return new Map.Entry<Object, OIdentifiable>() {
           @Override
@@ -437,8 +455,7 @@ public abstract class OIndexRemote implements OIndex {
   @Override
   public OIndexCursor cursor() {
     final OInternalResultSet copy = new OInternalResultSet(); // TODO a raw array instead...?
-    try (OResultSet result =
-        getDatabase().indexQuery(getName(), String.format(QUERY_ENTRIES, name))) {
+    try (OResultSet result = getDatabase().indexQuery(name, String.format(QUERY_ENTRIES, name))) {
       result.forEachRemaining(x -> copy.add(x));
     }
 
@@ -446,7 +463,9 @@ public abstract class OIndexRemote implements OIndex {
 
       @Override
       public Map.Entry<Object, OIdentifiable> nextEntry() {
-        if (!copy.hasNext()) return null;
+        if (!copy.hasNext()) {
+          return null;
+        }
 
         final OResult value = copy.next();
 
@@ -474,7 +493,7 @@ public abstract class OIndexRemote implements OIndex {
   public OIndexCursor descCursor() {
     final OInternalResultSet copy = new OInternalResultSet(); // TODO a raw array instead...?
     try (OResultSet result =
-        getDatabase().indexQuery(getName(), String.format(QUERY_ENTRIES_DESC, name))) {
+        getDatabase().indexQuery(name, String.format(QUERY_ENTRIES_DESC, name))) {
       result.forEachRemaining(x -> copy.add(x));
     }
 
@@ -482,7 +501,9 @@ public abstract class OIndexRemote implements OIndex {
 
       @Override
       public Map.Entry<Object, OIdentifiable> nextEntry() {
-        if (!copy.hasNext()) return null;
+        if (!copy.hasNext()) {
+          return null;
+        }
 
         final OResult value = copy.next();
 
@@ -510,14 +531,16 @@ public abstract class OIndexRemote implements OIndex {
   public OIndexKeyCursor keyCursor() {
     final OInternalResultSet copy = new OInternalResultSet(); // TODO a raw array instead...?
     try (final OResultSet result =
-        getDatabase().indexQuery(getName(), String.format(QUERY_KEYS, name))) {
+        getDatabase().indexQuery(name, String.format(QUERY_KEYS, name))) {
       result.forEachRemaining(x -> copy.add(x));
     }
     return new OIndexKeyCursor() {
 
       @Override
       public Object next(int prefetchSize) {
-        if (!copy.hasNext()) return null;
+        if (!copy.hasNext()) {
+          return null;
+        }
 
         final OResult value = copy.next();
 

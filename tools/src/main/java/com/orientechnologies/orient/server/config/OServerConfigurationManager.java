@@ -34,6 +34,7 @@ import java.util.Set;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OServerConfigurationManager {
+
   private final OServerConfigurationLoaderXml configurationLoader;
   private OServerConfiguration configuration;
 
@@ -59,15 +60,18 @@ public class OServerConfigurationManager {
 
   public OServerConfigurationManager setUser(
       final String iServerUserName, final String iServerUserPasswd, final String iPermissions) {
-    if (iServerUserName == null || iServerUserName.length() == 0)
+    if (iServerUserName == null || iServerUserName.length() == 0) {
       throw new IllegalArgumentException("User name is null or empty");
+    }
 
     // An empty password is permissible as some security implementations do not require it.
-    if (iServerUserPasswd == null)
+    if (iServerUserPasswd == null) {
       throw new IllegalArgumentException("User password is null or empty");
+    }
 
-    if (iPermissions == null || iPermissions.length() == 0)
+    if (iPermissions == null || iPermissions.length() == 0) {
       throw new IllegalArgumentException("User permissions is null or empty");
+    }
 
     int userPositionInArray = -1;
 
@@ -100,7 +104,9 @@ public class OServerConfigurationManager {
   }
 
   public void saveConfiguration() throws IOException {
-    if (configurationLoader == null) return;
+    if (configurationLoader == null) {
+      return;
+    }
 
     configurationLoader.save(configuration);
   }
@@ -144,13 +150,10 @@ public class OServerConfigurationManager {
         final OServerUserConfiguration[] newArray =
             new OServerUserConfiguration[configuration.users.length - 1];
         // COPY LEFT PART
-        for (int k = 0; k < i; ++k) {
-          newArray[k] = configuration.users[k];
-        }
+        System.arraycopy(configuration.users, 0, newArray, 0, i);
         // COPY RIGHT PART
-        for (int k = i; k < newArray.length; ++k) {
-          newArray[k] = configuration.users[k + 1];
-        }
+        if (newArray.length - i >= 0)
+          System.arraycopy(configuration.users, i + 1, newArray, i, newArray.length - i);
         configuration.users = newArray;
         break;
       }
@@ -163,7 +166,9 @@ public class OServerConfigurationManager {
     final HashSet<OServerUserConfiguration> result = new HashSet<OServerUserConfiguration>();
     if (configuration.users != null) {
       for (int i = 0; i < configuration.users.length; ++i) {
-        if (configuration.users[i] != null) result.add(configuration.users[i]);
+        if (configuration.users[i] != null) {
+          result.add(configuration.users[i]);
+        }
       }
     }
 
@@ -171,7 +176,7 @@ public class OServerConfigurationManager {
   }
 
   private void checkForAutoReloading() {
-    if (configurationLoader != null)
+    if (configurationLoader != null) {
       if (configurationLoader.checkForAutoReloading()) {
         try {
           configuration = configurationLoader.load();
@@ -180,5 +185,6 @@ public class OServerConfigurationManager {
               new OConfigurationException("Cannot load server configuration"), e);
         }
       }
+    }
   }
 }

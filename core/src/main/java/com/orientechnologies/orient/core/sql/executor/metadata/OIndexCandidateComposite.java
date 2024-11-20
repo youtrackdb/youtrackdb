@@ -7,9 +7,10 @@ import java.util.List;
 import java.util.Optional;
 
 public class OIndexCandidateComposite implements OIndexCandidate {
-  private String index;
-  private Operation operation;
-  private List<OProperty> properties;
+
+  private final String index;
+  private final Operation operation;
+  private final List<OProperty> properties;
 
   public OIndexCandidateComposite(String index, Operation operation, List<OProperty> properties) {
     this.index = index;

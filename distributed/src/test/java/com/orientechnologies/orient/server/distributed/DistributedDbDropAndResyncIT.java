@@ -21,8 +21,11 @@ import com.orientechnologies.orient.core.db.document.ODatabaseDocument;
 import com.orientechnologies.orient.setup.ServerRun;
 import org.junit.Test;
 
-/** Distributed test on drop database and further resync. */
+/**
+ * Distributed test on drop database and further resync.
+ */
 public class DistributedDbDropAndResyncIT extends AbstractServerClusterTxTest {
+
   static final int SERVERS = 2;
   final long TIMEOUT = 15000;
 

@@ -4,6 +4,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class MessageDigestHolder {
+
   private static final MessageDigestHolder INSTANCE = new MessageDigestHolder();
 
   private final ThreadLocal<MessageDigest> messageDigest =

@@ -28,6 +28,7 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODura
  * @since 5/8/14
  */
 public final class HashIndexMetadataPageV2 extends ODurablePage {
+
   private static final int RECORDS_COUNT_OFFSET = NEXT_FREE_POSITION;
 
   public HashIndexMetadataPageV2(OCacheEntry cacheEntry) {

@@ -24,8 +24,11 @@ import java.io.IOException;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-/** @author Luigi Dell'Aquila (l.dellaquila - at - orientdb.com) */
+/**
+ * @author Luigi Dell'Aquila (l.dellaquila - at - orientdb.com)
+ */
 public class OTransactionPhase2Task extends OAbstractRemoteTask implements OLockKeySource {
+
   public static final int FACTORYID = 44;
 
   private OTransactionId transactionId;
@@ -50,7 +53,8 @@ public class OTransactionPhase2Task extends OAbstractRemoteTask implements OLock
     this.transactionId = transactionId;
   }
 
-  public OTransactionPhase2Task() {}
+  public OTransactionPhase2Task() {
+  }
 
   @Override
   public String getName() {
@@ -130,8 +134,8 @@ public class OTransactionPhase2Task extends OAbstractRemoteTask implements OLock
         retryCount++;
         if (retryCount
             < database
-                .getConfiguration()
-                .getValueAsInteger(DISTRIBUTED_CONCURRENT_TX_MAX_AUTORETRY)) {
+            .getConfiguration()
+            .getValueAsInteger(DISTRIBUTED_CONCURRENT_TX_MAX_AUTORETRY)) {
           OLogManager.instance()
               .info(
                   OTransactionPhase2Task.this,
@@ -174,8 +178,8 @@ public class OTransactionPhase2Task extends OAbstractRemoteTask implements OLock
         retryCount++;
         if (retryCount
             < database
-                .getConfiguration()
-                .getValueAsInteger(DISTRIBUTED_CONCURRENT_TX_MAX_AUTORETRY)) {
+            .getConfiguration()
+            .getValueAsInteger(DISTRIBUTED_CONCURRENT_TX_MAX_AUTORETRY)) {
           OLogManager.instance()
               .info(
                   OTransactionPhase2Task.this,

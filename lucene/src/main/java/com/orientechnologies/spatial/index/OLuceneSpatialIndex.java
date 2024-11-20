@@ -82,8 +82,7 @@ public class OLuceneSpatialIndex extends OLuceneIndexNotUnique {
   @Override
   protected Object decodeKey(Object key) {
 
-    if (key instanceof Geometry) {
-      Geometry geom = (Geometry) key;
+    if (key instanceof Geometry geom) {
       return shapeFactory.toDoc(geom);
     }
     return key;

@@ -29,7 +29,7 @@ public class BinaryComparatorEqualsTest extends AbstractComparatorTest {
 
   @Test
   public void testLong() {
-    testEquals(OType.LONG, 10l);
+    testEquals(OType.LONG, 10L);
   }
 
   @Test
@@ -54,7 +54,7 @@ public class BinaryComparatorEqualsTest extends AbstractComparatorTest {
 
   @Test
   public void testDatetime() throws ParseException {
-    testEquals(OType.DATETIME, 10l);
+    testEquals(OType.DATETIME, 10L);
 
     final SimpleDateFormat format =
         new SimpleDateFormat(OStorageConfiguration.DEFAULT_DATETIME_FORMAT);
@@ -270,8 +270,10 @@ public class BinaryComparatorEqualsTest extends AbstractComparatorTest {
 
     for (OType t : numberTypes) {
       if (sourceType == OType.DATETIME && t == OType.BYTE)
-        // SKIP TEST
+      // SKIP TEST
+      {
         continue;
+      }
 
       testEquals(sourceType, t);
     }

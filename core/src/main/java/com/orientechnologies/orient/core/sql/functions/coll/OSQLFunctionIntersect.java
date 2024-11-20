@@ -26,7 +26,6 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemVariable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -41,6 +40,7 @@ import java.util.Set;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionIntersect extends OSQLFunctionMultiValueAbstract<Object> {
+
   public static final String NAME = "intersect";
 
   public OSQLFunctionIntersect() {
@@ -55,10 +55,13 @@ public class OSQLFunctionIntersect extends OSQLFunctionMultiValueAbstract<Object
       OCommandContext iContext) {
     Object value = iParams[0];
 
-    if (value instanceof OSQLFilterItemVariable)
+    if (value instanceof OSQLFilterItemVariable) {
       value = ((OSQLFilterItemVariable) value).getValue(iCurrentRecord, iCurrentResult, iContext);
+    }
 
-    if (value == null) return Collections.emptySet();
+    if (value == null) {
+      return Collections.emptySet();
+    }
 
     if (iParams.length == 1) {
       // AGGREGATION MODE (STATEFUL)
@@ -67,11 +70,11 @@ public class OSQLFunctionIntersect extends OSQLFunctionMultiValueAbstract<Object
         if (value instanceof Collection) {
           context = ((Collection) value).iterator();
         } else if (value instanceof Iterator) {
-          context = (Iterator) value;
+          context = value;
         } else if (value instanceof Iterable) {
           context = ((Iterable) value).iterator();
         } else {
-          context = Arrays.asList(value).iterator();
+          context = List.of(value).iterator();
         }
       } else {
         Iterator contextIterator = null;
@@ -86,19 +89,20 @@ public class OSQLFunctionIntersect extends OSQLFunctionMultiValueAbstract<Object
     }
 
     // IN-LINE MODE (STATELESS)
-    Iterator iterator = (Iterator<Object>) OMultiValue.getMultiValueIterator(value);
+    Iterator iterator = OMultiValue.getMultiValueIterator(value);
 
     for (int i = 1; i < iParams.length; ++i) {
       value = iParams[i];
 
-      if (value instanceof OSQLFilterItemVariable)
+      if (value instanceof OSQLFilterItemVariable) {
         value = ((OSQLFilterItemVariable) value).getValue(iCurrentRecord, iCurrentResult, iContext);
+      }
 
       if (value != null) {
         value = intersectWith(iterator, value);
-        iterator = (Iterator<Object>) OMultiValue.getMultiValueIterator(value);
+        iterator = OMultiValue.getMultiValueIterator(value);
       } else {
-        return new ArrayList().iterator();
+        return Collections.emptyIterator();
       }
     }
 
@@ -119,17 +123,24 @@ public class OSQLFunctionIntersect extends OSQLFunctionMultiValueAbstract<Object
 
     if (!(value instanceof Set)
         && (!(value instanceof OSupportsContains)
-            || !((OSupportsContains) value).supportsFastContains()))
+            || !((OSupportsContains) value).supportsFastContains())) {
       value = OMultiValue.toSet(value);
+    }
 
     for (Iterator it = current; it.hasNext(); ) {
       final Object curr = it.next();
       if (value instanceof ORidBag) {
-        if (((ORidBag) value).contains((OIdentifiable) curr)) tempSet.add(curr);
+        if (((ORidBag) value).contains((OIdentifiable) curr)) {
+          tempSet.add(curr);
+        }
       } else if (value instanceof Collection) {
-        if (((Collection) value).contains(curr)) tempSet.add(curr);
+        if (((Collection) value).contains(curr)) {
+          tempSet.add(curr);
+        }
       } else if (value instanceof OSupportsContains) {
-        if (((OSupportsContains) value).contains(curr)) tempSet.add(curr);
+        if (((OSupportsContains) value).contains(curr)) {
+          tempSet.add(curr);
+        }
       }
     }
 

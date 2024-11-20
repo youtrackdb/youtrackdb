@@ -24,8 +24,8 @@ import java.io.OutputStream;
 
 public class OChunkedResponse extends OutputStream {
 
-  private OHttpResponse response;
-  private byte[] buffer = new byte[8192];
+  private final OHttpResponse response;
+  private final byte[] buffer = new byte[8192];
   private int bufferSize = 0;
 
   public OChunkedResponse(final OHttpResponse iHttpResponse) {
@@ -35,7 +35,9 @@ public class OChunkedResponse extends OutputStream {
   @Override
   public void write(int b) throws IOException {
     buffer[bufferSize++] = (byte) b;
-    if (bufferSize >= buffer.length) writeContent();
+    if (bufferSize >= buffer.length) {
+      writeContent();
+    }
   }
 
   @Override

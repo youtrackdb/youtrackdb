@@ -35,6 +35,7 @@ import java.util.TreeMap;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OTransactionIndexChanges implements IdentityChangeListener {
+
   public enum OPERATION {
     PUT,
     REMOVE,
@@ -54,7 +55,9 @@ public class OTransactionIndexChanges implements IdentityChangeListener {
   private OIndexInternal resolvedIndex = null;
 
   public OTransactionIndexChangesPerKey getChangesPerKey(final Object key) {
-    if (key == null) return nullKeyChanges;
+    if (key == null) {
+      return nullKeyChanges;
+    }
 
     return changesPerKey.computeIfAbsent(key, OTransactionIndexChangesPerKey::new);
   }
@@ -106,7 +109,9 @@ public class OTransactionIndexChanges implements IdentityChangeListener {
       String indexName, OIndexManagerAbstract indexManager, ODatabaseSessionInternal db) {
     if (resolvedIndex == null) {
       final OIndex index = indexManager.getIndex(db, indexName);
-      if (index != null) resolvedIndex = index.getInternal();
+      if (index != null) {
+        resolvedIndex = index.getInternal();
+      }
     }
 
     return resolvedIndex;

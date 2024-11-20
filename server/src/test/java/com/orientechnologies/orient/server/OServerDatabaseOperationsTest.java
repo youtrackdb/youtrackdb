@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class OServerDatabaseOperationsTest {
+
   private static final String SERVER_DIRECTORY = "./target/db";
 
   private OServer server;

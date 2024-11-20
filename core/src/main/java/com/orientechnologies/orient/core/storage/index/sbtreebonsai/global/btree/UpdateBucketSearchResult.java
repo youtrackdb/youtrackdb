@@ -17,7 +17,7 @@ public final class UpdateBucketSearchResult {
   }
 
   public long getLastPathItem() {
-    return getPath().get(getPath().size() - 1);
+    return path.get(path.size() - 1);
   }
 
   public IntList getInsertionIndexes() {

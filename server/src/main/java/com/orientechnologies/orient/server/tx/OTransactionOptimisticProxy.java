@@ -45,6 +45,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 public class OTransactionOptimisticProxy extends OTransactionOptimistic {
+
   private final Map<ORID, ORecordOperation> tempEntries =
       new LinkedHashMap<ORID, ORecordOperation>();
   private final Map<ORID, ORecordAbstract> createdRecords = new HashMap<>();
@@ -113,11 +114,8 @@ public class OTransactionOptimisticProxy extends OTransactionOptimistic {
             final ORecord rec = rid.getRecord();
             entry = new ORecordOperation(rec, ORecordOperation.DELETED);
             int deleteVersion = operation.getVersion();
-            if (rec == null) throw new ORecordNotFoundException(rid.getIdentity());
-            else {
-              ORecordInternal.setVersion(rec, deleteVersion);
-              entry.setRecord(rec);
-            }
+            ORecordInternal.setVersion(rec, deleteVersion);
+            entry.setRecord(rec);
             break;
 
           default:
@@ -142,7 +140,9 @@ public class OTransactionOptimisticProxy extends OTransactionOptimistic {
           final boolean contentChanged = ORecordInternal.isContentChanged(record);
 
           final ORecord loadedRecord = record.getIdentity().copy().getRecord();
-          if (loadedRecord == null) throw new ORecordNotFoundException(record.getIdentity());
+          if (loadedRecord == null) {
+            throw new ORecordNotFoundException(record.getIdentity());
+          }
 
           if (ORecordInternal.getRecordType(loadedRecord) == ODocument.RECORD_TYPE
               && ORecordInternal.getRecordType(loadedRecord)
@@ -172,7 +172,9 @@ public class OTransactionOptimisticProxy extends OTransactionOptimistic {
           ODocumentInternal.autoConvertValueToClass(getDatabase(), (ODocument) record);
         }
       }
-      for (ORecord record : updatedRecords.values()) unmarshallRecord(record);
+      for (ORecord record : updatedRecords.values()) {
+        unmarshallRecord(record);
+      }
 
     } catch (Exception e) {
       rollback();
@@ -188,10 +190,13 @@ public class OTransactionOptimisticProxy extends OTransactionOptimistic {
   @Override
   public ORecordAbstract getRecord(final ORID rid) {
     var record = super.getRecord(rid);
-    if (record == OTransactionAbstract.DELETED_RECORD) return record;
-    else if (record == null && rid.isNew())
-      // SEARCH BETWEEN CREATED RECORDS
+    if (record == OTransactionAbstract.DELETED_RECORD) {
+      return record;
+    } else if (record == null && rid.isNew())
+    // SEARCH BETWEEN CREATED RECORDS
+    {
       record = createdRecords.get(rid);
+    }
 
     return record;
   }
@@ -200,7 +205,9 @@ public class OTransactionOptimisticProxy extends OTransactionOptimistic {
     for (Entry<String, Object> indexEntry : remoteIndexEntries) {
       final String indexName = indexEntry.getKey();
       final ODocument indexDoc = (ODocument) indexEntry.getValue();
-      if (indexDoc == null) continue;
+      if (indexDoc == null) {
+        continue;
+      }
 
       OTransactionIndexChanges transactionIndexChanges = indexEntries.get(indexEntry.getKey());
 
@@ -210,23 +217,33 @@ public class OTransactionOptimisticProxy extends OTransactionOptimistic {
       }
 
       final Boolean clearAll = indexDoc.field("clear");
-      if (clearAll != null && clearAll) transactionIndexChanges.setCleared();
+      if (clearAll != null && clearAll) {
+        transactionIndexChanges.setCleared();
+      }
 
       final Collection<ODocument> entries = indexDoc.field("entries");
-      if (entries == null) continue;
+      if (entries == null) {
+        continue;
+      }
 
       for (final ODocument entry : entries) {
         final List<ODocument> operations = entry.field("ops");
-        if (operations == null) continue;
+        if (operations == null) {
+          continue;
+        }
 
         final Object key;
         ODocument keyContainer = entry.field("k");
         if (keyContainer != null) {
           final Object storedKey = keyContainer.field("key");
-          if (storedKey instanceof List)
+          if (storedKey instanceof List) {
             key = new OCompositeKey((List<? extends Comparable<?>>) storedKey);
-          else key = storedKey;
-        } else key = null;
+          } else {
+            key = storedKey;
+          }
+        } else {
+          key = null;
+        }
 
         for (final ODocument op : operations) {
           final int operation = op.rawField("o");
@@ -236,7 +253,9 @@ public class OTransactionOptimisticProxy extends OTransactionOptimistic {
 
           transactionIndexChanges.getChangesPerKey(key).add(value, indexOperation);
 
-          if (value == null) continue;
+          if (value == null) {
+            continue;
+          }
 
           final ORID rid = value.getIdentity();
           List<OTransactionRecordIndexOperation> txIndexOperations = recordIndexOperations.get(rid);
@@ -260,7 +279,9 @@ public class OTransactionOptimisticProxy extends OTransactionOptimistic {
     return updatedRecords;
   }
 
-  /** Unmarshalls collections. This prevent temporary RIDs remains stored as are. */
+  /**
+   * Unmarshalls collections. This prevent temporary RIDs remains stored as are.
+   */
   private void unmarshallRecord(final ORecord iRecord) {
     if (iRecord instanceof ODocument) {
       ((ODocument) iRecord).deserializeFields();

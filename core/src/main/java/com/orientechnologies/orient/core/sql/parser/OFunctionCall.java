@@ -18,6 +18,7 @@ import com.orientechnologies.orient.core.sql.functions.graph.OSQLFunctionMove;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,11 +46,10 @@ public class OFunctionCall extends SimpleNode {
       return false;
     }
     OExpression param = params.get(0);
-    if (param.mathExpression == null || !(param.mathExpression instanceof OBaseExpression)) {
+    if (param.mathExpression == null || !(param.mathExpression instanceof OBaseExpression base)) {
 
       return false;
     }
-    OBaseExpression base = (OBaseExpression) param.mathExpression;
     if (base.getIdentifier() == null || base.getIdentifier().suffix == null) {
       return false;
     }
@@ -107,7 +107,7 @@ public class OFunctionCall extends SimpleNode {
 
     if (record == null) {
       if (targetObjects instanceof OIdentifiable) {
-        record = (OIdentifiable) targetObjects;
+        record = targetObjects;
       } else if (targetObjects instanceof OResult) {
         record = ((OResult) targetObjects).toElement();
       } else {
@@ -206,26 +206,25 @@ public class OFunctionCall extends SimpleNode {
     if (function instanceof OIndexableSQLFunction) {
       return ((OIndexableSQLFunction) function)
           .searchFromTarget(
-              target, operator, rightValue, ctx, this.getParams().toArray(new OExpression[] {}));
+              target, operator, rightValue, ctx, this.params.toArray(new OExpression[] {}));
     }
     return null;
   }
 
   /**
-   * @param target query target
-   * @param ctx execution context
-   * @param operator operator at the right of the function
+   * @param target     query target
+   * @param ctx        execution context
+   * @param operator   operator at the right of the function
    * @param rightValue value to compare to funciton result
    * @return the approximate number of items returned by the condition execution, -1 if the
-   *     extimation cannot be executed
+   * extimation cannot be executed
    */
   public long estimateIndexedFunction(
       OFromClause target, OCommandContext ctx, OBinaryCompareOperator operator, Object rightValue) {
     OSQLFunction function = OSQLEngine.getInstance().getFunction(name.getStringValue());
     if (function instanceof OIndexableSQLFunction) {
       return ((OIndexableSQLFunction) function)
-          .estimate(
-              target, operator, rightValue, ctx, this.getParams().toArray(new OExpression[] {}));
+          .estimate(target, operator, rightValue, ctx, this.params.toArray(new OExpression[] {}));
     }
     return -1;
   }
@@ -234,12 +233,12 @@ public class OFunctionCall extends SimpleNode {
    * tests if current function is an indexed function AND that function can also be executed without
    * using the index
    *
-   * @param target the query target
-   * @param context the execution context
+   * @param target   the query target
+   * @param context  the execution context
    * @param operator
    * @param right
    * @return true if current function is an indexed funciton AND that function can also be executed
-   *     without using the index, false otherwise
+   * without using the index, false otherwise
    */
   public boolean canExecuteIndexedFunctionWithoutIndex(
       OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
@@ -247,7 +246,7 @@ public class OFunctionCall extends SimpleNode {
     if (function instanceof OIndexableSQLFunction) {
       return ((OIndexableSQLFunction) function)
           .canExecuteInline(
-              target, operator, right, context, this.getParams().toArray(new OExpression[] {}));
+              target, operator, right, context, this.params.toArray(new OExpression[] {}));
     }
     return false;
   }
@@ -255,12 +254,12 @@ public class OFunctionCall extends SimpleNode {
   /**
    * tests if current function is an indexed function AND that function can be used on this target
    *
-   * @param target the query target
-   * @param context the execution context
+   * @param target   the query target
+   * @param context  the execution context
    * @param operator
    * @param right
    * @return true if current function is an indexed function AND that function can be used on this
-   *     target, false otherwise
+   * target, false otherwise
    */
   public boolean allowsIndexedFunctionExecutionOnTarget(
       OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
@@ -268,7 +267,7 @@ public class OFunctionCall extends SimpleNode {
     if (function instanceof OIndexableSQLFunction) {
       return ((OIndexableSQLFunction) function)
           .allowsIndexedExecution(
-              target, operator, right, context, this.getParams().toArray(new OExpression[] {}));
+              target, operator, right, context, this.params.toArray(new OExpression[] {}));
     }
     return false;
   }
@@ -279,10 +278,10 @@ public class OFunctionCall extends SimpleNode {
    * excluded from further evaluation. In other cases the result from the index is a superset of the
    * expected result, so the function has to be executed anyway for further filtering
    *
-   * @param target the query target
+   * @param target  the query target
    * @param context the execution context
    * @return true if current expression is an indexed function AND the function has also to be
-   *     executed after the index search.
+   * executed after the index search.
    */
   public boolean executeIndexedFunctionAfterIndexSearch(
       OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
@@ -290,7 +289,7 @@ public class OFunctionCall extends SimpleNode {
     if (function instanceof OIndexableSQLFunction) {
       return ((OIndexableSQLFunction) function)
           .shouldExecuteAfterSearch(
-              target, operator, right, context, this.getParams().toArray(new OExpression[] {}));
+              target, operator, right, context, this.params.toArray(new OExpression[] {}));
     }
     return false;
   }
@@ -333,14 +332,13 @@ public class OFunctionCall extends SimpleNode {
 
         if (isStar()) {
           for (OExpression param : params) {
-            newFunct.getParams().add(param);
+            newFunct.params.add(param);
           }
         } else {
           for (OExpression param : params) {
             if (param.isAggregate()) {
               throw new OCommandExecutionException(
-                  "Cannot calculate an aggregate function of another aggregate function "
-                      + toString());
+                  "Cannot calculate an aggregate function of another aggregate function " + this);
             }
             OIdentifier nextAlias = aggregateProj.getNextAlias();
             OProjectionItem paramItem = new OProjectionItem(-1);
@@ -356,11 +354,11 @@ public class OFunctionCall extends SimpleNode {
       } else {
         if (isStar()) {
           for (OExpression param : params) {
-            newFunct.getParams().add(param);
+            newFunct.params.add(param);
           }
         } else {
           for (OExpression param : params) {
-            newFunct.getParams().add(param.splitForAggregation(aggregateProj, ctx));
+            newFunct.params.add(param.splitForAggregation(aggregateProj, ctx));
           }
         }
       }
@@ -392,7 +390,9 @@ public class OFunctionCall extends SimpleNode {
 
   public boolean isEarlyCalculated(OCommandContext ctx) {
 
-    if (isTraverseFunction()) return false;
+    if (isTraverseFunction()) {
+      return false;
+    }
 
     for (OExpression param : params) {
       if (!param.isEarlyCalculated(ctx)) {
@@ -408,10 +408,7 @@ public class OFunctionCall extends SimpleNode {
       return false;
     }
     OSQLFunction function = OSQLEngine.getInstance().getFunction(name.value);
-    if (function instanceof OSQLFunctionMove) {
-      return true;
-    }
-    return false;
+    return function instanceof OSQLFunctionMove;
   }
 
   public AggregationContext getAggregationContext(OCommandContext ctx) {
@@ -432,15 +429,19 @@ public class OFunctionCall extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OFunctionCall that = (OFunctionCall) o;
 
-    if (name != null ? !name.equals(that.name) : that.name != null) return false;
-    if (params != null ? !params.equals(that.params) : that.params != null) return false;
-
-    return true;
+    if (!Objects.equals(name, that.name)) {
+      return false;
+    }
+    return Objects.equals(params, that.params);
   }
 
   @Override
@@ -512,10 +513,7 @@ public class OFunctionCall extends SimpleNode {
   }
 
   public boolean isCacheable() {
-    if (isGraphFunction()) {
-      return true;
-    }
-    return false; // TODO
+    return isGraphFunction(); // TODO
   }
 
   private boolean isGraphFunction() {
@@ -544,10 +542,7 @@ public class OFunctionCall extends SimpleNode {
     if (string.equalsIgnoreCase("bothE")) {
       return true;
     }
-    if (string.equalsIgnoreCase("bothV")) {
-      return true;
-    }
-    return false;
+    return string.equalsIgnoreCase("bothV");
   }
 }
 /* JavaCC - OriginalChecksum=290d4e1a3f663299452e05f8db718419 (do not edit this line) */

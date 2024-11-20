@@ -27,11 +27,12 @@ import com.orientechnologies.orient.core.serialization.OSerializableStream;
  * in transactions) to finals.
  *
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
- *     <p>Depecraded since v2.2
+ * <p>Depecraded since v2.2
  */
 @SuppressWarnings({"unchecked", "serial"})
 @Deprecated
 public class ORecordBytesLazy extends ORecordBytes {
+
   private OSerializableStream serializableContent;
 
   public ORecordBytesLazy() {}
@@ -42,7 +43,9 @@ public class ORecordBytesLazy extends ORecordBytes {
 
   @Override
   public byte[] toStream() {
-    if (source == null) source = serializableContent.toStream();
+    if (source == null) {
+      source = serializableContent.toStream();
+    }
     return source;
   }
 

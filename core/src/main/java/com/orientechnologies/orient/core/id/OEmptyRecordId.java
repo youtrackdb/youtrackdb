@@ -7,6 +7,7 @@ import java.util.WeakHashMap;
 import javax.annotation.Nonnull;
 
 public class OEmptyRecordId extends ORecordId implements ChangeableIdentity {
+
   private Set<IdentityChangeListener> identityChangeListeners;
 
   /**
@@ -95,9 +96,15 @@ public class OEmptyRecordId extends ORecordId implements ChangeableIdentity {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null) return false;
-    if (!(obj instanceof OIdentifiable)) return false;
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof OIdentifiable)) {
+      return false;
+    }
     final ORecordId other = (ORecordId) ((OIdentifiable) obj).getIdentity();
 
     if (clusterId == other.clusterId && clusterPosition == other.clusterPosition) {

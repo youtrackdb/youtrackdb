@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
  *         <li>'d' for delete. The '@rid' field only is needed.
  *       </ul>
  * </ul>
- *
+ * <p>
  * Example:<br>
  *
  * <p>
@@ -78,6 +78,7 @@ import java.util.stream.Collectors;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
+
   private static final String[] NAMES = {"POST|batch/*"};
 
   @Override
@@ -109,7 +110,9 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
       batch = new ODocument().fromJSON(iRequest.getContent());
 
       Boolean tx = batch.field("transaction");
-      if (tx == null) tx = false;
+      if (tx == null) {
+        tx = false;
+      }
 
       final Collection<Map<Object, Object>> operations;
       try {
@@ -119,8 +122,9 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
             "Expected 'operations' field as a collection of objects", e);
       }
 
-      if (operations == null || operations.isEmpty())
+      if (operations == null || operations.isEmpty()) {
         throw new IllegalArgumentException("Input JSON has no operations to execute");
+      }
 
       boolean txBegun = false;
       if (tx && !db.getTransaction().isActive()) {
@@ -150,10 +154,14 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
         } else if (type.equals("cmd")) {
           // COMMAND
           final String language = (String) operation.get("language");
-          if (language == null) throw new IllegalArgumentException("language parameter is null");
+          if (language == null) {
+            throw new IllegalArgumentException("language parameter is null");
+          }
 
           final Object command = operation.get("command");
-          if (command == null) throw new IllegalArgumentException("command parameter is null");
+          if (command == null) {
+            throw new IllegalArgumentException("command parameter is null");
+          }
 
           Object params = operation.get("parameters");
           if (params instanceof Collection) {
@@ -161,13 +169,19 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
           }
 
           String commandAsString = null;
-          if (command != null)
+          if (command != null) {
             if (OMultiValue.isMultiValue(command)) {
               for (Object c : OMultiValue.getMultiValueIterable(command)) {
-                if (commandAsString == null) commandAsString = c.toString();
-                else commandAsString += ";" + c.toString();
+                if (commandAsString == null) {
+                  commandAsString = c.toString();
+                } else {
+                  commandAsString += ";" + c.toString();
+                }
               }
-            } else commandAsString = command.toString();
+            } else {
+              commandAsString = command.toString();
+            }
+          }
 
           OResultSet result;
           if (params == null) {
@@ -180,10 +194,14 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
         } else if (type.equals("script")) {
           // COMMAND
           final String language = (String) operation.get("language");
-          if (language == null) throw new IllegalArgumentException("language parameter is null");
+          if (language == null) {
+            throw new IllegalArgumentException("language parameter is null");
+          }
 
           final Object script = operation.get("script");
-          if (script == null) throw new IllegalArgumentException("script parameter is null");
+          if (script == null) {
+            throw new IllegalArgumentException("script parameter is null");
+          }
 
           StringBuilder text = new StringBuilder(1024);
           if (OMultiValue.isMultiValue(script)) {
@@ -197,10 +215,12 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
                   }
                   text.append("\n");
                 }
-                text.append(o.toString());
+                text.append(o);
               }
             }
-          } else text.append(script);
+          } else {
+            text.append(script);
+          }
 
           Object params = operation.get("parameters");
           if (params instanceof Collection) {
@@ -219,7 +239,9 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
         }
       }
 
-      if (txBegun) db.commit();
+      if (txBegun) {
+        db.commit();
+      }
 
       try {
         iResponse.writeResult(lastResult, db);
@@ -234,7 +256,9 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
       }
 
     } finally {
-      if (db != null) db.close();
+      if (db != null) {
+        db.close();
+      }
     }
     return false;
   }
@@ -244,9 +268,12 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
 
     ODocument doc;
     if (record instanceof Map<?, ?>)
-      // CONVERT MAP IN DOCUMENT
+    // CONVERT MAP IN DOCUMENT
+    {
       doc = new ODocument((Map<String, Object>) record);
-    else doc = (ODocument) record;
+    } else {
+      doc = (ODocument) record;
+    }
     return doc;
   }
 

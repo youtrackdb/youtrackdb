@@ -78,7 +78,7 @@ public class SecurityTest extends DocumentDBBaseTest {
       new ODocument().save("internal");
       database.commit();
 
-      Assert.assertTrue(false);
+      Assert.fail();
     } catch (OSecurityAccessException e) {
       Assert.assertTrue(true);
     } finally {
@@ -128,7 +128,7 @@ public class SecurityTest extends DocumentDBBaseTest {
     Assert.assertEquals(updated.intValue(), 1);
 
     OResultSet result = database.query("select from ouser where name = 'reader'");
-    Assert.assertFalse(result.next().getProperty("password").equals("test"));
+    Assert.assertNotEquals(result.next().getProperty("password"), "test");
 
     // RESET OLD PASSWORD
     database.begin();
@@ -141,7 +141,7 @@ public class SecurityTest extends DocumentDBBaseTest {
     Assert.assertEquals(updated.intValue(), 1);
 
     result = database.query("select from ouser where name = 'reader'");
-    Assert.assertFalse(result.next().getProperty("password").equals("reader"));
+    Assert.assertNotEquals(result.next().getProperty("password"), "reader");
 
     database.close();
   }
@@ -359,7 +359,7 @@ public class SecurityTest extends DocumentDBBaseTest {
         database.begin();
         security.createUser(userName, "foobar", reader);
         database.commit();
-        Assert.assertTrue(false);
+        Assert.fail();
       } catch (OValidationException ve) {
         Assert.assertTrue(true);
       }
@@ -381,7 +381,7 @@ public class SecurityTest extends DocumentDBBaseTest {
         database.begin();
         security.createUser(userName, "foobar", reader);
         database.commit();
-        Assert.assertTrue(false);
+        Assert.fail();
       } catch (OValidationException ve) {
         Assert.assertTrue(true);
       }
@@ -403,7 +403,7 @@ public class SecurityTest extends DocumentDBBaseTest {
         database.begin();
         security.createUser(userName, "foobar", reader);
         database.commit();
-        Assert.assertTrue(false);
+        Assert.fail();
       } catch (OValidationException ve) {
         Assert.assertTrue(true);
       }
@@ -425,7 +425,7 @@ public class SecurityTest extends DocumentDBBaseTest {
         database.begin();
         security.createUser(userName, "foobar", reader);
         database.commit();
-        Assert.assertTrue(false);
+        Assert.fail();
       } catch (OValidationException ve) {
         Assert.assertTrue(true);
       }

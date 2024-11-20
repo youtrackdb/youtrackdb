@@ -15,9 +15,13 @@
  */
 package com.orientechnologies.spatial.shape;
 
-/** Created by Enrico Risa on 06/08/15. */
+/**
+ * Created by Enrico Risa on 06/08/15.
+ */
 public enum OShapeType {
-  /** Enumeration that lists all {@link OShapeType}s that can be handled */
+  /**
+   * Enumeration that lists all {@link OShapeType}s that can be handled
+   */
   POINT("point"),
   MULTIPOINT("multipoint"),
   LINESTRING("linestring"),
@@ -28,9 +32,9 @@ public enum OShapeType {
   RECTANGLE("rectangle"),
   CIRCLE("circle");
 
-  protected final String shapeName;
+  private final String shapeName;
 
-  private OShapeType(String shapeName) {
+  OShapeType(String shapeName) {
     this.shapeName = shapeName;
   }
 

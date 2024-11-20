@@ -20,8 +20,11 @@ import com.orientechnologies.orient.setup.ServerRun;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Distributed test on drop database. */
+/**
+ * Distributed test on drop database.
+ */
 public class DistributedDbDropIT extends AbstractServerClusterTxTest {
+
   static final int SERVERS = 3;
   int serverStarted = 0;
 

@@ -24,7 +24,6 @@ import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -48,6 +47,7 @@ import java.util.Random;
  */
 public class OCommandExecutorSQLLiveSelect extends OCommandExecutorSQLSelect
     implements OLiveQueryListener {
+
   public static final String KEYWORD_LIVE_SELECT = "LIVE SELECT";
   private ODatabaseSessionInternal execDb;
   private int token;
@@ -161,15 +161,11 @@ public class OCommandExecutorSQLLiveSelect extends OCommandExecutorSQLSelect
     } catch (OSecurityException ignore) {
       return false;
     }
-    OSecurityInternal security =
-        ((ODatabaseSessionInternal) execDb).getSharedContext().getSecurity();
-    boolean allowedByPolicy = security.canRead((ODatabaseSession) execDb, value.getRecord());
+    OSecurityInternal security = execDb.getSharedContext().getSecurity();
+    boolean allowedByPolicy = security.canRead(execDb, value.getRecord());
     return allowedByPolicy
         && ORestrictedAccessHook.isAllowed(
-            (ODatabaseSessionInternal) execDb,
-            (ODocument) value.getRecord(),
-            ORestrictedOperation.ALLOW_READ,
-            false);
+            execDb, value.getRecord(), ORestrictedOperation.ALLOW_READ, false);
   }
 
   private boolean matchesFilters(OIdentifiable value) {
@@ -179,8 +175,7 @@ public class OCommandExecutorSQLLiveSelect extends OCommandExecutorSQLSelect
     if (!(value instanceof ODocument)) {
       value = value.getRecord();
     }
-    return !(Boolean.FALSE.equals(
-        compiledFilter.evaluate((ODocument) value, (ODocument) value, getContext())));
+    return !(Boolean.FALSE.equals(compiledFilter.evaluate(value, (ODocument) value, getContext())));
   }
 
   private boolean matchesTarget(OIdentifiable value) {

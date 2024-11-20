@@ -15,7 +15,9 @@ import com.orientechnologies.orient.core.sql.parser.OSelectStatement;
 import com.orientechnologies.orient.core.sql.parser.OWhereClause;
 import java.util.List;
 
-/** Created by luigidellaquila on 08/08/16. */
+/**
+ * Created by luigidellaquila on 08/08/16.
+ */
 public class ODeleteExecutionPlanner {
 
   private final OFromClause fromClause;
@@ -68,7 +70,7 @@ public class ODeleteExecutionPlanner {
       return false;
     }
     String indexName = indexIdentifier.getIndexName();
-    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) ctx.getDatabase();
+    final ODatabaseSessionInternal database = ctx.getDatabase();
     OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
     if (index == null) {
       throw new OCommandExecutionException("Index not found: " + indexName);

@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/** Created by luigidellaquila on 19/06/17. */
+/**
+ * Created by luigidellaquila on 19/06/17.
+ */
 public class QueryPlanningInfo {
 
   protected OTimeout timeout;

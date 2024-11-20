@@ -7,8 +7,11 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
 import java.io.IOException;
 
-/** Created by tglman on 09/05/17. */
+/**
+ * Created by tglman on 09/05/17.
+ */
 public class OOpen37Response implements OBinaryResponse {
+
   private int sessionId;
   private byte[] sessionToken;
 

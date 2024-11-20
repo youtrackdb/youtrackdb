@@ -29,6 +29,7 @@ import java.io.BufferedWriter;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
@@ -60,6 +61,7 @@ import javax.crypto.spec.SecretKeySpec;
  * @author S. Colin Leister
  */
 public class OSymmetricKey {
+
   // These are just defaults.
   private String seedAlgorithm = "PBKDF2WithHmacSHA1";
   private String seedPhrase = UUID.randomUUID().toString();
@@ -143,7 +145,9 @@ public class OSymmetricKey {
     create();
   }
 
-  /** Creates a key based on the algorithm, transformation, and key size specified. */
+  /**
+   * Creates a key based on the algorithm, transformation, and key size specified.
+   */
   public OSymmetricKey(
       final String secretKeyAlgorithm, final String cipherTransform, final int keySize) {
     this.secretKeyAlgorithm = secretKeyAlgorithm;
@@ -153,16 +157,21 @@ public class OSymmetricKey {
     create();
   }
 
-  /** Uses the specified SecretKey as the private key and sets key algorithm from the SecretKey. */
+  /**
+   * Uses the specified SecretKey as the private key and sets key algorithm from the SecretKey.
+   */
   public OSymmetricKey(final SecretKey secretKey) throws OSecurityException {
-    if (secretKey == null)
+    if (secretKey == null) {
       throw new OSecurityException("OSymmetricKey(SecretKey) secretKey is null");
+    }
 
     this.secretKey = secretKey;
     this.secretKeyAlgorithm = secretKey.getAlgorithm();
   }
 
-  /** Sets the SecretKey based on the specified algorithm and Base64 key specified. */
+  /**
+   * Sets the SecretKey based on the specified algorithm and Base64 key specified.
+   */
   public OSymmetricKey(final String algorithm, final String base64Key) throws OSecurityException {
     this.secretKeyAlgorithm = algorithm;
 
@@ -196,16 +205,22 @@ public class OSymmetricKey {
     }
   }
 
-  /** Returns the secret key algorithm portion of the cipher transformation. */
+  /**
+   * Returns the secret key algorithm portion of the cipher transformation.
+   */
   protected static String separateAlgorithm(final String cipherTransform) {
     String[] array = cipherTransform.split("/");
 
-    if (array.length > 1) return array[0];
+    if (array.length > 1) {
+      return array[0];
+    }
 
     return null;
   }
 
-  /** Creates an OSymmetricKey from an OSymmetricKeyConfig interface. */
+  /**
+   * Creates an OSymmetricKey from an OSymmetricKeyConfig interface.
+   */
   public static OSymmetricKey fromConfig(final OSymmetricKeyConfig keyConfig) {
     if (keyConfig.usesKeyString()) {
       return fromString(keyConfig.getKeyAlgorithm(), keyConfig.getKeyString());
@@ -222,12 +237,16 @@ public class OSymmetricKey {
     }
   }
 
-  /** Creates an OSymmetricKey from a Base64 key. */
+  /**
+   * Creates an OSymmetricKey from a Base64 key.
+   */
   public static OSymmetricKey fromString(final String algorithm, final String base64Key) {
     return new OSymmetricKey(algorithm, base64Key);
   }
 
-  /** Creates an OSymmetricKey from a file containing a Base64 key. */
+  /**
+   * Creates an OSymmetricKey from a file containing a Base64 key.
+   */
   public static OSymmetricKey fromFile(final String algorithm, final String path) {
     String base64Key = null;
 
@@ -239,7 +258,9 @@ public class OSymmetricKey {
 
         return fromStream(algorithm, fis);
       } finally {
-        if (fis != null) fis.close();
+        if (fis != null) {
+          fis.close();
+        }
       }
     } catch (Exception ex) {
       throw OException.wrapException(
@@ -247,7 +268,9 @@ public class OSymmetricKey {
     }
   }
 
-  /** Creates an OSymmetricKey from an InputStream containing a Base64 key. */
+  /**
+   * Creates an OSymmetricKey from an InputStream containing a Base64 key.
+   */
   public static OSymmetricKey fromStream(final String algorithm, final InputStream is) {
     String base64Key = null;
 
@@ -264,9 +287,9 @@ public class OSymmetricKey {
   /**
    * Creates an OSymmetricKey from a Java "JCEKS" KeyStore.
    *
-   * @param path The location of the KeyStore file.
-   * @param password The password for the KeyStore. May be null.
-   * @param keyAlias The alias name of the key to be used from the KeyStore. Required.
+   * @param path        The location of the KeyStore file.
+   * @param password    The password for the KeyStore. May be null.
+   * @param keyAlias    The alias name of the key to be used from the KeyStore. Required.
    * @param keyPassword The password of the key represented by keyAlias. May be null.
    */
   public static OSymmetricKey fromKeystore(
@@ -283,7 +306,9 @@ public class OSymmetricKey {
 
         return fromKeystore(fis, password, keyAlias, keyPassword);
       } finally {
-        if (fis != null) fis.close();
+        if (fis != null) {
+          fis.close();
+        }
       }
     } catch (Exception ex) {
       throw OException.wrapException(
@@ -294,9 +319,9 @@ public class OSymmetricKey {
   /**
    * Creates an OSymmetricKey from a Java "JCEKS" KeyStore.
    *
-   * @param is The InputStream used to load the KeyStore.
-   * @param password The password for the KeyStore. May be null.
-   * @param keyAlias The alias name of the key to be used from the KeyStore. Required.
+   * @param is          The InputStream used to load the KeyStore.
+   * @param password    The password for the KeyStore. May be null.
+   * @param keyAlias    The alias name of the key to be used from the KeyStore. Required.
    * @param keyPassword The password of the key represented by keyAlias. May be null.
    */
   public static OSymmetricKey fromKeystore(
@@ -311,21 +336,26 @@ public class OSymmetricKey {
 
       char[] ksPasswdChars = null;
 
-      if (password != null) ksPasswdChars = password.toCharArray();
+      if (password != null) {
+        ksPasswdChars = password.toCharArray();
+      }
 
       ks.load(is, ksPasswdChars); // ksPasswdChars may be null.
 
       char[] ksKeyPasswdChars = null;
 
-      if (keyPassword != null) ksKeyPasswdChars = keyPassword.toCharArray();
+      if (keyPassword != null) {
+        ksKeyPasswdChars = keyPassword.toCharArray();
+      }
 
       KeyStore.ProtectionParameter protParam =
           new KeyStore.PasswordProtection(ksKeyPasswdChars); // ksKeyPasswdChars may be null.
 
       KeyStore.SecretKeyEntry skEntry = (KeyStore.SecretKeyEntry) ks.getEntry(keyAlias, protParam);
 
-      if (skEntry == null)
+      if (skEntry == null) {
         throw new OSecurityException("SecretKeyEntry is null for key alias: " + keyAlias);
+      }
 
       SecretKey secretKey = skEntry.getSecretKey();
 
@@ -338,10 +368,13 @@ public class OSymmetricKey {
     return sk;
   }
 
-  /** Returns the internal SecretKey as a Base64 String. */
+  /**
+   * Returns the internal SecretKey as a Base64 String.
+   */
   public String getBase64Key() {
-    if (secretKey == null)
+    if (secretKey == null) {
       throw new OSecurityException("OSymmetricKey.getBase64Key() SecretKey is null");
+    }
 
     return convertToBase64(secretKey.getEncoded());
   }
@@ -363,7 +396,7 @@ public class OSymmetricKey {
 
     try {
       if (base64 != null) {
-        result = Base64.getDecoder().decode(base64.getBytes("UTF8"));
+        result = Base64.getDecoder().decode(base64.getBytes(StandardCharsets.UTF_8));
       }
     } catch (Exception ex) {
       OLogManager.instance().error(OSymmetricKey.class, "convertFromBase64()", ex);
@@ -381,7 +414,7 @@ public class OSymmetricKey {
    */
   public String encrypt(final String value) {
     try {
-      return encrypt(value.getBytes("UTF8"));
+      return encrypt(value.getBytes(StandardCharsets.UTF_8));
     } catch (Exception ex) {
       throw OException.wrapException(
           new OSecurityException("OSymmetricKey.encrypt() Exception: " + ex.getMessage()), ex);
@@ -393,12 +426,12 @@ public class OSymmetricKey {
    * encrypt(byte[]).
    *
    * @param transform The cipher transformation to use.
-   * @param value The String to be encoded to Base64 then encrypted.
+   * @param value     The String to be encoded to Base64 then encrypted.
    * @return A Base64-encoded JSON document.
    */
   public String encrypt(final String transform, final String value) {
     try {
-      return encrypt(transform, value.getBytes("UTF8"));
+      return encrypt(transform, value.getBytes(StandardCharsets.UTF_8));
     } catch (Exception ex) {
       throw OException.wrapException(
           new OSecurityException("OSymmetricKey.encrypt() Exception: " + ex.getMessage()), ex);
@@ -419,17 +452,19 @@ public class OSymmetricKey {
    * This method encrypts an array of bytes.
    *
    * @param transform The cipher transformation to use.
-   * @param bytes The array of bytes to be encrypted.
+   * @param bytes     The array of bytes to be encrypted.
    * @return The encrypted bytes as a Base64-encoded JSON document or null if unsuccessful.
    */
   public String encrypt(final String transform, final byte[] bytes) {
     String encodedJSON = null;
 
-    if (secretKey == null)
+    if (secretKey == null) {
       throw new OSecurityException("OSymmetricKey.encrypt() SecretKey is null");
-    if (transform == null)
+    }
+    if (transform == null) {
       throw new OSecurityException(
           "OSymmetricKey.encrypt() Cannot determine cipher transformation");
+    }
 
     try {
       // Throws NoSuchAlgorithmException and NoSuchPaddingException.
@@ -463,7 +498,9 @@ public class OSymmetricKey {
     String encryptedBase64 = convertToBase64(encrypted);
     String initVectorBase64 = null;
 
-    if (initVector != null) initVectorBase64 = convertToBase64(initVector);
+    if (initVector != null) {
+      initVectorBase64 = convertToBase64(initVector);
+    }
 
     // Create the JSON document.
     StringBuffer sb = new StringBuffer();
@@ -486,7 +523,7 @@ public class OSymmetricKey {
 
     try {
       // Convert the JSON document to Base64, for a touch more obfuscation.
-      encodedJSON = convertToBase64(sb.toString().getBytes("UTF8"));
+      encodedJSON = convertToBase64(sb.toString().getBytes(StandardCharsets.UTF_8));
 
     } catch (Exception ex) {
       OLogManager.instance().error(this, "Convert to Base64 exception", ex);
@@ -505,7 +542,7 @@ public class OSymmetricKey {
   public String decryptAsString(final String encodedJSON) {
     try {
       byte[] decrypted = decrypt(encodedJSON);
-      return new String(decrypted, "UTF8");
+      return new String(decrypted, StandardCharsets.UTF_8);
     } catch (Exception ex) {
       throw OException.wrapException(
           new OSecurityException("OSymmetricKey.decryptAsString() Exception: " + ex.getMessage()),
@@ -523,17 +560,19 @@ public class OSymmetricKey {
   public byte[] decrypt(final String encodedJSON) {
     byte[] result = null;
 
-    if (encodedJSON == null)
+    if (encodedJSON == null) {
       throw new OSecurityException("OSymmetricKey.decrypt(String) encodedJSON is null");
+    }
 
     try {
       byte[] decoded = convertFromBase64(encodedJSON);
 
-      if (decoded == null)
+      if (decoded == null) {
         throw new OSecurityException(
             "OSymmetricKey.decrypt(String) encodedJSON could not be decoded");
+      }
 
-      String json = new String(decoded, "UTF8");
+      String json = new String(decoded, StandardCharsets.UTF_8);
 
       // Convert the JSON content to an ODocument to make parsing it easier.
       final ODocument doc = new ODocument().fromJSON(json, "noMap");
@@ -541,12 +580,16 @@ public class OSymmetricKey {
       // Set a default in case the JSON document does not contain an "algorithm" property.
       String algorithm = secretKeyAlgorithm;
 
-      if (doc.containsField("algorithm")) algorithm = doc.field("algorithm");
+      if (doc.containsField("algorithm")) {
+        algorithm = doc.field("algorithm");
+      }
 
       // Set a default in case the JSON document does not contain a "transform" property.
       String transform = defaultCipherTransformation;
 
-      if (doc.containsField("transform")) transform = doc.field("transform");
+      if (doc.containsField("transform")) {
+        transform = doc.field("transform");
+      }
 
       String payloadBase64 = doc.field("payload");
       String ivBase64 = doc.field("iv");
@@ -554,14 +597,21 @@ public class OSymmetricKey {
       byte[] payload = null;
       byte[] iv = null;
 
-      if (payloadBase64 != null) payload = convertFromBase64(payloadBase64);
-      if (ivBase64 != null) iv = convertFromBase64(ivBase64);
+      if (payloadBase64 != null) {
+        payload = convertFromBase64(payloadBase64);
+      }
+      if (ivBase64 != null) {
+        iv = convertFromBase64(ivBase64);
+      }
 
       // Throws NoSuchAlgorithmException and NoSuchPaddingException.
       Cipher cipher = Cipher.getInstance(transform);
 
-      if (iv != null) cipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(iv));
-      else cipher.init(Cipher.DECRYPT_MODE, secretKey);
+      if (iv != null) {
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(iv));
+      } else {
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+      }
 
       result = cipher.doFinal(payload);
     } catch (Exception ex) {
@@ -573,10 +623,13 @@ public class OSymmetricKey {
     return result;
   }
 
-  /** Saves the internal SecretKey to the specified OutputStream as a Base64 String. */
+  /**
+   * Saves the internal SecretKey to the specified OutputStream as a Base64 String.
+   */
   public void saveToStream(final OutputStream os) {
-    if (os == null)
+    if (os == null) {
       throw new OSecurityException("OSymmetricKey.saveToStream() OutputStream is null");
+    }
 
     try {
       final OutputStreamWriter osw = new OutputStreamWriter(os);
@@ -596,17 +649,23 @@ public class OSymmetricKey {
     }
   }
 
-  /** Saves the internal SecretKey as a KeyStore. */
+  /**
+   * Saves the internal SecretKey as a KeyStore.
+   */
   public void saveToKeystore(
       final OutputStream os, final String ksPasswd, final String keyAlias, final String keyPasswd) {
-    if (os == null)
+    if (os == null) {
       throw new OSecurityException("OSymmetricKey.saveToKeystore() OutputStream is null");
-    if (ksPasswd == null)
+    }
+    if (ksPasswd == null) {
       throw new OSecurityException("OSymmetricKey.saveToKeystore() Keystore Password is required");
-    if (keyAlias == null)
+    }
+    if (keyAlias == null) {
       throw new OSecurityException("OSymmetricKey.saveToKeystore() Key Alias is required");
-    if (keyPasswd == null)
+    }
+    if (keyPasswd == null) {
       throw new OSecurityException("OSymmetricKey.saveToKeystore() Key Password is required");
+    }
 
     try {
       KeyStore ks = KeyStore.getInstance("JCEKS");

@@ -15,7 +15,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import org.junit.Test;
 
-/** Created by tglman on 24/06/16. */
+/**
+ * Created by tglman on 24/06/16.
+ */
 public class DocumentIndependentJavaSerializationTest {
 
   @Test

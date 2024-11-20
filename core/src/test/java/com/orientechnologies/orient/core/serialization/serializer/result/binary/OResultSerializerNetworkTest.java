@@ -13,7 +13,9 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by tglman on 25/05/16. */
+/**
+ * Created by tglman on 25/05/16.
+ */
 public class OResultSerializerNetworkTest {
 
   @Test

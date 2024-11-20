@@ -42,6 +42,7 @@ import java.util.Set;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OQueryOperatorTraverse extends OQueryOperatorEqualityNotNulls {
+
   private int startDeepLevel = 0; // FIRST
   private int endDeepLevel = -1; // INFINITE
   private String[] cfgFields;
@@ -93,81 +94,103 @@ public class OQueryOperatorTraverse extends OQueryOperatorEqualityNotNulls {
       final int iLevel,
       final Set<ORID> iEvaluatedRecords,
       final OCommandContext iContext) {
-    if (endDeepLevel > -1 && iLevel > endDeepLevel) return false;
+    if (endDeepLevel > -1 && iLevel > endDeepLevel) {
+      return false;
+    }
 
     if (iTarget instanceof OIdentifiable) {
       if (iEvaluatedRecords.contains(((OIdentifiable) iTarget).getIdentity()))
-        // ALREADY EVALUATED
+      // ALREADY EVALUATED
+      {
         return false;
+      }
 
       // TRANSFORM THE ORID IN ODOCUMENT
       iTarget = ((OIdentifiable) iTarget).getRecord();
     }
 
-    if (iTarget instanceof ODocument) {
-      final ODocument target = (ODocument) iTarget;
+    if (iTarget instanceof ODocument target) {
 
       iEvaluatedRecords.add(target.getIdentity());
 
-      if (target.getInternalStatus() == ORecordElement.STATUS.NOT_LOADED)
+      if (target.getInternalStatus() == ORecordElement.STATUS.NOT_LOADED) {
         try {
           target.getDatabase().load(target);
         } catch (final ORecordNotFoundException ignore) {
           // INVALID RID
           return false;
         }
+      }
 
-      if (iLevel >= startDeepLevel
-          && (Boolean) iCondition.evaluate(target, null, iContext) == Boolean.TRUE) return true;
+      if (iLevel >= startDeepLevel && iCondition.evaluate(target, null, iContext) == Boolean.TRUE) {
+        return true;
+      }
 
       // TRAVERSE THE DOCUMENT ITSELF
-      if (cfgFields != null)
+      if (cfgFields != null) {
         for (final String cfgField : cfgFields) {
           if (cfgField.equalsIgnoreCase(OSQLFilterItemFieldAny.FULL_NAME)) {
             // ANY
-            for (final String fieldName : target.fieldNames())
+            for (final String fieldName : target.fieldNames()) {
               if (traverse(
-                  target.rawField(fieldName), iCondition, iLevel + 1, iEvaluatedRecords, iContext))
+                  target.rawField(fieldName),
+                  iCondition,
+                  iLevel + 1,
+                  iEvaluatedRecords,
+                  iContext)) {
                 return true;
+              }
+            }
           } else if (cfgField.equalsIgnoreCase(OSQLFilterItemFieldAny.FULL_NAME)) {
             // ALL
-            for (final String fieldName : target.fieldNames())
+            for (final String fieldName : target.fieldNames()) {
               if (!traverse(
-                  target.rawField(fieldName), iCondition, iLevel + 1, iEvaluatedRecords, iContext))
+                  target.rawField(fieldName),
+                  iCondition,
+                  iLevel + 1,
+                  iEvaluatedRecords,
+                  iContext)) {
                 return false;
+              }
+            }
             return true;
           } else {
             if (traverse(
-                target.rawField(cfgField), iCondition, iLevel + 1, iEvaluatedRecords, iContext))
+                target.rawField(cfgField), iCondition, iLevel + 1, iEvaluatedRecords, iContext)) {
               return true;
+            }
           }
         }
+      }
 
-    } else if (iTarget instanceof OQueryRuntimeValueMulti) {
+    } else if (iTarget instanceof OQueryRuntimeValueMulti multi) {
 
-      final OQueryRuntimeValueMulti multi = (OQueryRuntimeValueMulti) iTarget;
       for (final Object o : multi.getValues()) {
-        if (traverse(o, iCondition, iLevel + 1, iEvaluatedRecords, iContext) == Boolean.TRUE)
+        if (traverse(o, iCondition, iLevel + 1, iEvaluatedRecords, iContext) == Boolean.TRUE) {
           return true;
+        }
       }
     } else if (iTarget instanceof Map<?, ?>) {
 
       final Map<Object, Object> map = (Map<Object, Object>) iTarget;
       for (final Object o : map.values()) {
-        if (traverse(o, iCondition, iLevel + 1, iEvaluatedRecords, iContext) == Boolean.TRUE)
+        if (traverse(o, iCondition, iLevel + 1, iEvaluatedRecords, iContext) == Boolean.TRUE) {
           return true;
+        }
       }
     } else if (OMultiValue.isMultiValue(iTarget)) {
       final Iterable<Object> collection = OMultiValue.getMultiValueIterable(iTarget);
       for (final Object o : collection) {
-        if (traverse(o, iCondition, iLevel + 1, iEvaluatedRecords, iContext) == Boolean.TRUE)
+        if (traverse(o, iCondition, iLevel + 1, iEvaluatedRecords, iContext) == Boolean.TRUE) {
           return true;
+        }
       }
-    } else if (iTarget instanceof Iterator) {
-      final Iterator iterator = (Iterator) iTarget;
+    } else if (iTarget instanceof Iterator iterator) {
       while (iterator.hasNext()) {
         if (traverse(iterator.next(), iCondition, iLevel + 1, iEvaluatedRecords, iContext)
-            == Boolean.TRUE) return true;
+            == Boolean.TRUE) {
+          return true;
+        }
       }
     }
 
@@ -176,7 +199,9 @@ public class OQueryOperatorTraverse extends OQueryOperatorEqualityNotNulls {
 
   @Override
   public OQueryOperator configure(final List<String> iParams) {
-    if (iParams == null) return this;
+    if (iParams == null) {
+      return this;
+    }
 
     final int start = !iParams.isEmpty() ? Integer.parseInt(iParams.get(0)) : startDeepLevel;
     final int end = iParams.size() > 1 ? Integer.parseInt(iParams.get(1)) : endDeepLevel;
@@ -184,7 +209,9 @@ public class OQueryOperatorTraverse extends OQueryOperatorEqualityNotNulls {
     String[] fields = new String[] {"any()"};
     if (iParams.size() > 2) {
       String f = iParams.get(2);
-      if (f.startsWith("'") || f.startsWith("\"")) f = f.substring(1, f.length() - 1);
+      if (f.startsWith("'") || f.startsWith("\"")) {
+        f = f.substring(1, f.length() - 1);
+      }
       fields = f.split(",");
     }
 

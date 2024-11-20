@@ -11,21 +11,31 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class OCreateClassStatement extends ODDLStatement {
-  /** Class name */
+
+  /**
+   * Class name
+   */
   public OIdentifier name;
 
   public boolean ifNotExists;
 
-  /** Direct superclasses for this class */
+  /**
+   * Direct superclasses for this class
+   */
   protected List<OIdentifier> superclasses;
 
-  /** Cluster IDs for this class */
+  /**
+   * Cluster IDs for this class
+   */
   protected List<OInteger> clusters;
 
-  /** Total number clusters for this class */
+  /**
+   * Total number clusters for this class
+   */
   protected OInteger totalClusterNo;
 
   protected boolean abstractClass = false;
@@ -193,24 +203,31 @@ public class OCreateClassStatement extends ODDLStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    OCreateClassStatement that = (OCreateClassStatement) o;
-
-    if (abstractClass != that.abstractClass) return false;
-    if (name != null ? !name.equals(that.name) : that.name != null) return false;
-    if (superclasses != null ? !superclasses.equals(that.superclasses) : that.superclasses != null)
-      return false;
-    if (clusters != null ? !clusters.equals(that.clusters) : that.clusters != null) return false;
-    if (totalClusterNo != null
-        ? !totalClusterNo.equals(that.totalClusterNo)
-        : that.totalClusterNo != null) return false;
-    if (ifNotExists != that.ifNotExists) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
 
-    return true;
+    OCreateClassStatement that = (OCreateClassStatement) o;
+
+    if (abstractClass != that.abstractClass) {
+      return false;
+    }
+    if (!Objects.equals(name, that.name)) {
+      return false;
+    }
+    if (!Objects.equals(superclasses, that.superclasses)) {
+      return false;
+    }
+    if (!Objects.equals(clusters, that.clusters)) {
+      return false;
+    }
+    if (!Objects.equals(totalClusterNo, that.totalClusterNo)) {
+      return false;
+    }
+    return ifNotExists == that.ifNotExists;
   }
 
   @Override

@@ -4,7 +4,10 @@ import com.orientechnologies.common.util.ORawPair;
 import java.util.concurrent.Callable;
 
 final class DeleteFileTask implements Callable<ORawPair<String, String>> {
-  /** */
+
+  /**
+   *
+   */
   private final OWOWCache cache;
 
   private final long externalFileId;

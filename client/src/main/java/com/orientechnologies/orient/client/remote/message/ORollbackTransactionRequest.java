@@ -10,8 +10,11 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
 import java.io.IOException;
 
-/** Created by tglman on 30/01/17. */
+/**
+ * Created by tglman on 30/01/17.
+ */
 public class ORollbackTransactionRequest implements OBinaryRequest<ORollbackTransactionResponse> {
+
   private int txId;
 
   public ORollbackTransactionRequest() {}

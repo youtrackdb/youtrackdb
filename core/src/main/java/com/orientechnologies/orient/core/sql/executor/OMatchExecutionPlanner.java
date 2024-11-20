@@ -41,7 +41,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/** Created by luigidellaquila on 20/09/16. */
+/**
+ * Created by luigidellaquila on 20/09/16.
+ */
 public class OMatchExecutionPlanner {
 
   static final String DEFAULT_ALIAS_PREFIX = "$ORIENT_DEFAULT_ALIAS_";
@@ -70,7 +72,7 @@ public class OMatchExecutionPlanner {
   private Map<String, String> aliasClusters;
   private Map<String, ORid> aliasRids;
   private boolean foundOptional = false;
-  private long threshold = 100;
+  private final long threshold = 100;
 
   public OMatchExecutionPlanner(OMatchStatement stm) {
     this.matchExpressions =
@@ -185,7 +187,7 @@ public class OMatchExecutionPlanner {
       info.projection = new OProjection(items, returnDistinct);
 
       info.projection = OSelectExecutionPlanner.translateDistinct(info.projection);
-      info.distinct = info.projection == null ? false : info.projection.isDistinct();
+      info.distinct = info.projection != null && info.projection.isDistinct();
       if (info.projection != null) {
         info.projection.setDistinct(false);
       }
@@ -211,10 +213,7 @@ public class OMatchExecutionPlanner {
     if (filter.refersToParent()) {
       return true;
     }
-    if (filter.toString().toLowerCase().contains("$matched.")) {
-      return true;
-    }
-    return false;
+    return filter.toString().toLowerCase().contains("$matched.");
   }
 
   private boolean isOptional(String key) {
@@ -247,7 +246,7 @@ public class OMatchExecutionPlanner {
       for (OMatchPathItem item : exp.getItems()) {
         if (item instanceof OMultiMatchPathItem) {
           throw new OCommandExecutionException(
-              "This kind of NOT expression is not supported (yet): " + item.toString());
+              "This kind of NOT expression is not supported (yet): " + item);
         }
         PatternEdge edge = new PatternEdge();
         edge.item = item;
@@ -333,7 +332,9 @@ public class OMatchExecutionPlanner {
     return plan;
   }
 
-  /** sort edges in the order they will be matched */
+  /**
+   * sort edges in the order they will be matched
+   */
   private List<EdgeTraversal> getTopologicalSortedSchedule(
       Map<String, Long> estimatedRootEntries, Pattern pattern) {
     List<EdgeTraversal> resultingSchedule = new ArrayList<>();
@@ -408,14 +409,14 @@ public class OMatchExecutionPlanner {
    * Start a depth-first traversal from the starting node, adding all viable unscheduled edges and
    * vertices.
    *
-   * @param startNode the node from which to start the depth-first traversal
-   * @param visitedNodes set of nodes that are already visited (mutated in this function)
-   * @param visitedEdges set of edges that are already visited and therefore don't need to be
-   *     scheduled (mutated in this function)
+   * @param startNode             the node from which to start the depth-first traversal
+   * @param visitedNodes          set of nodes that are already visited (mutated in this function)
+   * @param visitedEdges          set of edges that are already visited and therefore don't need to
+   *                              be scheduled (mutated in this function)
    * @param remainingDependencies dependency map including only the dependencies that haven't yet
-   *     been satisfied (mutated in this function)
-   * @param resultingSchedule the schedule being computed i.e. appended to (mutated in this
-   *     function)
+   *                              been satisfied (mutated in this function)
+   * @param resultingSchedule     the schedule being computed i.e. appended to (mutated in this
+   *                              function)
    */
   private void updateScheduleStartingAt(
       PatternNode startNode,
@@ -855,8 +856,7 @@ public class OMatchExecutionPlanner {
     allAliases.addAll(aliasClusters.keySet());
     allAliases.addAll(aliasRids.keySet());
 
-    OSchema schema =
-        ((ODatabaseSessionInternal) ctx.getDatabase()).getMetadata().getImmutableSchemaSnapshot();
+    OSchema schema = ctx.getDatabase().getMetadata().getImmutableSchemaSnapshot();
 
     Map<String, Long> result = new LinkedHashMap<String, Long>();
     for (String alias : allAliases) {

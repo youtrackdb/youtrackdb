@@ -28,6 +28,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OHigherPhysicalPositionsResponse implements OBinaryResponse {
+
   private OPhysicalPosition[] nextPositions;
 
   public OHigherPhysicalPositionsResponse() {}

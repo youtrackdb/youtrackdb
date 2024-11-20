@@ -45,7 +45,7 @@ public final class OCellBTreeMultiValueIndexEngine
   private final String name;
   private final int id;
   private final String nullTreeName;
-  private OAbstractPaginatedStorage storage;
+  private final OAbstractPaginatedStorage storage;
 
   public OCellBTreeMultiValueIndexEngine(
       int id, @Nonnull String name, OAbstractPaginatedStorage storage, final int version) {

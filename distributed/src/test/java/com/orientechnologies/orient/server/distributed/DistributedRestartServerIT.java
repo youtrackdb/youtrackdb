@@ -22,8 +22,11 @@ package com.orientechnologies.orient.server.distributed;
 
 import org.junit.Test;
 
-/** Starts a server, then restart it */
+/**
+ * Starts a server, then restart it
+ */
 public class DistributedRestartServerIT extends AbstractServerClusterTest {
+
   static final int SERVERS = 1;
 
   public String getDatabaseName() {

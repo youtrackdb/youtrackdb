@@ -31,7 +31,7 @@ public class OAlterSequenceStatementExecutionTest extends BaseMemoryDatabase {
                 .createSequence(
                     sequenceName, OSequence.SEQUENCE_TYPE.ORDERED, new OSequence.CreateParams());
           } catch (ODatabaseException exc) {
-            Assert.assertTrue("Failed to create sequence", false);
+            Assert.fail("Failed to create sequence");
           }
         });
 
@@ -52,7 +52,7 @@ public class OAlterSequenceStatementExecutionTest extends BaseMemoryDatabase {
           try {
             Assert.assertEquals(20, seq.next());
           } catch (ODatabaseException exc) {
-            Assert.assertTrue("Failed to call next", false);
+            Assert.fail("Failed to call next");
           }
         });
   }

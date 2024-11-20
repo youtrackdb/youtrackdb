@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
  * tasks which caused tasks to stop.
  */
 public class OThreadPoolExecutorWithLogging extends ThreadPoolExecutor {
+
   public OThreadPoolExecutorWithLogging(
       int corePoolSize,
       int maximumPoolSize,
@@ -41,8 +42,7 @@ public class OThreadPoolExecutorWithLogging extends ThreadPoolExecutor {
   protected void afterExecute(Runnable r, Throwable t) {
     super.afterExecute(r, t);
 
-    if ((t == null) && (r instanceof Future<?>)) {
-      final Future<?> future = (Future<?>) r;
+    if ((t == null) && (r instanceof Future<?> future)) {
       try {
         future.get();
       } catch (CancellationException ce) {

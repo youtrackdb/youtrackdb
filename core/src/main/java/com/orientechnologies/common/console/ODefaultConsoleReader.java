@@ -25,11 +25,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-/** Console reader implementation that uses the Java System.in. */
+/**
+ * Console reader implementation that uses the Java System.in.
+ */
 public class ODefaultConsoleReader implements OConsoleReader {
+
   private final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
   private static class EraserThread extends OSoftThread {
+
     public EraserThread(String name) {
       super(name);
     }
@@ -58,8 +62,10 @@ public class ODefaultConsoleReader implements OConsoleReader {
   @Override
   public String readPassword() {
     if (System.console() == null)
-      // IDE
+    // IDE
+    {
       return readLine();
+    }
 
     System.out.print(" ");
 

@@ -31,6 +31,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OCleanOutRecordRequest implements OBinaryAsyncRequest<OCleanOutRecordResponse> {
+
   private int recordVersion;
   private ORecordId recordId;
   private byte mode;
@@ -63,7 +64,7 @@ public class OCleanOutRecordRequest implements OBinaryAsyncRequest<OCleanOutReco
   public void write(OChannelDataOutput network, OStorageRemoteSession session) throws IOException {
     network.writeRID(recordId);
     network.writeVersion(recordVersion);
-    network.writeByte((byte) mode);
+    network.writeByte(mode);
   }
 
   public byte getMode() {

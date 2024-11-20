@@ -32,6 +32,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
  * @author Luca Molino (molino.luca--at--gmail.com)
  */
 public abstract class ORemoteFetchListener implements OFetchListener {
+
   public boolean requireFieldProcessing() {
     return false;
   }

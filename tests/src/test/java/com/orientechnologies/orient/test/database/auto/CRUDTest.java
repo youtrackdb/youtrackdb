@@ -17,8 +17,8 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordLazyList;
-import com.orientechnologies.orient.core.db.record.ORecordLazySet;
+import com.orientechnologies.orient.core.db.record.OList;
+import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.OTrackedMap;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
@@ -509,8 +509,7 @@ public class CRUDTest extends DocumentDBBaseTest {
   protected static void checkCollectionImplementations(ODocument doc) {
     Object collectionObj = doc.field("list");
     boolean validImplementation =
-        (collectionObj instanceof OTrackedList<?>)
-            || (doc.field("list") instanceof ORecordLazyList);
+        (collectionObj instanceof OTrackedList<?>) || (doc.field("list") instanceof OList);
     if (!validImplementation) {
       Assert.fail(
           "Document list implementation "
@@ -519,7 +518,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     }
     collectionObj = doc.field("set");
     validImplementation =
-        (collectionObj instanceof OTrackedSet<?>) || (collectionObj instanceof ORecordLazySet);
+        (collectionObj instanceof OTrackedSet<?>) || (collectionObj instanceof OSet);
     if (!validImplementation) {
       Assert.fail(
           "Document set implementation "
@@ -2363,7 +2362,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     for (OElement obj : database.browseClass("Profile")) {
       var followersList = obj.<Set<OIdentifiable>>getProperty("followers");
-      Assert.assertTrue(followersList == null || followersList instanceof ORecordLazySet);
+      Assert.assertTrue(followersList == null || followersList instanceof OSet);
       if (obj.<String>getProperty("nick").equals("Neo")) {
         Assert.assertEquals(obj.<Set<OIdentifiable>>getProperty("followers").size(), 2);
         Assert.assertEquals(

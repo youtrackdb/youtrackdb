@@ -7,6 +7,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
@@ -14,8 +15,11 @@ import com.orientechnologies.orient.core.sql.functions.OSQLFunctionConfigurableA
 import java.util.ArrayList;
 import java.util.List;
 
-/** Created by luigidellaquila on 03/01/17. */
+/**
+ * Created by luigidellaquila on 03/01/17.
+ */
 public abstract class OSQLFunctionMove extends OSQLFunctionConfigurableAbstract {
+
   public static final String NAME = "move";
 
   public OSQLFunctionMove() {
@@ -46,7 +50,7 @@ public abstract class OSQLFunctionMove extends OSQLFunctionConfigurableAbstract 
             : ODatabaseRecordThreadLocal.instance().getIfDefined();
 
     final String[] labels;
-    if (iParameters != null && iParameters.length > 0 && iParameters[0] != null)
+    if (iParameters != null && iParameters.length > 0 && iParameters[0] != null) {
       labels =
           OMultiValue.array(
               iParameters,
@@ -58,7 +62,9 @@ public abstract class OSQLFunctionMove extends OSQLFunctionConfigurableAbstract 
                   return OIOUtils.getStringContent(iArgument);
                 }
               });
-    else labels = null;
+    } else {
+      labels = null;
+    }
 
     return OSQLEngine.foreachRecord(
         new OCallable<Object, OIdentifiable>() {
@@ -77,10 +83,14 @@ public abstract class OSQLFunctionMove extends OSQLFunctionConfigurableAbstract 
       final ODirection iDirection,
       final String[] iLabels) {
     if (iRecord != null) {
-      OElement rec = iRecord.getRecord();
-      if (rec != null && rec.isVertex()) {
-        return rec.asVertex().get().getVertices(iDirection, iLabels);
-      } else {
+      try {
+        OElement rec = iRecord.getRecord();
+        if (rec.isVertex()) {
+          return rec.asVertex().get().getVertices(iDirection, iLabels);
+        } else {
+          return null;
+        }
+      } catch (ORecordNotFoundException rnf) {
         return null;
       }
     } else {
@@ -94,10 +104,14 @@ public abstract class OSQLFunctionMove extends OSQLFunctionConfigurableAbstract 
       final ODirection iDirection,
       final String[] iLabels) {
     if (iRecord != null) {
-      OElement rec = iRecord.getRecord();
-      if (rec != null && rec.isVertex()) {
-        return rec.asVertex().get().getEdges(iDirection, iLabels);
-      } else {
+      try {
+        OElement rec = iRecord.getRecord();
+        if (rec.isVertex()) {
+          return rec.asVertex().get().getEdges(iDirection, iLabels);
+        } else {
+          return null;
+        }
+      } catch (ORecordNotFoundException rnf) {
         return null;
       }
     } else {
@@ -111,16 +125,21 @@ public abstract class OSQLFunctionMove extends OSQLFunctionConfigurableAbstract 
       final ODirection iDirection,
       final String[] iLabels) {
     if (iRecord != null) {
-      OElement rec = iRecord.getRecord();
-      if (rec.isEdge()) {
-        if (iDirection == ODirection.BOTH) {
-          List results = new ArrayList();
-          results.add(rec.asEdge().get().getVertex(ODirection.OUT));
-          results.add(rec.asEdge().get().getVertex(ODirection.IN));
-          return results;
+
+      try {
+        OElement rec = iRecord.getRecord();
+        if (rec.isEdge()) {
+          if (iDirection == ODirection.BOTH) {
+            List results = new ArrayList();
+            results.add(rec.asEdge().get().getVertex(ODirection.OUT));
+            results.add(rec.asEdge().get().getVertex(ODirection.IN));
+            return results;
+          }
+          return rec.asEdge().get().getVertex(iDirection);
+        } else {
+          return null;
         }
-        return rec.asEdge().get().getVertex(iDirection);
-      } else {
+      } catch (ORecordNotFoundException e) {
         return null;
       }
     } else {

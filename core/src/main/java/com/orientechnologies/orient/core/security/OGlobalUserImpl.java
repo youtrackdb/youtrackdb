@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.core.security;
 
 public class OGlobalUserImpl implements OGlobalUser {
+
   private String name;
   private String password;
   private String resources;

@@ -20,7 +20,10 @@
 
 package com.orientechnologies.common.util;
 
-/** Interface that support reset() */
+/**
+ * Interface that support reset()
+ */
 public interface OResettable {
-  public void reset();
+
+  void reset();
 }

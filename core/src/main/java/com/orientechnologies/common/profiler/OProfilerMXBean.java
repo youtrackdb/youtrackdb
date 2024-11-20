@@ -3,6 +3,7 @@ package com.orientechnologies.common.profiler;
 import java.util.Date;
 
 public interface OProfilerMXBean {
+
   long getCounter(String iStatName);
 
   String dump();

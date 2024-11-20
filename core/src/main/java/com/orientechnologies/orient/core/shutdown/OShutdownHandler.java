@@ -13,6 +13,7 @@ import com.orientechnologies.orient.core.Orient;
  * @see Orient#shutdown()
  */
 public interface OShutdownHandler {
+
   /**
    * Priority of {@link com.orientechnologies.orient.core.Orient.OShutdownWorkersHandler} handler.
    */
@@ -23,13 +24,19 @@ public interface OShutdownHandler {
    */
   int SHUTDOWN_PENDING_THREADS_PRIORITY = 1100;
 
-  /** Priority of {@link Orient.OShutdownOrientDBInstancesHandler} handler. */
+  /**
+   * Priority of {@link Orient.OShutdownOrientDBInstancesHandler} handler.
+   */
   int SHUTDOWN_ENGINES_PRIORITY = 1200;
 
-  /** Priority of com.orientechnologies.orient.core.Orient.OShutdownProfilerHandler handler. */
+  /**
+   * Priority of com.orientechnologies.orient.core.Orient.OShutdownProfilerHandler handler.
+   */
   int SHUTDOWN_PROFILER_PRIORITY = 1300;
 
-  /** Priority of com.orientechnologies.orient.core.Orient.OShutdownCallListenersHandler handler. */
+  /**
+   * Priority of com.orientechnologies.orient.core.Orient.OShutdownCallListenersHandler handler.
+   */
   int SHUTDOWN_CALL_LISTENERS = 1400;
 
   /**

@@ -13,6 +13,7 @@ import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.Wait;
 
 public abstract class OSingleOrientDBServerBaseIT {
+
   private static final Logger LOGGER = LoggerFactory.getLogger(OSingleOrientDBServerBaseIT.class);
 
   @ClassRule

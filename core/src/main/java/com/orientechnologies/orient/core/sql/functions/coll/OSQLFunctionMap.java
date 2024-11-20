@@ -32,6 +32,7 @@ import java.util.Map;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionMap extends OSQLFunctionMultiValueAbstract<Map<Object, Object>> {
+
   public static final String NAME = "map";
 
   public OSQLFunctionMap() {
@@ -47,38 +48,48 @@ public class OSQLFunctionMap extends OSQLFunctionMultiValueAbstract<Map<Object, 
       OCommandContext iContext) {
 
     if (iParams.length > 2)
-      // IN LINE MODE
+    // IN LINE MODE
+    {
       context = new HashMap<Object, Object>();
+    }
 
     if (iParams.length == 1) {
-      if (iParams[0] == null) return null;
+      if (iParams[0] == null) {
+        return null;
+      }
 
       if (iParams[0] instanceof Map<?, ?>) {
         if (context == null)
-          // AGGREGATION MODE (STATEFULL)
+        // AGGREGATION MODE (STATEFULL)
+        {
           context = new HashMap<Object, Object>();
+        }
 
         // INSERT EVERY SINGLE COLLECTION ITEM
         context.putAll((Map<Object, Object>) iParams[0]);
-      } else
+      } else {
         throw new IllegalArgumentException(
             "Map function: expected a map or pairs of parameters as key, value");
-    } else if (iParams.length % 2 != 0)
+      }
+    } else if (iParams.length % 2 != 0) {
       throw new IllegalArgumentException(
           "Map function: expected a map or pairs of parameters as key, value");
-    else
+    } else {
       for (int i = 0; i < iParams.length; i += 2) {
         final Object key = iParams[i];
         final Object value = iParams[i + 1];
 
         if (value != null) {
           if (iParams.length <= 2 && context == null)
-            // AGGREGATION MODE (STATEFULL)
+          // AGGREGATION MODE (STATEFULL)
+          {
             context = new HashMap<Object, Object>();
+          }
 
           context.put(key, value);
         }
       }
+    }
 
     return prepareResult(context);
   }
@@ -108,7 +119,7 @@ public class OSQLFunctionMap extends OSQLFunctionMultiValueAbstract<Map<Object, 
       final Map<String, Object> doc = new HashMap<String, Object>();
       doc.put("node", getDistributedStorageId());
       doc.put("context", res);
-      return Collections.<Object, Object>singletonMap("doc", doc);
+      return Collections.singletonMap("doc", doc);
     } else {
       return res;
     }
@@ -127,7 +138,9 @@ public class OSQLFunctionMap extends OSQLFunctionMultiValueAbstract<Map<Object, 
       return result;
     }
 
-    if (!resultsToMerge.isEmpty()) return resultsToMerge.get(0);
+    if (!resultsToMerge.isEmpty()) {
+      return resultsToMerge.get(0);
+    }
 
     return null;
   }

@@ -5,7 +5,9 @@ import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 public class BreakingForEach {
+
   public static class Breaker {
+
     private boolean shouldBreak = false;
 
     public void stop() {

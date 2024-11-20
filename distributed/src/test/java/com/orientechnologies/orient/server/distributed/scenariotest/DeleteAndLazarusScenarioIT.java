@@ -142,7 +142,9 @@ public class DeleteAndLazarusScenarioIT extends AbstractScenarioTest {
       e.printStackTrace();
       fail();
     } finally {
-      if (dbServer3 != null) dbServer3.close();
+      if (dbServer3 != null) {
+        dbServer3.close();
+      }
     }
 
     // restarting server3

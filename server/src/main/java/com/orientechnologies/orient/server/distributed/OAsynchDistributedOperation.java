@@ -31,6 +31,7 @@ import java.util.Set;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OAsynchDistributedOperation {
+
   private final String databaseName;
   private final Set<String> clusterNames;
   private final Collection<String> nodes;

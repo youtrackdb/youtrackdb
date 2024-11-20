@@ -43,6 +43,7 @@ import org.junit.Test;
  * @email <gabriele.ponzi--at--gmail.com>
  */
 public class BasicScenarioIT extends AbstractScenarioTest {
+
   @Test
   public void test() throws Exception {
     init(SERVERS);

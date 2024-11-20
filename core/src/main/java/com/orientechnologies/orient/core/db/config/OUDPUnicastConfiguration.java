@@ -6,8 +6,9 @@ import java.util.List;
 public class OUDPUnicastConfiguration {
 
   public static class Address {
-    private String address;
-    private int port;
+
+    private final String address;
+    private final int port;
 
     public Address(String address, int port) {
       this.address = address;

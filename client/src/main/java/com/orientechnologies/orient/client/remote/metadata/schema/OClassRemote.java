@@ -15,8 +15,11 @@ import com.orientechnologies.orient.core.metadata.security.ORule;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Created by tglman on 14/06/17. */
+/**
+ * Created by tglman on 14/06/17.
+ */
 public class OClassRemote extends OClassImpl {
+
   protected OClassRemote(OSchemaShared iOwner, String iName) {
     super(iOwner, iName);
   }
@@ -31,10 +34,13 @@ public class OClassRemote extends OClassImpl {
       final OType linkedType,
       final OClass linkedClass,
       final boolean unsafe) {
-    if (type == null) throw new OSchemaException("Property type not defined.");
+    if (type == null) {
+      throw new OSchemaException("Property type not defined.");
+    }
 
-    if (propertyName == null || propertyName.length() == 0)
+    if (propertyName == null || propertyName.length() == 0) {
       throw new OSchemaException("Property name is null or empty");
+    }
 
     final ODatabaseSessionInternal database = getDatabase();
     validatePropertyName(propertyName);
@@ -45,9 +51,13 @@ public class OClassRemote extends OClassImpl {
 
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    if (linkedType != null) OPropertyImpl.checkLinkTypeSupport(type);
+    if (linkedType != null) {
+      OPropertyImpl.checkLinkTypeSupport(type);
+    }
 
-    if (linkedClass != null) OPropertyImpl.checkSupportLinkedClass(type);
+    if (linkedClass != null) {
+      OPropertyImpl.checkSupportLinkedClass(type);
+    }
 
     acquireSchemaWriteLock();
     try {
@@ -78,7 +88,9 @@ public class OClassRemote extends OClassImpl {
         cmd.append('`');
       }
 
-      if (unsafe) cmd.append(" unsafe ");
+      if (unsafe) {
+        cmd.append(" unsafe ");
+      }
 
       database.command(cmd.toString()).close();
       getOwner().reload(database);
@@ -162,7 +174,9 @@ public class OClassRemote extends OClassImpl {
           sb.append('`').append(superClass.getName()).append("`,");
         }
         sb.deleteCharAt(sb.length() - 1);
-      } else sb.append("null");
+      } else {
+        sb.append("null");
+      }
 
       final String cmd = String.format("alter class `%s` superclasses %s", name, sb);
       database.command(cmd).close();
@@ -210,7 +224,9 @@ public class OClassRemote extends OClassImpl {
   }
 
   public OClass setName(final String name) {
-    if (getName().equals(name)) return this;
+    if (getName().equals(name)) {
+      return this;
+    }
     final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
     final Character wrongCharacter = OSchemaShared.checkClassNameIfValid(name);
@@ -221,13 +237,14 @@ public class OClassRemote extends OClassImpl {
               "Cannot rename class %s to %s. A Class with name %s exists", this.name, name, name);
       throw new OSchemaException(error);
     }
-    if (wrongCharacter != null)
+    if (wrongCharacter != null) {
       throw new OSchemaException(
           "Invalid class name found. Character '"
               + wrongCharacter
               + "' cannot be used in class name '"
               + name
               + "'");
+    }
     acquireSchemaWriteLock();
     try {
 
@@ -244,7 +261,9 @@ public class OClassRemote extends OClassImpl {
   public OClass setShortName(String shortName) {
     if (shortName != null) {
       shortName = shortName.trim();
-      if (shortName.isEmpty()) shortName = null;
+      if (shortName.isEmpty()) {
+        shortName = null;
+      }
     }
     final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
@@ -264,7 +283,9 @@ public class OClassRemote extends OClassImpl {
     return new OPropertyRemote(this);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public OClass truncateCluster(String clusterName) {
     final ODatabaseSessionInternal database = getDatabase();
@@ -298,7 +319,9 @@ public class OClassRemote extends OClassImpl {
   public OClass setDescription(String iDescription) {
     if (iDescription != null) {
       iDescription = iDescription.trim();
-      if (iDescription.isEmpty()) iDescription = null;
+      if (iDescription.isEmpty()) {
+        iDescription = null;
+      }
     }
     final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
@@ -336,11 +359,12 @@ public class OClassRemote extends OClassImpl {
     final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    if (clusterIds.length == 1 && clusterId == clusterIds[0])
+    if (clusterIds.length == 1 && clusterId == clusterIds[0]) {
       throw new ODatabaseException(
           " Impossible to remove the last cluster of class '"
               + getName()
               + "' drop the class instead");
+    }
 
     acquireSchemaWriteLock();
     try {
@@ -355,16 +379,18 @@ public class OClassRemote extends OClassImpl {
 
   public void dropProperty(final String propertyName) {
     final ODatabaseSessionInternal database = getDatabase();
-    if (database.getTransaction().isActive())
+    if (database.getTransaction().isActive()) {
       throw new IllegalStateException("Cannot drop a property inside a transaction");
+    }
 
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_DELETE);
 
     acquireSchemaWriteLock();
     try {
-      if (!properties.containsKey(propertyName))
+      if (!properties.containsKey(propertyName)) {
         throw new OSchemaException(
             "Property '" + propertyName + "' not found in class " + name + "'");
+      }
 
       database.command("drop property " + name + '.' + propertyName).close();
 
@@ -400,8 +426,7 @@ public class OClassRemote extends OClassImpl {
     acquireSchemaWriteLock();
     try {
       // FORMAT FLOAT LOCALE AGNOSTIC
-      final String cmd =
-          String.format("alter class `%s` oversize %s", name, new Float(overSize).toString());
+      final String cmd = Float.toString(overSize);
       database.command(cmd).close();
     } finally {
       releaseSchemaWriteLock();
@@ -430,9 +455,13 @@ public class OClassRemote extends OClassImpl {
     try {
       checkEmbedded();
 
-      if (subclasses == null) return this;
+      if (subclasses == null) {
+        return this;
+      }
 
-      if (subclasses.remove(baseClass)) removePolymorphicClusterIds((OClassImpl) baseClass);
+      if (subclasses.remove(baseClass)) {
+        removePolymorphicClusterIds((OClassImpl) baseClass);
+      }
 
       return this;
     } finally {
@@ -444,9 +473,11 @@ public class OClassRemote extends OClassImpl {
     List<OClassImpl> newSuperClasses = new ArrayList<OClassImpl>();
     OClassImpl cls;
     for (OClass superClass : classes) {
-      if (superClass instanceof OClassAbstractDelegate)
+      if (superClass instanceof OClassAbstractDelegate) {
         cls = (OClassImpl) ((OClassAbstractDelegate) superClass).getDelegate();
-      else cls = (OClassImpl) superClass;
+      } else {
+        cls = (OClassImpl) superClass;
+      }
 
       if (newSuperClasses.contains(cls)) {
         throw new OSchemaException("Duplicated superclass '" + cls.getName() + "'");

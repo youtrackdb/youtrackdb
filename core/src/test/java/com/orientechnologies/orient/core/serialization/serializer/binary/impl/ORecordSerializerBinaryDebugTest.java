@@ -2,9 +2,9 @@ package com.orientechnologies.orient.core.serialization.serializer.binary.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.BaseMemoryDatabase;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentAbstract;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -43,8 +43,7 @@ public class ORecordSerializerBinaryDebugTest extends BaseMemoryDatabase {
     byte[] bytes = doc.toStream();
 
     ORecordSerializerBinaryDebug debugger = new ORecordSerializerBinaryDebug();
-    ORecordSerializationDebug debug =
-        debugger.deserializeDebug(bytes, (ODatabaseSessionInternal) db);
+    ORecordSerializationDebug debug = debugger.deserializeDebug(bytes, db);
 
     assertEquals(debug.properties.size(), 3);
     assertEquals(debug.properties.get(0).name, "test");
@@ -73,8 +72,7 @@ public class ORecordSerializerBinaryDebugTest extends BaseMemoryDatabase {
     byte[] bytes = doc.toStream();
 
     ORecordSerializerBinaryDebug debugger = new ORecordSerializerBinaryDebug();
-    ORecordSerializationDebug debug =
-        debugger.deserializeDebug(bytes, (ODatabaseSessionInternal) db);
+    ORecordSerializationDebug debug = debugger.deserializeDebug(bytes, db);
 
     assertEquals(debug.properties.size(), 3);
     assertEquals(debug.properties.get(0).name, "testP");
@@ -102,23 +100,22 @@ public class ORecordSerializerBinaryDebugTest extends BaseMemoryDatabase {
     System.arraycopy(bytes, 0, brokenBytes, 0, bytes.length - 10);
 
     ORecordSerializerBinaryDebug debugger = new ORecordSerializerBinaryDebug();
-    ORecordSerializationDebug debug =
-        debugger.deserializeDebug(brokenBytes, (ODatabaseSessionInternal) db);
+    ORecordSerializationDebug debug = debugger.deserializeDebug(brokenBytes, db);
 
     assertEquals(debug.properties.size(), 3);
     assertEquals(debug.properties.get(0).name, "test");
     assertEquals(debug.properties.get(0).type, OType.STRING);
-    assertEquals(debug.properties.get(0).faildToRead, true);
+    assertTrue(debug.properties.get(0).faildToRead);
     assertNotNull(debug.properties.get(0).readingException);
 
     assertEquals(debug.properties.get(1).name, "anInt");
     assertEquals(debug.properties.get(1).type, OType.INTEGER);
-    assertEquals(debug.properties.get(1).faildToRead, true);
+    assertTrue(debug.properties.get(1).faildToRead);
     assertNotNull(debug.properties.get(1).readingException);
 
     assertEquals(debug.properties.get(2).name, "anDouble");
     assertEquals(debug.properties.get(2).type, OType.DOUBLE);
-    assertEquals(debug.properties.get(2).faildToRead, true);
+    assertTrue(debug.properties.get(2).faildToRead);
     assertNotNull(debug.properties.get(2).readingException);
   }
 
@@ -137,23 +134,22 @@ public class ORecordSerializerBinaryDebugTest extends BaseMemoryDatabase {
     System.arraycopy(bytes, 0, brokenBytes, 0, bytes.length - 10);
 
     ORecordSerializerBinaryDebug debugger = new ORecordSerializerBinaryDebug();
-    ORecordSerializationDebug debug =
-        debugger.deserializeDebug(brokenBytes, (ODatabaseSessionInternal) db);
+    ORecordSerializationDebug debug = debugger.deserializeDebug(brokenBytes, db);
 
     assertEquals(debug.properties.size(), 3);
     assertEquals(debug.properties.get(0).name, "testP");
     assertEquals(debug.properties.get(0).type, OType.STRING);
-    assertEquals(debug.properties.get(0).faildToRead, true);
+    assertTrue(debug.properties.get(0).faildToRead);
     assertNotNull(debug.properties.get(0).readingException);
 
     assertEquals(debug.properties.get(1).name, "theInt");
     assertEquals(debug.properties.get(1).type, OType.INTEGER);
-    assertEquals(debug.properties.get(1).faildToRead, true);
+    assertTrue(debug.properties.get(1).faildToRead);
     assertNotNull(debug.properties.get(1).readingException);
 
     assertEquals(debug.properties.get(2).name, "anDouble");
     assertEquals(debug.properties.get(2).type, OType.DOUBLE);
-    assertEquals(debug.properties.get(2).faildToRead, true);
+    assertTrue(debug.properties.get(2).faildToRead);
     assertNotNull(debug.properties.get(2).readingException);
   }
 }

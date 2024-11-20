@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.jdbc;
 
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordLazyList;
+import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.OBlob;
@@ -142,8 +142,7 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
         // Check if the type is a binary record or a collection of binary
         // records
         return Types.BINARY;
-      } else if (value instanceof ORecordLazyList) {
-        ORecordLazyList list = (ORecordLazyList) value;
+      } else if (value instanceof OList list) {
         // check if all the list items are instances of ORecordBytes
         ListIterator<OIdentifiable> iterator = list.listIterator();
         OIdentifiable listElement;
@@ -175,8 +174,7 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
           if (value == null) {
             return Types.NULL;
           }
-          if (value instanceof ORecordLazyList) {
-            ORecordLazyList list = (ORecordLazyList) value;
+          if (value instanceof OList list) {
             // check if all the list items are instances of ORecordBytes
             ListIterator<OIdentifiable> iterator = list.listIterator();
             OIdentifiable listElement;
@@ -278,7 +276,7 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
 
   public boolean isCaseSensitive(final int column) throws SQLException {
     final OProperty p = getProperty(column);
-    return p != null ? p.getCollate().getName().equalsIgnoreCase("ci") : false;
+    return p != null && p.getCollate().getName().equalsIgnoreCase("ci");
   }
 
   public boolean isCurrency(final int column) throws SQLException {
@@ -297,7 +295,7 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
 
   public boolean isReadOnly(final int column) throws SQLException {
     final OProperty p = getProperty(column);
-    return p != null ? p.isReadonly() : false;
+    return p != null && p.isReadonly();
   }
 
   public boolean isSearchable(int column) throws SQLException {

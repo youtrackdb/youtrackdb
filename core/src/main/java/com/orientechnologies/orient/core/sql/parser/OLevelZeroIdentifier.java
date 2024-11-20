@@ -9,9 +9,11 @@ import com.orientechnologies.orient.core.sql.executor.AggregationContext;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class OLevelZeroIdentifier extends SimpleNode {
+
   protected OFunctionCall functionCall;
   protected Boolean self;
   protected OCollection collection;
@@ -114,12 +116,12 @@ public class OLevelZeroIdentifier extends SimpleNode {
    * tests if current expression is an indexed funciton AND that function can also be executed
    * without using the index
    *
-   * @param target the query target
-   * @param context the execution context
+   * @param target   the query target
+   * @param context  the execution context
    * @param operator
    * @param right
    * @return true if current expression is an indexed funciton AND that function can also be
-   *     executed without using the index, false otherwise
+   * executed without using the index, false otherwise
    */
   public boolean canExecuteIndexedFunctionWithoutIndex(
       OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
@@ -130,14 +132,15 @@ public class OLevelZeroIdentifier extends SimpleNode {
   }
 
   /**
-   * tests if current expression is an indexed function AND that function can be used on this target
+   * tests if current expression is an indexed function AND that function can be used on this
+   * target
    *
-   * @param target the query target
-   * @param context the execution context
+   * @param target   the query target
+   * @param context  the execution context
    * @param operator
    * @param right
    * @return true if current expression involves an indexed function AND that function can be used
-   *     on this target, false otherwise
+   * on this target, false otherwise
    */
   public boolean allowsIndexedFunctionExecutionOnTarget(
       OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
@@ -153,10 +156,10 @@ public class OLevelZeroIdentifier extends SimpleNode {
    * excluded from further evaluation. In other cases the result from the index is a superset of the
    * expected result, so the function has to be executed anyway for further filtering
    *
-   * @param target the query target
+   * @param target  the query target
    * @param context the execution context
    * @return true if current expression is an indexed function AND the function has also to be
-   *     executed after the index search.
+   * executed after the index search.
    */
   public boolean executeIndexedFunctionAfterIndexSearch(
       OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
@@ -184,20 +187,14 @@ public class OLevelZeroIdentifier extends SimpleNode {
     if (functionCall != null && functionCall.needsAliases(aliases)) {
       return true;
     }
-    if (collection != null && collection.needsAliases(aliases)) {
-      return true;
-    }
-    return false;
+    return collection != null && collection.needsAliases(aliases);
   }
 
   public boolean isAggregate() {
     if (functionCall != null && functionCall.isAggregate()) {
       return true;
     }
-    if (collection != null && collection.isAggregate()) {
-      return true;
-    }
-    return false;
+    return collection != null && collection.isAggregate();
   }
 
   public boolean isCount() {
@@ -211,10 +208,7 @@ public class OLevelZeroIdentifier extends SimpleNode {
     if (Boolean.TRUE.equals(self)) {
       return false;
     }
-    if (collection != null && collection.isEarlyCalculated(ctx)) {
-      return true;
-    }
-    return false;
+    return collection != null && collection.isEarlyCalculated(ctx);
   }
 
   public SimpleNode splitForAggregation(
@@ -246,7 +240,7 @@ public class OLevelZeroIdentifier extends SimpleNode {
         return functionCall.getAggregationContext(ctx);
       }
     }
-    throw new OCommandExecutionException("cannot aggregate on " + toString());
+    throw new OCommandExecutionException("cannot aggregate on " + this);
   }
 
   public OLevelZeroIdentifier copy() {
@@ -259,18 +253,22 @@ public class OLevelZeroIdentifier extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OLevelZeroIdentifier that = (OLevelZeroIdentifier) o;
 
-    if (functionCall != null ? !functionCall.equals(that.functionCall) : that.functionCall != null)
+    if (!Objects.equals(functionCall, that.functionCall)) {
       return false;
-    if (self != null ? !self.equals(that.self) : that.self != null) return false;
-    if (collection != null ? !collection.equals(that.collection) : that.collection != null)
+    }
+    if (!Objects.equals(self, that.self)) {
       return false;
-
-    return true;
+    }
+    return Objects.equals(collection, that.collection);
   }
 
   @Override
@@ -289,10 +287,7 @@ public class OLevelZeroIdentifier extends SimpleNode {
     if (functionCall != null && functionCall.refersToParent()) {
       return true;
     }
-    if (collection != null && collection.refersToParent()) {
-      return true;
-    }
-    return false;
+    return collection != null && collection.refersToParent();
   }
 
   public OFunctionCall getFunctionCall() {

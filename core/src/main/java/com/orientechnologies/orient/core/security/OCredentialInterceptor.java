@@ -27,6 +27,7 @@ import com.orientechnologies.orient.core.exception.OSecurityException;
  * @author S. Colin Leister
  */
 public interface OCredentialInterceptor {
+
   String getUsername();
 
   String getPassword();

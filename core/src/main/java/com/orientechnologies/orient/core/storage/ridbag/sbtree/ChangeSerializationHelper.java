@@ -4,13 +4,17 @@ import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.serialization.types.OByteSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OLinkSerializer;
 import java.util.HashMap;
 import java.util.Map;
 
-/** Created by tglman on 15/06/17. */
+/**
+ * Created by tglman on 15/06/17.
+ */
 public class ChangeSerializationHelper {
+
   public static final ChangeSerializationHelper INSTANCE = new ChangeSerializationHelper();
 
   public static Change createChangeInstance(byte type, int value) {
@@ -41,9 +45,16 @@ public class ChangeSerializationHelper {
       Change change = ChangeSerializationHelper.INSTANCE.deserializeChange(stream, offset);
       offset += Change.SIZE;
 
-      final OIdentifiable identifiable;
-      if (rid.isTemporary() && rid.getRecord() != null) identifiable = rid.getRecord();
-      else identifiable = rid;
+      OIdentifiable identifiable;
+      try {
+        if (rid.isTemporary()) {
+          identifiable = rid.getRecord();
+        } else {
+          identifiable = rid;
+        }
+      } catch (ORecordNotFoundException rnf) {
+        identifiable = rid;
+      }
 
       res.put(identifiable, change);
     }
@@ -60,8 +71,10 @@ public class ChangeSerializationHelper {
       K key = entry.getKey();
 
       if (key.getIdentity().isTemporary())
-        //noinspection unchecked
+      //noinspection unchecked
+      {
         key = key.getRecord();
+      }
 
       keySerializer.serialize(key, stream, offset);
       offset += keySerializer.getObjectSize(key);

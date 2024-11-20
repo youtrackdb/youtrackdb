@@ -381,7 +381,7 @@ public final class OCommandResponse implements OBinaryResponse {
     }
   }
 
-  protected Object readSynchResult(
+  private Object readSynchResult(
       final OChannelDataInput network,
       final ODatabaseSession database,
       List<ORecord> temporaryResults)

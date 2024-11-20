@@ -34,8 +34,11 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.MatchNoDocsQuery;
 import org.apache.lucene.search.Query;
 
-/** Created by Enrico Risa on 02/09/15. */
+/**
+ * Created by Enrico Risa on 02/09/15.
+ */
 public class OLuceneQueryBuilder {
+
   public static final ODocument EMPTY_METADATA = new ODocument();
 
   private final boolean allowLeadingWildcard;
@@ -122,7 +125,7 @@ public class OLuceneQueryBuilder {
             .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().floatValue()));
     final Analyzer analyzer =
         Optional.ofNullable(metadata.<Boolean>getProperty("customAnalysis"))
-            .filter(b -> b == true)
+            .filter(b -> b)
             .map(
                 b ->
                     analyzerFactory.createAnalyzer(

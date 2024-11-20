@@ -32,6 +32,7 @@ import com.orientechnologies.orient.core.sql.functions.OSQLFunctionConfigurableA
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionLast extends OSQLFunctionConfigurableAbstract {
+
   public static final String NAME = "last";
 
   public OSQLFunctionLast() {
@@ -46,10 +47,13 @@ public class OSQLFunctionLast extends OSQLFunctionConfigurableAbstract {
       final OCommandContext iContext) {
     Object value = iParams[0];
 
-    if (value instanceof OSQLFilterItem)
+    if (value instanceof OSQLFilterItem) {
       value = ((OSQLFilterItem) value).getValue(iCurrentRecord, iCurrentResult, iContext);
+    }
 
-    if (OMultiValue.isMultiValue(value)) value = OMultiValue.getLastValue(value);
+    if (OMultiValue.isMultiValue(value)) {
+      value = OMultiValue.getLastValue(value);
+    }
 
     return value;
   }

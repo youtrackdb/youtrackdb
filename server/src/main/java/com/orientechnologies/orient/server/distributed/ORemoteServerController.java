@@ -29,6 +29,7 @@ import java.io.IOException;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ORemoteServerController {
+
   private final ORemoteServerChannel[] requestChannels;
   private int requestChannelIndex = 0;
 
@@ -47,8 +48,12 @@ public class ORemoteServerController {
       final String user,
       final String passwd)
       throws IOException {
-    if (user == null) throw new IllegalArgumentException("User is null");
-    if (passwd == null) throw new IllegalArgumentException("Password is null");
+    if (user == null) {
+      throw new IllegalArgumentException("User is null");
+    }
+    if (passwd == null) {
+      throw new IllegalArgumentException("Password is null");
+    }
 
     ODistributedServerLog.debug(
         this,
@@ -60,27 +65,31 @@ public class ORemoteServerController {
     requestChannels =
         new ORemoteServerChannel
             [OGlobalConfiguration.DISTRIBUTED_REQUEST_CHANNELS.getValueAsInteger()];
-    for (int i = 0; i < requestChannels.length; ++i)
+    for (int i = 0; i < requestChannels.length; ++i) {
       requestChannels[i] =
           new ORemoteServerChannel(
               check, localNodeName, iServer, iURL, user, passwd, CURRENT_PROTOCOL_VERSION);
+    }
 
     protocolVersion = requestChannels[0].getDistributedProtocolVersion();
 
     responseChannels =
         new ORemoteServerChannel
             [OGlobalConfiguration.DISTRIBUTED_RESPONSE_CHANNELS.getValueAsInteger()];
-    for (int i = 0; i < responseChannels.length; ++i)
+    for (int i = 0; i < responseChannels.length; ++i) {
       responseChannels[i] =
           new ORemoteServerChannel(
               check, localNodeName, iServer, iURL, user, passwd, CURRENT_PROTOCOL_VERSION);
+    }
   }
 
   public void sendRequest(final ODistributedRequest req) {
     int idx;
     synchronized (requestChannels) {
       requestChannelIndex++;
-      if (requestChannelIndex < 0) requestChannelIndex = 0;
+      if (requestChannelIndex < 0) {
+        requestChannelIndex = 0;
+      }
       idx = requestChannelIndex % requestChannels.length;
     }
     requestChannels[idx].sendRequest(req);
@@ -90,16 +99,22 @@ public class ORemoteServerController {
     int idx;
     synchronized (responseChannels) {
       responseChannelIndex++;
-      if (responseChannelIndex < 0) responseChannelIndex = 0;
+      if (responseChannelIndex < 0) {
+        responseChannelIndex = 0;
+      }
       idx = responseChannelIndex % responseChannels.length;
     }
     responseChannels[idx].sendResponse(response);
   }
 
   public void close() {
-    for (int i = 0; i < requestChannels.length; ++i) requestChannels[i].close();
+    for (int i = 0; i < requestChannels.length; ++i) {
+      requestChannels[i].close();
+    }
 
-    for (int i = 0; i < responseChannels.length; ++i) responseChannels[i].close();
+    for (int i = 0; i < responseChannels.length; ++i) {
+      responseChannels[i].close();
+    }
   }
 
   public int getProtocolVersion() {
@@ -110,7 +125,9 @@ public class ORemoteServerController {
     int idx;
     synchronized (requestChannels) {
       requestChannelIndex++;
-      if (requestChannelIndex < 0) requestChannelIndex = 0;
+      if (requestChannelIndex < 0) {
+        requestChannelIndex = 0;
+      }
       idx = requestChannelIndex % requestChannels.length;
     }
     requestChannels[idx].sendBinaryRequest(request);

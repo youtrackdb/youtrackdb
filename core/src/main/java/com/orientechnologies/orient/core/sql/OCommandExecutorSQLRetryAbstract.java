@@ -25,12 +25,15 @@ package com.orientechnologies.orient.core.sql;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OCommandExecutorSQLRetryAbstract extends OCommandExecutorSQLSetAware {
+
   public static final String KEYWORD_RETRY = "RETRY";
 
   protected int retry = 1;
   protected int wait = 0;
 
-  /** Parses the RETRY number of times */
+  /**
+   * Parses the RETRY number of times
+   */
   protected void parseRetry() throws OCommandSQLParsingException {
     retry = Integer.parseInt(parserNextWord(true));
 
@@ -38,6 +41,8 @@ public abstract class OCommandExecutorSQLRetryAbstract extends OCommandExecutorS
 
     if (temp.equals("WAIT")) {
       wait = Integer.parseInt(parserNextWord(true));
-    } else parserGoBack();
+    } else {
+      parserGoBack();
+    }
   }
 }

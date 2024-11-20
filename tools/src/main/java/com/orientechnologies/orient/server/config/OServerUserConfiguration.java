@@ -27,6 +27,7 @@ import jakarta.xml.bind.annotation.XmlType;
 @XmlRootElement(name = "user")
 @XmlType(propOrder = {"resources", "password", "name"})
 public class OServerUserConfiguration implements OGlobalUser {
+
   @XmlAttribute public String name;
 
   @XmlAttribute public String password;

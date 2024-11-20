@@ -198,14 +198,14 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
 
     try {
       database.command("DROP CLASS SuperV").close();
-      Assert.assertTrue(false);
+      Assert.fail();
     } catch (OCommandExecutionException e) {
       Assert.assertTrue(true);
     }
 
     try {
       database.command("DROP CLASS SuperE").close();
-      Assert.assertTrue(false);
+      Assert.fail();
     } catch (OCommandExecutionException e) {
       Assert.assertTrue(true);
     }
@@ -214,14 +214,14 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
       database.command("DROP CLASS SuperV unsafe").close();
       Assert.assertTrue(true);
     } catch (OCommandExecutionException e) {
-      Assert.assertTrue(false);
+      Assert.fail();
     }
 
     try {
       database.command("DROP CLASS SuperE UNSAFE").close();
       Assert.assertTrue(true);
     } catch (OCommandExecutionException e) {
-      Assert.assertTrue(false);
+      Assert.fail();
     }
   }
 
@@ -241,14 +241,14 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
 
     try {
       database.command("DROP CLASS SuperV").close();
-      Assert.assertTrue(false);
+      Assert.fail();
     } catch (OCommandExecutionException e) {
       Assert.assertTrue(true);
     }
 
     try {
       database.command("DROP CLASS SuperE").close();
-      Assert.assertTrue(false);
+      Assert.fail();
     } catch (OCommandExecutionException e) {
       Assert.assertTrue(true);
     }
@@ -261,14 +261,14 @@ public class SQLDeleteEdgeTest extends DocumentDBBaseTest {
       database.command("DROP CLASS SuperV").close();
       Assert.assertTrue(true);
     } catch (OCommandExecutionException e) {
-      Assert.assertTrue(false);
+      Assert.fail();
     }
 
     try {
       database.command("DROP CLASS SuperE").close();
       Assert.assertTrue(true);
     } catch (OCommandExecutionException e) {
-      Assert.assertTrue(false);
+      Assert.fail();
     }
   }
 

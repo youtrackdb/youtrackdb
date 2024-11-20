@@ -8,7 +8,9 @@ import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Collections;
 
-/** Created by luigidellaquila on 22/07/16. */
+/**
+ * Created by luigidellaquila on 22/07/16.
+ */
 public class FetchFromVariableStep extends AbstractExecutionStep {
 
   private String variableName;

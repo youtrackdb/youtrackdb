@@ -24,7 +24,6 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.record.ORecord;
@@ -52,14 +51,14 @@ public class OQueryOperatorInstanceof extends OQueryOperatorEqualityNotNulls {
       OCommandContext iContext) {
 
     final OSchema schema =
-        ((OMetadataInternal) ODatabaseRecordThreadLocal.instance().get().getMetadata())
-            .getImmutableSchemaSnapshot();
+        ODatabaseRecordThreadLocal.instance().get().getMetadata().getImmutableSchemaSnapshot();
 
     final String baseClassName = iRight.toString();
     final OClass baseClass = schema.getClass(baseClassName);
-    if (baseClass == null)
+    if (baseClass == null) {
       throw new OCommandExecutionException(
           "Class '" + baseClassName + "' is not defined in database schema");
+    }
 
     OClass cls = null;
     if (iLeft instanceof OIdentifiable) {
@@ -69,10 +68,12 @@ public class OQueryOperatorInstanceof extends OQueryOperatorEqualityNotNulls {
         cls = ODocumentInternal.getImmutableSchemaClass(((ODocument) record));
       }
     } else if (iLeft instanceof String)
-      // GET THE CLASS BY NAME
+    // GET THE CLASS BY NAME
+    {
       cls = schema.getClass((String) iLeft);
+    }
 
-    return cls != null ? cls.isSubClassOf(baseClass) : false;
+    return cls != null && cls.isSubClassOf(baseClass);
   }
 
   @Override

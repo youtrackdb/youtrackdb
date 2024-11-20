@@ -7,6 +7,7 @@ import com.orientechnologies.orient.core.sql.operator.OQueryOperatorEquals;
 import java.util.Map;
 
 public class OEqualsCompareOperator extends SimpleNode implements OBinaryCompareOperator {
+
   protected boolean doubleEquals = false;
 
   public OEqualsCompareOperator(int id) {
@@ -39,12 +40,12 @@ public class OEqualsCompareOperator extends SimpleNode implements OBinaryCompare
 
   @Override
   public void toString(Map<Object, Object> params, StringBuilder builder) {
-    builder.append(toString());
+    builder.append(this);
   }
 
   @Override
   public void toGenericStatement(StringBuilder builder) {
-    builder.append(toString());
+    builder.append(this);
   }
 
   @Override

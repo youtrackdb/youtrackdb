@@ -8,8 +8,10 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
+import java.util.Objects;
 
 public class OLetStatement extends OSimpleExecStatement {
+
   protected OIdentifier name;
 
   protected OStatement statement;
@@ -89,18 +91,22 @@ public class OLetStatement extends OSimpleExecStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OLetStatement that = (OLetStatement) o;
 
-    if (name != null ? !name.equals(that.name) : that.name != null) return false;
-    if (statement != null ? !statement.equals(that.statement) : that.statement != null)
+    if (!Objects.equals(name, that.name)) {
       return false;
-    if (expression != null ? !expression.equals(that.expression) : that.expression != null)
+    }
+    if (!Objects.equals(statement, that.statement)) {
       return false;
-
-    return true;
+    }
+    return Objects.equals(expression, that.expression);
   }
 
   @Override

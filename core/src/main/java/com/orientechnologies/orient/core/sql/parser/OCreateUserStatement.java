@@ -180,8 +180,12 @@ public class OCreateUserStatement extends OSimpleExecStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     OCreateUserStatement that = (OCreateUserStatement) o;
     return Objects.equals(name, that.name)
         && Objects.equals(passwordIdentifier, that.passwordIdentifier)

@@ -23,11 +23,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * Multiple key container that is used as key for {@link java.util.Map}. Despite of the {@link
- * java.util.List} order of keys does not matter, but unlike {@link java.util.Set} can contain
- * duplicate values.
+ * Multiple key container that is used as key for {@link java.util.Map}. Despite of the
+ * {@link java.util.List} order of keys does not matter, but unlike {@link java.util.Set} can
+ * contain duplicate values.
  */
 public class OMultiKey {
+
   private final Collection<?> keys;
   private final int hash;
 
@@ -44,7 +45,9 @@ public class OMultiKey {
     return total;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int hashCode() {
     return hash;
@@ -56,26 +59,36 @@ public class OMultiKey {
    *
    * @param o obj the reference object with which to compare.
    * @return <code>true</code> if this object is the same as the obj argument; <code>false</code>
-   *     otherwise.
+   * otherwise.
    */
   @Override
   public boolean equals(final Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     final OMultiKey oMultiKey = (OMultiKey) o;
 
-    if (keys.size() != oMultiKey.keys.size()) return false;
+    if (keys.size() != oMultiKey.keys.size()) {
+      return false;
+    }
 
     for (final Object inKey : keys) {
-      if (!oMultiKey.keys.contains(inKey)) return false;
+      if (!oMultiKey.keys.contains(inKey)) {
+        return false;
+      }
     }
     return true;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String toString() {
-    return "OMultiKey " + keys + "";
+    return "OMultiKey " + keys;
   }
 }

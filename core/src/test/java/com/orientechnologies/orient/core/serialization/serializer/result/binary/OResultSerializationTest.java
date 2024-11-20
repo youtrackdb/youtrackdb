@@ -21,7 +21,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by luigidellaquila on 09/12/16. */
+/**
+ * Created by luigidellaquila on 09/12/16.
+ */
 public class OResultSerializationTest {
 
   protected OResultSerializerNetwork serializer;
@@ -322,15 +324,15 @@ public class OResultSerializationTest {
     assertEquals("foo", extr.<String>getProperty("name"));
 
     assertEquals(extr.getMetadataKeys(), document.getMetadataKeys());
-    assertEquals("bar", extr.<String>getMetadata("name"));
-    assertEquals(extr.<String>getMetadata("name"), document.getMetadata("name"));
-    assertEquals(extr.<String>getMetadata("age"), document.getMetadata("age"));
-    assertEquals(extr.<String>getMetadata("youngAge"), document.getMetadata("youngAge"));
-    assertEquals(extr.<String>getMetadata("oldAge"), document.getMetadata("oldAge"));
-    assertEquals(extr.<String>getMetadata("heigth"), document.getMetadata("heigth"));
-    assertEquals(extr.<String>getMetadata("bitHeigth"), document.getMetadata("bitHeigth"));
-    assertEquals(extr.<String>getMetadata("class"), document.getMetadata("class"));
-    assertEquals(extr.<String>getMetadata("alive"), document.getMetadata("alive"));
-    assertEquals(extr.<String>getMetadata("date"), document.getMetadata("date"));
+    assertEquals("bar", extr.getMetadata("name"));
+    assertEquals(extr.getMetadata("name"), document.getMetadata("name"));
+    assertEquals(extr.getMetadata("age"), document.getMetadata("age"));
+    assertEquals(extr.getMetadata("youngAge"), document.getMetadata("youngAge"));
+    assertEquals(extr.getMetadata("oldAge"), document.getMetadata("oldAge"));
+    assertEquals(extr.getMetadata("heigth"), document.getMetadata("heigth"));
+    assertEquals(extr.getMetadata("bitHeigth"), document.getMetadata("bitHeigth"));
+    assertEquals(extr.getMetadata("class"), document.getMetadata("class"));
+    assertEquals(extr.getMetadata("alive"), document.getMetadata("alive"));
+    assertEquals(extr.getMetadata("date"), document.getMetadata("date"));
   }
 }

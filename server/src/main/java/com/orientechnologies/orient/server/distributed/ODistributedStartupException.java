@@ -27,6 +27,7 @@ import com.orientechnologies.common.exception.OException;
  * @author Roberto Franchini (r.franchini--at--orientdb.com)
  */
 public class ODistributedStartupException extends OException {
+
   private static final long serialVersionUID = 1L;
 
   public ODistributedStartupException(String message) {
@@ -35,7 +36,9 @@ public class ODistributedStartupException extends OException {
 
   @Override
   public boolean equals(final Object obj) {
-    if (obj == null || !obj.getClass().equals(getClass())) return false;
+    if (obj == null || !obj.getClass().equals(getClass())) {
+      return false;
+    }
 
     String message = ((ODistributedStartupException) obj).getMessage();
     return getMessage() != null && getMessage().equals(message);

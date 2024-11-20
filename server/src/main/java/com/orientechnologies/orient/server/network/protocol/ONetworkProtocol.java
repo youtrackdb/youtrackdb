@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 public abstract class ONetworkProtocol extends OSoftThread {
+
   protected OServer server;
 
   public ONetworkProtocol(final ThreadGroup group, final String name) {
@@ -52,7 +53,9 @@ public abstract class ONetworkProtocol extends OSoftThread {
 
   public String getListeningAddress() {
     final OChannel c = getChannel();
-    if (c != null) return c.socket.getLocalAddress().getHostAddress();
+    if (c != null) {
+      return c.socket.getLocalAddress().getHostAddress();
+    }
     return null;
   }
 

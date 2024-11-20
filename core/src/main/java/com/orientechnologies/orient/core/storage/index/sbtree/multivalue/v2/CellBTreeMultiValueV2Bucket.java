@@ -40,6 +40,7 @@ import java.util.List;
  * @since 8/7/13
  */
 public final class CellBTreeMultiValueV2Bucket<K> extends ODurablePage {
+
   private static final int NEXT_ITEM_POINTER_OFFSET = 0;
   private static final int EMBEDDED_ENTRIES_COUNT_OFFSET =
       NEXT_ITEM_POINTER_OFFSET + OIntegerSerializer.INT_SIZE;
@@ -759,10 +760,7 @@ public final class CellBTreeMultiValueV2Bucket<K> extends ODurablePage {
 
   public boolean createMainLeafEntry(
       final int index, final byte[] serializedKey, final ORID value, final long mId) {
-    if (doCreateMainLeafEntry(index, serializedKey, value, mId)) {
-      return false;
-    }
-    return true;
+    return !doCreateMainLeafEntry(index, serializedKey, value, mId);
   }
 
   private boolean doCreateMainLeafEntry(int index, byte[] serializedKey, ORID value, long mId) {
@@ -947,10 +945,7 @@ public final class CellBTreeMultiValueV2Bucket<K> extends ODurablePage {
       final boolean updateNeighbors) {
     final int prevChild =
         doAddNonLeafEntry(index, serializedKey, leftChild, rightChild, updateNeighbors);
-    if (prevChild >= -1) {
-      return true;
-    }
-    return false;
+    return prevChild >= -1;
   }
 
   private int doAddNonLeafEntry(
@@ -1078,6 +1073,7 @@ public final class CellBTreeMultiValueV2Bucket<K> extends ODurablePage {
   }
 
   protected static class Entry {
+
     public final byte[] key;
 
     Entry(final byte[] key) {
@@ -1086,6 +1082,7 @@ public final class CellBTreeMultiValueV2Bucket<K> extends ODurablePage {
   }
 
   public static final class LeafEntry extends Entry {
+
     public final long mId;
     public final List<ORID> values;
     public final int entriesCount;
@@ -1099,6 +1096,7 @@ public final class CellBTreeMultiValueV2Bucket<K> extends ODurablePage {
   }
 
   public static final class NonLeafEntry extends Entry {
+
     public final int leftChild;
     public final int rightChild;
 

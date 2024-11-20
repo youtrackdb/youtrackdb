@@ -29,11 +29,14 @@ import java.util.Set;
  * @param <V> Instance type
  */
 public class OConfigurableStatelessFactory<K, V> {
+
   private final Map<K, V> registry = new HashMap<K, V>();
   private V defaultImplementation;
 
   public V getImplementation(final K iKey) {
-    if (iKey == null) return defaultImplementation;
+    if (iKey == null) {
+      return defaultImplementation;
+    }
     return registry.get(iKey);
   }
 

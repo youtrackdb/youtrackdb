@@ -44,6 +44,7 @@ import java.util.zip.ZipOutputStream;
  * @since 7/9/14
  */
 public class ODirectMemoryStorage extends OAbstractPaginatedStorage {
+
   private static final int ONE_KB = 1024;
 
   public ODirectMemoryStorage(

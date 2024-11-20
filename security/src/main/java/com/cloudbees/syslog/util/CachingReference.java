@@ -45,9 +45,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * @author <a href="mailto:cleclerc@cloudbees.com">Cyrille Le Clerc</a>
  */
 public abstract class CachingReference<E> {
+
   private final ReadWriteLock rwl = new ReentrantReadWriteLock();
   private long lastCreationInNanos;
-  private long timeToLiveInNanos;
+  private final long timeToLiveInNanos;
   private E object;
 
   public CachingReference(long timeToLiveInNanos) {
@@ -58,10 +59,14 @@ public abstract class CachingReference<E> {
     this(TimeUnit.NANOSECONDS.convert(timeToLive, timeToLiveUnit));
   }
 
-  /** @return the newly created object. */
+  /**
+   * @return the newly created object.
+   */
   protected abstract E newObject();
 
-  /** @return the up to date version of the {@code Object} hold by this reference. */
+  /**
+   * @return the up to date version of the {@code Object} hold by this reference.
+   */
   public E get() {
     rwl.readLock().lock();
     try {

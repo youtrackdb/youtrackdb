@@ -35,7 +35,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 29/04/15. */
+/**
+ * Created by Enrico Risa on 29/04/15.
+ */
 public class LuceneBooleanIndexTest extends BaseLuceneTest {
 
   @Before
@@ -64,11 +66,9 @@ public class LuceneBooleanIndexTest extends BaseLuceneTest {
     OResultSet docs = db.query("select from Person where isDeleted lucene false");
 
     Assert.assertEquals(
-        500,
-        docs.stream().filter((doc) -> (Boolean) doc.getProperty("isDeleted") == false).count());
+        500, docs.stream().filter((doc) -> !((Boolean) doc.getProperty("isDeleted"))).count());
     docs = db.query("select from Person where isDeleted lucene true");
-    Assert.assertEquals(
-        500, docs.stream().filter((doc) -> (Boolean) doc.getProperty("isDeleted") == true).count());
+    Assert.assertEquals(500, docs.stream().filter((doc) -> doc.getProperty("isDeleted")).count());
   }
 
   @Test

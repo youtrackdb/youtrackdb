@@ -46,6 +46,7 @@ import java.util.concurrent.TimeoutException;
  */
 public class OSQLNonBlockingQuery<T extends Object> extends OSQLQuery<T>
     implements OCommandRequestAsynch {
+
   private static final long serialVersionUID = 1L;
 
   public class ONonBlockingQueryFuture implements Future, List<Future> {
@@ -219,7 +220,9 @@ public class OSQLNonBlockingQuery<T extends Object> extends OSQLQuery<T>
     }
   }
 
-  /** Empty constructor for unmarshalling. */
+  /**
+   * Empty constructor for unmarshalling.
+   */
   public OSQLNonBlockingQuery() {}
 
   public OSQLNonBlockingQuery(final String iText, final OCommandResultListener iResultListener) {
@@ -247,7 +250,7 @@ public class OSQLNonBlockingQuery<T extends Object> extends OSQLQuery<T>
   @SuppressWarnings("unchecked")
   public <RET> RET execute2(final String iText, final Object... iArgs) {
     text = iText;
-    return (RET) execute(iArgs);
+    return execute(iArgs);
   }
 
   public T executeFirst() {

@@ -10,9 +10,12 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-/** Created by frank on 24/05/2017. */
+/**
+ * Created by frank on 24/05/2017.
+ */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ODemoDbFromDocumentationFriendshipIT extends OIntegrationTestTemplate {
+
   @Test
   public void test_Friendship_Example_1() throws Exception {
 

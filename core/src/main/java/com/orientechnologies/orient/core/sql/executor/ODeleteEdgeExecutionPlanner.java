@@ -19,7 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/** Created by luigidellaquila on 08/08/16. */
+/**
+ * Created by luigidellaquila on 08/08/16.
+ */
 public class ODeleteEdgeExecutionPlanner {
 
   private final ODeleteEdgeStatement statement;
@@ -75,7 +77,7 @@ public class ODeleteEdgeExecutionPlanner {
 
   public OInternalExecutionPlan createExecutionPlan(
       OCommandContext ctx, boolean enableProfiling, boolean useCache) {
-    ODatabaseSessionInternal db = (ODatabaseSessionInternal) ctx.getDatabase();
+    ODatabaseSessionInternal db = ctx.getDatabase();
     if (useCache && !enableProfiling && statement.executinPlanCanBeCached()) {
       OExecutionPlan plan = OExecutionPlanCache.get(statement.getOriginalStatement(), ctx, db);
       if (plan != null) {
@@ -139,10 +141,7 @@ public class ODeleteEdgeExecutionPlanner {
         && this.statement.executinPlanCanBeCached()
         && result.canBeCached()
         && OExecutionPlanCache.getLastInvalidation(db) < planningStart) {
-      OExecutionPlanCache.put(
-          this.statement.getOriginalStatement(),
-          result,
-          (ODatabaseSessionInternal) ctx.getDatabase());
+      OExecutionPlanCache.put(this.statement.getOriginalStatement(), result, ctx.getDatabase());
     }
 
     return result;

@@ -53,6 +53,7 @@ import java.util.Set;
  * @author Luca Garulli (l.garulli--at--orientdb.com)
  */
 public class OClusterHealthChecker implements Runnable {
+
   private final ODistributedServerManager manager;
   private final long healthCheckerEveryMs;
   private long lastExecution = 0;
@@ -80,20 +81,23 @@ public class OClusterHealthChecker implements Runnable {
       } catch (HazelcastInstanceNotActiveException e) {
         // IGNORE IT
       } catch (Exception t) {
-        if (manager.getServerInstance().isActive())
+        if (manager.getServerInstance().isActive()) {
           OLogManager.instance().error(this, "Error on checking cluster health", t);
-        else
-          // SHUTDOWN IN PROGRESS
+        } else
+        // SHUTDOWN IN PROGRESS
+        {
           OLogManager.instance().debug(this, "Error on checking cluster health", t);
+        }
       } finally {
         OLogManager.instance().debug(this, "Cluster health checking completed");
       }
-    } else
+    } else {
       OLogManager.instance()
           .debug(
               this,
               "Cluster health finished recently (%dms ago), skip this execution",
               now - lastExecution);
+    }
 
     lastExecution = now;
   }
@@ -110,7 +114,9 @@ public class OClusterHealthChecker implements Runnable {
         if (manager.isNodeAvailable(s, databaseName) && !confServers.contains(s)) {
           final List<String> nodes = new ArrayList<String>();
           for (String n : manager.getActiveServers()) {
-            if (manager.isNodeAvailable(n, databaseName)) nodes.add(n);
+            if (manager.isNodeAvailable(n, databaseName)) {
+              nodes.add(n);
+            }
           }
 
           // THE SERVERS HAS THE DATABASE ONLINE BUT IT IS NOT IN THE CFG. DETERMINE THE MOST UPD
@@ -219,22 +225,30 @@ public class OClusterHealthChecker implements Runnable {
 
   private void checkServerStatus() {
     if (manager.getNodeStatus() != ODistributedServerManager.NODE_STATUS.ONLINE)
-      // ONLY ONLINE NODE CAN TRY TO RECOVER FOR SINGLE DB STATUS
+    // ONLY ONLINE NODE CAN TRY TO RECOVER FOR SINGLE DB STATUS
+    {
       return;
+    }
 
     OServer server = manager.getServerInstance();
-    if (!server.isActive()) return;
+    if (!server.isActive()) {
+      return;
+    }
 
     OrientDBDistributed context = (OrientDBDistributed) server.getDatabases();
     for (String dbName : manager.getMessageService().getDatabases()) {
       final ODistributedServerManager.DB_STATUS localNodeStatus =
           manager.getDatabaseStatus(manager.getLocalNodeName(), dbName);
       if (localNodeStatus != ODistributedServerManager.DB_STATUS.NOT_AVAILABLE)
-        // ONLY NOT_AVAILABLE NODE/DB CAN BE RECOVERED
+      // ONLY NOT_AVAILABLE NODE/DB CAN BE RECOVERED
+      {
         continue;
+      }
       if (OSystemDatabase.SYSTEM_DB_NAME.equalsIgnoreCase(dbName))
-        // SKIP SYSTEM DATABASE FROM HEALTH CHECK
+      // SKIP SYSTEM DATABASE FROM HEALTH CHECK
+      {
         continue;
+      }
 
       final Set<String> servers = manager.getAvailableNodeNames(dbName);
       servers.remove(manager.getLocalNodeName());
@@ -261,14 +275,16 @@ public class OClusterHealthChecker implements Runnable {
             dbName);
 
         if (manager.getNodeStatus() != ODistributedServerManager.NODE_STATUS.ONLINE)
-          // ONLY ONLINE NODE CAN TRY TO RECOVER FOR SINGLE DB STATUS
+        // ONLY ONLINE NODE CAN TRY TO RECOVER FOR SINGLE DB STATUS
+        {
           return;
+        }
 
         final ODistributedConfiguration dCfg = context.getDistributedConfiguration(dbName);
         if (dCfg != null) {
           final boolean result = manager.installDatabase(true, dbName, false, true);
 
-          if (result)
+          if (result) {
             ODistributedServerLog.info(
                 this,
                 manager.getLocalNodeName(),
@@ -276,7 +292,7 @@ public class OClusterHealthChecker implements Runnable {
                 ODistributedServerLog.DIRECTION.NONE,
                 "Recover complete for database '%s'",
                 dbName);
-          else
+          } else {
             ODistributedServerLog.info(
                 this,
                 manager.getLocalNodeName(),
@@ -284,6 +300,7 @@ public class OClusterHealthChecker implements Runnable {
                 ODistributedServerLog.DIRECTION.NONE,
                 "Recover cannot be completed for database '%s'",
                 dbName);
+          }
         }
       }
     }
@@ -291,20 +308,26 @@ public class OClusterHealthChecker implements Runnable {
 
   private void checkServerInStall() {
     if (manager.getNodeStatus() != ODistributedServerManager.NODE_STATUS.ONLINE)
-      // ONLY ONLINE NODE CAN CHECK FOR OTHERS
+    // ONLY ONLINE NODE CAN CHECK FOR OTHERS
+    {
       return;
+    }
 
     for (String dbName : manager.getMessageService().getDatabases()) {
       final ODistributedServerManager.DB_STATUS localNodeStatus =
           manager.getDatabaseStatus(manager.getLocalNodeName(), dbName);
       if (localNodeStatus != ODistributedServerManager.DB_STATUS.ONLINE)
-        // ONLY ONLINE NODE/DB CAN CHECK FOR OTHERS
+      // ONLY ONLINE NODE/DB CAN CHECK FOR OTHERS
+      {
         continue;
+      }
 
       final Set<String> servers = manager.getAvailableNodeNames(dbName);
       servers.remove(manager.getLocalNodeName());
 
-      if (servers.isEmpty()) continue;
+      if (servers.isEmpty()) {
+        continue;
+      }
 
       try {
         final ODistributedResponse response =
@@ -350,25 +373,35 @@ public class OClusterHealthChecker implements Runnable {
 
   private void notifyDatabaseSequenceStatus() {
     if (manager.getNodeStatus() != ODistributedServerManager.NODE_STATUS.ONLINE)
-      // ONLY ONLINE NODE CAN TRY TO RECOVER FOR SINGLE DB STATUS
+    // ONLY ONLINE NODE CAN TRY TO RECOVER FOR SINGLE DB STATUS
+    {
       return;
+    }
 
-    if (!manager.getServerInstance().isActive()) return;
+    if (!manager.getServerInstance().isActive()) {
+      return;
+    }
 
     for (String dbName : manager.getMessageService().getDatabases()) {
       final ODistributedServerManager.DB_STATUS localNodeStatus =
           manager.getDatabaseStatus(manager.getLocalNodeName(), dbName);
       if (localNodeStatus != ODistributedServerManager.DB_STATUS.ONLINE)
-        // ONLY NOT_AVAILABLE NODE/DB CAN BE RECOVERED
+      // ONLY NOT_AVAILABLE NODE/DB CAN BE RECOVERED
+      {
         continue;
+      }
       if (OSystemDatabase.SYSTEM_DB_NAME.equalsIgnoreCase(dbName))
-        // SKIP SYSTEM DATABASE FROM HEALTH CHECK
+      // SKIP SYSTEM DATABASE FROM HEALTH CHECK
+      {
         continue;
+      }
 
       final List<String> servers = manager.getOnlineNodes(dbName);
       servers.remove(manager.getLocalNodeName());
 
-      if (servers.isEmpty()) continue;
+      if (servers.isEmpty()) {
+        continue;
+      }
 
       try {
         ODistributedDatabase sharedDb = manager.getDatabase(dbName);
@@ -409,8 +442,9 @@ public class OClusterHealthChecker implements Runnable {
   }
 
   private void setDatabaseOffline(final String dbName, final String server) {
-    if (manager.getDatabaseStatus(server, dbName) != ODistributedServerManager.DB_STATUS.ONLINE)
+    if (manager.getDatabaseStatus(server, dbName) != ODistributedServerManager.DB_STATUS.ONLINE) {
       return;
+    }
 
     if (OGlobalConfiguration.DISTRIBUTED_CHECK_HEALTH_CAN_OFFLINE_SERVER.getValueAsBoolean()) {
       ODistributedServerLog.warn(

@@ -35,7 +35,9 @@ import java.util.stream.Stream;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
-/** Created by enricorisa on 28/06/14. */
+/**
+ * Created by enricorisa on 28/06/14.
+ */
 public class LuceneInsertMultithreadTest {
 
   private static final int THREADS = 10;
@@ -91,15 +93,21 @@ public class LuceneInsertMultithreadTest {
       }
 
       Thread[] threads = new Thread[THREADS + RTHREADS];
-      for (int i = 0; i < THREADS; ++i)
+      for (int i = 0; i < THREADS; ++i) {
         threads[i] = new Thread(new LuceneInsertThread(CYCLE), "ConcurrentWriteTest" + i);
+      }
 
-      for (int i = THREADS; i < THREADS + RTHREADS; ++i)
+      for (int i = THREADS; i < THREADS + RTHREADS; ++i) {
         threads[i] = new Thread(new LuceneReadThread(CYCLE), "ConcurrentReadTest" + i);
+      }
 
-      for (int i = 0; i < THREADS + RTHREADS; ++i) threads[i].start();
+      for (int i = 0; i < THREADS + RTHREADS; ++i) {
+        threads[i].start();
+      }
 
-      for (int i = 0; i < THREADS + RTHREADS; ++i) threads[i].join();
+      for (int i = 0; i < THREADS + RTHREADS; ++i) {
+        threads[i].join();
+      }
 
       OIndex idx = schema.getClass("City").getClassIndex("City.name");
 
@@ -143,6 +151,7 @@ public class LuceneInsertMultithreadTest {
   }
 
   public static class LuceneReadThread implements Runnable {
+
     private final int cycle;
 
     private LuceneReadThread(int cycle) {

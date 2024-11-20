@@ -27,6 +27,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 public class OServerCommandPostInstallDatabase extends OServerCommandAuthenticatedServerAbstract {
+
   private static final String[] NAMES = {"POST|installDatabase"};
 
   public OServerCommandPostInstallDatabase() {
@@ -77,7 +78,7 @@ public class OServerCommandPostInstallDatabase extends OServerCommandAuthenticat
   protected String getDbName(final String url) {
     String name = null;
     if (url != null) {
-      int idx = url.lastIndexOf("/");
+      int idx = url.lastIndexOf('/');
       if (idx != -1) {
         name = url.substring(idx + 1).replace(".zip", "");
       }

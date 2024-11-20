@@ -63,7 +63,9 @@ import org.locationtech.spatial4j.distance.DistanceUtils;
 import org.locationtech.spatial4j.shape.Point;
 import org.locationtech.spatial4j.shape.Shape;
 
-/** Created by Enrico Risa on 26/09/15. */
+/**
+ * Created by Enrico Risa on 26/09/15.
+ */
 public class OLuceneLegacySpatialIndexEngine extends OLuceneSpatialIndexEngineAbstract {
 
   private final OShapeBuilderLegacy legacyBuilder = OShapeBuilderLegacyImpl.INSTANCE;
@@ -74,16 +76,16 @@ public class OLuceneLegacySpatialIndexEngine extends OLuceneSpatialIndexEngineAb
   }
 
   private Set<OIdentifiable> legacySearch(Object key, OLuceneTxChanges changes) throws IOException {
-    if (key instanceof OSpatialCompositeKey) {
-      final OSpatialCompositeKey newKey = (OSpatialCompositeKey) key;
+    if (key instanceof OSpatialCompositeKey newKey) {
 
       final SpatialOperation strategy =
           newKey.getOperation() != null ? newKey.getOperation() : SpatialOperation.Intersects;
 
-      if (SpatialOperation.Intersects.equals(strategy))
+      if (SpatialOperation.Intersects.equals(strategy)) {
         return searchIntersect(newKey, newKey.getMaxDistance(), newKey.getContext(), changes);
-      else if (SpatialOperation.IsWithin.equals(strategy))
+      } else if (SpatialOperation.IsWithin.equals(strategy)) {
         return searchWithin(newKey, newKey.getContext(), changes);
+      }
 
     } else if (key instanceof OCompositeKey) {
       return searchIntersect((OCompositeKey) key, 0, null, changes);
@@ -132,7 +134,9 @@ public class OLuceneLegacySpatialIndexEngine extends OLuceneSpatialIndexEngineAb
       OSpatialCompositeKey key, OCommandContext context, OLuceneTxChanges changes) {
 
     Shape shape = legacyBuilder.makeShape(key, ctx);
-    if (shape == null) return null;
+    if (shape == null) {
+      return null;
+    }
     SpatialArgs args = new SpatialArgs(SpatialOperation.IsWithin, shape);
     IndexSearcher searcher = searcher();
 
@@ -191,15 +195,14 @@ public class OLuceneLegacySpatialIndexEngine extends OLuceneSpatialIndexEngineAb
   @Override
   public void put(OAtomicOperation atomicOperation, Object key, Object value) {
 
-    if (key instanceof OCompositeKey) {
+    if (key instanceof OCompositeKey compositeKey) {
       updateLastAccess();
       openIfClosed();
-      OCompositeKey compositeKey = (OCompositeKey) key;
       addDocument(
           newGeoDocument(
               (OIdentifiable) value,
               legacyBuilder.makeShape(compositeKey, ctx),
-              ((OCompositeKey) key).toDocument()));
+              compositeKey.toDocument()));
     }
   }
 

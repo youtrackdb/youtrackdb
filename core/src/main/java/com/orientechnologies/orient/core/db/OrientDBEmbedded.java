@@ -193,7 +193,7 @@ public class OrientDBEmbedded implements OrientDBInternal {
     boolean autoClose = getBoolConfig(OGlobalConfiguration.AUTO_CLOSE_AFTER_DELAY);
     if (autoClose) {
       int autoCloseDelay = getIntConfig(OGlobalConfiguration.AUTO_CLOSE_DELAY);
-      final long delay = autoCloseDelay * 60 * 1000;
+      final long delay = (long) autoCloseDelay * 60 * 1000;
       initAutoClose(delay);
     }
   }
@@ -737,7 +737,7 @@ public class OrientDBEmbedded implements OrientDBInternal {
         storages.remove(name);
       }
 
-      OContextConfiguration configs = getConfigurations().getConfigurations();
+      OContextConfiguration configs = configurations.getConfigurations();
       OLocalPaginatedStorage.deleteFilesFromDisc(
           name,
           configs.getValueAsInteger(FILE_DELETE_RETRY),
@@ -809,7 +809,7 @@ public class OrientDBEmbedded implements OrientDBInternal {
       synchronized (this) {
         storages.remove(name);
       }
-      OContextConfiguration configs = getConfigurations().getConfigurations();
+      OContextConfiguration configs = configurations.getConfigurations();
       OLocalPaginatedStorage.deleteFilesFromDisc(
           name,
           configs.getValueAsInteger(FILE_DELETE_RETRY),
@@ -923,7 +923,7 @@ public class OrientDBEmbedded implements OrientDBInternal {
             if (!storages.containsKey(name)) {
               OAbstractPaginatedStorage storage = getOrInitStorage(name);
               // THIS OPEN THE STORAGE ONLY THE FIRST TIME
-              storage.open(getConfigurations().getConfigurations());
+              storage.open(configurations.getConfigurations());
             }
           });
     }
@@ -1079,7 +1079,7 @@ public class OrientDBEmbedded implements OrientDBInternal {
                   path, maxWALSegmentSize, doubleWriteLogMaxSegSize, generateStorageId(), this);
       // TODO: Add Creation settings and parameters
       if (!exists) {
-        embedded = internalCreate(getConfigurations(), storage);
+        embedded = internalCreate(configurations, storage);
       }
       storages.put(name, storage);
     }
@@ -1164,7 +1164,7 @@ public class OrientDBEmbedded implements OrientDBInternal {
   public <X> Future<X> executeNoAuthorization(String database, ODatabaseTask<X> task) {
     return executor.submit(
         () -> {
-          if (isOpen()) {
+          if (open) {
             try (var session = openNoAuthorization(database)) {
               return task.call(session);
             }

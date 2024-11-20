@@ -31,11 +31,12 @@ import javax.script.CompiledScript;
  * Script command request implementation. It just stores the request and delegated the execution to
  * the configured OCommandExecutor.
  *
- * @see OCommandExecutorScript
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
+ * @see OCommandExecutorScript
  */
 @SuppressWarnings("serial")
 public class OCommandScript extends OCommandRequestTextAbstract {
+
   private String language;
   private CompiledScript compiledScript;
 
@@ -108,7 +109,9 @@ public class OCommandScript extends OCommandRequestTextAbstract {
 
   @Override
   public String toString() {
-    if (language != null) return language + "." + text;
+    if (language != null) {
+      return language + "." + text;
+    }
     return "script." + text;
   }
 

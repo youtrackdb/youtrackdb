@@ -41,6 +41,7 @@ import org.junit.Test;
  * @since 10/6/2015
  */
 public class StorageBackupMTStateTest {
+
   static {
     OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(3);
     OGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(10);
@@ -79,7 +80,9 @@ public class StorageBackupMTStateTest {
         new File(buildDirectory, StorageBackupMTStateTest.class.getSimpleName() + "BackupDir");
     OFileUtils.deleteRecursively(backupDir);
 
-    if (!backupDir.exists()) Assert.assertTrue(backupDir.mkdirs());
+    if (!backupDir.exists()) {
+      Assert.assertTrue(backupDir.mkdirs());
+    }
 
     dbURL = "plocal:" + dbDirectory;
 
@@ -141,7 +144,9 @@ public class StorageBackupMTStateTest {
 
     System.out.println("Stop data threads");
 
-    for (Future<Void> future : futures) future.get();
+    for (Future<Void> future : futures) {
+      future.get();
+    }
 
     System.out.println("All threads are stopped");
 
@@ -152,7 +157,7 @@ public class StorageBackupMTStateTest {
     databaseDocumentTx.open("admin", "admin");
     databaseDocumentTx.incrementalBackup(backupDir.getAbsolutePath());
 
-    OStorage storage = ((ODatabaseSessionInternal) databaseDocumentTx).getStorage();
+    OStorage storage = databaseDocumentTx.getStorage();
     databaseDocumentTx.close();
 
     storage.shutdown();
@@ -162,7 +167,7 @@ public class StorageBackupMTStateTest {
         new ODatabaseDocumentTx("plocal:" + backedUpDbDirectory);
     backedUpDb.create(backupDir.getAbsolutePath());
 
-    final OStorage backupStorage = ((ODatabaseSessionInternal) backedUpDb).getStorage();
+    final OStorage backupStorage = backedUpDb.getStorage();
     backedUpDb.close();
 
     backupStorage.shutdown();
@@ -215,6 +220,7 @@ public class StorageBackupMTStateTest {
   }
 
   private final class NonTxInserter extends Inserter {
+
     @Override
     public Void call() throws Exception {
       while (!stop) {
@@ -250,6 +256,7 @@ public class StorageBackupMTStateTest {
   }
 
   private final class TxInserter extends Inserter {
+
     @Override
     public Void call() throws Exception {
 
@@ -288,6 +295,7 @@ public class StorageBackupMTStateTest {
   }
 
   private abstract class Inserter implements Callable<Void> {
+
     protected final Random random = new Random();
 
     protected void insertRecord(ODatabaseSessionInternal db) {
@@ -315,7 +323,9 @@ public class StorageBackupMTStateTest {
       do {
         linkedClassName = CLASS_PREFIX + random.nextInt(classes);
 
-        if (linkedClassName.equalsIgnoreCase(className)) continue;
+        if (linkedClassName.equalsIgnoreCase(className)) {
+          continue;
+        }
 
         linkedClassCounter = classInstancesCounters.get(linkedClassName);
       } while (linkedClassCounter == null);
@@ -333,11 +343,15 @@ public class StorageBackupMTStateTest {
                     + " where id="
                     + random.nextInt(linkedClassCounter.get()));
 
-        if (docs.hasNext()) linkedDocuments.add(docs.next().getIdentity().get());
+        if (docs.hasNext()) {
+          linkedDocuments.add(docs.next().getIdentity().get());
+        }
 
         tCount++;
 
-        if (tCount % 10 == 0) linkedClassCount = db.countClass(linkedClassName);
+        if (tCount % 10 == 0) {
+          linkedClassCount = db.countClass(linkedClassName);
+        }
       }
 
       doc.field("linkedDocuments", linkedDocuments);
@@ -350,6 +364,7 @@ public class StorageBackupMTStateTest {
   }
 
   private final class IncrementalBackupThread implements Runnable {
+
     @Override
     public void run() {
       ODatabaseSessionInternal db = new ODatabaseDocumentTx(dbURL);
@@ -372,6 +387,7 @@ public class StorageBackupMTStateTest {
   }
 
   private final class ClassAdder implements Runnable {
+
     @Override
     public void run() {
       ODatabaseSessionInternal databaseDocumentTx = new ODatabaseDocumentTx(dbURL);
@@ -393,6 +409,7 @@ public class StorageBackupMTStateTest {
   }
 
   private final class RecordsDeleter implements Callable<Void> {
+
     private final Random random = new Random();
 
     @Override
@@ -414,8 +431,11 @@ public class StorageBackupMTStateTest {
                 className = CLASS_PREFIX + random.nextInt(classes);
                 classCounter = classInstancesCounters.get(className);
 
-                if (classCounter != null) countClasses = databaseDocumentTx.countClass(className);
-                else countClasses = 0;
+                if (classCounter != null) {
+                  countClasses = databaseDocumentTx.countClass(className);
+                } else {
+                  countClasses = 0;
+                }
               } while (classCounter == null || countClasses == 0);
 
               boolean deleted = false;
@@ -467,6 +487,7 @@ public class StorageBackupMTStateTest {
   }
 
   private final class ClassDeleter implements Runnable {
+
     private final Random random = new Random();
 
     @Override

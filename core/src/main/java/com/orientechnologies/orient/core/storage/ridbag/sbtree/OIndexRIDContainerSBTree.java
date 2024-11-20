@@ -24,6 +24,7 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.serialization.types.OBooleanSerializer;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OCompactedLinkSerializer;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
@@ -46,6 +47,7 @@ import java.util.Set;
  * @author Artem Orobets (enisher-at-gmail.com)
  */
 public class OIndexRIDContainerSBTree implements Set<OIdentifiable> {
+
   public static final String INDEX_FILE_EXTENSION = ".irs";
 
   /**
@@ -236,6 +238,7 @@ public class OIndexRIDContainerSBTree implements Set<OIdentifiable> {
   }
 
   private static class TreeKeyIterator implements Iterator<OIdentifiable> {
+
     private final boolean autoConvertToRecord;
     private final OSBTreeMapEntryIterator<OIdentifiable, Boolean> entryIterator;
 
@@ -254,7 +257,11 @@ public class OIndexRIDContainerSBTree implements Set<OIdentifiable> {
     public OIdentifiable next() {
       final OIdentifiable identifiable = entryIterator.next().getKey();
       if (autoConvertToRecord) {
-        return identifiable.getRecord();
+        try {
+          return identifiable.getRecord();
+        } catch (ORecordNotFoundException rnf) {
+          return identifiable;
+        }
       } else {
         return identifiable;
       }

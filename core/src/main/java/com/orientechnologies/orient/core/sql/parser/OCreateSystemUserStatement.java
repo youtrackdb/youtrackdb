@@ -3,7 +3,6 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OServerCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OSystemDatabase;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.security.ORole;
@@ -94,7 +93,7 @@ public class OCreateSystemUserStatement extends OSimpleExecServerStatement {
           sb.append(" WHERE ");
           sb.append(ROLE_FIELD_NAME);
           sb.append(" IN [");
-          OSecurity security = ((ODatabaseSessionInternal) db).getMetadata().getSecurity();
+          OSecurity security = db.getMetadata().getSecurity();
           for (int i = 0; i < this.roles.size(); ++i) {
             String roleName = this.roles.get(i).getStringValue();
             ORole role = security.getRole(roleName);

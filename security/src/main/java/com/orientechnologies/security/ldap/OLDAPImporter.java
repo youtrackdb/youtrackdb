@@ -80,7 +80,7 @@ public class OLDAPImporter implements OSecurityComponent {
     ImportTask importTask = new ImportTask();
     importTimer = new Timer(true);
     importTimer.scheduleAtFixedRate(
-        importTask, 30000, importPeriod * 1000); // Wait 30 seconds before starting
+        importTask, 30000, importPeriod * 1000L); // Wait 30 seconds before starting
 
     OLogManager.instance().info(this, "**************************************");
     OLogManager.instance().info(this, "** OrientDB LDAP Importer Is Active **");
@@ -320,19 +320,19 @@ public class OLDAPImporter implements OSecurityComponent {
 
   private class Database {
 
-    private String name;
+    private final String name;
 
     public String getName() {
       return name;
     }
 
-    private boolean ignoreLocal;
+    private final boolean ignoreLocal;
 
     public boolean ignoreLocal() {
       return ignoreLocal;
     }
 
-    private List<DatabaseDomain> databaseDomains;
+    private final List<DatabaseDomain> databaseDomains;
 
     public List<DatabaseDomain> getDatabaseDomains() {
       return databaseDomains;
@@ -348,15 +348,15 @@ public class OLDAPImporter implements OSecurityComponent {
 
   private class DatabaseDomain {
 
-    private String domain;
+    private final String domain;
 
     public String getDomain() {
       return domain;
     }
 
-    private String authenticator;
-    private List<OLDAPServer> ldapServers;
-    private List<User> users;
+    private final String authenticator;
+    private final List<OLDAPServer> ldapServers;
+    private final List<User> users;
 
     public String getAuthenticator() {
       return authenticator;
@@ -384,8 +384,8 @@ public class OLDAPImporter implements OSecurityComponent {
 
   private class DatabaseUser {
 
-    private String user;
-    private Set<String> roles = new LinkedHashSet<String>();
+    private final String user;
+    private final Set<String> roles = new LinkedHashSet<String>();
 
     private String getUser() {
       return user;
@@ -410,9 +410,9 @@ public class OLDAPImporter implements OSecurityComponent {
 
   private class User {
 
-    private String baseDN;
-    private String filter;
-    private Set<String> roles = new LinkedHashSet<String>();
+    private final String baseDN;
+    private final String filter;
+    private final Set<String> roles = new LinkedHashSet<String>();
 
     public String getBaseDN() {
       return baseDN;
@@ -529,9 +529,7 @@ public class OLDAPImporter implements OSecurityComponent {
 
                       if (!usersRetrieved.isEmpty()) {
                         for (String upn : usersRetrieved) {
-                          if (usersToBeDeleted.contains(upn)) {
-                            usersToBeDeleted.remove(upn);
-                          }
+                          usersToBeDeleted.remove(upn);
 
                           OLogManager.instance()
                               .info(

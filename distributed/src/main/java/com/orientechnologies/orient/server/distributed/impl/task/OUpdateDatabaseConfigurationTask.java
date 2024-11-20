@@ -48,7 +48,8 @@ public class OUpdateDatabaseConfigurationTask extends OAbstractRemoteTask {
   private String databaseName;
   private ODocument configuration;
 
-  OUpdateDatabaseConfigurationTask() {}
+  OUpdateDatabaseConfigurationTask() {
+  }
 
   public OUpdateDatabaseConfigurationTask(final String databaseName, final ODocument cfg) {
     this.databaseName = databaseName;

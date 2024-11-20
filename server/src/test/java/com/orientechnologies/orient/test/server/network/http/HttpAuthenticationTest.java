@@ -2,6 +2,7 @@ package com.orientechnologies.orient.test.server.network.http;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.junit.Assert;
 
@@ -15,7 +16,7 @@ public class HttpAuthenticationTest extends BaseHttpDatabaseTest {
         get("query/"
                 + getDatabaseName()
                 + "/sql/"
-                + URLEncoder.encode("select from OUSer", "UTF8")
+                + URLEncoder.encode("select from OUSer", StandardCharsets.UTF_8)
                 + "/10")
             .setUserName("root")
             .setUserPassword("root")
@@ -26,7 +27,7 @@ public class HttpAuthenticationTest extends BaseHttpDatabaseTest {
         get("query/"
                 + getDatabaseName()
                 + "/sql/"
-                + URLEncoder.encode("select from OUSer", "UTF8")
+                + URLEncoder.encode("select from OUSer", StandardCharsets.UTF_8)
                 + "/10")
             .setUserName("admin")
             .setUserPassword("admin")

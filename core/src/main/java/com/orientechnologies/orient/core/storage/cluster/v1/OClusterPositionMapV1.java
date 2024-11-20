@@ -36,6 +36,7 @@ import java.util.Arrays;
  * @since 10/7/13
  */
 public final class OClusterPositionMapV1 extends OClusterPositionMap {
+
   private long fileId;
 
   OClusterPositionMapV1(
@@ -142,7 +143,8 @@ public final class OClusterPositionMapV1 extends OClusterPositionMap {
         }
 
         final long index = bucket.add(pageIndex, recordPosition);
-        return index + (cacheEntry.getPageIndex() - 1) * OClusterPositionMapBucket.MAX_ENTRIES;
+        return index
+            + (long) (cacheEntry.getPageIndex() - 1) * OClusterPositionMapBucket.MAX_ENTRIES;
       } finally {
         cacheEntry.close();
       }
@@ -207,7 +209,8 @@ public final class OClusterPositionMapV1 extends OClusterPositionMap {
         }
 
         final long index = bucket.allocate();
-        return index + (cacheEntry.getPageIndex() - 1) * OClusterPositionMapBucket.MAX_ENTRIES;
+        return index
+            + (long) (cacheEntry.getPageIndex() - 1) * OClusterPositionMapBucket.MAX_ENTRIES;
       } finally {
         cacheEntry.close();
       }
@@ -311,7 +314,7 @@ public final class OClusterPositionMapV1 extends OClusterPositionMap {
         } else {
           int entriesCount = 0;
           final long startIndex =
-              cacheEntry.getPageIndex() * OClusterPositionMapBucket.MAX_ENTRIES + index;
+              (long) cacheEntry.getPageIndex() * OClusterPositionMapBucket.MAX_ENTRIES + index;
 
           result = new OClusterPositionEntry[resultSize];
           for (int i = 0; i < resultSize; i++) {
@@ -371,7 +374,7 @@ public final class OClusterPositionMapV1 extends OClusterPositionMap {
         } else {
           int entriesCount = 0;
           final long startIndex =
-              cacheEntry.getPageIndex() * OClusterPositionMapBucket.MAX_ENTRIES + index;
+              (long) cacheEntry.getPageIndex() * OClusterPositionMapBucket.MAX_ENTRIES + index;
 
           result = new long[resultSize];
           for (int i = 0; i < resultSize; i++) {
@@ -441,7 +444,7 @@ public final class OClusterPositionMapV1 extends OClusterPositionMap {
         int entriesCount = 0;
 
         final long startPosition =
-            cacheEntry.getPageIndex() * OClusterPositionMapBucket.MAX_ENTRIES;
+            (long) cacheEntry.getPageIndex() * OClusterPositionMapBucket.MAX_ENTRIES;
         result = new long[resultSize];
 
         for (int i = 0; i < resultSize; i++) {
@@ -513,7 +516,7 @@ public final class OClusterPositionMapV1 extends OClusterPositionMap {
 
     for (long pageIndex = lastPage; pageIndex >= 1; pageIndex--) {
 
-      try (final OCacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, pageIndex); ) {
+      try (final OCacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
         final OClusterPositionMapBucket bucket = new OClusterPositionMapBucket(cacheEntry);
         final int bucketSize = bucket.getSize();
 
@@ -530,7 +533,9 @@ public final class OClusterPositionMapV1 extends OClusterPositionMap {
     return ORID.CLUSTER_POS_INVALID;
   }
 
-  /** Returns the next position available. */
+  /**
+   * Returns the next position available.
+   */
   long getNextPosition(final OAtomicOperation atomicOperation) throws IOException {
     final long pageIndex = getLastPage(atomicOperation);
     try (final OCacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
@@ -545,6 +550,7 @@ public final class OClusterPositionMapV1 extends OClusterPositionMap {
   }
 
   public static final class OClusterPositionEntry {
+
     private final long position;
     private final long page;
     private final int offset;

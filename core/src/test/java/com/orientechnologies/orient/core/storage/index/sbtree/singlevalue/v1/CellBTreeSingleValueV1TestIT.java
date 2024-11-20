@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class CellBTreeSingleValueV1TestIT {
+
   private OAtomicOperationsManager atomicOperationsManager;
   private CellBTreeSingleValueV1<String> singleValueTree;
   private OrientDB orientDB;
@@ -860,6 +861,7 @@ public class CellBTreeSingleValueV1TestIT {
   }
 
   static final class RollbackException extends OException implements OHighLevelException {
+
     public RollbackException() {
       this("");
     }

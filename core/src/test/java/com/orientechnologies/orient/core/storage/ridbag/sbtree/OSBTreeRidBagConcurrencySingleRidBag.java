@@ -26,12 +26,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class OSBTreeRidBagConcurrencySingleRidBag {
+
   public static final String URL = "plocal:target/testdb/OSBTreeRidBagConcurrencySingleRidBag";
   private final AtomicInteger positionCounter = new AtomicInteger();
   private final ConcurrentSkipListSet<ORID> ridTree = new ConcurrentSkipListSet<ORID>();
   private final CountDownLatch latch = new CountDownLatch(1);
   private ORID docContainerRid;
-  private ExecutorService threadExecutor = Executors.newCachedThreadPool();
+  private final ExecutorService threadExecutor = Executors.newCachedThreadPool();
   private volatile boolean cont = true;
 
   private int topThreshold;
@@ -79,24 +80,31 @@ public class OSBTreeRidBagConcurrencySingleRidBag {
 
     List<Future<Void>> futures = new ArrayList<Future<Void>>();
 
-    for (int i = 0; i < 5; i++) futures.add(threadExecutor.submit(new RidAdder(i)));
+    for (int i = 0; i < 5; i++) {
+      futures.add(threadExecutor.submit(new RidAdder(i)));
+    }
 
-    for (int i = 0; i < 5; i++) futures.add(threadExecutor.submit(new RidDeleter(i)));
+    for (int i = 0; i < 5; i++) {
+      futures.add(threadExecutor.submit(new RidDeleter(i)));
+    }
 
     latch.countDown();
 
     Thread.sleep(30 * 60000);
     cont = false;
 
-    for (Future<Void> future : futures) future.get();
+    for (Future<Void> future : futures) {
+      future.get();
+    }
 
     document = db.load(document.getIdentity());
     document.setLazyLoad(false);
 
     ridBag = document.field("ridBag");
 
-    for (OIdentifiable identifiable : ridBag)
+    for (OIdentifiable identifiable : ridBag) {
       Assert.assertTrue(ridTree.remove(identifiable.getIdentity()));
+    }
 
     Assert.assertTrue(ridTree.isEmpty());
 
@@ -105,6 +113,7 @@ public class OSBTreeRidBagConcurrencySingleRidBag {
   }
 
   public class RidAdder implements Callable<Void> {
+
     private final int id;
 
     public RidAdder(int id) {
@@ -132,7 +141,9 @@ public class OSBTreeRidBagConcurrencySingleRidBag {
             document.setLazyLoad(false);
 
             ORidBag ridBag = document.field("ridBag");
-            for (ORID rid : ridsToAdd) ridBag.add(rid);
+            for (ORID rid : ridsToAdd) {
+              ridBag.add(rid);
+            }
 
             try {
               document.save();
@@ -157,6 +168,7 @@ public class OSBTreeRidBagConcurrencySingleRidBag {
   }
 
   public class RidDeleter implements Callable<Void> {
+
     private final int id;
 
     public RidDeleter(int id) {
@@ -191,7 +203,9 @@ public class OSBTreeRidBagConcurrencySingleRidBag {
                 ridsToDelete.add(identifiable.getIdentity());
               }
 
-              if (counter >= 5) break;
+              if (counter >= 5) {
+                break;
+              }
             }
 
             try {

@@ -31,6 +31,7 @@ import java.util.Set;
  * @param <V> Instance type
  */
 public class OConfigurableStatefulFactory<K, V> {
+
   protected final Map<K, Class<? extends V>> registry = new LinkedHashMap<K, Class<? extends V>>();
   protected Class<? extends V> defaultClass;
 
@@ -39,8 +40,9 @@ public class OConfigurableStatefulFactory<K, V> {
   }
 
   public V newInstance(final K iKey) {
-    if (iKey == null && defaultClass == null)
+    if (iKey == null && defaultClass == null) {
       throw new IllegalArgumentException("Cannot create implementation for type null");
+    }
 
     final Class<? extends V> cls = registry.get(iKey);
     if (cls != null) {

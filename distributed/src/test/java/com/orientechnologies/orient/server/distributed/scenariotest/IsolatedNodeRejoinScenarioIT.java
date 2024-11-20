@@ -114,12 +114,13 @@ public class IsolatedNodeRejoinScenarioIT extends AbstractScenarioTest {
           @Override
           public Boolean call(ODatabaseDocument db) {
             final boolean ok = db.countClass("Person") >= 1000L;
-            if (!ok)
+            if (!ok) {
               System.out.println(
                   "FOUND "
                       + db.countClass("Person")
                       + " people on server 0 instead of expected "
                       + 1000L);
+            }
             return ok;
           }
         },
@@ -131,12 +132,13 @@ public class IsolatedNodeRejoinScenarioIT extends AbstractScenarioTest {
           @Override
           public Boolean call(ODatabaseDocument db) {
             final boolean ok = db.countClass("Person") >= 1000L;
-            if (!ok)
+            if (!ok) {
               System.out.println(
                   "FOUND "
                       + db.countClass("Person")
                       + " people on server 1 instead of expected "
                       + 1000L);
+            }
             return ok;
           }
         },
@@ -153,9 +155,11 @@ public class IsolatedNodeRejoinScenarioIT extends AbstractScenarioTest {
         dbServer.query(
             new OSQLSynchQuery<ODocument>("select from Hero where id = '" + uniqueId + "'"));
     try {
-      if (result.size() == 0) fail("No record found with id = '" + uniqueId + "'!");
-      else if (result.size() > 1)
+      if (result.size() == 0) {
+        fail("No record found with id = '" + uniqueId + "'!");
+      } else if (result.size() > 1) {
         fail(result.size() + " records found with id = '" + uniqueId + "'!");
+      }
     } finally {
       dbServer.close();
     }

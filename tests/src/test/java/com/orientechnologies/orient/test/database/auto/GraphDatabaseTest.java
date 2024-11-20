@@ -253,7 +253,7 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
   public void testDeleteOfVerticesWithDeleteCommandMustFail() {
     try {
       database.command("delete from GraphVehicle").close();
-      Assert.assertTrue(false);
+      Assert.fail();
     } catch (OCommandExecutionException e) {
       Assert.assertTrue(true);
     }
@@ -289,7 +289,7 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
   public void testInsertOfEdgeWithInsertCommand() {
     try {
       database.command(new OCommandSQL("insert into E set a = 33")).execute();
-      Assert.assertTrue(false);
+      Assert.fail();
     } catch (OCommandExecutionException e) {
       Assert.assertTrue(true);
     }

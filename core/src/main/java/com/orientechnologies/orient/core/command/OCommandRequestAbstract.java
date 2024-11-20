@@ -39,6 +39,7 @@ import java.util.Set;
 @SuppressWarnings("serial")
 public abstract class OCommandRequestAbstract
     implements OCommandRequestInternal, ODistributedCommand {
+
   protected OCommandResultListener resultListener;
   protected OProgressListener progressListener;
   protected int limit = -1;
@@ -85,15 +86,19 @@ public abstract class OCommandRequestAbstract
       if (iArgs.length == 1
           && iArgs[0] != null
           && iArgs[0].getClass().isArray()
-          && iArgs[0] instanceof Object[]) iArgs = (Object[]) iArgs[0];
+          && iArgs[0] instanceof Object[]) {
+        iArgs = (Object[]) iArgs[0];
+      }
 
       params = new HashMap<Object, Object>(iArgs.length);
       for (int i = 0; i < iArgs.length; ++i) {
         Object par = iArgs[i];
 
         if (par instanceof OIdentifiable && ((OIdentifiable) par).getIdentity().isValid())
-          // USE THE RID ONLY
+        // USE THE RID ONLY
+        {
           par = ((OIdentifiable) par).getIdentity();
+        }
 
         params.put(i, par);
       }
@@ -101,14 +106,18 @@ public abstract class OCommandRequestAbstract
     return params;
   }
 
-  /** Defines a callback to call in case of the asynchronous replication succeed. */
+  /**
+   * Defines a callback to call in case of the asynchronous replication succeed.
+   */
   @Override
   public OCommandRequestAbstract onAsyncReplicationOk(final OAsyncReplicationOk iCallback) {
     onAsyncReplicationOk = iCallback;
     return this;
   }
 
-  /** Defines a callback to call in case of error during the asynchronous replication. */
+  /**
+   * Defines a callback to call in case of error during the asynchronous replication.
+   */
   @Override
   public OCommandRequestAbstract onAsyncReplicationError(final OAsyncReplicationError iCallback) {
     if (iCallback != null) {
@@ -129,7 +138,9 @@ public abstract class OCommandRequestAbstract
               return ACTION.IGNORE;
             }
           };
-    } else onAsyncReplicationError = null;
+    } else {
+      onAsyncReplicationError = null;
+    }
     return this;
   }
 
@@ -183,7 +194,9 @@ public abstract class OCommandRequestAbstract
 
   @Override
   public OCommandContext getContext() {
-    if (context == null) context = new OBasicCommandContext();
+    if (context == null) {
+      context = new OBasicCommandContext();
+    }
     return context;
   }
 

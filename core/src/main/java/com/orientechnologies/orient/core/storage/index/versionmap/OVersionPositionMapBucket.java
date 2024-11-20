@@ -27,6 +27,7 @@ import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurablePage;
 
 public final class OVersionPositionMapBucket extends ODurablePage {
+
   private static final int NEXT_PAGE_OFFSET = NEXT_FREE_POSITION;
   private static final int SIZE_OFFSET = NEXT_PAGE_OFFSET + OLongSerializer.LONG_SIZE;
   private static final int POSITIONS_OFFSET = SIZE_OFFSET + OIntegerSerializer.INT_SIZE;

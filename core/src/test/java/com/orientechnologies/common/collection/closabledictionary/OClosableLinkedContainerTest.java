@@ -15,6 +15,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class OClosableLinkedContainerTest {
+
   @Test
   public void testSingleItemAddRemove() throws Exception {
     final OClosableItem closableItem = new CItem(10);
@@ -66,7 +67,7 @@ public class OClosableLinkedContainerTest {
     }
 
     for (int i = 5; i < 10; i++) {
-      Assert.assertTrue(!dictionary.get((long) i).isOpen());
+      Assert.assertFalse(dictionary.get((long) i).isOpen());
     }
 
     for (int i = 10; i < 15; i++) {
@@ -126,6 +127,7 @@ public class OClosableLinkedContainerTest {
   }
 
   private class Adder implements Callable<Void> {
+
     private final OClosableLinkedContainer<Long, CItem> dictionary;
     private final CountDownLatch latch;
     private final int from;
@@ -159,6 +161,7 @@ public class OClosableLinkedContainerTest {
   }
 
   private class Acquier implements Callable<Void> {
+
     private final OClosableLinkedContainer<Long, CItem> dictionary;
     private final CountDownLatch latch;
     private final int limit;
@@ -209,6 +212,7 @@ public class OClosableLinkedContainerTest {
   }
 
   private static class CItem implements OClosableItem {
+
     public static AtomicInteger openFiles = new AtomicInteger();
     public static AtomicInteger maxDeltaLimit = new AtomicInteger();
 
@@ -237,7 +241,9 @@ public class OClosableLinkedContainerTest {
         while (true) {
           int max = maxDeltaLimit.get();
           if (count - openLimit > max) {
-            if (maxDeltaLimit.compareAndSet(max, count - openLimit)) break;
+            if (maxDeltaLimit.compareAndSet(max, count - openLimit)) {
+              break;
+            }
           } else {
             break;
           }
@@ -257,7 +263,9 @@ public class OClosableLinkedContainerTest {
         while (true) {
           int max = maxDeltaLimit.get();
           if (count - openLimit > max) {
-            if (maxDeltaLimit.compareAndSet(max, count - openLimit)) break;
+            if (maxDeltaLimit.compareAndSet(max, count - openLimit)) {
+              break;
+            }
           } else {
             break;
           }

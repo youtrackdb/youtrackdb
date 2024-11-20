@@ -32,6 +32,7 @@ import com.orientechnologies.orient.server.plugin.OServerPluginAbstract;
  * @author S. Colin Leister
  */
 public class ODefaultSyslog extends OServerPluginAbstract implements OSyslog {
+
   private boolean debug = false;
   private String hostname = "localhost";
   private int port = 514; // Default syslog UDP port.
@@ -44,7 +45,7 @@ public class ODefaultSyslog extends OServerPluginAbstract implements OSyslog {
   @Override
   public void startup() {
     try {
-      if (isEnabled()) {
+      if (enabled) {
         messageSender = new UdpSyslogMessageSender();
         // _MessageSender.setDefaultMessageHostname("myhostname");
         // _MessageSender.setDefaultAppName(_AppName);
@@ -67,8 +68,10 @@ public class ODefaultSyslog extends OServerPluginAbstract implements OSyslog {
       if (param.name.equalsIgnoreCase("enabled")) {
         enabled = Boolean.parseBoolean(param.value);
         if (!enabled)
-          // IGNORE THE REST OF CFG
+        // IGNORE THE REST OF CFG
+        {
           return;
+        }
       } else if (param.name.equalsIgnoreCase("debug")) {
         debug = Boolean.parseBoolean(param.value);
       } else if (param.name.equalsIgnoreCase("hostname")) {

@@ -27,6 +27,7 @@ import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandAuthenticatedDbAbstract;
 
 public class OServerCommandDeleteProperty extends OServerCommandAuthenticatedDbAbstract {
+
   private static final String[] NAMES = {"DELETE|property/*"};
 
   @Override
@@ -43,8 +44,9 @@ public class OServerCommandDeleteProperty extends OServerCommandAuthenticatedDbA
     try {
       db = getProfiledDatabaseInstance(iRequest);
 
-      if (db.getMetadata().getSchema().getClass(urlParts[2]) == null)
+      if (db.getMetadata().getSchema().getClass(urlParts[2]) == null) {
         throw new IllegalArgumentException("Invalid class '" + urlParts[2] + "'");
+      }
 
       final OClass cls = db.getMetadata().getSchema().getClass(urlParts[2]);
 
@@ -58,7 +60,9 @@ public class OServerCommandDeleteProperty extends OServerCommandAuthenticatedDbA
           null);
 
     } finally {
-      if (db != null) db.close();
+      if (db != null) {
+        db.close();
+      }
     }
     return false;
   }

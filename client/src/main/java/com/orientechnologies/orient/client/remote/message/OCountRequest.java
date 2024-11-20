@@ -30,6 +30,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public final class OCountRequest implements OBinaryRequest<OCountResponse> {
+
   private int[] clusterIds;
   private boolean countTombstones;
 
@@ -43,7 +44,9 @@ public final class OCountRequest implements OBinaryRequest<OCountResponse> {
   @Override
   public void write(OChannelDataOutput network, OStorageRemoteSession session) throws IOException {
     network.writeShort((short) clusterIds.length);
-    for (int iClusterId : clusterIds) network.writeShort((short) iClusterId);
+    for (int iClusterId : clusterIds) {
+      network.writeShort((short) iClusterId);
+    }
 
     network.writeByte(countTombstones ? (byte) 1 : (byte) 0);
   }

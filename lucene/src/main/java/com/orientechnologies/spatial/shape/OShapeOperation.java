@@ -17,7 +17,9 @@ package com.orientechnologies.spatial.shape;
 
 import org.locationtech.spatial4j.shape.Shape;
 
-/** Created by Enrico Risa on 29/09/15. */
+/**
+ * Created by Enrico Risa on 29/09/15.
+ */
 public interface OShapeOperation {
 
   double distance(Shape shapes1, Shape s2);

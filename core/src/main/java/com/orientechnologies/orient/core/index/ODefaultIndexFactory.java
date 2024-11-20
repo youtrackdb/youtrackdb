@@ -32,8 +32,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Default OrientDB index factory for indexes based on SBTree.<br>
- * Supports index types:
+ * Default OrientDB index factory for indexes based on SBTree.<br> Supports index types:
  *
  * <ul>
  *   <li>UNIQUE

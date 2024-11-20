@@ -4,11 +4,13 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class OMatchPathItemFirst extends OMatchPathItem {
+
   protected OFunctionCall function;
 
   protected OMethodCall methodWrapper;
@@ -61,9 +63,7 @@ public class OMatchPathItemFirst extends OMatchPathItem {
     }
     OMatchPathItemFirst that = (OMatchPathItemFirst) o;
 
-    if (function != null ? !function.equals(that.function) : that.function != null) return false;
-
-    return true;
+    return Objects.equals(function, that.function);
   }
 
   @Override

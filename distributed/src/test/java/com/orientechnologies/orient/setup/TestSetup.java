@@ -7,6 +7,7 @@ import java.util.Collection;
 
 // A setup allows creating and managing a cluster of OrientDB servers.
 public interface TestSetup {
+
   void setup() throws TestSetupException;
 
   void teardown() throws TestSetupException;

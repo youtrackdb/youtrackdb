@@ -144,9 +144,6 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
 
   public OIndex getIndex(ODatabaseSessionInternal database, final String iName) {
     final OIndex index = indexes.get(iName);
-    if (index == null) {
-      return null;
-    }
     return index;
   }
 
@@ -325,7 +322,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
   void internalAcquireExclusiveLock() {
     final ODatabaseSessionInternal databaseRecord = getDatabaseIfDefined();
     if (databaseRecord != null && !databaseRecord.isClosed()) {
-      final OMetadataInternal metadata = (OMetadataInternal) databaseRecord.getMetadata();
+      final OMetadataInternal metadata = databaseRecord.getMetadata();
       if (metadata != null) {
         metadata.makeThreadLocalSchemaSnapshot();
       }
@@ -555,7 +552,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
           indexDefinition,
           configuration,
           clustersToIndex,
-          getStorage().getName());
+          storage.getName());
     }
 
     return new OIndexRemoteOneValue(
@@ -566,7 +563,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
         indexDefinition,
         configuration,
         clustersToIndex,
-        getStorage().getName());
+        storage.getName());
   }
 
   protected void fromStream(ODocument document) {

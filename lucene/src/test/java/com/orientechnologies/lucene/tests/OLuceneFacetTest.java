@@ -30,7 +30,9 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 22/04/15. */
+/**
+ * Created by Enrico Risa on 22/04/15.
+ */
 public class OLuceneFacetTest extends OLuceneBaseTest {
 
   @Before

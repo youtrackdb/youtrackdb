@@ -16,6 +16,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class TrackedMapTest {
+
   @Test
   public void testPutOne() {
     final ODocument doc = new ODocument();
@@ -268,11 +269,14 @@ public class TrackedMapTest {
         original);
   }
 
-  /** Test that {@link OTrackedMap} is serialised correctly. */
+  /**
+   * Test that {@link OTrackedMap} is serialised correctly.
+   */
   @Test
   public void testMapSerialization() throws Exception {
 
     class NotSerializableDocument extends ODocument {
+
       private static final long serialVersionUID = 1L;
 
       private void writeObject(ObjectOutputStream oos) throws IOException {

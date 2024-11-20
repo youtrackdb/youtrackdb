@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 public class OSingletonExecutionStream implements OExecutionStream {
 
   private boolean executed = false;
-  private OResult result;
+  private final OResult result;
 
   public OSingletonExecutionStream(OResult result) {
     this.result = result;

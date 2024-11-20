@@ -18,8 +18,8 @@ package com.orientechnologies.orient.jdbc;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordLazyList;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMultiValue;
+import com.orientechnologies.orient.core.db.record.OList;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.OBlob;
@@ -65,17 +65,18 @@ import java.util.stream.Collectors;
  * @author Salvatore Piccione (TXT e-solutions SpA - salvo.picci--at--gmail.com)
  */
 public class OrientJdbcResultSet implements ResultSet {
+
   private final OrientJdbcResultSetMetaData resultSetMetaData;
   private final List<String> fieldNames;
   private List<OResult> records;
-  private OrientJdbcStatement statement;
+  private final OrientJdbcStatement statement;
   private OResult result;
 
   private int cursor = -1;
   private int rowCount = 0;
-  private int type;
-  private int concurrency;
-  private int holdability;
+  private final int type;
+  private final int concurrency;
+  private final int holdability;
 
   private boolean lastReadWasNull = true;
 
@@ -107,8 +108,9 @@ public class OrientJdbcResultSet implements ResultSet {
     activateDatabaseOnCurrentThread();
     if (type == TYPE_FORWARD_ONLY
         || type == TYPE_SCROLL_INSENSITIVE
-        || type == TYPE_SCROLL_SENSITIVE) this.type = type;
-    else
+        || type == TYPE_SCROLL_SENSITIVE) {
+      this.type = type;
+    } else {
       throw new SQLException(
           "Bad ResultSet type: "
               + type
@@ -118,10 +120,11 @@ public class OrientJdbcResultSet implements ResultSet {
               + TYPE_SCROLL_INSENSITIVE
               + " or"
               + TYPE_SCROLL_SENSITIVE);
+    }
 
-    if (concurrency == CONCUR_READ_ONLY || concurrency == CONCUR_UPDATABLE)
+    if (concurrency == CONCUR_READ_ONLY || concurrency == CONCUR_UPDATABLE) {
       this.concurrency = concurrency;
-    else
+    } else {
       throw new SQLException(
           "Bad ResultSet Concurrency type: "
               + concurrency
@@ -129,10 +132,11 @@ public class OrientJdbcResultSet implements ResultSet {
               + CONCUR_READ_ONLY
               + " or"
               + CONCUR_UPDATABLE);
+    }
 
-    if (holdability == HOLD_CURSORS_OVER_COMMIT || holdability == CLOSE_CURSORS_AT_COMMIT)
+    if (holdability == HOLD_CURSORS_OVER_COMMIT || holdability == CLOSE_CURSORS_AT_COMMIT) {
       this.holdability = holdability;
-    else
+    } else {
       throw new SQLException(
           "Bad ResultSet Holdability type: "
               + holdability
@@ -140,6 +144,7 @@ public class OrientJdbcResultSet implements ResultSet {
               + HOLD_CURSORS_OVER_COMMIT
               + " or"
               + CLOSE_CURSORS_AT_COMMIT);
+    }
 
     resultSetMetaData = new OrientJdbcResultSetMetaData(this, fieldNames);
   }
@@ -182,7 +187,9 @@ public class OrientJdbcResultSet implements ResultSet {
               select.getProjection().getItems().stream()
                   .peek(i -> fields.add(i.getProjectionAliasAsString()))
                   .allMatch(i -> i.getExpression().isBaseIdentifier());
-          if (!isMappable) fields.clear();
+          if (!isMappable) {
+            fields.clear();
+          }
         }
 
       } catch (ParseException e) {
@@ -287,21 +294,27 @@ public class OrientJdbcResultSet implements ResultSet {
     int column = 0;
     int i = 0;
     while (i < (fieldNames.size() - 1) && column == 0) {
-      if (fieldNames.get(i).equals(columnLabel)) column = i + 1;
-      else i++;
+      if (fieldNames.get(i).equals(columnLabel)) {
+        column = i + 1;
+      } else {
+        i++;
+      }
     }
-    if (column == 0)
+    if (column == 0) {
       throw new SQLException(
           "The column '"
               + columnLabel
               + "' does not exists (Result Set element: "
               + rowCount
               + ")");
+    }
     return column;
   }
 
   private int getFieldIndex(final int columnIndex) throws SQLException {
-    if (columnIndex < 1) throw new SQLException("The column index cannot be less than 1");
+    if (columnIndex < 1) {
+      throw new SQLException("The column index cannot be less than 1");
+    }
     return columnIndex - 1;
   }
 
@@ -398,18 +411,17 @@ public class OrientJdbcResultSet implements ResultSet {
   }
 
   public Blob getBlob(String columnLabel) throws SQLException {
-
     try {
       Object value = result.getProperty(columnLabel);
 
       if (value instanceof ORID) {
         value = ((ORID) value).getRecord();
       }
+
       if (value instanceof OBlob) {
         lastReadWasNull = false;
         return new OrientBlob((OBlob) value);
-      } else if (value instanceof ORecordLazyList) {
-        ORecordLazyList list = (ORecordLazyList) value;
+      } else if (value instanceof OList list) {
         // check if all the list items are instances of ORecordBytes
         ListIterator<OIdentifiable> iterator = list.listIterator();
 
@@ -417,9 +429,12 @@ public class OrientJdbcResultSet implements ResultSet {
         while (iterator.hasNext()) {
           OIdentifiable listElement = iterator.next();
 
-          OBlob ob = statement.database.load(listElement.getIdentity());
-
-          binaryRecordList.add(ob);
+          try {
+            OBlob ob = statement.database.load(listElement.getIdentity());
+            binaryRecordList.add(ob);
+          } catch (ORecordNotFoundException rnf) {
+            // ignore
+          }
         }
         lastReadWasNull = false;
         return new OrientBlob(binaryRecordList);
@@ -554,7 +569,9 @@ public class OrientJdbcResultSet implements ResultSet {
   }
 
   public Date getDate(String columnLabel, Calendar cal) throws SQLException {
-    if (cal == null) throw new SQLException();
+    if (cal == null) {
+      throw new SQLException();
+    }
     try {
       activateDatabaseOnCurrentThread();
 
@@ -636,7 +653,9 @@ public class OrientJdbcResultSet implements ResultSet {
   }
 
   public int getInt(String columnLabel) throws SQLException {
-    if ("@version".equals(columnLabel)) return result.toElement().getVersion();
+    if ("@version".equals(columnLabel)) {
+      return result.toElement().getVersion();
+    }
 
     try {
       final Integer r = result.getProperty(columnLabel);
@@ -732,19 +751,8 @@ public class OrientJdbcResultSet implements ResultSet {
       if (value == null) {
         lastReadWasNull = true;
         return null;
-      } else {
-        // resolve the links so that the returned set contains instances
-        // of ODocument
-        if (value instanceof ORecordLazyMultiValue) {
-          ORecordLazyMultiValue lazyRecord = (ORecordLazyMultiValue) value;
-          lazyRecord.convertLinks2Records();
-          lastReadWasNull = lazyRecord == null;
-          return lazyRecord;
-        } else {
-          lastReadWasNull = value == null;
-          return value;
-        }
       }
+      return value;
     } catch (Exception e) {
       throw new SQLException(
           "An error occurred during the retrieval of the Java Object at column '"

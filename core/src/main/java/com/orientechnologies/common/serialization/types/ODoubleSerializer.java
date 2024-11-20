@@ -33,9 +33,12 @@ import java.nio.ByteOrder;
  * @since 17.01.12
  */
 public class ODoubleSerializer implements OBinarySerializer<Double> {
+
   public static final byte ID = 6;
 
-  /** size of double value in bytes */
+  /**
+   * size of double value in bytes
+   */
   public static final int DOUBLE_SIZE = 8;
 
   private static final OBinaryConverter CONVERTER = OBinaryConverterFactory.getConverter();
@@ -112,13 +115,17 @@ public class ODoubleSerializer implements OBinarySerializer<Double> {
     return value;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void serializeInByteBufferObject(Double object, ByteBuffer buffer, Object... hints) {
     buffer.putLong(Double.doubleToLongBits(object));
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Double deserializeFromByteBufferObject(ByteBuffer buffer) {
     return Double.longBitsToDouble(buffer.getLong());
@@ -129,7 +136,9 @@ public class ODoubleSerializer implements OBinarySerializer<Double> {
     return Double.longBitsToDouble(buffer.getLong(offset));
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getObjectSizeInByteBuffer(ByteBuffer buffer) {
     return DOUBLE_SIZE;
@@ -140,14 +149,18 @@ public class ODoubleSerializer implements OBinarySerializer<Double> {
     return DOUBLE_SIZE;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Double deserializeFromByteBufferObject(
       ByteBuffer buffer, OWALChanges walChanges, int offset) {
     return Double.longBitsToDouble(walChanges.getLongValue(buffer, offset));
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getObjectSizeInByteBuffer(ByteBuffer buffer, OWALChanges walChanges, int offset) {
     return DOUBLE_SIZE;

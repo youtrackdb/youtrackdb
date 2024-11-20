@@ -6,6 +6,7 @@ import java.lang.management.MemoryUsage;
 import java.math.BigDecimal;
 
 public class SpeedTestData {
+
   protected static final int TIME_WAIT = 200;
   protected static final int DUMP_PERCENT = 10;
   protected long cycles = 1;
@@ -70,7 +71,9 @@ public class SpeedTestData {
     currentTestName = iTarget.getClass().getSimpleName();
 
     try {
-      if (SpeedTestData.executeInit(iTarget, configuration)) executeTest(iTarget, configuration);
+      if (SpeedTestData.executeInit(iTarget, configuration)) {
+        executeTest(iTarget, configuration);
+      }
     } finally {
       collectResults(takeTimer());
 
@@ -325,14 +328,13 @@ public class SpeedTestData {
                       ? lapTimerElapsed * 100 / previousLapTimerElapsed - 100
                       : 0);
 
-          System.out.print(
-              String.format(
-                  "\n%3d%% lap elapsed: %7dms, total: %7dms, delta: %+3d%%, forecast: %7dms",
-                  (cyclesDone + 1) * 100 / cycles,
-                  lapTimerElapsed,
-                  cyclesElapsed,
-                  delta,
-                  cyclesElapsed * cycles / cyclesDone));
+          System.out.printf(
+              "\n%3d%% lap elapsed: %7dms, total: %7dms, delta: %+3d%%, forecast: %7dms",
+              (cyclesDone + 1) * 100 / cycles,
+              lapTimerElapsed,
+              cyclesElapsed,
+              delta,
+              cyclesElapsed * cycles / cyclesDone);
 
           previousLapTimerElapsed = lapTimerElapsed;
           lapTimerElapsed = System.nanoTime();

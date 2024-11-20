@@ -23,20 +23,21 @@ package com.orientechnologies.orient.core.db.document;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 
 /**
- * Is used in together with {@link
- * com.orientechnologies.orient.core.db.document.ODocumentFieldWalker} to visit all fields of
+ * Is used in together with
+ * {@link com.orientechnologies.orient.core.db.document.ODocumentFieldWalker} to visit all fields of
  * current document.
  */
 public interface ODocumentFieldVisitor {
+
   /**
    * Visits currently processed field.
    *
-   * @param type Filed type. May be null if absent in DB schema.
+   * @param type       Filed type. May be null if absent in DB schema.
    * @param linkedType Linked type in case collection is processed. May be null if absent in DB
-   *     schema.
-   * @param value Field value.
+   *                   schema.
+   * @param value      Field value.
    * @return New value of this field. If the same value is returned document content will not be
-   *     changed.
+   * changed.
    */
   Object visitField(OType type, OType linkedType, Object value);
 
@@ -44,11 +45,11 @@ public interface ODocumentFieldVisitor {
    * Indicates whether we continue to visit document fields after current one or should stop fields
    * processing.
    *
-   * @param type Filed type. May be null if absent in DB schema.
+   * @param type       Filed type. May be null if absent in DB schema.
    * @param linkedType Linked type in case collection is processed. May be null if absent in DB
-   *     schema.
-   * @param value Field value.
-   * @param newValue New value returned by {@link #visitField(OType, OType, Object)} method.
+   *                   schema.
+   * @param value      Field value.
+   * @param newValue   New value returned by {@link #visitField(OType, OType, Object)} method.
    * @return If false document processing will be stopped.
    */
   boolean goFurther(OType type, OType linkedType, Object value, Object newValue);
@@ -58,17 +59,17 @@ public interface ODocumentFieldVisitor {
    * itself then current method is called if it returns false then this collection will not be
    * visited.
    *
-   * @param type Filed type. May be null if absent in DB schema.
+   * @param type       Filed type. May be null if absent in DB schema.
    * @param linkedType Linked type in case collection is processed. May be null if absent in DB
-   *     schema.
-   * @param value Field value.
+   *                   schema.
+   * @param value      Field value.
    * @return If false currently processed collection of embedded documents will not be visited.
    */
   boolean goDeeper(OType type, OType linkedType, Object value);
 
   /**
    * @return If false value returned by method {@link #visitField(OType, OType, Object)} will not be
-   *     taken in account and field value will not be updated.
+   * taken in account and field value will not be updated.
    */
   boolean updateMode();
 }

@@ -16,7 +16,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-/** Created by tglman on 27/12/15. */
+/**
+ * Created by tglman on 27/12/15.
+ */
 public class OClientConnectionTest extends BaseMemoryInternalDatabase {
 
   @Mock private ONetworkProtocolBinary protocol;

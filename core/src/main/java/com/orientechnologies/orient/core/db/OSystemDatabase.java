@@ -90,7 +90,7 @@ public class OSystemDatabase {
     if (!exists()) {
       init();
     }
-    return context.openNoAuthorization(getSystemDatabaseName());
+    return context.openNoAuthorization(SYSTEM_DB_NAME);
   }
 
   public Object execute(
@@ -128,9 +128,9 @@ public class OSystemDatabase {
       final ODatabaseSessionInternal db = openSystemDatabase();
       try {
         if (clusterName != null) {
-          return (ODocument) db.save(document, clusterName);
+          return db.save(document, clusterName);
         } else {
-          return (ODocument) db.save(document);
+          return db.save(document);
         }
       } finally {
         db.close();
@@ -225,7 +225,7 @@ public class OSystemDatabase {
   }
 
   public boolean exists() {
-    return context.exists(getSystemDatabaseName(), null, null);
+    return context.exists(SYSTEM_DB_NAME, null, null);
   }
 
   public String getServerId() {

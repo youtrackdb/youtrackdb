@@ -6,8 +6,11 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import com.orientechnologies.orient.core.sql.parser.OExpression;
 import com.orientechnologies.orient.core.sql.parser.OIdentifier;
 
-/** Created by luigidellaquila on 03/08/16. */
+/**
+ * Created by luigidellaquila on 03/08/16.
+ */
 public class GlobalLetExpressionStep extends AbstractExecutionStep {
+
   private final OIdentifier varname;
   private final OExpression expression;
 

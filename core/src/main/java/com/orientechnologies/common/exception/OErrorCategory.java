@@ -1,6 +1,8 @@
 package com.orientechnologies.common.exception;
 
-/** Created by luigidellaquila on 13/08/15. */
+/**
+ * Created by luigidellaquila on 13/08/15.
+ */
 public enum OErrorCategory {
   GENERIC(1),
 
@@ -16,9 +18,9 @@ public enum OErrorCategory {
 
   CONCURRENCY(7);
 
-  protected final int code;
+  final int code;
 
-  private OErrorCategory(int code) {
+  OErrorCategory(int code) {
     this.code = code;
   }
 }

@@ -5,7 +5,9 @@ import com.orientechnologies.orient.core.tx.OTransactionIndexChanges;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import java.util.Map;
 
-/** Created by tglman on 30/12/16. */
+/**
+ * Created by tglman on 30/12/16.
+ */
 public class ORebeginTransactionRequest extends OBeginTransactionRequest {
 
   public ORebeginTransactionRequest(

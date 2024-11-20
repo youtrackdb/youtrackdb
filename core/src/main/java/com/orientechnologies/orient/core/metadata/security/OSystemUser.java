@@ -23,8 +23,11 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.List;
 
-/** */
+/**
+ *
+ */
 public class OSystemUser extends OUser {
+
   private String databaseName;
   private String userType;
 
@@ -32,7 +35,9 @@ public class OSystemUser extends OUser {
     return databaseName;
   }
 
-  /** Constructor used in unmarshalling. */
+  /**
+   * Constructor used in unmarshalling.
+   */
   public OSystemUser() {}
 
   public OSystemUser(final String iName) {
@@ -48,18 +53,24 @@ public class OSystemUser extends OUser {
     this.userType = userType;
   }
 
-  /** Create the user by reading the source document. */
+  /**
+   * Create the user by reading the source document.
+   */
   public OSystemUser(final ODocument iSource) {
     super(iSource);
   }
 
-  /** dbName is the name of the source database and is used for filtering roles. */
+  /**
+   * dbName is the name of the source database and is used for filtering roles.
+   */
   public OSystemUser(final ODocument iSource, final String dbName) {
     databaseName = dbName;
     fromStream(iSource);
   }
 
-  /** Derived classes can override createRole() to return an extended ORole implementation. */
+  /**
+   * Derived classes can override createRole() to return an extended ORole implementation.
+   */
   protected ORole createRole(final ODocument roleDoc) {
     ORole role = null;
 

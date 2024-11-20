@@ -27,6 +27,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OSBTFirstKeyResponse implements OBinaryResponse {
+
   private byte[] stream;
 
   public OSBTFirstKeyResponse(byte[] stream) {

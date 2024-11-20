@@ -9,6 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class OAtomicUnitEndRecordTest {
+
   @Test
   public void recordMetadataSerializationTest() {
     ORecordOperationMetadata recordOperationMetadata = new ORecordOperationMetadata();

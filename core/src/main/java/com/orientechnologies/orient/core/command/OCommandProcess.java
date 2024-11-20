@@ -26,10 +26,13 @@ package com.orientechnologies.orient.core.command;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OCommandProcess<C extends OCommand, T, R> {
+
   protected final C command;
   protected T target;
 
-  /** Create the process defining command and target. */
+  /**
+   * Create the process defining command and target.
+   */
   public OCommandProcess(final C iCommand, final T iTarget) {
     command = iCommand;
     target = iTarget;

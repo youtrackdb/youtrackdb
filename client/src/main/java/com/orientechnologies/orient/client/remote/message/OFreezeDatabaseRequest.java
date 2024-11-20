@@ -11,6 +11,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OFreezeDatabaseRequest implements OBinaryRequest<OFreezeDatabaseResponse> {
+
   private String name;
   private String type;
 

@@ -13,6 +13,7 @@ import org.junit.Test;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com) (l.garulli--at-orientdb.com)
  */
 public class HttpConnectionTest extends BaseHttpDatabaseTest {
+
   @Test
   public void testConnect() throws Exception {
     Assert.assertEquals(get("connect/" + getDatabaseName()).getResponse().getCode(), 204);
@@ -20,8 +21,10 @@ public class HttpConnectionTest extends BaseHttpDatabaseTest {
 
   public void testTooManyConnect() throws Exception {
     if (isInDevelopmentMode())
-      // SKIP IT
+    // SKIP IT
+    {
       return;
+    }
 
     final int originalMax =
         OGlobalConfiguration.NETWORK_MAX_CONCURRENT_SESSIONS.getValueAsInteger();
@@ -66,8 +69,10 @@ public class HttpConnectionTest extends BaseHttpDatabaseTest {
 
   protected void testConnectAutoDisconnect() throws Exception {
     if (isInDevelopmentMode())
-      // SKIP IT
+    // SKIP IT
+    {
       return;
+    }
 
     final int max = OGlobalConfiguration.NETWORK_MAX_CONCURRENT_SESSIONS.getValueAsInteger();
 
@@ -77,10 +82,12 @@ public class HttpConnectionTest extends BaseHttpDatabaseTest {
       final int response = get("connect/" + getDatabaseName()).setRetry(0).getResponse().getCode();
       Assert.assertEquals(response, 204);
 
-      if (i % 100 == 0) System.out.printf("\nConnections " + i);
+      if (i % 100 == 0) {
+        System.out.printf("\nConnections " + i);
+      }
     }
 
-    System.out.printf("\nTest completed");
+    System.out.print("\nTest completed");
 
     Collection<ODocument> conns = null;
     for (int i = 0; i < 20; ++i) {
@@ -101,7 +108,9 @@ public class HttpConnectionTest extends BaseHttpDatabaseTest {
 
       System.out.printf("\nConnections still open: " + openConnections);
 
-      if (openConnections <= 1) break;
+      if (openConnections <= 1) {
+        break;
+      }
 
       Thread.sleep(1000);
     }

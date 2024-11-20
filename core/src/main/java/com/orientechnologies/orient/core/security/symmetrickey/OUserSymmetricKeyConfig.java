@@ -31,7 +31,8 @@ import java.util.Map;
  * @author S. Colin Leister
  */
 public class OUserSymmetricKeyConfig implements OSymmetricKeyConfig {
-  private String keyString;
+
+  private final String keyString;
   private String keyFile;
   private String keyAlgorithm;
   private String keystoreFile;
@@ -90,8 +91,9 @@ public class OUserSymmetricKeyConfig implements OSymmetricKeyConfig {
   public OUserSymmetricKeyConfig(final ODocument doc) {
     ODocument props = doc.field("properties");
 
-    if (props == null)
+    if (props == null) {
       throw new OSecurityException("OUserSymmetricKeyConfig() OUser properties is null");
+    }
 
     this.keyString = props.field("key");
 
@@ -100,8 +102,9 @@ public class OUserSymmetricKeyConfig implements OSymmetricKeyConfig {
       // If "key" is used, "keyAlgorithm" is also required.
       this.keyAlgorithm = props.field("keyAlgorithm");
 
-      if (this.keyAlgorithm == null)
+      if (this.keyAlgorithm == null) {
         throw new OSecurityException("OUserSymmetricKeyConfig() keyAlgorithm is required with key");
+      }
     } else {
       this.keyFile = props.field("keyFile");
 
@@ -111,27 +114,31 @@ public class OUserSymmetricKeyConfig implements OSymmetricKeyConfig {
         // If "keyFile" is used, "keyAlgorithm" is also required.
         this.keyAlgorithm = props.field("keyAlgorithm");
 
-        if (this.keyAlgorithm == null)
+        if (this.keyAlgorithm == null) {
           throw new OSecurityException(
               "OUserSymmetricKeyConfig() keyAlgorithm is required with keyFile");
+        }
       } else {
         Map<String, Object> ksMap = props.field("keyStore");
 
         ODocument ksDoc = new ODocument().fromMap(ksMap);
 
-        if (ksDoc == null)
+        if (ksDoc == null) {
           throw new OSecurityException(
               "OUserSymmetricKeyConfig() key, keyFile, and keyStore cannot all be null");
+        }
 
         this.keystoreFile = ksDoc.field("file");
         this.keystorePassword = ksDoc.field("passsword");
         this.keystoreKeyAlias = ksDoc.field("keyAlias");
         this.keystoreKeyPassword = ksDoc.field("keyPassword");
 
-        if (this.keystoreFile == null)
+        if (this.keystoreFile == null) {
           throw new OSecurityException("OUserSymmetricKeyConfig() keyStore.file is required");
-        if (this.keystoreKeyAlias == null)
+        }
+        if (this.keystoreKeyAlias == null) {
           throw new OSecurityException("OUserSymmetricKeyConfig() keyStore.keyAlias is required");
+        }
       }
     }
   }

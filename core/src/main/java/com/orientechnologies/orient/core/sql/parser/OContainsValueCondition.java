@@ -13,10 +13,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
 public class OContainsValueCondition extends OBooleanExpression {
+
   protected OExpression left;
   protected OContainsValueOperator operator;
   protected OOrBlock condition;
@@ -33,8 +35,7 @@ public class OContainsValueCondition extends OBooleanExpression {
   @Override
   public boolean evaluate(OIdentifiable currentRecord, OCommandContext ctx) {
     Object leftValue = left.execute(currentRecord, ctx);
-    if (leftValue instanceof Map) {
-      Map map = (Map) leftValue;
+    if (leftValue instanceof Map map) {
       if (condition != null) {
         for (Object o : map.values()) {
           if (condition.evaluate(o, ctx)) {
@@ -44,7 +45,7 @@ public class OContainsValueCondition extends OBooleanExpression {
         return false;
       } else {
         Object rightValue = expression.execute(currentRecord, ctx);
-        return map.values().contains(rightValue); // TODO type conversions...?
+        return map.containsValue(rightValue); // TODO type conversions...?
       }
     }
     return false;
@@ -61,8 +62,7 @@ public class OContainsValueCondition extends OBooleanExpression {
     }
 
     Object leftValue = left.execute(currentRecord, ctx);
-    if (leftValue instanceof Map) {
-      Map map = (Map) leftValue;
+    if (leftValue instanceof Map map) {
       if (condition != null) {
         for (Object o : map.values()) {
           if (condition.evaluate(o, ctx)) {
@@ -72,7 +72,7 @@ public class OContainsValueCondition extends OBooleanExpression {
         return false;
       } else {
         Object rightValue = expression.execute(currentRecord, ctx);
-        return map.values().contains(rightValue); // TODO type conversions...?
+        return map.containsValue(rightValue); // TODO type conversions...?
       }
     }
     return false;
@@ -81,8 +81,7 @@ public class OContainsValueCondition extends OBooleanExpression {
   private boolean evaluateAllFunction(OResult currentRecord, OCommandContext ctx) {
     for (String propertyName : currentRecord.getPropertyNames()) {
       Object leftValue = currentRecord.getProperty(propertyName);
-      if (leftValue instanceof Map) {
-        Map map = (Map) leftValue;
+      if (leftValue instanceof Map map) {
         if (condition != null) {
           boolean found = false;
           for (Object o : map.values()) {
@@ -96,7 +95,7 @@ public class OContainsValueCondition extends OBooleanExpression {
           }
         } else {
           Object rightValue = expression.execute(currentRecord, ctx);
-          if (!map.values().contains(rightValue)) {
+          if (!map.containsValue(rightValue)) {
             return false;
           }
         }
@@ -110,8 +109,7 @@ public class OContainsValueCondition extends OBooleanExpression {
   private boolean evaluateAny(OResult currentRecord, OCommandContext ctx) {
     for (String propertyName : currentRecord.getPropertyNames()) {
       Object leftValue = currentRecord.getProperty(propertyName);
-      if (leftValue instanceof Map) {
-        Map map = (Map) leftValue;
+      if (leftValue instanceof Map map) {
         if (condition != null) {
           for (Object o : map.values()) {
             if (condition.evaluate(o, ctx)) {
@@ -120,7 +118,7 @@ public class OContainsValueCondition extends OBooleanExpression {
           }
         } else {
           Object rightValue = expression.execute(currentRecord, ctx);
-          if (map.values().contains(rightValue)) {
+          if (map.containsValue(rightValue)) {
             return true;
           }
         }
@@ -184,11 +182,7 @@ public class OContainsValueCondition extends OBooleanExpression {
     if (condition != null && condition.needsAliases(aliases)) {
       return true;
     }
-    if (expression != null && expression.needsAliases(aliases)) {
-      return true;
-    }
-
-    return false;
+    return expression != null && expression.needsAliases(aliases);
   }
 
   @Override
@@ -220,27 +214,30 @@ public class OContainsValueCondition extends OBooleanExpression {
     if (condition != null && condition.refersToParent()) {
       return true;
     }
-    if (expression != null && condition.refersToParent()) {
-      return true;
-    }
-    return false;
+    return expression != null && condition.refersToParent();
   }
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OContainsValueCondition that = (OContainsValueCondition) o;
 
-    if (left != null ? !left.equals(that.left) : that.left != null) return false;
-    if (operator != null ? !operator.equals(that.operator) : that.operator != null) return false;
-    if (condition != null ? !condition.equals(that.condition) : that.condition != null)
+    if (!Objects.equals(left, that.left)) {
       return false;
-    if (expression != null ? !expression.equals(that.expression) : that.expression != null)
+    }
+    if (!Objects.equals(operator, that.operator)) {
       return false;
-
-    return true;
+    }
+    if (!Objects.equals(condition, that.condition)) {
+      return false;
+    }
+    return Objects.equals(expression, that.expression);
   }
 
   @Override
@@ -281,11 +278,7 @@ public class OContainsValueCondition extends OBooleanExpression {
     if (condition != null && !condition.isCacheable()) {
       return false;
     }
-    if (expression != null && !expression.isCacheable()) {
-      return false;
-    }
-
-    return true;
+    return expression == null || expression.isCacheable();
   }
 
   public OExpression getExpression() {
@@ -315,12 +308,10 @@ public class OContainsValueCondition extends OBooleanExpression {
   public boolean isIndexAware(OIndexSearchInfo info) {
     if (left.isBaseIdentifier()) {
       if (info.getField().equals(left.getDefaultAlias().getStringValue())) {
-        if (expression != null
+        return expression != null
             && expression.isEarlyCalculated(info.getCtx())
             && info.isMap()
-            && info.isIndexByValue()) {
-          return true;
-        }
+            && info.isIndexByValue();
       }
     }
     return false;
@@ -328,12 +319,12 @@ public class OContainsValueCondition extends OBooleanExpression {
 
   @Override
   public OExpression resolveKeyFrom(OBinaryCondition additional) {
-    return getExpression();
+    return expression;
   }
 
   @Override
   public OExpression resolveKeyTo(OBinaryCondition additional) {
-    return getExpression();
+    return expression;
   }
 }
 /* JavaCC - OriginalChecksum=6fda752f10c8d8731f43efa706e39459 (do not edit this line) */

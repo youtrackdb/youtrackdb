@@ -2,7 +2,9 @@
 /* JavaCCOptions: */
 package com.orientechnologies.orient.core.sql.parser;
 
-/** Token Manager Error. */
+/**
+ * Token Manager Error.
+ */
 public class TokenMgrError extends Error {
 
   /**
@@ -15,19 +17,29 @@ public class TokenMgrError extends Error {
    * Ordinals for various reasons why an Error of this type can be thrown.
    */
 
-  /** Lexical error occurred. */
+  /**
+   * Lexical error occurred.
+   */
   static final int LEXICAL_ERROR = 0;
 
-  /** An attempt was made to create a second instance of a static token manager. */
+  /**
+   * An attempt was made to create a second instance of a static token manager.
+   */
   static final int STATIC_LEXER_ERROR = 1;
 
-  /** Tried to change to an invalid lexical state. */
+  /**
+   * Tried to change to an invalid lexical state.
+   */
   static final int INVALID_LEXICAL_STATE = 2;
 
-  /** Detected (and bailed out of) an infinite loop in the token manager. */
+  /**
+   * Detected (and bailed out of) an infinite loop in the token manager.
+   */
   static final int LOOP_DETECTED = 3;
 
-  /** Indicates the reason why the exception is thrown. It will have one of the above 4 values. */
+  /**
+   * Indicates the reason why the exception is thrown. It will have one of the above 4 values.
+   */
   int errorCode;
 
   /**
@@ -60,7 +72,7 @@ public class TokenMgrError extends Error {
           retval.append("\\\"");
           continue;
         case '\'':
-          retval.append("\\\'");
+          retval.append("\\'");
           continue;
         case '\\':
           retval.append("\\\\");
@@ -68,7 +80,7 @@ public class TokenMgrError extends Error {
         default:
           if ((ch = str.charAt(i)) < 0x20 || ch > 0x7e) {
             String s = "0000" + Integer.toString(ch, 16);
-            retval.append("\\u" + s.substring(s.length() - 4, s.length()));
+            retval.append("\\u" + s.substring(s.length() - 4));
           } else {
             retval.append(ch);
           }
@@ -123,16 +135,22 @@ public class TokenMgrError extends Error {
    * Constructors of various flavors follow.
    */
 
-  /** No arg constructor. */
+  /**
+   * No arg constructor.
+   */
   public TokenMgrError() {}
 
-  /** Constructor with message and reason. */
+  /**
+   * Constructor with message and reason.
+   */
   public TokenMgrError(String message, int reason) {
     super(message);
     errorCode = reason;
   }
 
-  /** Full Constructor. */
+  /**
+   * Full Constructor.
+   */
   public TokenMgrError(
       boolean EOFSeen,
       int lexState,

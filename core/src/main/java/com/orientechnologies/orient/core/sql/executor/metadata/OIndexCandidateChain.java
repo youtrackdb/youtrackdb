@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public class OIndexCandidateChain implements OIndexCandidate {
 
-  private List<String> indexes = new ArrayList<>();
+  private final List<String> indexes = new ArrayList<>();
   private Operation operation;
 
   public OIndexCandidateChain(String name) {

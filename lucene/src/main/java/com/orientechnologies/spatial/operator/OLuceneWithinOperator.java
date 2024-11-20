@@ -40,7 +40,7 @@ import org.locationtech.spatial4j.shape.SpatialRelation;
 
 public class OLuceneWithinOperator extends OQueryTargetOperator {
 
-  private OShapeBuilderLegacy<Shape> shapeFactory = OShapeBuilderLegacyImpl.INSTANCE;
+  private final OShapeBuilderLegacy<Shape> shapeFactory = OShapeBuilderLegacyImpl.INSTANCE;
 
   public OLuceneWithinOperator() {
     super("WITHIN", 5, false);

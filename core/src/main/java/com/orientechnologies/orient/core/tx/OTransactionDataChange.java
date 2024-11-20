@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 public class OTransactionDataChange {
+
   private byte type;
   private byte recordType;
   private ORID id;

@@ -203,6 +203,6 @@ public class SchemaIndexTest extends DocumentDBBaseTest {
       }
     }
 
-    Assert.assertTrue(!contains);
+    Assert.assertFalse(contains);
   }
 }

@@ -11,7 +11,9 @@ import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by frank on 02/01/2017. */
+/**
+ * Created by frank on 02/01/2017.
+ */
 public class LuceneSandboxTest extends OLuceneBaseTest {
 
   @Before

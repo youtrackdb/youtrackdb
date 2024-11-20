@@ -9,7 +9,9 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 
-/** Created by frank on 05/01/2016. */
+/**
+ * Created by frank on 05/01/2016.
+ */
 public class OLuceneIndexWriterFactory {
 
   public IndexWriter createIndexWriter(Directory dir, ODocument metadata, Analyzer analyzer)
@@ -25,14 +27,17 @@ public class OLuceneIndexWriterFactory {
 
     config.setOpenMode(CREATE_OR_APPEND);
 
-    if (metadata.containsField("use_compound_file"))
+    if (metadata.containsField("use_compound_file")) {
       config.setUseCompoundFile(metadata.<Boolean>field("use_compound_file"));
+    }
 
-    if (metadata.containsField("ram_buffer_MB"))
-      config.setRAMBufferSizeMB(Double.valueOf(metadata.<String>field("ram_buffer_MB")));
+    if (metadata.containsField("ram_buffer_MB")) {
+      config.setRAMBufferSizeMB(Double.valueOf(metadata.field("ram_buffer_MB")));
+    }
 
-    if (metadata.containsField("max_buffered_docs"))
-      config.setMaxBufferedDocs(Integer.valueOf(metadata.<String>field("max_buffered_docs")));
+    if (metadata.containsField("max_buffered_docs")) {
+      config.setMaxBufferedDocs(Integer.valueOf(metadata.field("max_buffered_docs")));
+    }
 
     // TODO REMOVED
 
@@ -40,9 +45,9 @@ public class OLuceneIndexWriterFactory {
     //
     // config.setMaxBufferedDeleteTerms(Integer.valueOf(metadata.<String>field("max_buffered_delete_terms")));
 
-    if (metadata.containsField("ram_per_thread_MB"))
-      config.setRAMPerThreadHardLimitMB(
-          Integer.valueOf(metadata.<String>field("ram_per_thread_MB")));
+    if (metadata.containsField("ram_per_thread_MB")) {
+      config.setRAMPerThreadHardLimitMB(Integer.valueOf(metadata.field("ram_per_thread_MB")));
+    }
 
     return config;
   }

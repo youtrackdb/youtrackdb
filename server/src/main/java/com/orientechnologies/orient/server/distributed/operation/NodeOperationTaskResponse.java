@@ -10,6 +10,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 public class NodeOperationTaskResponse implements Externalizable {
+
   private int messageId;
   private NodeOperationResponse response;
 

@@ -27,6 +27,7 @@ import com.orientechnologies.orient.server.distributed.ODistributedException;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ODistributedDatabaseDeltaSyncException extends ODistributedException {
+
   public ODistributedDatabaseDeltaSyncException(
       final ODistributedDatabaseDeltaSyncException exception) {
     super(exception);
@@ -38,7 +39,9 @@ public class ODistributedDatabaseDeltaSyncException extends ODistributedExceptio
 
   @Override
   public boolean equals(Object obj) {
-    if (!(obj instanceof ODistributedDatabaseDeltaSyncException)) return false;
+    if (!(obj instanceof ODistributedDatabaseDeltaSyncException)) {
+      return false;
+    }
 
     return getMessage().equals(((ODistributedDatabaseDeltaSyncException) obj).getMessage());
   }

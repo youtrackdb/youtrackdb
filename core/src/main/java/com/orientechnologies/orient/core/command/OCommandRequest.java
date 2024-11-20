@@ -28,6 +28,7 @@ import com.orientechnologies.orient.core.command.OCommandContext.TIMEOUT_STRATEG
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OCommandRequest {
+
   <RET> RET execute(Object... iArgs);
 
   /**
@@ -79,7 +80,9 @@ public interface OCommandRequest {
   @Deprecated
   void setTimeout(long timeout, TIMEOUT_STRATEGY strategy);
 
-  /** Returns true if the command doesn't change the database, otherwise false. */
+  /**
+   * Returns true if the command doesn't change the database, otherwise false.
+   */
   boolean isIdempotent();
 
   /**
@@ -100,7 +103,7 @@ public interface OCommandRequest {
    * <pre>
    * &lt;field&gt;:&lt;depth-level&gt;*
    * </pre>
-   *
+   * <p>
    * Where:
    *
    * <ul>
@@ -109,7 +112,7 @@ public interface OCommandRequest {
    *   <li><b>depth-level</b> is the depth level to fetch. -1 means infinite, 0 means no fetch at
    *       all and 1-N the depth level value.
    * </ul>
-   *
+   * <p>
    * Uses the blank spaces to separate the fields strategies.<br>
    * Example:
    *

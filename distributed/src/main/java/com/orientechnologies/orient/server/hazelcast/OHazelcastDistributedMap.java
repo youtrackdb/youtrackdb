@@ -45,9 +45,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class OHazelcastDistributedMap extends ConcurrentHashMap<String, Object>
     implements EntryAddedListener<String, Object>,
-        EntryRemovedListener<String, Object>,
-        MapClearedListener,
-        EntryUpdatedListener<String, Object> {
+    EntryRemovedListener<String, Object>,
+    MapClearedListener,
+    EntryUpdatedListener<String, Object> {
+
   private final OHazelcastClusterMetadataManager dManager;
   private final IMap<String, Object> hzMap;
   private final String membershipListenerRegistration;
@@ -88,7 +89,9 @@ public class OHazelcastDistributedMap extends ConcurrentHashMap<String, Object>
 
   public Object getLocalCachedValue(final Object key) {
     final Object res = super.get(key);
-    if (res != null) return res;
+    if (res != null) {
+      return res;
+    }
 
     try {
       return hzMap.get(key);
@@ -192,12 +195,14 @@ public class OHazelcastDistributedMap extends ConcurrentHashMap<String, Object>
     final List<String> nodes = new ArrayList<String>();
 
     for (Map.Entry entry : this.entrySet()) {
-      if (entry.getKey().toString().startsWith(OHazelcastClusterMetadataManager.CONFIG_NODE_PREFIX))
+      if (entry.getKey().toString()
+          .startsWith(OHazelcastClusterMetadataManager.CONFIG_NODE_PREFIX)) {
         nodes.add(
             entry
                 .getKey()
                 .toString()
                 .substring(OHazelcastClusterMetadataManager.CONFIG_NODE_PREFIX.length()));
+      }
     }
     return nodes;
   }

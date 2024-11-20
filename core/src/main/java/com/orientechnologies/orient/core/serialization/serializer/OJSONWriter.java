@@ -24,7 +24,7 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMultiValue;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ORecord;
@@ -49,7 +49,7 @@ public class OJSONWriter {
   private static final String DEF_FORMAT =
       "rid,type,version,class,attribSameRow,indent:2,dateAsLong"; // TODO: added
   private final String format;
-  private Writer out;
+  private final Writer out;
   private boolean prettyPrint = false;
   private boolean firstAttribute = true;
 
@@ -88,11 +88,10 @@ public class OJSONWriter {
       } else if ((iValue instanceof Float && !Float.isFinite((Float) iValue))) {
         buffer.append("null");
       } else {
-        buffer.append(iValue.toString());
+        buffer.append(iValue);
       }
 
-    } else if (iValue instanceof OIdentifiable) {
-      final OIdentifiable linked = (OIdentifiable) iValue;
+    } else if (iValue instanceof OIdentifiable linked) {
       if (linked.getIdentity().isValid()) {
         buffer.append('\"');
         linked.getIdentity().toString(buffer);
@@ -101,14 +100,14 @@ public class OJSONWriter {
         if (iFormat != null && iFormat.contains("shallow")) {
           buffer.append("{}");
         } else {
-          final ORecord rec = linked.getRecord();
-          if (rec != null) {
+          try {
+            final ORecord rec = linked.getRecord();
             final String embeddedFormat =
                 iFormat != null && iFormat.isEmpty()
                     ? "indent:" + iIndentLevel
                     : iFormat + ",indent:" + iIndentLevel;
             buffer.append(rec.toJSON(embeddedFormat));
-          } else {
+          } catch (ORecordNotFoundException e) {
             buffer.append("null");
           }
         }
@@ -116,9 +115,8 @@ public class OJSONWriter {
 
     } else if (iValue.getClass().isArray()) {
 
-      if (iValue instanceof byte[]) {
+      if (iValue instanceof byte[] source) {
         buffer.append('\"');
-        final byte[] source = (byte[]) iValue;
 
         if (iFormat != null && iFormat.contains("shallow")) {
           buffer.append(source.length);
@@ -148,8 +146,7 @@ public class OJSONWriter {
       iteratorToJSON(((Iterable<?>) iValue).iterator(), iFormat, buffer);
     } else if (iValue instanceof Map<?, ?>) {
       mapToJSON((Map<Object, Object>) iValue, iFormat, buffer);
-    } else if (iValue instanceof Map.Entry<?, ?>) {
-      final Map.Entry<?, ?> entry = (Entry<?, ?>) iValue;
+    } else if (iValue instanceof Map.Entry<?, ?> entry) {
       buffer.append('{');
       buffer.append(writeValue(entry.getKey(), iFormat));
       buffer.append(":");
@@ -168,8 +165,6 @@ public class OJSONWriter {
       }
     } else if (iValue instanceof BigDecimal) {
       buffer.append(((BigDecimal) iValue).toPlainString());
-    } else if (iValue instanceof ORecordLazyMultiValue) {
-      iteratorToJSON(((ORecordLazyMultiValue) iValue).rawIterator(), iFormat, buffer);
     } else if (iValue instanceof Iterable<?>) {
       iteratorToJSON(((Iterable<?>) iValue).iterator(), iFormat, buffer);
     } else {
@@ -323,7 +318,7 @@ public class OJSONWriter {
     format(iIdentLevel, iNewLine);
 
     if (iName != null) {
-      out.append("\"" + iName.toString() + "\":");
+      out.append("\"" + iName + "\":");
       if (prettyPrint) {
         out.append(' ');
       }
@@ -345,7 +340,7 @@ public class OJSONWriter {
     format(iIdentLevel, iNewLine);
 
     if (iName != null) {
-      out.append("\"" + iName.toString() + "\":");
+      out.append("\"" + iName + "\":");
       if (prettyPrint) {
         out.append(' ');
       }

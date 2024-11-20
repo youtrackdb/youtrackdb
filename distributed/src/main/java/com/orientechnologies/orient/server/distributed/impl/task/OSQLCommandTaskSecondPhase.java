@@ -19,7 +19,8 @@ public class OSQLCommandTaskSecondPhase extends OAbstractRemoteTask {
   private ODistributedRequestId confirmSentRequest;
   private boolean apply;
 
-  public OSQLCommandTaskSecondPhase() {}
+  public OSQLCommandTaskSecondPhase() {
+  }
 
   public OSQLCommandTaskSecondPhase(ODistributedRequestId confirmSentRequest, boolean apply) {
     this.confirmSentRequest = confirmSentRequest;

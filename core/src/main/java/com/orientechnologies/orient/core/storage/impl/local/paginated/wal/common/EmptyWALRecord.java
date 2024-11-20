@@ -5,6 +5,7 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRec
 import java.nio.ByteBuffer;
 
 public final class EmptyWALRecord extends OAbstractWALRecord {
+
   public EmptyWALRecord() {}
 
   @Override

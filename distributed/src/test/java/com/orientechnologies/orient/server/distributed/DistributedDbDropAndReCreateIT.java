@@ -21,8 +21,11 @@ import com.orientechnologies.orient.setup.ServerRun;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Distributed test on drop + recreate database. */
+/**
+ * Distributed test on drop + recreate database.
+ */
 public class DistributedDbDropAndReCreateIT extends AbstractServerClusterTxTest {
+
   private static final int SERVERS = 3;
 
   @Test

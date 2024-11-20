@@ -6,8 +6,8 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 
 public class OCostMeasureExecutionStream implements OExecutionStream {
 
-  private OExecutionStream set;
-  private OExecutionStep step;
+  private final OExecutionStream set;
+  private final OExecutionStep step;
   private long cost;
 
   public OCostMeasureExecutionStream(OExecutionStream set, OExecutionStep step) {

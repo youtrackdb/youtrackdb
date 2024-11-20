@@ -134,7 +134,9 @@ public class OStringSerializer implements OBinarySerializer<String> {
     return value;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void serializeInByteBufferObject(String object, ByteBuffer buffer, Object... hints) {
     int length = object.length();
@@ -157,7 +159,9 @@ public class OStringSerializer implements OBinarySerializer<String> {
     buffer.put(binaryData);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String deserializeFromByteBufferObject(ByteBuffer buffer) {
     int len = buffer.getInt();
@@ -166,8 +170,9 @@ public class OStringSerializer implements OBinarySerializer<String> {
     final byte[] binaryData = new byte[2 * len];
     buffer.get(binaryData);
 
-    for (int i = 0; i < len; i++)
+    for (int i = 0; i < len; i++) {
       chars[i] = (char) ((0xFF & binaryData[i << 1]) | ((0xFF & binaryData[(i << 1) + 1]) << 8));
+    }
 
     return new String(chars);
   }
@@ -181,13 +186,16 @@ public class OStringSerializer implements OBinarySerializer<String> {
     final byte[] binaryData = new byte[2 * len];
     buffer.get(offset, binaryData);
 
-    for (int i = 0; i < len; i++)
+    for (int i = 0; i < len; i++) {
       chars[i] = (char) ((0xFF & binaryData[i << 1]) | ((0xFF & binaryData[(i << 1) + 1]) << 8));
+    }
 
     return new String(chars);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getObjectSizeInByteBuffer(ByteBuffer buffer) {
     return buffer.getInt() * 2 + OIntegerSerializer.INT_SIZE;
@@ -198,7 +206,9 @@ public class OStringSerializer implements OBinarySerializer<String> {
     return buffer.getInt(offset) * 2 + OIntegerSerializer.INT_SIZE;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public String deserializeFromByteBufferObject(
       ByteBuffer buffer, OWALChanges walChanges, int offset) {
@@ -209,13 +219,16 @@ public class OStringSerializer implements OBinarySerializer<String> {
 
     byte[] binaryData = walChanges.getBinaryValue(buffer, offset, 2 * len);
 
-    for (int i = 0; i < len; i++)
+    for (int i = 0; i < len; i++) {
       chars[i] = (char) ((0xFF & binaryData[i << 1]) | ((0xFF & binaryData[(i << 1) + 1]) << 8));
+    }
 
     return new String(chars);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getObjectSizeInByteBuffer(ByteBuffer buffer, OWALChanges walChanges, int offset) {
     return walChanges.getIntValue(buffer, offset) * 2 + OIntegerSerializer.INT_SIZE;

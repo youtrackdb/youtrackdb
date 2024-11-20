@@ -36,7 +36,9 @@ import java.util.Locale;
  */
 public class OMemoryAndLocalPaginatedEnginesInitializer {
 
-  /** Shared initializer instance. */
+  /**
+   * Shared initializer instance.
+   */
   public static final OMemoryAndLocalPaginatedEnginesInitializer INSTANCE =
       new OMemoryAndLocalPaginatedEnginesInitializer();
 
@@ -47,7 +49,9 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
    * engines already initialized.
    */
   public void initialize() {
-    if (initialized) return;
+    if (initialized) {
+      return;
+    }
     initialized = true;
 
     configureDefaults();
@@ -57,20 +61,26 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
   }
 
   private void configureDefaults() {
-    if (!OGlobalConfiguration.DISK_CACHE_SIZE.isChanged()) configureDefaultDiskCacheSize();
+    if (!OGlobalConfiguration.DISK_CACHE_SIZE.isChanged()) {
+      configureDefaultDiskCacheSize();
+    }
 
-    if (!OGlobalConfiguration.WAL_RESTORE_BATCH_SIZE.isChanged())
+    if (!OGlobalConfiguration.WAL_RESTORE_BATCH_SIZE.isChanged()) {
       configureDefaultWalRestoreBatchSize();
+    }
   }
 
   private void configureDefaultWalRestoreBatchSize() {
     final long jvmMaxMemory = Runtime.getRuntime().maxMemory();
     if (jvmMaxMemory > 2L * OFileUtils.GIGABYTE)
-      // INCREASE WAL RESTORE BATCH SIZE TO 50K INSTEAD OF DEFAULT 1K
+    // INCREASE WAL RESTORE BATCH SIZE TO 50K INSTEAD OF DEFAULT 1K
+    {
       OGlobalConfiguration.WAL_RESTORE_BATCH_SIZE.setValue(50000);
-    else if (jvmMaxMemory > 512 * OFileUtils.MEGABYTE)
-      // INCREASE WAL RESTORE BATCH SIZE TO 10K INSTEAD OF DEFAULT 1K
+    } else if (jvmMaxMemory > 512 * OFileUtils.MEGABYTE)
+    // INCREASE WAL RESTORE BATCH SIZE TO 10K INSTEAD OF DEFAULT 1K
+    {
       OGlobalConfiguration.WAL_RESTORE_BATCH_SIZE.setValue(10000);
+    }
   }
 
   private void configureDefaultDiskCacheSize() {

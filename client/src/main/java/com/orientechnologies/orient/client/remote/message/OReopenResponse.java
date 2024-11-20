@@ -8,6 +8,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OReopenResponse implements OBinaryResponse {
+
   private int sessionId;
 
   public OReopenResponse() {}

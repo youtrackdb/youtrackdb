@@ -178,7 +178,9 @@ public abstract class OLuceneIndexEngineAbstract implements OLuceneIndexEngine {
                       if (shouldClose()) {
                         synchronized (OLuceneIndexEngineAbstract.this) {
                           // while on lock the index was opened
-                          if (!shouldClose()) return;
+                          if (!shouldClose()) {
+                            return;
+                          }
                           doClose(false);
                         }
                       }
@@ -191,7 +193,6 @@ public abstract class OLuceneIndexEngineAbstract implements OLuceneIndexEngine {
           }
         };
     this.storage.getContext().schedule(commitTask, firstFlushAfter, flushIndexInterval);
-    ;
   }
 
   private boolean shouldClose() {
@@ -234,7 +235,9 @@ public abstract class OLuceneIndexEngineAbstract implements OLuceneIndexEngine {
 
   private synchronized void open(OStorage storage) throws IOException {
 
-    if (!closed.get()) return;
+    if (!closed.get()) {
+      return;
+    }
 
     OLuceneDirectoryFactory directoryFactory = new OLuceneDirectoryFactory();
 
@@ -321,7 +324,9 @@ public abstract class OLuceneIndexEngineAbstract implements OLuceneIndexEngine {
   @Override
   public synchronized void flush() {
     try {
-      if (!closed.get() && indexWriter != null && indexWriter.isOpen()) indexWriter.commit();
+      if (!closed.get() && indexWriter != null && indexWriter.isOpen()) {
+        indexWriter.commit();
+      }
     } catch (Exception e) {
       OLogManager.instance().error(this, "Error on flushing Lucene index", e);
     }
@@ -342,8 +347,7 @@ public abstract class OLuceneIndexEngineAbstract implements OLuceneIndexEngine {
       }
 
       final OAbstractPaginatedStorage storageLocalAbstract = (OAbstractPaginatedStorage) storage;
-      if (storageLocalAbstract instanceof OLocalPaginatedStorage) {
-        OLocalPaginatedStorage localStorage = (OLocalPaginatedStorage) storageLocalAbstract;
+      if (storageLocalAbstract instanceof OLocalPaginatedStorage localStorage) {
         File storagePath = localStorage.getStoragePath().toFile();
         deleteIndexFolder(storagePath);
       }
@@ -409,7 +413,9 @@ public abstract class OLuceneIndexEngineAbstract implements OLuceneIndexEngine {
     openIfClosed();
 
     Query query = deleteQuery(key, value);
-    if (query != null) deleteDocument(query);
+    if (query != null) {
+      deleteDocument(query);
+    }
     return true;
   }
 
@@ -541,7 +547,9 @@ public abstract class OLuceneIndexEngineAbstract implements OLuceneIndexEngine {
   }
 
   private void doClose(boolean onDelete) {
-    if (closed.get()) return;
+    if (closed.get()) {
+      return;
+    }
 
     try {
       cancelCommitTask();
@@ -552,7 +560,9 @@ public abstract class OLuceneIndexEngineAbstract implements OLuceneIndexEngine {
 
       commitAndCloseWriter();
 
-      if (!onDelete) directory.getDirectory().close();
+      if (!onDelete) {
+        directory.getDirectory().close();
+      }
     } catch (Exception e) {
       OLogManager.instance().error(this, "Error on closing Lucene index", e);
     }

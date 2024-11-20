@@ -28,5 +28,6 @@ import java.util.Map;
  * @author Artem Orobets (enisher-at-gmail.com)
  */
 public interface OIterableRecordSource {
+
   Iterator<OIdentifiable> iterator(final Map<Object, Object> iArgs);
 }

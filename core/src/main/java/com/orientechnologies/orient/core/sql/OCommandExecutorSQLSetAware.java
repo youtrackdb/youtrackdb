@@ -46,10 +46,13 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
   protected int parameterCounter = 0;
 
   protected void parseContent() {
-    if (!parserIsEnded() && !parserGetLastWord().equals(KEYWORD_WHERE)) content = parseJSON();
+    if (!parserIsEnded() && !parserGetLastWord().equals(KEYWORD_WHERE)) {
+      content = parseJSON();
+    }
 
-    if (content == null)
+    if (content == null) {
       throwSyntaxErrorException("Content not provided. Example: CONTENT { \"name\": \"Jay\" }");
+    }
   }
 
   protected void parseSetFields(final OClass iClass, final List<OPair<String, Object>> fields) {
@@ -76,9 +79,10 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
       parserSkipWhiteSpaces();
     }
 
-    if (fields.size() == 0)
+    if (fields.size() == 0) {
       throwParsingException(
           "Entries to set <field> = <value> are missed. Example: name = 'Bill', salary = 300.2");
+    }
   }
 
   protected OClass extractClassFromTarget(String iTarget) {
@@ -87,14 +91,17 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
         && !iTarget.startsWith(OCommandExecutorSQLAbstract.INDEX_PREFIX)) {
 
       if (iTarget.toUpperCase(Locale.ENGLISH).startsWith(OCommandExecutorSQLAbstract.CLASS_PREFIX))
-        // REMOVE CLASS PREFIX
+      // REMOVE CLASS PREFIX
+      {
         iTarget = iTarget.substring(OCommandExecutorSQLAbstract.CLASS_PREFIX.length());
+      }
 
-      if (iTarget.charAt(0) == ORID.PREFIX)
+      if (iTarget.charAt(0) == ORID.PREFIX) {
         return getDatabase()
             .getMetadata()
             .getImmutableSchemaSnapshot()
             .getClassByClusterId(new ORecordId(iTarget).getClusterId());
+      }
 
       return getDatabase().getMetadata().getImmutableSchemaSnapshot().getClass(iTarget);
     }
@@ -147,14 +154,16 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
         switch (p.getType()) {
           case EMBEDDED:
             // CONVERT MAP IN DOCUMENTS ASSIGNING THE CLASS TAKEN FROM SCHEMA
-            if (v instanceof Map) v = createDocumentFromMap(embeddedType, (Map<String, Object>) v);
+            if (v instanceof Map) {
+              v = createDocumentFromMap(embeddedType, (Map<String, Object>) v);
+            }
             break;
 
           case EMBEDDEDSET:
             // CONVERT MAPS IN DOCUMENTS ASSIGNING THE CLASS TAKEN FROM SCHEMA
-            if (v instanceof Map)
+            if (v instanceof Map) {
               return createDocumentFromMap(embeddedType, (Map<String, Object>) v);
-            else if (OMultiValue.isMultiValue(v)) {
+            } else if (OMultiValue.isMultiValue(v)) {
               final Set set = new HashSet();
 
               for (Object o : OMultiValue.getMultiValueIterable(v)) {
@@ -162,8 +171,11 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
                   final ODocument doc =
                       createDocumentFromMap(embeddedType, (Map<String, Object>) o);
                   set.add(doc);
-                } else if (o instanceof OIdentifiable) set.add(((OIdentifiable) o).getRecord());
-                else set.add(o);
+                } else if (o instanceof OIdentifiable) {
+                  set.add(((OIdentifiable) o).getRecord());
+                } else {
+                  set.add(o);
+                }
               }
 
               v = set;
@@ -172,9 +184,9 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
 
           case EMBEDDEDLIST:
             // CONVERT MAPS IN DOCUMENTS ASSIGNING THE CLASS TAKEN FROM SCHEMA
-            if (v instanceof Map)
+            if (v instanceof Map) {
               return createDocumentFromMap(embeddedType, (Map<String, Object>) v);
-            else if (OMultiValue.isMultiValue(v)) {
+            } else if (OMultiValue.isMultiValue(v)) {
               final List set = new ArrayList();
 
               for (Object o : OMultiValue.getMultiValueIterable(v)) {
@@ -182,8 +194,11 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
                   final ODocument doc =
                       createDocumentFromMap(embeddedType, (Map<String, Object>) o);
                   set.add(doc);
-                } else if (o instanceof OIdentifiable) set.add(((OIdentifiable) o).getRecord());
-                else set.add(o);
+                } else if (o instanceof OIdentifiable) {
+                  set.add(((OIdentifiable) o).getRecord());
+                } else {
+                  set.add(o);
+                }
               }
 
               v = set;
@@ -200,9 +215,11 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
                   final ODocument doc =
                       createDocumentFromMap(embeddedType, (Map<String, Object>) entry.getValue());
                   map.put(entry.getKey(), doc);
-                } else if (entry.getValue() instanceof OIdentifiable)
+                } else if (entry.getValue() instanceof OIdentifiable) {
                   map.put(entry.getKey(), ((OIdentifiable) entry.getValue()).getRecord());
-                else map.put(entry.getKey(), entry.getValue());
+                } else {
+                  map.put(entry.getKey(), entry.getValue());
+                }
               }
 
               v = map;
@@ -216,7 +233,9 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
 
   private ODocument createDocumentFromMap(OClass embeddedType, Map<String, Object> o) {
     final ODocument doc = new ODocument();
-    if (embeddedType != null) doc.setClassName(embeddedType.getName());
+    if (embeddedType != null) {
+      doc.setClassName(embeddedType.getName());
+    }
 
     doc.fromMap(o);
     return doc;
@@ -230,7 +249,9 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
   }
 
   protected Object getFieldValueCountingParameters(String fieldValue) {
-    if (fieldValue.trim().equals("?")) parameterCounter++;
+    if (fieldValue.trim().equals("?")) {
+      parameterCounter++;
+    }
     return OSQLHelper.parseValue(this, fieldValue, context, true);
   }
 

@@ -15,6 +15,7 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class ODropPropertyStatement extends ODDLStatement {
 
@@ -34,11 +35,12 @@ public class ODropPropertyStatement extends ODDLStatement {
   @Override
   public OExecutionStream executeDDL(OCommandContext ctx) {
 
-    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) ctx.getDatabase();
+    final ODatabaseSessionInternal database = ctx.getDatabase();
     final OClassImpl sourceClass =
         (OClassImpl) database.getMetadata().getSchema().getClass(className.getStringValue());
-    if (sourceClass == null)
+    if (sourceClass == null) {
       throw new OCommandExecutionException("Source class '" + className + "' not found");
+    }
 
     if (sourceClass.getProperty(propertyName.getStringValue()) == null) {
       if (ifExists) {
@@ -74,7 +76,7 @@ public class ODropPropertyStatement extends ODDLStatement {
 
         throw new OCommandExecutionException(
             "Property used in indexes ("
-                + indexNames.toString()
+                + indexNames
                 + "). Please drop these indexes before removing property or use FORCE parameter.");
       }
     }
@@ -147,21 +149,25 @@ public class ODropPropertyStatement extends ODDLStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     ODropPropertyStatement that = (ODropPropertyStatement) o;
 
-    if (force != that.force) return false;
+    if (force != that.force) {
+      return false;
+    }
     if (ifExists != that.ifExists) {
       return false;
     }
-    if (className != null ? !className.equals(that.className) : that.className != null)
+    if (!Objects.equals(className, that.className)) {
       return false;
-    if (propertyName != null ? !propertyName.equals(that.propertyName) : that.propertyName != null)
-      return false;
-
-    return true;
+    }
+    return Objects.equals(propertyName, that.propertyName);
   }
 
   @Override

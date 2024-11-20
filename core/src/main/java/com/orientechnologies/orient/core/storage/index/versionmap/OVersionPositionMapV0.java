@@ -35,6 +35,7 @@ import java.io.IOException;
  * data) and expected number of elements OBaseIndexEngine.DEFAULT_VERSION_ARRAY_SIZE.
  */
 public final class OVersionPositionMapV0 extends OVersionPositionMap {
+
   private long fileId;
   private int numberOfPages;
   public static final int PAGE_SIZE =

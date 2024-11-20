@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.db.record;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
@@ -61,13 +61,13 @@ public class ORecordLazyListTest {
     mainDoc = dbSession.bindToSession(mainDoc);
     Collection<ODocument> origItems = mainDoc.field("items");
     Iterator<ODocument> it = origItems.iterator();
-    assertTrue(it.next() != null);
-    assertTrue(it.next() != null);
+    assertNotNull(it.next());
+    assertNotNull(it.next());
 
     List<ODocument> items = new ArrayList<ODocument>(origItems);
-    assertTrue(items.get(0) != null);
-    assertTrue(items.get(1) != null);
-    assertTrue(items.get(2) != null);
+    assertNotNull(items.get(0));
+    assertNotNull(items.get(1));
+    assertNotNull(items.get(2));
     dbSession.rollback();
   }
 

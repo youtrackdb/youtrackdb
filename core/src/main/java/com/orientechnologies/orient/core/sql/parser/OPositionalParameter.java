@@ -68,14 +68,16 @@ public class OPositionalParameter extends OInputParameter {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OPositionalParameter that = (OPositionalParameter) o;
 
-    if (paramNumber != that.paramNumber) return false;
-
-    return true;
+    return paramNumber == that.paramNumber;
   }
 
   @Override

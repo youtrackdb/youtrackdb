@@ -119,10 +119,14 @@ public class OVertexDelegate implements OVertexInternal {
       return false;
     }
     if (!(obj instanceof OElement)) {
-      obj = ((OIdentifiable) obj).getRecord();
+      obj = ((OIdentifiable) obj).getRecordSilently();
     }
 
-    return element.equals(((OElement) obj).getRecord());
+    if (obj == null) {
+      return false;
+    }
+
+    return element.equals(((OElement) obj).getRecordSilently());
   }
 
   @Override

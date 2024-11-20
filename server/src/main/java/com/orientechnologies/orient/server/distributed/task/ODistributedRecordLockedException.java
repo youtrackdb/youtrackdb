@@ -29,6 +29,7 @@ import com.orientechnologies.orient.server.distributed.ODistributedRequestId;
  * @author Luca Garulli (l.garulli--at--orientdb.com)
  */
 public class ODistributedRecordLockedException extends ONeedRetryException {
+
   protected ORID rid;
   protected ODistributedRequestId lockHolder;
   protected String node;
@@ -76,7 +77,9 @@ public class ODistributedRecordLockedException extends ONeedRetryException {
 
   @Override
   public boolean equals(final Object obj) {
-    if (!(obj instanceof ODistributedRecordLockedException)) return false;
+    if (!(obj instanceof ODistributedRecordLockedException)) {
+      return false;
+    }
 
     return rid.equals(((ODistributedRecordLockedException) obj).rid);
   }

@@ -54,7 +54,9 @@ import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
-/** Created by Enrico Risa on 07/07/15. */
+/**
+ * Created by Enrico Risa on 07/07/15.
+ */
 @RunWith(JUnit4.class)
 public class LuceneAutomaticBackupRestoreTest {
 

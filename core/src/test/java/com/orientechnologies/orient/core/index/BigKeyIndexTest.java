@@ -10,6 +10,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.junit.Test;
 
 public class BigKeyIndexTest extends BaseMemoryDatabase {
+
   @Test
   public void testBigKey() {
     OClass cl = db.createClass("One");

@@ -123,12 +123,9 @@ public class OStorageEncryptionTestIT {
         new OrientDB("embedded:" + dbDirectoryFile.getAbsolutePath(), orientDBConfig)) {
       try (final ODatabaseSessionInternal session =
           (ODatabaseSessionInternal) orientDB.open("encryption", "admin", "admin")) {
-        final OIndexManagerAbstract indexManager =
-            ((ODatabaseSessionInternal) session).getMetadata().getIndexManagerInternal();
-        final OIndex treeIndex =
-            indexManager.getIndex((ODatabaseSessionInternal) session, "EncryptedTree");
-        final OIndex hashIndex =
-            indexManager.getIndex((ODatabaseSessionInternal) session, "EncryptedHash");
+        final OIndexManagerAbstract indexManager = session.getMetadata().getIndexManagerInternal();
+        final OIndex treeIndex = indexManager.getIndex(session, "EncryptedTree");
+        final OIndex hashIndex = indexManager.getIndex(session, "EncryptedHash");
 
         for (final ODocument document : session.browseClass("EncryptedData")) {
           final int id = document.getProperty("id");

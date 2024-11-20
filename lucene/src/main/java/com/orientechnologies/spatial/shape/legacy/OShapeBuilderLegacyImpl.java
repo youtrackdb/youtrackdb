@@ -21,11 +21,13 @@ import java.util.List;
 import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.shape.Shape;
 
-/** Created by Enrico Risa on 23/10/15. */
+/**
+ * Created by Enrico Risa on 23/10/15.
+ */
 public class OShapeBuilderLegacyImpl implements OShapeBuilderLegacy<Shape> {
 
   public static final OShapeBuilderLegacyImpl INSTANCE = new OShapeBuilderLegacyImpl();
-  private List<OShapeBuilderLegacy> builders = new ArrayList<OShapeBuilderLegacy>();
+  private final List<OShapeBuilderLegacy> builders = new ArrayList<OShapeBuilderLegacy>();
 
   protected OShapeBuilderLegacyImpl() {
     builders.add(new OPointLegecyBuilder());

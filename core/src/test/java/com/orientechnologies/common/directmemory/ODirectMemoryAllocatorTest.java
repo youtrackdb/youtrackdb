@@ -9,6 +9,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class ODirectMemoryAllocatorTest {
+
   @BeforeClass
   public static void beforeClass() {
     OGlobalConfiguration.DIRECT_MEMORY_TRACK_MODE.setValue(true);

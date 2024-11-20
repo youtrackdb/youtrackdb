@@ -17,7 +17,6 @@ import com.orientechnologies.orient.core.sql.parser.OExpression;
 import com.orientechnologies.orient.core.sql.parser.OFromClause;
 import com.orientechnologies.orient.core.sql.parser.OFromItem;
 import com.orientechnologies.orient.core.sql.parser.OIdentifier;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -26,7 +25,9 @@ import java.util.stream.Stream;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.memory.MemoryIndex;
 
-/** Created by frank on 15/01/2017. */
+/**
+ * Created by frank on 15/01/2017.
+ */
 public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate {
 
   public static final String MEMORY_INDEX = "_memoryIndex";
@@ -55,7 +56,9 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
 
     OLuceneFullTextIndex index = searchForIndex(ctx, indexName);
 
-    if (index == null) return false;
+    if (index == null) {
+      return false;
+    }
 
     String query = (String) params[1];
 
@@ -73,7 +76,7 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
     ODocument metadata = getMetadata(params);
     OLuceneKeyAndMetadata keyAndMetadata =
         new OLuceneKeyAndMetadata(
-            new OLuceneCompositeKey(Arrays.asList(query)).setContext(ctx), metadata);
+            new OLuceneCompositeKey(Collections.singletonList(query)).setContext(ctx), metadata);
 
     return memoryIndex.search(index.buildQuery(keyAndMetadata)) > 0.0f;
   }
@@ -130,7 +133,7 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
               .getInternal()
               .getRids(
                   new OLuceneKeyAndMetadata(
-                      new OLuceneCompositeKey(Arrays.asList(query)).setContext(ctx), meta))) {
+                      new OLuceneCompositeKey(List.of(query)).setContext(ctx), meta))) {
         luceneResultSet = rids.collect(Collectors.toList());
       }
 
@@ -160,7 +163,7 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
 
     String indexName = (String) args[0].execute((OIdentifiable) null, ctx);
 
-    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) ctx.getDatabase();
+    final ODatabaseSessionInternal database = ctx.getDatabase();
     OIndex index =
         database
             .getMetadata()
@@ -175,7 +178,7 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
   }
 
   private OLuceneFullTextIndex searchForIndex(OCommandContext ctx, String indexName) {
-    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) ctx.getDatabase();
+    final ODatabaseSessionInternal database = ctx.getDatabase();
     OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
 
     if (index != null && index.getInternal() instanceof OLuceneFullTextIndex) {

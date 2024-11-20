@@ -38,7 +38,7 @@ import org.testng.annotations.Test;
 public class LiveQueryTest extends DocumentDBBaseTest implements OCommandOutputListener {
 
   private final CountDownLatch latch = new CountDownLatch(2);
-  private CountDownLatch unLatch = new CountDownLatch(1);
+  private final CountDownLatch unLatch = new CountDownLatch(1);
 
   class MyLiveQueryListener implements OLiveResultListener {
 

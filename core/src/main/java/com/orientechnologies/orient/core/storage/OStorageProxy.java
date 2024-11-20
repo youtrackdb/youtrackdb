@@ -27,6 +27,7 @@ import com.orientechnologies.orient.core.tx.OTransactionInternal;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OStorageProxy {
+
   String getUserName();
 
   int getUsers();

@@ -38,6 +38,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OAdaptiveLock extends OAbstractLock {
+
   private final ReentrantLock lock = new ReentrantLock();
   private final boolean concurrent;
   private final int timeout;
@@ -69,12 +70,14 @@ public class OAdaptiveLock extends OAbstractLock {
   }
 
   public void lock() {
-    if (concurrent)
+    if (concurrent) {
       if (timeout > 0) {
         try {
           if (lock.tryLock(timeout, TimeUnit.MILLISECONDS))
-            // OK
+          // OK
+          {
             return;
+          }
         } catch (InterruptedException e) {
           if (ignoreThreadInterruption) {
             // IGNORE THE THREAD IS INTERRUPTED: TRY TO RE-LOCK AGAIN
@@ -100,7 +103,10 @@ public class OAdaptiveLock extends OAbstractLock {
 
         throwTimeoutException(lock);
 
-      } else lock.lock();
+      } else {
+        lock.lock();
+      }
+    }
   }
 
   public boolean tryAcquireLock() {
@@ -108,8 +114,8 @@ public class OAdaptiveLock extends OAbstractLock {
   }
 
   public boolean tryAcquireLock(final long iTimeout, final TimeUnit iUnit) {
-    if (concurrent)
-      if (timeout > 0)
+    if (concurrent) {
+      if (timeout > 0) {
         try {
           return lock.tryLock(iTimeout, iUnit);
         } catch (InterruptedException e) {
@@ -121,19 +127,26 @@ public class OAdaptiveLock extends OAbstractLock {
                       + timeout),
               e);
         }
-      else return lock.tryLock();
+      } else {
+        return lock.tryLock();
+      }
+    }
 
     return true;
   }
 
   public void unlock() {
-    if (concurrent) lock.unlock();
+    if (concurrent) {
+      lock.unlock();
+    }
   }
 
   @Override
   public void close() {
     try {
-      if (lock.isLocked()) lock.unlock();
+      if (lock.isLocked()) {
+        lock.unlock();
+      }
     } catch (Exception e) {
       OLogManager.instance().debug(this, "Cannot unlock a lock", e);
     }
@@ -160,7 +173,9 @@ public class OAdaptiveLock extends OAbstractLock {
       getOwner.setAccessible(true);
 
       final Thread owner = (Thread) getOwner.invoke(sync);
-      if (owner == null) return null;
+      if (owner == null) {
+        return null;
+      }
 
       StringWriter stringWriter = new StringWriter();
       PrintWriter printWriter = new PrintWriter(stringWriter);
@@ -168,7 +183,9 @@ public class OAdaptiveLock extends OAbstractLock {
       printWriter.append("Owner thread : ").append(owner.toString()).append("\n");
 
       StackTraceElement[] stackTrace = owner.getStackTrace();
-      for (StackTraceElement traceElement : stackTrace) printWriter.println("\tat " + traceElement);
+      for (StackTraceElement traceElement : stackTrace) {
+        printWriter.println("\tat " + traceElement);
+      }
 
       printWriter.flush();
       return stringWriter.toString();

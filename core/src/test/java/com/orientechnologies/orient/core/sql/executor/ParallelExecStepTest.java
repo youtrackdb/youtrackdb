@@ -8,7 +8,9 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.Test;
 
-/** Created by luigidellaquila on 26/07/16. */
+/**
+ * Created by luigidellaquila on 26/07/16.
+ */
 public class ParallelExecStepTest {
 
   @Test

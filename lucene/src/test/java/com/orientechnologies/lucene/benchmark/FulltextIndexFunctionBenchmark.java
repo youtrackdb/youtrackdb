@@ -34,6 +34,7 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 @Warmup(iterations = 3, batchSize = 1)
 @Fork(3)
 public class FulltextIndexFunctionBenchmark {
+
   public static void main(String[] args) throws RunnerException {
     final Options opt =
         new OptionsBuilder()
@@ -51,7 +52,7 @@ public class FulltextIndexFunctionBenchmark {
   private OrientDB context;
   private ODatabaseType type;
 
-  private String name = "lucene-benchmark";
+  private final String name = "lucene-benchmark";
 
   @Setup(Level.Iteration)
   public void setup() {

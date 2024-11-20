@@ -18,7 +18,9 @@ import com.orientechnologies.orient.core.sql.parser.OUpdateItem;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Created by luigidellaquila on 08/08/16. */
+/**
+ * Created by luigidellaquila on 08/08/16.
+ */
 public class OCreateEdgeExecutionPlanner {
 
   private final OCreateEdgeStatement statement;
@@ -149,8 +151,7 @@ public class OCreateEdgeExecutionPlanner {
         && statement.executinPlanCanBeCached()
         && result.canBeCached()
         && OExecutionPlanCache.getLastInvalidation(db) < planningStart) {
-      OExecutionPlanCache.put(
-          statement.getOriginalStatement(), result, (ODatabaseSessionInternal) ctx.getDatabase());
+      OExecutionPlanCache.put(statement.getOriginalStatement(), result, ctx.getDatabase());
     }
 
     return result;

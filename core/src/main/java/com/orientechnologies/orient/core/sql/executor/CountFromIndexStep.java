@@ -14,13 +14,14 @@ import com.orientechnologies.orient.core.sql.parser.OIndexIdentifier;
  * @author Luigi Dell'Aquila (luigi.dellaquila - at - gmail.com)
  */
 public class CountFromIndexStep extends AbstractExecutionStep {
+
   private final OIndexIdentifier target;
   private final String alias;
 
   /**
-   * @param targetIndex the index name as it is parsed by the SQL parsed
-   * @param alias the name of the property returned in the result-set
-   * @param ctx the query context
+   * @param targetIndex      the index name as it is parsed by the SQL parsed
+   * @param alias            the name of the property returned in the result-set
+   * @param ctx              the query context
    * @param profilingEnabled true to enable the profiling of the execution (for SQL PROFILE)
    */
   public CountFromIndexStep(
@@ -40,7 +41,7 @@ public class CountFromIndexStep extends AbstractExecutionStep {
   }
 
   private OResult produce(OCommandContext ctx) {
-    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) ctx.getDatabase();
+    final ODatabaseSessionInternal database = ctx.getDatabase();
     OIndexInternal idx =
         database
             .getMetadata()

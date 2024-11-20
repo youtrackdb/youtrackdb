@@ -52,7 +52,9 @@ public class OneEntryPerKeyLockManagerNullKeysTest {
     assertEquals(2, wrapper(locks[1]).getLockCount());
     assertEquals(1, wrapper(locks[2]).getLockCount());
 
-    for (Lock lock : locks) lock.unlock();
+    for (Lock lock : locks) {
+      lock.unlock();
+    }
     assertEquals(0, wrapper(locks[0]).getLockCount());
     assertEquals(0, wrapper(locks[1]).getLockCount());
     assertEquals(0, wrapper(locks[2]).getLockCount());
@@ -68,7 +70,9 @@ public class OneEntryPerKeyLockManagerNullKeysTest {
     assertEquals(2, wrapper(locks[1]).getLockCount());
     assertEquals(1, wrapper(locks[2]).getLockCount());
 
-    for (Lock lock : locks) lock.unlock();
+    for (Lock lock : locks) {
+      lock.unlock();
+    }
     assertEquals(0, wrapper(locks[0]).getLockCount());
     assertEquals(0, wrapper(locks[1]).getLockCount());
     assertEquals(0, wrapper(locks[2]).getLockCount());

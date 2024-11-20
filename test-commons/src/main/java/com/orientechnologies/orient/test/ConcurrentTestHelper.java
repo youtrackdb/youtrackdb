@@ -18,6 +18,7 @@ import java.util.concurrent.TimeUnit;
  * @author Artem Orobets (enisher-at-gmail.com)
  */
 public class ConcurrentTestHelper<T> {
+
   private final ExecutorService executor;
   private final List<Future<T>> futures;
 

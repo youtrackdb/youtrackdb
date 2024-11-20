@@ -8,6 +8,7 @@ import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.record.OElement;
@@ -19,7 +20,7 @@ import com.orientechnologies.orient.core.sql.parser.OExpression;
 import com.orientechnologies.orient.core.sql.parser.OFromClause;
 import com.orientechnologies.orient.core.sql.parser.OFromItem;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -53,7 +54,11 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
       OCommandContext ctx) {
 
     if (iThis instanceof ORID) {
-      iThis = ((ORID) iThis).getRecord();
+      try {
+        iThis = ((ORID) iThis).getRecord();
+      } catch (ORecordNotFoundException rnf) {
+        return false;
+      }
     }
     if (iThis instanceof OIdentifiable) {
       iThis = new OResultInternal((OIdentifiable) iThis);
@@ -89,7 +94,7 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
     ODocument metadata = getMetadata(params);
     OLuceneKeyAndMetadata keyAndMetadata =
         new OLuceneKeyAndMetadata(
-            new OLuceneCompositeKey(Arrays.asList(query)).setContext(ctx), metadata);
+            new OLuceneCompositeKey(Collections.singletonList(query)).setContext(ctx), metadata);
 
     return memoryIndex.search(index.buildQuery(keyAndMetadata)) > 0.0f;
   }
@@ -129,7 +134,8 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
               .getInternal()
               .getRids(
                   new OLuceneKeyAndMetadata(
-                      new OLuceneCompositeKey(Arrays.asList(query)).setContext(ctx), meta))) {
+                      new OLuceneCompositeKey(Collections.singletonList(query)).setContext(ctx),
+                      meta))) {
         luceneResultSet = rids.collect(Collectors.toSet());
       }
 

@@ -34,6 +34,7 @@ import java.util.stream.Stream;
  * @author Luigi Dell'Aquila (l.dellaquila--(at)--orientdb.com)
  */
 public class OSQLFunctionIndexKeySize extends OSQLFunctionAbstract {
+
   public static final String NAME = "indexKeySize";
 
   public OSQLFunctionIndexKeySize() {
@@ -49,7 +50,7 @@ public class OSQLFunctionIndexKeySize extends OSQLFunctionAbstract {
     final Object value = iParams[0];
 
     String indexName = String.valueOf(value);
-    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) context.getDatabase();
+    final ODatabaseSessionInternal database = context.getDatabase();
     OIndex index = database.getMetadata().getIndexManagerInternal().getIndex(database, indexName);
     if (index == null) {
       return null;

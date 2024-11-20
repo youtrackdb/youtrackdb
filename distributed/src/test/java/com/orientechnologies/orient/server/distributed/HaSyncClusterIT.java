@@ -44,6 +44,7 @@ import org.junit.Test;
  */
 @Ignore
 public class HaSyncClusterIT extends AbstractServerClusterTest {
+
   private static final int SERVERS = 2;
   public static final int NUM_RECORDS = 1000;
 

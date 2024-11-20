@@ -30,6 +30,7 @@ import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedSt
 import com.orientechnologies.orient.core.storage.impl.local.OClusterBrowsePage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import java.io.IOException;
+import javax.annotation.Nonnull;
 
 /**
  * Represents an offline cluster, created with the "alter cluster X status offline" command. To
@@ -137,18 +138,7 @@ public class OOfflineCluster implements OCluster {
   }
 
   @Override
-  public ORawBuffer readRecord(long clusterPosition, boolean prefetchRecords) {
-    throw OException.wrapException(
-        new ORecordNotFoundException(
-            new ORecordId(id, clusterPosition),
-            "Record with rid #" + id + ":" + clusterPosition + " was not found in database"),
-        new OOfflineClusterException(
-            "Cannot read a record from the offline cluster '" + name + "'"));
-  }
-
-  @Override
-  public ORawBuffer readRecordIfVersionIsNotLatest(long clusterPosition, int recordVersion)
-      throws IOException, ORecordNotFoundException {
+  public @Nonnull ORawBuffer readRecord(long clusterPosition, boolean prefetchRecords) {
     throw OException.wrapException(
         new ORecordNotFoundException(
             new ORecordId(id, clusterPosition),

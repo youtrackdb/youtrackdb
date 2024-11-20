@@ -20,11 +20,13 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.spatial.shape.OShapeFactory;
 import org.locationtech.spatial4j.shape.Shape;
 
-/** Created by Enrico Risa on 25/09/15. */
+/**
+ * Created by Enrico Risa on 25/09/15.
+ */
 public class OSTDistanceFunction extends OSpatialFunctionAbstract {
 
   public static final String NAME = "st_distance";
-  private OShapeFactory factory = OShapeFactory.INSTANCE;
+  private final OShapeFactory factory = OShapeFactory.INSTANCE;
 
   public OSTDistanceFunction() {
     super(NAME, 2, 2);

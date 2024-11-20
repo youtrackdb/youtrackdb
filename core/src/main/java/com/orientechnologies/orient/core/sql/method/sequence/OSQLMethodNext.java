@@ -50,15 +50,17 @@ public class OSQLMethodNext extends OAbstractSQLMethod {
       OCommandContext iContext,
       Object ioResult,
       Object[] iParams) {
-    if (iThis == null)
+    if (iThis == null) {
       throw new OCommandSQLParsingException(
           "Method 'next()' can be invoked only on OSequence instances, while NULL was found");
+    }
 
-    if (!(iThis instanceof OSequence))
+    if (!(iThis instanceof OSequence)) {
       throw new OCommandSQLParsingException(
           "Method 'next()' can be invoked only on OSequence instances, while '"
               + iThis.getClass()
               + "' was found");
+    }
 
     try {
       return ((OSequence) iThis).next();

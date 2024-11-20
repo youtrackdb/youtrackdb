@@ -38,10 +38,12 @@ import java.io.IOException;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ORestartServerTask extends OAbstractRemoteTask {
+
   private static final long serialVersionUID = 1L;
   public static final int FACTORYID = 10;
 
-  public ORestartServerTask() {}
+  public ORestartServerTask() {
+  }
 
   @Override
   public Object execute(
@@ -95,10 +97,12 @@ public class ORestartServerTask extends OAbstractRemoteTask {
   }
 
   @Override
-  public void toStream(DataOutput out) throws IOException {}
+  public void toStream(DataOutput out) throws IOException {
+  }
 
   @Override
-  public void fromStream(DataInput in, final ORemoteTaskFactory factory) throws IOException {}
+  public void fromStream(DataInput in, final ORemoteTaskFactory factory) throws IOException {
+  }
 
   @Override
   public int getFactoryId() {

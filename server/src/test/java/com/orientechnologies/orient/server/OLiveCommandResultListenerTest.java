@@ -22,7 +22,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-/** Created by tglman on 07/06/16. */
+/**
+ * Created by tglman on 07/06/16.
+ */
 public class OLiveCommandResultListenerTest extends BaseMemoryInternalDatabase {
 
   @Mock private OServer server;
@@ -34,6 +36,7 @@ public class OLiveCommandResultListenerTest extends BaseMemoryInternalDatabase {
   private OClientConnection connection;
 
   private static class TestResultListener implements OCommandResultListener {
+
     @Override
     public boolean result(Object iRecord) {
       return false;

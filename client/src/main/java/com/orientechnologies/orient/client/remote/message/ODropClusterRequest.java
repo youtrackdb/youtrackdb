@@ -30,6 +30,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class ODropClusterRequest implements OBinaryRequest<ODropClusterResponse> {
+
   private int clusterId;
 
   public ODropClusterRequest(int iClusterId) {

@@ -47,7 +47,7 @@ import javax.script.SimpleBindings;
 public class OSQLScriptEngine implements ScriptEngine {
 
   public static final String NAME = "sql";
-  private ScriptEngineFactory factory;
+  private final ScriptEngineFactory factory;
 
   public OSQLScriptEngine(ScriptEngineFactory factory) {
     this.factory = factory;
@@ -103,15 +103,19 @@ public class OSQLScriptEngine implements ScriptEngine {
       if (iArgs.length == 1
           && iArgs[0] != null
           && iArgs[0].getClass().isArray()
-          && iArgs[0] instanceof Object[]) iArgs = (Object[]) iArgs[0];
+          && iArgs[0] instanceof Object[]) {
+        iArgs = (Object[]) iArgs[0];
+      }
 
       params = new HashMap<Object, Object>(iArgs.length);
       for (int i = 0; i < iArgs.length; ++i) {
         Object par = iArgs[i];
 
         if (par instanceof OIdentifiable && ((OIdentifiable) par).getIdentity().isValid())
-          // USE THE RID ONLY
+        // USE THE RID ONLY
+        {
           par = ((OIdentifiable) par).getIdentity();
+        }
 
         params.put(i, par);
       }
@@ -123,7 +127,9 @@ public class OSQLScriptEngine implements ScriptEngine {
   public Object eval(Reader reader, Bindings n) throws ScriptException {
     final StringBuilder buffer = new StringBuilder();
     try {
-      while (reader.ready()) buffer.append((char) reader.read());
+      while (reader.ready()) {
+        buffer.append((char) reader.read());
+      }
     } catch (IOException e) {
       throw new ScriptException(e);
     }

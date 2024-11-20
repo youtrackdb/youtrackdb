@@ -1,7 +1,8 @@
 package com.orientechnologies.orient.core.index;
 
 public abstract class OIndexUpdateAction<V> {
-  private static OIndexUpdateAction nothing =
+
+  private static final OIndexUpdateAction nothing =
       new OIndexUpdateAction() {
         @Override
         public boolean isNothing() {
@@ -24,7 +25,7 @@ public abstract class OIndexUpdateAction<V> {
         }
       };
 
-  private static OIndexUpdateAction remove =
+  private static final OIndexUpdateAction remove =
       new OIndexUpdateAction() {
         @Override
         public boolean isNothing() {

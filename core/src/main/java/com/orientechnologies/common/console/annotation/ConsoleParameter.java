@@ -28,6 +28,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.PARAMETER)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ConsoleParameter {
+
   String name() default "";
 
   String description() default "";

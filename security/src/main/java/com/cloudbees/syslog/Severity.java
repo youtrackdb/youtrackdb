@@ -26,21 +26,37 @@ import java.util.Map;
  * @author <a href="mailto:cleclerc@cloudbees.com">Cyrille Le Clerc</a>
  */
 public enum Severity {
-  /** Emergency: system is unusable, numerical code 0. */
+  /**
+   * Emergency: system is unusable, numerical code 0.
+   */
   EMERGENCY(0, "EMERGENCY"),
-  /** Alert: action must be taken immediately, numerical code 1. */
+  /**
+   * Alert: action must be taken immediately, numerical code 1.
+   */
   ALERT(1, "ALERT"),
-  /** Critical: critical conditions, numerical code 2. */
+  /**
+   * Critical: critical conditions, numerical code 2.
+   */
   CRITICAL(2, "CRITICAL"),
-  /** Error: error conditions, numerical code 3. */
+  /**
+   * Error: error conditions, numerical code 3.
+   */
   ERROR(3, "ERROR"),
-  /** Warning: warning conditions, numerical code 4. */
+  /**
+   * Warning: warning conditions, numerical code 4.
+   */
   WARNING(4, "WARNING"),
-  /** Notice: normal but significant condition, numerical code 5. */
+  /**
+   * Notice: normal but significant condition, numerical code 5.
+   */
   NOTICE(5, "NOTICE"),
-  /** Informational: informational messages, numerical code 6. */
+  /**
+   * Informational: informational messages, numerical code 6.
+   */
   INFORMATIONAL(6, "INFORMATIONAL"),
-  /** Debug: debug-level messages, numerical code 7. */
+  /**
+   * Debug: debug-level messages, numerical code 7.
+   */
   DEBUG(7, "DEBUG");
 
   // mapping
@@ -58,7 +74,7 @@ public enum Severity {
   private final int numericalCode;
   private final String label;
 
-  private Severity(int numericalCode, String label) {
+  Severity(int numericalCode, String label) {
     this.numericalCode = numericalCode;
     this.label = label;
   }
@@ -67,7 +83,7 @@ public enum Severity {
    * @param numericalCode Syslog severity numerical code
    * @return Syslog severity, not {@code null}
    * @throws IllegalArgumentException the given numericalCode is not a valid Syslog severity
-   *     numerical code
+   *                                  numerical code
    */
   public static Severity fromNumericalCode(int numericalCode) throws IllegalArgumentException {
     Severity severity = severityFromNumericalCode.get(numericalCode);
@@ -83,7 +99,9 @@ public enum Severity {
    * @throws IllegalArgumentException the given value is not a valid Syslog severity textual code
    */
   public static Severity fromLabel(String label) throws IllegalArgumentException {
-    if (label == null || label.isEmpty()) return null;
+    if (label == null || label.isEmpty()) {
+      return null;
+    }
 
     Severity severity = severityFromLabel.get(label);
     if (severity == null) {
@@ -92,17 +110,23 @@ public enum Severity {
     return severity;
   }
 
-  /** Syslog severity numerical code */
+  /**
+   * Syslog severity numerical code
+   */
   public int numericalCode() {
     return numericalCode;
   }
 
-  /** Syslog severity textual code. Not {@code null}. */
+  /**
+   * Syslog severity textual code. Not {@code null}.
+   */
   public String label() {
     return label;
   }
 
-  /** Compare on {@link Severity#numericalCode()} */
+  /**
+   * Compare on {@link Severity#numericalCode()}
+   */
   public static Comparator<Severity> comparator() {
     return new Comparator<Severity>() {
       @Override

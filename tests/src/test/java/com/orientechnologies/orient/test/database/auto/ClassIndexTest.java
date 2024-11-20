@@ -23,6 +23,7 @@ import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.testng.Assert;
@@ -118,7 +119,9 @@ public class ClassIndexTest extends DocumentDBBaseTest {
     } catch (Exception e) {
 
       Throwable cause = e;
-      while (cause.getCause() != null) cause = cause.getCause();
+      while (cause.getCause() != null) {
+        cause = cause.getCause();
+      }
 
       assertTrue(
           (cause instanceof IllegalArgumentException)
@@ -728,7 +731,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
         "testCreateCompositeEmbeddedListIndex"
       })
   public void testAreIndexedOneProperty() {
-    final boolean result = oClass.areIndexed(Arrays.asList("fOne"));
+    final boolean result = oClass.areIndexed(List.of("fOne"));
 
     assertTrue(result);
   }
@@ -753,7 +756,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
         "testCreateCompositeEmbeddedListIndex"
       })
   public void testAreIndexedEightProperty() {
-    final boolean result = oClass.areIndexed(Arrays.asList("fEight"));
+    final boolean result = oClass.areIndexed(List.of("fEight"));
     assertTrue(result);
   }
 
@@ -800,7 +803,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
         "testCreateCompositeEmbeddedListIndex"
       })
   public void testAreIndexedDoesNotContainProperty() {
-    final boolean result = oClass.areIndexed(Arrays.asList("fSix"));
+    final boolean result = oClass.areIndexed(List.of("fSix"));
 
     assertFalse(result);
   }
@@ -921,7 +924,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
         "testCreateCompositeEmbeddedListIndex"
       })
   public void testAreIndexedParentProperty() {
-    final boolean result = oClass.areIndexed(Arrays.asList("fNine"));
+    final boolean result = oClass.areIndexed(List.of("fNine"));
 
     assertTrue(result);
   }
@@ -945,7 +948,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
         "testCreateCompositeEmbeddedListIndex"
       })
   public void testAreIndexedParentChildProperty() {
-    final boolean result = oClass.areIndexed(Arrays.asList("fOne, fNine"));
+    final boolean result = oClass.areIndexed(List.of("fOne, fNine"));
 
     assertFalse(result);
   }
@@ -1311,7 +1314,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
         "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetClassInvolvedIndexesOneProperty() {
-    final Set<OIndex> result = oClass.getClassInvolvedIndexes(Arrays.asList("fOne"));
+    final Set<OIndex> result = oClass.getClassInvolvedIndexes(List.of("fOne"));
 
     assertEquals(result.size(), 1);
 
@@ -1586,7 +1589,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
         "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetInvolvedIndexesOneProperty() {
-    final Set<OIndex> result = oClass.getInvolvedIndexes(Arrays.asList("fOne"));
+    final Set<OIndex> result = oClass.getInvolvedIndexes(List.of("fOne"));
 
     assertEquals(result.size(), 1);
 
@@ -1686,7 +1689,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
         "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetParentInvolvedIndexes() {
-    final Set<OIndex> result = oClass.getInvolvedIndexes(Arrays.asList("fNine"));
+    final Set<OIndex> result = oClass.getInvolvedIndexes(List.of("fNine"));
 
     assertEquals(result.size(), 1);
     assertEquals(result.iterator().next().getName(), "ClassIndexTestParentPropertyNine");
@@ -2093,7 +2096,7 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
     assertEquals(indexes.size(), 1);
 
-    assertTrue(indexes.iterator().next().getDefinition().equals(propertyIndexDefinition));
+    assertEquals(propertyIndexDefinition, indexes.iterator().next().getDefinition());
   }
 
   @Test(expectedExceptions = OIndexException.class)

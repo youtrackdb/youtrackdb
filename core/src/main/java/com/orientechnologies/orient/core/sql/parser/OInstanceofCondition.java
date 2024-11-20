@@ -4,6 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -13,6 +14,7 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class OInstanceofCondition extends OBooleanExpression {
@@ -34,14 +36,16 @@ public class OInstanceofCondition extends OBooleanExpression {
     if (currentRecord == null) {
       return false;
     }
-    ORecord record = currentRecord.getRecord();
-    if (record == null) {
+    ORecord record;
+    try {
+      record = currentRecord.getRecord();
+    } catch (ORecordNotFoundException rnf) {
       return false;
     }
-    if (!(record instanceof ODocument)) {
+
+    if (!(record instanceof ODocument doc)) {
       return false;
     }
-    ODocument doc = (ODocument) record;
     OClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
     if (clazz == null) {
       return false;
@@ -62,14 +66,11 @@ public class OInstanceofCondition extends OBooleanExpression {
     if (!currentRecord.isElement()) {
       return false;
     }
+
     ORecord record = currentRecord.getElement().get().getRecord();
-    if (record == null) {
+    if (!(record instanceof ODocument doc)) {
       return false;
     }
-    if (!(record instanceof ODocument)) {
-      return false;
-    }
-    ODocument doc = (ODocument) record;
     OClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
     if (clazz == null) {
       return false;
@@ -125,17 +126,14 @@ public class OInstanceofCondition extends OBooleanExpression {
   @Override
   protected List<Object> getExternalCalculationConditions() {
     if (!left.supportsBasicCalculation()) {
-      return (List) Collections.singletonList(left);
+      return Collections.singletonList(left);
     }
     return Collections.EMPTY_LIST;
   }
 
   @Override
   public boolean needsAliases(Set<String> aliases) {
-    if (left.needsAliases(aliases)) {
-      return true;
-    }
-    return false;
+    return left.needsAliases(aliases);
   }
 
   @Override
@@ -154,25 +152,27 @@ public class OInstanceofCondition extends OBooleanExpression {
 
   @Override
   public boolean refersToParent() {
-    if (left != null && left.refersToParent()) {
-      return true;
-    }
-    return false;
+    return left != null && left.refersToParent();
   }
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OInstanceofCondition that = (OInstanceofCondition) o;
 
-    if (left != null ? !left.equals(that.left) : that.left != null) return false;
-    if (right != null ? !right.equals(that.right) : that.right != null) return false;
-    if (rightString != null ? !rightString.equals(that.rightString) : that.rightString != null)
+    if (!Objects.equals(left, that.left)) {
       return false;
-
-    return true;
+    }
+    if (!Objects.equals(right, that.right)) {
+      return false;
+    }
+    return Objects.equals(rightString, that.rightString);
   }
 
   @Override

@@ -10,7 +10,9 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 import java.util.*;
 
-/** Created by luigidellaquila on 01/12/16. */
+/**
+ * Created by luigidellaquila on 01/12/16.
+ */
 public class OServerQueryResponse implements OBinaryResponse {
 
   public static final byte RECORD_TYPE_BLOB = 0;

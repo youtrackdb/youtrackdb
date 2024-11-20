@@ -17,8 +17,11 @@ import java.util.Spliterators;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-/** Created by luigidellaquila on 21/02/17. */
+/**
+ * Created by luigidellaquila on 21/02/17.
+ */
 public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
+
   private final String toAlias;
   private final OIdentifier targetCluster;
   private final OIdentifier targetClass;

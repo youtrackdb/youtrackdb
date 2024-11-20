@@ -45,13 +45,13 @@ public class OPointShapeBuilder extends OShapeBuilder<Point> {
   public void initClazz(ODatabaseSessionInternal db) {
 
     OSchema schema = db.getMetadata().getSchema();
-    OClass point = schema.createAbstractClass(getName(), superClass(db));
+    OClass point = schema.createAbstractClass(NAME, superClass(db));
     OProperty coordinates = point.createProperty(COORDINATES, OType.EMBEDDEDLIST, OType.DOUBLE);
     coordinates.setMin("2");
     coordinates.setMax("2");
 
     if (OGlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean()) {
-      OClass pointz = schema.createAbstractClass(getName() + "Z", superClass(db));
+      OClass pointz = schema.createAbstractClass(NAME + "Z", superClass(db));
       OProperty coordinatesz = pointz.createProperty(COORDINATES, OType.EMBEDDEDLIST, OType.DOUBLE);
       coordinatesz.setMin("3");
       coordinatesz.setMax("3");
@@ -76,7 +76,7 @@ public class OPointShapeBuilder extends OShapeBuilder<Point> {
   @Override
   public ODocument toDoc(final Point shape) {
 
-    ODocument doc = new ODocument(getName());
+    ODocument doc = new ODocument(NAME);
     doc.field(
         COORDINATES,
         new ArrayList<Double>() {
@@ -94,7 +94,7 @@ public class OPointShapeBuilder extends OShapeBuilder<Point> {
       return toDoc(parsed);
     }
 
-    ODocument doc = new ODocument(getName() + "Z");
+    ODocument doc = new ODocument(NAME + "Z");
     doc.field(
         COORDINATES,
         new ArrayList<Double>() {

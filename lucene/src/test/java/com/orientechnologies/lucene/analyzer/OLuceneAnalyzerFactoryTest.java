@@ -19,8 +19,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-/** Created by frank on 30/10/2015. */
+/**
+ * Created by frank on 30/10/2015.
+ */
 public class OLuceneAnalyzerFactoryTest {
+
   private OLuceneAnalyzerFactory analyzerFactory;
   private ODocument metadata;
   private OIndexDefinition indexDef;

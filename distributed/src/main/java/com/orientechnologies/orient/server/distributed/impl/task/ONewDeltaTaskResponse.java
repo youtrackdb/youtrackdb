@@ -9,7 +9,8 @@ import java.util.Optional;
 
 public class ONewDeltaTaskResponse implements OStreamable {
 
-  public ONewDeltaTaskResponse() {}
+  public ONewDeltaTaskResponse() {
+  }
 
   public ONewDeltaTaskResponse(ResponseType responseType) {
     this.responseType = responseType;

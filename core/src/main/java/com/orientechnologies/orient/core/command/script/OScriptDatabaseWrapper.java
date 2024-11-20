@@ -34,6 +34,7 @@ import java.util.Map;
  * @author Enrico Risa (e.risa--(at)--orientdb.com)
  */
 public class OScriptDatabaseWrapper {
+
   protected ODatabaseSessionInternal database;
 
   public OScriptDatabaseWrapper(final ODatabaseSessionInternal database) {

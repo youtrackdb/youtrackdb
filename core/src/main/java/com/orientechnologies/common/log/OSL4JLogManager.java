@@ -15,12 +15,13 @@ import org.slf4j.event.Level;
 
 /**
  * Centralized Log Manager used in OrientDB. All the log messages are routed through this class. It
- * uses SLF4J as the logging facade. Logging methods are accepting messages formatted as in {@link
- * String#format(String, Object...)} It is strongly recommended to use specialized logging methods
- * from this class instead of generic {@link #log(Object, Level, String, Throwable, Object...)}
- * method.
+ * uses SLF4J as the logging facade. Logging methods are accepting messages formatted as in
+ * {@link String#format(String, Object...)} It is strongly recommended to use specialized logging
+ * methods from this class instead of generic
+ * {@link #log(Object, Level, String, Throwable, Object...)} method.
  */
 public abstract class OSL4JLogManager {
+
   private final ConcurrentHashMap<String, Logger> loggersCache = new ConcurrentHashMap<>();
 
   protected static final String DEFAULT_LOG = "com.orientechnologies";
@@ -32,11 +33,11 @@ public abstract class OSL4JLogManager {
   /**
    * Loges a message if provided level of logging is enabled.
    *
-   * @param requester the object that requested the log
-   * @param level the level of the log
-   * @param message the message to log, accepts format provided in {@link String#format(String,
-   *     Object...)}
-   * @param exception the exception to log
+   * @param requester      the object that requested the log
+   * @param level          the level of the log
+   * @param message        the message to log, accepts format provided in
+   *                       {@link String#format(String, Object...)}
+   * @param exception      the exception to log
    * @param additionalArgs additional arguments to format the message
    */
   public void log(
@@ -123,9 +124,9 @@ public abstract class OSL4JLogManager {
   /**
    * Loges a message with debug level if this level of logging is enabled.
    *
-   * @param requester the object that requested the log
-   * @param message the message to log, accepts format provided in {@link String#format(String,
-   *     Object...)}
+   * @param requester      the object that requested the log
+   * @param message        the message to log, accepts format provided in
+   *                       {@link String#format(String, Object...)}
    * @param additionalArgs additional arguments to format the message
    */
   public void debug(
@@ -138,10 +139,10 @@ public abstract class OSL4JLogManager {
   /**
    * Loges a message with debug level if this level of logging is enabled.
    *
-   * @param requester the object that requested the log
-   * @param message the message to log, accepts format provided in {@link String#format(String,
-   *     Object...)}
-   * @param exception the exception to log
+   * @param requester      the object that requested the log
+   * @param message        the message to log, accepts format provided in
+   *                       {@link String#format(String, Object...)}
+   * @param exception      the exception to log
    * @param additionalArgs additional arguments to format the message
    */
   public void debug(
@@ -149,7 +150,7 @@ public abstract class OSL4JLogManager {
       @Nonnull final String message,
       @Nullable final Throwable exception,
       @Nullable final Object... additionalArgs) {
-    if (isDebugEnabled()) {
+    if (debug) {
       log(requester, Level.DEBUG, message, exception, additionalArgs);
     }
   }
@@ -157,9 +158,9 @@ public abstract class OSL4JLogManager {
   /**
    * Loges a message with info level if this level of logging is enabled.
    *
-   * @param requester the object that requested the log
-   * @param message the message to log, accepts format provided in {@link String#format(String,
-   *     Object...)}
+   * @param requester      the object that requested the log
+   * @param message        the message to log, accepts format provided in
+   *                       {@link String#format(String, Object...)}
    * @param additionalArgs additional arguments to format the message
    */
   public void info(
@@ -172,10 +173,10 @@ public abstract class OSL4JLogManager {
   /**
    * Loges a message with info level if this level of logging is enabled.
    *
-   * @param requester the object that requested the log
-   * @param message the message to log, accepts format provided in {@link String#format(String,
-   *     Object...)}
-   * @param exception the exception to log
+   * @param requester      the object that requested the log
+   * @param message        the message to log, accepts format provided in
+   *                       {@link String#format(String, Object...)}
+   * @param exception      the exception to log
    * @param additionalArgs additional arguments to format the message
    */
   public void info(
@@ -183,7 +184,7 @@ public abstract class OSL4JLogManager {
       final @Nonnull String message,
       final @Nullable Throwable exception,
       final @Nullable Object... additionalArgs) {
-    if (isInfoEnabled()) {
+    if (info) {
       log(requester, Level.INFO, message, exception, additionalArgs);
     }
   }
@@ -191,9 +192,9 @@ public abstract class OSL4JLogManager {
   /**
    * Loges a message with warn level if this level of logging is enabled.
    *
-   * @param requester the object that requested the log
-   * @param message the message to log, accepts format provided in {@link String#format(String,
-   *     Object...)}
+   * @param requester      the object that requested the log
+   * @param message        the message to log, accepts format provided in
+   *                       {@link String#format(String, Object...)}
    * @param additionalArgs additional arguments to format the message
    */
   public void warn(
@@ -206,10 +207,10 @@ public abstract class OSL4JLogManager {
   /**
    * Loges a message with warn level if this level of logging is enabled.
    *
-   * @param requester the object that requested the log
-   * @param message the message to log, accepts format provided in {@link String#format(String,
-   *     Object...)}
-   * @param exception the exception to log
+   * @param requester      the object that requested the log
+   * @param message        the message to log, accepts format provided in
+   *                       {@link String#format(String, Object...)}
+   * @param exception      the exception to log
    * @param additionalArgs additional arguments to format the message
    */
   public void warn(
@@ -217,7 +218,7 @@ public abstract class OSL4JLogManager {
       @Nonnull final String message,
       @Nullable final Throwable exception,
       @Nullable final Object... additionalArgs) {
-    if (isWarnEnabled()) {
+    if (warn) {
       log(requester, Level.WARN, message, exception, additionalArgs);
     }
   }
@@ -225,9 +226,9 @@ public abstract class OSL4JLogManager {
   /**
    * Loges a message with error level if this level of logging is enabled.
    *
-   * @param requester the object that requested the log
-   * @param message the message to log, accepts format provided in {@link String#format(String,
-   *     Object...)}
+   * @param requester      the object that requested the log
+   * @param message        the message to log, accepts format provided in
+   *                       {@link String#format(String, Object...)}
    * @param additionalArgs additional arguments to format the message
    */
   public void error(
@@ -235,7 +236,7 @@ public abstract class OSL4JLogManager {
       @Nonnull final String message,
       @Nullable final Throwable exception,
       @Nullable final Object... additionalArgs) {
-    if (isErrorEnabled()) {
+    if (error) {
       log(requester, Level.ERROR, message, exception, additionalArgs);
     }
   }

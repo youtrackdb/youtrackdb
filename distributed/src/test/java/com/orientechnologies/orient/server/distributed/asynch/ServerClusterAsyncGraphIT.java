@@ -35,8 +35,11 @@ import com.orientechnologies.orient.server.distributed.AbstractServerClusterTest
 import com.orientechnologies.orient.setup.ServerRun;
 import org.junit.Test;
 
-/** Check vertex and edge creation are propagated across all the nodes in asynchronous mode. */
+/**
+ * Check vertex and edge creation are propagated across all the nodes in asynchronous mode.
+ */
 public class ServerClusterAsyncGraphIT extends AbstractServerClusterTest {
+
   static final int SERVERS = 2;
   private OVertex v1;
   private OVertex v2;

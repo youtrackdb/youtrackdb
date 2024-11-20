@@ -111,8 +111,8 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     documentTarget.fromStream(documentSource.toStream());
 
     final OTrackedList<Object> list = documentTarget.field("list", OType.EMBEDDEDLIST);
-    Assert.assertEquals(list.get(0), 100000000000l);
-    Assert.assertEquals(list.get(1), 100000000001l);
+    Assert.assertEquals(list.get(0), 100000000000L);
+    Assert.assertEquals(list.get(1), 100000000001L);
   }
 
   @Test
@@ -249,22 +249,22 @@ public class JSONStreamTest extends DocumentDBBaseTest {
         ODatabaseSession.ATTRIBUTES.DATETIMEFORMAT, OStorageConfiguration.DEFAULT_DATETIME_FORMAT);
     try {
       final ODocument doc = new ODocument();
-      doc.field("long", 100000000000l);
+      doc.field("long", 100000000000L);
       doc.field("date", new Date());
       doc.field("byte", (byte) 12);
 
       final ODocument firstLevelDoc = new ODocument();
-      firstLevelDoc.field("long", 200000000000l);
+      firstLevelDoc.field("long", 200000000000L);
       firstLevelDoc.field("date", new Date());
       firstLevelDoc.field("byte", (byte) 13);
 
       final ODocument secondLevelDoc = new ODocument();
-      secondLevelDoc.field("long", 300000000000l);
+      secondLevelDoc.field("long", 300000000000L);
       secondLevelDoc.field("date", new Date());
       secondLevelDoc.field("byte", (byte) 14);
 
       final ODocument thirdLevelDoc = new ODocument();
-      thirdLevelDoc.field("long", 400000000000l);
+      thirdLevelDoc.field("long", 400000000000L);
       thirdLevelDoc.field("date", new Date());
       thirdLevelDoc.field("byte", (byte) 15);
       doc.field("doc", firstLevelDoc);
@@ -615,8 +615,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
   public void testEscapingDoubleQuotes() throws IOException {
     final ODocument doc = new ODocument();
-    final StringBuilder sb = new StringBuilder();
-    sb.append(
+    String sb =
         " {\n"
             + "    \"foo\":{\n"
             + "            \"bar\":{\n"
@@ -631,8 +630,8 @@ public class JSONStreamTest extends DocumentDBBaseTest {
             + "            },\n"
             + "            \"three\": \"a\"\n"
             + "        }\n"
-            + "} ");
-    doc.fromJSON(new ByteArrayInputStream(sb.toString().getBytes(StandardCharsets.UTF_8)));
+            + "} ";
+    doc.fromJSON(new ByteArrayInputStream(sb.getBytes(StandardCharsets.UTF_8)));
     Assert.assertEquals(doc.field("foo.three"), "a");
     final Collection c = doc.field("foo.bar.P357");
     Assert.assertEquals(c.size(), 1);
@@ -643,8 +642,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
   // Requires JsonParser.Feature.ALLOW_TRAILING_COMMA
   public void testEscapingDoubleQuotes2() throws IOException {
     final ODocument doc = new ODocument();
-    final StringBuilder sb = new StringBuilder();
-    sb.append(
+    String sb =
         " {\n"
             + "    \"foo\":{\n"
             + "            \"bar\":{\n"
@@ -660,9 +658,9 @@ public class JSONStreamTest extends DocumentDBBaseTest {
             + "            },\n"
             + "            \"three\": \"a\"\n"
             + "        }\n"
-            + "} ");
+            + "} ";
 
-    doc.fromJSON(new ByteArrayInputStream(sb.toString().getBytes(StandardCharsets.UTF_8)));
+    doc.fromJSON(new ByteArrayInputStream(sb.getBytes(StandardCharsets.UTF_8)));
     Assert.assertEquals(doc.field("foo.three"), "a");
     final Collection c = doc.field("foo.bar.P357");
     Assert.assertEquals(c.size(), 1);
@@ -672,8 +670,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
   public void testEscapingDoubleQuotes3() throws IOException {
     final ODocument doc = new ODocument();
-    final StringBuilder sb = new StringBuilder();
-    sb.append(
+    String sb =
         " {\n"
             + "    \"foo\":{\n"
             + "            \"bar\":{\n"
@@ -688,9 +685,9 @@ public class JSONStreamTest extends DocumentDBBaseTest {
             + "                ]   \n"
             + "            }\n"
             + "        }\n"
-            + "} ");
+            + "} ";
 
-    doc.fromJSON(new ByteArrayInputStream(sb.toString().getBytes(StandardCharsets.UTF_8)));
+    doc.fromJSON(new ByteArrayInputStream(sb.getBytes(StandardCharsets.UTF_8)));
     final Collection c = doc.field("foo.bar.P357");
     Assert.assertEquals(c.size(), 1);
     final Map doc2 = (Map) c.iterator().next();
@@ -699,26 +696,27 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
   public void testEmbeddedQuotes() throws IOException {
     final ODocument doc = new ODocument();
-    final StringBuilder builder = new StringBuilder();
     // FROM ISSUE 3151
-    builder.append("{\"mainsnak\":{\"datavalue\":{\"value\":\"Sub\\\\urban\"}}}");
-    doc.fromJSON(new ByteArrayInputStream(builder.toString().getBytes(StandardCharsets.UTF_8)));
+    doc.fromJSON(
+        new ByteArrayInputStream(
+            "{\"mainsnak\":{\"datavalue\":{\"value\":\"Sub\\\\urban\"}}}"
+                .getBytes(StandardCharsets.UTF_8)));
     Assert.assertEquals(doc.field("mainsnak.datavalue.value"), "Sub\\urban");
   }
 
   public void testEmbeddedQuotes2() throws IOException {
     final ODocument doc = new ODocument();
-    final StringBuilder builder = new StringBuilder();
-    builder.append("{\"datavalue\":{\"value\":\"Sub\\\\urban\"}}");
-    doc.fromJSON(new ByteArrayInputStream(builder.toString().getBytes(StandardCharsets.UTF_8)));
+    doc.fromJSON(
+        new ByteArrayInputStream(
+            "{\"datavalue\":{\"value\":\"Sub\\\\urban\"}}".getBytes(StandardCharsets.UTF_8)));
     Assert.assertEquals(doc.field("datavalue.value"), "Sub\\urban");
   }
 
   public void testEmbeddedQuotes2a() throws IOException {
     final ODocument doc = new ODocument();
-    final StringBuilder builder = new StringBuilder();
-    builder.append("{\"datavalue\":\"Sub\\\\urban\"}");
-    doc.fromJSON(new ByteArrayInputStream(builder.toString().getBytes(StandardCharsets.UTF_8)));
+    doc.fromJSON(
+        new ByteArrayInputStream(
+            "{\"datavalue\":\"Sub\\\\urban\"}".getBytes(StandardCharsets.UTF_8)));
     Assert.assertEquals(doc.field("datavalue"), "Sub\\urban");
   }
 
@@ -751,33 +749,32 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
   public void testEmbeddedQuotes6() throws IOException {
     final ODocument doc = new ODocument();
-    final StringBuilder builder = new StringBuilder();
-    builder.append("{\"mainsnak\":{\"datavalue\":{\"value\":\"Suburban\\\\\"}}}");
-    doc.fromJSON(new ByteArrayInputStream(builder.toString().getBytes(StandardCharsets.UTF_8)));
+    doc.fromJSON(
+        new ByteArrayInputStream(
+            "{\"mainsnak\":{\"datavalue\":{\"value\":\"Suburban\\\\\"}}}"
+                .getBytes(StandardCharsets.UTF_8)));
     Assert.assertEquals(doc.field("mainsnak.datavalue.value"), "Suburban\\");
   }
 
   public void testEmbeddedQuotes7() throws IOException {
     final ODocument doc = new ODocument();
-    final StringBuilder builder = new StringBuilder();
-    builder.append("{\"datavalue\":{\"value\":\"Suburban\\\\\"}}");
-    doc.fromJSON(new ByteArrayInputStream(builder.toString().getBytes(StandardCharsets.UTF_8)));
+    doc.fromJSON(
+        new ByteArrayInputStream(
+            "{\"datavalue\":{\"value\":\"Suburban\\\\\"}}".getBytes(StandardCharsets.UTF_8)));
     Assert.assertEquals(doc.field("datavalue.value"), "Suburban\\");
   }
 
   public void testEmbeddedQuotes8() throws IOException {
     ODocument doc = new ODocument();
-    StringBuilder builder = new StringBuilder();
-    builder.append("{\"datavalue\":\"Suburban\\\\\"}");
-    doc.fromJSON(new ByteArrayInputStream(builder.toString().getBytes(StandardCharsets.UTF_8)));
+    doc.fromJSON(
+        new ByteArrayInputStream(
+            "{\"datavalue\":\"Suburban\\\\\"}".getBytes(StandardCharsets.UTF_8)));
     Assert.assertEquals(doc.field("datavalue"), "Suburban\\");
   }
 
   public void testEmpty() throws IOException {
     final ODocument doc = new ODocument();
-    final StringBuilder builder = new StringBuilder();
-    builder.append("{}");
-    doc.fromJSON(new ByteArrayInputStream(builder.toString().getBytes(StandardCharsets.UTF_8)));
+    doc.fromJSON(new ByteArrayInputStream("{}".getBytes(StandardCharsets.UTF_8)));
     Assert.assertEquals(doc.fieldNames().length, 0);
   }
 
@@ -816,7 +813,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
 
   // @fieldTypes parsing
   public void testDates() throws IOException {
-    final Date now = new Date(1350518475000l);
+    final Date now = new Date(1350518475000L);
 
     final ODocument doc = new ODocument();
     doc.field("date", now);
@@ -855,9 +852,9 @@ public class JSONStreamTest extends DocumentDBBaseTest {
                 .getBytes(StandardCharsets.UTF_8)));
     final ORidBag bag = documentSource.field("in_EHasGoodStudents");
     Assert.assertEquals(bag.size(), 1);
-    final OIdentifiable rid = bag.rawIterator().next();
-    Assert.assertTrue(rid.getIdentity().getClusterId() == 57);
-    Assert.assertTrue(rid.getIdentity().getClusterPosition() == 0);
+    final OIdentifiable rid = bag.iterator().next();
+    Assert.assertEquals(rid.getIdentity().getClusterId(), 57);
+    Assert.assertEquals(rid.getIdentity().getClusterPosition(), 0);
   }
 
   public void testNestedLinkCreation() throws IOException {

@@ -39,12 +39,12 @@ public interface OSQLMethod extends Comparable<OSQLMethod> {
    * <pre>
    *  field.myMethod( param1, param2, [optionalParam3])
    * </pre>
-   *
+   * <p>
    * This text will be used in exception messages.
    *
    * @return String , never null.
    */
-  public String getSyntax();
+  String getSyntax();
 
   /**
    * @return minimum number of arguments requiered by this method
@@ -61,9 +61,10 @@ public interface OSQLMethod extends Comparable<OSQLMethod> {
    *
    * @param iThis
    * @param iCurrentRecord : current record
-   * @param iContext execution context
-   * @param ioResult : field value
-   * @param iParams : function parameters, number is ensured to be within minParams and maxParams.
+   * @param iContext       execution context
+   * @param ioResult       : field value
+   * @param iParams        : function parameters, number is ensured to be within minParams and
+   *                       maxParams.
    * @return evaluation result
    */
   Object execute(

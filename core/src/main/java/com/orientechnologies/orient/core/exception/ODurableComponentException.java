@@ -7,6 +7,7 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODura
  * @since 10/2/2015
  */
 public abstract class ODurableComponentException extends OCoreException {
+
   public ODurableComponentException(ODurableComponentException exception) {
     super(exception);
   }

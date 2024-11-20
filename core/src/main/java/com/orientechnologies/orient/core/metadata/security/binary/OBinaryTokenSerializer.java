@@ -12,7 +12,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -61,7 +61,9 @@ public class OBinaryTokenSerializer implements OTokenMetaInfo {
 
   public Map<String, Byte> createMap(String[] entries) {
     Map<String, Byte> newMap = new HashMap<String, Byte>();
-    for (int i = 0; i < entries.length; i++) newMap.put(entries[i], (byte) i);
+    for (int i = 0; i < entries.length; i++) {
+      newMap.put(entries[i], (byte) i);
+    }
     return newMap;
   }
 
@@ -87,7 +89,7 @@ public class OBinaryTokenSerializer implements OTokenMetaInfo {
     if (s >= 0) {
       byte[] str = new byte[s];
       input.readFully(str);
-      return new String(str, "UTF-8");
+      return new String(str, StandardCharsets.UTF_8);
     }
     return null;
   }
@@ -104,11 +106,11 @@ public class OBinaryTokenSerializer implements OTokenMetaInfo {
     payload.serialize(output, this);
   }
 
-  public static void writeString(DataOutputStream output, String toWrite)
-      throws UnsupportedEncodingException, IOException {
-    if (toWrite == null) output.writeShort(-1);
-    else {
-      byte[] str = toWrite.getBytes("UTF-8");
+  public static void writeString(DataOutputStream output, String toWrite) throws IOException {
+    if (toWrite == null) {
+      output.writeShort(-1);
+    } else {
+      byte[] str = toWrite.getBytes(StandardCharsets.UTF_8);
       output.writeShort(str.length);
       output.write(str);
     }

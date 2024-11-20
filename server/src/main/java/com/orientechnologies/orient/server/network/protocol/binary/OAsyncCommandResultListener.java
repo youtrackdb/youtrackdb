@@ -73,7 +73,7 @@ public class OAsyncCommandResultListener extends OAbstractCommandResultListener 
                 alreadySent.add(iLinked.getIdentity());
                 try {
                   protocol.channel.writeByte((byte) 2); // CACHE IT ON THE CLIENT
-                  protocol.writeIdentifiable(protocol.channel, connection, iLinked);
+                  ONetworkProtocolBinary.writeIdentifiable(protocol.channel, connection, iLinked);
                 } catch (IOException e) {
                   OLogManager.instance().error(this, "Cannot write against channel", e);
                 }
@@ -82,13 +82,15 @@ public class OAsyncCommandResultListener extends OAbstractCommandResultListener 
           });
       alreadySent.add(((OIdentifiable) iRecord).getIdentity());
       protocol.channel.writeByte((byte) 1); // ONE MORE RECORD
-      protocol.writeIdentifiable(
+      ONetworkProtocolBinary.writeIdentifiable(
           protocol.channel, connection, ((OIdentifiable) iRecord).getRecord());
       protocol.channel.flush(); // TODO review this flush... it's for non blocking...
 
       if (wrappedResultListener != null)
-        // NOTIFY THE WRAPPED LISTENER
+      // NOTIFY THE WRAPPED LISTENER
+      {
         wrappedResultListener.result(iRecord);
+      }
 
     } catch (IOException e) {
       return false;
@@ -111,7 +113,7 @@ public class OAsyncCommandResultListener extends OAbstractCommandResultListener 
               alreadySent.add(iLinked.getIdentity());
               try {
                 protocol.channel.writeByte((byte) 2); // CACHE IT ON THE CLIENT
-                protocol.writeIdentifiable(protocol.channel, connection, iLinked);
+                ONetworkProtocolBinary.writeIdentifiable(protocol.channel, connection, iLinked);
               } catch (IOException e) {
                 OLogManager.instance().error(this, "Cannot write against channel", e);
               }
@@ -126,7 +128,9 @@ public class OAsyncCommandResultListener extends OAbstractCommandResultListener 
               String iFieldName,
               OFetchContext iContext)
               throws OFetchException {
-            if (iLinked instanceof ORecord) sendRecord((ORecord) iLinked);
+            if (iLinked instanceof ORecord) {
+              sendRecord((ORecord) iLinked);
+            }
           }
 
           @Override
@@ -137,7 +141,9 @@ public class OAsyncCommandResultListener extends OAbstractCommandResultListener 
               String iFieldName,
               OFetchContext iContext)
               throws OFetchException {
-            if (iLinked instanceof ORecord) sendRecord((ORecord) iLinked);
+            if (iLinked instanceof ORecord) {
+              sendRecord((ORecord) iLinked);
+            }
           }
         };
     final OFetchContext context = new ORemoteFetchContext();

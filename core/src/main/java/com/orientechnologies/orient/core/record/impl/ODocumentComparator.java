@@ -39,9 +39,10 @@ import java.util.Locale;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ODocumentComparator implements Comparator<OIdentifiable> {
-  private List<OPair<String, String>> orderCriteria;
-  private OCommandContext context;
-  private Collator collator;
+
+  private final List<OPair<String, String>> orderCriteria;
+  private final OCommandContext context;
+  private final Collator collator;
 
   public ODocumentComparator(
       final List<OPair<String, String>> iOrderCriteria, OCommandContext iContext) {
@@ -58,7 +59,9 @@ public class ODocumentComparator implements Comparator<OIdentifiable> {
 
   @SuppressWarnings("unchecked")
   public int compare(final OIdentifiable iDoc1, final OIdentifiable iDoc2) {
-    if (iDoc1 != null && iDoc1.equals(iDoc2)) return 0;
+    if (iDoc1 != null && iDoc1.equals(iDoc2)) {
+      return 0;
+    }
 
     Object fieldValue1;
     Object fieldValue2;
@@ -76,18 +79,24 @@ public class ODocumentComparator implements Comparator<OIdentifiable> {
         continue;
       }
 
-      if (fieldValue1 == null) return factor(-1, ordering);
+      if (fieldValue1 == null) {
+        return factor(-1, ordering);
+      }
 
-      if (fieldValue2 == null) return factor(1, ordering);
+      if (fieldValue2 == null) {
+        return factor(1, ordering);
+      }
 
       if (!(fieldValue1 instanceof Comparable<?>)) {
         context.incrementVariable(OBasicCommandContext.INVALID_COMPARE_COUNT);
         partialResult = ("" + fieldValue1).compareTo("" + fieldValue2);
       } else {
         try {
-          if (collator != null && fieldValue1 instanceof String && fieldValue2 instanceof String)
+          if (collator != null && fieldValue1 instanceof String && fieldValue2 instanceof String) {
             partialResult = collator.compare(fieldValue1, fieldValue2);
-          else partialResult = ((Comparable<Object>) fieldValue1).compareTo(fieldValue2);
+          } else {
+            partialResult = ((Comparable<Object>) fieldValue1).compareTo(fieldValue2);
+          }
         } catch (Exception ignore) {
           context.incrementVariable(OBasicCommandContext.INVALID_COMPARE_COUNT);
           partialResult = collator.compare("" + fieldValue1, "" + fieldValue2);
@@ -95,7 +104,9 @@ public class ODocumentComparator implements Comparator<OIdentifiable> {
       }
       partialResult = factor(partialResult, ordering);
 
-      if (partialResult != 0) break;
+      if (partialResult != 0) {
+        break;
+      }
 
       // CONTINUE WITH THE NEXT FIELD
     }
@@ -105,8 +116,10 @@ public class ODocumentComparator implements Comparator<OIdentifiable> {
 
   private int factor(final int partialResult, final String iOrdering) {
     if (iOrdering.equals(OCommandExecutorSQLSelect.KEYWORD_DESC))
-      // INVERT THE ORDERING
+    // INVERT THE ORDERING
+    {
       return partialResult * -1;
+    }
 
     return partialResult;
   }

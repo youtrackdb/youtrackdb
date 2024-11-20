@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class OContainsAllCondition extends OBooleanExpression {
@@ -40,8 +41,7 @@ public class OContainsAllCondition extends OBooleanExpression {
       if (right instanceof Iterable) {
         right = ((Iterable) right).iterator();
       }
-      if (right instanceof Iterator) {
-        Iterator iterator = (Iterator) right;
+      if (right instanceof Iterator iterator) {
         while (iterator.hasNext()) {
           Object next = iterator.next();
           boolean found = false;
@@ -63,13 +63,12 @@ public class OContainsAllCondition extends OBooleanExpression {
     if (left instanceof Iterable) {
       left = ((Iterable) left).iterator();
     }
-    if (left instanceof Iterator) {
+    if (left instanceof Iterator leftIterator) {
       if (!(right instanceof Iterable)) {
         right = Collections.singleton(right);
       }
       right = ((Iterable) right).iterator();
 
-      Iterator leftIterator = (Iterator) left;
       Iterator rightIterator = (Iterator) right;
       while (rightIterator.hasNext()) {
         Object leftItem = rightIterator.next();
@@ -229,10 +228,7 @@ public class OContainsAllCondition extends OBooleanExpression {
     if (right != null && !right.supportsBasicCalculation()) {
       return false;
     }
-    if (rightBlock != null && !rightBlock.supportsBasicCalculation()) {
-      return false;
-    }
-    return true;
+    return rightBlock == null || rightBlock.supportsBasicCalculation();
   }
 
   @Override
@@ -274,10 +270,7 @@ public class OContainsAllCondition extends OBooleanExpression {
     if (right != null && right.needsAliases(aliases)) {
       return true;
     }
-    if (rightBlock != null && rightBlock.needsAliases(aliases)) {
-      return true;
-    }
-    return false;
+    return rightBlock != null && rightBlock.needsAliases(aliases);
   }
 
   @Override
@@ -308,25 +301,27 @@ public class OContainsAllCondition extends OBooleanExpression {
     if (right != null && right.refersToParent()) {
       return true;
     }
-    if (rightBlock != null && rightBlock.refersToParent()) {
-      return true;
-    }
-    return false;
+    return rightBlock != null && rightBlock.refersToParent();
   }
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OContainsAllCondition that = (OContainsAllCondition) o;
 
-    if (left != null ? !left.equals(that.left) : that.left != null) return false;
-    if (right != null ? !right.equals(that.right) : that.right != null) return false;
-    if (rightBlock != null ? !rightBlock.equals(that.rightBlock) : that.rightBlock != null)
+    if (!Objects.equals(left, that.left)) {
       return false;
-
-    return true;
+    }
+    if (!Objects.equals(right, that.right)) {
+      return false;
+    }
+    return Objects.equals(rightBlock, that.rightBlock);
   }
 
   @Override
@@ -368,10 +363,7 @@ public class OContainsAllCondition extends OBooleanExpression {
       return false;
     }
 
-    if (rightBlock != null && !rightBlock.isCacheable()) {
-      return false;
-    }
-    return true;
+    return rightBlock == null || rightBlock.isCacheable();
   }
 }
 /* JavaCC - OriginalChecksum=ab7b4e192a01cda09a82d5b80ef4ec60 (do not edit this line) */

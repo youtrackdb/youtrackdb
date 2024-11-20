@@ -82,7 +82,7 @@ public class SQLFindReferencesTest extends DocumentDBBaseTest {
         database.command("find references " + janeDoeID + " [" + WORKPLACE + "]").stream().toList();
 
     Assert.assertEquals(result.size(), 1);
-    Assert.assertTrue(result.iterator().next().getProperty("referredBy").equals(ctuID));
+    Assert.assertEquals(ctuID, result.iterator().next().getProperty("referredBy"));
 
     result =
         database

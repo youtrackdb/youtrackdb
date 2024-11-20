@@ -68,14 +68,14 @@ public class CreateEdgesStep extends AbstractExecutionStep {
     OIndex uniqueIndex = findIndex(this.uniqueIndexName);
     Stream<OResult> stream =
         StreamSupport.stream(Spliterators.spliteratorUnknownSize(fromIter, 0), false)
-            .map(this::asVertex)
+            .map(CreateEdgesStep::asVertex)
             .flatMap((currentFrom) -> mapTo(toList, currentFrom, uniqueIndex));
     return OExecutionStream.resultIterator(stream.iterator());
   }
 
   private OIndex findIndex(String uniqueIndexName) {
     if (uniqueIndexName != null) {
-      final ODatabaseSessionInternal database = (ODatabaseSessionInternal) ctx.getDatabase();
+      final ODatabaseSessionInternal database = ctx.getDatabase();
       OIndex uniqueIndex =
           database.getMetadata().getIndexManagerInternal().getIndex(database, uniqueIndexName);
       if (uniqueIndex == null) {
@@ -169,7 +169,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
             });
   }
 
-  private OEdge getExistingEdge(
+  private static OEdge getExistingEdge(
       ODatabaseSessionInternal session,
       OVertex currentFrom,
       OVertex currentTo,
@@ -190,7 +190,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
     return null;
   }
 
-  private OVertex asVertex(Object currentFrom) {
+  private static OVertex asVertex(Object currentFrom) {
     if (currentFrom instanceof ORID) {
       currentFrom = ((ORID) currentFrom).getRecord();
     }
@@ -201,8 +201,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
               .getVertex()
               .orElseThrow(
                   () ->
-                      new OCommandExecutionException(
-                          "Invalid vertex for edge creation: " + from.toString()));
+                      new OCommandExecutionException("Invalid vertex for edge creation: " + from));
     }
     if (currentFrom instanceof OVertex) {
       return (OVertex) currentFrom;
@@ -212,9 +211,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
       return ((OElement) currentFrom)
           .asVertex()
           .orElseThrow(
-              () ->
-                  new OCommandExecutionException(
-                      "Invalid vertex for edge creation: " + from.toString()));
+              () -> new OCommandExecutionException("Invalid vertex for edge creation: " + from));
     }
     throw new OCommandExecutionException(
         "Invalid vertex for edge creation: "

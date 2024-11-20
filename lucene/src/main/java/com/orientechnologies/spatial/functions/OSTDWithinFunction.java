@@ -24,7 +24,9 @@ import com.orientechnologies.spatial.strategy.SpatialQueryBuilderDWithin;
 import java.util.Map;
 import org.locationtech.spatial4j.shape.Shape;
 
-/** Created by Enrico Risa on 12/08/15. */
+/**
+ * Created by Enrico Risa on 12/08/15.
+ */
 public class OSTDWithinFunction extends OSpatialFunctionAbstractIndexable {
 
   public static final String NAME = "st_dwithin";

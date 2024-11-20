@@ -33,6 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class CellBTreeMultiValueV2TestIT {
+
   private CellBTreeMultiValueV2<String> multiValueTree;
   private OrientDB orientDB;
   private OAbstractPaginatedStorage storage;
@@ -116,7 +117,7 @@ public class CellBTreeMultiValueV2TestIT {
         100,
         (value, rollback, atomicOperation) ->
             multiValueTree.remove(
-                atomicOperation, null, new ORecordId(3 * value % 32_000, 3 * value)));
+                atomicOperation, null, new ORecordId(3 * value % 32_000, 3L * value)));
 
     final List<ORID> result;
     try (Stream<ORID> stream = multiValueTree.get(null)) {
@@ -1508,10 +1509,12 @@ public class CellBTreeMultiValueV2TestIT {
   }
 
   private interface TxCode {
+
     void execute(int value, boolean rollback, OAtomicOperation atomicOperation) throws IOException;
   }
 
   static final class RollbackException extends OException implements OHighLevelException {
+
     public RollbackException() {
       this("");
     }

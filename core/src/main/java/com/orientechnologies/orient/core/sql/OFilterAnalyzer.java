@@ -248,7 +248,7 @@ public class OFilterAnalyzer {
    */
   private OIndexSearchResult createIndexedProperty(
       final OSQLFilterCondition iCondition, final Object iItem, OCommandContext ctx) {
-    if (iItem == null || !(iItem instanceof OSQLFilterItemField)) {
+    if (iItem == null || !(iItem instanceof OSQLFilterItemField item)) {
       return null;
     }
 
@@ -256,8 +256,6 @@ public class OFilterAnalyzer {
         && iCondition.getRight() instanceof OSQLFilterItemField) {
       return null;
     }
-
-    final OSQLFilterItemField item = (OSQLFilterItemField) iItem;
 
     if (item.hasChainOperators() && !item.isFieldChain()) {
       return null;

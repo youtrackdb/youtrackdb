@@ -4,6 +4,7 @@ import com.orientechnologies.common.serialization.types.OByteSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 
 public class AbsoluteChange implements Change {
+
   public static final byte TYPE = 1;
   private int value;
 
@@ -60,6 +61,8 @@ public class AbsoluteChange implements Change {
   }
 
   private void checkPositive() {
-    if (value < 0) value = 0;
+    if (value < 0) {
+      value = 0;
+    }
   }
 }

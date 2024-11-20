@@ -17,7 +17,7 @@ import org.junit.Test;
 
 public class OBinaryTokenSerializerTest {
 
-  private OBinaryTokenSerializer ser =
+  private final OBinaryTokenSerializer ser =
       new OBinaryTokenSerializer(
           new String[] {"plocal", "memory"},
           new String[] {"key"},

@@ -24,6 +24,7 @@ import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.OEdge;
@@ -49,7 +50,7 @@ import java.util.Set;
  */
 public class OHttpGraphResponse extends OHttpResponseAbstract {
 
-  private OHttpResponse iWrapped;
+  private final OHttpResponse iWrapped;
 
   public OHttpGraphResponse(final OHttpResponse iWrapped) {
     super(
@@ -117,16 +118,15 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
           continue;
         }
 
-        entry = ((OIdentifiable) entry).getRecord();
-
-        if (entry == null || !(entry instanceof OIdentifiable))
-        // IGNORE IT
-        {
+        try {
+          entry = ((OIdentifiable) entry).getRecord();
+        } catch (Exception e) {
+          // IGNORE IT
           continue;
         }
+        entry = ((OIdentifiable) entry).getRecord();
 
-        if (entry instanceof OElement) {
-          OElement element = (OElement) entry;
+        if (entry instanceof OElement element) {
           if (element.isVertex()) {
             vertices.add(element.asVertex().get());
           } else if (element.isEdge()) {
@@ -181,7 +181,7 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
       if (edgeRids.isEmpty()) {
         for (OVertex vertex : vertices) {
           for (OEdge e : vertex.getEdges(ODirection.OUT)) {
-            OEdge edge = (OEdge) e;
+            OEdge edge = e;
             if (edgeRids.contains(e.getIdentity())
                 && e.getIdentity() != null /* only for non-lighweight */) {
               continue;
@@ -200,13 +200,15 @@ public class OHttpGraphResponse extends OHttpResponseAbstract {
         }
       } else {
         for (ORID edgeRid : edgeRids) {
-          OElement elem = edgeRid.getRecord();
-          if (elem == null) {
-            continue;
-          }
-          OEdge edge = elem.asEdge().orElse(null);
-          if (edge != null) {
-            printEdge(json, edge);
+          try {
+            OElement elem = edgeRid.getRecord();
+            OEdge edge = elem.asEdge().orElse(null);
+
+            if (edge != null) {
+              printEdge(json, edge);
+            }
+          } catch (ORecordNotFoundException rnf) {
+            // ignore
           }
         }
       }

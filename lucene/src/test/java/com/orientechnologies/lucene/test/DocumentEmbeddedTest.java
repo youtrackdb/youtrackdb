@@ -26,7 +26,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by enricorisa on 03/09/14. */
+/**
+ * Created by enricorisa on 03/09/14.
+ */
 public class DocumentEmbeddedTest extends BaseLuceneTest {
 
   public DocumentEmbeddedTest() {}

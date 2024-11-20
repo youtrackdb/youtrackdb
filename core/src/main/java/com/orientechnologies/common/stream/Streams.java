@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public class Streams {
+
   public static <T> Stream<T> mergeSortedSpliterators(
       Stream<T> streamOne, Stream<T> streamTwo, Comparator<? super T> comparator) {
     final SortedStreamSpliterator<T> spliterator =
@@ -18,6 +19,7 @@ public class Streams {
   }
 
   private static final class SortedStreamSpliterator<T> implements Spliterator<T>, Consumer<T> {
+
     private boolean firstStream;
 
     private final Spliterator<T> firstSpliterator;

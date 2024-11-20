@@ -24,6 +24,7 @@ package com.orientechnologies.orient.core.storage.cache.chm;
  * @author ben.manes@gmail.com (Ben Manes)
  */
 interface Admittor {
+
   void ensureCapacity(long maximumSize);
 
   int frequency(int hash);

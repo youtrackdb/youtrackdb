@@ -12,7 +12,9 @@ import com.orientechnologies.orient.core.sql.OCommandExecutorSQLCreateIndex;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.server.distributed.impl.ODatabaseDocumentDistributed;
 
-/** Created by tglman on 23/06/17. */
+/**
+ * Created by tglman on 23/06/17.
+ */
 public class OIndexManagerDistributed extends OIndexManagerShared {
 
   public OIndexManagerDistributed(OStorage storage) {
@@ -97,19 +99,26 @@ public class OIndexManagerDistributed extends OIndexManagerShared {
       String engine) {
 
     String createIndexDDL;
-    if (iIndexDefinition != null)
+    if (iIndexDefinition != null) {
       createIndexDDL = iIndexDefinition.toCreateIndexDDL(iName, iType, engine);
-    else createIndexDDL = new OSimpleKeyIndexDefinition().toCreateIndexDDL(iName, iType, engine);
+    } else {
+      createIndexDDL = new OSimpleKeyIndexDefinition().toCreateIndexDDL(iName, iType, engine);
+    }
 
-    if (metadata != null)
+    if (metadata != null) {
       createIndexDDL +=
           " " + OCommandExecutorSQLCreateIndex.KEYWORD_METADATA + " " + metadata.toJSON();
+    }
 
-    if (progressListener != null) progressListener.onBegin(this, 0, false);
+    if (progressListener != null) {
+      progressListener.onBegin(this, 0, false);
+    }
 
     sendCommand(database, createIndexDDL);
 
-    if (progressListener != null) progressListener.onCompletition(this, true);
+    if (progressListener != null) {
+      progressListener.onCompletition(this, true);
+    }
 
     reload();
 

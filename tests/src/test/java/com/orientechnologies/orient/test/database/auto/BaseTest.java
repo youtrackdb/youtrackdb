@@ -227,7 +227,7 @@ public abstract class BaseTest<T extends ODatabaseSessionInternal> {
   }
 
   protected OIndex getIndex(final String indexName) {
-    final ODatabaseSessionInternal db = (ODatabaseSessionInternal) database;
+    final ODatabaseSessionInternal db = database;
 
     return (db.getMetadata()).getIndexManagerInternal().getIndex(db, indexName);
   }

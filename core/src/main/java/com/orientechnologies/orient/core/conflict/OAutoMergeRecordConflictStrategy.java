@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OAutoMergeRecordConflictStrategy extends OVersionRecordConflictStrategy {
+
   public static final String NAME = "automerge";
 
   @Override
@@ -50,8 +51,9 @@ public class OAutoMergeRecordConflictStrategy extends OVersionRecordConflictStra
       final ODocument storedRecord = new ODocument(rid).fromStream(res.buffer);
 
       ODocument newRecord = (ODocument) ORecordSaveThreadLocal.getLast();
-      if (newRecord == null || !newRecord.getIdentity().equals(rid))
+      if (newRecord == null || !newRecord.getIdentity().equals(rid)) {
         newRecord = new ODocument(rid).fromStream(iRecordContent);
+      }
 
       storedRecord.merge(newRecord, true, true);
 
@@ -59,8 +61,10 @@ public class OAutoMergeRecordConflictStrategy extends OVersionRecordConflictStra
 
       return storedRecord.toStream();
     } else
-      // NO DOCUMENT, CANNOT MERGE SO RELY TO THE VERSION CHECK
+    // NO DOCUMENT, CANNOT MERGE SO RELY TO THE VERSION CHECK
+    {
       checkVersions(rid, iRecordVersion, iDatabaseVersion.get());
+    }
 
     return null;
   }

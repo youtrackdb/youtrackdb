@@ -43,6 +43,7 @@ import java.util.concurrent.TimeUnit;
  * @author Luca Garulli
  */
 public class ORemoteServerChannel {
+
   private final ORemoteServerAvailabilityCheck check;
   private final String url;
   private final String remoteHost;
@@ -86,7 +87,7 @@ public class ORemoteServerChannel {
     this.userName = user;
     this.userPassword = passwd;
 
-    final int sepPos = iURL.lastIndexOf(":");
+    final int sepPos = iURL.lastIndexOf(':');
     remoteHost = iURL.substring(0, sepPos);
     remotePort = Integer.parseInt(iURL.substring(sepPos + 1));
     long timeout =
@@ -131,6 +132,7 @@ public class ORemoteServerChannel {
   }
 
   public interface OStorageRemoteOperation<T> {
+
     T execute() throws IOException;
   }
 
@@ -253,7 +255,9 @@ public class ORemoteServerChannel {
   }
 
   private void networkClose() {
-    if (channel != null) channel.close();
+    if (channel != null) {
+      channel.close();
+    }
 
     sessionId = -1;
     sessionToken = null;
@@ -288,13 +292,17 @@ public class ORemoteServerChannel {
 
         networkClose();
 
-        if (!autoReconnect) break;
+        if (!autoReconnect) {
+          break;
+        }
 
-        if (!check.isNodeAvailable(server)) break;
+        if (!check.isNodeAvailable(server)) {
+          break;
+        }
 
         if (retry > 1) {
           try {
-            Thread.sleep(100 * (retry * 2));
+            Thread.sleep(100 * (retry * 2L));
           } catch (InterruptedException e1) {
             break;
           }
@@ -313,7 +321,9 @@ public class ORemoteServerChannel {
       }
     }
 
-    if (lastException == null) handleNewError();
+    if (lastException == null) {
+      handleNewError();
+    }
 
     return null;
   }

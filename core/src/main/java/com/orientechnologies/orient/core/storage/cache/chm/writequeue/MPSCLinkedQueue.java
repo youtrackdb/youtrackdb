@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.storage.cache.chm.writequeue;
 import java.util.concurrent.atomic.AtomicReference;
 
 public final class MPSCLinkedQueue<E> {
+
   private final AtomicReference<Node<E>> head = new AtomicReference<>();
   private final AtomicReference<Node<E>> tail = new AtomicReference<>();
 

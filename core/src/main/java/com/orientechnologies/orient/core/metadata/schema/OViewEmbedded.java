@@ -59,9 +59,13 @@ public class OViewEmbedded extends OViewImpl {
     try {
       checkEmbedded();
 
-      if (subclasses == null) return this;
+      if (subclasses == null) {
+        return this;
+      }
 
-      if (subclasses.remove(baseClass)) removePolymorphicClusterIds((OClassImpl) baseClass);
+      if (subclasses.remove(baseClass)) {
+        removePolymorphicClusterIds((OClassImpl) baseClass);
+      }
 
       return this;
     } finally {
@@ -83,9 +87,11 @@ public class OViewEmbedded extends OViewImpl {
     List<OClassImpl> newSuperClasses = new ArrayList<OClassImpl>();
     OClassImpl cls;
     for (OClass superClass : classes) {
-      if (superClass instanceof OClassAbstractDelegate)
+      if (superClass instanceof OClassAbstractDelegate) {
         cls = (OClassImpl) ((OClassAbstractDelegate) superClass).delegate;
-      else cls = (OClassImpl) superClass;
+      } else {
+        cls = (OClassImpl) superClass;
+      }
 
       if (newSuperClasses.contains(cls)) {
         throw new OSchemaException("Duplicated superclass '" + cls.getName() + "'");
@@ -130,10 +136,13 @@ public class OViewEmbedded extends OViewImpl {
 
       owner.checkClusterCanBeAdded(clusterId, this);
 
-      for (int currId : clusterIds)
+      for (int currId : clusterIds) {
         if (currId == clusterId)
-          // ALREADY ADDED
+        // ALREADY ADDED
+        {
           return this;
+        }
+      }
 
       clusterIds = OArrays.copyOf(clusterIds, clusterIds.length + 1);
       clusterIds[clusterIds.length - 1] = clusterId;
@@ -141,7 +150,9 @@ public class OViewEmbedded extends OViewImpl {
 
       onlyAddPolymorphicClusterId(clusterId);
 
-      if (defaultClusterId == NOT_EXISTENT_CLUSTER_ID) defaultClusterId = clusterId;
+      if (defaultClusterId == NOT_EXISTENT_CLUSTER_ID) {
+        defaultClusterId = clusterId;
+      }
 
       ((OSchemaEmbedded) owner).addClusterForView(database, clusterId, this);
       return this;
@@ -158,7 +169,9 @@ public class OViewEmbedded extends OViewImpl {
     return new OPropertyEmbedded(this);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public OClass truncateCluster(String clusterName) {
     throw new UnsupportedOperationException();
@@ -194,11 +207,12 @@ public class OViewEmbedded extends OViewImpl {
     final ODatabaseSessionInternal database = getDatabase();
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    if (clusterIds.length == 1 && clusterId == clusterIds[0])
+    if (clusterIds.length == 1 && clusterId == clusterIds[0]) {
       throw new ODatabaseException(
           " Impossible to remove the last cluster of class '"
               + getName()
               + "' drop the class instead");
+    }
 
     acquireSchemaWriteLock();
     try {
@@ -229,8 +243,10 @@ public class OViewEmbedded extends OViewImpl {
         final int[] newClusterIds = new int[clusterIds.length - 1];
         for (int i = 0, k = 0; i < clusterIds.length; ++i) {
           if (clusterIds[i] == clusterToRemove)
-            // JUMP IT
+          // JUMP IT
+          {
             continue;
+          }
 
           newClusterIds[k] = clusterIds[i];
           k++;
@@ -241,8 +257,11 @@ public class OViewEmbedded extends OViewImpl {
       }
 
       if (defaultClusterId == clusterToRemove) {
-        if (clusterIds.length >= 1) defaultClusterId = clusterIds[0];
-        else defaultClusterId = NOT_EXISTENT_CLUSTER_ID;
+        if (clusterIds.length >= 1) {
+          defaultClusterId = clusterIds[0];
+        } else {
+          defaultClusterId = NOT_EXISTENT_CLUSTER_ID;
+        }
       }
 
       ((OSchemaEmbedded) owner).removeClusterForView(database, clusterToRemove, this);
@@ -293,10 +312,14 @@ public class OViewEmbedded extends OViewImpl {
     final String clusterName = getDatabase().getClusterNameById(iId);
     final List<String> indexesToAdd = new ArrayList<String>();
 
-    for (OIndex index : getIndexes()) indexesToAdd.add(index.getName());
+    for (OIndex index : getIndexes()) {
+      indexesToAdd.add(index.getName());
+    }
 
     final OIndexManagerAbstract indexManager =
         getDatabase().getMetadata().getIndexManagerInternal();
-    for (String indexName : indexesToAdd) indexManager.addClusterToIndex(clusterName, indexName);
+    for (String indexName : indexesToAdd) {
+      indexManager.addClusterToIndex(clusterName, indexName);
+    }
   }
 }

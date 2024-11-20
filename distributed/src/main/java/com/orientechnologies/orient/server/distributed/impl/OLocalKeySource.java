@@ -12,6 +12,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 public final class OLocalKeySource implements OLockKeySource {
+
   private final OTransactionId txId;
   private final OTransactionInternal iTx;
   private final ODatabaseDocumentDistributed database;

@@ -45,7 +45,7 @@ import java.util.List;
  *       values of undefined size.
  *   <li>Entities itself
  * </ol>
- *
+ * <p>
  * So if 1-st and 2-nd fields are clear. We should discuss the last ones. Entities in bucket are
  * sorted by key's hash code so each entity has following storage format in bucket: key's hash code
  * (8 bytes), key, value. Because entities are stored in sorted order it means that every time when
@@ -56,7 +56,7 @@ import java.util.List;
  *   <li>The more amount of memory is affected in operation the less speed we will have. In worst
  *       case 60 kb of memory should be moved.
  * </ol>
- *
+ * <p>
  * To avoid disadvantages listed above entries ara appended to the end of bucket, but their offsets
  * are stored at the beginning of bucket. Offsets are stored in sorted order (ordered by hash code
  * of entity's key) so we need to move only small amount of memory to store entities in sorted
@@ -79,6 +79,7 @@ import java.util.List;
  * @since 12.03.13
  */
 public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashTable<K, V> {
+
   private static final int MAX_KEY_SIZE =
       OGlobalConfiguration.SBTREE_MAX_KEY_SIZE.getValueAsInteger();
 
@@ -295,7 +296,7 @@ public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashT
               final boolean found;
 
               try (final OCacheEntry cacheEntry =
-                  loadPageForWrite(atomicOperation, fileId, pageIndex, true); ) {
+                  loadPageForWrite(atomicOperation, fileId, pageIndex, true)) {
                 final OHashIndexBucket<K, V> bucket =
                     new OHashIndexBucket<>(cacheEntry, keySerializer, valueSerializer, keyTypes);
                 final int positionIndex = bucket.getIndex(hashCode, key);
@@ -333,7 +334,7 @@ public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashT
               V removed;
 
               try (OCacheEntry cacheEntry =
-                  loadOrAddPageForWrite(atomicOperation, nullBucketFileId, 0); ) {
+                  loadOrAddPageForWrite(atomicOperation, nullBucketFileId, 0)) {
                 final ONullBucket<V> nullBucket =
                     new ONullBucket<>(cacheEntry, valueSerializer, false);
 
@@ -1516,7 +1517,7 @@ public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashT
         directory.setNodePointer(
             parentNodeIndex,
             startIndex + i,
-            (bucketPath.nodeIndex << 8) | (i * hashMapSize) | Long.MIN_VALUE,
+            ((long) bucketPath.nodeIndex << 8) | ((long) i * hashMapSize) | Long.MIN_VALUE,
             atomicOperation);
       }
     }
@@ -1532,7 +1533,7 @@ public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashT
         directory.setNodePointer(
             parentNodeIndex,
             startIndex + pointersSize + i,
-            (newNodeIndex << 8) | (i * hashMapSize) | Long.MIN_VALUE,
+            ((long) newNodeIndex << 8) | ((long) i * hashMapSize) | Long.MIN_VALUE,
             atomicOperation);
       }
     }
@@ -1655,7 +1656,7 @@ public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashT
       directory.setNodePointer(
           nodeIndex,
           nodeOffset,
-          (newNodeIndex << 8) | (i * mapSize) | Long.MIN_VALUE,
+          ((long) newNodeIndex << 8) | ((long) i * mapSize) | Long.MIN_VALUE,
           atomicOperation);
     }
 
@@ -1944,7 +1945,7 @@ public class OLocalHashTableV3<K, V> extends ODurableComponent implements OHashT
 
     for (long pageIndex = 0; pageIndex < MAX_LEVEL_SIZE; pageIndex++) {
 
-      try (final OCacheEntry cacheEntry = addPage(atomicOperation, fileId); ) {
+      try (final OCacheEntry cacheEntry = addPage(atomicOperation, fileId)) {
         assert cacheEntry.getPageIndex() == pageIndex;
         @SuppressWarnings("unused")
         final OHashIndexBucket<K, V> emptyBucket =

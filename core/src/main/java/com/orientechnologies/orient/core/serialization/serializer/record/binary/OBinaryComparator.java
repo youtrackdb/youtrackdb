@@ -28,10 +28,11 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OBinaryComparator {
+
   /**
    * Compares if two binary values are the same.
    *
-   * @param iFirstValue First value to compare
+   * @param iFirstValue  First value to compare
    * @param iSecondValue Second value to compare
    * @return true if they match, otherwise false
    */

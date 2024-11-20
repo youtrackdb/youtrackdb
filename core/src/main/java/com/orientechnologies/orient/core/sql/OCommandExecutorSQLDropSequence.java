@@ -15,6 +15,7 @@ import java.util.Map;
  */
 public class OCommandExecutorSQLDropSequence extends OCommandExecutorSQLAbstract
     implements OCommandDistributedReplicateRequest {
+
   public static final String KEYWORD_DROP = "DROP";
   public static final String KEYWORD_SEQUENCE = "SEQUENCE";
 

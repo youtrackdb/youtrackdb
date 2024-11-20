@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class OTruncateClassStatement extends ODDLStatement {
 
@@ -31,7 +32,7 @@ public class OTruncateClassStatement extends ODDLStatement {
 
   @Override
   public OExecutionStream executeDDL(OCommandContext ctx) {
-    ODatabaseSessionInternal db = (ODatabaseSessionInternal) ctx.getDatabase();
+    ODatabaseSessionInternal db = ctx.getDatabase();
     OSchema schema = db.getMetadata().getSchema();
     OClass clazz = schema.getClass(className.getStringValue());
     if (clazz == null) {
@@ -127,17 +128,22 @@ public class OTruncateClassStatement extends ODDLStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OTruncateClassStatement that = (OTruncateClassStatement) o;
 
-    if (polymorphic != that.polymorphic) return false;
-    if (unsafe != that.unsafe) return false;
-    if (className != null ? !className.equals(that.className) : that.className != null)
+    if (polymorphic != that.polymorphic) {
       return false;
-
-    return true;
+    }
+    if (unsafe != that.unsafe) {
+      return false;
+    }
+    return Objects.equals(className, that.className);
   }
 
   @Override

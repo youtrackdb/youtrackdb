@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.OContextualRecordId;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -40,18 +41,18 @@ public class OResultInternal implements OResult {
   protected Map<String, Object> content;
   protected Map<String, Object> temporaryContent;
   protected Map<String, Object> metadata;
-  protected OIdentifiable element;
+  @Nullable protected OIdentifiable identifiable;
 
   public OResultInternal() {
     content = new LinkedHashMap<>();
   }
 
   public OResultInternal(OIdentifiable ident) {
-    setElement(ident);
+    setIdentifiable(ident);
   }
 
   public void setProperty(String name, Object value) {
-    assert element == null;
+    assert identifiable == null;
     if (value instanceof Optional) {
       value = ((Optional) value).orElse(null);
     }
@@ -69,11 +70,11 @@ public class OResultInternal implements OResult {
   @Nullable
   @Override
   public ORID getRecordId() {
-    if (element == null) {
+    if (identifiable == null) {
       return null;
     }
 
-    return element.getIdentity();
+    return identifiable.getIdentity();
   }
 
   private void checkType(Object value) {
@@ -131,13 +132,13 @@ public class OResultInternal implements OResult {
   }
 
   public <T> T getProperty(String name) {
-    loadElement();
+    loadIdentifiable();
     T result = null;
     if (content != null && content.containsKey(name)) {
       result = (T) wrap(content.get(name));
     } else {
       if (isElement()) {
-        result = (T) wrap((T) ODocumentInternal.rawPropertyRead((OElement) element, name));
+        result = (T) wrap(ODocumentInternal.rawPropertyRead((OElement) identifiable, name));
       }
     }
     if (result instanceof OIdentifiable && ((OIdentifiable) result).getIdentity().isPersistent()) {
@@ -148,13 +149,14 @@ public class OResultInternal implements OResult {
 
   @Override
   public OElement getElementProperty(String name) {
-    loadElement();
+    loadIdentifiable();
+
     Object result = null;
     if (content != null && content.containsKey(name)) {
       result = content.get(name);
     } else {
       if (isElement()) {
-        result = ODocumentInternal.rawPropertyRead((OElement) element, name);
+        result = ODocumentInternal.rawPropertyRead((OElement) identifiable, name);
       }
     }
 
@@ -171,13 +173,13 @@ public class OResultInternal implements OResult {
 
   @Override
   public OVertex getVertexProperty(String name) {
-    loadElement();
+    loadIdentifiable();
     Object result = null;
     if (content != null && content.containsKey(name)) {
       result = content.get(name);
     } else {
       if (isElement()) {
-        result = ODocumentInternal.rawPropertyRead((OElement) element, name);
+        result = ODocumentInternal.rawPropertyRead((OElement) identifiable, name);
       }
     }
 
@@ -194,13 +196,13 @@ public class OResultInternal implements OResult {
 
   @Override
   public OEdge getEdgeProperty(String name) {
-    loadElement();
+    loadIdentifiable();
     Object result = null;
     if (content != null && content.containsKey(name)) {
       result = content.get(name);
     } else {
       if (isElement()) {
-        result = ODocumentInternal.rawPropertyRead((OElement) element, name);
+        result = ODocumentInternal.rawPropertyRead((OElement) identifiable, name);
       }
     }
 
@@ -217,13 +219,13 @@ public class OResultInternal implements OResult {
 
   @Override
   public OBlob getBlobProperty(String name) {
-    loadElement();
+    loadIdentifiable();
     Object result = null;
     if (content != null && content.containsKey(name)) {
       result = content.get(name);
     } else {
       if (isElement()) {
-        result = ODocumentInternal.rawPropertyRead((OElement) element, name);
+        result = ODocumentInternal.rawPropertyRead((OElement) identifiable, name);
       }
     }
 
@@ -284,9 +286,9 @@ public class OResultInternal implements OResult {
   }
 
   public Collection<String> getPropertyNames() {
-    loadElement();
+    loadIdentifiable();
     if (isElement()) {
-      return ((OElement) element).getPropertyNames();
+      return ((OElement) identifiable).getPropertyNames();
     } else {
       if (content != null) {
         return new LinkedHashSet<>(content.keySet());
@@ -297,8 +299,8 @@ public class OResultInternal implements OResult {
   }
 
   public boolean hasProperty(String propName) {
-    loadElement();
-    if (isElement() && ((OElement) element).hasProperty(propName)) {
+    loadIdentifiable();
+    if (isElement() && ((OElement) identifiable).hasProperty(propName)) {
       return true;
     }
     if (content != null) {
@@ -309,31 +311,36 @@ public class OResultInternal implements OResult {
 
   @Override
   public boolean isElement() {
-    if (element == null) {
+    if (identifiable == null) {
       return false;
     }
-    if (element instanceof OElement) {
+
+    if (identifiable instanceof OElement) {
       return true;
     }
-    if (element.getRecord() instanceof OElement) {
-      return true;
+
+    try {
+      identifiable = identifiable.getRecord();
+    } catch (ORecordNotFoundException e) {
+      identifiable = null;
     }
-    return false;
+
+    return identifiable instanceof OElement;
   }
 
   public Optional<OElement> getElement() {
-    loadElement();
+    loadIdentifiable();
     if (isElement()) {
-      return Optional.ofNullable((OElement) element);
+      return Optional.ofNullable((OElement) identifiable);
     }
     return Optional.empty();
   }
 
   @Override
   public OElement asElement() {
-    loadElement();
+    loadIdentifiable();
     if (isElement()) {
-      return (OElement) element;
+      return (OElement) identifiable;
     }
 
     return null;
@@ -382,34 +389,35 @@ public class OResultInternal implements OResult {
 
   @Override
   public Optional<ORID> getIdentity() {
-    if (element != null) {
-      return Optional.of(element.getIdentity());
+    if (identifiable != null) {
+      return Optional.of(identifiable.getIdentity());
     }
     return Optional.empty();
   }
 
   @Override
   public boolean isProjection() {
-    return this.element == null;
+    return this.identifiable == null;
   }
 
   @Override
   public Optional<ORecord> getRecord() {
-    if (this.element == null) {
-      return Optional.empty();
-    }
-    return Optional.ofNullable(this.element.getRecord());
+    loadIdentifiable();
+    return Optional.ofNullable((ORecord) this.identifiable);
   }
 
   @Override
   public boolean isBlob() {
-    return this.element != null && this.element.getRecord() instanceof OBlob;
+    loadIdentifiable();
+    return this.identifiable instanceof OBlob;
   }
 
   @Override
   public Optional<OBlob> getBlob() {
+    loadIdentifiable();
+
     if (isBlob()) {
-      return Optional.ofNullable(this.element.getRecord());
+      return Optional.ofNullable((OBlob) this.identifiable);
     }
     return Optional.empty();
   }
@@ -482,36 +490,46 @@ public class OResultInternal implements OResult {
     return property;
   }
 
-  public void loadElement() {
-    if (element == null) {
+  public void loadIdentifiable() {
+    if (identifiable == null) {
       return;
     }
-    if (element instanceof OElement elem) {
+
+    if (identifiable instanceof OElement elem) {
       if (elem.isUnloaded()) {
         var id = elem.getIdentity();
         if (id != null && id.isValid()) {
-          element = ODatabaseSession.getActiveSession().bindToSession(elem);
+          try {
+            identifiable = ODatabaseSession.getActiveSession().bindToSession(elem);
+          } catch (ORecordNotFoundException rnf) {
+            identifiable = null;
+          }
         }
       }
+
       return;
     }
 
-    if (element instanceof OContextualRecordId) {
-      this.addMetadata(((OContextualRecordId) element).getContext());
+    if (identifiable instanceof OContextualRecordId) {
+      this.addMetadata(((OContextualRecordId) identifiable).getContext());
     }
 
-    this.element = element.getRecord();
+    try {
+      this.identifiable = identifiable.getRecord();
+    } catch (ORecordNotFoundException rnf) {
+      identifiable = null;
+    }
   }
 
-  public void setElement(OIdentifiable element) {
-    this.element = element;
+  public void setIdentifiable(OIdentifiable identifiable) {
+    this.identifiable = identifiable;
     this.content = null;
   }
 
   @Override
   public String toString() {
-    if (element != null) {
-      return element.toString();
+    if (identifiable != null) {
+      return identifiable.toString();
     }
     return "{\n"
         + content.entrySet().stream()
@@ -525,15 +543,14 @@ public class OResultInternal implements OResult {
     if (this == obj) {
       return true;
     }
-    if (!(obj instanceof OResultInternal)) {
+    if (!(obj instanceof OResultInternal resultObj)) {
       return false;
     }
-    OResultInternal resultObj = (OResultInternal) obj;
-    if (element != null) {
+    if (identifiable != null) {
       if (!resultObj.getElement().isPresent()) {
         return false;
       }
-      return element.equals(resultObj.getElement().get());
+      return identifiable.equals(resultObj.getElement().get());
     } else {
       if (resultObj.getElement().isPresent()) {
         return false;
@@ -548,8 +565,8 @@ public class OResultInternal implements OResult {
 
   @Override
   public int hashCode() {
-    if (element != null) {
-      return element.hashCode();
+    if (identifiable != null) {
+      return identifiable.hashCode();
     }
     if (content != null) {
       return content.hashCode();
@@ -560,7 +577,7 @@ public class OResultInternal implements OResult {
 
   public void bindToCache(ODatabaseSessionInternal db) {
     if (isRecord()) {
-      ORecordAbstract rec = element.getRecord();
+      ORecordAbstract rec = identifiable.getRecord();
       var identity = rec.getIdentity();
       ORecordAbstract cached = db.getLocalCache().findRecord(identity);
 
@@ -572,7 +589,7 @@ public class OResultInternal implements OResult {
         if (!cached.isDirty()) {
           rec.copyTo(cached);
         }
-        element = cached;
+        identifiable = cached;
       } else {
         if (!identity.isPersistent()) {
           return;

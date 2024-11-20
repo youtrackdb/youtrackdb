@@ -45,6 +45,7 @@ import java.util.regex.Pattern;
 @SuppressWarnings("unchecked")
 public class OCommandExecutorSQLAlterCluster extends OCommandExecutorSQLAbstract
     implements OCommandDistributedReplicateRequest {
+
   public static final String KEYWORD_ALTER = "ALTER";
   public static final String KEYWORD_CLUSTER = "CLUSTER";
 
@@ -68,34 +69,40 @@ public class OCommandExecutorSQLAlterCluster extends OCommandExecutorSQLAbstract
 
       int oldPos = 0;
       int pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
-      if (pos == -1 || !word.toString().equals(KEYWORD_ALTER))
+      if (pos == -1 || !word.toString().equals(KEYWORD_ALTER)) {
         throw new OCommandSQLParsingException(
             "Keyword " + KEYWORD_ALTER + " not found. Use " + getSyntax(), parserText, oldPos);
+      }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
-      if (pos == -1 || !word.toString().equals(KEYWORD_CLUSTER))
+      if (pos == -1 || !word.toString().equals(KEYWORD_CLUSTER)) {
         throw new OCommandSQLParsingException(
             "Keyword " + KEYWORD_CLUSTER + " not found. Use " + getSyntax(), parserText, oldPos);
+      }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, false);
-      if (pos == -1)
+      if (pos == -1) {
         throw new OCommandSQLParsingException(
             "Expected <cluster-name>. Use " + getSyntax(), parserText, oldPos);
+      }
 
       clusterName = word.toString();
       clusterName = decodeClassName(clusterName);
 
       final Pattern p = Pattern.compile("([0-9]*)");
       final Matcher m = p.matcher(clusterName);
-      if (m.matches()) clusterId = Integer.parseInt(clusterName);
+      if (m.matches()) {
+        clusterId = Integer.parseInt(clusterName);
+      }
 
       oldPos = pos;
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
-      if (pos == -1)
+      if (pos == -1) {
         throw new OCommandSQLParsingException(
             "Missing cluster attribute to change. Use " + getSyntax(), parserText, oldPos);
+      }
 
       final String attributeAsString = word.toString();
 
@@ -121,7 +128,7 @@ public class OCommandExecutorSQLAlterCluster extends OCommandExecutorSQLAbstract
         value = value.replaceAll(" ", ""); // no spaces in cluster names
       }
 
-      if (value.length() == 0)
+      if (value.length() == 0) {
         throw new OCommandSQLParsingException(
             "Missing property value to change for attribute '"
                 + attribute
@@ -129,8 +136,11 @@ public class OCommandExecutorSQLAlterCluster extends OCommandExecutorSQLAbstract
                 + getSyntax(),
             parserText,
             oldPos);
+      }
 
-      if (value.equalsIgnoreCase("null")) value = null;
+      if (value.equalsIgnoreCase("null")) {
+        value = null;
+      }
     } finally {
       textRequest.setText(originalQuery);
     }
@@ -138,16 +148,20 @@ public class OCommandExecutorSQLAlterCluster extends OCommandExecutorSQLAbstract
     return this;
   }
 
-  /** Execute the ALTER CLASS. */
+  /**
+   * Execute the ALTER CLASS.
+   */
   public Object execute(final Map<Object, Object> iArgs) {
-    if (attribute == null)
+    if (attribute == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
+    }
 
     final IntArrayList clusters = getClusters();
 
-    if (clusters.isEmpty())
+    if (clusters.isEmpty()) {
       throw new OCommandExecutionException("Cluster '" + clusterName + "' not found");
+    }
 
     Object result = null;
 
@@ -189,7 +203,9 @@ public class OCommandExecutorSQLAlterCluster extends OCommandExecutorSQLAbstract
       final String toMatch =
           clusterName.substring(0, clusterName.length() - 1).toLowerCase(Locale.ENGLISH);
       for (String cl : database.getClusterNames()) {
-        if (cl.startsWith(toMatch)) result.add(database.getStorage().getClusterIdByName(cl));
+        if (cl.startsWith(toMatch)) {
+          result.add(database.getStorage().getClusterIdByName(cl));
+        }
       }
     } else {
       if (clusterId > -1) {

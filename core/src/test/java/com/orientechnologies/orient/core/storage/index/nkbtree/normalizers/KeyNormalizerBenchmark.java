@@ -35,6 +35,7 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 @Warmup(iterations = 1, batchSize = 1)
 @Fork(1)
 public class KeyNormalizerBenchmark {
+
   private KeyNormalizer keyNormalizer;
 
   private OCompositeKey binaryCompositeKey;
@@ -204,7 +205,7 @@ public class KeyNormalizerBenchmark {
   @Benchmark
   public void normalizeCompositeDecimal() {
     final OCompositeKey compositeKey = new OCompositeKey();
-    compositeKey.addKey(new BigDecimal(3.14159265359));
+    compositeKey.addKey(new BigDecimal("3.14159265359"));
 
     final OType[] types = new OType[1];
     types[0] = OType.DECIMAL;

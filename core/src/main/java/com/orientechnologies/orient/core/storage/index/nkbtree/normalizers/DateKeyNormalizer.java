@@ -6,6 +6,7 @@ import java.nio.ByteOrder;
 import java.util.Date;
 
 public class DateKeyNormalizer implements KeyNormalizers {
+
   @Override
   public byte[] execute(Object key, int decomposition) throws IOException {
     final ByteBuffer bb = ByteBuffer.allocate(9);

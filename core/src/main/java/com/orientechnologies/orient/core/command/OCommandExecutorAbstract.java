@@ -45,6 +45,7 @@ import java.util.Set;
  */
 @SuppressWarnings("unchecked")
 public abstract class OCommandExecutorAbstract extends OBaseParser implements OCommandExecutor {
+
   protected OProgressListener progressListener;
   protected int limit = -1;
   protected Map<Object, Object> parameters;
@@ -105,7 +106,9 @@ public abstract class OCommandExecutorAbstract extends OBaseParser implements OC
   }
 
   public OCommandContext getContext() {
-    if (context == null) context = new OBasicCommandContext();
+    if (context == null) {
+      context = new OBasicCommandContext();
+    }
     return context;
   }
 
@@ -132,12 +135,11 @@ public abstract class OCommandExecutorAbstract extends OBaseParser implements OC
   }
 
   public static boolean checkInterruption(final OCommandContext iContext) {
-    if (OExecutionThreadLocal.isInterruptCurrentOperation())
+    if (OExecutionThreadLocal.isInterruptCurrentOperation()) {
       throw new OCommandInterruptedException("The command has been interrupted");
+    }
 
-    if (iContext != null && !iContext.checkTimeout()) return false;
-
-    return true;
+    return iContext == null || iContext.checkTimeout();
   }
 
   public OCommandDistributedReplicateRequest.DISTRIBUTED_RESULT_MGMT
@@ -157,7 +159,9 @@ public abstract class OCommandExecutorAbstract extends OBaseParser implements OC
 
   public Object mergeResults(final Map<String, Object> results) throws Exception {
 
-    if (results.isEmpty()) return null;
+    if (results.isEmpty()) {
+      return null;
+    }
 
     Object aggregatedResult = null;
 
@@ -166,22 +170,30 @@ public abstract class OCommandExecutorAbstract extends OBaseParser implements OC
       final Object nodeResult = entry.getValue();
 
       if (nodeResult instanceof Collection) {
-        if (aggregatedResult == null) aggregatedResult = new ArrayList();
+        if (aggregatedResult == null) {
+          aggregatedResult = new ArrayList();
+        }
 
         ((List) aggregatedResult).addAll((Collection<?>) nodeResult);
 
       } else if (nodeResult instanceof Exception)
 
-        // RECEIVED EXCEPTION
+      // RECEIVED EXCEPTION
+      {
         throw (Exception) nodeResult;
-      else if (nodeResult instanceof OIdentifiable) {
-        if (aggregatedResult == null) aggregatedResult = new ArrayList();
+      } else if (nodeResult instanceof OIdentifiable) {
+        if (aggregatedResult == null) {
+          aggregatedResult = new ArrayList();
+        }
 
         ((List) aggregatedResult).add(nodeResult);
 
       } else if (nodeResult instanceof Number) {
-        if (aggregatedResult == null) aggregatedResult = nodeResult;
-        else OMultiValue.add(aggregatedResult, nodeResult);
+        if (aggregatedResult == null) {
+          aggregatedResult = nodeResult;
+        } else {
+          OMultiValue.add(aggregatedResult, nodeResult);
+        }
       }
     }
 

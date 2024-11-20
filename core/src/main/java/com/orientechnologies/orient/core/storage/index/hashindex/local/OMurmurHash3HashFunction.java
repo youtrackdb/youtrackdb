@@ -27,6 +27,7 @@ import com.orientechnologies.common.serialization.types.OBinarySerializer;
  * @since 12.03.13
  */
 public class OMurmurHash3HashFunction<V> implements OHashFunction<V> {
+
   private static final int SEED = 362498820;
 
   private final OBinarySerializer<V> valueSerializer;

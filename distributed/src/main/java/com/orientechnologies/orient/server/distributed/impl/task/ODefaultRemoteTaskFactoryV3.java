@@ -35,6 +35,7 @@ import com.orientechnologies.orient.server.distributed.task.ORemoteTask;
  * @author Luigi Dell'Aquila (l.dellaquila--at--orientdb.com)
  */
 public class ODefaultRemoteTaskFactoryV3 implements ORemoteTaskFactory {
+
   @Override
   public ORemoteTask createTask(final int code) {
     switch (code) {
@@ -72,7 +73,7 @@ public class ODefaultRemoteTaskFactoryV3 implements ORemoteTaskFactory {
       case OEnterpriseStatsTask.FACTORYID: // 29
         return new OEnterpriseStatsTask();
 
-        // --- here starts V2 ----
+      // --- here starts V2 ----
 
       case ORunQueryExecutionPlanTask.FACTORYID: // 40
         return new ORunQueryExecutionPlanTask();

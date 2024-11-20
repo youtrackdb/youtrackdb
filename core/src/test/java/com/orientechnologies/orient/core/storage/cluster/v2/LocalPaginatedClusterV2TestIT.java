@@ -11,10 +11,13 @@ import java.io.IOException;
 import org.junit.BeforeClass;
 
 public class LocalPaginatedClusterV2TestIT extends LocalPaginatedClusterAbstract {
+
   @BeforeClass
   public static void beforeClass() throws IOException {
     buildDirectory = System.getProperty("buildDirectory");
-    if (buildDirectory == null || buildDirectory.isEmpty()) buildDirectory = ".";
+    if (buildDirectory == null || buildDirectory.isEmpty()) {
+      buildDirectory = ".";
+    }
 
     buildDirectory += File.separator + LocalPaginatedClusterV2TestIT.class.getSimpleName();
     OFileUtils.deleteRecursively(new File(buildDirectory));

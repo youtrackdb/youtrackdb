@@ -9,6 +9,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class ODatabaseImportSimpleCompatibilityTest {
+
   private OrientDB orientDB;
 
   private ODatabaseSession importDatabase;

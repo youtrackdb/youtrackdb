@@ -24,6 +24,7 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 
 public abstract class OTraverseAbstractProcess<T>
     extends OCommandProcess<OTraverse, T, OIdentifiable> {
+
   public OTraverseAbstractProcess(final OTraverse iCommand, final T iTarget) {
     super(iCommand, iTarget);
   }

@@ -6,6 +6,7 @@ import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import java.nio.ByteBuffer;
 
 public class OHighLevelTransactionChangeRecord extends OOperationUnitRecord {
+
   private byte[] data;
 
   public OHighLevelTransactionChangeRecord() {}

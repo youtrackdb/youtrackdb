@@ -50,31 +50,42 @@ public class OQueryOperatorMod extends OQueryOperator {
       Object iRight,
       OCommandContext iContext,
       final ODocumentSerializer serializer) {
-    if (iRight == null || iLeft == null) return null;
+    if (iRight == null || iLeft == null) {
+      return null;
+    }
 
-    if (iLeft instanceof Date) iLeft = ((Date) iLeft).getTime();
-    if (iRight instanceof Date) iRight = ((Date) iRight).getTime();
+    if (iLeft instanceof Date) {
+      iLeft = ((Date) iLeft).getTime();
+    }
+    if (iRight instanceof Date) {
+      iRight = ((Date) iRight).getTime();
+    }
 
-    if (iLeft instanceof Number && iRight instanceof Number) {
-      final Number l = (Number) iLeft;
-      final Number r = (Number) iRight;
-      if (l instanceof Integer) return l.intValue() % r.intValue();
-      else if (l instanceof Long) return l.longValue() % r.longValue();
-      else if (l instanceof Short) return l.shortValue() % r.shortValue();
-      else if (l instanceof Float) return l.floatValue() % r.floatValue();
-      else if (l instanceof Double) return l.doubleValue() % r.doubleValue();
-      else if (l instanceof BigDecimal) {
-        if (r instanceof BigDecimal) return ((BigDecimal) l).remainder((BigDecimal) r);
-        else if (r instanceof Float)
-          return ((BigDecimal) l).remainder(new BigDecimal(r.floatValue()));
-        else if (r instanceof Double)
-          return ((BigDecimal) l).remainder(new BigDecimal(r.doubleValue()));
-        else if (r instanceof Long)
+    if (iLeft instanceof Number l && iRight instanceof Number r) {
+      if (l instanceof Integer) {
+        return l.intValue() % r.intValue();
+      } else if (l instanceof Long) {
+        return l.longValue() % r.longValue();
+      } else if (l instanceof Short) {
+        return l.shortValue() % r.shortValue();
+      } else if (l instanceof Float) {
+        return l.floatValue() % r.floatValue();
+      } else if (l instanceof Double) {
+        return l.doubleValue() % r.doubleValue();
+      } else if (l instanceof BigDecimal) {
+        if (r instanceof BigDecimal) {
+          return ((BigDecimal) l).remainder((BigDecimal) r);
+        } else if (r instanceof Float) {
+          return ((BigDecimal) l).remainder(BigDecimal.valueOf(r.floatValue()));
+        } else if (r instanceof Double) {
+          return ((BigDecimal) l).remainder(BigDecimal.valueOf(r.doubleValue()));
+        } else if (r instanceof Long) {
           return ((BigDecimal) l).remainder(new BigDecimal(r.longValue()));
-        else if (r instanceof Integer)
+        } else if (r instanceof Integer) {
           return ((BigDecimal) l).remainder(new BigDecimal(r.intValue()));
-        else if (r instanceof Short)
+        } else if (r instanceof Short) {
           return ((BigDecimal) l).remainder(new BigDecimal(r.shortValue()));
+        }
       }
     }
 

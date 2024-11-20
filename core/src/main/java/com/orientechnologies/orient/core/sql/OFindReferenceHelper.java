@@ -24,11 +24,9 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMap;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMultiValue;
+import com.orientechnologies.orient.core.db.record.OMap;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -100,7 +98,7 @@ public class OFindReferenceHelper {
         try {
           for (String fieldName : ((ODocument) record).fieldNames()) {
             Object value = ((ODocument) record).field(fieldName);
-            checkObject(iSourceRIDs, map, value, (ODocument) record);
+            checkObject(iSourceRIDs, map, value, record);
           }
         } catch (Exception e) {
           OLogManager.instance()
@@ -115,11 +113,11 @@ public class OFindReferenceHelper {
       Set<ORID> iSourceRIDs,
       final Map<ORID, Set<ORID>> map,
       final String iClassName) {
-    final OClass clazz =
-        ((OMetadataInternal) db.getMetadata()).getImmutableSchemaSnapshot().getClass(iClassName);
+    final OClass clazz = db.getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
 
-    if (clazz == null)
+    if (clazz == null) {
       throw new OCommandExecutionException("Class '" + iClassName + "' was not found");
+    }
 
     for (int i : clazz.getClusterIds()) {
       browseCluster(db, iSourceRIDs, map, db.getClusterNameById(i));
@@ -145,14 +143,8 @@ public class OFindReferenceHelper {
       final Map<ORID, Set<ORID>> map,
       final Collection<?> values,
       final ORecord iRootObject) {
-    final Iterator<?> it;
-    if (values instanceof ORecordLazyMultiValue) {
-      it = ((ORecordLazyMultiValue) values).rawIterator();
-    } else {
-      it = values.iterator();
-    }
-    while (it.hasNext()) {
-      checkObject(iSourceRIDs, map, it.next(), iRootObject);
+    for (Object value : values) {
+      checkObject(iSourceRIDs, map, value, iRootObject);
     }
   }
 
@@ -162,8 +154,8 @@ public class OFindReferenceHelper {
       final Map<?, ?> values,
       final ORecord iRootObject) {
     final Iterator<?> it;
-    if (values instanceof ORecordLazyMap) {
-      it = ((ORecordLazyMap) values).rawIterator();
+    if (values instanceof OMap) {
+      it = ((OMap) values).rawIterator();
     } else {
       it = values.values().iterator();
     }

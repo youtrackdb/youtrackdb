@@ -25,13 +25,16 @@ package com.orientechnologies.orient.core.compression.impl;
  * @since 05.06.13
  */
 public class ONothingCompression extends OAbstractCompression {
+
   public static final String NAME = "nothing";
 
   public static final ONothingCompression INSTANCE = new ONothingCompression();
 
   @Override
   public byte[] compress(final byte[] content, final int offset, final int length) {
-    if (offset == 0 && length == content.length) return content;
+    if (offset == 0 && length == content.length) {
+      return content;
+    }
 
     byte[] result = new byte[length];
     System.arraycopy(content, offset, result, 0, length);
@@ -41,7 +44,9 @@ public class ONothingCompression extends OAbstractCompression {
 
   @Override
   public byte[] uncompress(final byte[] content, final int offset, final int length) {
-    if (offset == 0 && length == content.length) return content;
+    if (offset == 0 && length == content.length) {
+      return content;
+    }
 
     byte[] result = new byte[length];
     System.arraycopy(content, offset, result, 0, length);

@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.core.metadata.schema;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -48,14 +49,14 @@ public class OTypeConvertTest {
   @Test
   public void testNull() {
     Object result = OType.convert(null, Boolean.class);
-    assertEquals(result, null);
+    assertNull(result);
   }
 
   @Test(expected = ODatabaseException.class)
   public void testCannotConvert() {
     // Expected behavior is to not convert and return null
     Object result = OType.convert(true, Long.class);
-    assertEquals(result, null);
+    assertNull(result);
   }
 
   //

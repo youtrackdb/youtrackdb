@@ -19,7 +19,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/** Created by tglman on 30/12/16. */
+/**
+ * Created by tglman on 30/12/16.
+ */
 public class OFetchTransactionResponse implements OBinaryResponse {
 
   private int txId;

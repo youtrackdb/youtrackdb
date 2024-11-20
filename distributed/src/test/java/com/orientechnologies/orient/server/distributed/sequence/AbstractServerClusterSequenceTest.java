@@ -28,6 +28,7 @@ import org.junit.Assert;
  * @since 3/2/2015
  */
 public abstract class AbstractServerClusterSequenceTest extends AbstractServerClusterTest {
+
   private static final boolean RUN_PARALLEL_SYNC_TEST = true;
   private static final int SEQ_RUN_COUNT = 20;
 

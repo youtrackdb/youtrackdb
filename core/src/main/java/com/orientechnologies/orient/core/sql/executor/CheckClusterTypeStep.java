@@ -11,8 +11,8 @@ import com.orientechnologies.orient.core.sql.parser.OCluster;
 /**
  * This step is used just as a gate check to verify that a cluster belongs to a class.
  *
- * <p>It accepts two values: a target cluster (name or OCluster) and a class. If the cluster belongs
- * to the class, then the syncPool() returns an empty result set, otherwise it throws an
+ * <p>It accepts two values: a target cluster (name or OCluster) and a class. If the cluster
+ * belongs to the class, then the syncPool() returns an empty result set, otherwise it throws an
  * OCommandExecutionException
  *
  * @author Luigi Dell'Aquila (luigi.dellaquila - at - orientdb.com)
@@ -44,7 +44,7 @@ public class CheckClusterTypeStep extends AbstractExecutionStep {
       prev.start(context).close(ctx);
     }
 
-    ODatabaseSessionInternal db = (ODatabaseSessionInternal) context.getDatabase();
+    ODatabaseSessionInternal db = context.getDatabase();
 
     int clusterId;
     if (clusterName != null) {

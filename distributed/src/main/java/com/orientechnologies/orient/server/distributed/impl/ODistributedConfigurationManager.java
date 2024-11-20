@@ -122,7 +122,9 @@ public class ODistributedConfigurationManager {
     final ODistributedConfiguration dCfg = getDistributedConfiguration(session);
 
     Integer oldVersion = dCfg != null ? dCfg.getVersion() : null;
-    if (oldVersion == null) oldVersion = 0;
+    if (oldVersion == null) {
+      oldVersion = 0;
+    }
 
     int currVersion = cfg.getVersion();
 
@@ -189,7 +191,9 @@ public class ODistributedConfigurationManager {
   }
 
   public ODocument loadConfigurationFromFile(final File file) {
-    if (!file.exists() || file.length() == 0) return null;
+    if (!file.exists() || file.length() == 0) {
+      return null;
+    }
 
     ODistributedServerLog.info(
         this,
@@ -220,11 +224,12 @@ public class ODistributedConfigurationManager {
           e,
           file.getAbsolutePath());
     } finally {
-      if (f != null)
+      if (f != null) {
         try {
           f.close();
         } catch (IOException e) {
         }
+      }
     }
     return null;
   }
@@ -253,11 +258,12 @@ public class ODistributedConfigurationManager {
           e);
 
     } finally {
-      if (f != null)
+      if (f != null) {
         try {
           f.close();
         } catch (IOException e) {
         }
+      }
     }
   }
 

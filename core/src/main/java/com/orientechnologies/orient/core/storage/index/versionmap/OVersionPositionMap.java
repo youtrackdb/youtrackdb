@@ -7,6 +7,7 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODura
 import java.io.IOException;
 
 public abstract class OVersionPositionMap extends ODurableComponent {
+
   public static final String DEF_EXTENSION = ".vpm";
 
   public static final int MAX_CONCURRENT_DISTRIBUTED_TRANSACTIONS = 1000;

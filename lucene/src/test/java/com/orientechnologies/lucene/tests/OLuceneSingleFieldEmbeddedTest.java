@@ -25,7 +25,9 @@ import java.io.InputStream;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by enricorisa on 19/09/14. */
+/**
+ * Created by enricorisa on 19/09/14.
+ */
 public class OLuceneSingleFieldEmbeddedTest extends OLuceneBaseTest {
 
   @Before

@@ -15,8 +15,11 @@ import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.Query;
 
-/** Created by frank on 13/12/2016. */
+/**
+ * Created by frank on 13/12/2016.
+ */
 public class OLuceneMultiFieldQueryParser extends MultiFieldQueryParser {
+
   private final Map<String, OType> types;
 
   public OLuceneMultiFieldQueryParser(

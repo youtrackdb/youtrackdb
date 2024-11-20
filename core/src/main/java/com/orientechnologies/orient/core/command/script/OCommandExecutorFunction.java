@@ -40,10 +40,11 @@ import javax.script.ScriptException;
 /**
  * Executes Script Commands.
  *
- * @see OCommandScript
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
+ * @see OCommandScript
  */
 public class OCommandExecutorFunction extends OCommandExecutorAbstract {
+
   protected OCommandFunction request;
 
   public OCommandExecutorFunction() {}
@@ -83,14 +84,15 @@ public class OCommandExecutorFunction extends OCommandExecutorAbstract {
       try {
         final Object result;
 
-        if (scriptEngine instanceof Invocable) {
+        if (scriptEngine instanceof Invocable invocableEngine) {
           // INVOKE AS FUNCTION. PARAMS ARE PASSED BY POSITION
-          final Invocable invocableEngine = (Invocable) scriptEngine;
           Object[] args = null;
           if (iArgs != null) {
             args = new Object[iArgs.size()];
             int i = 0;
-            for (Entry<Object, Object> arg : iArgs.entrySet()) args[i++] = arg.getValue();
+            for (Entry<Object, Object> arg : iArgs.entrySet()) {
+              args[i++] = arg.getValue();
+            }
           } else {
             args = OCommonConst.EMPTY_OBJECT_ARRAY;
           }

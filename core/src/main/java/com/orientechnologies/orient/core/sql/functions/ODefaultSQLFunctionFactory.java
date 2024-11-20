@@ -77,6 +77,7 @@ import com.orientechnologies.orient.core.sql.functions.text.OSQLFunctionFormat;
  * @author Johann Sorel (Geomatys)
  */
 public final class ODefaultSQLFunctionFactory extends OSQLFunctionFactoryTemplate {
+
   public ODefaultSQLFunctionFactory() {
     // MISC FUNCTIONS
     register(OSQLFunctionAverage.NAME, OSQLFunctionAverage.class);

@@ -55,9 +55,9 @@ public interface OWALChanges {
    * Serialize the changes to a stream. needed for write the changes to the WAL
    *
    * @param offset starting writing offset for the provided buffer.
-   * @param stream buffer where write the content, should be of minimal size of
-   *     offset+ @{link @serializedSize()}
+   * @param stream buffer where write the content, should be of minimal size of offset+ @{link
    * @return the number of written bytes + the offset, can be used as offset of the next operation.
+   * @serializedSize()}
    */
   int toStream(int offset, byte[] stream);
 

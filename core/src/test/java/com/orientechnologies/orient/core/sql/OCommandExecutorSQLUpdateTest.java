@@ -377,12 +377,10 @@ public class OCommandExecutorSQLUpdateTest extends BaseMemoryDatabase {
     db.command("insert into B set name = 'bar', a = (select from A)").close();
     db.commit();
 
-    StringBuilder script = new StringBuilder();
-    script.append("let $a = select from B;\n");
-    script.append("update $a.a set name = 'baz';\n");
+    String script = "let $a = select from B;\n" + "update $a.a set name = 'baz';\n";
 
     db.begin();
-    db.command(new OCommandScript(script.toString())).execute();
+    db.command(new OCommandScript(script)).execute();
     db.commit();
 
     try (OResultSet result = db.query("select from A")) {

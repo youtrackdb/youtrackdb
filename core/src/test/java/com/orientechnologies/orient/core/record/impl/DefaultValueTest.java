@@ -33,7 +33,7 @@ public class DefaultValueTest extends BaseMemoryDatabase {
     ORecordInternal.unsetDirty(doc1);
     doc1.fromStream(val);
     doc1.deserializeFields();
-    assertEquals((String) doc.field("name"), (String) doc1.field("name"));
+    assertEquals(doc.field("name"), (String) doc1.field("name"));
   }
 
   @Test

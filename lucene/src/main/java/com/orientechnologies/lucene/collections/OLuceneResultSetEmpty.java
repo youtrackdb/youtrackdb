@@ -22,7 +22,9 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import java.util.Collections;
 import java.util.Iterator;
 
-/** Created by Enrico Risa on 16/09/15. */
+/**
+ * Created by Enrico Risa on 16/09/15.
+ */
 public class OLuceneResultSetEmpty extends OLuceneResultSet {
 
   public OLuceneResultSetEmpty() {

@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class OMixedIndexRIDContainer implements Set<OIdentifiable> {
+
   private static final String INDEX_FILE_EXTENSION = ".irs";
 
   private final long fileId;
@@ -26,7 +27,9 @@ public class OMixedIndexRIDContainer implements Set<OIdentifiable> {
   private final int topThreshold =
       OGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger();
 
-  /** Should be called inside of lock to ensure uniqueness of entity on disk !!! */
+  /**
+   * Should be called inside of lock to ensure uniqueness of entity on disk !!!
+   */
   public OMixedIndexRIDContainer(String name, AtomicLong bonsayFileId) {
     long gotFileId = bonsayFileId.get();
     if (gotFileId == 0) {

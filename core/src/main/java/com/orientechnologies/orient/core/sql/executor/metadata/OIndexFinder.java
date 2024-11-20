@@ -5,7 +5,7 @@ import java.util.Optional;
 
 public interface OIndexFinder {
 
-  public enum Operation {
+  enum Operation {
     Eq,
     Gt,
     Lt,

@@ -15,7 +15,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/** Created by luigidellaquila on 26/10/16. */
+/**
+ * Created by luigidellaquila on 26/10/16.
+ */
 public class BreadthFirstTraverseStep extends AbstractTraverseStep {
 
   public BreadthFirstTraverseStep(
@@ -176,7 +178,7 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
 
       List<OIdentifiable> newPath = new ArrayList<>();
       newPath.addAll(path);
-      newPath.add(((OTraverseResult) nextStep).getIdentity().get());
+      newPath.add(nextStep.getIdentity().get());
       ((OTraverseResult) nextStep).setMetadata("$path", newPath);
 
       List reverseStack = new ArrayList();
@@ -194,7 +196,7 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
 
       List<OIdentifiable> newPath = new ArrayList<>();
       newPath.addAll(path);
-      newPath.add(((OTraverseResult) nextStep).getIdentity().get());
+      newPath.add(nextStep.getIdentity().get());
       ((OTraverseResult) nextStep).setMetadata("$path", newPath);
 
       List reverseStack = new ArrayList();
@@ -224,7 +226,7 @@ public class BreadthFirstTraverseStep extends AbstractTraverseStep {
     result.append("+ BREADTH-FIRST TRAVERSE \n");
     if (whileClause != null) {
       result.append(spaces);
-      result.append("WHILE " + whileClause.toString());
+      result.append("WHILE " + whileClause);
     }
     return result.toString();
   }

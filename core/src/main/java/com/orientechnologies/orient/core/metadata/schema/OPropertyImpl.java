@@ -53,6 +53,7 @@ import java.util.Set;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OPropertyImpl implements OProperty {
+
   protected final OClassImpl owner;
   protected OType linkedType;
   protected OClass linkedClass;
@@ -132,12 +133,11 @@ public abstract class OPropertyImpl implements OProperty {
    * recreate it.
    *
    * @param iType One of types supported.
-   *     <ul>
-   *       <li>UNIQUE: Doesn't allow duplicates
-   *       <li>NOTUNIQUE: Allow duplicates
-   *       <li>FULLTEXT: Indexes single word for full text search
-   *     </ul>
-   *
+   *              <ul>
+   *                <li>UNIQUE: Doesn't allow duplicates
+   *                <li>NOTUNIQUE: Allow duplicates
+   *                <li>FULLTEXT: Indexes single word for full text search
+   *              </ul>
    * @return
    * @see {@link OClass#createIndex(String, OClass.INDEX_TYPE, String...)} instead.
    */
@@ -212,8 +212,9 @@ public abstract class OPropertyImpl implements OProperty {
         }
       }
 
-      for (final OIndex index : relatedIndexes)
+      for (final OIndex index : relatedIndexes) {
         database.getMetadata().getIndexManagerInternal().dropIndex(database, index.getName());
+      }
 
       return this;
     } finally {
@@ -241,7 +242,9 @@ public abstract class OPropertyImpl implements OProperty {
     acquireSchemaReadLock();
     try {
       Set<OIndex> indexes = owner.getInvolvedIndexes(globalRef.getName());
-      if (indexes != null && !indexes.isEmpty()) return indexes.iterator().next();
+      if (indexes != null && !indexes.isEmpty()) {
+        return indexes.iterator().next();
+      }
       return null;
     } finally {
       releaseSchemaReadLock();
@@ -287,8 +290,9 @@ public abstract class OPropertyImpl implements OProperty {
   public OClass getLinkedClass() {
     acquireSchemaReadLock();
     try {
-      if (linkedClass == null && linkedClassName != null)
+      if (linkedClass == null && linkedClassName != null) {
         linkedClass = owner.owner.getClass(linkedClassName);
+      }
       return linkedClass;
     } finally {
       releaseSchemaReadLock();
@@ -304,8 +308,9 @@ public abstract class OPropertyImpl implements OProperty {
         && type != OType.EMBEDDEDSET
         && type != OType.EMBEDDEDLIST
         && type != OType.EMBEDDEDMAP
-        && type != OType.LINKBAG)
+        && type != OType.LINKBAG) {
       throw new OSchemaException("Linked class is not supported for type: " + type);
+    }
   }
 
   public OType getLinkedType() {
@@ -318,8 +323,9 @@ public abstract class OPropertyImpl implements OProperty {
   }
 
   public static void checkLinkTypeSupport(OType type) {
-    if (type != OType.EMBEDDEDSET && type != OType.EMBEDDEDLIST && type != OType.EMBEDDEDMAP)
+    if (type != OType.EMBEDDEDSET && type != OType.EMBEDDEDLIST && type != OType.EMBEDDEDMAP) {
       throw new OSchemaException("Linked type is not supported for type: " + type);
+    }
   }
 
   public boolean isNotNull() {
@@ -396,7 +402,9 @@ public abstract class OPropertyImpl implements OProperty {
   public String getCustom(final String iName) {
     acquireSchemaReadLock();
     try {
-      if (customFields == null) return null;
+      if (customFields == null) {
+        return null;
+      }
 
       return customFields.get(iName);
     } finally {
@@ -407,7 +415,9 @@ public abstract class OPropertyImpl implements OProperty {
   public Map<String, String> getCustomInternal() {
     acquireSchemaReadLock();
     try {
-      if (customFields != null) return Collections.unmodifiableMap(customFields);
+      if (customFields != null) {
+        return Collections.unmodifiableMap(customFields);
+      }
       return null;
     } finally {
       releaseSchemaReadLock();
@@ -421,7 +431,9 @@ public abstract class OPropertyImpl implements OProperty {
   public Set<String> getCustomKeys() {
     acquireSchemaReadLock();
     try {
-      if (customFields != null) return customFields.keySet();
+      if (customFields != null) {
+        return customFields.keySet();
+      }
 
       return new HashSet<String>();
     } finally {
@@ -430,7 +442,9 @@ public abstract class OPropertyImpl implements OProperty {
   }
 
   public Object get(final ATTRIBUTES attribute) {
-    if (attribute == null) throw new IllegalArgumentException("attribute is null");
+    if (attribute == null) {
+      throw new IllegalArgumentException("attribute is null");
+    }
 
     switch (attribute) {
       case LINKEDCLASS:
@@ -465,7 +479,9 @@ public abstract class OPropertyImpl implements OProperty {
   }
 
   public void set(final ATTRIBUTES attribute, final Object iValue) {
-    if (attribute == null) throw new IllegalArgumentException("attribute is null");
+    if (attribute == null) {
+      throw new IllegalArgumentException("attribute is null");
+    }
 
     final String stringValue = iValue != null ? iValue.toString() : null;
 
@@ -474,8 +490,11 @@ public abstract class OPropertyImpl implements OProperty {
         setLinkedClass(getDatabase().getMetadata().getSchema().getClass(stringValue));
         break;
       case LINKEDTYPE:
-        if (stringValue == null) setLinkedType(null);
-        else setLinkedType(OType.valueOf(stringValue));
+        if (stringValue == null) {
+          setLinkedType(null);
+        } else {
+          setLinkedType(OType.valueOf(stringValue));
+        }
         break;
       case MIN:
         setMin(stringValue);
@@ -512,17 +531,21 @@ public abstract class OPropertyImpl implements OProperty {
         if (indx < 0) {
           if ("clear".equalsIgnoreCase(stringValue)) {
             clearCustom();
-          } else
+          } else {
             throw new IllegalArgumentException(
                 "Syntax error: expected <name> = <value> or clear, instead found: " + iValue);
+          }
         } else {
           String customName = stringValue.substring(0, indx).trim();
           String customValue = stringValue.substring(indx + 1).trim();
           if (isQuoted(customValue)) {
             customValue = removeQuotes(customValue);
           }
-          if (customValue.isEmpty()) removeCustom(customName);
-          else setCustom(customName, customValue);
+          if (customValue.isEmpty()) {
+            removeCustom(customName);
+          } else {
+            setCustom(customName, customValue);
+          }
         }
         break;
       case DESCRIPTION:
@@ -538,11 +561,13 @@ public abstract class OPropertyImpl implements OProperty {
 
   private boolean isQuoted(String s) {
     s = s.trim();
-    if (s.startsWith("\"") && s.endsWith("\"")) return true;
-    if (s.startsWith("'") && s.endsWith("'")) return true;
-    if (s.startsWith("`") && s.endsWith("`")) return true;
-
-    return false;
+    if (s.startsWith("\"") && s.endsWith("\"")) {
+      return true;
+    }
+    if (s.startsWith("'") && s.endsWith("'")) {
+      return true;
+    }
+    return s.startsWith("`") && s.endsWith("`");
   }
 
   public OCollate getCollate() {
@@ -582,12 +607,16 @@ public abstract class OPropertyImpl implements OProperty {
   @Override
   public int hashCode() {
     int sh = hashCode;
-    if (sh != 0) return sh;
+    if (sh != 0) {
+      return sh;
+    }
 
     acquireSchemaReadLock();
     try {
       sh = hashCode;
-      if (sh != 0) return sh;
+      if (sh != 0) {
+        return sh;
+      }
 
       calculateHashCode();
       return hashCode;
@@ -607,12 +636,20 @@ public abstract class OPropertyImpl implements OProperty {
   public boolean equals(final Object obj) {
     acquireSchemaReadLock();
     try {
-      if (this == obj) return true;
-      if (obj == null || !OProperty.class.isAssignableFrom(obj.getClass())) return false;
+      if (this == obj) {
+        return true;
+      }
+      if (obj == null || !OProperty.class.isAssignableFrom(obj.getClass())) {
+        return false;
+      }
       OProperty other = (OProperty) obj;
       if (owner == null) {
-        if (other.getOwnerClass() != null) return false;
-      } else if (!owner.equals(other.getOwnerClass())) return false;
+        if (other.getOwnerClass() != null) {
+          return false;
+        }
+      } else if (!owner.equals(other.getOwnerClass())) {
+        return false;
+      }
       return this.getName().equals(other.getName());
     } finally {
       releaseSchemaReadLock();
@@ -622,28 +659,31 @@ public abstract class OPropertyImpl implements OProperty {
   public void fromStream(ODocument document) {
     String name = document.field("name");
     OType type = null;
-    if (document.field("type") != null)
+    if (document.field("type") != null) {
       type = OType.getById(((Integer) document.field("type")).byteValue());
+    }
     Integer globalId = document.field("globalId");
-    if (globalId != null) globalRef = owner.owner.getGlobalPropertyById(globalId);
-    else {
-      if (type == null) type = OType.ANY;
+    if (globalId != null) {
+      globalRef = owner.owner.getGlobalPropertyById(globalId);
+    } else {
+      if (type == null) {
+        type = OType.ANY;
+      }
       globalRef = owner.owner.findOrCreateGlobalProperty(name, type);
     }
 
     mandatory = document.containsField("mandatory") ? (Boolean) document.field("mandatory") : false;
     readonly = document.containsField("readonly") ? (Boolean) document.field("readonly") : false;
     notNull = document.containsField("notNull") ? (Boolean) document.field("notNull") : false;
-    defaultValue =
-        (String) (document.containsField("defaultValue") ? document.field("defaultValue") : null);
-    if (document.containsField("collate"))
-      collate = OSQLEngine.getCollate((String) document.field("collate"));
+    defaultValue = document.containsField("defaultValue") ? document.field("defaultValue") : null;
+    if (document.containsField("collate")) {
+      collate = OSQLEngine.getCollate(document.field("collate"));
+    }
 
-    min = (String) (document.containsField("min") ? document.field("min") : null);
-    max = (String) (document.containsField("max") ? document.field("max") : null);
-    regexp = (String) (document.containsField("regexp") ? document.field("regexp") : null);
-    linkedClassName =
-        (String) (document.containsField("linkedClass") ? document.field("linkedClass") : null);
+    min = document.containsField("min") ? document.field("min") : null;
+    max = document.containsField("max") ? document.field("max") : null;
+    regexp = document.containsField("regexp") ? document.field("regexp") : null;
+    linkedClassName = document.containsField("linkedClass") ? document.field("linkedClass") : null;
     linkedType =
         document.field("linkedType") != null
             ? OType.getById(((Integer) document.field("linkedType")).byteValue())
@@ -653,8 +693,7 @@ public abstract class OPropertyImpl implements OProperty {
     } else {
       customFields = null;
     }
-    description =
-        (String) (document.containsField("description") ? document.field("description") : null);
+    description = document.containsField("description") ? document.field("description") : null;
   }
 
   public Collection<OIndex> getAllIndexes() {
@@ -664,7 +703,9 @@ public abstract class OPropertyImpl implements OProperty {
       final List<OIndex> indexList = new LinkedList<OIndex>();
       for (final OIndex index : indexes) {
         final OIndexDefinition indexDefinition = index.getDefinition();
-        if (indexDefinition.getFields().contains(globalRef.getName())) indexList.add(index);
+        if (indexDefinition.getFields().contains(globalRef.getName())) {
+          indexList.add(index);
+        }
       }
 
       return indexList;
@@ -690,9 +731,12 @@ public abstract class OPropertyImpl implements OProperty {
     } else {
       document.removeField("regexp");
     }
-    if (linkedType != null) document.field("linkedType", linkedType.id);
-    if (linkedClass != null || linkedClassName != null)
+    if (linkedType != null) {
+      document.field("linkedType", linkedType.id);
+    }
+    if (linkedClass != null || linkedClassName != null) {
       document.field("linkedClass", linkedClass != null ? linkedClass.getName() : linkedClassName);
+    }
 
     document.field(
         "customFields",
@@ -723,9 +767,10 @@ public abstract class OPropertyImpl implements OProperty {
   }
 
   public void checkEmbedded() {
-    if (getDatabase().isRemote())
+    if (getDatabase().isRemote()) {
       throw new OSchemaException(
           "'Internal' schema modification methods can be used only inside of embedded database");
+    }
   }
 
   protected ODatabaseSessionInternal getDatabase() {
@@ -733,7 +778,7 @@ public abstract class OPropertyImpl implements OProperty {
   }
 
   protected void checkForDateFormat(final String iDateAsString) {
-    if (iDateAsString != null)
+    if (iDateAsString != null) {
       if (globalRef.getType() == OType.DATE) {
         try {
           ODateHelper.getDateFormatInstance(getDatabase()).parse(iDateAsString);
@@ -753,10 +798,11 @@ public abstract class OPropertyImpl implements OProperty {
               e);
         }
       }
+    }
   }
 
   protected boolean isDistributedCommand() {
-    return !((ODatabaseSessionInternal) getDatabase()).isLocalEnv();
+    return !getDatabase().isLocalEnv();
   }
 
   @Override
@@ -782,9 +828,12 @@ public abstract class OPropertyImpl implements OProperty {
     } else {
       document.removeField("regexp");
     }
-    if (linkedType != null) document.field("linkedType", linkedType.id);
-    if (linkedClass != null || linkedClassName != null)
+    if (linkedType != null) {
+      document.field("linkedType", linkedType.id);
+    }
+    if (linkedClass != null || linkedClassName != null) {
       document.field("linkedClass", linkedClass != null ? linkedClass.getName() : linkedClassName);
+    }
 
     document.field(
         "customFields",

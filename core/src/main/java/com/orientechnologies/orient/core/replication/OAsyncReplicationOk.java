@@ -25,5 +25,6 @@ package com.orientechnologies.orient.core.replication;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OAsyncReplicationOk {
+
   void onAsyncReplicationOk();
 }

@@ -11,8 +11,11 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by frank on 24/04/2016. */
+/**
+ * Created by frank on 24/04/2016.
+ */
 public abstract class LocalHashTableV2Base {
+
   private static final int KEYS_COUNT = 1_000_000;
   LocalHashTableV2<Integer, String> localHashTable;
   protected OAbstractPaginatedStorage storage;
@@ -307,6 +310,7 @@ public abstract class LocalHashTableV2Base {
   }
 
   private interface TxCode {
+
     void execute(int value, boolean rollback, OAtomicOperation atomicOperation) throws IOException;
   }
 }

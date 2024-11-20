@@ -29,12 +29,14 @@ import java.util.Iterator;
  */
 public class OClusterSelectionFactory
     extends OConfigurableStatefulFactory<String, OClusterSelectionStrategy> {
+
   public OClusterSelectionFactory() {
     setDefaultClass(ORoundRobinClusterSelectionStrategy.class);
     this.registerStrategy();
   }
 
-  private static ClassLoader orientClassLoader = OClusterSelectionFactory.class.getClassLoader();
+  private static final ClassLoader orientClassLoader =
+      OClusterSelectionFactory.class.getClassLoader();
 
   private void registerStrategy() {
     final Iterator<OClusterSelectionStrategy> ite =
@@ -47,7 +49,9 @@ public class OClusterSelectionFactory
         if (method != null) {
           String key = (String) method.invoke(clz.newInstance());
           register(key, clz);
-        } else OLogManager.instance().error(this, "getName() funciton missing", null);
+        } else {
+          OLogManager.instance().error(this, "getName() funciton missing", null);
+        }
       } catch (Exception ex) {
         OLogManager.instance().error(this, "failed to register class - " + clz.getName(), ex);
       }

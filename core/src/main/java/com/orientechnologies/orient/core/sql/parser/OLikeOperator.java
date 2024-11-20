@@ -8,6 +8,7 @@ import com.orientechnologies.orient.core.sql.executor.metadata.OIndexFinder.Oper
 import java.util.Map;
 
 public class OLikeOperator extends SimpleNode implements OBinaryCompareOperator {
+
   public OLikeOperator(int id) {
     super(id);
   }
@@ -18,7 +19,9 @@ public class OLikeOperator extends SimpleNode implements OBinaryCompareOperator 
 
   @Override
   public boolean execute(Object iLeft, Object iRight) {
-    if (OMultiValue.isMultiValue(iLeft) || OMultiValue.isMultiValue(iRight)) return false;
+    if (OMultiValue.isMultiValue(iLeft) || OMultiValue.isMultiValue(iRight)) {
+      return false;
+    }
 
     if (iLeft == null || iRight == null) {
       return false;

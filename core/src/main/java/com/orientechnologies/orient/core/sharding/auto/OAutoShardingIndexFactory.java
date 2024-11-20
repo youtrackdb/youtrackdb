@@ -34,8 +34,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Auto-sharding index factory.<br>
- * Supports index types:
+ * Auto-sharding index factory.<br> Supports index types:
  *
  * <ul>
  *   <li>UNIQUE

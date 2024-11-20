@@ -32,7 +32,9 @@ public final class StandAloneDatabaseJavaThreadPoolTest {
     checkAndCreateDatabase(dbName);
   }
 
-  /** @return */
+  /**
+   * @return
+   */
   private ExecutorService getExecutorService() {
     if (executorService == null) {
       executorService = Executors.newFixedThreadPool(10);
@@ -195,13 +197,14 @@ public final class StandAloneDatabaseJavaThreadPoolTest {
                     boolean retry = true;
 
                     OResultSet vtxs = null;
-                    for (int k = 0; k < 100 && retry; k++)
+                    for (int k = 0; k < 100 && retry; k++) {
                       try {
                         vtxs = graph.command(query);
                         break;
                       } catch (ONeedRetryException e) {
                         // RETRY
                       }
+                    }
 
                     while (vtxs.hasNext()) {
                       OElement vtx = vtxs.next().toElement();
@@ -333,7 +336,9 @@ public final class StandAloneDatabaseJavaThreadPoolTest {
     }
   }
 
-  /** @return */
+  /**
+   * @return
+   */
   public String getDBURL() {
     return "remote:" + "localhost:2424;localhost:2425;localhost:2426" + "/" + dbName;
   }
@@ -356,7 +361,9 @@ public final class StandAloneDatabaseJavaThreadPoolTest {
     return graphReadFactory;
   }
 
-  /** */
+  /**
+   *
+   */
   public void checkAndCreateDatabase(String dbName) {
     try {
       OServerAdmin serverAdmin = new OServerAdmin(getDBURL()).connect("root", "root");

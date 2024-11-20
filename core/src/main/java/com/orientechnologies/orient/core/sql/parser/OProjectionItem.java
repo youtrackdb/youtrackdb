@@ -53,10 +53,7 @@ public class OProjectionItem extends SimpleNode {
     if (all) {
       return true;
     }
-    if (expression != null && "*".equals(expression.toString())) {
-      return true;
-    }
-    return false;
+    return expression != null && "*".equals(expression.toString());
   }
 
   public void setAll(boolean all) {
@@ -139,7 +136,7 @@ public class OProjectionItem extends SimpleNode {
   public static Object convert(Object value, OCommandContext context) {
     if (value instanceof ORidBag) {
       List result = new ArrayList();
-      ((ORidBag) value).rawIterator().forEachRemaining(x -> result.add(x));
+      ((ORidBag) value).iterator().forEachRemaining(result::add);
       return result;
     }
     if (value instanceof OEdgeToVertexIterable) {
@@ -228,7 +225,7 @@ public class OProjectionItem extends SimpleNode {
 
   public OProjectionItem getExpandContent() {
     OProjectionItem result = new OProjectionItem(-1);
-    result.setExpression(expression.getExpandContent());
+    result.expression = expression.getExpandContent();
     return result;
   }
 
@@ -268,7 +265,7 @@ public class OProjectionItem extends SimpleNode {
 
   public AggregationContext getAggregationContext(OCommandContext ctx) {
     if (expression == null) {
-      throw new OCommandExecutionException("Cannot aggregate on this projection: " + toString());
+      throw new OCommandExecutionException("Cannot aggregate on this projection: " + this);
     }
     return expression.getAggregationContext(ctx);
   }
@@ -286,8 +283,12 @@ public class OProjectionItem extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     OProjectionItem that = (OProjectionItem) o;
     return exclude == that.exclude
         && all == that.all

@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-/** Created by luigidellaquila on 11/10/16. */
+/**
+ * Created by luigidellaquila on 11/10/16.
+ */
 public class CartesianProductStep extends AbstractExecutionStep {
 
   private final List<OInternalExecutionPlan> subPlans = new ArrayList<>();
@@ -151,7 +153,9 @@ public class CartesianProductStep extends AbstractExecutionStep {
   private boolean isVerticalRow(int col, int subRow, int block, int blockSize) {
     if (col == block * 3 + 1) {
       return subRow > blockSize / 2;
-    } else return col < block * 3 + 1 && col % 3 == 1;
+    } else {
+      return col < block * 3 + 1 && col % 3 == 1;
+    }
   }
 
   private String head(int depth, int indent) {

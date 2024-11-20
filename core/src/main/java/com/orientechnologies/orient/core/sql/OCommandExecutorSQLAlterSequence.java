@@ -16,6 +16,7 @@ import java.util.Map;
  */
 public class OCommandExecutorSQLAlterSequence extends OCommandExecutorSQLAbstract
     implements OCommandDistributedReplicateRequest {
+
   public static final String KEYWORD_ALTER = "ALTER";
   public static final String KEYWORD_SEQUENCE = "SEQUENCE";
   public static final String KEYWORD_START = "START";

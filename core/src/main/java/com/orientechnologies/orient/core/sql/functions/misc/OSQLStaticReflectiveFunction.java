@@ -162,7 +162,9 @@ public class OSQLStaticReflectiveFunction extends OSQLFunctionAbstract {
             return PRIMITIVE_TO_WRAPPER.get(from);
           } else if (to.isPrimitive() && !from.isPrimitive()) {
             return WRAPPER_TO_PRIMITIVE.get(from);
-          } else return from;
+          } else {
+            return from;
+          }
         };
 
     final Class<?> fromClass = autoboxer.apply(iFromClass, iToClass);

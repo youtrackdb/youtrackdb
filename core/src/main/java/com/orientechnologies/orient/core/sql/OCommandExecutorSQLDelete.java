@@ -290,10 +290,9 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
           // BY RID
           value = OSQLHelper.getValue(compiledFilter.getRootCondition().getRight());
 
-        } else if (compiledFilter.getRootCondition().getLeft() instanceof OSQLFilterCondition) {
+        } else if (compiledFilter.getRootCondition().getLeft()
+            instanceof OSQLFilterCondition leftCondition) {
           // KEY AND VALUE
-          final OSQLFilterCondition leftCondition =
-              (OSQLFilterCondition) compiledFilter.getRootCondition().getLeft();
           if (KEYWORD_KEY.equalsIgnoreCase(leftCondition.getLeft().toString())) {
             key = getIndexKey(database, index.getDefinition(), leftCondition.getRight());
           }
@@ -416,8 +415,7 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
   private Object getIndexKey(
       ODatabaseSessionInternal session, final OIndexDefinition indexDefinition, Object value) {
     if (indexDefinition instanceof OCompositeIndexDefinition) {
-      if (value instanceof List) {
-        final List<?> values = (List<?>) value;
+      if (value instanceof List<?> values) {
         List<Object> keyParams = new ArrayList<Object>(values.size());
 
         for (Object o : values) {

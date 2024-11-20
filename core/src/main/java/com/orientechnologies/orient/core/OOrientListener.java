@@ -27,6 +27,7 @@ import com.orientechnologies.orient.core.storage.OStorage;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OOrientListener extends OOrientShutdownListener {
+
   void onShutdown();
 
   void onStorageRegistered(final OStorage storage);

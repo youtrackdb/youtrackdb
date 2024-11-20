@@ -12,6 +12,7 @@ import java.io.IOException;
 
 public class OListGlobalConfigurationsRequest
     implements OBinaryRequest<OListGlobalConfigurationsResponse> {
+
   @Override
   public void write(OChannelDataOutput network, OStorageRemoteSession session) throws IOException {}
 

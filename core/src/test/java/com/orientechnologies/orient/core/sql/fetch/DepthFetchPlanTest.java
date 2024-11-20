@@ -92,6 +92,7 @@ public class DepthFetchPlanTest extends BaseMemoryDatabase {
   }
 
   private final class CountFetchListener extends ORemoteFetchListener {
+
     public int count;
 
     @Override

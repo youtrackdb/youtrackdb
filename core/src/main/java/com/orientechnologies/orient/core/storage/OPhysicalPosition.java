@@ -28,6 +28,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
 public class OPhysicalPosition implements OSerializableStream, Externalizable {
+
   private static final int binarySize =
       OBinaryProtocol.SIZE_LONG
           + OBinaryProtocol.SIZE_BYTE
@@ -115,9 +116,9 @@ public class OPhysicalPosition implements OSerializableStream, Externalizable {
 
   @Override
   public boolean equals(Object obj) {
-    if (obj == null || !(obj instanceof OPhysicalPosition)) return false;
-
-    final OPhysicalPosition other = (OPhysicalPosition) obj;
+    if (obj == null || !(obj instanceof OPhysicalPosition other)) {
+      return false;
+    }
 
     return clusterPosition == other.clusterPosition
         && recordType == other.recordType

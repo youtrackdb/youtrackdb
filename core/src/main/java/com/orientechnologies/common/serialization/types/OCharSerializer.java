@@ -31,7 +31,10 @@ import java.nio.ByteOrder;
  * @since 18.01.12
  */
 public class OCharSerializer implements OBinarySerializer<Character> {
-  /** size of char value in bytes */
+
+  /**
+   * size of char value in bytes
+   */
   public static final int CHAR_SIZE = 2;
 
   public static final byte ID = 3;
@@ -112,13 +115,17 @@ public class OCharSerializer implements OBinarySerializer<Character> {
     return value;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void serializeInByteBufferObject(Character object, ByteBuffer buffer, Object... hints) {
     buffer.putChar(object);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Character deserializeFromByteBufferObject(ByteBuffer buffer) {
     return buffer.getChar();
@@ -129,7 +136,9 @@ public class OCharSerializer implements OBinarySerializer<Character> {
     return buffer.getChar(offset);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getObjectSizeInByteBuffer(ByteBuffer buffer) {
     return CHAR_SIZE;
@@ -140,14 +149,18 @@ public class OCharSerializer implements OBinarySerializer<Character> {
     return CHAR_SIZE;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Character deserializeFromByteBufferObject(
       ByteBuffer buffer, OWALChanges walChanges, int offset) {
     return (char) walChanges.getShortValue(buffer, offset);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getObjectSizeInByteBuffer(ByteBuffer buffer, OWALChanges walChanges, int offset) {
     return CHAR_SIZE;

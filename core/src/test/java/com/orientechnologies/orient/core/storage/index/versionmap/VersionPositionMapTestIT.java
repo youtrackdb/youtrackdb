@@ -11,6 +11,7 @@ import java.util.Random;
 import org.junit.*;
 
 public class VersionPositionMapTestIT {
+
   public static final String DIR_NAME = "/versionPositionMapTest";
   public static final String DB_NAME = "versionPositionMapTest";
   private static OrientDB orientDB;
@@ -99,7 +100,7 @@ public class VersionPositionMapTestIT {
     System.out.printf("incrementVersion seed :%d%n", seed);
     final Random random = new Random(seed);
     for (int i = 0; i <= maxVPMSize; i++) {
-      int randomNum = 0 + random.nextInt((maxVPMSize - 0) + 1);
+      int randomNum = random.nextInt((maxVPMSize) + 1);
       final int version = versionPositionMap.getVersion(randomNum);
       versionPositionMap.updateVersion(randomNum);
       Assert.assertEquals(version + 1, versionPositionMap.getVersion(randomNum));

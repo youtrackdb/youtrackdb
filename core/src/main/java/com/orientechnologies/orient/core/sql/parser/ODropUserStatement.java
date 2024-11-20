@@ -7,8 +7,10 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class ODropUserStatement extends OSimpleExecStatement {
+
   public ODropUserStatement(int id) {
     super(id);
   }
@@ -24,15 +26,11 @@ public class ODropUserStatement extends OSimpleExecStatement {
 
     List<Object> params = new ArrayList<>();
 
-    StringBuilder sb = new StringBuilder();
-    sb.append("DELETE FROM OUser WHERE ");
-
-    sb.append(OCreateUserStatement.USER_FIELD_NAME);
-    sb.append(" = ?");
+    String sb = "DELETE FROM OUser WHERE " + OCreateUserStatement.USER_FIELD_NAME + " = ?";
     params.add(this.name.getStringValue());
 
     return OExecutionStream.resultIterator(
-        ctx.getDatabase().command(sb.toString(), params.toArray()).stream().iterator());
+        ctx.getDatabase().command(sb, params.toArray()).stream().iterator());
   }
 
   @Override
@@ -56,12 +54,16 @@ public class ODropUserStatement extends OSimpleExecStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     ODropUserStatement that = (ODropUserStatement) o;
 
-    return name != null ? name.equals(that.name) : that.name == null;
+    return Objects.equals(name, that.name);
   }
 
   @Override

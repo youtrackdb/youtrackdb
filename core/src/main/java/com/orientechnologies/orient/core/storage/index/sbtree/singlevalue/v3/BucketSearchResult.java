@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.core.storage.index.sbtree.singlevalue.v3;
 
 final class BucketSearchResult {
+
   private final int itemIndex;
   private final long pageIndex;
 

@@ -32,7 +32,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by enricorisa on 28/06/14. */
+/**
+ * Created by enricorisa on 28/06/14.
+ */
 public class LuceneInsertUpdateSingleDocumentTransactionTest extends BaseLuceneTest {
 
   public LuceneInsertUpdateSingleDocumentTransactionTest() {

@@ -28,7 +28,9 @@ import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by enricorisa on 08/10/14. */
+/**
+ * Created by enricorisa on 08/10/14.
+ */
 public class OLuceneContextTest extends OLuceneBaseTest {
 
   @Before
@@ -73,8 +75,8 @@ public class OLuceneContextTest extends OLuceneBaseTest {
     OResult doc = results.get(0);
     System.out.println("doc.toElement().toJSON() = " + doc.toElement().toJSON());
 
-    assertThat(doc.<Long>getProperty("$totalHits")).isEqualTo(14l);
-    assertThat(doc.<Long>getProperty("$Song_title_totalHits")).isEqualTo(14l);
+    assertThat(doc.<Long>getProperty("$totalHits")).isEqualTo(14L);
+    assertThat(doc.<Long>getProperty("$Song_title_totalHits")).isEqualTo(14L);
     docs.close();
   }
 }

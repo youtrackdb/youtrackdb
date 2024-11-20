@@ -7,7 +7,9 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by tglman on 09/06/17. */
+/**
+ * Created by tglman on 09/06/17.
+ */
 public class OSelectStatementExecutionTestIT extends BaseMemoryDatabase {
 
   @Test
@@ -29,7 +31,7 @@ public class OSelectStatementExecutionTestIT extends BaseMemoryDatabase {
         OResult item = result.next();
         //        Assert.assertNotNull(item);
         Object name = item.getProperty("name");
-        Assert.assertFalse("name1".equals(name));
+        Assert.assertNotEquals("name1", name);
       }
       Assert.assertFalse(result.hasNext());
       result.close();
@@ -61,7 +63,7 @@ public class OSelectStatementExecutionTestIT extends BaseMemoryDatabase {
 
         //        Assert.assertNotNull(item);
         Object name = item.getProperty("name");
-        Assert.assertFalse("name1".equals(name));
+        Assert.assertNotEquals("name1", name);
       }
       //      Assert.assertFalse(result.hasNext());
       long end = System.nanoTime();

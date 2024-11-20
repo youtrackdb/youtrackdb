@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class OBetweenCondition extends OBooleanExpression {
@@ -181,10 +182,7 @@ public class OBetweenCondition extends OBooleanExpression {
     if (second.needsAliases(aliases)) {
       return true;
     }
-    if (third.needsAliases(aliases)) {
-      return true;
-    }
-    return false;
+    return third.needsAliases(aliases);
   }
 
   @Override
@@ -210,16 +208,22 @@ public class OBetweenCondition extends OBooleanExpression {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OBetweenCondition that = (OBetweenCondition) o;
 
-    if (first != null ? !first.equals(that.first) : that.first != null) return false;
-    if (second != null ? !second.equals(that.second) : that.second != null) return false;
-    if (third != null ? !third.equals(that.third) : that.third != null) return false;
-
-    return true;
+    if (!Objects.equals(first, that.first)) {
+      return false;
+    }
+    if (!Objects.equals(second, that.second)) {
+      return false;
+    }
+    return Objects.equals(third, that.third);
   }
 
   @Override
@@ -263,10 +267,7 @@ public class OBetweenCondition extends OBooleanExpression {
     if (second != null && !second.isCacheable()) {
       return false;
     }
-    if (third != null && !third.isCacheable()) {
-      return false;
-    }
-    return true;
+    return third == null || third.isCacheable();
   }
 }
 /* JavaCC - OriginalChecksum=f94f4779c4a6c6d09539446045ceca89 (do not edit this line) */

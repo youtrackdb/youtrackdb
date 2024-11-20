@@ -14,9 +14,11 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ONestedProjection extends SimpleNode {
+
   protected List<ONestedProjectionItem> includeItems = new ArrayList<>();
   protected List<ONestedProjectionItem> excludeItems = new ArrayList<>();
   protected ONestedProjectionItem starItem;
@@ -140,7 +142,7 @@ public class ONestedProjection extends SimpleNode {
       }
     }
     OResultInternal result = new OResultInternal();
-    if (starItem != null || includeItems.size() == 0) {
+    if (starItem != null || includeItems.isEmpty()) {
       for (String property : elem.getPropertyNames()) {
         if (isExclude(property)) {
           continue;
@@ -150,6 +152,7 @@ public class ONestedProjection extends SimpleNode {
             convert(tryExpand(expression, property, elem.getProperty(property), ctx, recursion)));
       }
     }
+
     if (includeItems.size() > 0) {
       // TODO manage wildcards!
       for (ONestedProjectionItem item : includeItems) {
@@ -273,17 +276,25 @@ public class ONestedProjection extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     ONestedProjection that = (ONestedProjection) o;
 
-    if (includeItems != null ? !includeItems.equals(that.includeItems) : that.includeItems != null)
+    if (!Objects.equals(includeItems, that.includeItems)) {
       return false;
-    if (excludeItems != null ? !excludeItems.equals(that.excludeItems) : that.excludeItems != null)
+    }
+    if (!Objects.equals(excludeItems, that.excludeItems)) {
       return false;
-    if (starItem != null ? !starItem.equals(that.starItem) : that.starItem != null) return false;
-    return recursion != null ? recursion.equals(that.recursion) : that.recursion == null;
+    }
+    if (!Objects.equals(starItem, that.starItem)) {
+      return false;
+    }
+    return Objects.equals(recursion, that.recursion);
   }
 
   @Override

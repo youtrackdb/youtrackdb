@@ -7,6 +7,7 @@ import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class OGroupBy extends SimpleNode {
@@ -57,14 +58,16 @@ public class OGroupBy extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OGroupBy oGroupBy = (OGroupBy) o;
 
-    if (items != null ? !items.equals(oGroupBy.items) : oGroupBy.items != null) return false;
-
-    return true;
+    return Objects.equals(items, oGroupBy.items);
   }
 
   @Override

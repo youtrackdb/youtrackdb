@@ -36,7 +36,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 10/08/15. */
+/**
+ * Created by Enrico Risa on 10/08/15.
+ */
 public class LuceneTransactionQueryTest extends BaseLuceneTest {
 
   @Before

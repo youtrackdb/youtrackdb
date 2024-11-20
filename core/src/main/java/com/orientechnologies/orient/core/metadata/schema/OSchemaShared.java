@@ -248,17 +248,17 @@ public abstract class OSchemaShared implements OCloseable {
   }
 
   public OClass createClass(ODatabaseSessionInternal database, final String className) {
-    return createClass(database, className, (OClass) null, (int[]) null);
+    return createClass(database, className, null, (int[]) null);
   }
 
   public OClass createClass(
       ODatabaseSessionInternal database, final String iClassName, final OClass iSuperClass) {
-    return createClass(database, iClassName, iSuperClass, (int[]) null);
+    return createClass(database, iClassName, iSuperClass, null);
   }
 
   public OClass createClass(
       ODatabaseSessionInternal database, String iClassName, OClass... superClasses) {
-    return createClass(database, iClassName, (int[]) null, superClasses);
+    return createClass(database, iClassName, null, superClasses);
   }
 
   public OClass getOrCreateClass(ODatabaseSessionInternal database, final String iClassName) {
@@ -601,7 +601,7 @@ public abstract class OSchemaShared implements OCloseable {
     modificationCounter.increment();
     try {
       // READ CURRENT SCHEMA VERSION
-      final Integer schemaVersion = (Integer) document.field("schemaVersion");
+      final Integer schemaVersion = document.field("schemaVersion");
       if (schemaVersion == null) {
         OLogManager.instance()
             .error(

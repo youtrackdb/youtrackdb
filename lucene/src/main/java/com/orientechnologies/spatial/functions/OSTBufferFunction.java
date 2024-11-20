@@ -22,12 +22,14 @@ import com.orientechnologies.spatial.shape.OShapeFactory;
 import java.util.Map;
 import org.locationtech.spatial4j.shape.Shape;
 
-/** Created by Enrico Risa on 06/08/15. */
+/**
+ * Created by Enrico Risa on 06/08/15.
+ */
 public class OSTBufferFunction extends OSQLFunctionAbstract {
 
   public static final String NAME = "ST_Buffer";
 
-  private OShapeFactory factory = OShapeFactory.INSTANCE;
+  private final OShapeFactory factory = OShapeFactory.INSTANCE;
 
   public OSTBufferFunction() {
     super(NAME, 2, 3);

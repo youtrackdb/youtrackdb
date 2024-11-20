@@ -3,6 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 public class OInPathItemOpt extends OInPathItem {
+
   public OInPathItemOpt(int id) {
     super(id);
   }

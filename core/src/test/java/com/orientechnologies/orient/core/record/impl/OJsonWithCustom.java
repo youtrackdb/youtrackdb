@@ -11,7 +11,9 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import org.junit.Test;
 
-/** Created by tglman on 25/01/16. */
+/**
+ * Created by tglman on 25/01/16.
+ */
 public class OJsonWithCustom {
 
   @Test
@@ -65,7 +67,7 @@ public class OJsonWithCustom {
 
         ODocument doc1 = new ODocument();
         doc1.fromJSON(json);
-        assertEquals(TestCustom.valueOf((String) doc1.field("test")), TestCustom.ONE);
+        assertEquals(TestCustom.valueOf(doc1.field("test")), TestCustom.ONE);
       } finally {
         db.close();
       }

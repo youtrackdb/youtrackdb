@@ -4,6 +4,7 @@ import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 
 public class OSHA256HashFunction<V> implements OHashFunction<V> {
+
   private final OBinarySerializer<V> valueSerializer;
 
   public OSHA256HashFunction(OBinarySerializer<V> valueSerializer) {

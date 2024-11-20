@@ -1,8 +1,9 @@
 package com.orientechnologies.orient.core.db.tool;
 
+import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -12,123 +13,140 @@ import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestSchemaImportExport {
+public class TestSchemaImportExport extends BaseMemoryDatabase {
 
   @Test
   public void testExportImportCustomData() throws IOException {
-    ODatabaseSessionInternal db =
-        new ODatabaseDocumentTx("memory:" + TestSchemaImportExport.class.getSimpleName());
-    db.create();
+    context.createIfNotExists(
+        TestSchemaImportExport.class.getSimpleName(),
+        ODatabaseType.MEMORY,
+        "admin",
+        "admin",
+        "admin");
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    try {
+    try (var db =
+        (ODatabaseSessionInternal)
+            context.open(TestSchemaImportExport.class.getSimpleName(), "admin", "admin")) {
       OClass clazz = db.getMetadata().getSchema().createClass("Test");
       clazz.createProperty("some", OType.STRING);
       clazz.setCustom("testcustom", "test");
-      ODatabaseExport exp =
-          new ODatabaseExport((ODatabaseSessionInternal) db, output, new MockOutputListener());
+      ODatabaseExport exp = new ODatabaseExport(db, output, new MockOutputListener());
       exp.exportDatabase();
     } finally {
-      db.drop();
+      context.drop(TestSchemaImportExport.class.getSimpleName());
     }
-    ODatabaseSessionInternal db1 =
-        new ODatabaseDocumentTx("memory:imp_" + TestSchemaImportExport.class.getSimpleName());
-    db1.create();
-    try {
+
+    context.createIfNotExists(
+        "imp_" + TestSchemaImportExport.class.getSimpleName(),
+        ODatabaseType.MEMORY,
+        "admin",
+        "admin",
+        "admin");
+    try (var db1 =
+        (ODatabaseSessionInternal)
+            context.open("imp_" + TestSchemaImportExport.class.getSimpleName(), "admin", "admin")) {
       ODatabaseImport imp =
           new ODatabaseImport(
-              (ODatabaseSessionInternal) db1,
-              new ByteArrayInputStream(output.toByteArray()),
-              new MockOutputListener());
+              db1, new ByteArrayInputStream(output.toByteArray()), new MockOutputListener());
       imp.importDatabase();
-      db1.close();
-      db1.open("admin", "admin");
       OClass clas1 = db1.getMetadata().getSchema().getClass("Test");
       Assert.assertNotNull(clas1);
-      Assert.assertEquals(clas1.getCustom("testcustom"), "test");
+      Assert.assertEquals("test", clas1.getCustom("testcustom"));
     } finally {
-      db1.drop();
+      context.drop("imp_" + TestSchemaImportExport.class.getSimpleName());
     }
   }
 
   @Test
   public void testExportImportDefaultValue() throws IOException {
-    ODatabaseSessionInternal db =
-        new ODatabaseDocumentTx("memory:" + TestSchemaImportExport.class.getSimpleName());
-    db.create();
+    context.createIfNotExists(
+        TestSchemaImportExport.class.getSimpleName(),
+        ODatabaseType.MEMORY,
+        "admin",
+        "admin",
+        "admin");
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    try {
+
+    try (var db =
+        (ODatabaseSessionInternal)
+            context.open(TestSchemaImportExport.class.getSimpleName(), "admin", "admin")) {
       OClass clazz = db.getMetadata().getSchema().createClass("Test");
       clazz.createProperty("bla", OType.STRING).setDefaultValue("something");
-      ODatabaseExport exp =
-          new ODatabaseExport((ODatabaseSessionInternal) db, output, new MockOutputListener());
+      ODatabaseExport exp = new ODatabaseExport(db, output, new MockOutputListener());
       exp.exportDatabase();
     } finally {
-      db.drop();
+      context.drop(TestSchemaImportExport.class.getSimpleName());
     }
 
-    ODatabaseSessionInternal db1 =
-        new ODatabaseDocumentTx("memory:imp_" + TestSchemaImportExport.class.getSimpleName());
-    db1.create();
-    try {
+    context.createIfNotExists(
+        "imp_" + TestSchemaImportExport.class.getSimpleName(),
+        ODatabaseType.MEMORY,
+        "admin",
+        "admin",
+        "admin");
+    try (var db1 =
+        (ODatabaseSessionInternal)
+            context.open("imp_" + TestSchemaImportExport.class.getSimpleName(), "admin", "admin")) {
       ODatabaseImport imp =
           new ODatabaseImport(
-              (ODatabaseSessionInternal) db1,
-              new ByteArrayInputStream(output.toByteArray()),
-              new MockOutputListener());
+              db1, new ByteArrayInputStream(output.toByteArray()), new MockOutputListener());
       imp.importDatabase();
-      db1.close();
-      db1.open("admin", "admin");
+
       OClass clas1 = db1.getMetadata().getSchema().getClass("Test");
       Assert.assertNotNull(clas1);
       OProperty prop1 = clas1.getProperty("bla");
       Assert.assertNotNull(prop1);
-      Assert.assertEquals(prop1.getDefaultValue(), "something");
+      Assert.assertEquals("something", prop1.getDefaultValue());
     } finally {
-      db1.drop();
+      context.drop("imp_" + TestSchemaImportExport.class.getSimpleName());
     }
   }
 
   @Test
   public void testExportImportMultipleInheritance() throws IOException {
-    ODatabaseSessionInternal db =
-        new ODatabaseDocumentTx(
-            "memory:" + TestSchemaImportExport.class.getSimpleName() + "MultipleInheritance");
-    db.create();
+    context.createIfNotExists(
+        TestSchemaImportExport.class.getSimpleName(),
+        ODatabaseType.MEMORY,
+        "admin",
+        "admin",
+        "admin");
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    try {
+    try (var db =
+        (ODatabaseSessionInternal)
+            context.open(TestSchemaImportExport.class.getSimpleName(), "admin", "admin")) {
       OClass clazz = db.getMetadata().getSchema().createClass("Test");
       clazz.addSuperClass(db.getMetadata().getSchema().getClass("ORestricted"));
       clazz.addSuperClass(db.getMetadata().getSchema().getClass("OIdentity"));
 
-      ODatabaseExport exp =
-          new ODatabaseExport((ODatabaseSessionInternal) db, output, new MockOutputListener());
+      ODatabaseExport exp = new ODatabaseExport(db, output, new MockOutputListener());
       exp.exportDatabase();
     } finally {
-      db.drop();
+      context.drop(TestSchemaImportExport.class.getSimpleName());
     }
 
-    ODatabaseSessionInternal db1 =
-        new ODatabaseDocumentTx(
-            "memory:imp_" + TestSchemaImportExport.class.getSimpleName() + "MultipleInheritance");
-    db1.create();
-    try {
+    context.createIfNotExists(
+        "imp_" + TestSchemaImportExport.class.getSimpleName(),
+        ODatabaseType.MEMORY,
+        "admin",
+        "admin",
+        "admin");
+    try (var db1 =
+        (ODatabaseSessionInternal)
+            context.open("imp_" + TestSchemaImportExport.class.getSimpleName(), "admin", "admin")) {
       ODatabaseImport imp =
           new ODatabaseImport(
-              (ODatabaseSessionInternal) db1,
-              new ByteArrayInputStream(output.toByteArray()),
-              new MockOutputListener());
+              db1, new ByteArrayInputStream(output.toByteArray()), new MockOutputListener());
       imp.importDatabase();
-      db1.close();
-      db1.open("admin", "admin");
       OClass clas1 = db1.getMetadata().getSchema().getClass("Test");
       Assert.assertTrue(clas1.isSubClassOf("OIdentity"));
       Assert.assertTrue(clas1.isSubClassOf("ORestricted"));
     } finally {
-      db1.drop();
+      context.drop("imp_" + TestSchemaImportExport.class.getSimpleName());
     }
   }
 
   private static final class MockOutputListener implements OCommandOutputListener {
+
     @Override
     public void onMessage(String iText) {}
   }

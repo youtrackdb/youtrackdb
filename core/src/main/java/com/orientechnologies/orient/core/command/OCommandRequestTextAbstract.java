@@ -42,17 +42,22 @@ import java.util.Map.Entry;
 @SuppressWarnings("serial")
 public abstract class OCommandRequestTextAbstract extends OCommandRequestAbstract
     implements OCommandRequestText {
+
   protected String text;
 
   protected OCommandRequestTextAbstract() {}
 
   protected OCommandRequestTextAbstract(final String iText) {
-    if (iText == null) throw new IllegalArgumentException("Text cannot be null");
+    if (iText == null) {
+      throw new IllegalArgumentException("Text cannot be null");
+    }
 
     text = iText.trim();
   }
 
-  /** Delegates the execution to the configured command executor. */
+  /**
+   * Delegates the execution to the configured command executor.
+   */
   @SuppressWarnings("unchecked")
   public <RET> RET execute(final Object... iArgs) {
     setParameters(iArgs);
@@ -101,11 +106,13 @@ public abstract class OCommandRequestTextAbstract extends OCommandRequestAbstrac
       final Map<Object, Object> params = new HashMap<Object, Object>();
       final Map<Object, List<Object>> compositeKeyParams = new HashMap<Object, List<Object>>();
 
-      for (final Entry<Object, Object> paramEntry : parameters.entrySet())
-        if (paramEntry.getValue() instanceof OCompositeKey) {
-          final OCompositeKey compositeKey = (OCompositeKey) paramEntry.getValue();
+      for (final Entry<Object, Object> paramEntry : parameters.entrySet()) {
+        if (paramEntry.getValue() instanceof OCompositeKey compositeKey) {
           compositeKeyParams.put(paramEntry.getKey(), compositeKey.getKeys());
-        } else params.put(paramEntry.getKey(), paramEntry.getValue());
+        } else {
+          params.put(paramEntry.getKey(), paramEntry.getValue());
+        }
+      }
 
       buffer.set(!params.isEmpty());
       if (!params.isEmpty()) {
@@ -134,28 +141,37 @@ public abstract class OCommandRequestTextAbstract extends OCommandRequestAbstrac
     if (simpleParams) {
       final byte[] paramBuffer = buffer.getAsByteArray();
       final ODocument param = new ODocument();
-      if (serializer != null) serializer.fromStream(paramBuffer, param, null);
-      else param.fromStream(paramBuffer);
+      if (serializer != null) {
+        serializer.fromStream(paramBuffer, param, null);
+      } else {
+        param.fromStream(paramBuffer);
+      }
 
       Map<Object, Object> params = param.field("params");
       parameters = new HashMap<Object, Object>();
       if (params != null) {
         for (Entry<Object, Object> p : params.entrySet()) {
           final Object value;
-          if (p.getValue() instanceof String)
+          if (p.getValue() instanceof String) {
             value = ORecordSerializerStringAbstract.getTypeValue((String) p.getValue());
-          else value = p.getValue();
+          } else {
+            value = p.getValue();
+          }
 
-          if (p.getKey() instanceof String && Character.isDigit(((String) p.getKey()).charAt(0)))
+          if (p.getKey() instanceof String && Character.isDigit(((String) p.getKey()).charAt(0))) {
             parameters.put(Integer.parseInt((String) p.getKey()), value);
-          else parameters.put(p.getKey(), value);
+          } else {
+            parameters.put(p.getKey(), value);
+          }
         }
       } else {
         params = param.field("parameters");
         for (Entry<Object, Object> p : params.entrySet()) {
-          if (p.getKey() instanceof String && Character.isDigit(((String) p.getKey()).charAt(0)))
+          if (p.getKey() instanceof String && Character.isDigit(((String) p.getKey()).charAt(0))) {
             parameters.put(Integer.parseInt((String) p.getKey()), p.getValue());
-          else parameters.put(p.getKey(), p.getValue());
+          } else {
+            parameters.put(p.getKey(), p.getValue());
+          }
         }
       }
     }
@@ -164,28 +180,37 @@ public abstract class OCommandRequestTextAbstract extends OCommandRequestAbstrac
     if (compositeKeyParamsPresent) {
       final byte[] paramBuffer = buffer.getAsByteArray();
       final ODocument param = new ODocument();
-      if (serializer != null) serializer.fromStream(paramBuffer, param, null);
-      else param.fromStream(paramBuffer);
+      if (serializer != null) {
+        serializer.fromStream(paramBuffer, param, null);
+      } else {
+        param.fromStream(paramBuffer);
+      }
 
       final Map<Object, Object> compositeKeyParams = param.field("compositeKeyParams");
 
-      if (parameters == null) parameters = new HashMap<Object, Object>();
+      if (parameters == null) {
+        parameters = new HashMap<Object, Object>();
+      }
 
       for (final Entry<Object, Object> p : compositeKeyParams.entrySet()) {
         if (p.getValue() instanceof List) {
           final OCompositeKey compositeKey = new OCompositeKey((List<?>) p.getValue());
-          if (p.getKey() instanceof String && Character.isDigit(((String) p.getKey()).charAt(0)))
+          if (p.getKey() instanceof String && Character.isDigit(((String) p.getKey()).charAt(0))) {
             parameters.put(Integer.parseInt((String) p.getKey()), compositeKey);
-          else parameters.put(p.getKey(), compositeKey);
+          } else {
+            parameters.put(p.getKey(), compositeKey);
+          }
 
         } else {
           final Object value =
               OCompositeKeySerializer.INSTANCE.deserialize(
                   OStringSerializerHelper.getBinaryContent(p.getValue()), 0);
 
-          if (p.getKey() instanceof String && Character.isDigit(((String) p.getKey()).charAt(0)))
+          if (p.getKey() instanceof String && Character.isDigit(((String) p.getKey()).charAt(0))) {
             parameters.put(Integer.parseInt((String) p.getKey()), value);
-          else parameters.put(p.getKey(), value);
+          } else {
+            parameters.put(p.getKey(), value);
+          }
         }
       }
     }

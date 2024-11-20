@@ -8,15 +8,17 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.util.stream.Collectors;
 
-/** Created by luigidellaquila on 16/03/17. */
+/**
+ * Created by luigidellaquila on 16/03/17.
+ */
 public class GetValueFromIndexEntryStep extends AbstractExecutionStep {
 
   private final IntArrayList filterClusterIds;
 
   /**
-   * @param ctx the execution context
+   * @param ctx              the execution context
    * @param filterClusterIds only extract values from these clusters. Pass null if no filtering is
-   *     needed
+   *                         needed
    * @param profilingEnabled enable profiling
    */
   public GetValueFromIndexEntryStep(

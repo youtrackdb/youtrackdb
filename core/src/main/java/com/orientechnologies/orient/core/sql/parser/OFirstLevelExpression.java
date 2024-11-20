@@ -3,6 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 public class OFirstLevelExpression extends OMathExpression {
+
   public OFirstLevelExpression(int id) {
     super(id);
   }
@@ -18,10 +19,7 @@ public class OFirstLevelExpression extends OMathExpression {
 
   // never used, this class is never returned by the parser!
   public boolean isBaseIdentifier() {
-    if (value instanceof OIdentifier) {
-      return true;
-    }
-    return false;
+    return value instanceof OIdentifier;
   }
 }
 /* JavaCC - OriginalChecksum=30dc1016b686d4841bbd57d6e6c0bfbd (do not edit this line) */

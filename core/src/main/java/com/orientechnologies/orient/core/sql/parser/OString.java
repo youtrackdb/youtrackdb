@@ -5,6 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import java.util.Map;
 
 public class OString extends SimpleNode {
+
   public OString(int id) {
     super(id);
   }

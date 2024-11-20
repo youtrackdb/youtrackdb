@@ -6,8 +6,11 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OJson;
 
-/** Created by luigidellaquila on 09/08/16. */
+/**
+ * Created by luigidellaquila on 09/08/16.
+ */
 public class UpdateMergeStep extends AbstractExecutionStep {
+
   private final OJson json;
 
   public UpdateMergeStep(OJson json, OCommandContext ctx, boolean profilingEnabled) {
@@ -26,7 +29,7 @@ public class UpdateMergeStep extends AbstractExecutionStep {
   private OResult mapResult(OResult result, OCommandContext ctx) {
     if (result instanceof OResultInternal) {
       if (!(result.getElement().orElse(null) instanceof ODocument)) {
-        ((OResultInternal) result).setElement(result.toElement().getRecord());
+        ((OResultInternal) result).setIdentifiable(result.toElement().getRecord());
       }
       if (!(result.getElement().orElse(null) instanceof ODocument)) {
         return result;

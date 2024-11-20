@@ -26,7 +26,9 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by enricorisa on 26/09/14. */
+/**
+ * Created by enricorisa on 26/09/14.
+ */
 public class LuceneCreateIndexTest extends BaseLuceneTest {
 
   @Test

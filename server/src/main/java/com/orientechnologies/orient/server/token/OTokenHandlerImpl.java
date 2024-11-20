@@ -29,8 +29,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.UUID;
 
@@ -40,6 +40,7 @@ import java.util.UUID;
  * @author Emrul Islam <emrul@emrul.com> Copyright 2014 Emrul Islam
  */
 public class OTokenHandlerImpl implements OTokenHandler {
+
   protected static final int JWT_DELIMITER = '.';
   private OBinaryTokenSerializer binarySerializer;
   private long sessionInMills = 1000 * 60 * 60; // 1 HOUR
@@ -91,18 +92,22 @@ public class OTokenHandlerImpl implements OTokenHandler {
     int secondDot = -1;
     for (int x = 0; x < tokenBytes.length; x++) {
       if (tokenBytes[x] == JWT_DELIMITER) {
-        if (firstDot == -1) firstDot = x; // stores reference to first '.' character in JWT token
-        else {
+        if (firstDot == -1) {
+          firstDot = x; // stores reference to first '.' character in JWT token
+        } else {
           secondDot = x;
           break;
         }
       }
     }
 
-    if (firstDot == -1) throw new RuntimeException("Token data too short: missed header");
+    if (firstDot == -1) {
+      throw new RuntimeException("Token data too short: missed header");
+    }
 
-    if (secondDot == -1) throw new RuntimeException("Token data too short: missed signature");
-    ;
+    if (secondDot == -1) {
+      throw new RuntimeException("Token data too short: missed signature");
+    }
     final byte[] decodedHeader =
         Base64.getUrlDecoder().decode(ByteBuffer.wrap(tokenBytes, 0, firstDot)).array();
     final byte[] decodedPayload =
@@ -301,8 +306,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
 
   public ONetworkProtocolData getProtocolDataFromToken(
       OClientConnection connection, final OToken token) {
-    if (token instanceof OBinaryToken) {
-      final OBinaryToken binary = (OBinaryToken) token;
+    if (token instanceof OBinaryToken binary) {
       final ONetworkProtocolData data = new ONetworkProtocolData();
       // data.clientId = binary.get;
       data.protocolVersion = binary.getProtocolVersion();
@@ -351,7 +355,9 @@ public class OTokenHandlerImpl implements OTokenHandler {
 
   @Override
   public byte[] renewIfNeeded(final OToken token) {
-    if (token == null) throw new IllegalArgumentException("Token is null");
+    if (token == null) {
+      throw new IllegalArgumentException("Token is null");
+    }
 
     final long curTime = System.currentTimeMillis();
     if (token.getExpiry() - curTime < (sessionInMills / 2) && token.getExpiry() >= curTime) {
@@ -359,8 +365,11 @@ public class OTokenHandlerImpl implements OTokenHandler {
       final long currTime = System.currentTimeMillis();
       token.setExpiry(currTime + expiryMinutes);
       try {
-        if (token instanceof OBinaryToken) return serializeSignedToken((OBinaryToken) token);
-        else throw new OTokenException("renew of web token not supported");
+        if (token instanceof OBinaryToken) {
+          return serializeSignedToken((OBinaryToken) token);
+        } else {
+          throw new OTokenException("renew of web token not supported");
+        }
       } catch (IOException e) {
         throw OException.wrapException(new OSystemException("Error on token parsing"), e);
       }
@@ -378,16 +387,11 @@ public class OTokenHandlerImpl implements OTokenHandler {
 
   protected OrientJwtHeader deserializeWebHeader(final byte[] decodedHeader) {
     final ODocument doc = new ODocument();
-    try {
-      doc.fromJSON(new String(decodedHeader, "UTF-8"));
-    } catch (UnsupportedEncodingException e) {
-      throw OException.wrapException(
-          new OSystemException("Header is not encoded in UTF-8 format"), e);
-    }
+    doc.fromJSON(new String(decodedHeader, StandardCharsets.UTF_8));
     final OrientJwtHeader header = new OrientJwtHeader();
-    header.setType((String) doc.field("typ"));
-    header.setAlgorithm((String) doc.field("alg"));
-    header.setKeyId((String) doc.field("kid"));
+    header.setType(doc.field("typ"));
+    header.setAlgorithm(doc.field("alg"));
+    header.setKeyId(doc.field("kid"));
     return header;
   }
 
@@ -396,40 +400,39 @@ public class OTokenHandlerImpl implements OTokenHandler {
       throw new OSystemException("Payload class not registered:" + type);
     }
     final ODocument doc = new ODocument();
-    try {
-      doc.fromJSON(new String(decodedPayload, "UTF-8"));
-    } catch (UnsupportedEncodingException e) {
-      throw OException.wrapException(
-          new OSystemException("Payload encoding format differs from UTF-8"), e);
-    }
+    doc.fromJSON(new String(decodedPayload, StandardCharsets.UTF_8));
     final OrientJwtPayload payload = new OrientJwtPayload();
-    payload.setUserName((String) doc.field("username"));
-    payload.setIssuer((String) doc.field("iss"));
-    payload.setExpiry((Long) doc.field("exp"));
-    payload.setIssuedAt((Long) doc.field("iat"));
-    payload.setNotBefore((Long) doc.field("nbf"));
-    payload.setDatabase((String) doc.field("sub"));
-    payload.setAudience((String) doc.field("aud"));
-    payload.setTokenId((String) doc.field("jti"));
-    final int cluster = (Integer) doc.field("uidc");
-    final long pos = (Long) doc.field("uidp");
+    payload.setUserName(doc.field("username"));
+    payload.setIssuer(doc.field("iss"));
+    payload.setExpiry(doc.field("exp"));
+    payload.setIssuedAt(doc.field("iat"));
+    payload.setNotBefore(doc.field("nbf"));
+    payload.setDatabase(doc.field("sub"));
+    payload.setAudience(doc.field("aud"));
+    payload.setTokenId(doc.field("jti"));
+    final int cluster = doc.field("uidc");
+    final long pos = doc.field("uidp");
     payload.setUserRid(new ORecordId(cluster, pos));
-    payload.setDatabaseType((String) doc.field("bdtyp"));
+    payload.setDatabaseType(doc.field("bdtyp"));
     return payload;
   }
 
   protected byte[] serializeWebHeader(final OTokenHeader header) throws Exception {
-    if (header == null) throw new IllegalArgumentException("Token header is null");
+    if (header == null) {
+      throw new IllegalArgumentException("Token header is null");
+    }
 
     ODocument doc = new ODocument();
     doc.field("typ", header.getType());
     doc.field("alg", header.getAlgorithm());
     doc.field("kid", header.getKeyId());
-    return doc.toJSON().getBytes("UTF-8");
+    return doc.toJSON().getBytes(StandardCharsets.UTF_8);
   }
 
   protected byte[] serializeWebPayload(final OJwtPayload payload) throws Exception {
-    if (payload == null) throw new IllegalArgumentException("Token payload is null");
+    if (payload == null) {
+      throw new IllegalArgumentException("Token payload is null");
+    }
 
     final ODocument doc = new ODocument();
     doc.field("username", payload.getUserName());
@@ -440,14 +443,16 @@ public class OTokenHandlerImpl implements OTokenHandler {
     doc.field("sub", payload.getDatabase());
     doc.field("aud", payload.getAudience());
     doc.field("jti", payload.getTokenId());
-    doc.field("uidc", ((OrientJwtPayload) payload).getUserRid().getClusterId());
-    doc.field("uidp", ((OrientJwtPayload) payload).getUserRid().getClusterPosition());
-    doc.field("bdtyp", ((OrientJwtPayload) payload).getDatabaseType());
-    return doc.toJSON().getBytes("UTF-8");
+    doc.field("uidc", payload.getUserRid().getClusterId());
+    doc.field("uidp", payload.getUserRid().getClusterPosition());
+    doc.field("bdtyp", payload.getDatabaseType());
+    return doc.toJSON().getBytes(StandardCharsets.UTF_8);
   }
 
   protected OJwtPayload createPayloadServerUser(OSecurityUser serverUser) {
-    if (serverUser == null) throw new IllegalArgumentException("User is null");
+    if (serverUser == null) {
+      throw new IllegalArgumentException("User is null");
+    }
 
     final OrientJwtPayload payload = new OrientJwtPayload();
     payload.setAudience("OrientDBServer");
@@ -465,7 +470,9 @@ public class OTokenHandlerImpl implements OTokenHandler {
   }
 
   protected OJwtPayload createPayload(final ODatabaseSession db, final OSecurityUser user) {
-    if (user == null) throw new IllegalArgumentException("User is null");
+    if (user == null) {
+      throw new IllegalArgumentException("User is null");
+    }
 
     final OrientJwtPayload payload = new OrientJwtPayload();
     payload.setAudience("OrientDB");

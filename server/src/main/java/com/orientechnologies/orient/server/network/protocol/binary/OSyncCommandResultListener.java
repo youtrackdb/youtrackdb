@@ -41,6 +41,7 @@ import java.util.Set;
  */
 public class OSyncCommandResultListener extends OAbstractCommandResultListener
     implements OFetchPlanResults {
+
   private final Set<ORecord> fetchedRecordsToSend = new HashSet<ORecord>();
   private final Set<ORecord> alreadySent = new HashSet<ORecord>();
 
@@ -56,15 +57,19 @@ public class OSyncCommandResultListener extends OAbstractCommandResultListener
     }
 
     if (wrappedResultListener != null)
-      // NOTIFY THE WRAPPED LISTENER
+    // NOTIFY THE WRAPPED LISTENER
+    {
       wrappedResultListener.result(iRecord);
+    }
 
     fetchRecord(
         iRecord,
         new ORemoteFetchListener() {
           @Override
           protected void sendRecord(ORecord iLinked) {
-            if (!alreadySent.contains(iLinked)) fetchedRecordsToSend.add(iLinked);
+            if (!alreadySent.contains(iLinked)) {
+              fetchedRecordsToSend.add(iLinked);
+            }
           }
         });
     return true;
@@ -85,7 +90,9 @@ public class OSyncCommandResultListener extends OAbstractCommandResultListener
         new ORemoteFetchListener() {
           @Override
           protected void sendRecord(ORecord iLinked) {
-            if (!alreadySent.contains(iLinked)) fetchedRecordsToSend.add(iLinked);
+            if (!alreadySent.contains(iLinked)) {
+              fetchedRecordsToSend.add(iLinked);
+            }
           }
 
           @Override

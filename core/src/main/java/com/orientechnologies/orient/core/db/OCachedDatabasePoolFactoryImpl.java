@@ -19,7 +19,10 @@ import java.util.TimerTask;
  * @author Vitalii Honchar (weaxme@gmail.com)
  */
 public class OCachedDatabasePoolFactoryImpl implements OCachedDatabasePoolFactory {
-  /** Max size of connections which one pool can contains */
+
+  /**
+   * Max size of connections which one pool can contains
+   */
   private volatile int maxPoolSize = 100;
 
   private volatile boolean closed;
@@ -29,10 +32,10 @@ public class OCachedDatabasePoolFactoryImpl implements OCachedDatabasePoolFactor
 
   /**
    * @param orientDB instance of {@link OrientDB} which will be used for create new database pools
-   *     {@link ODatabasePoolInternal}
+   *                 {@link ODatabasePoolInternal}
    * @param capacity capacity of pool cache, by default is 100
-   * @param timeout timeout in milliseconds which means that every timeout will be executed task for
-   *     clean up cache from closed pools
+   * @param timeout  timeout in milliseconds which means that every timeout will be executed task
+   *                 for clean up cache from closed pools
    */
   public OCachedDatabasePoolFactoryImpl(OrientDBInternal orientDB, int capacity, long timeout) {
     poolCache =
@@ -86,7 +89,7 @@ public class OCachedDatabasePoolFactoryImpl implements OCachedDatabasePoolFactor
    * @param username name of user which need access to database
    * @param password user password
    * @return {@link ODatabasePoolInternal} which is new instance of pool or instance from pool
-   *     storage
+   * storage
    */
   @Override
   public ODatabasePoolInternal get(
@@ -113,7 +116,9 @@ public class OCachedDatabasePoolFactoryImpl implements OCachedDatabasePoolFactor
     return pool;
   }
 
-  /** Close all open pools and clear pool storage */
+  /**
+   * Close all open pools and clear pool storage
+   */
   @Override
   public OCachedDatabasePoolFactory reset() {
     poolCache.forEach((key, pool) -> pool.close());
@@ -128,7 +133,7 @@ public class OCachedDatabasePoolFactoryImpl implements OCachedDatabasePoolFactor
    */
   @Override
   public void close() {
-    if (!isClosed()) {
+    if (!closed) {
       closed = true;
       reset();
     }

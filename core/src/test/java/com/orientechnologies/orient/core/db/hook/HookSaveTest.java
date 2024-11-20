@@ -8,7 +8,9 @@ import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.junit.Test;
 
-/** Created by tglman on 01/06/16. */
+/**
+ * Created by tglman on 01/06/16.
+ */
 public class HookSaveTest extends BaseMemoryDatabase {
 
   @Test
@@ -20,9 +22,13 @@ public class HookSaveTest extends BaseMemoryDatabase {
 
           @Override
           public RESULT onTrigger(TYPE iType, ORecord iRecord) {
-            if (iType != TYPE.BEFORE_CREATE) return RESULT.RECORD_NOT_CHANGED;
+            if (iType != TYPE.BEFORE_CREATE) {
+              return RESULT.RECORD_NOT_CHANGED;
+            }
             ODocument doc = (ODocument) iRecord;
-            if (doc.containsField("test")) return RESULT.RECORD_NOT_CHANGED;
+            if (doc.containsField("test")) {
+              return RESULT.RECORD_NOT_CHANGED;
+            }
             ODocument doc1 = new ODocument("test");
             doc1.field("test", "value");
             doc.field("testNewLinkedRecord", doc1);
@@ -54,9 +60,13 @@ public class HookSaveTest extends BaseMemoryDatabase {
 
           @Override
           public RESULT onTrigger(TYPE iType, ORecord iRecord) {
-            if (iType != TYPE.BEFORE_CREATE) return RESULT.RECORD_NOT_CHANGED;
+            if (iType != TYPE.BEFORE_CREATE) {
+              return RESULT.RECORD_NOT_CHANGED;
+            }
             ODocument doc = (ODocument) iRecord;
-            if (doc.containsField("test")) return RESULT.RECORD_NOT_CHANGED;
+            if (doc.containsField("test")) {
+              return RESULT.RECORD_NOT_CHANGED;
+            }
             ODocument doc1 = new ODocument("test");
             doc1.field("test", "value");
             doc.field("testNewLinkedRecord", doc1);

@@ -150,7 +150,9 @@ public final class FrequencySketch implements Admittor {
     return false;
   }
 
-  /** Reduces every counter by half of its original value. */
+  /**
+   * Reduces every counter by half of its original value.
+   */
   private void reset() {
     int count = 0;
     for (int i = 0; i < table.length; i++) {
@@ -164,7 +166,7 @@ public final class FrequencySketch implements Admittor {
    * Returns the table index for the counter at the specified depth.
    *
    * @param item the element's hash
-   * @param i the counter depth
+   * @param i    the counter depth
    * @return the table index
    */
   private int indexOf(final int item, final int i) {

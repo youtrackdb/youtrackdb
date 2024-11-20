@@ -4,8 +4,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * This class is used by the query planner to extract subqueries and move them to LET clause <br>
- * An example: <br>
+ * This class is used by the query planner to extract subqueries and move them to LET clause <br> An
+ * example: <br>
  * <br>
  * <code>
  * select from foo where name in (select name from bar)
@@ -14,9 +14,8 @@ import java.util.Map;
  * will become <br>
  * <br>
  * <code>
- * select from foo<br>
- * let $$$SUBQUERY$$_0 = (select name from bar)<br>
- * where name in $$$SUBQUERY$$_0
+ * select from foo<br> let $$$SUBQUERY$$_0 = (select name from bar)<br> where name in
+ * $$$SUBQUERY$$_0
  * </code> <br>
  *
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
@@ -34,7 +33,9 @@ public class SubQueryCollector {
     return result;
   }
 
-  /** clean the content, but NOT the counter! */
+  /**
+   * clean the content, but NOT the counter!
+   */
   public void reset() {
     this.subQueries.clear();
   }

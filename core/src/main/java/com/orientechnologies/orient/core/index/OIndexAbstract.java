@@ -1006,8 +1006,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
           throw new OCommandExecutionException("The index rebuild has been interrupted");
         }
 
-        if (record instanceof ODocument) {
-          final ODocument doc = (ODocument) record;
+        if (record instanceof ODocument doc) {
           OClassIndexManager.reIndex(database, doc, this);
           ++documentIndexed;
         }
@@ -1142,11 +1141,10 @@ public abstract class OIndexAbstract implements OIndexInternal {
 
   private static Object enhanceCompositeKey(
       Object key, PartialSearchMode partialSearchMode, OIndexDefinition definition) {
-    if (!(key instanceof OCompositeKey)) {
+    if (!(key instanceof OCompositeKey compositeKey)) {
       return key;
     }
 
-    final OCompositeKey compositeKey = (OCompositeKey) key;
     final int keySize = definition.getParamCount();
 
     if (!(keySize == 1

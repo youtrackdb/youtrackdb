@@ -195,7 +195,7 @@ public class SQLCreateVertexAndEdgeTest extends BaseMemoryDatabase {
 
     try {
       db.command("alter class ETest name ETest2").close();
-      Assert.assertTrue(false);
+      Assert.fail();
     } catch (OCommandExecutionException e) {
       Assert.assertTrue(true);
     }
@@ -204,7 +204,7 @@ public class SQLCreateVertexAndEdgeTest extends BaseMemoryDatabase {
       db.command("alter class ETest name ETest2 unsafe").close();
       Assert.assertTrue(true);
     } catch (OCommandExecutionException e) {
-      Assert.assertTrue(false);
+      Assert.fail();
     }
   }
 

@@ -31,9 +31,10 @@ import java.util.Set;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionDistinct extends OSQLFunctionAbstract {
+
   public static final String NAME = "distinct";
 
-  private Set<Object> context = new LinkedHashSet<Object>();
+  private final Set<Object> context = new LinkedHashSet<Object>();
 
   public OSQLFunctionDistinct() {
     super(NAME, 1, 1);

@@ -29,13 +29,17 @@ public class OFunctionUtilWrapper {
   public OFunctionUtilWrapper() {}
 
   public boolean exists(final Object... iValues) {
-    if (iValues != null)
-      for (Object o : iValues)
-        if (o != null && !o.equals("undefined") && !o.equals("null")) return true;
+    if (iValues != null) {
+      for (Object o : iValues) {
+        if (o != null && !o.equals("undefined") && !o.equals("null")) {
+          return true;
+        }
+      }
+    }
     return false;
   }
 
   public Object value(final Object iValue) {
-    return iValue != null ? iValue : null;
+    return iValue;
   }
 }

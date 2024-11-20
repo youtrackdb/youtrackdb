@@ -65,9 +65,10 @@ public class OConcurrentModificationException extends ONeedRetryException
         makeMessage(iRecordOperation, iRID, iDatabaseVersion, iRecordVersion),
         OErrorCode.MVCC_ERROR);
 
-    if (OFastConcurrentModificationException.enabled())
+    if (OFastConcurrentModificationException.enabled()) {
       throw new IllegalStateException(
           "Fast-throw is enabled. Use OFastConcurrentModificationException.instance() instead");
+    }
 
     rid = iRID;
     databaseVersion = iDatabaseVersion;
@@ -77,12 +78,14 @@ public class OConcurrentModificationException extends ONeedRetryException
 
   @Override
   public boolean equals(final Object obj) {
-    if (!(obj instanceof OConcurrentModificationException)) return false;
-
-    final OConcurrentModificationException other = (OConcurrentModificationException) obj;
+    if (!(obj instanceof OConcurrentModificationException other)) {
+      return false;
+    }
 
     if (recordOperation == other.recordOperation && rid.equals(other.rid)) {
-      if (databaseVersion == other.databaseVersion) return recordOperation == other.recordOperation;
+      if (databaseVersion == other.databaseVersion) {
+        return recordOperation == other.recordOperation;
+      }
     }
 
     return false;
@@ -109,18 +112,18 @@ public class OConcurrentModificationException extends ONeedRetryException
       int recordOperation, ORID rid, int databaseVersion, int recordVersion) {
     final String operation = ORecordOperation.getName(recordOperation);
 
-    final StringBuilder sb = new StringBuilder();
-    sb.append("Cannot ");
-    sb.append(operation);
-    sb.append(" the record ");
-    sb.append(rid);
-    sb.append(" because the version is not the latest. Probably you are ");
-    sb.append(operation.toLowerCase(Locale.ENGLISH).substring(0, operation.length() - 1));
-    sb.append("ing an old record or it has been modified by another user (db=v");
-    sb.append(databaseVersion);
-    sb.append(" your=v");
-    sb.append(recordVersion);
-    sb.append(")");
-    return sb.toString();
+    String sb =
+        "Cannot "
+            + operation
+            + " the record "
+            + rid
+            + " because the version is not the latest. Probably you are "
+            + operation.toLowerCase(Locale.ENGLISH).substring(0, operation.length() - 1)
+            + "ing an old record or it has been modified by another user (db=v"
+            + databaseVersion
+            + " your=v"
+            + recordVersion
+            + ")";
+    return sb;
   }
 }

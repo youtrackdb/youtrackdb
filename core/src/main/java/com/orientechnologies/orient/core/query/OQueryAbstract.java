@@ -25,6 +25,7 @@ import com.orientechnologies.orient.core.fetch.OFetchHelper;
 @SuppressWarnings("serial")
 public abstract class OQueryAbstract<T extends Object> extends OCommandRequestAbstract
     implements OQuery<T> {
+
   public OQueryAbstract() {
     useCache = true;
   }
@@ -34,12 +35,16 @@ public abstract class OQueryAbstract<T extends Object> extends OCommandRequestAb
     return (RET) run(iArgs);
   }
 
-  /** Returns the current fetch plan. */
+  /**
+   * Returns the current fetch plan.
+   */
   public String getFetchPlan() {
     return fetchPlan;
   }
 
-  /** Sets the fetch plan to use. */
+  /**
+   * Sets the fetch plan to use.
+   */
   public OQueryAbstract setFetchPlan(final String fetchPlan) {
     OFetchHelper.checkFetchPlanValid(fetchPlan);
     if (fetchPlan != null && fetchPlan.length() == 0) {

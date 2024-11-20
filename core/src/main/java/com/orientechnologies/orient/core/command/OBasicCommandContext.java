@@ -42,6 +42,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OBasicCommandContext implements OCommandContext {
+
   public static final String EXECUTION_BEGUN = "EXECUTION_BEGUN";
   public static final String TIMEOUT_MS = "TIMEOUT_MS";
   public static final String TIMEOUT_STRATEGY = "TIMEOUT_STARTEGY";
@@ -66,8 +67,8 @@ public class OBasicCommandContext implements OCommandContext {
       timeoutStrategy;
   protected AtomicLong resultsProcessed = new AtomicLong(0);
   protected Set<Object> uniqueResult = new HashSet<Object>();
-  private Map<OExecutionStep, OStepStats> stepStats = new IdentityHashMap<>();
-  private LinkedList<OStepStats> currentStepStats = new LinkedList<>();
+  private final Map<OExecutionStep, OStepStats> stepStats = new IdentityHashMap<>();
+  private final LinkedList<OStepStats> currentStepStats = new LinkedList<>();
 
   public OBasicCommandContext() {}
 
@@ -80,11 +81,15 @@ public class OBasicCommandContext implements OCommandContext {
   }
 
   public Object getVariable(String iName, final Object iDefault) {
-    if (iName == null) return iDefault;
+    if (iName == null) {
+      return iDefault;
+    }
 
     Object result = null;
 
-    if (iName.startsWith("$")) iName = iName.substring(1);
+    if (iName.startsWith("$")) {
+      iName = iName.substring(1);
+    }
 
     int pos = OStringSerializerHelper.getLowerIndexOf(iName, 0, ".", "[");
 
@@ -92,21 +97,31 @@ public class OBasicCommandContext implements OCommandContext {
     String lastPart;
     if (pos > -1) {
       firstPart = iName.substring(0, pos);
-      if (iName.charAt(pos) == '.') pos++;
+      if (iName.charAt(pos) == '.') {
+        pos++;
+      }
       lastPart = iName.substring(pos);
       if (firstPart.equalsIgnoreCase("PARENT") && parent != null) {
         // UP TO THE PARENT
-        if (lastPart.startsWith("$")) result = parent.getVariable(lastPart.substring(1));
-        else result = ODocumentHelper.getFieldValue(parent, lastPart);
+        if (lastPart.startsWith("$")) {
+          result = parent.getVariable(lastPart.substring(1));
+        } else {
+          result = ODocumentHelper.getFieldValue(parent, lastPart);
+        }
 
         return result != null ? resolveValue(result) : iDefault;
 
       } else if (firstPart.equalsIgnoreCase("ROOT")) {
         OCommandContext p = this;
-        while (p.getParent() != null) p = p.getParent();
+        while (p.getParent() != null) {
+          p = p.getParent();
+        }
 
-        if (lastPart.startsWith("$")) result = p.getVariable(lastPart.substring(1));
-        else result = ODocumentHelper.getFieldValue(p, lastPart, this);
+        if (lastPart.startsWith("$")) {
+          result = p.getVariable(lastPart.substring(1));
+        } else {
+          result = ODocumentHelper.getFieldValue(p, lastPart, this);
+        }
 
         return result != null ? resolveValue(result) : iDefault;
       }
@@ -115,21 +130,31 @@ public class OBasicCommandContext implements OCommandContext {
       lastPart = null;
     }
 
-    if (firstPart.equalsIgnoreCase("CONTEXT")) result = getVariables();
-    else if (firstPart.equalsIgnoreCase("PARENT")) result = parent;
-    else if (firstPart.equalsIgnoreCase("ROOT")) {
+    if (firstPart.equalsIgnoreCase("CONTEXT")) {
+      result = getVariables();
+    } else if (firstPart.equalsIgnoreCase("PARENT")) {
+      result = parent;
+    } else if (firstPart.equalsIgnoreCase("ROOT")) {
       OCommandContext p = this;
-      while (p.getParent() != null) p = p.getParent();
+      while (p.getParent() != null) {
+        p = p.getParent();
+      }
       result = p;
     } else {
-      if (variables != null && variables.containsKey(firstPart)) result = variables.get(firstPart);
-      else {
-        if (child != null) result = child.getVariable(firstPart);
-        else result = getVariableFromParentHierarchy(firstPart);
+      if (variables != null && variables.containsKey(firstPart)) {
+        result = variables.get(firstPart);
+      } else {
+        if (child != null) {
+          result = child.getVariable(firstPart);
+        } else {
+          result = getVariableFromParentHierarchy(firstPart);
+        }
       }
     }
 
-    if (pos > -1) result = ODocumentHelper.getFieldValue(result, lastPart, this);
+    if (pos > -1) {
+      result = ODocumentHelper.getFieldValue(result, lastPart, this);
+    }
 
     return result != null ? resolveValue(result) : iDefault;
   }
@@ -156,17 +181,22 @@ public class OBasicCommandContext implements OCommandContext {
   }
 
   public OCommandContext setVariable(String iName, final Object iValue) {
-    if (iName == null) return null;
+    if (iName == null) {
+      return null;
+    }
 
-    if (iName.startsWith("$")) iName = iName.substring(1);
+    if (iName.startsWith("$")) {
+      iName = iName.substring(1);
+    }
 
     init();
 
     int pos = OStringSerializerHelper.getHigherIndexOf(iName, 0, ".", "[");
     if (pos > -1) {
       Object nested = getVariable(iName.substring(0, pos));
-      if (nested != null && nested instanceof OCommandContext)
+      if (nested != null && nested instanceof OCommandContext) {
         ((OCommandContext) nested).setVariable(iName.substring(pos + 1), iValue);
+      }
     } else {
       if (variables.containsKey(iName)) {
         variables.put(
@@ -202,44 +232,61 @@ public class OBasicCommandContext implements OCommandContext {
   @Override
   public OCommandContext incrementVariable(String iName) {
     if (iName != null) {
-      if (iName.startsWith("$")) iName = iName.substring(1);
+      if (iName.startsWith("$")) {
+        iName = iName.substring(1);
+      }
 
       init();
 
       int pos = OStringSerializerHelper.getHigherIndexOf(iName, 0, ".", "[");
       if (pos > -1) {
         Object nested = getVariable(iName.substring(0, pos));
-        if (nested != null && nested instanceof OCommandContext)
+        if (nested != null && nested instanceof OCommandContext) {
           ((OCommandContext) nested).incrementVariable(iName.substring(pos + 1));
+        }
       } else {
         final Object v = variables.get(iName);
-        if (v == null) variables.put(iName, 1);
-        else if (v instanceof Number) variables.put(iName, OType.increment((Number) v, 1));
-        else
+        if (v == null) {
+          variables.put(iName, 1);
+        } else if (v instanceof Number) {
+          variables.put(iName, OType.increment((Number) v, 1));
+        } else {
           throw new IllegalArgumentException(
               "Variable '" + iName + "' is not a number, but: " + v.getClass());
+        }
       }
     }
     return this;
   }
 
   public long updateMetric(final String iName, final long iValue) {
-    if (!recordMetrics) return -1;
+    if (!recordMetrics) {
+      return -1;
+    }
 
     init();
     Long value = (Long) variables.get(iName);
-    if (value == null) value = iValue;
-    else value = new Long(value.longValue() + iValue);
+    if (value == null) {
+      value = iValue;
+    } else {
+      value = Long.valueOf(value.longValue() + iValue);
+    }
     variables.put(iName, value);
     return value.longValue();
   }
 
-  /** Returns a read-only map with all the variables. */
+  /**
+   * Returns a read-only map with all the variables.
+   */
   public Map<String, Object> getVariables() {
     final HashMap<String, Object> map = new HashMap<String, Object>();
-    if (child != null) map.putAll(child.getVariables());
+    if (child != null) {
+      map.putAll(child.getVariables());
+    }
 
-    if (variables != null) map.putAll(variables);
+    if (variables != null) {
+      map.putAll(variables);
+    }
 
     return map;
   }
@@ -272,7 +319,9 @@ public class OBasicCommandContext implements OCommandContext {
   public OCommandContext setParent(final OCommandContext iParentContext) {
     if (parent != iParentContext) {
       parent = iParentContext;
-      if (parent != null) parent.setChild(this);
+      if (parent != null) {
+        parent.setChild(this);
+      }
     }
     return this;
   }
@@ -319,8 +368,10 @@ public class OBasicCommandContext implements OCommandContext {
         }
       }
     } else if (parent != null)
-      // CHECK THE TIMER OF PARENT CONTEXT
+    // CHECK THE TIMER OF PARENT CONTEXT
+    {
       return parent.checkTimeout();
+    }
 
     return true;
   }
@@ -330,7 +381,9 @@ public class OBasicCommandContext implements OCommandContext {
     final OBasicCommandContext copy = new OBasicCommandContext();
     copy.init();
 
-    if (variables != null && !variables.isEmpty()) copy.variables.putAll(variables);
+    if (variables != null && !variables.isEmpty()) {
+      copy.variables.putAll(variables);
+    }
 
     copy.recordMetrics = recordMetrics;
     copy.parent = parent;
@@ -344,7 +397,9 @@ public class OBasicCommandContext implements OCommandContext {
   }
 
   private void init() {
-    if (variables == null) variables = new HashMap<String, Object>();
+    if (variables == null) {
+      variables = new HashMap<String, Object>();
+    }
   }
 
   public Map<Object, Object> getInputParameters() {
@@ -374,7 +429,7 @@ public class OBasicCommandContext implements OCommandContext {
    *
    * @param o the result item to add
    * @return true if the element is successfully added (it was not present yet), false otherwise (it
-   *     was already present)
+   * was already present)
    */
   public synchronized boolean addToUniqueResult(Object o) {
     Object toAdd = o;

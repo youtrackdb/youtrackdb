@@ -9,7 +9,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 
-/** Created by Enrico Risa on 14/03/17. */
+/**
+ * Created by Enrico Risa on 14/03/17.
+ */
 public class AbstractRemoteTest {
 
   protected static final String SERVER_DIRECTORY = "./target/remotetest";
@@ -24,9 +26,7 @@ public class AbstractRemoteTest {
     System.setProperty("ORIENTDB_HOME", SERVER_DIRECTORY);
 
     InputStream stream =
-        AbstractRemoteTest.class
-            .getClassLoader()
-            .getSystemResourceAsStream("abstract-orientdb-server-config.xml");
+        ClassLoader.getSystemResourceAsStream("abstract-orientdb-server-config.xml");
     server = OServerMain.create(false);
     server.startup(stream);
     server.activate();

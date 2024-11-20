@@ -7,6 +7,7 @@ import java.util.Objects;
 
 public final class CellBTreeSingleValueEntryV3<K>
     implements Comparable<CellBTreeSingleValueEntryV3<K>> {
+
   private final Comparator<? super K> comparator = ODefaultComparator.INSTANCE;
 
   private final int leftChild;

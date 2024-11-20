@@ -25,5 +25,6 @@ package com.orientechnologies.orient.core.config;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OConfigurationChangeCallback {
+
   void change(final Object iCurrentValue, final Object iNewValue);
 }

@@ -8,8 +8,10 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OPropertyImpl;
 import java.util.Map;
+import java.util.Objects;
 
 public class OCreatePropertyAttributeStatement extends SimpleNode {
+
   public OIdentifier settingName;
   public OExpression settingValue;
 
@@ -48,17 +50,19 @@ public class OCreatePropertyAttributeStatement extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OCreatePropertyAttributeStatement that = (OCreatePropertyAttributeStatement) o;
 
-    if (settingName != null ? !settingName.equals(that.settingName) : that.settingName != null)
+    if (!Objects.equals(settingName, that.settingName)) {
       return false;
-    if (settingValue != null ? !settingValue.equals(that.settingValue) : that.settingValue != null)
-      return false;
-
-    return true;
+    }
+    return Objects.equals(settingValue, that.settingValue);
   }
 
   @Override

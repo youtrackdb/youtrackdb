@@ -22,7 +22,8 @@ public class OSQLCommandTaskFirstPhase extends OAbstractRemoteTask {
   private OTransactionId preChangeId;
   private OTransactionId afterChangeId;
 
-  public OSQLCommandTaskFirstPhase() {}
+  public OSQLCommandTaskFirstPhase() {
+  }
 
   public OSQLCommandTaskFirstPhase(
       String query, OTransactionId preChangeId, OTransactionId afterChangeId) {

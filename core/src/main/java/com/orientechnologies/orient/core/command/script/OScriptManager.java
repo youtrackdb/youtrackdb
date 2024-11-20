@@ -103,7 +103,9 @@ public class OScriptManager {
     for (ScriptEngineFactory f : scriptEngineManager.getEngineFactories()) {
       registerEngine(f.getLanguageName().toLowerCase(Locale.ENGLISH), f);
 
-      if (defaultLanguage == null) defaultLanguage = f.getLanguageName();
+      if (defaultLanguage == null) {
+        defaultLanguage = f.getLanguageName();
+      }
     }
 
     if (!existsEngine(DEF_LANGUAGE)) {
@@ -152,9 +154,10 @@ public class OScriptManager {
   public String getFunctionDefinition(final OFunction iFunction) {
     final OScriptFormatter formatter =
         formatters.get(iFunction.getLanguage().toLowerCase(Locale.ENGLISH));
-    if (formatter == null)
+    if (formatter == null) {
       throw new IllegalArgumentException(
           "Cannot find script formatter for the language '" + iFunction.getLanguage() + "'");
+    }
 
     return formatter.getFunctionDefinition(iFunction);
   }
@@ -162,9 +165,10 @@ public class OScriptManager {
   public String getFunctionInvoke(final OFunction iFunction, final Object[] iArgs) {
     final OScriptFormatter formatter =
         formatters.get(iFunction.getLanguage().toLowerCase(Locale.ENGLISH));
-    if (formatter == null)
+    if (formatter == null) {
       throw new IllegalArgumentException(
           "Cannot find script formatter for the language '" + iFunction.getLanguage() + "'");
+    }
 
     return formatter.getFunctionInvoke(iFunction, iArgs);
   }
@@ -172,14 +176,16 @@ public class OScriptManager {
   /**
    * Formats the library of functions for a language.
    *
-   * @param db Current database instance
+   * @param db        Current database instance
    * @param iLanguage Language as filter
    * @return String containing all the functions
    */
   public String getLibrary(final ODatabaseSession db, final String iLanguage) {
     if (db == null)
-      // NO DB = NO LIBRARY
+    // NO DB = NO LIBRARY
+    {
       return null;
+    }
 
     final StringBuilder code = new StringBuilder();
 
@@ -187,8 +193,9 @@ public class OScriptManager {
     for (String fName : functions) {
       final OFunction f = db.getMetadata().getFunctionLibrary().getFunction(fName);
 
-      if (f.getLanguage() == null)
+      if (f.getLanguage() == null) {
         throw new OConfigurationException("Database function '" + fName + "' has no language");
+      }
 
       if (f.getLanguage().equalsIgnoreCase(iLanguage)) {
         final String def = getFunctionDefinition(f);
@@ -203,24 +210,29 @@ public class OScriptManager {
   }
 
   public boolean existsEngine(String iLanguage) {
-    if (iLanguage == null) return false;
+    if (iLanguage == null) {
+      return false;
+    }
 
     iLanguage = iLanguage.toLowerCase(Locale.ENGLISH);
     return engines.containsKey(iLanguage);
   }
 
   public ScriptEngine getEngine(final String iLanguage) {
-    if (iLanguage == null) throw new OCommandScriptException("No language was specified");
+    if (iLanguage == null) {
+      throw new OCommandScriptException("No language was specified");
+    }
 
     final String lang = iLanguage.toLowerCase(Locale.ENGLISH);
 
     final ScriptEngineFactory scriptEngineFactory = engines.get(lang);
-    if (scriptEngineFactory == null)
+    if (scriptEngineFactory == null) {
       throw new OCommandScriptException(
           "Unsupported language: "
               + iLanguage
               + ". Supported languages are: "
               + getSupportedLanguages());
+    }
 
     return scriptEngineFactory.getScriptEngine();
   }
@@ -230,7 +242,7 @@ public class OScriptManager {
    * in the pool by calling the method #releaseDatabaseEngine(String, ScriptEngine).
    *
    * @param databaseName Database name
-   * @param language Script language
+   * @param language     Script language
    * @return ScriptEngine instance with the function library already parsed
    * @see #releaseDatabaseEngine(String, String, ScriptEngine)
    */
@@ -254,9 +266,9 @@ public class OScriptManager {
    * Acquires a database engine from the pool. Once finished using it, the instance MUST be returned
    * in the pool by calling the method
    *
-   * @param iLanguage Script language
+   * @param iLanguage     Script language
    * @param iDatabaseName Database name
-   * @param poolEntry Pool entry to free
+   * @param poolEntry     Pool entry to free
    * @see #acquireDatabaseEngine(String, String)
    */
   public void releaseDatabaseEngine(
@@ -314,7 +326,9 @@ public class OScriptManager {
   }
 
   private void bindInjectors(ScriptEngine engine, Bindings binding, ODatabaseSession database) {
-    for (OScriptInjection i : injections) i.bind(engine, binding, database);
+    for (OScriptInjection i : injections) {
+      i.bind(engine, binding, database);
+    }
   }
 
   private void bindContext(Bindings binding, OCommandContext iContext) {
@@ -350,7 +364,9 @@ public class OScriptManager {
       }
 
       binding.put("params", iArgs.values().toArray());
-    } else binding.put("params", EMPTY_PARAMS);
+    } else {
+      binding.put("params", EMPTY_PARAMS);
+    }
   }
 
   public String throwErrorMessage(final ScriptException e, final String lib) {
@@ -390,15 +406,20 @@ public class OScriptManager {
                     currentLine.substring(
                         Math.min(pos + "function".length() + 1, currentLine.length())),
                     " \r\n\t");
-            if (words.length > 0 && words[0] != "(") lastFunctionName = words[0];
+            if (words.length > 0 && words[0] != "(") {
+              lastFunctionName = words[0];
+            }
           }
 
           if (currentLineNumber == errorLineNumber)
-            // APPEND X LINES BEFORE
+          // APPEND X LINES BEFORE
+          {
             code.append(String.format("%4d: >>> %s\n", currentLineNumber, currentLine));
-          else if (Math.abs(currentLineNumber - errorLineNumber) <= LINES_AROUND_ERROR)
-            // AROUND: APPEND IT
+          } else if (Math.abs(currentLineNumber - errorLineNumber) <= LINES_AROUND_ERROR)
+          // AROUND: APPEND IT
+          {
             code.append(String.format("%4d: %s\n", currentLineNumber, currentLine));
+          }
         }
 
         code.insert(
@@ -424,7 +445,9 @@ public class OScriptManager {
       final Bindings binding,
       final OCommandContext iContext,
       final Map<Object, Object> iArgs) {
-    for (OScriptInjection i : injections) i.unbind(scriptEngine, binding);
+    for (OScriptInjection i : injections) {
+      i.unbind(scriptEngine, binding);
+    }
 
     binding.put("db", null);
     binding.put("orient", null);
@@ -433,18 +456,23 @@ public class OScriptManager {
 
     binding.put("ctx", null);
     if (iContext != null) {
-      for (Entry<String, Object> a : iContext.getVariables().entrySet())
+      for (Entry<String, Object> a : iContext.getVariables().entrySet()) {
         binding.put(a.getKey(), null);
+      }
     }
 
     if (iArgs != null) {
-      for (Entry<Object, Object> a : iArgs.entrySet()) binding.put(a.getKey().toString(), null);
+      for (Entry<Object, Object> a : iArgs.entrySet()) {
+        binding.put(a.getKey().toString(), null);
+      }
     }
     binding.put("params", null);
   }
 
   public void registerInjection(final OScriptInjection iInj) {
-    if (!injections.contains(iInj)) injections.add(iInj);
+    if (!injections.contains(iInj)) {
+      injections.add(iInj);
+    }
   }
 
   public Set<String> getAllowedPackages() {
@@ -541,7 +569,9 @@ public class OScriptManager {
    */
   public void close(final String iDatabaseName) {
     final ODatabaseScriptManager dbPool = dbManagers.remove(iDatabaseName);
-    if (dbPool != null) dbPool.close();
+    if (dbPool != null) {
+      dbPool.close();
+    }
     commandManager.close(iDatabaseName);
   }
 

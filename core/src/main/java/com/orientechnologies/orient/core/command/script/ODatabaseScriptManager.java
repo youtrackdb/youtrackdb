@@ -30,10 +30,11 @@ import javax.script.ScriptException;
  * Manages Script engines per database. Parsing of function library is done only the first time and
  * when changes.
  *
- * @see OCommandScript
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
+ * @see OCommandScript
  */
 public class ODatabaseScriptManager {
+
   private final OScriptManager scriptManager;
   protected OResourcePoolFactory<String, ScriptEngine> pooledEngines;
 
@@ -53,12 +54,13 @@ public class ODatabaseScriptManager {
                         scriptManager.getLibrary(
                             ODatabaseRecordThreadLocal.instance().get(), language);
 
-                    if (library != null)
+                    if (library != null) {
                       try {
                         scriptEngine.eval(library);
                       } catch (ScriptException e) {
                         scriptManager.throwErrorMessage(e, library);
                       }
+                    }
 
                     return scriptEngine;
                   }
@@ -67,11 +69,10 @@ public class ODatabaseScriptManager {
                   public boolean reuseResource(
                       String iKey, Object[] iAdditionalArgs, ScriptEngine iValue) {
                     if (language.equals("sql")) {
-                      if (!language.equals(iValue.getFactory().getLanguageName())) return false;
+                      return language.equals(iValue.getFactory().getLanguageName());
                     } else {
-                      if ((iValue.getFactory().getLanguageName()).equals("sql")) return false;
+                      return !(iValue.getFactory().getLanguageName()).equals("sql");
                     }
-                    return true;
                   }
                 };
               }

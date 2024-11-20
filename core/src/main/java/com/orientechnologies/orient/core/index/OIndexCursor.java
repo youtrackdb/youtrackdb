@@ -40,11 +40,12 @@ import java.util.Set;
  * @since 4/4/14
  */
 public interface OIndexCursor extends Iterator<OIdentifiable> {
+
   /**
    * Returns nextEntry element in subset of index data which should be iterated by given cursor.
    *
    * @return nextEntry element in subset of index data which should be iterated by given cursor or
-   *     <code>null</code> if all data are iterated.
+   * <code>null</code> if all data are iterated.
    */
   Map.Entry<Object, OIdentifiable> nextEntry();
 

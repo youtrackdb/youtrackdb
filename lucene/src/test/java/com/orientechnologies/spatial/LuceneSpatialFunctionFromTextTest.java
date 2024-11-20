@@ -29,7 +29,9 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 13/08/15. */
+/**
+ * Created by Enrico Risa on 13/08/15.
+ */
 public class LuceneSpatialFunctionFromTextTest extends BaseSpatialLuceneTest {
 
   @Test

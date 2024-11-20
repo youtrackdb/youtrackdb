@@ -7,9 +7,9 @@ import java.util.List;
 
 public class OClientSessions {
 
-  private List<OClientConnection> connections =
+  private final List<OClientConnection> connections =
       Collections.synchronizedList(new ArrayList<OClientConnection>());
-  private byte[] binaryToken;
+  private final byte[] binaryToken;
 
   public OClientSessions(byte[] binaryToken) {
     this.binaryToken = binaryToken;
@@ -30,8 +30,12 @@ public class OClientSessions {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (!(obj instanceof OClientSessions)) return false;
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof OClientSessions)) {
+      return false;
+    }
     return Arrays.equals(this.binaryToken, ((OClientSessions) obj).binaryToken);
   }
 

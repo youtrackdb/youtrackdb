@@ -106,7 +106,6 @@ public class TxNonUniqueIndexWithCollationTest extends BaseMemoryDatabase {
         db.query("select * from user where name in ['Abc', 'Abd', 'Abz'] order by name").stream()
             .map(x -> ((ODocument) (x.toElement())))
             .toList();
-    ;
     assertEquals(4, r.size());
     assertEquals("abc", r.get(0).field("name"));
     assertEquals("abd", r.get(1).field("name"));

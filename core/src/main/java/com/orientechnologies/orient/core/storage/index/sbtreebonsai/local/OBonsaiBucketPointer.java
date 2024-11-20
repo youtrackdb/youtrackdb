@@ -30,6 +30,7 @@ import com.orientechnologies.common.serialization.types.OLongSerializer;
  * @author Artem Orobets (enisher-at-gmail.com)
  */
 public class OBonsaiBucketPointer {
+
   public static final int SIZE = OLongSerializer.LONG_SIZE + OIntegerSerializer.INT_SIZE;
   public static final OBonsaiBucketPointer NULL = new OBonsaiBucketPointer(-1, -1);
 
@@ -51,15 +52,19 @@ public class OBonsaiBucketPointer {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OBonsaiBucketPointer that = (OBonsaiBucketPointer) o;
 
-    if (pageIndex != that.pageIndex) return false;
-    if (pageOffset != that.pageOffset) return false;
-
-    return true;
+    if (pageIndex != that.pageIndex) {
+      return false;
+    }
+    return pageOffset == that.pageOffset;
   }
 
   @Override

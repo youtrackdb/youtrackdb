@@ -1,7 +1,6 @@
 package com.orientechnologies.orient.core.metadata.schema;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -57,8 +56,8 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
 
     oClass.setAbstract(false);
 
-    assertFalse(oClass.getDefaultClusterId() == -1);
-    assertFalse(oClass.getDefaultClusterId() == db.getDefaultClusterId());
+    assertNotEquals(-1, oClass.getDefaultClusterId());
+    assertNotEquals(oClass.getDefaultClusterId(), db.getDefaultClusterId());
   }
 
   @Test

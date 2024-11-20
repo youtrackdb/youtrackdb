@@ -17,6 +17,7 @@ import java.util.List;
  * @author Matan Shukry (matanshukry@gmail.com)
  */
 public class OSQLFunctionInterval extends OSQLFunctionMathAbstract {
+
   public static final String NAME = "interval";
 
   private OSQLPredicate predicate;

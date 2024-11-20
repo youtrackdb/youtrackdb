@@ -6,6 +6,7 @@ import com.orientechnologies.orient.core.sql.executor.metadata.OIndexFinder.Oper
 import java.util.Map;
 
 public class OLuceneOperator extends SimpleNode implements OBinaryCompareOperator {
+
   public OLuceneOperator(int id) {
     super(id);
   }
@@ -16,8 +17,7 @@ public class OLuceneOperator extends SimpleNode implements OBinaryCompareOperato
 
   @Override
   public boolean execute(Object left, Object right) {
-    throw new UnsupportedOperationException(
-        toString() + " operator cannot be evaluated in this context");
+    throw new UnsupportedOperationException(this + " operator cannot be evaluated in this context");
   }
 
   @Override

@@ -52,6 +52,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Luca Garulli (l.garulli--at--orientdb.com)
  */
 public class ODistributedResponseManagerImpl implements ODistributedResponseManager {
+
   public static final int ADDITIONAL_TIMEOUT_CLUSTER_SHAPE = 10000;
   private static final String NO_RESPONSE = "waiting-for-response";
   private final ODistributedServerManager dManager;
@@ -74,7 +75,7 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
   private volatile boolean receivedCurrentNode;
   private ODistributedResponse quorumResponse = null;
   private final Set<String> followupToNodes = new HashSet<String>();
-  private AtomicBoolean canceled = new AtomicBoolean(false);
+  private final AtomicBoolean canceled = new AtomicBoolean(false);
 
   public ODistributedResponseManagerImpl(
       final ODistributedServerManager iManager,
@@ -98,9 +99,13 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
     this.groupResponsesByResult = iGroupResponsesByResult;
     this.nodesConcurInQuorum = iNodesConcurInQuorum;
 
-    for (String node : expectedResponses) responses.put(node, NO_RESPONSE);
+    for (String node : expectedResponses) {
+      responses.put(node, NO_RESPONSE);
+    }
 
-    if (groupResponsesByResult) responseGroups.add(new ArrayList<ODistributedResponse>());
+    if (groupResponsesByResult) {
+      responseGroups.add(new ArrayList<ODistributedResponse>());
+    }
   }
 
   /**
@@ -142,7 +147,9 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
       responses.put(executorNode, response);
       receivedResponses++;
 
-      if (waitForLocalNode && executorNode.equals(senderNode)) receivedCurrentNode = true;
+      if (waitForLocalNode && executorNode.equals(senderNode)) {
+        receivedCurrentNode = true;
+      }
 
       if (groupResponsesByResult) {
         // PUT THE RESPONSE IN THE RIGHT RESPONSE GROUP
@@ -155,28 +162,34 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
           final List<ODistributedResponse> responseGroup = responseGroups.get(i);
 
           if (responseGroup.isEmpty())
-            // ABSENT
+          // ABSENT
+          {
             foundBucket = true;
-          else {
+          } else {
             final Object rgPayload = responseGroup.get(0).getPayload();
 
             if (rgPayload == null && responsePayload == null)
-              // BOTH NULL
+            // BOTH NULL
+            {
               foundBucket = true;
-            else if (rgPayload != null) {
+            } else if (rgPayload != null) {
               if (rgPayload instanceof ODocument
                   && responsePayload instanceof ODocument
                   && !((ODocument) rgPayload).getIdentity().isValid()
                   && ((ODocument) rgPayload).hasSameContentOf((ODocument) responsePayload))
-                // SAME RESULT
+              // SAME RESULT
+              {
                 foundBucket = true;
-              else if (rgPayload.equals(responsePayload))
-                // SAME RESULT
+              } else if (rgPayload.equals(responsePayload))
+              // SAME RESULT
+              {
                 foundBucket = true;
-              else if (rgPayload instanceof Collection && responsePayload instanceof Collection) {
+              } else if (rgPayload instanceof Collection && responsePayload instanceof Collection) {
                 if (OMultiValue.equals((Collection) rgPayload, (Collection) responsePayload))
-                  // COLLECTIONS WITH THE SAME VALUES
+                // COLLECTIONS WITH THE SAME VALUES
+                {
                   foundBucket = true;
+                }
               }
             }
           }
@@ -260,7 +273,7 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
    * also for local node.
    *
    * @return True if the received responses are major or equals then the expected synchronous
-   *     responses, otherwise false
+   * responses, otherwise false
    * @throws InterruptedException
    */
   public boolean waitForSynchronousResponses() throws InterruptedException {
@@ -272,12 +285,16 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
       while (currentTimeout > 0) {
 
         if (currentTimeout > 10000)
-          // CUT THE TIMEOUT IN BLOCKS OF 10S EACH TO ALLOW CHECKING FOR ANY SERVER IF UNREACHABLE
+        // CUT THE TIMEOUT IN BLOCKS OF 10S EACH TO ALLOW CHECKING FOR ANY SERVER IF UNREACHABLE
+        {
           currentTimeout = 10000;
+        }
 
         // WAIT FOR THE RESPONSES
         if (synchronousResponsesArrived.await(currentTimeout, TimeUnit.MILLISECONDS)) {
-          if (canceled.get()) throw new ODistributedOperationException("Request has been canceled");
+          if (canceled.get()) {
+            throw new ODistributedOperationException("Request has been canceled");
+          }
           // COMPLETED
           return true;
         }
@@ -300,7 +317,9 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
 
           final long now = System.currentTimeMillis();
           final long elapsed = now - beginTime;
-          if (elapsed > synchTimeout) reachedTimeout = true;
+          if (elapsed > synchTimeout) {
+            reachedTimeout = true;
+          }
           currentTimeout = synchTimeout - elapsed;
 
           // CHECK IF ANY NODE ARE UNREACHABLE IN THE MEANWHILE
@@ -368,7 +387,9 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
         }
       }
 
-      if (canceled.get()) throw new ODistributedOperationException("Request has been canceled");
+      if (canceled.get()) {
+        throw new ODistributedOperationException("Request has been canceled");
+      }
 
       return isMinimumQuorumReached(reachedTimeout);
 
@@ -395,16 +416,17 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
     try {
 
       final RuntimeException failure = manageConflicts();
-      if (failure != null)
+      if (failure != null) {
         return new ODistributedResponse(
             this,
             request.getId(),
             dManager.getLocalNodeName(),
             dManager.getLocalNodeName(),
             failure);
+      }
 
       if (receivedResponses == 0) {
-        if (quorum > 0 && !request.getTask().isIdempotent())
+        if (quorum > 0 && !request.getTask().isIdempotent()) {
           throw new ODistributedException(
               "No response received from any of nodes "
                   + getExpectedNodes()
@@ -413,6 +435,7 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
                   + " after "
                   + ((System.nanoTime() - sentOn) / 1000000)
                   + "ms");
+        }
 
         // NO QUORUM, RETURN NULL
         return null;
@@ -424,12 +447,16 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
           {
             // COLLECT ALL THE RESPONSE IN A MAP OF <NODE, RESULT>
             final Map<String, Object> payloads = new HashMap<String, Object>();
-            for (Map.Entry<String, Object> entry : responses.entrySet())
-              if (entry.getValue() != NO_RESPONSE)
+            for (Map.Entry<String, Object> entry : responses.entrySet()) {
+              if (entry.getValue() != NO_RESPONSE) {
                 payloads.put(
                     entry.getKey(), ((ODistributedResponse) entry.getValue()).getPayload());
+              }
+            }
 
-            if (payloads.isEmpty()) return null;
+            if (payloads.isEmpty()) {
+              return null;
+            }
 
             final ODistributedResponse response = getReceivedResponses().iterator().next();
             response.setExecutorNodeName(responses.keySet().toString());
@@ -474,14 +501,19 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
     synchronousResponsesArrived.countDown();
   }
 
-  /** Returns the list of node names that didn't provide a response. */
+  /**
+   * Returns the list of node names that didn't provide a response.
+   */
   public List<String> getMissingNodes() {
     synchronousResponsesLock.lock();
     try {
 
       final List<String> missingNodes = new ArrayList<String>();
-      for (Map.Entry<String, Object> entry : responses.entrySet())
-        if (entry.getValue() == NO_RESPONSE) missingNodes.add(entry.getKey());
+      for (Map.Entry<String, Object> entry : responses.entrySet()) {
+        if (entry.getValue() == NO_RESPONSE) {
+          missingNodes.add(entry.getKey());
+        }
+      }
       return missingNodes;
 
     } finally {
@@ -498,26 +530,35 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
     }
   }
 
-  /** Returns the list of node names that provided a response. */
+  /**
+   * Returns the list of node names that provided a response.
+   */
   public List<String> getRespondingNodes() {
     final List<String> respondedNodes = new ArrayList<String>();
     synchronousResponsesLock.lock();
     try {
-      for (Map.Entry<String, Object> entry : responses.entrySet())
-        if (entry.getValue() != NO_RESPONSE) respondedNodes.add(entry.getKey());
+      for (Map.Entry<String, Object> entry : responses.entrySet()) {
+        if (entry.getValue() != NO_RESPONSE) {
+          respondedNodes.add(entry.getKey());
+        }
+      }
     } finally {
       synchronousResponsesLock.unlock();
     }
     return respondedNodes;
   }
 
-  /** Returns all the responses in conflict. */
+  /**
+   * Returns all the responses in conflict.
+   */
   protected List<ODistributedResponse> getConflictResponses() {
     final List<ODistributedResponse> servers = new ArrayList<ODistributedResponse>();
     int bestGroupSoFar = getBestResponsesGroup();
     for (int i = 0; i < responseGroups.size(); ++i) {
       if (i != bestGroupSoFar) {
-        for (ODistributedResponse r : responseGroups.get(i)) servers.add(r);
+        for (ODistributedResponse r : responseGroups.get(i)) {
+          servers.add(r);
+        }
       }
     }
     return servers;
@@ -550,9 +591,13 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
   }
 
   protected boolean isMinimumQuorumReached(final boolean reachedTimeout) {
-    if (isWaitForLocalNode() && !isReceivedCurrentNode()) return false;
+    if (waitForLocalNode && !receivedCurrentNode) {
+      return false;
+    }
 
-    if (quorum == 0) return true;
+    if (quorum == 0) {
+      return true;
+    }
 
     return computeQuorumResponse(reachedTimeout);
   }
@@ -563,8 +608,10 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
    */
   private boolean computeQuorumResponse(boolean reachedTimeout) {
     if (quorumResponse != null)
-      // ALREADY COMPUTED
+    // ALREADY COMPUTED
+    {
       return true;
+    }
 
     if (groupResponsesByResult) {
       for (List<ODistributedResponse> group : responseGroups) {
@@ -576,16 +623,20 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
 
               if (payload instanceof Throwable) {
                 if (payload instanceof ODistributedRecordLockedException)
-                  // JUST ONE ODistributedRecordLockedException IS ENOUGH TO FAIL THE OPERATION
-                  // BECAUSE RESOURCES CANNOT BE LOCKED
+                // JUST ONE ODistributedRecordLockedException IS ENOUGH TO FAIL THE OPERATION
+                // BECAUSE RESOURCES CANNOT BE LOCKED
+                {
                   break;
+                }
                 if (payload instanceof OConcurrentCreateException)
-                  // JUST ONE OConcurrentCreateException IS ENOUGH TO FAIL THE OPERATION BECAUSE RID
-                  // ARE DIFFERENT
+                // JUST ONE OConcurrentCreateException IS ENOUGH TO FAIL THE OPERATION BECAUSE RID
+                // ARE DIFFERENT
+                {
                   break;
+                }
               } else if (++responsesForQuorum >= quorum) {
                 // QUORUM REACHED
-                setQuorumResponse(r);
+                quorumResponse = r;
                 return true;
               }
             }
@@ -602,7 +653,9 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
               && ++responsesForQuorum >= quorum) {
             // QUORUM REACHED
             ODistributedResponse resp = (ODistributedResponse) response.getValue();
-            if (resp != null && !(resp.getPayload() instanceof Throwable)) setQuorumResponse(resp);
+            if (resp != null && !(resp.getPayload() instanceof Throwable)) {
+              quorumResponse = resp;
+            }
             return true;
           }
         }
@@ -612,10 +665,16 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
     return false;
   }
 
-  /** Returns the received response objects. */
+  /**
+   * Returns the received response objects.
+   */
   protected List<ODistributedResponse> getReceivedResponses() {
     final List<ODistributedResponse> parsed = new ArrayList<ODistributedResponse>();
-    for (Object r : responses.values()) if (r != NO_RESPONSE) parsed.add((ODistributedResponse) r);
+    for (Object r : responses.values()) {
+      if (r != NO_RESPONSE) {
+        parsed.add((ODistributedResponse) r);
+      }
+    }
     return parsed;
   }
 
@@ -623,12 +682,16 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
     if (!groupResponsesByResult
         || request.getTask().getQuorumType()
             == OCommandDistributedReplicateRequest.QUORUM_TYPE.NONE)
-      // NO QUORUM
+    // NO QUORUM
+    {
       return null;
+    }
 
     if (dManager.getNodeStatus() != ODistributedServerManager.NODE_STATUS.ONLINE)
-      // CURRENT NODE OFFLINE: JUST RETURN
+    // CURRENT NODE OFFLINE: JUST RETURN
+    {
       return null;
+    }
 
     final int bestResponsesGroupIndex = getBestResponsesGroup();
     final List<ODistributedResponse> bestResponsesGroup =
@@ -640,39 +703,50 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
     if (isMinimumQuorumReached(true)) {
       // QUORUM SATISFIED
       if (responseGroups.size() == 1)
-        // NO CONFLICT
+      // NO CONFLICT
+      {
         return null;
+      }
 
       if (checkNoWinnerCase(bestResponsesGroup))
-        // TODO: CALL THE RECORD CONFLICT PIPELINE
+      // TODO: CALL THE RECORD CONFLICT PIPELINE
+      {
         return null;
+      }
     }
 
     // CHECK IF THERE IS AT LEAST ONE ODistributedRecordLockedException or
     // OConcurrentCreateException
     for (Object r : responses.values()) {
-      if (r instanceof ODistributedRecordLockedException)
+      if (r instanceof ODistributedRecordLockedException) {
         throw (ODistributedRecordLockedException) r;
-      if (r instanceof OConcurrentCreateException) throw (OConcurrentCreateException) r;
+      }
+      if (r instanceof OConcurrentCreateException) {
+        throw (OConcurrentCreateException) r;
+      }
     }
 
     final Object goodResponsePayload =
         bestResponsesGroup.isEmpty() ? null : bestResponsesGroup.get(0).getPayload();
     if (goodResponsePayload instanceof RuntimeException)
-      // RESPONSE IS ALREADY AN EXCEPTION: THROW THIS
+    // RESPONSE IS ALREADY AN EXCEPTION: THROW THIS
+    {
       return (RuntimeException) goodResponsePayload;
-    else if (goodResponsePayload instanceof Throwable)
+    } else if (goodResponsePayload instanceof Throwable) {
       return OException.wrapException(
           new ODistributedOperationException(composeConflictMessage()),
           (Throwable) goodResponsePayload);
-    else {
+    } else {
       if (responseGroups.size() <= 2) {
         // CHECK IF THE BAD RESPONSE IS AN EXCEPTION, THEN PROPAGATE IT
         for (int i = 0; i < responseGroups.size(); ++i) {
-          if (i == bestResponsesGroupIndex) continue;
+          if (i == bestResponsesGroupIndex) {
+            continue;
+          }
           final List<ODistributedResponse> badResponses = responseGroups.get(i);
-          if (badResponses.get(0).getPayload() instanceof RuntimeException)
+          if (badResponses.get(0).getPayload() instanceof RuntimeException) {
             return (RuntimeException) badResponses.get(0).getPayload();
+          }
         }
       }
 
@@ -684,15 +758,16 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
     final StringBuilder msg = new StringBuilder(256);
     msg.append(
         "Quorum "
-            + getQuorum()
+            + quorum
             + " not reached for request ("
             + request
             + "). Elapsed="
-            + ((System.nanoTime() - getSentOn()) / 1000000)
+            + ((System.nanoTime() - sentOn) / 1000000)
             + "ms.");
     final List<ODistributedResponse> res = getConflictResponses();
-    if (res.isEmpty()) msg.append(" No server in conflict. ");
-    else {
+    if (res.isEmpty()) {
+      msg.append(" No server in conflict. ");
+    } else {
       msg.append(" Servers in timeout/conflict are:");
       for (ODistributedResponse r : res) {
         msg.append("\n - ");
@@ -722,7 +797,9 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
     // CHECK IF THERE ARE 2 PARTITIONS EQUAL IN SIZE
     final int maxCoherentResponses = bestResponsesGroup.size();
 
-    if (maxCoherentResponses < quorum) return false;
+    if (maxCoherentResponses < quorum) {
+      return false;
+    }
 
     for (List<ODistributedResponse> responseGroup : responseGroups) {
       if (responseGroup != bestResponsesGroup && responseGroup.size() == maxCoherentResponses) {

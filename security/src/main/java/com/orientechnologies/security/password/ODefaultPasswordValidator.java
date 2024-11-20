@@ -28,13 +28,14 @@ import java.util.regex.Pattern;
  * @author S. Colin Leister
  */
 public class ODefaultPasswordValidator implements OPasswordValidator {
+
   private boolean enabled = true;
   private boolean ignoreUUID = true;
   private int minLength = 0;
   private Pattern hasNumber;
   private Pattern hasSpecial;
   private Pattern hasUppercase;
-  private Pattern isUUID =
+  private final Pattern isUUID =
       Pattern.compile(
           "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}");
 
@@ -59,15 +60,15 @@ public class ODefaultPasswordValidator implements OPasswordValidator {
       }
 
       if (jsonConfig.containsField("numberRegEx")) {
-        hasNumber = Pattern.compile((String) jsonConfig.field("numberRegEx"));
+        hasNumber = Pattern.compile(jsonConfig.field("numberRegEx"));
       }
 
       if (jsonConfig.containsField("specialRegEx")) {
-        hasSpecial = Pattern.compile((String) jsonConfig.field("specialRegEx"));
+        hasSpecial = Pattern.compile(jsonConfig.field("specialRegEx"));
       }
 
       if (jsonConfig.containsField("uppercaseRegEx")) {
-        hasUppercase = Pattern.compile((String) jsonConfig.field("uppercaseRegEx"));
+        hasUppercase = Pattern.compile(jsonConfig.field("uppercaseRegEx"));
       }
     } catch (Exception ex) {
       OLogManager.instance().error(this, "ODefaultPasswordValidator.config()", ex);
@@ -85,10 +86,14 @@ public class ODefaultPasswordValidator implements OPasswordValidator {
   // OPasswordValidator
   public void validatePassword(final String username, final String password)
       throws OInvalidPasswordException {
-    if (!enabled) return;
+    if (!enabled) {
+      return;
+    }
 
     if (password != null && !password.isEmpty()) {
-      if (ignoreUUID && isUUID(password)) return;
+      if (ignoreUUID && isUUID(password)) {
+        return;
+      }
 
       if (password.length() < minLength) {
         OLogManager.instance()

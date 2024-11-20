@@ -94,7 +94,7 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
       }
     }
 
-    if ("false".equalsIgnoreCase("" + iRequest.getHeader("return-execution-plan"))) {
+    if ("false".equalsIgnoreCase(iRequest.getHeader("return-execution-plan"))) {
       returnExecutionPlan = false;
     }
 

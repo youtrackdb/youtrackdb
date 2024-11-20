@@ -32,10 +32,12 @@ public interface OFreezableStorageComponent {
    * modifications in storage should wait till {@link #release()} method will be called. This method
    * will wait till all ongoing modifications will be finished.
    *
-   * @param throwException If <code>true</code> {@link
-   *     com.orientechnologies.common.concur.lock.OModificationOperationProhibitedException}
-   *     exception will be thrown on call of methods that requires storage modification. Otherwise
-   *     other threads will wait for {@link #release()} method call.
+   * @param throwException If <code>true</code>
+   *                       {@link
+   *                       com.orientechnologies.common.concur.lock.OModificationOperationProhibitedException}
+   *                       exception will be thrown on call of methods that requires storage
+   *                       modification. Otherwise other threads will wait for {@link #release()}
+   *                       method call.
    */
   void freeze(boolean throwException);
 

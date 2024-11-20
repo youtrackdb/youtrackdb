@@ -27,6 +27,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class OBackgroundBackup implements Runnable, OSyncSource {
+
   private final String syncTarget;
   private final String localNodeName;
   private final ODatabaseDocumentInternal database;
@@ -75,8 +76,11 @@ public class OBackgroundBackup implements Runnable, OSyncSource {
             database.getClusterNames().size(),
             database.getClusterNames());
 
-        if (resultedBackupFile.exists()) resultedBackupFile.delete();
-        else resultedBackupFile.getParentFile().mkdirs();
+        if (resultedBackupFile.exists()) {
+          resultedBackupFile.delete();
+        } else {
+          resultedBackupFile.getParentFile().mkdirs();
+        }
         resultedBackupFile.createNewFile();
 
         final OutputStream fileOutputStream = new FileOutputStream(resultedBackupFile);
@@ -115,7 +119,9 @@ public class OBackgroundBackup implements Runnable, OSyncSource {
                   new OCommandOutputListener() {
                     @Override
                     public void onMessage(String iText) {
-                      if (iText.startsWith("\n")) iText = iText.substring(1);
+                      if (iText.startsWith("\n")) {
+                        iText = iText.substring(1);
+                      }
 
                       OLogManager.instance().debug(this, iText);
                     }

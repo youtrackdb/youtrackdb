@@ -5,6 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import java.util.Map;
 
 public class ORetry extends SimpleNode {
+
   public ORetry(int id) {
     super(id);
   }

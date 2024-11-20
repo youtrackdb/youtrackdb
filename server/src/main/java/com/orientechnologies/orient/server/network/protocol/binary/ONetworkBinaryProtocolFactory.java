@@ -26,11 +26,13 @@ import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import java.util.function.Function;
 
-/** Created by Enrico Risa on 05/04/17. */
+/**
+ * Created by Enrico Risa on 05/04/17.
+ */
 public class ONetworkBinaryProtocolFactory {
 
-  private static Function<Integer, OBinaryRequest<? extends OBinaryResponse>> defaultProtocol =
-      ONetworkBinaryProtocolFactory::createRequest;
+  private static final Function<Integer, OBinaryRequest<? extends OBinaryResponse>>
+      defaultProtocol = ONetworkBinaryProtocolFactory::createRequest;
 
   public static Function<Integer, OBinaryRequest<? extends OBinaryResponse>> defaultProtocol() {
     return defaultProtocol;

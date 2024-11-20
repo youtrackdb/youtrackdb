@@ -6,6 +6,7 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.Map;
 
 public class ONumber extends SimpleNode {
+
   public ONumber(int id) {
     super(id);
   }

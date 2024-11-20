@@ -26,6 +26,7 @@ package com.orientechnologies.orient.core.sql;
  */
 @SuppressWarnings("serial")
 public class OCommandSQLResultset extends OCommandSQL {
+
   public OCommandSQLResultset() {}
 
   public OCommandSQLResultset(final String iText) {

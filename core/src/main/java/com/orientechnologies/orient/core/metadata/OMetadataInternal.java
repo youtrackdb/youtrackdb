@@ -40,14 +40,12 @@ public interface OMetadataInternal extends OMetadata {
       Collections.unmodifiableSet(
           new HashSet<String>(
               Arrays.asList(
-                  new String[] {
-                    OUser.CLASS_NAME.toLowerCase(Locale.ENGLISH),
-                    ORole.CLASS_NAME.toLowerCase(Locale.ENGLISH),
-                    OIdentity.CLASS_NAME.toLowerCase(Locale.ENGLISH),
-                    OSecurity.RESTRICTED_CLASSNAME.toLowerCase(Locale.ENGLISH),
-                    OFunction.CLASS_NAME.toLowerCase(Locale.ENGLISH),
-                    "internal"
-                  })));
+                  OUser.CLASS_NAME.toLowerCase(Locale.ENGLISH),
+                  ORole.CLASS_NAME.toLowerCase(Locale.ENGLISH),
+                  OIdentity.CLASS_NAME.toLowerCase(Locale.ENGLISH),
+                  OSecurity.RESTRICTED_CLASSNAME.toLowerCase(Locale.ENGLISH),
+                  OFunction.CLASS_NAME.toLowerCase(Locale.ENGLISH),
+                  "internal")));
 
   void makeThreadLocalSchemaSnapshot();
 

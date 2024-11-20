@@ -79,7 +79,7 @@ public final class OQueryRequest implements OBinaryRequest<OQueryResponse> {
       int recordsPerPage) {
     this.language = language;
     this.statement = iCommand;
-    this.params = (Map) namedParams;
+    this.params = namedParams;
     ODocument parms = new ODocument();
     parms.field("params", this.params);
 
@@ -172,7 +172,9 @@ public final class OQueryRequest implements OBinaryRequest<OQueryResponse> {
 
   public Object[] getPositionalParameters() {
     Map<String, Object> params = getParams();
-    if (params == null) return null;
+    if (params == null) {
+      return null;
+    }
     Object[] result = new Object[params.size()];
     params
         .entrySet()

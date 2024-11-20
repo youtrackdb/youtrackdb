@@ -7,7 +7,9 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by olena.kolesnyk on 30/07/2017. */
+/**
+ * Created by olena.kolesnyk on 30/07/2017.
+ */
 public class CheckClusterTypeStepTest extends TestUtilsFixture {
 
   private static final String CLASS_CLUSTER_NAME = "ClassClusterName";

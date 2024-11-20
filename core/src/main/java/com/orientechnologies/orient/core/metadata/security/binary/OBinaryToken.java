@@ -59,12 +59,12 @@ public class OBinaryToken implements OToken {
 
   @Override
   public String getDatabaseType() {
-    return this.getPayload().getDatabaseType();
+    return this.payload.getDatabaseType();
   }
 
   @Override
   public ORID getUserId() {
-    return this.getPayload().getUserRid();
+    return this.payload.getUserRid();
   }
 
   public OTokenHeader getHeader() {
@@ -77,7 +77,7 @@ public class OBinaryToken implements OToken {
 
   @Override
   public void setExpiry(long expiry) {
-    getPayload().setExpiry(expiry);
+    payload.setExpiry(expiry);
   }
 
   @Override
@@ -102,7 +102,7 @@ public class OBinaryToken implements OToken {
   }
 
   public boolean isServerUser() {
-    return getPayload().isServerUser();
+    return payload.isServerUser();
   }
 
   @Override

@@ -12,8 +12,11 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 
-/** Created by tglman on 22/06/17. */
+/**
+ * Created by tglman on 22/06/17.
+ */
 public class OPropertyDistributed extends OPropertyEmbedded {
+
   public OPropertyDistributed(OClassImpl owner) {
     super(owner);
   }
@@ -34,7 +37,9 @@ public class OPropertyDistributed extends OPropertyEmbedded {
             String.format(
                 "alter property %s type %s", getFullNameQuoted(), quoteString(type.toString()));
         owner.getOwner().sendCommand(database, cmd);
-      } else setTypeInternal(type);
+      } else {
+        setTypeInternal(type);
+      }
     } finally {
       releaseSchemaWriteLock();
     }
@@ -54,7 +59,9 @@ public class OPropertyDistributed extends OPropertyEmbedded {
         final String cmd =
             String.format("alter property %s name %s", getFullNameQuoted(), quoteString(name));
         owner.getOwner().sendCommand(database, cmd);
-      } else setNameInternal(name);
+      } else {
+        setNameInternal(name);
+      }
 
     } finally {
       releaseSchemaWriteLock();
@@ -75,7 +82,9 @@ public class OPropertyDistributed extends OPropertyEmbedded {
             String.format(
                 "alter property %s description %s", getFullNameQuoted(), quoteString(iDescription));
         owner.getOwner().sendCommand(database, cmd);
-      } else setDescriptionInternal(iDescription);
+      } else {
+        setDescriptionInternal(iDescription);
+      }
 
     } finally {
       releaseSchemaWriteLock();
@@ -84,7 +93,9 @@ public class OPropertyDistributed extends OPropertyEmbedded {
   }
 
   public OProperty setCollate(String collate) {
-    if (collate == null) collate = ODefaultCollate.NAME;
+    if (collate == null) {
+      collate = ODefaultCollate.NAME;
+    }
 
     getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
@@ -97,7 +108,9 @@ public class OPropertyDistributed extends OPropertyEmbedded {
             String.format(
                 "alter property %s collate %s", getFullNameQuoted(), quoteString(collate));
         owner.getOwner().sendCommand(database, cmd);
-      } else setCollateInternal(collate);
+      } else {
+        setCollateInternal(collate);
+      }
 
     } finally {
       releaseSchemaWriteLock();
@@ -116,7 +129,9 @@ public class OPropertyDistributed extends OPropertyEmbedded {
       final String cmd = String.format("alter property %s custom clear", getFullNameQuoted());
       if (isDistributedCommand()) {
         owner.getOwner().sendCommand(database, cmd);
-      } else clearCustomInternal();
+      } else {
+        clearCustomInternal();
+      }
 
     } finally {
       releaseSchemaWriteLock();
@@ -135,7 +150,9 @@ public class OPropertyDistributed extends OPropertyEmbedded {
       final ODatabaseDocumentInternal database = getDatabase();
       if (isDistributedCommand()) {
         owner.getOwner().sendCommand(database, cmd);
-      } else setCustomInternal(name, value);
+      } else {
+        setCustomInternal(name, value);
+      }
 
     } finally {
       releaseSchemaWriteLock();
@@ -155,7 +172,9 @@ public class OPropertyDistributed extends OPropertyEmbedded {
         final String cmd =
             String.format("alter property %s regexp %s", getFullNameQuoted(), quoteString(regexp));
         owner.getOwner().sendCommand(database, cmd);
-      } else setRegexpInternal(regexp);
+      } else {
+        setRegexpInternal(regexp);
+      }
 
     } finally {
       releaseSchemaWriteLock();
@@ -178,7 +197,9 @@ public class OPropertyDistributed extends OPropertyEmbedded {
                 "alter property %s linkedclass %s",
                 getFullNameQuoted(), quoteString(linkedClass.getName()));
         owner.getOwner().sendCommand(database, cmd);
-      } else setLinkedClassInternal(linkedClass);
+      } else {
+        setLinkedClassInternal(linkedClass);
+      }
 
     } finally {
       releaseSchemaWriteLock();
@@ -201,7 +222,9 @@ public class OPropertyDistributed extends OPropertyEmbedded {
                 "alter property %s linkedtype %s",
                 getFullNameQuoted(), quoteString(linkedType.toString()));
         owner.getOwner().sendCommand(database, cmd);
-      } else setLinkedTypeInternal(linkedType);
+      } else {
+        setLinkedTypeInternal(linkedType);
+      }
 
     } finally {
       releaseSchemaWriteLock();
@@ -220,7 +243,9 @@ public class OPropertyDistributed extends OPropertyEmbedded {
         final String cmd =
             String.format("alter property %s notnull %s", getFullNameQuoted(), isNotNull);
         owner.getOwner().sendCommand(database, cmd);
-      } else setNotNullInternal(isNotNull);
+      } else {
+        setNotNullInternal(isNotNull);
+      }
 
     } finally {
       releaseSchemaWriteLock();
@@ -259,7 +284,9 @@ public class OPropertyDistributed extends OPropertyEmbedded {
         final String cmd =
             String.format("alter property %s max %s", getFullNameQuoted(), quoteString(max));
         owner.getOwner().sendCommand(database, cmd);
-      } else setMaxInternal(max);
+      } else {
+        setMaxInternal(max);
+      }
     } finally {
       releaseSchemaWriteLock();
     }
@@ -277,7 +304,9 @@ public class OPropertyDistributed extends OPropertyEmbedded {
         final String cmd =
             String.format("alter property %s min %s", getFullNameQuoted(), quoteString(min));
         owner.getOwner().sendCommand(database, cmd);
-      } else setMinInternal(min);
+      } else {
+        setMinInternal(min);
+      }
     } finally {
       releaseSchemaWriteLock();
     }
@@ -295,7 +324,9 @@ public class OPropertyDistributed extends OPropertyEmbedded {
         final String cmd =
             String.format("alter property %s readonly %s", getFullNameQuoted(), isReadonly);
         owner.getOwner().sendCommand(database, cmd);
-      } else setReadonlyInternal(isReadonly);
+      } else {
+        setReadonlyInternal(isReadonly);
+      }
 
     } finally {
       releaseSchemaWriteLock();
@@ -314,7 +345,9 @@ public class OPropertyDistributed extends OPropertyEmbedded {
         final String cmd =
             String.format("alter property %s mandatory %s", getFullNameQuoted(), isMandatory);
         owner.getOwner().sendCommand(database, cmd);
-      } else setMandatoryInternal(isMandatory);
+      } else {
+        setMandatoryInternal(isMandatory);
+      }
     } finally {
       releaseSchemaWriteLock();
     }

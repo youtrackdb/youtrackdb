@@ -107,90 +107,96 @@ public class NodeInDeadlockScenarioIT extends AbstractScenarioTest {
   protected void onServerStarted(ServerRun server) {
     super.onServerStarted(server);
 
-    if (serverStarted == 0) startCountMonitorTask("Person");
+    if (serverStarted == 0) {
+      startCountMonitorTask("Person");
+    }
 
     if (serverStarted++ == (SERVERS - 1)) {
       // BACKUP LAST SERVER, RUN ASYNCHRONOUSLY
       new Thread(
-              new Runnable() {
-                @Override
-                public void run() {
-                  try {
-                    // CRASH LAST SERVER try {
-                    executeWhen(
-                        new Callable<Boolean>() {
-                          // CONDITION
-                          @Override
-                          public Boolean call() throws Exception {
-                            final ODatabaseDocument database = getDatabase(0);
-                            try {
-                              long recordCount = database.countClass("Person");
-                              boolean condition =
-                                  recordCount
-                                      > (count * writerCount * (SERVERS - 1) + baseCount) * 1 / 3;
-                              return condition;
-                            } finally {
-                              database.close();
-                            }
+          new Runnable() {
+            @Override
+            public void run() {
+              try {
+                // CRASH LAST SERVER try {
+                executeWhen(
+                    new Callable<Boolean>() {
+                      // CONDITION
+                      @Override
+                      public Boolean call() throws Exception {
+                        final ODatabaseDocument database = getDatabase(0);
+                        try {
+                          long recordCount = database.countClass("Person");
+                          boolean condition =
+                              recordCount
+                                  > (count * writerCount * (SERVERS - 1) + baseCount) * 1 / 3;
+                          return condition;
+                        } finally {
+                          database.close();
+                        }
+                      }
+                    }, // ACTION
+                    new Callable() {
+                      @Override
+                      public Object call() throws Exception {
+                        Assert.assertTrue("Insert was too fast", inserting);
+
+                        banner("STARTING BACKUP SERVER " + (SERVERS - 1));
+
+                        ODatabaseDocument g = null;
+                        if (databaseExists(SERVERS - 1)) {
+                          g = getDatabase(SERVERS - 1);
+                        } else {
+                          createDatabase(SERVERS - 1);
+                          g = getDatabase(SERVERS - 1);
+                        }
+
+                        backupInProgress = true;
+                        File file = null;
+                        try {
+                          file = File.createTempFile("orientdb_test_backup", ".zip");
+                          if (file.exists()) {
+                            Assert.assertTrue(file.delete());
                           }
-                        }, // ACTION
-                        new Callable() {
-                          @Override
-                          public Object call() throws Exception {
-                            Assert.assertTrue("Insert was too fast", inserting);
 
-                            banner("STARTING BACKUP SERVER " + (SERVERS - 1));
+                          g.backup(
+                              new FileOutputStream(file),
+                              null,
+                              new Callable<Object>() {
+                                @Override
+                                public Object call() throws Exception {
 
-                            ODatabaseDocument g = null;
-                            if (databaseExists(SERVERS - 1)) {
-                              g = getDatabase(SERVERS - 1);
-                            } else {
-                              createDatabase(SERVERS - 1);
-                              g = getDatabase(SERVERS - 1);
-                            }
+                                  Thread.sleep(5000);
 
-                            backupInProgress = true;
-                            File file = null;
-                            try {
-                              file = File.createTempFile("orientdb_test_backup", ".zip");
-                              if (file.exists()) Assert.assertTrue(file.delete());
+                                  return null;
+                                }
+                              },
+                              null,
+                              9,
+                              1000000);
 
-                              g.backup(
-                                  new FileOutputStream(file),
-                                  null,
-                                  new Callable<Object>() {
-                                    @Override
-                                    public Object call() throws Exception {
+                        } catch (IOException e) {
+                          e.printStackTrace();
+                        } finally {
+                          banner("COMPLETED BACKUP SERVER " + (SERVERS - 1));
+                          backupInProgress = false;
 
-                                      Thread.sleep(5000);
+                          g.close();
 
-                                      return null;
-                                    }
-                                  },
-                                  null,
-                                  9,
-                                  1000000);
-
-                            } catch (IOException e) {
-                              e.printStackTrace();
-                            } finally {
-                              banner("COMPLETED BACKUP SERVER " + (SERVERS - 1));
-                              backupInProgress = false;
-
-                              g.close();
-
-                              if (file != null) file.delete();
-                            }
-                            return null;
+                          if (file != null) {
+                            file.delete();
                           }
-                        });
+                        }
+                        return null;
+                      }
+                    });
 
-                  } catch (Exception e) {
-                    e.printStackTrace();
-                    fail("Error on execution flow");
-                  }
-                }
-              })
+              } catch (Exception e) {
+                e.printStackTrace();
+                fail("Error on execution flow");
+              }
+            }
+          })
           .start();
     }
   }
@@ -205,12 +211,13 @@ public class NodeInDeadlockScenarioIT extends AbstractScenarioTest {
           public Boolean call(ODatabaseDocument db) {
             final boolean ok =
                 db.countClass("Person") >= count * writerCount * (SERVERS - 1) + baseCount;
-            if (!ok)
+            if (!ok) {
               System.out.println(
                   "FOUND "
                       + db.countClass("Person")
                       + " people instead of expected "
                       + (count * writerCount * (SERVERS - 1) + baseCount));
+            }
             return ok;
           }
         },

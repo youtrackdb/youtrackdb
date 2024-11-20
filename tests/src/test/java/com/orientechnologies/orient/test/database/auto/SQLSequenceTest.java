@@ -18,6 +18,7 @@ import org.testng.annotations.Test;
  */
 @Test(groups = "SqlSequence")
 public class SQLSequenceTest extends DocumentDBBaseTest {
+
   private static final long FIRST_START = OSequence.DEFAULT_START;
   private static final long SECOND_START = 31;
 
@@ -76,7 +77,7 @@ public class SQLSequenceTest extends DocumentDBBaseTest {
   private long sequenceSql(String sequenceName, String cmd) {
     try (OResultSet ret =
         database.command("SELECT sequence('" + sequenceName + "')." + cmd + " as value")) {
-      return (Long) ret.next().getProperty("value");
+      return ret.next().getProperty("value");
     }
   }
 
@@ -88,7 +89,7 @@ public class SQLSequenceTest extends DocumentDBBaseTest {
     try {
       seq = sequenceManager.createSequence("seqSQLOrdered", OSequence.SEQUENCE_TYPE.ORDERED, null);
     } catch (ODatabaseException exc) {
-      Assert.assertTrue(false, "Unable to create sequence");
+      Assert.fail("Unable to create sequence");
     }
 
     OSequenceException err = null;
@@ -97,7 +98,7 @@ public class SQLSequenceTest extends DocumentDBBaseTest {
     } catch (OSequenceException se) {
       err = se;
     } catch (ODatabaseException exc) {
-      Assert.assertTrue(false, "Unable to create sequence");
+      Assert.fail("Unable to create sequence");
     }
 
     Assert.assertTrue(
@@ -115,7 +116,7 @@ public class SQLSequenceTest extends DocumentDBBaseTest {
       seq.updateParams(new OSequence.CreateParams().setStart(SECOND_START).setCacheSize(13));
       database.commit();
     } catch (ODatabaseException exc) {
-      Assert.assertTrue(false, "Unable to update paramas");
+      Assert.fail("Unable to update paramas");
     }
     testUsage(seq, SECOND_START);
   }

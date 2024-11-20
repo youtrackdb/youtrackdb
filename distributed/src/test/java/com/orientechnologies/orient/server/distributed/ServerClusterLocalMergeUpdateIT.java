@@ -8,6 +8,7 @@ import org.junit.Test;
  * @since 3/9/2015
  */
 public class ServerClusterLocalMergeUpdateIT extends AbstractServerClusterMergeUpdateTest {
+
   @Test
   public void test() throws Exception {
     init(2);

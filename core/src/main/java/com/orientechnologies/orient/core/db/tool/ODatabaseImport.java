@@ -88,7 +88,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.AbstractList;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -279,7 +278,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       // status concept seems deprecated, but status `OPEN` is checked elsewhere
       database.setStatus(STATUS.OPEN);
 
-      if (isDeleteRIDMapping()) {
+      if (deleteRIDMapping) {
         removeExportImportRIDsMap();
       }
       listener.onMessage(
@@ -417,7 +416,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
   }
 
   public void setOption(final String option, String value) {
-    parseSetting("-" + option, Arrays.asList(value));
+    parseSetting("-" + option, Collections.singletonList(value));
   }
 
   protected void removeDefaultClusters() {
@@ -1250,14 +1249,15 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
     }
     listener.onMessage("\nDone. Imported " + total + " clusters");
 
-    if (database.load(
-            new ORecordId(database.getStorageInfo().getConfiguration().getIndexMgrRecordId()))
-        == null) {
+    database.begin();
+    if (!database.exists(
+        new ORecordId(database.getStorageInfo().getConfiguration().getIndexMgrRecordId()))) {
       ODocument indexDocument = new ODocument();
       indexDocument.save(OMetadataDefault.CLUSTER_INTERNAL_NAME);
-
       database.getStorage().setIndexMgrRecordId(indexDocument.getIdentity().toString());
     }
+    database.commit();
+
     return total;
   }
 
@@ -1305,7 +1305,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
           // EXTRACT CLASS NAME If ANY
           final int pos = value.indexOf("\"@class\":\"");
           if (pos > -1) {
-            final int end = value.indexOf("\"", pos + "\"@class\":\"".length() + 1);
+            final int end = value.indexOf('"', pos + "\"@class\":\"".length() + 1);
             final String value1 = value.substring(0, pos + "\"@class\":\"".length());
             final String clsName = value.substring(pos + "\"@class\":\"".length(), end);
             final String value2 = value.substring(end);
@@ -1720,7 +1720,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
                       final String jsonEngineProperties =
                           jsonReader.readString(OJSONReader.END_OBJECT, true);
                       Map<String, Object> map =
-                          ((ODocument) new ODocument().fromJSON(jsonEngineProperties)).toMap();
+                          new ODocument().fromJSON(jsonEngineProperties).toMap();
                       if (map != null) {
                         map.replaceAll((k, v) -> v);
                       }
@@ -1907,8 +1907,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       while (positions.length > 0) {
         for (OPhysicalPosition position : positions) {
           ORecord record = database.load(new ORecordId(clusterId, position.clusterPosition));
-          if (record instanceof ODocument) {
-            ODocument document = (ODocument) record;
+          if (record instanceof ODocument document) {
             rewriteLinksInDocument(database, document, brokenRids);
 
             documents++;

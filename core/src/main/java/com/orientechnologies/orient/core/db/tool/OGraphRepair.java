@@ -314,7 +314,7 @@ public class OGraphRepair {
       final long countVertices = db.countClass(vertexClass.getName());
       graph.executeInTx(
           () -> {
-            long skipVertices = 0l;
+            long skipVertices = 0L;
             if (options != null && options.get("-skipVertices") != null) {
               skipVertices = Long.parseLong(options.get("-skipVertices").get(0));
             }
@@ -394,9 +394,8 @@ public class OGraphRepair {
                       }
                     }
 
-                  } else if (fieldValue instanceof Collection<?>) {
+                  } else if (fieldValue instanceof Collection<?> coll) {
 
-                    final Collection<?> coll = ((Collection<?>) fieldValue);
                     for (Iterator<?> it = coll.iterator(); it.hasNext(); ) {
                       final Object o = it.next();
 
@@ -417,9 +416,8 @@ public class OGraphRepair {
                       }
                     }
 
-                  } else if (fieldValue instanceof ORidBag) {
+                  } else if (fieldValue instanceof ORidBag ridbag) {
                     // In case of ridbags force save for trigger eventual conversions
-                    final ORidBag ridbag = ((ORidBag) fieldValue);
                     if (ridbag.size() == 0) {
                       vertex.removeField(fieldName);
                     } else if (!ridbag.isEmbedded()
@@ -428,7 +426,7 @@ public class OGraphRepair {
                                 .getValueAsInteger()) {
                       vertex.setDirty();
                     }
-                    for (Iterator<?> it = ridbag.rawIterator(); it.hasNext(); ) {
+                    for (Iterator<?> it = ridbag.iterator(); it.hasNext(); ) {
                       final Object o = it.next();
                       if (isEdgeBroken(
                           vertex, fieldName, connection.getKey(), (OIdentifiable) o, stats, true)) {

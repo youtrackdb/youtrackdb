@@ -19,6 +19,7 @@
  */
 package com.orientechnologies.orient.core.db.record;
 
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
 import java.util.Locale;
@@ -76,7 +77,14 @@ public class ORecordOperation implements Comparable<ORecordOperation> {
     if (record instanceof ORecordAbstract recordAbstract) {
       return recordAbstract;
     }
-    return record != null ? record.getRecord() : null;
+    if (record == null) {
+      return null;
+    }
+    try {
+      return record.getRecord();
+    } catch (ORecordNotFoundException e) {
+      return null;
+    }
   }
 
   public ORID getRID() {

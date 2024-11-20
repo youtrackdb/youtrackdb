@@ -14,6 +14,7 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 public class OAlterPropertyStatement extends ODDLStatement {
 
@@ -162,27 +163,31 @@ public class OAlterPropertyStatement extends ODDLStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OAlterPropertyStatement that = (OAlterPropertyStatement) o;
 
-    if (className != null ? !className.equals(that.className) : that.className != null)
+    if (!Objects.equals(className, that.className)) {
       return false;
-    if (propertyName != null ? !propertyName.equals(that.propertyName) : that.propertyName != null)
+    }
+    if (!Objects.equals(propertyName, that.propertyName)) {
       return false;
-    if (customPropertyName != null
-        ? !customPropertyName.equals(that.customPropertyName)
-        : that.customPropertyName != null) return false;
-    if (customPropertyValue != null
-        ? !customPropertyValue.equals(that.customPropertyValue)
-        : that.customPropertyValue != null) return false;
-    if (settingName != null ? !settingName.equals(that.settingName) : that.settingName != null)
+    }
+    if (!Objects.equals(customPropertyName, that.customPropertyName)) {
       return false;
-    if (settingValue != null ? !settingValue.equals(that.settingValue) : that.settingValue != null)
+    }
+    if (!Objects.equals(customPropertyValue, that.customPropertyValue)) {
       return false;
-
-    return true;
+    }
+    if (!Objects.equals(settingName, that.settingName)) {
+      return false;
+    }
+    return Objects.equals(settingValue, that.settingValue);
   }
 
   @Override

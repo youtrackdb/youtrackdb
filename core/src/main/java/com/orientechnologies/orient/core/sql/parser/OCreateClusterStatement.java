@@ -7,10 +7,13 @@ import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
+import java.util.Objects;
 
 public class OCreateClusterStatement extends ODDLStatement {
 
-  /** Class name */
+  /**
+   * Class name
+   */
   protected OIdentifier name;
 
   protected boolean ifNotExists = false;
@@ -122,15 +125,25 @@ public class OCreateClusterStatement extends ODDLStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OCreateClusterStatement that = (OCreateClusterStatement) o;
 
-    if (ifNotExists != that.ifNotExists) return false;
-    if (blob != that.blob) return false;
-    if (name != null ? !name.equals(that.name) : that.name != null) return false;
-    return id != null ? id.equals(that.id) : that.id == null;
+    if (ifNotExists != that.ifNotExists) {
+      return false;
+    }
+    if (blob != that.blob) {
+      return false;
+    }
+    if (!Objects.equals(name, that.name)) {
+      return false;
+    }
+    return Objects.equals(id, that.id);
   }
 
   @Override

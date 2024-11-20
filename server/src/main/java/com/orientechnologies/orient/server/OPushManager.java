@@ -37,7 +37,7 @@ public class OPushManager implements OMetadataUpdateListener {
   protected final OPushEventType indexManager = new OPushEventType();
   protected final OPushEventType functions = new OPushEventType();
   protected final OPushEventType sequences = new OPushEventType();
-  private Set<String> registerDatabase = new HashSet<>();
+  private final Set<String> registerDatabase = new HashSet<>();
   private final ExecutorService executor;
 
   public OPushManager() {

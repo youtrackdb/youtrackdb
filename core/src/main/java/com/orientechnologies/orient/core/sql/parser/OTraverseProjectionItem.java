@@ -9,6 +9,7 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class OTraverseProjectionItem extends SimpleNode {
@@ -43,10 +44,7 @@ public class OTraverseProjectionItem extends SimpleNode {
     if (base != null && base.refersToParent()) {
       return true;
     }
-    if (modifier != null && modifier.refersToParent()) {
-      return true;
-    }
-    return false;
+    return modifier != null && modifier.refersToParent();
   }
 
   private Object handleStar(OResult iCurrentRecord, OCommandContext ctx) {
@@ -113,15 +111,19 @@ public class OTraverseProjectionItem extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OTraverseProjectionItem that = (OTraverseProjectionItem) o;
 
-    if (base != null ? !base.equals(that.base) : that.base != null) return false;
-    if (modifier != null ? !modifier.equals(that.modifier) : that.modifier != null) return false;
-
-    return true;
+    if (!Objects.equals(base, that.base)) {
+      return false;
+    }
+    return Objects.equals(modifier, that.modifier);
   }
 
   @Override

@@ -30,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OContextConfiguration implements Serializable {
+
   private final Map<String, Object> config = new ConcurrentHashMap<String, Object>();
 
   /**
@@ -47,34 +48,43 @@ public class OContextConfiguration implements Serializable {
   }
 
   public OContextConfiguration(final OContextConfiguration iParent) {
-    if (iParent != null) config.putAll(iParent.config);
+    if (iParent != null) {
+      config.putAll(iParent.config);
+    }
   }
 
   public Object setValue(final OGlobalConfiguration iConfig, final Object iValue) {
-    if (iValue == null) return config.remove(iConfig.getKey());
+    if (iValue == null) {
+      return config.remove(iConfig.getKey());
+    }
 
     return config.put(iConfig.getKey(), iValue);
   }
 
   public Object setValue(final String iName, final Object iValue) {
-    if (iValue == null) return config.remove(iName);
+    if (iValue == null) {
+      return config.remove(iName);
+    }
 
     return config.put(iName, iValue);
   }
 
   public Object getValue(final OGlobalConfiguration iConfig) {
-    if (config != null && config.containsKey(iConfig.getKey())) return config.get(iConfig.getKey());
+    if (config != null && config.containsKey(iConfig.getKey())) {
+      return config.get(iConfig.getKey());
+    }
     return iConfig.getValue();
   }
 
   /**
    * @param config Global configuration parameter.
    * @return Value of configuration parameter stored in this context as enumeration if such one
-   *     exists, otherwise value stored in passed in {@link OGlobalConfiguration} instance.
-   * @throws ClassCastException if stored value can not be casted and parsed from string to passed
-   *     in enumeration class.
+   * exists, otherwise value stored in passed in {@link OGlobalConfiguration} instance.
+   * @throws ClassCastException       if stored value can not be casted and parsed from string to
+   *                                  passed in enumeration class.
    * @throws IllegalArgumentException if value associated with configuration parameter is a string
-   *     bug can not be converted to instance of passed in enumeration class.
+   *                                  bug can not be converted to instance of passed in enumeration
+   *                                  class.
    */
   public <T extends Enum<T>> T getValueAsEnum(
       final OGlobalConfiguration config, Class<T> enumType) {
@@ -85,7 +95,9 @@ public class OContextConfiguration implements Serializable {
       value = config.getValue();
     }
 
-    if (value == null) return null;
+    if (value == null) {
+      return null;
+    }
 
     if (enumType.isAssignableFrom(value.getClass())) {
       return enumType.cast(value);
@@ -100,17 +112,23 @@ public class OContextConfiguration implements Serializable {
 
   @SuppressWarnings("unchecked")
   public <T> T getValue(final String iName, final T iDefaultValue) {
-    if (config != null && config.containsKey(iName)) return (T) config.get(iName);
+    if (config != null && config.containsKey(iName)) {
+      return (T) config.get(iName);
+    }
 
     final String sysProperty = System.getProperty(iName);
-    if (sysProperty != null) return (T) sysProperty;
+    if (sysProperty != null) {
+      return (T) sysProperty;
+    }
 
     return iDefaultValue;
   }
 
   public boolean getValueAsBoolean(final OGlobalConfiguration iConfig) {
     final Object v = getValue(iConfig);
-    if (v == null) return false;
+    if (v == null) {
+      return false;
+    }
     return v instanceof Boolean ? ((Boolean) v).booleanValue() : Boolean.parseBoolean(v.toString());
   }
 
@@ -120,25 +138,33 @@ public class OContextConfiguration implements Serializable {
 
   public String getValueAsString(final OGlobalConfiguration iConfig) {
     final Object v = getValue(iConfig);
-    if (v == null) return null;
+    if (v == null) {
+      return null;
+    }
     return v.toString();
   }
 
   public int getValueAsInteger(final OGlobalConfiguration iConfig) {
     final Object v = getValue(iConfig);
-    if (v == null) return 0;
+    if (v == null) {
+      return 0;
+    }
     return v instanceof Integer ? ((Integer) v).intValue() : Integer.parseInt(v.toString());
   }
 
   public long getValueAsLong(final OGlobalConfiguration iConfig) {
     final Object v = getValue(iConfig);
-    if (v == null) return 0;
+    if (v == null) {
+      return 0;
+    }
     return v instanceof Long ? ((Long) v).intValue() : Long.parseLong(v.toString());
   }
 
   public float getValueAsFloat(final OGlobalConfiguration iConfig) {
     final Object v = getValue(iConfig);
-    if (v == null) return 0;
+    if (v == null) {
+      return 0;
+    }
     return v instanceof Float ? ((Float) v).floatValue() : Float.parseFloat(v.toString());
   }
 

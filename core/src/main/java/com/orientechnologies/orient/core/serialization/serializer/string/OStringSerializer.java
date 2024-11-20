@@ -20,6 +20,7 @@
 package com.orientechnologies.orient.core.serialization.serializer.string;
 
 public interface OStringSerializer {
+
   StringBuilder toStream(StringBuilder iOutput, Object iSource);
 
   Object fromStream(String iSource);

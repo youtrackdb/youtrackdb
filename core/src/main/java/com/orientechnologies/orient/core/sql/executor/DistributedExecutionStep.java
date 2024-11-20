@@ -5,7 +5,9 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 
-/** Created by luigidellaquila on 08/05/17. */
+/**
+ * Created by luigidellaquila on 08/05/17.
+ */
 public class DistributedExecutionStep extends AbstractExecutionStep {
 
   private final OSelectExecutionPlan subExecuitonPlan;
@@ -33,7 +35,7 @@ public class DistributedExecutionStep extends AbstractExecutionStep {
 
   private OExecutionStream sendSerializedExecutionPlan(
       String nodeName, OExecutionPlan serializedExecutionPlan, OCommandContext ctx) {
-    ODatabaseSessionInternal db = (ODatabaseSessionInternal) ctx.getDatabase();
+    ODatabaseSessionInternal db = ctx.getDatabase();
     return OExecutionStream.resultIterator(
         db.queryOnNode(nodeName, serializedExecutionPlan, ctx.getInputParameters()).stream()
             .iterator());

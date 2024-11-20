@@ -61,11 +61,11 @@ public class ORemoteTreeRidBag implements ORidBagDelegate {
   private boolean transactionDirty = false;
   private ORecordId ownerRecord;
   private String fieldName;
-  private OBonsaiCollectionPointer collectionPointer;
+  private final OBonsaiCollectionPointer collectionPointer;
 
   private class RemovableIterator implements Iterator<OIdentifiable> {
 
-    private Iterator<OIdentifiable> iter;
+    private final Iterator<OIdentifiable> iter;
     private OIdentifiable next;
     private OIdentifiable removeNext;
 
@@ -151,12 +151,6 @@ public class ORemoteTreeRidBag implements ORidBagDelegate {
     return new RemovableIterator(set.iterator());
   }
 
-  @Override
-  public Iterator<OIdentifiable> rawIterator() {
-    List<OIdentifiable> set = loadElements();
-    return new RemovableIterator(set.iterator());
-  }
-
   private List<OIdentifiable> loadElements() {
     ODatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().get();
     List<OIdentifiable> set;
@@ -181,14 +175,6 @@ public class ORemoteTreeRidBag implements ORidBagDelegate {
       }
     }
     return set;
-  }
-
-  @Override
-  public void convertLinks2Records() {}
-
-  @Override
-  public boolean convertRecords2Links() {
-    return true;
   }
 
   @Override

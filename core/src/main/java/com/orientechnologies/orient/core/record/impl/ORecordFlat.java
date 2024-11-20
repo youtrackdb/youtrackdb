@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordStringable;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * It's schema less. Use this if you need to store Strings at low level. The object can be reused
@@ -93,11 +93,7 @@ public class ORecordFlat extends ORecordAbstract implements ORecordStringable {
   public String value() {
     if (value == null) {
       // LAZY LOADING: LOAD THE RECORD FIRST
-      try {
-        value = new String(source, "UTF-8");
-      } catch (UnsupportedEncodingException e) {
-        throw new RuntimeException(e);
-      }
+      value = new String(source, StandardCharsets.UTF_8);
     }
 
     return value;
@@ -118,11 +114,7 @@ public class ORecordFlat extends ORecordAbstract implements ORecordStringable {
   @Override
   public byte[] toStream() {
     if (source == null && value != null) {
-      try {
-        source = value.getBytes("UTF-8");
-      } catch (UnsupportedEncodingException e) {
-        throw new RuntimeException(e);
-      }
+      source = value.getBytes(StandardCharsets.UTF_8);
     }
     return source;
   }

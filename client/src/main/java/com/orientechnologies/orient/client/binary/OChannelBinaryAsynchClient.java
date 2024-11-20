@@ -50,9 +50,10 @@ import java.net.SocketException;
 import java.util.Map;
 
 public class OChannelBinaryAsynchClient extends OChannelBinary {
+
   private int socketTimeout; // IN MS
   protected final short srvProtocolVersion;
-  private String serverURL;
+  private final String serverURL;
   private byte currentStatus;
   private int currentSessionId;
   private byte currentMessage;
@@ -72,7 +73,7 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
       socketTimeout = iConfig.getValueAsInteger(OGlobalConfiguration.NETWORK_SOCKET_TIMEOUT);
 
       try {
-        socket.connect(new InetSocketAddress(remoteHost, remotePort), getSocketTimeout());
+        socket.connect(new InetSocketAddress(remoteHost, remotePort), socketTimeout);
         setReadResponseTimeout();
         connected();
       } catch (java.net.SocketTimeoutException e) {
@@ -120,7 +121,9 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
       }
 
     } catch (RuntimeException e) {
-      if (socket.isConnected()) socket.close();
+      if (socket.isConnected()) {
+        socket.close();
+      }
       throw e;
     }
   }
@@ -140,19 +143,23 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
         }
       }
 
-      if (c == null) c = excClass.getConstructor(String.class);
+      if (c == null) {
+        c = excClass.getConstructor(String.class);
+      }
 
     } catch (Exception e) {
       // UNABLE TO REPRODUCE THE SAME SERVER-SIDE EXCEPTION: THROW AN SYSTEM EXCEPTION
       rootException = OException.wrapException(new OSystemException(iMessage), iPrevious);
     }
 
-    if (c != null)
+    if (c != null) {
       try {
         final Exception cause;
-        if (c.getParameterTypes().length > 1)
+        if (c.getParameterTypes().length > 1) {
           cause = (Exception) c.newInstance(iMessage, iPrevious);
-        else cause = (Exception) c.newInstance(iMessage);
+        } else {
+          cause = (Exception) c.newInstance(iMessage);
+        }
 
         rootException =
             OException.wrapException(new OSystemException("Data processing exception"), cause);
@@ -160,6 +167,7 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
       } catch (IllegalAccessException ignored) {
       } catch (InvocationTargetException ignored) {
       }
+    }
 
     return rootException;
   }
@@ -172,7 +180,9 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
       throws IOException {
     try {
       // WAIT FOR THE RESPONSE
-      if (iTimeout <= 0) acquireReadLock();
+      if (iTimeout <= 0) {
+        acquireReadLock();
+      }
 
       if (!isConnected()) {
         releaseReadLock();
@@ -184,7 +194,7 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
         currentStatus = readByte();
         currentSessionId = readInt();
 
-        if (debug)
+        if (debug) {
           OLogManager.instance()
               .debug(
                   this,
@@ -192,6 +202,7 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
                   socket.getLocalAddress(),
                   (int) currentStatus,
                   currentSessionId);
+        }
 
       } finally {
         setReadResponseTimeout();
@@ -199,12 +210,16 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
 
       assert (currentSessionId == iRequesterId);
 
-      if (debug)
+      if (debug) {
         OLogManager.instance()
             .debug(this, "%s - Session %d handle response", socket.getLocalAddress(), iRequesterId);
+      }
       byte[] tokenBytes;
-      if (token) tokenBytes = this.readBytes();
-      else tokenBytes = null;
+      if (token) {
+        tokenBytes = this.readBytes();
+      } else {
+        tokenBytes = null;
+      }
 
       currentMessage = readByte();
       handleStatus(currentStatus, currentSessionId);
@@ -266,7 +281,9 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
         && !s.isOutputShutdown();
   }
 
-  /** Gets the major supported protocol version */
+  /**
+   * Gets the major supported protocol version
+   */
   public short getSrvProtocolVersion() {
     return srvProtocolVersion;
   }
@@ -284,6 +301,7 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
   }
 
   public interface ExceptionHandler {
+
     void onException(Throwable ex);
   }
 
@@ -310,7 +328,9 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
 
       if (previous != null) {
         exceptionHandler.onException(new RuntimeException(previous));
-      } else exceptionHandler.onException(new ONetworkProtocolException("Network response error"));
+      } else {
+        exceptionHandler.onException(new ONetworkProtocolException("Network response error"));
+      }
 
     } else {
       // PROTOCOL ERROR
@@ -328,7 +348,9 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
 
   private void setReadResponseTimeout() throws SocketException {
     final Socket s = socket;
-    if (s != null && s.isConnected() && !s.isClosed()) s.setSoTimeout(getSocketTimeout());
+    if (s != null && s.isConnected() && !s.isClosed()) {
+      s.setSoTimeout(socketTimeout);
+    }
   }
 
   private Throwable deserializeException(final byte[] serializedException) throws IOException {
@@ -340,7 +362,7 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
       throwable = objectInputStream.readObject();
     } catch (ClassNotFoundException e) {
       OLogManager.instance().error(this, "Error during exception deserialization", e);
-      throw new IOException("Error during exception deserialization: " + e.toString(), e);
+      throw new IOException("Error during exception deserialization: " + e, e);
     }
 
     objectInputStream.close();
@@ -369,8 +391,7 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
       throw (RuntimeException) throwable;
     }
     if (throwable instanceof Throwable) {
-      throw new OResponseProcessingException(
-          "Exception during response processing", (Throwable) throwable);
+      throw new OResponseProcessingException("Exception during response processing", throwable);
     } else {
       // WRAP IT
       String exceptionType = throwable != null ? throwable.getClass().getName() : "null";
@@ -386,14 +407,15 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
 
   public void beginRequest(final byte iCommand, final OStorageRemoteSession session)
       throws IOException {
-    final OStorageRemoteNodeSession nodeSession = session.getServerSession(getServerURL());
+    final OStorageRemoteNodeSession nodeSession = session.getServerSession(serverURL);
     beginRequest(iCommand, nodeSession);
   }
 
   public void beginRequest(byte iCommand, OStorageRemoteNodeSession nodeSession)
       throws IOException {
-    if (nodeSession == null)
-      throw new OIOException("Invalid session for URL '" + getServerURL() + "'");
+    if (nodeSession == null) {
+      throw new OIOException("Invalid session for URL '" + serverURL + "'");
+    }
 
     writeByte(iCommand);
     writeInt(nodeSession.getSessionId());

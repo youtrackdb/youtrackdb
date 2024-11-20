@@ -6,8 +6,11 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import com.orientechnologies.orient.core.sql.executor.resultset.OExpireResultSet;
 import com.orientechnologies.orient.core.sql.parser.OTimeout;
 
-/** Created by luigidellaquila on 08/08/16. */
+/**
+ * Created by luigidellaquila on 08/08/16.
+ */
 public class TimeoutStep extends AbstractExecutionStep {
+
   private final OTimeout timeout;
 
   public TimeoutStep(OTimeout timeout, OCommandContext ctx, boolean profilingEnabled) {
@@ -24,7 +27,6 @@ public class TimeoutStep extends AbstractExecutionStep {
   private void fail() {
     sendTimeout();
     if (OTimeout.RETURN.equals(this.timeout.getFailureStrategy())) {
-      return;
     } else {
       throw new OTimeoutException("Timeout expired");
     }

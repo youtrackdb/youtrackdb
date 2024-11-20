@@ -12,7 +12,10 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 
 public final class SpliteratorBackward<K> implements Spliterator<ORawPair<K, ORID>> {
-  /** */
+
+  /**
+   *
+   */
   private final CellBTreeSingleValueV3<K> btree;
 
   private final K fromKey;
@@ -54,7 +57,7 @@ public final class SpliteratorBackward<K> implements Spliterator<ORawPair<K, ORI
 
     btree.fetchBackwardNextCachePortion(this);
 
-    cacheIterator = getDataCache().iterator();
+    cacheIterator = dataCache.iterator();
 
     if (cacheIterator.hasNext()) {
       action.accept(cacheIterator.next());

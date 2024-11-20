@@ -32,16 +32,17 @@ public interface OSQLFunctionFiltered extends OSQLFunction {
    * Process a record.
    *
    * @param iThis
-   * @param iCurrentRecord : current record
-   * @param iCurrentResult TODO
-   * @param iParams : function parameters, number is ensured to be within minParams and maxParams.
+   * @param iCurrentRecord   : current record
+   * @param iCurrentResult   TODO
+   * @param iParams          : function parameters, number is ensured to be within minParams and
+   *                         maxParams.
    * @param iPossibleResults : a set of possible results (the function will return, as a result,
-   *     only items contained in this collection)
-   * @param iContext : object calling this function
+   *                         only items contained in this collection)
+   * @param iContext         : object calling this function
    * @return function result, can be null. Special cases : can be null if function aggregate
-   *     results, can be null if function filter results : this mean result is excluded
+   * results, can be null if function filter results : this mean result is excluded
    */
-  public Object execute(
+  Object execute(
       Object iThis,
       OIdentifiable iCurrentRecord,
       Object iCurrentResult,

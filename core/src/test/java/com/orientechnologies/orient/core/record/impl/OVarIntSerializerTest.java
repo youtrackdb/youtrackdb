@@ -13,7 +13,7 @@ public class OVarIntSerializerTest {
     BytesContainer bytes = new BytesContainer();
     OVarIntSerializer.write(bytes, 0);
     bytes.offset = 0;
-    assertEquals(OVarIntSerializer.readAsLong(bytes), 0l);
+    assertEquals(OVarIntSerializer.readAsLong(bytes), 0L);
   }
 
   @Test
@@ -21,7 +21,7 @@ public class OVarIntSerializerTest {
     BytesContainer bytes = new BytesContainer();
     OVarIntSerializer.write(bytes, -20432343);
     bytes.offset = 0;
-    assertEquals(OVarIntSerializer.readAsLong(bytes), -20432343l);
+    assertEquals(OVarIntSerializer.readAsLong(bytes), -20432343L);
   }
 
   @Test
@@ -29,7 +29,7 @@ public class OVarIntSerializerTest {
     BytesContainer bytes = new BytesContainer();
     OVarIntSerializer.write(bytes, 20432343);
     bytes.offset = 0;
-    assertEquals(OVarIntSerializer.readAsLong(bytes), 20432343l);
+    assertEquals(OVarIntSerializer.readAsLong(bytes), 20432343L);
   }
 
   @Test
@@ -37,14 +37,14 @@ public class OVarIntSerializerTest {
     BytesContainer bytes = new BytesContainer();
     OVarIntSerializer.write(bytes, 16238);
     bytes.offset = 0;
-    assertEquals(OVarIntSerializer.readAsLong(bytes), 16238l);
+    assertEquals(OVarIntSerializer.readAsLong(bytes), 16238L);
   }
 
   @Test
   public void serializePosition() {
     BytesContainer bytes = new BytesContainer();
     bytes.offset = OVarIntSerializer.write(bytes, 16238);
-    assertEquals(OVarIntSerializer.readAsLong(bytes), 16238l);
+    assertEquals(OVarIntSerializer.readAsLong(bytes), 16238L);
   }
 
   @Test

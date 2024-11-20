@@ -5,6 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import java.util.Map;
 
 public class OparseScript extends SimpleNode {
+
   public OparseScript(int id) {
     super(id);
   }

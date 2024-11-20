@@ -26,7 +26,9 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.logging.*;
 
-/** @author <a href="mailto:cleclerc@cloudbees.com">Cyrille Le Clerc</a> */
+/**
+ * @author <a href="mailto:cleclerc@cloudbees.com">Cyrille Le Clerc</a>
+ */
 public class SyslogHandler extends AbstractHandler {
 
   private SyslogMessageSender syslogMessageSender;
@@ -86,12 +88,16 @@ public class SyslogHandler extends AbstractHandler {
 
   @Override
   public void publish(LogRecord record) {
-    if (!isLoggable(record)) return;
+    if (!isLoggable(record)) {
+      return;
+    }
 
     String msg = getFormatter().format(record);
 
     Severity severity = LevelHelper.toSeverity(record.getLevel());
-    if (severity == null) severity = this.severity;
+    if (severity == null) {
+      severity = this.severity;
+    }
 
     SyslogMessage message =
         new SyslogMessage()

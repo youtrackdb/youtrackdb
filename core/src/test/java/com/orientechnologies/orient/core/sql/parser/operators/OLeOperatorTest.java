@@ -28,6 +28,7 @@ import org.junit.Test;
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class OLeOperatorTest {
+
   @Test
   public void test() {
     OLeOperator op = new OLeOperator(-1);

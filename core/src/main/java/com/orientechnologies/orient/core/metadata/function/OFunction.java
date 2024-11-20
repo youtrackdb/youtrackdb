@@ -47,7 +47,9 @@ public class OFunction extends ODocumentWrapper {
   public static final String CLASS_NAME = "OFunction";
   private OCallable<Object, Map<Object, Object>> callback;
 
-  /** Creates a new function. */
+  /**
+   * Creates a new function.
+   */
   public OFunction() {
     super(CLASS_NAME);
     setLanguage("SQL");
@@ -68,7 +70,7 @@ public class OFunction extends ODocumentWrapper {
    * @param iRid RID of the function to load
    */
   public OFunction(final ORecordId iRid) {
-    super(iRid);
+    super(iRid.getRecord());
   }
 
   public String getName() {
@@ -161,7 +163,7 @@ public class OFunction extends ODocumentWrapper {
       return callback.call(args);
     }
 
-    ODatabaseSessionInternal database = (ODatabaseSessionInternal) iContext.getDatabase();
+    ODatabaseSessionInternal database = iContext.getDatabase();
     if (database == null) {
       database = ODatabaseRecordThreadLocal.instance().get();
     }
@@ -198,7 +200,7 @@ public class OFunction extends ODocumentWrapper {
       return callback.call(args);
     }
 
-    ODatabaseSessionInternal database = (ODatabaseSessionInternal) iContext.getDatabase();
+    ODatabaseSessionInternal database = iContext.getDatabase();
     if (database == null) {
       database = ODatabaseRecordThreadLocal.instance().get();
     }

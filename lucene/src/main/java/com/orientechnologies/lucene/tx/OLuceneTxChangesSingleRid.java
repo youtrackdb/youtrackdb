@@ -30,8 +30,11 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexWriter;
 
-/** Created by Enrico Risa on 15/09/15. */
+/**
+ * Created by Enrico Risa on 15/09/15.
+ */
 public class OLuceneTxChangesSingleRid extends OLuceneTxChangesAbstract {
+
   private final Set<String> deleted = new HashSet<String>();
   private final Set<String> updated = new HashSet<String>();
   private final Set<Document> deletedDocs = new HashSet<Document>();

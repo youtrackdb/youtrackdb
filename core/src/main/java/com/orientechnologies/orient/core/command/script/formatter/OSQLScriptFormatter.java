@@ -27,6 +27,7 @@ import com.orientechnologies.orient.core.metadata.function.OFunction;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLScriptFormatter implements OScriptFormatter {
+
   public String getFunctionDefinition(final OFunction f) {
     return null;
   }

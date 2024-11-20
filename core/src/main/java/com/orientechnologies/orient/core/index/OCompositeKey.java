@@ -60,7 +60,9 @@ public class OCompositeKey
 
   private Set<IdentityChangeListener> identityChangeListeners;
 
-  /** */
+  /**
+   *
+   */
   private final List<Object> keys;
 
   public OCompositeKey(final List<?> keys) {
@@ -87,14 +89,18 @@ public class OCompositeKey
     this.keys = new ArrayList<>(size);
   }
 
-  /** Clears the keys array for reuse of the object */
+  /**
+   * Clears the keys array for reuse of the object
+   */
   public void reset() {
     if (this.keys != null) {
       this.keys.clear();
     }
   }
 
-  /** */
+  /**
+   *
+   */
   public List<Object> getKeys() {
     return Collections.unmodifiableList(keys);
   }
@@ -102,8 +108,8 @@ public class OCompositeKey
   /**
    * Add new key value to the list of already registered values.
    *
-   * <p>If passed in value is {@link OCompositeKey} itself then its values will be copied in current
-   * index. But key itself will not be added.
+   * <p>If passed in value is {@link OCompositeKey} itself then its values will be copied in
+   * current index. But key itself will not be added.
    *
    * @param key Key to add.
    */
@@ -135,7 +141,7 @@ public class OCompositeKey
    *
    * @param otherKey Key to compare.
    * @return a negative integer, zero, or a positive integer as this object is less than, equal to,
-   *     or greater than the specified object.
+   * or greater than the specified object.
    */
   public int compareTo(final OCompositeKey otherKey) {
     final Iterator<Object> inIter = keys.iterator();
@@ -169,24 +175,34 @@ public class OCompositeKey
     return 0;
   }
 
-  /** {@inheritDoc } */
+  /**
+   * {@inheritDoc }
+   */
   @Override
   public boolean equals(final Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     final OCompositeKey that = (OCompositeKey) o;
 
     return keys.equals(that.keys);
   }
 
-  /** {@inheritDoc } */
+  /**
+   * {@inheritDoc }
+   */
   @Override
   public int hashCode() {
     return keys.hashCode();
   }
 
-  /** {@inheritDoc } */
+  /**
+   * {@inheritDoc }
+   */
   @Override
   public String toString() {
     return "OCompositeKey{" + "keys=" + keys + '}';

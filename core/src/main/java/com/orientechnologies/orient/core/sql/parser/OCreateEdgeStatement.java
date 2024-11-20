@@ -10,6 +10,7 @@ import com.orientechnologies.orient.core.sql.executor.OInsertExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class OCreateEdgeStatement extends OStatement {
 
@@ -177,10 +178,7 @@ public class OCreateEdgeStatement extends OStatement {
     if (this.rightExpression != null && !this.rightExpression.isCacheable()) {
       return false;
     }
-    if (this.body != null && !body.isCacheable()) {
-      return false;
-    }
-    return true;
+    return this.body == null || body.isCacheable();
   }
 
   @Override
@@ -210,27 +208,40 @@ public class OCreateEdgeStatement extends OStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OCreateEdgeStatement that = (OCreateEdgeStatement) o;
 
-    if (upsert != that.upsert) return false;
-    if (targetClass != null ? !targetClass.equals(that.targetClass) : that.targetClass != null)
+    if (upsert != that.upsert) {
       return false;
-    if (targetClusterName != null
-        ? !targetClusterName.equals(that.targetClusterName)
-        : that.targetClusterName != null) return false;
-    if (leftExpression != null
-        ? !leftExpression.equals(that.leftExpression)
-        : that.leftExpression != null) return false;
-    if (rightExpression != null
-        ? !rightExpression.equals(that.rightExpression)
-        : that.rightExpression != null) return false;
-    if (body != null ? !body.equals(that.body) : that.body != null) return false;
-    if (retry != null ? !retry.equals(that.retry) : that.retry != null) return false;
-    if (wait != null ? !wait.equals(that.wait) : that.wait != null) return false;
-    return batch != null ? batch.equals(that.batch) : that.batch == null;
+    }
+    if (!Objects.equals(targetClass, that.targetClass)) {
+      return false;
+    }
+    if (!Objects.equals(targetClusterName, that.targetClusterName)) {
+      return false;
+    }
+    if (!Objects.equals(leftExpression, that.leftExpression)) {
+      return false;
+    }
+    if (!Objects.equals(rightExpression, that.rightExpression)) {
+      return false;
+    }
+    if (!Objects.equals(body, that.body)) {
+      return false;
+    }
+    if (!Objects.equals(retry, that.retry)) {
+      return false;
+    }
+    if (!Objects.equals(wait, that.wait)) {
+      return false;
+    }
+    return Objects.equals(batch, that.batch);
   }
 
   @Override

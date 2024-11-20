@@ -11,6 +11,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OShutdownRequest implements OBinaryRequest<OBinaryResponse> {
+
   private String rootUser;
   private String rootPassword;
 

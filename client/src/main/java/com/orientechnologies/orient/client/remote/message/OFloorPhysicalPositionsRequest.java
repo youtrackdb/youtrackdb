@@ -32,6 +32,7 @@ import java.io.IOException;
 
 public class OFloorPhysicalPositionsRequest
     implements OBinaryRequest<OFloorPhysicalPositionsResponse> {
+
   private OPhysicalPosition physicalPosition;
   private int clusterId;
 

@@ -28,6 +28,7 @@ import com.orientechnologies.orient.core.config.OGlobalConfiguration;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OFastConcurrentModificationException extends OConcurrentModificationException {
+
   private static final long serialVersionUID = 1L;
 
   private static final OGlobalConfiguration CONFIG = OGlobalConfiguration.DB_MVCC_THROWFAST;

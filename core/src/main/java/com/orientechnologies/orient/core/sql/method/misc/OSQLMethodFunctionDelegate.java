@@ -29,7 +29,7 @@ import com.orientechnologies.orient.core.sql.functions.OSQLFunctionRuntime;
 public class OSQLMethodFunctionDelegate extends OAbstractSQLMethod {
 
   public static final String NAME = "function";
-  private OSQLFunctionRuntime func;
+  private final OSQLFunctionRuntime func;
 
   public OSQLMethodFunctionDelegate(final OSQLFunction f) {
     super(NAME);

@@ -4,11 +4,13 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import java.util.Iterator;
 
-/** Created by luigidellaquila on 25/10/16. */
+/**
+ * Created by luigidellaquila on 25/10/16.
+ */
 public class ORidSetIterator implements Iterator<ORID> {
 
   private final Iterator<ORID> negativesIterator;
-  private ORidSet set;
+  private final ORidSet set;
   private int currentCluster = -1;
   private long currentId = -1;
 

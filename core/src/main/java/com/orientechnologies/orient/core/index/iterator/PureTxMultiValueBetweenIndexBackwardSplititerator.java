@@ -15,7 +15,10 @@ import java.util.function.Consumer;
 
 public class PureTxMultiValueBetweenIndexBackwardSplititerator
     implements Spliterator<ORawPair<Object, ORID>> {
-  /** */
+
+  /**
+   *
+   */
   private final OIndexMultiValues oIndexTxAwareMultiValue;
 
   private final OTransactionIndexChanges indexChanges;
@@ -77,8 +80,9 @@ public class PureTxMultiValueBetweenIndexBackwardSplititerator
 
       nextKey = indexChanges.getLowerKey(nextKey);
 
-      if (nextKey != null && ODefaultComparator.INSTANCE.compare(nextKey, firstKey) < 0)
+      if (nextKey != null && ODefaultComparator.INSTANCE.compare(nextKey, firstKey) < 0) {
         nextKey = null;
+      }
     } while ((result == null || result.isEmpty()) && nextKey != null);
 
     if (result == null || result.isEmpty()) {

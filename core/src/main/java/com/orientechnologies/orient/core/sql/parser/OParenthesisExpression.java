@@ -12,6 +12,7 @@ import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public class OParenthesisExpression extends OMathExpression {
@@ -108,10 +109,7 @@ public class OParenthesisExpression extends OMathExpression {
   }
 
   public boolean needsAliases(Set<String> aliases) {
-    if (expression.needsAliases(aliases)) {
-      return true;
-    }
-    return false;
+    return expression.needsAliases(aliases);
   }
 
   public boolean isExpand() {
@@ -182,26 +180,27 @@ public class OParenthesisExpression extends OMathExpression {
     if (expression != null && expression.refersToParent()) {
       return true;
     }
-    if (statement != null && statement.refersToParent()) {
-      return true;
-    }
-    return false;
+    return statement != null && statement.refersToParent();
   }
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    if (!super.equals(o)) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    if (!super.equals(o)) {
+      return false;
+    }
 
     OParenthesisExpression that = (OParenthesisExpression) o;
 
-    if (expression != null ? !expression.equals(that.expression) : that.expression != null)
+    if (!Objects.equals(expression, that.expression)) {
       return false;
-    if (statement != null ? !statement.equals(that.statement) : that.statement != null)
-      return false;
-
-    return true;
+    }
+    return Objects.equals(statement, that.statement);
   }
 
   @Override
@@ -221,7 +220,7 @@ public class OParenthesisExpression extends OMathExpression {
     if (expression != null) {
       expression.applyRemove(result, ctx);
     } else {
-      throw new OCommandExecutionException("Cannot apply REMOVE " + toString());
+      throw new OCommandExecutionException("Cannot apply REMOVE " + this);
     }
   }
 

@@ -30,7 +30,7 @@ import java.io.IOException;
 
 public class OReloadResponse37 implements OBinaryResponse {
 
-  private OStorageConfigurationPayload payload;
+  private final OStorageConfigurationPayload payload;
 
   public OReloadResponse37() {
     payload = new OStorageConfigurationPayload();

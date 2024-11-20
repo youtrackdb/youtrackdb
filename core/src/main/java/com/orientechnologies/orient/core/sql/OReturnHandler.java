@@ -26,6 +26,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
  * @author Artem Orobets (enisher-at-gmail.com)
  */
 public interface OReturnHandler {
+
   void reset();
 
   void beforeUpdate(ODocument result);

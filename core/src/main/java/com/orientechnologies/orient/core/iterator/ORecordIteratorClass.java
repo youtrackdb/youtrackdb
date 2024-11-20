@@ -39,6 +39,7 @@ import java.util.Arrays;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ORecordIteratorClass<REC extends ORecord> extends ORecordIteratorClusters<REC> {
+
   protected final OClass targetClass;
   protected boolean polymorphic;
 
@@ -48,7 +49,9 @@ public class ORecordIteratorClass<REC extends ORecord> extends ORecordIteratorCl
       final boolean iPolymorphic,
       boolean begin) {
     this(iDatabase, iClassName, iPolymorphic);
-    if (begin) begin();
+    if (begin) {
+      begin();
+    }
   }
 
   @Deprecated
@@ -59,9 +62,10 @@ public class ORecordIteratorClass<REC extends ORecord> extends ORecordIteratorCl
     super(iDatabase);
 
     targetClass = database.getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
-    if (targetClass == null)
+    if (targetClass == null) {
       throw new IllegalArgumentException(
           "Class '" + iClassName + "' was not found in database schema");
+    }
 
     polymorphic = iPolymorphic;
     clusterIds = polymorphic ? targetClass.getPolymorphicClusterIds() : targetClass.getClusterIds();
@@ -80,21 +84,23 @@ public class ORecordIteratorClass<REC extends ORecord> extends ORecordIteratorCl
     this.polymorphic = polymorphic;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public REC next() {
     final OIdentifiable rec = super.next();
-    if (rec == null) return null;
-    return (REC) rec.getRecord();
+    if (rec == null) {
+      return null;
+    }
+    return rec.getRecord();
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public REC previous() {
     final OIdentifiable rec = super.previous();
-    if (rec == null) return null;
+    if (rec == null) {
+      return null;
+    }
 
-    return (REC) rec.getRecord();
+    return rec.getRecord();
   }
 
   public boolean isPolymorphic() {
@@ -129,11 +135,16 @@ public class ORecordIteratorClass<REC extends ORecord> extends ORecordIteratorCl
     txEntries = database.getTransaction().getNewRecordEntriesByClass(targetClass, polymorphic);
 
     if (txEntries != null)
-      // ADJUST TOTAL ELEMENT BASED ON CURRENT TRANSACTION'S ENTRIES
+    // ADJUST TOTAL ELEMENT BASED ON CURRENT TRANSACTION'S ENTRIES
+    {
       for (ORecordOperation entry : txEntries) {
         if (!entry.getRecord().getIdentity().isPersistent()
-            && entry.type != ORecordOperation.DELETED) totalAvailableRecords++;
-        else if (entry.type == ORecordOperation.DELETED) totalAvailableRecords--;
+            && entry.type != ORecordOperation.DELETED) {
+          totalAvailableRecords++;
+        } else if (entry.type == ORecordOperation.DELETED) {
+          totalAvailableRecords--;
+        }
       }
+    }
   }
 }

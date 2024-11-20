@@ -39,7 +39,9 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
-/** Created by tglman on 27/03/16. */
+/**
+ * Created by tglman on 27/03/16.
+ */
 public interface OrientDBInternal extends AutoCloseable, OSchedulerInternal {
 
   /**
@@ -48,17 +50,18 @@ public interface OrientDBInternal extends AutoCloseable, OSchedulerInternal {
    * <p>possible kind of urls 'embedded','remote', for the case of remote and distributed can be
    * specified multiple nodes using comma.
    *
-   * @param url the url for the specific factory.
-   * @param configuration configuration for the specific factory for the list of option {@see
-   *     OGlobalConfiguration}.
+   * @param url           the url for the specific factory.
+   * @param configuration configuration for the specific factory for the list of option
+   *                      {@see OGlobalConfiguration}.
    * @return the new Orient Factory.
    */
   static OrientDBInternal fromUrl(String url, OrientDBConfig configuration) {
     String what = url.substring(0, url.indexOf(':'));
-    if ("embedded".equals(what))
+    if ("embedded".equals(what)) {
       return embedded(url.substring(url.indexOf(':') + 1), configuration);
-    else if ("remote".equals(what))
+    } else if ("remote".equals(what)) {
       return remote(url.substring(url.indexOf(':') + 1).split(";"), configuration);
+    }
     throw new ODatabaseException("not supported database type");
   }
 
@@ -76,9 +79,9 @@ public interface OrientDBInternal extends AutoCloseable, OSchedulerInternal {
   /**
    * Create a new remote factory
    *
-   * @param hosts array of hosts
-   * @param configuration configuration for the specific factory for the list of option {@see
-   *     OGlobalConfiguration}.
+   * @param hosts         array of hosts
+   * @param configuration configuration for the specific factory for the list of option
+   *                      {@see OGlobalConfiguration}.
    * @return a new remote databases factory
    */
   static OrientDBInternal remote(String[] hosts, OrientDBConfig configuration) {
@@ -113,8 +116,8 @@ public interface OrientDBInternal extends AutoCloseable, OSchedulerInternal {
    * Create a new Embedded factory
    *
    * @param directoryPath base path where the database are hosted
-   * @param config configuration for the specific factory for the list of option {@see
-   *     OGlobalConfiguration}
+   * @param config        configuration for the specific factory for the list of option
+   *                      {@see OGlobalConfiguration}
    * @return a new embedded databases factory
    */
   static OrientDBInternal embedded(String directoryPath, OrientDBConfig config) {
@@ -160,8 +163,8 @@ public interface OrientDBInternal extends AutoCloseable, OSchedulerInternal {
   /**
    * Open a database specified by name using the username and password if needed
    *
-   * @param name of the database to open
-   * @param user the username allowed to open the database
+   * @param name     of the database to open
+   * @param user     the username allowed to open the database
    * @param password related to the specified username
    * @return the opened database
    */
@@ -171,11 +174,11 @@ public interface OrientDBInternal extends AutoCloseable, OSchedulerInternal {
    * Open a database specified by name using the username and password if needed, with specific
    * configuration
    *
-   * @param name of the database to open
-   * @param user the username allowed to open the database
+   * @param name     of the database to open
+   * @param user     the username allowed to open the database
    * @param password related to the specified username
-   * @param config database specific configuration that override the factory global settings where
-   *     needed.
+   * @param config   database specific configuration that override the factory global settings where
+   *                 needed.
    * @return the opened database
    */
   ODatabaseSessionInternal open(String name, String user, String password, OrientDBConfig config);
@@ -185,8 +188,8 @@ public interface OrientDBInternal extends AutoCloseable, OSchedulerInternal {
    * configuration
    *
    * @param authenticationInfo authentication informations provided for the authentication.
-   * @param config database specific configuration that override the factory global settings where
-   *     needed.
+   * @param config             database specific configuration that override the factory global
+   *                           settings where needed.
    * @return the opened database
    */
   ODatabaseSessionInternal open(OAuthenticationInfo authenticationInfo, OrientDBConfig config);
@@ -194,33 +197,33 @@ public interface OrientDBInternal extends AutoCloseable, OSchedulerInternal {
   /**
    * Create a new database
    *
-   * @param name database name
-   * @param user the username of a user allowed to create a database, in case of remote is a server
-   *     user for embedded it can be left empty
+   * @param name     database name
+   * @param user     the username of a user allowed to create a database, in case of remote is a
+   *                 server user for embedded it can be left empty
    * @param password the password relative to the user
-   * @param type can be plocal or memory
+   * @param type     can be plocal or memory
    */
   void create(String name, String user, String password, ODatabaseType type);
 
   /**
    * Create a new database
    *
-   * @param name database name
-   * @param user the username of a user allowed to create a database, in case of remote is a server
-   *     user for embedded it can be left empty
+   * @param name     database name
+   * @param user     the username of a user allowed to create a database, in case of remote is a
+   *                 server user for embedded it can be left empty
    * @param password the password relative to the user
-   * @param config database specific configuration that override the factory global settings where
-   *     needed.
-   * @param type can be plocal or memory
+   * @param config   database specific configuration that override the factory global settings where
+   *                 needed.
+   * @param type     can be plocal or memory
    */
   void create(String name, String user, String password, ODatabaseType type, OrientDBConfig config);
 
   /**
    * Check if a database exists
    *
-   * @param name database name to check
-   * @param user the username of a user allowed to check the database existence, in case of remote
-   *     is a server user for embedded it can be left empty.
+   * @param name     database name to check
+   * @param user     the username of a user allowed to check the database existence, in case of
+   *                 remote is a server user for embedded it can be left empty.
    * @param password the password relative to the user
    * @return boolean true if exist false otherwise.
    */
@@ -229,9 +232,9 @@ public interface OrientDBInternal extends AutoCloseable, OSchedulerInternal {
   /**
    * Drop a database
    *
-   * @param name database name
-   * @param user the username of a user allowed to drop a database, in case of remote is a server
-   *     user for embedded it can be left empty
+   * @param name     database name
+   * @param user     the username of a user allowed to drop a database, in case of remote is a
+   *                 server user for embedded it can be left empty
    * @param password the password relative to the user
    */
   void drop(String name, String user, String password);
@@ -239,8 +242,8 @@ public interface OrientDBInternal extends AutoCloseable, OSchedulerInternal {
   /**
    * List of database exiting in the current environment
    *
-   * @param user the username of a user allowed to list databases, in case of remote is a server
-   *     user for embedded it can be left empty
+   * @param user     the username of a user allowed to list databases, in case of remote is a server
+   *                 user for embedded it can be left empty
    * @param password the password relative to the user
    * @return a set of databases names.
    */
@@ -249,8 +252,8 @@ public interface OrientDBInternal extends AutoCloseable, OSchedulerInternal {
   /**
    * Open a pool of databases, similar to open but with multiple instances.
    *
-   * @param name database name
-   * @param user the username allowed to open the database
+   * @param name     database name
+   * @param user     the username allowed to open the database
    * @param password the password relative to the user
    * @return a new pool of databases.
    */
@@ -259,11 +262,11 @@ public interface OrientDBInternal extends AutoCloseable, OSchedulerInternal {
   /**
    * Open a pool of databases, similar to open but with multiple instances.
    *
-   * @param name database name
-   * @param user the username allowed to open the database
+   * @param name     database name
+   * @param user     the username allowed to open the database
    * @param password the password relative to the user
-   * @param config database specific configuration that override the factory global settings where
-   *     needed.
+   * @param config   database specific configuration that override the factory global settings where
+   *                 needed.
    * @return a new pool of databases.
    */
   ODatabasePoolInternal openPool(String name, String user, String password, OrientDBConfig config);
@@ -273,7 +276,9 @@ public interface OrientDBInternal extends AutoCloseable, OSchedulerInternal {
   ODatabasePoolInternal cachedPool(
       String database, String user, String password, OrientDBConfig config);
 
-  /** Internal api for request to open a database with a pool */
+  /**
+   * Internal api for request to open a database with a pool
+   */
   ODatabaseSessionInternal poolOpen(
       String name, String user, String password, ODatabasePoolInternal pool);
 
@@ -292,16 +297,24 @@ public interface OrientDBInternal extends AutoCloseable, OSchedulerInternal {
       Callable<Object> callable,
       OCommandOutputListener iListener);
 
-  /** Close the factory with all related databases and pools. */
+  /**
+   * Close the factory with all related databases and pools.
+   */
   void close();
 
-  /** Should be called only by shutdown listeners */
+  /**
+   * Should be called only by shutdown listeners
+   */
   void internalClose();
 
-  /** Internal API for pool close */
+  /**
+   * Internal API for pool close
+   */
   void removePool(ODatabasePoolInternal toRemove);
 
-  /** Check if the current instance is open */
+  /**
+   * Check if the current instance is open
+   */
   boolean isOpen();
 
   boolean isEmbedded();
@@ -396,7 +409,7 @@ public interface OrientDBInternal extends AutoCloseable, OSchedulerInternal {
 
   String getConnectionUrl();
 
-  public default void startCommand(Optional<Long> timeout) {}
+  default void startCommand(Optional<Long> timeout) {}
 
-  public default void endCommand() {}
+  default void endCommand() {}
 }

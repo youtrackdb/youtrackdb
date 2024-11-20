@@ -8,6 +8,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OExistsDatabaseResponse implements OBinaryResponse {
+
   private boolean exists;
 
   public OExistsDatabaseResponse() {}

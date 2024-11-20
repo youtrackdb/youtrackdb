@@ -28,6 +28,7 @@ import org.junit.Test;
  * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class OGeOperatorTest {
+
   @Test
   public void test() {
     OGeOperator op = new OGeOperator(-1);

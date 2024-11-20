@@ -24,7 +24,9 @@ import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 
-/** Created by frank on 04/05/2017. */
+/**
+ * Created by frank on 04/05/2017.
+ */
 public class OLuceneIndexEngineUtils {
 
   public static void sendTotalHits(String indexName, OCommandContext context, long totalHits) {
@@ -84,13 +86,14 @@ public class OLuceneIndexEngineUtils {
       throw OException.wrapException(
           new OLuceneIndexException("unable to retrieve metadata document from index"), e);
     } finally {
-      if (reader != null)
+      if (reader != null) {
         try {
           reader.close();
         } catch (IOException e) {
           OLogManager.instance()
               .error(OLuceneIndexEngineAbstract.class, "Error while retrieving index metadata", e);
         }
+      }
     }
   }
 

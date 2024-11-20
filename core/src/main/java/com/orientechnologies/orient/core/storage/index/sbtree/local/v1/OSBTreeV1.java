@@ -90,6 +90,7 @@ import java.util.stream.StreamSupport;
  */
 public final class OSBTreeV1<K, V> extends ODurableComponent
     implements com.orientechnologies.orient.core.storage.index.sbtree.local.OSBTree<K, V> {
+
   private static final int MAX_KEY_SIZE =
       OGlobalConfiguration.SBTREE_MAX_KEY_SIZE.getValueAsInteger();
   private static final int MAX_EMBEDDED_VALUE_SIZE =
@@ -1423,16 +1424,23 @@ public final class OSBTreeV1<K, V> extends ODurableComponent
    * internal keys are used, whether lowest or highest partially matched key should be used.
    */
   private enum PartialSearchMode {
-    /** Any partially matched key will be used as search result. */
+    /**
+     * Any partially matched key will be used as search result.
+     */
     NONE,
-    /** The biggest partially matched key will be used as search result. */
+    /**
+     * The biggest partially matched key will be used as search result.
+     */
     HIGHEST_BOUNDARY,
 
-    /** The smallest partially matched key will be used as search result. */
+    /**
+     * The smallest partially matched key will be used as search result.
+     */
     LOWEST_BOUNDARY
   }
 
   private static class BucketSearchResult {
+
     private final int itemIndex;
     private final LongArrayList path;
 
@@ -1447,6 +1455,7 @@ public final class OSBTreeV1<K, V> extends ODurableComponent
   }
 
   private static final class PagePathItemUnit {
+
     private final long pageIndex;
     private final int itemIndex;
 
@@ -1457,6 +1466,7 @@ public final class OSBTreeV1<K, V> extends ODurableComponent
   }
 
   private class OSBTreeFullKeyCursor implements Spliterator<K> {
+
     private long pageIndex;
     private int itemIndex;
 
@@ -1564,6 +1574,7 @@ public final class OSBTreeV1<K, V> extends ODurableComponent
   }
 
   private final class OSBTreeCursorForward implements Spliterator<ORawPair<K, V>> {
+
     private K fromKey;
     private final K toKey;
     private boolean fromKeyInclusive;
@@ -1729,6 +1740,7 @@ public final class OSBTreeV1<K, V> extends ODurableComponent
   }
 
   private final class OSBTreeCursorBackward implements Spliterator<ORawPair<K, V>> {
+
     private final K fromKey;
     private K toKey;
     private final boolean fromKeyInclusive;

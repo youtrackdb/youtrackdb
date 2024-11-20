@@ -103,7 +103,7 @@ public class OLuceneFullTextIndexEngine extends OLuceneIndexEngineAbstract {
           final StringBuilder hlField = new StringBuilder();
           for (final TextFragment fragment : fragments) {
             if ((fragment != null) && (fragment.getScore() > 0)) {
-              hlField.append(fragment.toString());
+              hlField.append(fragment);
             }
           }
           data.put("$" + key + "_hl", hlField.toString());
@@ -265,8 +265,7 @@ public class OLuceneFullTextIndexEngine extends OLuceneIndexEngineAbstract {
     updateLastAccess();
     openIfClosed();
     try {
-      if (key instanceof OLuceneKeyAndMetadata) {
-        OLuceneKeyAndMetadata q = (OLuceneKeyAndMetadata) key;
+      if (key instanceof OLuceneKeyAndMetadata q) {
         Query query = queryBuilder.query(indexDefinition, q.key, q.metadata, queryAnalyzer());
 
         OCommandContext commandContext = q.key.getContext();

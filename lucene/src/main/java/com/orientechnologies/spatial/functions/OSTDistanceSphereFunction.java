@@ -26,11 +26,13 @@ import java.util.Map;
 import org.locationtech.spatial4j.distance.DistanceUtils;
 import org.locationtech.spatial4j.shape.Shape;
 
-/** Created by Enrico Risa on 25/09/15. */
+/**
+ * Created by Enrico Risa on 25/09/15.
+ */
 public class OSTDistanceSphereFunction extends OSpatialFunctionAbstractIndexable {
 
   public static final String NAME = "st_distance_sphere";
-  private OShapeFactory factory = OShapeFactory.INSTANCE;
+  private final OShapeFactory factory = OShapeFactory.INSTANCE;
 
   public OSTDistanceSphereFunction() {
     super(NAME, 2, 2);

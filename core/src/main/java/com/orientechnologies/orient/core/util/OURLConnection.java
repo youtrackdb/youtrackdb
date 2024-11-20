@@ -3,14 +3,16 @@ package com.orientechnologies.orient.core.util;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import java.util.Optional;
 
-/** Created by Enrico Risa on 17/11/16. */
+/**
+ * Created by Enrico Risa on 17/11/16.
+ */
 public class OURLConnection {
 
-  private String url;
-  private String type;
-  private String path;
-  private String dbName;
-  private Optional<ODatabaseType> dbType;
+  private final String url;
+  private final String type;
+  private final String path;
+  private final String dbName;
+  private final Optional<ODatabaseType> dbType;
 
   public OURLConnection(String url, String type, String path, String dbName) {
     this(url, type, path, dbName, Optional.empty());

@@ -51,8 +51,9 @@ public class OConfigurableHooksManager implements ODatabaseLifecycleListener {
 
   public OConfigurableHooksManager(final OServerConfiguration iCfg) {
     configuredHooks = iCfg.hooks;
-    if (configuredHooks != null && !configuredHooks.isEmpty())
+    if (configuredHooks != null && !configuredHooks.isEmpty()) {
       Orient.instance().addDbLifecycleListener(this);
+    }
   }
 
   public void addHook(OServerHookConfiguration configuration) {
@@ -93,12 +94,10 @@ public class OConfigurableHooksManager implements ODatabaseLifecycleListener {
           } else {
             h = (ORecordHook) klass.newInstance();
           }
-          if (hook.parameters != null && hook.parameters.length > 0)
+          if (hook.parameters != null && hook.parameters.length > 0) {
             try {
               final Method m =
-                  h.getClass()
-                      .getDeclaredMethod(
-                          "config", new Class[] {OServerParameterConfiguration[].class});
+                  h.getClass().getDeclaredMethod("config", OServerParameterConfiguration[].class);
               m.invoke(h, new Object[] {hook.parameters});
             } catch (Exception e) {
               OLogManager.instance()
@@ -109,6 +108,7 @@ public class OConfigurableHooksManager implements ODatabaseLifecycleListener {
                           + " OServerParameterConfiguration[] ",
                       hook.clazz);
             }
+          }
           db.registerHook(h, pos);
         } catch (Exception e) {
           OLogManager.instance()

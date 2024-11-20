@@ -11,6 +11,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 public class OReleaseDatabaseRequest implements OBinaryRequest<OReleaseDatabaseResponse> {
+
   private String name;
   private String storageType;
 

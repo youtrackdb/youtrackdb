@@ -35,7 +35,8 @@ public class ODDLContextImpl implements ODistributedTxContext {
   }
 
   @Override
-  public void commit(ODatabaseDocumentInternal database) {}
+  public void commit(ODatabaseDocumentInternal database) {
+  }
 
   @Override
   public Set<ORecordId> rollback(ODatabaseDocumentInternal database) {
@@ -43,10 +44,12 @@ public class ODDLContextImpl implements ODistributedTxContext {
   }
 
   @Override
-  public void destroy() {}
+  public void destroy() {
+  }
 
   @Override
-  public void clearUndo() {}
+  public void clearUndo() {
+  }
 
   @Override
   public long getStartedOn() {

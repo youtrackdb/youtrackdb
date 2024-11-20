@@ -22,6 +22,7 @@ import org.junit.Test;
  * @since 12.08.13
  */
 public class SBTreeNonLeafBucketV1Test {
+
   @Test
   public void testInitialization() {
     final OByteBufferPool bufferPool = OByteBufferPool.instance(null);
@@ -101,7 +102,9 @@ public class SBTreeNonLeafBucketV1Test {
       OSBTreeBucketV1.SBTreeEntry<Long, OIdentifiable> entry =
           treeBucket.getEntry(i, null, OLongSerializer.INSTANCE, OLinkSerializer.INSTANCE);
 
-      if (prevRight > 0) Assert.assertEquals(entry.leftChild, prevRight);
+      if (prevRight > 0) {
+        Assert.assertEquals(entry.leftChild, prevRight);
+      }
 
       prevRight = entry.rightChild;
     }
@@ -111,7 +114,9 @@ public class SBTreeNonLeafBucketV1Test {
       OSBTreeBucketV1.SBTreeEntry<Long, OIdentifiable> entry =
           treeBucket.getEntry(i, null, OLongSerializer.INSTANCE, OLinkSerializer.INSTANCE);
 
-      if (prevLeft > 0) Assert.assertEquals(entry.rightChild, prevLeft);
+      if (prevLeft > 0) {
+        Assert.assertEquals(entry.rightChild, prevLeft);
+      }
 
       prevLeft = entry.leftChild;
     }

@@ -29,7 +29,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-/** @author SDIPro */
+/**
+ * @author SDIPro
+ */
 public class ResourceDerivedTest {
 
   private OrientDB orientDB;

@@ -74,7 +74,8 @@ public class ODistributedTxResponseManagerImpl implements ODistributedTxResponse
   }
 
   @Override
-  public synchronized void removeServerBecauseUnreachable(String node) {}
+  public synchronized void removeServerBecauseUnreachable(String node) {
+  }
 
   @Override
   public synchronized boolean waitForSynchronousResponses() {
@@ -228,7 +229,8 @@ public class ODistributedTxResponseManagerImpl implements ODistributedTxResponse
   }
 
   @Override
-  public void timeout() {}
+  public void timeout() {
+  }
 
   @Override
   public long getSentOn() {

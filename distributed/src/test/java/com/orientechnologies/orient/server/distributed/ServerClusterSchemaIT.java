@@ -29,8 +29,11 @@ import com.orientechnologies.orient.core.record.OVertex;
 import junit.framework.Assert;
 import org.junit.Test;
 
-/** Start 3 servers and wait for external commands */
+/**
+ * Start 3 servers and wait for external commands
+ */
 public class ServerClusterSchemaIT extends AbstractServerClusterTest {
+
   static final int SERVERS = 3;
 
   public String getDatabaseName() {

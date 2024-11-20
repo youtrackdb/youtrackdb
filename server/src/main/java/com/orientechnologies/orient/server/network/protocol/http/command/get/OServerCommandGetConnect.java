@@ -26,6 +26,7 @@ import com.orientechnologies.orient.server.network.protocol.http.command.OServer
 import java.io.IOException;
 
 public class OServerCommandGetConnect extends OServerCommandAuthenticatedDbAbstract {
+
   private static final String[] NAMES = {"GET|connect/*", "HEAD|connect/*"};
 
   @Override
@@ -52,7 +53,9 @@ public class OServerCommandGetConnect extends OServerCommandAuthenticatedDbAbstr
     final String[] urlParts =
         checkSyntax(iRequest.getUrl(), 2, "Syntax error: connect/<database>[/<user>/<password>]");
 
-    if (urlParts == null || urlParts.length < 3) return super.beforeExecute(iRequest, iResponse);
+    if (urlParts == null || urlParts.length < 3) {
+      return super.beforeExecute(iRequest, iResponse);
+    }
 
     // USER+PASSWD AS PARAMETERS
     setNoCache(iResponse);

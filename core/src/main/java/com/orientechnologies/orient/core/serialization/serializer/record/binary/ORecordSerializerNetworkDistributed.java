@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.serialization.serializer.record.binary
 
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentEntry;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
@@ -14,10 +14,13 @@ public class ORecordSerializerNetworkDistributed extends ORecordSerializerNetwor
   public static final ORecordSerializerNetworkDistributed INSTANCE =
       new ORecordSerializerNetworkDistributed();
 
-  protected int writeOptimizedLink(final BytesContainer bytes, OIdentifiable link) {
+  protected void writeOptimizedLink(final BytesContainer bytes, OIdentifiable link) {
     if (!link.getIdentity().isPersistent()) {
-      final ORecord real = link.getRecord();
-      if (real != null) link = real;
+      try {
+        link = link.getRecord();
+      } catch (ORecordNotFoundException rnf) {
+        // IGNORE IT
+      }
     }
 
     if (!link.getIdentity().isPersistent() && !link.getIdentity().isTemporary()) {
@@ -28,7 +31,6 @@ public class ORecordSerializerNetworkDistributed extends ORecordSerializerNetwor
     }
     final int pos = OVarIntSerializer.write(bytes, link.getIdentity().getClusterId());
     OVarIntSerializer.write(bytes, link.getIdentity().getClusterPosition());
-    return pos;
   }
 
   protected Collection<Map.Entry<String, ODocumentEntry>> fetchEntries(ODocument document) {

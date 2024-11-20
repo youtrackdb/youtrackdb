@@ -5,6 +5,7 @@ import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedSt
 import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurableComponent;
 
 public class NormalizedKeyBTreeValue<K> extends ODurableComponent implements NormalizedKeyBTree<K> {
+
   private final String nullFileExtension;
 
   public NormalizedKeyBTreeValue(

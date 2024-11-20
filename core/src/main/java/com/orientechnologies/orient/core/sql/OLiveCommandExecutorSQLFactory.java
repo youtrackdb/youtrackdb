@@ -59,12 +59,16 @@ public class OLiveCommandExecutorSQLFactory implements OCommandExecutorSQLFactor
     }
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   public Set<String> getCommandNames() {
     return COMMANDS.keySet();
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   public OCommandExecutorSQLAbstract createCommand(final String name)
       throws OCommandExecutionException {
     final Class<? extends OCommandExecutorSQLAbstract> clazz = COMMANDS.get(name);

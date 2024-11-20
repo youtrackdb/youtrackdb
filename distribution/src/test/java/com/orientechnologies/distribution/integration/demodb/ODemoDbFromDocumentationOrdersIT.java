@@ -11,7 +11,9 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-/** Created by santo-it on 2017-08-27. */
+/**
+ * Created by santo-it on 2017-08-27.
+ */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ODemoDbFromDocumentationOrdersIT extends OIntegrationTestTemplate {
 

@@ -31,12 +31,13 @@ import java.util.List;
  * @param <V> Value that is hold by collection.
  */
 public class OMultiValueChangeTimeLine<K, V> {
+
   private final List<OMultiValueChangeEvent<K, V>> multiValueChangeEvents =
       new ArrayList<OMultiValueChangeEvent<K, V>>();
 
   /**
    * @return <code>List</code> of all operations that were performed on collection starting from the
-   *     time when it was loaded from DB.
+   * time when it was loaded from DB.
    */
   public List<OMultiValueChangeEvent<K, V>> getMultiValueChangeEvents() {
     return Collections.unmodifiableList(multiValueChangeEvents);

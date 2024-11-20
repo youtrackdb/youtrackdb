@@ -47,6 +47,7 @@ import net.jpountz.xxhash.XXHashFactory;
  * @since 5/6/14
  */
 public class StorageStartupMetadata {
+
   private static final long XX_HASH_SEED = 0xADF678FE45L;
   private static final XXHash64 XX_HASH_64;
 
@@ -151,9 +152,10 @@ public class StorageStartupMetadata {
       OLogManager.instance().warn(this, "File is already locked by other thread", e);
     }
 
-    if (fileLock == null)
+    if (fileLock == null) {
       throw new OStorageException(
           "Database is locked by another process, please shutdown process and try again");
+    }
   }
 
   public boolean exists() {
@@ -290,7 +292,9 @@ public class StorageStartupMetadata {
   public void close() throws IOException {
     lock.lock();
     try {
-      if (channel == null) return;
+      if (channel == null) {
+        return;
+      }
 
       if (Files.exists(filePath)) {
         if (fileLock != null) {
@@ -310,7 +314,9 @@ public class StorageStartupMetadata {
   public void delete() throws IOException {
     lock.lock();
     try {
-      if (channel == null) return;
+      if (channel == null) {
+        return;
+      }
 
       if (Files.exists(filePath)) {
 
@@ -330,11 +336,15 @@ public class StorageStartupMetadata {
   }
 
   public void makeDirty(final String openedAtVersion) throws IOException {
-    if (dirtyFlag) return;
+    if (dirtyFlag) {
+      return;
+    }
 
     lock.lock();
     try {
-      if (dirtyFlag) return;
+      if (dirtyFlag) {
+        return;
+      }
 
       dirtyFlag = true;
       this.openedAtVersion = openedAtVersion;
@@ -346,11 +356,15 @@ public class StorageStartupMetadata {
   }
 
   public void clearDirty() throws IOException {
-    if (!dirtyFlag) return;
+    if (!dirtyFlag) {
+      return;
+    }
 
     lock.lock();
     try {
-      if (!dirtyFlag) return;
+      if (!dirtyFlag) {
+        return;
+      }
 
       dirtyFlag = false;
       update(serialize());

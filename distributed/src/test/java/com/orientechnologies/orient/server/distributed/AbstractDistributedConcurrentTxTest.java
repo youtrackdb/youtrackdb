@@ -38,14 +38,18 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
 import org.junit.Assert;
 
-/** Test distributed TX */
+/**
+ * Test distributed TX
+ */
 public abstract class AbstractDistributedConcurrentTxTest extends AbstractDistributedWriteTest {
+
   //  protected ODatabasePool pool;
   protected ORID v;
   protected AtomicLong lockExceptions = new AtomicLong(0l);
   protected boolean expectedConcurrentException = true;
 
   class TxWriter implements Callable<Void> {
+
     private final int serverId;
 
     public TxWriter(final int iServerId) {
@@ -62,7 +66,7 @@ public abstract class AbstractDistributedConcurrentTxTest extends AbstractDistri
         final OVertex localVertex = getVertex(graph, v);
 
         try {
-          if ((i + 1) % 100 == 0)
+          if ((i + 1) % 100 == 0) {
             System.out.println(
                 "\nWriter "
                     + graph.getURL()
@@ -71,6 +75,7 @@ public abstract class AbstractDistributedConcurrentTxTest extends AbstractDistri
                     + "/"
                     + count
                     + " vertices so far");
+          }
 
           int retry = 0;
           boolean success = false;
@@ -196,11 +201,11 @@ public abstract class AbstractDistributedConcurrentTxTest extends AbstractDistri
                 + uniqueId
                 + "', 'birthday': '"
                 + ODatabaseRecordThreadLocal.instance()
-                    .get()
-                    .getStorage()
-                    .getConfiguration()
-                    .getDateFormatInstance()
-                    .format(new Date())
+                .get()
+                .getStorage()
+                .getConfiguration()
+                .getDateFormatInstance()
+                .format(new Date())
                 + "', 'children': '"
                 + uniqueId
                 + "', 'saved': 0}");

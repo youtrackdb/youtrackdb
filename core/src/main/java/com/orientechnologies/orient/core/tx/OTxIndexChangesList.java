@@ -8,6 +8,7 @@ public class OTxIndexChangesList
     implements List<OTransactionIndexChangesPerKey.OTransactionIndexEntry> {
 
   class Node {
+
     Node next;
     Node prev;
     OTransactionIndexChangesPerKey.OTransactionIndexEntry entry;
@@ -189,12 +190,9 @@ public class OTxIndexChangesList
 
   @Override
   public boolean remove(Object o) {
-    if (!(o instanceof OTransactionIndexChangesPerKey.OTransactionIndexEntry)) {
+    if (!(o instanceof OTransactionIndexChangesPerKey.OTransactionIndexEntry item)) {
       return false;
     }
-
-    OTransactionIndexChangesPerKey.OTransactionIndexEntry item =
-        (OTransactionIndexChangesPerKey.OTransactionIndexEntry) o;
 
     ORID rid = item.getValue() == null ? null : item.getValue().getIdentity();
     List<Node> list = ridToNodes.get(rid);

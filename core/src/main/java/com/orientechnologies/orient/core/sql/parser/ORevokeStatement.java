@@ -31,8 +31,9 @@ public class ORevokeStatement extends OSimpleExecStatement {
   public OExecutionStream executeSimple(OCommandContext ctx) {
     ODatabaseSessionInternal db = getDatabase();
     ORole role = db.getMetadata().getSecurity().getRole(actor.getStringValue());
-    if (role == null)
+    if (role == null) {
       throw new OCommandExecutionException("Invalid role: " + actor.getStringValue());
+    }
 
     String resourcePath = securityResource.toString();
     if (permission != null) {
@@ -55,14 +56,23 @@ public class ORevokeStatement extends OSimpleExecStatement {
 
   protected int toPrivilege(String privilegeName) {
     int privilege;
-    if ("CREATE".equals(privilegeName)) privilege = ORole.PERMISSION_CREATE;
-    else if ("READ".equals(privilegeName)) privilege = ORole.PERMISSION_READ;
-    else if ("UPDATE".equals(privilegeName)) privilege = ORole.PERMISSION_UPDATE;
-    else if ("DELETE".equals(privilegeName)) privilege = ORole.PERMISSION_DELETE;
-    else if ("EXECUTE".equals(privilegeName)) privilege = ORole.PERMISSION_EXECUTE;
-    else if ("ALL".equals(privilegeName)) privilege = ORole.PERMISSION_ALL;
-    else if ("NONE".equals(privilegeName)) privilege = ORole.PERMISSION_NONE;
-    else throw new OCommandExecutionException("Unrecognized privilege '" + privilegeName + "'");
+    if ("CREATE".equals(privilegeName)) {
+      privilege = ORole.PERMISSION_CREATE;
+    } else if ("READ".equals(privilegeName)) {
+      privilege = ORole.PERMISSION_READ;
+    } else if ("UPDATE".equals(privilegeName)) {
+      privilege = ORole.PERMISSION_UPDATE;
+    } else if ("DELETE".equals(privilegeName)) {
+      privilege = ORole.PERMISSION_DELETE;
+    } else if ("EXECUTE".equals(privilegeName)) {
+      privilege = ORole.PERMISSION_EXECUTE;
+    } else if ("ALL".equals(privilegeName)) {
+      privilege = ORole.PERMISSION_ALL;
+    } else if ("NONE".equals(privilegeName)) {
+      privilege = ORole.PERMISSION_NONE;
+    } else {
+      throw new OCommandExecutionException("Unrecognized privilege '" + privilegeName + "'");
+    }
     return privilege;
   }
 
@@ -106,8 +116,12 @@ public class ORevokeStatement extends OSimpleExecStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     ORevokeStatement that = (ORevokeStatement) o;
     return revokePolicy == that.revokePolicy
         && Objects.equals(permission, that.permission)

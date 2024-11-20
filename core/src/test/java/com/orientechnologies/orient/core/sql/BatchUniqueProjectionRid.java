@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.command.script.OCommandScript;
@@ -19,9 +19,9 @@ public class BatchUniqueProjectionRid extends BaseMemoryDatabase {
                         + " [$a,$b] "))
             .execute();
 
-    assertFalse(
-        res.get(0).get(0).getIdentity().getClusterPosition()
-            == res.get(1).get(0).getIdentity().getClusterPosition());
+    assertNotEquals(
+        res.get(0).get(0).getIdentity().getClusterPosition(),
+        res.get(1).get(0).getIdentity().getClusterPosition());
 
     //    assertEquals(1, res.get(0).get(0).getIdentity().getClusterPosition());
     //    assertEquals(2, res.get(1).get(0).getIdentity().getClusterPosition());

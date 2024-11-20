@@ -46,7 +46,9 @@ public final class BoundedBuffer extends StripedBuffer {
    * whether it found a satisfactory buffer or if resizing is necessary.
    */
 
-  /** The maximum number of elements per buffer. */
+  /**
+   * The maximum number of elements per buffer.
+   */
   private static final int BUFFER_SIZE = 128;
 
   // Assume 4-byte references and 64-byte cache line (16 elements per line)
@@ -60,6 +62,7 @@ public final class BoundedBuffer extends StripedBuffer {
   }
 
   private static final class RingBuffer implements Buffer {
+
     private final AtomicReferenceArray<OCacheEntry> buffer;
     private final AtomicLong readCounter = new AtomicLong();
     private final AtomicLong writeCounter = new AtomicLong();

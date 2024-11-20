@@ -12,8 +12,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/** Created by luigidellaquila on 28/07/15. */
+/**
+ * Created by luigidellaquila on 28/07/15.
+ */
 public class Pattern {
+
   public Map<String, PatternNode> aliasToNode = new LinkedHashMap<String, PatternNode>();
   public int numOfEdges = 0;
 

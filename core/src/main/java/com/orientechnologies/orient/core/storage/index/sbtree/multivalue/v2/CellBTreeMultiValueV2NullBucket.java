@@ -45,6 +45,7 @@ import java.util.List;
  * @since 4/15/14
  */
 public final class CellBTreeMultiValueV2NullBucket extends ODurablePage {
+
   private static final int EMBEDDED_RIDS_BOUNDARY = 64;
 
   private static final int RID_SIZE = OShortSerializer.SHORT_SIZE + OLongSerializer.LONG_SIZE;

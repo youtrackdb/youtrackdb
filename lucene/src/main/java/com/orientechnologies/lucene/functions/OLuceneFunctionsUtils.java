@@ -8,8 +8,11 @@ import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.sql.parser.OExpression;
 import org.apache.lucene.index.memory.MemoryIndex;
 
-/** Created by frank on 13/02/2017. */
+/**
+ * Created by frank on 13/02/2017.
+ */
 public class OLuceneFunctionsUtils {
+
   public static final String MEMORY_INDEX = "_memoryIndex";
 
   protected static OLuceneFullTextIndex searchForIndex(OExpression[] args, OCommandContext ctx) {
@@ -19,7 +22,7 @@ public class OLuceneFunctionsUtils {
 
   protected static OLuceneFullTextIndex getLuceneFullTextIndex(
       final OCommandContext ctx, final String indexName) {
-    final ODatabaseSessionInternal documentDatabase = (ODatabaseSessionInternal) ctx.getDatabase();
+    final ODatabaseSessionInternal documentDatabase = ctx.getDatabase();
     documentDatabase.activateOnCurrentThread();
     final OMetadataInternal metadata = documentDatabase.getMetadata();
 

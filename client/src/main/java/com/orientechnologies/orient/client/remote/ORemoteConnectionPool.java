@@ -9,11 +9,13 @@ import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 
-/** Created by tglman on 01/10/15. */
+/**
+ * Created by tglman on 01/10/15.
+ */
 public class ORemoteConnectionPool
     implements OResourcePoolListener<String, OChannelBinaryAsynchClient> {
 
-  private OResourcePool<String, OChannelBinaryAsynchClient> pool;
+  private final OResourcePool<String, OChannelBinaryAsynchClient> pool;
 
   public ORemoteConnectionPool(int iMaxResources) {
     pool = new OResourcePool<>(iMaxResources, this);
@@ -21,13 +23,15 @@ public class ORemoteConnectionPool
 
   protected OChannelBinaryAsynchClient createNetworkConnection(
       String serverURL, final OContextConfiguration clientConfiguration) throws OIOException {
-    if (serverURL == null) throw new IllegalArgumentException("server url is null");
+    if (serverURL == null) {
+      throw new IllegalArgumentException("server url is null");
+    }
 
     // TRY WITH CURRENT URL IF ANY
     try {
       OLogManager.instance().debug(this, "Trying to connect to the remote host %s...", serverURL);
 
-      int sepPos = serverURL.indexOf(":");
+      int sepPos = serverURL.indexOf(':');
       final String remoteHost = serverURL.substring(0, sepPos);
       final int remotePort = Integer.parseInt(serverURL.substring(sepPos + 1));
 
@@ -60,12 +64,14 @@ public class ORemoteConnectionPool
       final String iKey, final Object[] iAdditionalArgs, final OChannelBinaryAsynchClient iValue) {
     final boolean canReuse = iValue.isConnected();
     if (!canReuse)
-      // CANNOT REUSE: CLOSE IT PROPERLY
+    // CANNOT REUSE: CLOSE IT PROPERLY
+    {
       try {
         iValue.close();
       } catch (Exception e) {
         OLogManager.instance().debug(this, "Error on closing socket connection", e);
       }
+    }
     iValue.markInUse();
     return canReuse;
   }

@@ -28,6 +28,7 @@ import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandAuthenticatedDbAbstract;
 
 public class OServerCommandGetDocument extends OServerCommandAuthenticatedDbAbstract {
+
   private static final String[] NAMES = {"GET|document/*", "HEAD|document/*"};
 
   @Override
@@ -51,22 +52,23 @@ public class OServerCommandGetDocument extends OServerCommandAuthenticatedDbAbst
       db = getProfiledDatabaseInstance(iRequest);
 
       rec = db.load(new ORecordId(rid), fetchPlan);
-      if (rec == null)
+      if (rec == null) {
         iResponse.send(
             OHttpUtils.STATUS_NOTFOUND_CODE,
             OHttpUtils.STATUS_NOTFOUND_DESCRIPTION,
             OHttpUtils.CONTENT_JSON,
             "Record with id '" + urlParts[2] + "' was not found.",
             null);
-      else if (iRequest.getHttpMethod().equals("HEAD"))
-        // JUST SEND HTTP CODE 200
+      } else if (iRequest.getHttpMethod().equals("HEAD"))
+      // JUST SEND HTTP CODE 200
+      {
         iResponse.send(
             OHttpUtils.STATUS_OK_CODE,
             OHttpUtils.STATUS_OK_DESCRIPTION,
             null,
             null,
             OHttpUtils.HEADER_ETAG + rec.getVersion());
-      else {
+      } else {
         final String ifNoneMatch = iRequest.getHeader("If-None-Match");
         if (ifNoneMatch != null && Integer.toString(rec.getVersion()).equals(ifNoneMatch)) {
           // SAME CONTENT, DON'T SEND BACK RECORD
@@ -83,7 +85,9 @@ public class OServerCommandGetDocument extends OServerCommandAuthenticatedDbAbst
       }
 
     } finally {
-      if (db != null) db.close();
+      if (db != null) {
+        db.close();
+      }
     }
 
     return false;

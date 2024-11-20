@@ -6,6 +6,7 @@ import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.metadata.schema.OSchemaShared;
 
 class OQueryMetadataUpdateListener implements OMetadataUpdateListener {
+
   private boolean updated = false;
 
   @Override

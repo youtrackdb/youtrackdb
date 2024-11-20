@@ -8,7 +8,9 @@ import com.orientechnologies.orient.core.storage.ORecordDuplicatedException;
 
 public class UniqueIndexEngineValidator implements IndexEngineValidator<Object, ORID> {
 
-  /** */
+  /**
+   *
+   */
   private final OIndexUnique indexUnique;
 
   /**

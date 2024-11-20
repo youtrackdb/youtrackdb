@@ -25,6 +25,7 @@ package com.orientechnologies.orient.core.replication;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OAsyncReplicationError {
+
   enum ACTION {
     IGNORE,
     RETRY
@@ -34,7 +35,7 @@ public interface OAsyncReplicationError {
    * Callback called in case of error during asynchronous replication.
    *
    * @param iException The exception caught
-   * @param iRetry The number of retries so far. At every retry, this number is incremented.
+   * @param iRetry     The number of retries so far. At every retry, this number is incremented.
    * @return RETRY to retry the operation, otherwise IGNORE
    */
   ACTION onAsyncReplicationError(Throwable iException, int iRetry);

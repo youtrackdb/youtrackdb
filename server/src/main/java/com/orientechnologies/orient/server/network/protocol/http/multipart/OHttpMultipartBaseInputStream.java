@@ -19,7 +19,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-/** @author Luca Molino (molino.luca--at--gmail.com) */
+/**
+ * @author Luca Molino (molino.luca--at--gmail.com)
+ */
 public class OHttpMultipartBaseInputStream extends InputStream {
 
   protected ArrayList<Integer> buffer;
@@ -55,7 +57,9 @@ public class OHttpMultipartBaseInputStream extends InputStream {
 
   @Override
   public synchronized int read() throws IOException {
-    if (contentLength < 1) return -1;
+    if (contentLength < 1) {
+      return -1;
+    }
 
     contentLength--;
     if (this.buffer.size() > 0) {
@@ -86,7 +90,7 @@ public class OHttpMultipartBaseInputStream extends InputStream {
       int tot2Read = Math.min(buffer.size(), len);
 
       for (int i = 0; i < tot2Read; ++i) {
-        b[i] = (byte) buffer.remove(0).byteValue();
+        b[i] = buffer.remove(0).byteValue();
         contentLength--;
       }
       return tot2Read;

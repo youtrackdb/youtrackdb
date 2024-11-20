@@ -3,6 +3,7 @@ package com.orientechnologies.orient.server.distributed.impl.lock;
 import java.util.Objects;
 
 public class OResourceLockKey implements OLockKey {
+
   private String resourceKey;
 
   public OResourceLockKey(String resourceKey) {
@@ -11,8 +12,12 @@ public class OResourceLockKey implements OLockKey {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     OResourceLockKey that = (OResourceLockKey) o;
     return Objects.equals(resourceKey, that.resourceKey);
   }

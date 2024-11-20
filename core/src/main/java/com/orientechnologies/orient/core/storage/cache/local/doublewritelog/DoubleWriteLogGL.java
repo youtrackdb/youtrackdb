@@ -31,7 +31,9 @@ import net.jpountz.xxhash.XXHashFactory;
 
 public class DoubleWriteLogGL implements DoubleWriteLog {
 
-  /** Stands for "double write log" */
+  /**
+   * Stands for "double write log"
+   */
   public static final String EXTENSION = ".dwl";
 
   private static final ODirectMemoryAllocator ALLOCATOR = ODirectMemoryAllocator.instance();

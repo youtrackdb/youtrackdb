@@ -88,7 +88,7 @@ public class ODatabaseMetadataUpdateListener {
           .getSequenceLibrary()
           .createSequence("sequence1", OSequence.SEQUENCE_TYPE.ORDERED, null);
     } catch (ODatabaseException exc) {
-      Assert.assertTrue("Failed to create sequence", false);
+      Assert.fail("Failed to create sequence");
     }
     assertEquals(count, 1);
   }

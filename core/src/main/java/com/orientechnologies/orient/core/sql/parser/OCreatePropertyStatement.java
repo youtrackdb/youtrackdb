@@ -14,9 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class OCreatePropertyStatement extends ODDLStatement {
+
   public OIdentifier className;
   public OIdentifier propertyName;
   boolean ifNotExists = false;
@@ -81,8 +83,10 @@ public class OCreatePropertyStatement extends ODDLStatement {
       // FIRST SEARCH BETWEEN CLASSES
       linkedClass = db.getMetadata().getSchema().getClass(linked);
       if (linkedClass == null)
-        // NOT FOUND: SEARCH BETWEEN TYPES
+      // NOT FOUND: SEARCH BETWEEN TYPES
+      {
         linkedType = OType.valueOf(linked.toUpperCase(Locale.ENGLISH));
+      }
     }
     // CREATE IT LOCALLY
     OPropertyImpl internalProp =
@@ -180,27 +184,34 @@ public class OCreatePropertyStatement extends ODDLStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
-    OCreatePropertyStatement that = (OCreatePropertyStatement) o;
-
-    if (unsafe != that.unsafe) return false;
-    if (className != null ? !className.equals(that.className) : that.className != null)
-      return false;
-    if (propertyName != null ? !propertyName.equals(that.propertyName) : that.propertyName != null)
-      return false;
-    if (propertyType != null ? !propertyType.equals(that.propertyType) : that.propertyType != null)
-      return false;
-    if (linkedType != null ? !linkedType.equals(that.linkedType) : that.linkedType != null)
-      return false;
-    if (attributes != null ? !attributes.equals(that.attributes) : that.attributes != null)
-      return false;
-    if (ifNotExists != that.ifNotExists) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
       return false;
     }
 
-    return true;
+    OCreatePropertyStatement that = (OCreatePropertyStatement) o;
+
+    if (unsafe != that.unsafe) {
+      return false;
+    }
+    if (!Objects.equals(className, that.className)) {
+      return false;
+    }
+    if (!Objects.equals(propertyName, that.propertyName)) {
+      return false;
+    }
+    if (!Objects.equals(propertyType, that.propertyType)) {
+      return false;
+    }
+    if (!Objects.equals(linkedType, that.linkedType)) {
+      return false;
+    }
+    if (!Objects.equals(attributes, that.attributes)) {
+      return false;
+    }
+    return ifNotExists == that.ifNotExists;
   }
 
   @Override

@@ -20,28 +20,28 @@ public class OStorageConfigurationRemote implements OStorageConfiguration {
 
   private OContextConfiguration contextConfiguration;
 
-  private String dateFormat;
-  private String dateTimeFormat;
-  private String name;
-  private int version;
-  private String directory;
-  private Map<String, OStorageEntryConfiguration> properties;
-  private String schemaRecordId;
-  private String indexMgrRecordId;
-  private String clusterSelection;
-  private String conflictStrategy;
-  private boolean validationEnabled;
-  private String localeLanguage;
-  private int minimumClusters;
-  private boolean strictSql;
-  private String charset;
-  private TimeZone timeZone;
-  private String localeCountry;
-  private String recordSerializer;
-  private int recordSerializerVersion;
-  private int binaryFormatVersion;
-  private List<OStorageClusterConfiguration> clusters;
-  private String networkRecordSerializer;
+  private final String dateFormat;
+  private final String dateTimeFormat;
+  private final String name;
+  private final int version;
+  private final String directory;
+  private final Map<String, OStorageEntryConfiguration> properties;
+  private final String schemaRecordId;
+  private final String indexMgrRecordId;
+  private final String clusterSelection;
+  private final String conflictStrategy;
+  private final boolean validationEnabled;
+  private final String localeLanguage;
+  private final int minimumClusters;
+  private final boolean strictSql;
+  private final String charset;
+  private final TimeZone timeZone;
+  private final String localeCountry;
+  private final String recordSerializer;
+  private final int recordSerializerVersion;
+  private final int binaryFormatVersion;
+  private final List<OStorageClusterConfiguration> clusters;
+  private final String networkRecordSerializer;
 
   public OStorageConfigurationRemote(
       String networkRecordSerializer,
@@ -192,7 +192,9 @@ public class OStorageConfigurationRemote implements OStorageConfiguration {
 
   public void dropCluster(int iClusterId) {
     // this just remove it locally before a proper update from the push arrive
-    if (clusters.size() > iClusterId) clusters.set(iClusterId, null);
+    if (clusters.size() > iClusterId) {
+      clusters.set(iClusterId, null);
+    }
   }
 
   @Override

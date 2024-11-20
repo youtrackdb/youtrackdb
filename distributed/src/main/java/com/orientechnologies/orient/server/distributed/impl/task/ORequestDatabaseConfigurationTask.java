@@ -39,11 +39,13 @@ import java.io.IOException;
  * @author Luca Garulli (l.garulli--at---orientdb.com)
  */
 public class ORequestDatabaseConfigurationTask extends OAbstractRemoteTask {
+
   public static final int FACTORYID = 27;
 
   private String databaseName;
 
-  public ORequestDatabaseConfigurationTask() {}
+  public ORequestDatabaseConfigurationTask() {
+  }
 
   public ORequestDatabaseConfigurationTask(final String databaseName) {
     this.databaseName = databaseName;
@@ -58,7 +60,9 @@ public class ORequestDatabaseConfigurationTask extends OAbstractRemoteTask {
       throws Exception {
 
     final ODistributedConfiguration cfg = iManager.getDatabaseConfiguration(databaseName);
-    if (cfg != null) return cfg.getDocument();
+    if (cfg != null) {
+      return cfg.getDocument();
+    }
 
     return null;
   }

@@ -304,9 +304,9 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
    * This check if a file was trimmed or trunked in the current atomic operation.
    *
    * @param changesContainer changes container to check
-   * @param pageIndex limit to check against the changes
+   * @param pageIndex        limit to check against the changes
    * @return true if there are no changes or pageIndex still fit, false if the pageIndex do not fit
-   *     anymore
+   * anymore
    */
   private static boolean checkChangesFilledUpTo(
       final FileChanges changesContainer, final long pageIndex) {
@@ -597,6 +597,7 @@ final class OAtomicOperationBinaryTracking implements OAtomicOperation {
   }
 
   private static final class FileChanges {
+
     private final Long2ObjectOpenHashMap<OCacheEntryChanges> pageChangesMap =
         new Long2ObjectOpenHashMap<>();
     private long maxNewPageIndex = -2;

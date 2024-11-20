@@ -25,7 +25,7 @@ public class OHaSyncDatabaseStatement extends OSimpleExecStatement {
 
   @Override
   public OExecutionStream executeSimple(OCommandContext ctx) {
-    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) ctx.getDatabase();
+    final ODatabaseSessionInternal database = ctx.getDatabase();
 
     try {
       boolean result = database.sync(force, !full);

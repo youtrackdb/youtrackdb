@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class OTraverseStatement extends OStatement {
@@ -206,10 +207,7 @@ public class OTraverseStatement extends OStatement {
     if (this.target != null && this.target.refersToParent()) {
       return true;
     }
-    if (this.whileClause != null && this.whileClause.refersToParent()) {
-      return true;
-    }
-    return false;
+    return this.whileClause != null && this.whileClause.refersToParent();
   }
 
   @Override
@@ -229,21 +227,31 @@ public class OTraverseStatement extends OStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OTraverseStatement that = (OTraverseStatement) o;
 
-    if (projections != null ? !projections.equals(that.projections) : that.projections != null)
+    if (!Objects.equals(projections, that.projections)) {
       return false;
-    if (target != null ? !target.equals(that.target) : that.target != null) return false;
-    if (whileClause != null ? !whileClause.equals(that.whileClause) : that.whileClause != null)
+    }
+    if (!Objects.equals(target, that.target)) {
       return false;
-    if (limit != null ? !limit.equals(that.limit) : that.limit != null) return false;
-    if (strategy != that.strategy) return false;
-    if (maxDepth != null ? !maxDepth.equals(that.maxDepth) : that.maxDepth != null) return false;
-
-    return true;
+    }
+    if (!Objects.equals(whileClause, that.whileClause)) {
+      return false;
+    }
+    if (!Objects.equals(limit, that.limit)) {
+      return false;
+    }
+    if (strategy != that.strategy) {
+      return false;
+    }
+    return Objects.equals(maxDepth, that.maxDepth);
   }
 
   @Override

@@ -22,6 +22,7 @@ package com.orientechnologies.orient.server;
 import com.orientechnologies.orient.core.Orient;
 
 public class OServerShutdownHook extends Thread {
+
   private final OServer server;
 
   protected OServerShutdownHook(final OServer server) {
@@ -30,14 +31,17 @@ public class OServerShutdownHook extends Thread {
     Runtime.getRuntime().addShutdownHook(this);
   }
 
-  /** Catch the JVM exit and assure to shutdown the Orient Server. */
+  /**
+   * Catch the JVM exit and assure to shutdown the Orient Server.
+   */
   @Override
   public void run() {
-    if (server != null)
+    if (server != null) {
       if (!server.shutdown()) {
         // ALREADY IN SHUTDOWN, WAIT FOR IT
         server.waitForShutdown();
       }
+    }
   }
 
   public void cancel() {

@@ -25,12 +25,15 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class DoubleWriteLogGLTestIT {
+
   private static String buildDirectory;
 
   @BeforeClass
   public static void beforeClass() throws Exception {
     buildDirectory = System.getProperty("buildDirectory");
-    if (buildDirectory == null || buildDirectory.isEmpty()) buildDirectory = ".";
+    if (buildDirectory == null || buildDirectory.isEmpty()) {
+      buildDirectory = ".";
+    }
 
     buildDirectory += File.separator + DoubleWriteLogGLTestIT.class.getSimpleName();
     OFileUtils.deleteRecursively(new File(buildDirectory));

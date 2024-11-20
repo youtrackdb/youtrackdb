@@ -187,12 +187,16 @@ public class ODefaultCommandExecutorSQLFactory implements OCommandExecutorSQLFac
     COMMANDS = Collections.unmodifiableMap(commands);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   public Set<String> getCommandNames() {
     return COMMANDS.keySet();
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   public OCommandExecutor createCommand(final String name) throws OCommandExecutionException {
     final Class<? extends OCommandExecutor> clazz = COMMANDS.get(name);
 

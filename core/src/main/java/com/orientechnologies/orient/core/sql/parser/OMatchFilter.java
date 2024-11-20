@@ -6,9 +6,11 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class OMatchFilter extends SimpleNode {
+
   // TODO transform in a map
   protected List<OMatchFilterItem> items = new ArrayList<OMatchFilterItem>();
 
@@ -82,8 +84,9 @@ public class OMatchFilter extends SimpleNode {
   public String getClassName(OCommandContext context) {
     for (OMatchFilterItem item : items) {
       if (item.className != null) {
-        if (item.className.value instanceof String) return (String) item.className.value;
-        else if (item.className.value instanceof SimpleNode) {
+        if (item.className.value instanceof String) {
+          return (String) item.className.value;
+        } else if (item.className.value instanceof SimpleNode) {
           StringBuilder builder = new StringBuilder();
 
           ((SimpleNode) item.className.value)
@@ -195,14 +198,16 @@ public class OMatchFilter extends SimpleNode {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OMatchFilter that = (OMatchFilter) o;
 
-    if (items != null ? !items.equals(that.items) : that.items != null) return false;
-
-    return true;
+    return Objects.equals(items, that.items);
   }
 
   @Override

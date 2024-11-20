@@ -29,6 +29,7 @@ import java.io.IOException;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OStreamable {
+
   void toStream(DataOutput out) throws IOException;
 
   void fromStream(DataInput in) throws IOException;

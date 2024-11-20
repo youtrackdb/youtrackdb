@@ -52,6 +52,7 @@ import java.util.concurrent.TimeUnit;
  * @author Luca Garulli (l.garulli--at--orientdb.com)
  */
 public class OSyncDatabaseTask extends OAbstractRemoteTask {
+
   public static final int FACTORYID = 14;
   protected long random;
   public static final String DEPLOYDB = "deploydb.";
@@ -70,7 +71,9 @@ public class OSyncDatabaseTask extends OAbstractRemoteTask {
       throws Exception {
 
     if (!iManager.getLocalNodeName().equals(getNodeSource())) {
-      if (database == null) throw new ODistributedException("Database instance is null");
+      if (database == null) {
+        throw new ODistributedException("Database instance is null");
+      }
 
       final String databaseName = database.getName();
       final ODistributedDatabaseImpl dDatabase =
@@ -109,13 +112,17 @@ public class OSyncDatabaseTask extends OAbstractRemoteTask {
               OFileUtils.deleteRecursively(backupFile);
             }
             backupFile.delete();
-          } else backupFile.getParentFile().mkdirs();
+          } else {
+            backupFile.getParentFile().mkdirs();
+          }
           backupFile.createNewFile();
 
           final File resultedBackupFile = backupFile;
 
           final File completedFile = new File(backupFile.getAbsolutePath() + ".completed");
-          if (completedFile.exists()) completedFile.delete();
+          if (completedFile.exists()) {
+            completedFile.delete();
+          }
 
           ODistributedServerLog.info(
               this,
@@ -238,8 +245,12 @@ public class OSyncDatabaseTask extends OAbstractRemoteTask {
   }
 
   public void onMessage(String iText) {
-    if (iText.startsWith("\r\n")) iText = iText.substring(2);
-    if (iText.startsWith("\n")) iText = iText.substring(1);
+    if (iText.startsWith("\r\n")) {
+      iText = iText.substring(2);
+    }
+    if (iText.startsWith("\n")) {
+      iText = iText.substring(1);
+    }
 
     OLogManager.instance().info(this, iText);
   }

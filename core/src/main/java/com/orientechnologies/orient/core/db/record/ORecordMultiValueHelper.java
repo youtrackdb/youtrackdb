@@ -19,7 +19,6 @@
  */
 package com.orientechnologies.orient.core.db.record;
 
-import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ORecord;
 
@@ -30,6 +29,7 @@ import com.orientechnologies.orient.core.record.ORecord;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ORecordMultiValueHelper {
+
   public enum MULTIVALUE_CONTENT_TYPE {
     EMPTY,
     ALL_RECORDS,
@@ -43,20 +43,28 @@ public class ORecordMultiValueHelper {
       // DO NOTHING
 
     } else if (iPreviousStatus == MULTIVALUE_CONTENT_TYPE.EMPTY) {
-      if (iValue instanceof ORID) return MULTIVALUE_CONTENT_TYPE.ALL_RIDS;
-      else if (iValue instanceof ORecord) return MULTIVALUE_CONTENT_TYPE.ALL_RECORDS;
-      else return MULTIVALUE_CONTENT_TYPE.HYBRID;
+      if (iValue instanceof ORID) {
+        return MULTIVALUE_CONTENT_TYPE.ALL_RIDS;
+      } else if (iValue instanceof ORecord) {
+        return MULTIVALUE_CONTENT_TYPE.ALL_RECORDS;
+      } else {
+        return MULTIVALUE_CONTENT_TYPE.HYBRID;
+      }
 
     } else if (iPreviousStatus == MULTIVALUE_CONTENT_TYPE.ALL_RECORDS) {
-      if (iValue instanceof ORID) return MULTIVALUE_CONTENT_TYPE.HYBRID;
+      if (iValue instanceof ORID) {
+        return MULTIVALUE_CONTENT_TYPE.HYBRID;
+      }
 
     } else if (iPreviousStatus == MULTIVALUE_CONTENT_TYPE.ALL_RIDS) {
-      if (!(iValue instanceof ORID)) return MULTIVALUE_CONTENT_TYPE.HYBRID;
+      if (!(iValue instanceof ORID)) {
+        return MULTIVALUE_CONTENT_TYPE.HYBRID;
+      }
     }
     return iPreviousStatus;
   }
 
-  public static String toString(final ORecordLazyMultiValue iMultivalue) {
-    return OMultiValue.toString(iMultivalue);
+  public static String toString(final OIdentifiableMultiValue iMultivalue) {
+    return com.orientechnologies.common.collection.OMultiValue.toString(iMultivalue);
   }
 }

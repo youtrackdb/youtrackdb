@@ -14,11 +14,13 @@ import com.orientechnologies.orient.core.sql.executor.metadata.ORequiredIndexCan
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class OOrBlock extends OBooleanExpression {
+
   List<OBooleanExpression> subBlocks = new ArrayList<OBooleanExpression>();
 
   public OOrBlock(int id) {
@@ -31,7 +33,7 @@ public class OOrBlock extends OBooleanExpression {
 
   @Override
   public boolean evaluate(OIdentifiable currentRecord, OCommandContext ctx) {
-    if (getSubBlocks() == null) {
+    if (subBlocks == null) {
       return true;
     }
 
@@ -45,7 +47,7 @@ public class OOrBlock extends OBooleanExpression {
 
   @Override
   public boolean evaluate(OResult currentRecord, OCommandContext ctx) {
-    if (getSubBlocks() == null) {
+    if (subBlocks == null) {
       return true;
     }
 
@@ -185,15 +187,16 @@ public class OOrBlock extends OBooleanExpression {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OOrBlock oOrBlock = (OOrBlock) o;
 
-    if (subBlocks != null ? !subBlocks.equals(oOrBlock.subBlocks) : oOrBlock.subBlocks != null)
-      return false;
-
-    return true;
+    return Objects.equals(subBlocks, oOrBlock.subBlocks);
   }
 
   @Override

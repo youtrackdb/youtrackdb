@@ -27,7 +27,9 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.spatial4j.shape.Shape;
 import org.locationtech.spatial4j.shape.ShapeCollection;
 
-/** Created by Enrico Risa on 17/08/15. */
+/**
+ * Created by Enrico Risa on 17/08/15.
+ */
 public class OGeometryCollectionShapeBuilder extends OComplexShapeBuilder<ShapeCollection<Shape>> {
 
   protected OShapeFactory shapeFactory;

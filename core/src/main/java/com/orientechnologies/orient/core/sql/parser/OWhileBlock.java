@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class OWhileBlock extends OStatement {
@@ -116,14 +117,19 @@ public class OWhileBlock extends OStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OWhileBlock that = (OWhileBlock) o;
 
-    if (condition != null ? !condition.equals(that.condition) : that.condition != null)
+    if (!Objects.equals(condition, that.condition)) {
       return false;
-    return statements != null ? statements.equals(that.statements) : that.statements == null;
+    }
+    return Objects.equals(statements, that.statements);
   }
 
   @Override

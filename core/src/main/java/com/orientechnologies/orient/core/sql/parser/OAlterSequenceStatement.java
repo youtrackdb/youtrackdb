@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 
 public class OAlterSequenceStatement extends ODDLStatement {
+
   OIdentifier name;
   OExpression start;
   OExpression increment;
@@ -73,7 +74,7 @@ public class OAlterSequenceStatement extends ODDLStatement {
     }
     if (positive != null) {
       params.setOrderType(
-          positive == true ? SequenceOrderType.ORDER_POSITIVE : SequenceOrderType.ORDER_NEGATIVE);
+          positive ? SequenceOrderType.ORDER_POSITIVE : SequenceOrderType.ORDER_NEGATIVE);
     }
     if (cyclic != null) {
       params.setRecyclable(cyclic);
@@ -143,7 +144,7 @@ public class OAlterSequenceStatement extends ODDLStatement {
     }
     if (positive != null) {
       String appendString;
-      appendString = positive == true ? " ASC" : " DESC";
+      appendString = positive ? " ASC" : " DESC";
       builder.append(appendString);
     }
     if (cyclic != null) {
@@ -177,7 +178,7 @@ public class OAlterSequenceStatement extends ODDLStatement {
     }
     if (positive != null) {
       String appendString;
-      appendString = positive == true ? " ASC" : " DESC";
+      appendString = positive ? " ASC" : " DESC";
       builder.append(appendString);
     }
     if (cyclic != null) {
@@ -207,16 +208,27 @@ public class OAlterSequenceStatement extends ODDLStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OAlterSequenceStatement that = (OAlterSequenceStatement) o;
 
-    if (name != null ? !name.equals(that.name) : that.name != null) return false;
-    if (start != null ? !start.equals(that.start) : that.start != null) return false;
-    if (increment != null ? !increment.equals(that.increment) : that.increment != null)
+    if (!Objects.equals(name, that.name)) {
       return false;
-    if (cache != null ? !cache.equals(that.cache) : that.cache != null) return false;
+    }
+    if (!Objects.equals(start, that.start)) {
+      return false;
+    }
+    if (!Objects.equals(increment, that.increment)) {
+      return false;
+    }
+    if (!Objects.equals(cache, that.cache)) {
+      return false;
+    }
     if (!Objects.equals(positive, that.positive)) {
       return false;
     }
@@ -226,11 +238,7 @@ public class OAlterSequenceStatement extends ODDLStatement {
     if (!Objects.equals(limitValue, that.limitValue)) {
       return false;
     }
-    if (turnLimitOff != that.turnLimitOff) {
-      return false;
-    }
-
-    return true;
+    return turnLimitOff == that.turnLimitOff;
   }
 
   @Override

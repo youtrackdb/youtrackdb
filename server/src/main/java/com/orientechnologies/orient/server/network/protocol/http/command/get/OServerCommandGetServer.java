@@ -25,6 +25,7 @@ import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 
 public class OServerCommandGetServer extends OServerCommandGetConnections {
+
   private static final String[] NAMES = {"GET|server"};
 
   public OServerCommandGetServer() {

@@ -30,6 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class OSBTreeRidBagConcurrencyMultiRidBag {
+
   public static final String URL = "plocal:target/testdb/OSBTreeRidBagConcurrencyMultiRidBag";
   private final AtomicInteger positionCounter = new AtomicInteger();
   private final ConcurrentHashMap<ORID, ConcurrentSkipListSet<ORID>> ridTreePerDocument =
@@ -38,8 +39,8 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
 
   private final CountDownLatch latch = new CountDownLatch(1);
 
-  private ExecutorService threadExecutor = Executors.newCachedThreadPool();
-  private ScheduledExecutorService addDocExecutor = Executors.newScheduledThreadPool(5);
+  private final ExecutorService threadExecutor = Executors.newCachedThreadPool();
+  private final ScheduledExecutorService addDocExecutor = Executors.newScheduledThreadPool(5);
 
   private volatile boolean cont = true;
 
@@ -97,13 +98,18 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
     final List<Future<?>> futures = new ArrayList<Future<?>>();
 
     Random random = new Random();
-    for (int i = 0; i < 5; i++)
+    for (int i = 0; i < 5; i++) {
       addDocExecutor.scheduleAtFixedRate(
           new DocumentAdder(), random.nextInt(250), 250, TimeUnit.MILLISECONDS);
+    }
 
-    for (int i = 0; i < 5; i++) futures.add(threadExecutor.submit(new RidAdder(i)));
+    for (int i = 0; i < 5; i++) {
+      futures.add(threadExecutor.submit(new RidAdder(i)));
+    }
 
-    for (int i = 0; i < 5; i++) futures.add(threadExecutor.submit(new RidDeleter(i)));
+    for (int i = 0; i < 5; i++) {
+      futures.add(threadExecutor.submit(new RidDeleter(i)));
+    }
 
     latch.countDown();
 
@@ -116,7 +122,9 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
 
     cont = false;
 
-    for (Future<?> future : futures) future.get();
+    for (Future<?> future : futures) {
+      future.get();
+    }
 
     long amountOfRids = 0;
     for (ORID rid : ridTreePerDocument.keySet()) {
@@ -127,8 +135,9 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
 
       final ORidBag ridBag = document.field("ridBag");
 
-      for (OIdentifiable identifiable : ridBag)
+      for (OIdentifiable identifiable : ridBag) {
         Assert.assertTrue(ridTree.remove(identifiable.getIdentity()));
+      }
 
       Assert.assertTrue(ridTree.isEmpty());
       amountOfRids += ridBag.size();
@@ -142,6 +151,7 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
   }
 
   public final class DocumentAdder implements Runnable {
+
     @Override
     public void run() {
       ODatabaseSessionInternal db = new ODatabaseDocumentTx(URL);
@@ -159,8 +169,12 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
           final long position = lastClusterPosition.get();
           if (position < document.getIdentity().getClusterPosition()) {
             if (lastClusterPosition.compareAndSet(
-                position, document.getIdentity().getClusterPosition())) break;
-          } else break;
+                position, document.getIdentity().getClusterPosition())) {
+              break;
+            }
+          } else {
+            break;
+          }
         }
       } catch (RuntimeException e) {
         e.printStackTrace();
@@ -172,6 +186,7 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
   }
 
   public class RidAdder implements Callable<Void> {
+
     private final int id;
 
     public RidAdder(int id) {
@@ -204,7 +219,9 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
             document.setLazyLoad(false);
 
             ORidBag ridBag = document.field("ridBag");
-            for (ORID rid : ridsToAdd) ridBag.add(rid);
+            for (ORID rid : ridsToAdd) {
+              ridBag.add(rid);
+            }
 
             try {
               document.save();
@@ -240,6 +257,7 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
   }
 
   public class RidDeleter implements Callable<Void> {
+
     private final int id;
 
     public RidDeleter(int id) {
@@ -278,7 +296,9 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
                 ridsToDelete.add(identifiable.getIdentity());
               }
 
-              if (counter >= 5) break;
+              if (counter >= 5) {
+                break;
+              }
             }
 
             try {

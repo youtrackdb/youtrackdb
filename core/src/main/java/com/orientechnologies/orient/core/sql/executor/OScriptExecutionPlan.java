@@ -1,4 +1,6 @@
-/** Created by luigidellaquila on 08/08/16. */
+/**
+ * Created by luigidellaquila on 08/08/16.
+ */
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
@@ -113,7 +115,7 @@ public class OScriptExecutionPlan implements OInternalExecutionPlan {
 
   @Override
   public long getCost() {
-    return 0l;
+    return 0L;
   }
 
   @Override

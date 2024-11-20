@@ -25,7 +25,9 @@ import java.io.InputStream;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 02/09/15. */
+/**
+ * Created by Enrico Risa on 02/09/15.
+ */
 public class OLuceneMixIndexTest extends OLuceneBaseTest {
 
   @Before

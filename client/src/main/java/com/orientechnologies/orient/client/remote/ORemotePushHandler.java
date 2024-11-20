@@ -11,7 +11,9 @@ import com.orientechnologies.orient.client.remote.message.OPushSequencesRequest;
 import com.orientechnologies.orient.client.remote.message.OPushStorageConfigurationRequest;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
 
-/** Created by tglman on 10/05/17. */
+/**
+ * Created by tglman on 10/05/17.
+ */
 public interface ORemotePushHandler {
 
   OChannelBinary getNetwork(String host);

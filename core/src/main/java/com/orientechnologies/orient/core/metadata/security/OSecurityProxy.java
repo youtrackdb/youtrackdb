@@ -33,8 +33,9 @@ import java.util.Set;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSecurityProxy implements OSecurity {
-  private ODatabaseSession session;
-  private OSecurityInternal security;
+
+  private final ODatabaseSession session;
+  private final OSecurityInternal security;
 
   public OSecurityProxy(OSecurityInternal security, ODatabaseSessionInternal session) {
     this.security = security;

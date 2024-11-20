@@ -113,8 +113,12 @@ public class ODropClassStatement extends ODDLStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     ODropClassStatement that = (ODropClassStatement) o;
     return ifExists == that.ifExists
         && unsafe == that.unsafe

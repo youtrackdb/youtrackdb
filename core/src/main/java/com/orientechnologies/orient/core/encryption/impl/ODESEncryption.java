@@ -17,9 +17,10 @@ import javax.crypto.spec.DESKeySpec;
  * https://github.com/orientechnologies/orientdb/issues/89.
  *
  * @author giastfader This implementation uses DES and ECB mode and is thus not secure. See
- *     https://github.com/orientechnologies/orientdb/issues/8207.
+ * https://github.com/orientechnologies/orientdb/issues/8207.
  */
 public class ODESEncryption extends OAbstractEncryption {
+
   // @see
   // https://docs.oracle.com/javase/7/docs/technotes/guides/security/SunProviders.html#SunJCEProvider
   private static final String TRANSFORMATION =
@@ -43,12 +44,13 @@ public class ODESEncryption extends OAbstractEncryption {
   public OEncryption configure(final String iOptions) {
     initialized = false;
 
-    if (iOptions == null)
+    if (iOptions == null) {
       throw new OSecurityException(
           "DES encryption has been selected, but no key was found. Please configure it by passing"
               + " the key as property at database create/open. The property key is: '"
               + OGlobalConfiguration.STORAGE_ENCRYPTION_KEY.getKey()
               + "'");
+    }
 
     try {
       final byte[] key = Base64.getDecoder().decode(iOptions);
@@ -74,7 +76,9 @@ public class ODESEncryption extends OAbstractEncryption {
 
   public byte[] encryptOrDecrypt(
       final int mode, final byte[] input, final int offset, final int length) throws Exception {
-    if (!initialized) throw new OSecurityException("DES encryption algorithm is not available");
+    if (!initialized) {
+      throw new OSecurityException("DES encryption algorithm is not available");
+    }
 
     cipher.init(mode, theKey);
 

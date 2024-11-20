@@ -22,7 +22,6 @@ import static com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYP
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.lucene.OLuceneIndexFactory;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExport;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -38,7 +37,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-/** Created by Enrico Risa on 07/07/15. */
+/**
+ * Created by Enrico Risa on 07/07/15.
+ */
 public class OLuceneExportImportTest extends OLuceneBaseTest {
 
   @Before
@@ -72,14 +73,14 @@ public class OLuceneExportImportTest extends OLuceneBaseTest {
     try {
 
       // export
-      new ODatabaseExport((ODatabaseSessionInternal) db, file, s -> {}).exportDatabase();
+      new ODatabaseExport(db, file, s -> {}).exportDatabase();
 
       // import
       dropDatabase();
       setupDatabase();
 
       GZIPInputStream stream = new GZIPInputStream(new FileInputStream(file + ".gz"));
-      new ODatabaseImport((ODatabaseSessionInternal) db, stream, s -> {}).importDatabase();
+      new ODatabaseImport(db, stream, s -> {}).importDatabase();
 
     } catch (IOException e) {
       Assert.fail(e.getMessage());

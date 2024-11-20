@@ -29,11 +29,12 @@ import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OServerPluginAbstract implements OServerPlugin {
+
   protected boolean enabled = true;
 
   @Override
   public void startup() {
-    if (!enabled) return;
+    if (!enabled) {}
   }
 
   @Override

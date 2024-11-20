@@ -4,8 +4,11 @@ import java.util.Optional;
 import org.junit.Assert;
 import org.junit.Test;
 
-/** Created by luigidellaquila on 04/11/16. */
+/**
+ * Created by luigidellaquila on 04/11/16.
+ */
 public class OResultSetTest {
+
   @Test
   public void testResultStream() {
     OInternalResultSet rs = new OInternalResultSet();

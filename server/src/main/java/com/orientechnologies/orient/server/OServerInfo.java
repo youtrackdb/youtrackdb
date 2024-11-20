@@ -39,6 +39,7 @@ import java.util.List;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OServerInfo {
+
   public static String getServerInfo(final OServer server) throws IOException {
     final StringWriter jsonBuffer = new StringWriter();
     final OJSONWriter json = new OJSONWriter(jsonBuffer);
@@ -67,8 +68,10 @@ public class OServerInfo {
       final OClientConnectionStats stats = c.getStats();
 
       if (databaseName != null && !databaseName.equals((stats.lastDatabase)))
-        // SKIP IT
+      // SKIP IT
+      {
         continue;
+      }
 
       final String lastCommandOn;
       final String connectedOn;

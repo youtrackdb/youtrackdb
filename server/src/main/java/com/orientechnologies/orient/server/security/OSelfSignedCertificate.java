@@ -25,7 +25,7 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 /**
  * @author Matteo Bollo (matteo.bollo-at-sap.com)
  * @since 24/02/2021
- *     <p>Class developed to generate self-signed certificate
+ * <p>Class developed to generate self-signed certificate
  */
 public class OSelfSignedCertificate {
 
@@ -122,7 +122,7 @@ public class OSelfSignedCertificate {
    *
    * @return a new key pair
    * @throws NoSuchAlgorithmException if the algorithm String not match with the supported key
-   *     generation schemes.
+   *                                  generation schemes.
    */
   public static KeyPair computeKeyPair(String algorithm, int keySize)
       throws NoSuchAlgorithmException {
@@ -142,7 +142,7 @@ public class OSelfSignedCertificate {
    * valid.
    *
    * @throws NoSuchAlgorithmException if the algorithm String not match with the supported key
-   *     generation schemes.
+   *                                  generation schemes.
    */
   public void generateCertificateKeyPair()
       throws NoSuchAlgorithmException, SwitchToDefaultParamsException {

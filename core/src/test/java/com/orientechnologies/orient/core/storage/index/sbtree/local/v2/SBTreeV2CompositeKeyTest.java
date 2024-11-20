@@ -5,7 +5,6 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -35,15 +34,14 @@ public class SBTreeV2CompositeKeyTest extends BaseMemoryDatabase {
   @Before
   public void beforeMethod() throws Exception {
     atomicOperationsManager =
-        ((OAbstractPaginatedStorage) ((ODatabaseSessionInternal) db).getStorage())
-            .getAtomicOperationsManager();
+        ((OAbstractPaginatedStorage) db.getStorage()).getAtomicOperationsManager();
     //noinspection deprecation
     localSBTree =
         new OSBTreeV2<>(
             "localSBTreeCompositeKeyTest",
             ".sbt",
             ".nbt",
-            (OAbstractPaginatedStorage) ((ODatabaseSessionInternal) db).getStorage());
+            (OAbstractPaginatedStorage) db.getStorage());
     atomicOperationsManager.executeInsideAtomicOperation(
         null,
         atomicOperation ->
@@ -218,7 +216,9 @@ public class SBTreeV2CompositeKeyTest extends BaseMemoryDatabase {
 
     for (int i = 2; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
-        if (i == 2 && j < 4) continue;
+        if (i == 2 && j < 4) {
+          continue;
+        }
         assertTrue(orids.contains(new ORecordId(i, j)));
       }
     }
@@ -232,7 +232,9 @@ public class SBTreeV2CompositeKeyTest extends BaseMemoryDatabase {
 
     for (int i = 2; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
-        if (i == 2 && j < 4) continue;
+        if (i == 2 && j < 4) {
+          continue;
+        }
         assertTrue(orids.contains(new ORecordId(i, j)));
       }
     }
@@ -274,7 +276,9 @@ public class SBTreeV2CompositeKeyTest extends BaseMemoryDatabase {
 
     for (int i = 2; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
-        if (i == 2 && j <= 4) continue;
+        if (i == 2 && j <= 4) {
+          continue;
+        }
         assertTrue(orids.contains(new ORecordId(i, j)));
       }
     }
@@ -287,7 +291,9 @@ public class SBTreeV2CompositeKeyTest extends BaseMemoryDatabase {
 
     for (int i = 2; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
-        if (i == 2 && j <= 4) continue;
+        if (i == 2 && j <= 4) {
+          continue;
+        }
         assertTrue(orids.contains(new ORecordId(i, j)));
       }
     }
@@ -326,20 +332,22 @@ public class SBTreeV2CompositeKeyTest extends BaseMemoryDatabase {
 
     assertEquals(orids.size(), 18);
 
-    for (int i = 2; i <= 3; i++)
+    for (int i = 2; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
         assertTrue(orids.contains(new ORecordId(i, j)));
       }
+    }
 
     stream = localSBTree.iterateEntriesMajor(compositeKey(2.0), true, false);
     orids = extractRids(stream);
 
     assertEquals(orids.size(), 18);
 
-    for (int i = 2; i <= 3; i++)
+    for (int i = 2; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
         assertTrue(orids.contains(new ORecordId(i, j)));
       }
+    }
   }
 
   @Test
@@ -370,22 +378,28 @@ public class SBTreeV2CompositeKeyTest extends BaseMemoryDatabase {
     Set<ORID> orids = extractRids(stream);
     assertEquals(orids.size(), 16);
 
-    for (int i = 2; i <= 3; i++)
+    for (int i = 2; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
-        if (i == 2 && j < 3) continue;
+        if (i == 2 && j < 3) {
+          continue;
+        }
         assertTrue(orids.contains(new ORecordId(i, j)));
       }
+    }
 
     stream = localSBTree.iterateEntriesMajor(compositeKey(2.0, 3.0), true, false);
     orids = extractRids(stream);
 
     assertEquals(orids.size(), 16);
 
-    for (int i = 2; i <= 3; i++)
+    for (int i = 2; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
-        if (i == 2 && j < 3) continue;
+        if (i == 2 && j < 3) {
+          continue;
+        }
         assertTrue(orids.contains(new ORecordId(i, j)));
       }
+    }
   }
 
   @Test
@@ -395,22 +409,28 @@ public class SBTreeV2CompositeKeyTest extends BaseMemoryDatabase {
     Set<ORID> orids = extractRids(stream);
     assertEquals(orids.size(), 15);
 
-    for (int i = 2; i <= 3; i++)
+    for (int i = 2; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
-        if (i == 2 && j <= 3) continue;
+        if (i == 2 && j <= 3) {
+          continue;
+        }
         assertTrue(orids.contains(new ORecordId(i, j)));
       }
+    }
 
     stream = localSBTree.iterateEntriesMajor(compositeKey(2.0, 3.0), false, false);
     orids = extractRids(stream);
 
     assertEquals(orids.size(), 15);
 
-    for (int i = 2; i <= 3; i++)
+    for (int i = 2; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
-        if (i == 2 && j <= 3) continue;
+        if (i == 2 && j <= 3) {
+          continue;
+        }
         assertTrue(orids.contains(new ORecordId(i, j)));
       }
+    }
   }
 
   @Test
@@ -420,20 +440,22 @@ public class SBTreeV2CompositeKeyTest extends BaseMemoryDatabase {
     Set<ORID> orids = extractRids(stream);
     assertEquals(orids.size(), 27);
 
-    for (int i = 1; i <= 3; i++)
+    for (int i = 1; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
         assertTrue(orids.contains(new ORecordId(i, j)));
       }
+    }
 
     stream = localSBTree.iterateEntriesMinor(compositeKey(3.0), true, false);
     orids = extractRids(stream);
 
     assertEquals(orids.size(), 27);
 
-    for (int i = 1; i <= 3; i++)
+    for (int i = 1; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
         assertTrue(orids.contains(new ORecordId(i, j)));
       }
+    }
   }
 
   @Test
@@ -443,20 +465,22 @@ public class SBTreeV2CompositeKeyTest extends BaseMemoryDatabase {
     Set<ORID> orids = extractRids(stream);
     assertEquals(orids.size(), 18);
 
-    for (int i = 1; i < 3; i++)
+    for (int i = 1; i < 3; i++) {
       for (int j = 1; j <= 9; j++) {
         assertTrue(orids.contains(new ORecordId(i, j)));
       }
+    }
 
     stream = localSBTree.iterateEntriesMinor(compositeKey(3.0), false, false);
     orids = extractRids(stream);
 
     assertEquals(orids.size(), 18);
 
-    for (int i = 1; i < 3; i++)
+    for (int i = 1; i < 3; i++) {
       for (int j = 1; j <= 9; j++) {
         assertTrue(orids.contains(new ORecordId(i, j)));
       }
+    }
   }
 
   @Test
@@ -466,24 +490,30 @@ public class SBTreeV2CompositeKeyTest extends BaseMemoryDatabase {
     Set<ORID> orids = extractRids(stream);
     assertEquals(orids.size(), 20);
 
-    for (int i = 1; i <= 3; i++)
+    for (int i = 1; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
-        if (i == 3 && j > 2) continue;
+        if (i == 3 && j > 2) {
+          continue;
+        }
 
         assertTrue(orids.contains(new ORecordId(i, j)));
       }
+    }
 
     stream = localSBTree.iterateEntriesMinor(compositeKey(3.0, 2.0), true, false);
     orids = extractRids(stream);
 
     assertEquals(orids.size(), 20);
 
-    for (int i = 1; i <= 3; i++)
+    for (int i = 1; i <= 3; i++) {
       for (int j = 1; j <= 9; j++) {
-        if (i == 3 && j > 2) continue;
+        if (i == 3 && j > 2) {
+          continue;
+        }
 
         assertTrue(orids.contains(new ORecordId(i, j)));
       }
+    }
   }
 
   @Test
@@ -494,20 +524,22 @@ public class SBTreeV2CompositeKeyTest extends BaseMemoryDatabase {
 
     assertEquals(orids.size(), 19);
 
-    for (int i = 1; i < 3; i++)
+    for (int i = 1; i < 3; i++) {
       for (int j = 1; j <= 9; j++) {
         assertTrue(orids.contains(new ORecordId(i, j)));
       }
+    }
 
     stream = localSBTree.iterateEntriesMinor(compositeKey(3.0, 2.0), false, false);
     orids = extractRids(stream);
 
     assertEquals(orids.size(), 19);
 
-    for (int i = 1; i < 3; i++)
+    for (int i = 1; i < 3; i++) {
       for (int j = 1; j <= 9; j++) {
         assertTrue(orids.contains(new ORecordId(i, j)));
       }
+    }
   }
 
   private static OCompositeKey compositeKey(Comparable<?>... params) {

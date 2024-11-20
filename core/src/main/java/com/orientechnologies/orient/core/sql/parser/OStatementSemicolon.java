@@ -5,6 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import java.util.Map;
 
 public class OStatementSemicolon extends SimpleNode {
+
   public OStatementSemicolon(int id) {
     super(id);
   }

@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.core.storage.index.sbtree.multivalue.v2;
 
 public final class MultiValueEntry implements Comparable<MultiValueEntry> {
+
   public final long id;
   public final int clusterId;
   public final long clusterPosition;

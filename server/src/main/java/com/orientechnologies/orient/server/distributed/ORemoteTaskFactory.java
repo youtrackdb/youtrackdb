@@ -27,6 +27,7 @@ import com.orientechnologies.orient.server.distributed.task.ORemoteTask;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface ORemoteTaskFactory {
+
   ORemoteTask createTask(final int code);
 
   int getProtocolVersion();

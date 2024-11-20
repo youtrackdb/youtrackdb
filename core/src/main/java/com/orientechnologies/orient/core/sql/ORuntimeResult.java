@@ -23,7 +23,6 @@ import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.common.util.OResettable;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordLazyMultiValue;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -56,7 +55,7 @@ public class ORuntimeResult {
   private final Object fieldValue;
   private final Map<String, Object> projections;
   private final ODocument value;
-  private OCommandContext context;
+  private final OCommandContext context;
 
   public ORuntimeResult(
       final Object iFieldValue,
@@ -150,8 +149,7 @@ public class ORuntimeResult {
             }
 
           } else {
-            if (v instanceof OSQLFunctionRuntime) {
-              final OSQLFunctionRuntime f = (OSQLFunctionRuntime) v;
+            if (v instanceof OSQLFunctionRuntime f) {
               projectionValue = f.execute(inputDocument, inputDocument, iValue, iContext);
             } else {
               if (v == null) {
@@ -173,7 +171,7 @@ public class ORuntimeResult {
                 && !(projectionValue instanceof ORecord)) {
               iValue.field(prjName, ((OIdentifiable) projectionValue).<ORecord>getRecord());
             } else {
-              if (projectionValue instanceof Iterator) {
+              if (projectionValue instanceof Iterator projectionValueIterator) {
                 boolean link = true;
                 // make temporary value typical case graph database elemenet's iterator edges
                 if (projectionValue instanceof OResettable) {
@@ -181,7 +179,6 @@ public class ORuntimeResult {
                 }
 
                 final List<Object> iteratorValues = new ArrayList<Object>();
-                final Iterator projectionValueIterator = (Iterator) projectionValue;
                 while (projectionValueIterator.hasNext()) {
                   Object value = projectionValueIterator.next();
                   if (value instanceof OIdentifiable) {
@@ -239,7 +236,7 @@ public class ORuntimeResult {
                           }
 
                           final List<Object> iteratorValues = new ArrayList<Object>();
-                          final Iterator projectionValueIterator = (Iterator) iterator;
+                          final Iterator projectionValueIterator = iterator;
                           while (projectionValueIterator.hasNext()) {
                             Object value = projectionValueIterator.next();
                             if (value instanceof OIdentifiable) {
@@ -275,21 +272,13 @@ public class ORuntimeResult {
   }
 
   private static boolean entriesPersistent(Collection<OIdentifiable> projectionValue) {
-    if (projectionValue instanceof ORecordLazyMultiValue) {
-      Iterator<OIdentifiable> it = ((ORecordLazyMultiValue) projectionValue).rawIterator();
-      while (it.hasNext()) {
-        OIdentifiable rec = it.next();
-        if (rec != null && !rec.getIdentity().isPersistent()) {
-          return false;
-        }
-      }
-    } else {
-      for (OIdentifiable rec : projectionValue) {
-        if (rec != null && !rec.getIdentity().isPersistent()) {
-          return false;
-        }
+
+    for (OIdentifiable rec : projectionValue) {
+      if (rec != null && !rec.getIdentity().isPersistent()) {
+        return false;
       }
     }
+
     return true;
   }
 
@@ -303,8 +292,7 @@ public class ORuntimeResult {
         if (!iValue.containsField(projection.getKey())) {
           // ONLY IF NOT ALREADY CONTAINS A VALUE, OTHERWISE HAS BEEN SET MANUALLY (INDEX?)
           final Object v = projection.getValue();
-          if (v instanceof OSQLFunctionRuntime) {
-            final OSQLFunctionRuntime f = (OSQLFunctionRuntime) v;
+          if (v instanceof OSQLFunctionRuntime f) {
             canExcludeResult = f.filterResult();
 
             Object fieldValue = f.getResult();

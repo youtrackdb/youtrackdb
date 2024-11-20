@@ -14,8 +14,11 @@ import com.orientechnologies.orient.core.sql.parser.OStatement;
 import java.util.Iterator;
 import java.util.List;
 
-/** Created by luigidellaquila on 19/09/16. */
+/**
+ * Created by luigidellaquila on 19/09/16.
+ */
 public class ForEachStep extends AbstractExecutionStep {
+
   private final OIdentifier loopVariable;
   private final OExpression source;
   public List<OStatement> body;

@@ -8,10 +8,12 @@ import java.util.Spliterator;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-/** Created by Enrico Risa on 24/01/17. */
+/**
+ * Created by Enrico Risa on 24/01/17.
+ */
 public class MapTransformer implements OResultTransformer<Map<Object, Object>> {
 
-  private OScriptTransformer transformer;
+  private final OScriptTransformer transformer;
 
   public MapTransformer(OScriptTransformer transformer) {
     this.transformer = transformer;

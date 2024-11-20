@@ -37,6 +37,7 @@ import java.io.Serializable;
  * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OStreamableHelper {
+
   static final byte NULL = 0;
   static final byte STREAMABLE = 1;
   static final byte SERIALIZABLE = 2;
@@ -49,15 +50,18 @@ public class OStreamableHelper {
 
   private static ClassLoader streamableClassLoader;
 
-  /** Set the preferred {@link ClassLoader} used to load streamable types. */
+  /**
+   * Set the preferred {@link ClassLoader} used to load streamable types.
+   */
   public static void setStreamableClassLoader(
       /* @Nullable */ final ClassLoader streamableClassLoader) {
     OStreamableHelper.streamableClassLoader = streamableClassLoader;
   }
 
   public static void toStream(final DataOutput out, final Object object) throws IOException {
-    if (object == null) out.writeByte(NULL);
-    else if (object instanceof OStreamable) {
+    if (object == null) {
+      out.writeByte(NULL);
+    } else if (object instanceof OStreamable) {
       out.writeByte(STREAMABLE);
       out.writeUTF(object.getClass().getName());
       ((OStreamable) object).toStream(out);
@@ -90,7 +94,9 @@ public class OStreamableHelper {
         oos.close();
         mem.close();
       }
-    } else throw new OSerializationException("Object not supported: " + object);
+    } else {
+      throw new OSerializationException("Object not supported: " + object);
+    }
   }
 
   public static Object fromStream(final DataInput in) throws IOException {

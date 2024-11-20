@@ -44,7 +44,9 @@ public class ODateHelper {
   }
 
   public static TimeZone getDatabaseTimeZone(final ODatabaseSessionInternal db) {
-    if (db != null && !db.isClosed()) return db.getStorageInfo().getConfiguration().getTimeZone();
+    if (db != null && !db.isClosed()) {
+      return db.getStorageInfo().getConfiguration().getTimeZone();
+    }
     return TimeZone.getDefault();
   }
 
@@ -53,9 +55,9 @@ public class ODateHelper {
   }
 
   public static DateFormat getDateFormatInstance(final ODatabaseSessionInternal db) {
-    if (db != null && !db.isClosed())
+    if (db != null && !db.isClosed()) {
       return db.getStorageInfo().getConfiguration().getDateFormatInstance();
-    else {
+    } else {
       SimpleDateFormat format = new SimpleDateFormat(OStorageConfiguration.DEFAULT_DATE_FORMAT);
       format.setTimeZone(getDatabaseTimeZone());
       return format;
@@ -67,8 +69,11 @@ public class ODateHelper {
   }
 
   public static String getDateFormat(final ODatabaseSessionInternal db) {
-    if (db != null && !db.isClosed()) return db.getStorageInfo().getConfiguration().getDateFormat();
-    else return OStorageConfiguration.DEFAULT_DATE_FORMAT;
+    if (db != null && !db.isClosed()) {
+      return db.getStorageInfo().getConfiguration().getDateFormat();
+    } else {
+      return OStorageConfiguration.DEFAULT_DATE_FORMAT;
+    }
   }
 
   public static DateFormat getDateTimeFormatInstance() {
@@ -76,9 +81,9 @@ public class ODateHelper {
   }
 
   public static DateFormat getDateTimeFormatInstance(final ODatabaseSessionInternal db) {
-    if (db != null && !db.isClosed())
+    if (db != null && !db.isClosed()) {
       return db.getStorageInfo().getConfiguration().getDateTimeFormatInstance();
-    else {
+    } else {
       SimpleDateFormat format = new SimpleDateFormat(OStorageConfiguration.DEFAULT_DATETIME_FORMAT);
       format.setTimeZone(getDatabaseTimeZone());
       return format;
@@ -90,9 +95,11 @@ public class ODateHelper {
   }
 
   public static String getDateTimeFormat(final ODatabaseSessionInternal db) {
-    if (db != null && !db.isClosed())
+    if (db != null && !db.isClosed()) {
       return db.getStorageInfo().getConfiguration().getDateTimeFormat();
-    else return OStorageConfiguration.DEFAULT_DATETIME_FORMAT;
+    } else {
+      return OStorageConfiguration.DEFAULT_DATETIME_FORMAT;
+    }
   }
 
   public static Date now() {

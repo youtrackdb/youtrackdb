@@ -36,7 +36,9 @@ public class OIntegerSerializer implements OBinarySerializer<Integer> {
 
   public static final byte ID = 8;
 
-  /** size of int value in bytes */
+  /**
+   * size of int value in bytes
+   */
   public static final int INT_SIZE = 4;
 
   private static final OBinaryConverter CONVERTER = OBinaryConverterFactory.getConverter();
@@ -121,13 +123,17 @@ public class OIntegerSerializer implements OBinarySerializer<Integer> {
     return value;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void serializeInByteBufferObject(Integer object, ByteBuffer buffer, Object... hints) {
     buffer.putInt(object);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Integer deserializeFromByteBufferObject(ByteBuffer buffer) {
     return buffer.getInt();
@@ -138,7 +144,9 @@ public class OIntegerSerializer implements OBinarySerializer<Integer> {
     return buffer.getInt(offset);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getObjectSizeInByteBuffer(ByteBuffer buffer) {
     return INT_SIZE;
@@ -149,14 +157,18 @@ public class OIntegerSerializer implements OBinarySerializer<Integer> {
     return INT_SIZE;
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public Integer deserializeFromByteBufferObject(
       ByteBuffer buffer, OWALChanges walChanges, int offset) {
     return walChanges.getIntValue(buffer, offset);
   }
 
-  /** {@inheritDoc} */
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public int getObjectSizeInByteBuffer(ByteBuffer buffer, OWALChanges walChanges, int offset) {
     return INT_SIZE;

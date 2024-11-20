@@ -19,10 +19,8 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http;
 
-import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.common.exception.OSystemException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -108,20 +106,16 @@ public class OHttpUtils {
   public static final String STATUS_NOTIMPL_DESCRIPTION = "Not Implemented";
 
   protected static Map<String, String> getParameters(final String iURL) {
-    int begin = iURL.indexOf("?");
+    int begin = iURL.indexOf('?');
     if (begin > -1) {
       Map<String, String> params = new HashMap<String, String>();
       String parameters = iURL.substring(begin + 1);
       final String[] paramPairs = parameters.split("&");
       for (String p : paramPairs) {
         final String[] parts = p.split("=");
-        if (parts.length == 2)
-          try {
-            params.put(parts[0], URLDecoder.decode(parts[1], "UTF-8"));
-          } catch (UnsupportedEncodingException e) {
-            throw OException.wrapException(
-                new OSystemException("Can not parse HTTP parameters"), e);
-          }
+        if (parts.length == 2) {
+          params.put(parts[0], URLDecoder.decode(parts[1], StandardCharsets.UTF_8));
+        }
       }
       return params;
     }
@@ -129,12 +123,14 @@ public class OHttpUtils {
   }
 
   public static String nextChainUrl(final String iCurrentUrl) {
-    if (!iCurrentUrl.contains("/")) return iCurrentUrl;
+    if (!iCurrentUrl.contains("/")) {
+      return iCurrentUrl;
+    }
 
     if (iCurrentUrl.startsWith("/")) {
       return iCurrentUrl.substring(iCurrentUrl.indexOf('/', 1));
     } else {
-      return iCurrentUrl.substring(iCurrentUrl.indexOf("/"));
+      return iCurrentUrl.substring(iCurrentUrl.indexOf('/'));
     }
   }
 }

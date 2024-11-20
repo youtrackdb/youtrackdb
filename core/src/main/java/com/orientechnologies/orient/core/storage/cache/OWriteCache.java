@@ -30,10 +30,15 @@ import java.nio.file.Path;
 import java.util.Map;
 
 public interface OWriteCache {
-  /** Adds listener which is called by cache if corruption of file page is detected. */
+
+  /**
+   * Adds listener which is called by cache if corruption of file page is detected.
+   */
   void addPageIsBrokenListener(OPageIsBrokenListener listener);
 
-  /** Removes listener which is called by cache if corruption of file page is detected. */
+  /**
+   * Removes listener which is called by cache if corruption of file page is detected.
+   */
   @SuppressWarnings("unused")
   void removePageIsBrokenListener(OPageIsBrokenListener listener);
 
@@ -126,7 +131,7 @@ public interface OWriteCache {
    *
    * @param fileId the file id to obtain the native file name of.
    * @return the obtained native file name or {@code null} if the passed file id doesn't correspond
-   *     to any file.
+   * to any file.
    */
   String nativeFileNameById(long fileId);
 
@@ -168,7 +173,7 @@ public interface OWriteCache {
    * Directory which contains all files managed by write cache.
    *
    * @return Directory which contains all files managed by write cache or <code>null</code> in case
-   *     of in memory database.
+   * of in memory database.
    */
   Path getRootDirectory();
 

@@ -7,7 +7,10 @@ package com.orientechnologies.orient.core.sql.parser;
  * characters (with java-like unicode escape processing).
  */
 public class JavaCharStream implements CharStream {
-  /** Whether parser is static. */
+
+  /**
+   * Whether parser is static.
+   */
   public static final boolean staticFlag = false;
 
   static final int hexval(char c) throws java.io.IOException {
@@ -56,14 +59,16 @@ public class JavaCharStream implements CharStream {
     throw new java.io.IOException(); // Should never come here
   }
 
-  /** Position in buffer. */
+  /**
+   * Position in buffer.
+   */
   public int bufpos = -1;
 
   int bufsize;
   int available;
   int tokenBegin;
-  protected int bufline[];
-  protected int bufcolumn[];
+  protected int[] bufline;
+  protected int[] bufcolumn;
 
   protected int column = 0;
   protected int line = 1;
@@ -90,8 +95,8 @@ public class JavaCharStream implements CharStream {
 
   protected void ExpandBuff(boolean wrapAround) {
     char[] newbuffer = new char[bufsize + 2048];
-    int newbufline[] = new int[bufsize + 2048];
-    int newbufcolumn[] = new int[bufsize + 2048];
+    int[] newbufline = new int[bufsize + 2048];
+    int[] newbufcolumn = new int[bufsize + 2048];
 
     try {
       if (wrapAround) {
@@ -130,14 +135,17 @@ public class JavaCharStream implements CharStream {
 
   protected void FillBuff() throws java.io.IOException {
     int i;
-    if (maxNextCharInd == 4096) maxNextCharInd = nextCharInd = 0;
+    if (maxNextCharInd == 4096) {
+      maxNextCharInd = nextCharInd = 0;
+    }
 
     try {
       if ((i = inputStream.read(nextCharBuf, maxNextCharInd, 4096 - maxNextCharInd)) == -1) {
         inputStream.close();
         throw new java.io.IOException();
-      } else maxNextCharInd += i;
-      return;
+      } else {
+        maxNextCharInd += i;
+      }
     } catch (java.io.IOException e) {
       if (bufpos != 0) {
         --bufpos;
@@ -151,7 +159,9 @@ public class JavaCharStream implements CharStream {
   }
 
   protected char ReadByte() throws java.io.IOException {
-    if (++nextCharInd >= maxNextCharInd) FillBuff();
+    if (++nextCharInd >= maxNextCharInd) {
+      FillBuff();
+    }
 
     return nextCharBuf[nextCharInd];
   }
@@ -163,7 +173,9 @@ public class JavaCharStream implements CharStream {
     if (inBuf > 0) {
       --inBuf;
 
-      if (++bufpos == bufsize) bufpos = 0;
+      if (++bufpos == bufsize) {
+        bufpos = 0;
+      }
 
       tokenBegin = bufpos;
       return buffer[bufpos];
@@ -180,10 +192,16 @@ public class JavaCharStream implements CharStream {
       if (tokenBegin > 2048) {
         bufpos = 0;
         available = tokenBegin;
-      } else ExpandBuff(false);
-    } else if (available > tokenBegin) available = bufsize;
-    else if ((tokenBegin - available) < 2048) ExpandBuff(true);
-    else available = tokenBegin;
+      } else {
+        ExpandBuff(false);
+      }
+    } else if (available > tokenBegin) {
+      available = bufsize;
+    } else if ((tokenBegin - available) < 2048) {
+      ExpandBuff(true);
+    } else {
+      available = tokenBegin;
+    }
   }
 
   protected void UpdateLineColumn(char c) {
@@ -196,7 +214,9 @@ public class JavaCharStream implements CharStream {
       prevCharIsCR = false;
       if (c == '\n') {
         prevCharIsLF = true;
-      } else line += (column = 1);
+      } else {
+        line += (column = 1);
+      }
     }
 
     switch (c) {
@@ -218,19 +238,25 @@ public class JavaCharStream implements CharStream {
     bufcolumn[bufpos] = column;
   }
 
-  /** Read a character. */
+  /**
+   * Read a character.
+   */
   public char readChar() throws java.io.IOException {
     if (inBuf > 0) {
       --inBuf;
 
-      if (++bufpos == bufsize) bufpos = 0;
+      if (++bufpos == bufsize) {
+        bufpos = 0;
+      }
 
       return buffer[bufpos];
     }
 
     char c;
 
-    if (++bufpos == available) AdjustBuffSize();
+    if (++bufpos == available) {
+      AdjustBuffSize();
+    }
 
     if ((buffer[bufpos] = c = ReadByte()) == '\\') {
       UpdateLineColumn(c);
@@ -239,14 +265,18 @@ public class JavaCharStream implements CharStream {
 
       for (; ; ) // Read all the backslashes
       {
-        if (++bufpos == available) AdjustBuffSize();
+        if (++bufpos == available) {
+          AdjustBuffSize();
+        }
 
         try {
           if ((buffer[bufpos] = c = ReadByte()) != '\\') {
             UpdateLineColumn(c);
             // found a non-backslash char.
             if ((c == 'u') && ((backSlashCnt & 1) == 1)) {
-              if (--bufpos < 0) bufpos = bufsize - 1;
+              if (--bufpos < 0) {
+                bufpos = bufsize - 1;
+              }
 
               break;
             }
@@ -256,7 +286,9 @@ public class JavaCharStream implements CharStream {
           }
         } catch (java.io.IOException e) {
           // We are returning one backslash so we should only backup (count-1)
-          if (backSlashCnt > 1) backup(backSlashCnt - 1);
+          if (backSlashCnt > 1) {
+            backup(backSlashCnt - 1);
+          }
 
           return '\\';
         }
@@ -267,7 +299,9 @@ public class JavaCharStream implements CharStream {
 
       // Here, we have seen an odd number of backslash's followed by a 'u'
       try {
-        while ((c = ReadByte()) == 'u') ++column;
+        while ((c = ReadByte()) == 'u') {
+          ++column;
+        }
 
         buffer[bufpos] =
             c =
@@ -282,8 +316,9 @@ public class JavaCharStream implements CharStream {
         throw new Error("Invalid escape character at line " + line + " column " + column, e);
       }
 
-      if (backSlashCnt == 1) return c;
-      else {
+      if (backSlashCnt == 1) {
+        return c;
+      } else {
         backup(backSlashCnt - 1);
         return '\\';
       }
@@ -311,12 +346,16 @@ public class JavaCharStream implements CharStream {
     return bufline[bufpos];
   }
 
-  /** Get end column. */
+  /**
+   * Get end column.
+   */
   public int getEndColumn() {
     return bufcolumn[bufpos];
   }
 
-  /** Get end line. */
+  /**
+   * Get end line.
+   */
   public int getEndLine() {
     return bufline[bufpos];
   }
@@ -335,14 +374,20 @@ public class JavaCharStream implements CharStream {
     return bufline[tokenBegin];
   }
 
-  /** Retreat. */
+  /**
+   * Retreat.
+   */
   public void backup(int amount) {
 
     inBuf += amount;
-    if ((bufpos -= amount) < 0) bufpos += bufsize;
+    if ((bufpos -= amount) < 0) {
+      bufpos += bufsize;
+    }
   }
 
-  /** Constructor. */
+  /**
+   * Constructor.
+   */
   public JavaCharStream(java.io.Reader dstream, int startline, int startcolumn, int buffersize) {
     inputStream = dstream;
     line = startline;
@@ -355,17 +400,23 @@ public class JavaCharStream implements CharStream {
     nextCharBuf = new char[4096];
   }
 
-  /** Constructor. */
+  /**
+   * Constructor.
+   */
   public JavaCharStream(java.io.Reader dstream, int startline, int startcolumn) {
     this(dstream, startline, startcolumn, 4096);
   }
 
-  /** Constructor. */
+  /**
+   * Constructor.
+   */
   public JavaCharStream(java.io.Reader dstream) {
     this(dstream, 1, 1, 4096);
   }
 
-  /** Reinitialise. */
+  /**
+   * Reinitialise.
+   */
   public void ReInit(java.io.Reader dstream, int startline, int startcolumn, int buffersize) {
     inputStream = dstream;
     line = startline;
@@ -383,17 +434,23 @@ public class JavaCharStream implements CharStream {
     nextCharInd = bufpos = -1;
   }
 
-  /** Reinitialise. */
+  /**
+   * Reinitialise.
+   */
   public void ReInit(java.io.Reader dstream, int startline, int startcolumn) {
     ReInit(dstream, startline, startcolumn, 4096);
   }
 
-  /** Reinitialise. */
+  /**
+   * Reinitialise.
+   */
   public void ReInit(java.io.Reader dstream) {
     ReInit(dstream, 1, 1, 4096);
   }
 
-  /** Constructor. */
+  /**
+   * Constructor.
+   */
   public JavaCharStream(
       java.io.InputStream dstream, String encoding, int startline, int startcolumn, int buffersize)
       throws java.io.UnsupportedEncodingException {
@@ -406,36 +463,48 @@ public class JavaCharStream implements CharStream {
         buffersize);
   }
 
-  /** Constructor. */
+  /**
+   * Constructor.
+   */
   public JavaCharStream(
       java.io.InputStream dstream, int startline, int startcolumn, int buffersize) {
     this(new java.io.InputStreamReader(dstream), startline, startcolumn, 4096);
   }
 
-  /** Constructor. */
+  /**
+   * Constructor.
+   */
   public JavaCharStream(
       java.io.InputStream dstream, String encoding, int startline, int startcolumn)
       throws java.io.UnsupportedEncodingException {
     this(dstream, encoding, startline, startcolumn, 4096);
   }
 
-  /** Constructor. */
+  /**
+   * Constructor.
+   */
   public JavaCharStream(java.io.InputStream dstream, int startline, int startcolumn) {
     this(dstream, startline, startcolumn, 4096);
   }
 
-  /** Constructor. */
+  /**
+   * Constructor.
+   */
   public JavaCharStream(java.io.InputStream dstream, String encoding)
       throws java.io.UnsupportedEncodingException {
     this(dstream, encoding, 1, 1, 4096);
   }
 
-  /** Constructor. */
+  /**
+   * Constructor.
+   */
   public JavaCharStream(java.io.InputStream dstream) {
     this(dstream, 1, 1, 4096);
   }
 
-  /** Reinitialise. */
+  /**
+   * Reinitialise.
+   */
   public void ReInit(
       java.io.InputStream dstream, String encoding, int startline, int startcolumn, int buffersize)
       throws java.io.UnsupportedEncodingException {
@@ -448,29 +517,39 @@ public class JavaCharStream implements CharStream {
         buffersize);
   }
 
-  /** Reinitialise. */
+  /**
+   * Reinitialise.
+   */
   public void ReInit(java.io.InputStream dstream, int startline, int startcolumn, int buffersize) {
     ReInit(new java.io.InputStreamReader(dstream), startline, startcolumn, buffersize);
   }
 
-  /** Reinitialise. */
+  /**
+   * Reinitialise.
+   */
   public void ReInit(java.io.InputStream dstream, String encoding, int startline, int startcolumn)
       throws java.io.UnsupportedEncodingException {
     ReInit(dstream, encoding, startline, startcolumn, 4096);
   }
 
-  /** Reinitialise. */
+  /**
+   * Reinitialise.
+   */
   public void ReInit(java.io.InputStream dstream, int startline, int startcolumn) {
     ReInit(dstream, startline, startcolumn, 4096);
   }
 
-  /** Reinitialise. */
+  /**
+   * Reinitialise.
+   */
   public void ReInit(java.io.InputStream dstream, String encoding)
       throws java.io.UnsupportedEncodingException {
     ReInit(dstream, encoding, 1, 1, 4096);
   }
 
-  /** Reinitialise. */
+  /**
+   * Reinitialise.
+   */
   public void ReInit(java.io.InputStream dstream) {
     ReInit(dstream, 1, 1, 4096);
   }
@@ -479,10 +558,12 @@ public class JavaCharStream implements CharStream {
    * @return token image as String
    */
   public String GetImage() {
-    if (bufpos >= tokenBegin) return new String(buffer, tokenBegin, bufpos - tokenBegin + 1);
-    else
+    if (bufpos >= tokenBegin) {
+      return new String(buffer, tokenBegin, bufpos - tokenBegin + 1);
+    } else {
       return new String(buffer, tokenBegin, bufsize - tokenBegin)
           + new String(buffer, 0, bufpos + 1);
+    }
   }
 
   /**
@@ -491,8 +572,9 @@ public class JavaCharStream implements CharStream {
   public char[] GetSuffix(int len) {
     char[] ret = new char[len];
 
-    if ((bufpos + 1) >= len) System.arraycopy(buffer, bufpos - len + 1, ret, 0, len);
-    else {
+    if ((bufpos + 1) >= len) {
+      System.arraycopy(buffer, bufpos - len + 1, ret, 0, len);
+    } else {
       System.arraycopy(buffer, bufsize - (len - bufpos - 1), ret, 0, len - bufpos - 1);
       System.arraycopy(buffer, 0, ret, len - bufpos - 1, bufpos + 1);
     }
@@ -500,7 +582,9 @@ public class JavaCharStream implements CharStream {
     return ret;
   }
 
-  /** Set buffers back to null when finished. */
+  /**
+   * Set buffers back to null when finished.
+   */
   public void Done() {
     nextCharBuf = null;
     buffer = null;
@@ -508,7 +592,9 @@ public class JavaCharStream implements CharStream {
     bufcolumn = null;
   }
 
-  /** Method to adjust line and column numbers for the start of a token. */
+  /**
+   * Method to adjust line and column numbers for the start of a token.
+   */
   public void adjustBeginLineColumn(int newLine, int newCol) {
     int start = tokenBegin;
     int len;
@@ -535,8 +621,11 @@ public class JavaCharStream implements CharStream {
       bufcolumn[j] = newCol + columnDiff;
 
       while (i++ < len) {
-        if (bufline[j = start % bufsize] != bufline[++start % bufsize]) bufline[j] = newLine++;
-        else bufline[j] = newLine;
+        if (bufline[j = start % bufsize] != bufline[++start % bufsize]) {
+          bufline[j] = newLine++;
+        } else {
+          bufline[j] = newLine;
+        }
       }
     }
 

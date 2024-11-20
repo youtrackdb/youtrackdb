@@ -1,7 +1,6 @@
 package com.orientechnologies.orient.core.iterator;
 
 import com.orientechnologies.BaseMemoryDatabase;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -72,8 +71,7 @@ public class ClassIteratorTest extends BaseMemoryDatabase {
 
     // Use descending class iterator.
     final ORecordIteratorClass<ODocument> personIter =
-        new ORecordIteratorClassDescendentOrder<ODocument>(
-            (ODatabaseSessionInternal) db, (ODatabaseSessionInternal) db, "Person", true);
+        new ORecordIteratorClassDescendentOrder<ODocument>(db, db, "Person", true);
 
     personIter.setRange(null, null); // open range
 
@@ -83,7 +81,7 @@ public class ClassIteratorTest extends BaseMemoryDatabase {
       final ODocument personDoc = personIter.next();
       Assert.assertTrue(names.contains(personDoc.field("First")));
       Assert.assertTrue(names.remove(personDoc.field("First")));
-      System.out.printf("Doc %d: %s\n", docNum++, personDoc.toString());
+      System.out.printf("Doc %d: %s\n", docNum++, personDoc);
     }
 
     Assert.assertTrue(names.isEmpty());
@@ -98,8 +96,7 @@ public class ClassIteratorTest extends BaseMemoryDatabase {
     }
 
     final ORecordIteratorClass<ODocument> personIter =
-        new ORecordIteratorClass<ODocument>(
-            (ODatabaseSessionInternal) db, "PersonMultipleClusters", true);
+        new ORecordIteratorClass<ODocument>(db, "PersonMultipleClusters", true);
 
     int docNum = 0;
 
@@ -107,7 +104,7 @@ public class ClassIteratorTest extends BaseMemoryDatabase {
       final ODocument personDoc = personIter.next();
       Assert.assertTrue(names.contains(personDoc.field("First")));
       Assert.assertTrue(names.remove(personDoc.field("First")));
-      System.out.printf("Doc %d: %s\n", docNum++, personDoc.toString());
+      System.out.printf("Doc %d: %s\n", docNum++, personDoc);
     }
 
     Assert.assertTrue(names.isEmpty());

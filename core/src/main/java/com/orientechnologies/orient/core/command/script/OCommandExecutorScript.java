@@ -219,12 +219,11 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
     try {
 
       if (compiledScript == null) {
-        if (!(scriptEngine instanceof Compilable)) {
+        if (!(scriptEngine instanceof Compilable c)) {
           throw new OCommandExecutionException(
               "Language '" + language + "' does not support compilation");
         }
 
-        final Compilable c = (Compilable) scriptEngine;
         try {
           compiledScript = c.compile(parserText);
         } catch (ScriptException e) {
@@ -529,10 +528,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
           e);
     }
 
-    if (Boolean.TRUE.equals(result)) {
-      return true;
-    }
-    return false;
+    return Boolean.TRUE.equals(result);
   }
 
   private boolean isIfCondition(String iCommand) {
@@ -547,10 +543,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
         || OStringSerializerHelper.startsWithIgnoreCase(cmd, "if("))) {
       return false;
     }
-    if (!cmd.endsWith("{")) {
-      return false;
-    }
-    return true;
+    return cmd.endsWith("{");
   }
 
   /**
@@ -636,7 +629,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
         stringValue = stringValue.trim();
 
         Object value;
-        if (stringValue.toString().startsWith("$")) {
+        if (stringValue.startsWith("$")) {
           value = getContext().getVariable(stringValue);
         } else {
           value = stringValue;

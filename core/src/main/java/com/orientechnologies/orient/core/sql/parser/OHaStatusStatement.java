@@ -90,7 +90,7 @@ public class OHaStatusStatement extends OSimpleExecStatement {
     if (outputText) {
       OLogManager.instance().info(this, "HA STATUS with text output is deprecated");
     }
-    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) ctx.getDatabase();
+    final ODatabaseSessionInternal database = ctx.getDatabase();
 
     try {
       Map<String, Object> res = database.getHaStatus(servers, this.db, latency, messages);

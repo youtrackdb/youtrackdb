@@ -28,8 +28,11 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.Test;
 
-/** Start 3 servers and wait for external commands. */
+/**
+ * Start 3 servers and wait for external commands.
+ */
 public class ServerClusterRemoteDocumentIT extends AbstractServerClusterTest {
+
   static final int SERVERS = 3;
 
   public String getDatabaseName() {

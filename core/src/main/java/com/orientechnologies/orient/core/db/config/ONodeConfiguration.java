@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.core.db.config;
 
 public class ONodeConfiguration {
+
   // Node name is redundant because it can come also from user configuration appart been stored in
   // the node identity
   private String nodeName;

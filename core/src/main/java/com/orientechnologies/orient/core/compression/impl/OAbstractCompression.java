@@ -29,6 +29,7 @@ import com.orientechnologies.orient.core.compression.OCompression;
  * @since 05.06.13
  */
 public abstract class OAbstractCompression implements OCompression {
+
   @Override
   public byte[] compress(final byte[] content) {
     return compress(content, 0, content.length);

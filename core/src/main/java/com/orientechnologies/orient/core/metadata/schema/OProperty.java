@@ -32,7 +32,7 @@ import java.util.Set;
  */
 public interface OProperty extends Comparable<OProperty> {
 
-  public static enum ATTRIBUTES {
+  enum ATTRIBUTES {
     LINKEDTYPE,
     LINKEDCLASS,
     MIN,
@@ -49,16 +49,18 @@ public interface OProperty extends Comparable<OProperty> {
     DESCRIPTION
   }
 
-  public String getName();
+  String getName();
 
-  /** Returns the full name as <class>.<property> */
-  public String getFullName();
+  /**
+   * Returns the full name as <class>.<property>
+   */
+  String getFullName();
 
-  public OProperty setName(String iName);
+  OProperty setName(String iName);
 
-  public void set(ATTRIBUTES attribute, Object iValue);
+  void set(ATTRIBUTES attribute, Object iValue);
 
-  public OType getType();
+  OType getType();
 
   /**
    * Returns the linked class in lazy mode because while unmarshalling the class could be not loaded
@@ -66,27 +68,27 @@ public interface OProperty extends Comparable<OProperty> {
    *
    * @return
    */
-  public OClass getLinkedClass();
+  OClass getLinkedClass();
 
-  public OProperty setLinkedClass(OClass oClass);
+  OProperty setLinkedClass(OClass oClass);
 
-  public OType getLinkedType();
+  OType getLinkedType();
 
-  public OProperty setLinkedType(OType type);
+  OProperty setLinkedType(OType type);
 
-  public boolean isNotNull();
+  boolean isNotNull();
 
-  public OProperty setNotNull(boolean iNotNull);
+  OProperty setNotNull(boolean iNotNull);
 
-  public OCollate getCollate();
+  OCollate getCollate();
 
-  public OProperty setCollate(String iCollateName);
+  OProperty setCollate(String iCollateName);
 
-  public OProperty setCollate(OCollate collate);
+  OProperty setCollate(OCollate collate);
 
-  public boolean isMandatory();
+  boolean isMandatory();
 
-  public OProperty setMandatory(boolean mandatory);
+  OProperty setMandatory(boolean mandatory);
 
   boolean isReadonly();
 
@@ -108,14 +110,14 @@ public interface OProperty extends Comparable<OProperty> {
    *
    * @return String, can be null
    */
-  public String getMin();
+  String getMin();
 
   /**
-   * @see OProperty#getMin()
    * @param min can be null
    * @return this property
+   * @see OProperty#getMin()
    */
-  public OProperty setMin(String min);
+  OProperty setMin(String min);
 
   /**
    * Max behavior depends on the Property OType.
@@ -133,28 +135,28 @@ public interface OProperty extends Comparable<OProperty> {
    *
    * @return String, can be null
    */
-  public String getMax();
+  String getMax();
 
   /**
-   * @see OProperty#getMax()
    * @param max can be null
    * @return this property
+   * @see OProperty#getMax()
    */
-  public OProperty setMax(String max);
+  OProperty setMax(String max);
 
   /**
    * Default value for the property; can be function
    *
    * @return String, can be null
    */
-  public String getDefaultValue();
+  String getDefaultValue();
 
   /**
-   * @see OProperty#getDefaultValue()
    * @param defaultValue can be null
    * @return this property
+   * @see OProperty#getDefaultValue()
    */
-  public OProperty setDefaultValue(String defaultValue);
+  OProperty setDefaultValue(String defaultValue);
 
   /**
    * Creates an index on this property. Indexes speed up queries but slow down insert and update
@@ -162,15 +164,14 @@ public interface OProperty extends Comparable<OProperty> {
    * recreate it.
    *
    * @param iType One of types supported.
-   *     <ul>
-   *       <li>UNIQUE: Doesn't allow duplicates
-   *       <li>NOTUNIQUE: Allow duplicates
-   *       <li>FULLTEXT: Indexes single word for full text search
-   *     </ul>
-   *
+   *              <ul>
+   *                <li>UNIQUE: Doesn't allow duplicates
+   *                <li>NOTUNIQUE: Allow duplicates
+   *                <li>FULLTEXT: Indexes single word for full text search
+   *              </ul>
    * @return see {@link OClass#createIndex(String, OClass.INDEX_TYPE, String...)}.
    */
-  public OIndex createIndex(final OClass.INDEX_TYPE iType);
+  OIndex createIndex(final OClass.INDEX_TYPE iType);
 
   /**
    * Creates an index on this property. Indexes speed up queries but slow down insert and update
@@ -180,41 +181,39 @@ public interface OProperty extends Comparable<OProperty> {
    * @param iType
    * @return see {@link OClass#createIndex(String, OClass.INDEX_TYPE, String...)}.
    */
-  public OIndex createIndex(final String iType);
+  OIndex createIndex(final String iType);
 
   /**
    * Creates an index on this property. Indexes speed up queries but slow down insert and update
    * operations. For massive inserts we suggest to remove the index, make the massive insert and
    * recreate it.
    *
-   * @param iType One of types supported.
-   *     <ul>
-   *       <li>UNIQUE: Doesn't allow duplicates
-   *       <li>NOTUNIQUE: Allow duplicates
-   *       <li>FULLTEXT: Indexes single word for full text search
-   *     </ul>
-   *
+   * @param iType    One of types supported.
+   *                 <ul>
+   *                   <li>UNIQUE: Doesn't allow duplicates
+   *                   <li>NOTUNIQUE: Allow duplicates
+   *                   <li>FULLTEXT: Indexes single word for full text search
+   *                 </ul>
    * @param metadata the index metadata
    * @return see {@link OClass#createIndex(String, OClass.INDEX_TYPE, String...)}.
    */
-  public OIndex createIndex(String iType, ODocument metadata);
+  OIndex createIndex(String iType, ODocument metadata);
 
   /**
    * Creates an index on this property. Indexes speed up queries but slow down insert and update
    * operations. For massive inserts we suggest to remove the index, make the massive insert and
    * recreate it.
    *
-   * @param iType One of types supported.
-   *     <ul>
-   *       <li>UNIQUE: Doesn't allow duplicates
-   *       <li>NOTUNIQUE: Allow duplicates
-   *       <li>FULLTEXT: Indexes single word for full text search
-   *     </ul>
-   *
+   * @param iType    One of types supported.
+   *                 <ul>
+   *                   <li>UNIQUE: Doesn't allow duplicates
+   *                   <li>NOTUNIQUE: Allow duplicates
+   *                   <li>FULLTEXT: Indexes single word for full text search
+   *                 </ul>
    * @param metadata the index metadata
    * @return see {@link OClass#createIndex(String, OClass.INDEX_TYPE, String...)}.
    */
-  public OIndex createIndex(OClass.INDEX_TYPE iType, ODocument metadata);
+  OIndex createIndex(OClass.INDEX_TYPE iType, ODocument metadata);
 
   /**
    * Remove the index on property
@@ -223,26 +222,26 @@ public interface OProperty extends Comparable<OProperty> {
    * @deprecated Use SQL command instead.
    */
   @Deprecated
-  public OProperty dropIndexes();
+  OProperty dropIndexes();
 
   /**
    * @return All indexes in which this property participates as first key item.
    * @deprecated Use {@link OClass#getInvolvedIndexes(String...)} instead.
    */
   @Deprecated
-  public Set<OIndex> getIndexes();
+  Set<OIndex> getIndexes();
 
   /**
    * @return The first index in which this property participates as first key item.
    * @deprecated Use {@link OClass#getInvolvedIndexes(String...)} instead.
    */
   @Deprecated
-  public OIndex getIndex();
+  OIndex getIndex();
 
   /**
    * @return All indexes in which this property participates.
    */
-  public Collection<OIndex> getAllIndexes();
+  Collection<OIndex> getAllIndexes();
 
   /**
    * Indicates whether property is contained in indexes as its first key item. If you would like to
@@ -250,40 +249,40 @@ public interface OProperty extends Comparable<OProperty> {
    * instead.
    *
    * @return <code>true</code> if and only if this property is contained in indexes as its first key
-   *     item.
+   * item.
    * @deprecated Use {@link OClass#areIndexed(String...)} instead.
    */
   @Deprecated
-  public boolean isIndexed();
+  boolean isIndexed();
 
-  public String getRegexp();
+  String getRegexp();
 
-  public OProperty setRegexp(String regexp);
+  OProperty setRegexp(String regexp);
 
   /**
    * Change the type. It checks for compatibility between the change of type.
    *
    * @param iType
    */
-  public OProperty setType(final OType iType);
+  OProperty setType(final OType iType);
 
-  public String getCustom(final String iName);
+  String getCustom(final String iName);
 
-  public OProperty setCustom(final String iName, final String iValue);
+  OProperty setCustom(final String iName, final String iValue);
 
-  public void removeCustom(final String iName);
+  void removeCustom(final String iName);
 
-  public void clearCustom();
+  void clearCustom();
 
-  public Set<String> getCustomKeys();
+  Set<String> getCustomKeys();
 
-  public OClass getOwnerClass();
+  OClass getOwnerClass();
 
-  public Object get(ATTRIBUTES iAttribute);
+  Object get(ATTRIBUTES iAttribute);
 
-  public Integer getId();
+  Integer getId();
 
-  public String getDescription();
+  String getDescription();
 
-  public OProperty setDescription(String iDescription);
+  OProperty setDescription(String iDescription);
 }

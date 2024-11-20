@@ -33,6 +33,7 @@ import java.util.Objects;
  * @since 10/7/13
  */
 public final class OClusterPositionMapBucket extends ODurablePage {
+
   private static final int NEXT_PAGE_OFFSET = NEXT_FREE_POSITION;
   private static final int SIZE_OFFSET = NEXT_PAGE_OFFSET + OLongSerializer.LONG_SIZE;
   private static final int POSITIONS_OFFSET = SIZE_OFFSET + OIntegerSerializer.INT_SIZE;
@@ -197,6 +198,7 @@ public final class OClusterPositionMapBucket extends ODurablePage {
   }
 
   public static final class PositionEntry {
+
     private final long pageIndex;
     private final int recordPosition;
 
@@ -215,8 +217,12 @@ public final class OClusterPositionMapBucket extends ODurablePage {
 
     @Override
     public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
+      if (this == o) {
+        return true;
+      }
+      if (o == null || getClass() != o.getClass()) {
+        return false;
+      }
       PositionEntry that = (PositionEntry) o;
       return pageIndex == that.pageIndex && recordPosition == that.recordPosition;
     }

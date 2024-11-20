@@ -8,6 +8,7 @@ import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
+import java.util.Objects;
 
 public class OTruncateClusterStatement extends ODDLStatement {
 
@@ -87,19 +88,22 @@ public class OTruncateClusterStatement extends ODDLStatement {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
 
     OTruncateClusterStatement that = (OTruncateClusterStatement) o;
 
-    if (unsafe != that.unsafe) return false;
-    if (clusterName != null ? !clusterName.equals(that.clusterName) : that.clusterName != null)
+    if (unsafe != that.unsafe) {
       return false;
-    if (clusterNumber != null
-        ? !clusterNumber.equals(that.clusterNumber)
-        : that.clusterNumber != null) return false;
-
-    return true;
+    }
+    if (!Objects.equals(clusterName, that.clusterName)) {
+      return false;
+    }
+    return Objects.equals(clusterNumber, that.clusterNumber);
   }
 
   @Override

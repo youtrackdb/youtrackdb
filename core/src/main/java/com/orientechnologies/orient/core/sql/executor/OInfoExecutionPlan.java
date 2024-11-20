@@ -3,7 +3,9 @@ package com.orientechnologies.orient.core.sql.executor;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Created by luigidellaquila on 19/12/16. */
+/**
+ * Created by luigidellaquila on 19/12/16.
+ */
 public class OInfoExecutionPlan implements OExecutionPlan {
 
   private List<OExecutionStep> steps = new ArrayList<>();

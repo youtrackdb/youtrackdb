@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 public class OStorageConfigurationPayload {
+
   private String dateFormat;
   private String dateTimeFormat;
   private String name;
