@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.functions.graph;
@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.record.ODirection;
@@ -40,13 +40,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 /*
- * @author Saeed Tabrizi (saeed a_t  nowcando.com)
+ *
  */
 public class OSQLFunctionAstarTest {
 
   private static int dbCounter = 0;
 
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
   private ODatabaseSessionInternal graph;
 
   private OVertex v0;
@@ -69,25 +69,25 @@ public class OSQLFunctionAstarTest {
   @After
   public void tearDown() throws Exception {
     graph.close();
-    orientDB.close();
+    oxygenDB.close();
   }
 
   private void setUpDatabase() {
     dbCounter++;
 
-    orientDB =
+    oxygenDB =
         OCreateDatabaseUtil.createDatabase(
             "OSQLFunctionAstarTest", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
     graph =
         (ODatabaseSessionInternal)
-            orientDB.open("OSQLFunctionAstarTest", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+            oxygenDB.open("OSQLFunctionAstarTest", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     graph.createEdgeClass("has_path");
 
     graph.begin();
     OFunction cf = graph.getMetadata().getFunctionLibrary().createFunction("myCustomHeuristic");
-    cf.setCode("return 1;");
-    cf.save();
+    cf.setCode(graph, "return 1;");
+    cf.save(graph);
 
     v0 = graph.newVertex();
     v1 = graph.newVertex();
@@ -211,7 +211,7 @@ public class OSQLFunctionAstarTest {
     Map<String, Object> options = new HashMap<String, Object>();
     options.put(OSQLFunctionAstar.PARAM_DIRECTION, "out");
     options.put(OSQLFunctionAstar.PARAM_PARALLEL, true);
-    options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[] {"has_path"});
+    options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
     OBasicCommandContext ctx = new OBasicCommandContext();
 
     v1 = graph.bindToSession(v1);
@@ -219,7 +219,7 @@ public class OSQLFunctionAstarTest {
 
     ctx.setDatabase(graph);
     final List<OVertex> result =
-        functionAstar.execute(null, null, null, new Object[] {v1, v4, "'weight'", options}, ctx);
+        functionAstar.execute(null, null, null, new Object[]{v1, v4, "'weight'", options}, ctx);
     try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
@@ -236,7 +236,7 @@ public class OSQLFunctionAstarTest {
     Map<String, Object> options = new HashMap<String, Object>();
     options.put(OSQLFunctionAstar.PARAM_DIRECTION, "out");
     options.put(OSQLFunctionAstar.PARAM_PARALLEL, true);
-    options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[] {"has_path"});
+    options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
     OBasicCommandContext ctx = new OBasicCommandContext();
     ctx.setDatabase(graph);
 
@@ -244,7 +244,7 @@ public class OSQLFunctionAstarTest {
     v6 = graph.bindToSession(v6);
 
     final List<OVertex> result =
-        functionAstar.execute(null, null, null, new Object[] {v1, v6, "'weight'", options}, ctx);
+        functionAstar.execute(null, null, null, new Object[]{v1, v6, "'weight'", options}, ctx);
     try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
@@ -259,8 +259,8 @@ public class OSQLFunctionAstarTest {
     Map<String, Object> options = new HashMap<String, Object>();
     options.put(OSQLFunctionAstar.PARAM_DIRECTION, "out");
     options.put(OSQLFunctionAstar.PARAM_PARALLEL, true);
-    options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[] {"has_path"});
-    options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[] {"lat", "lon"});
+    options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
+    options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
     OBasicCommandContext ctx = new OBasicCommandContext();
     ctx.setDatabase(graph);
 
@@ -268,7 +268,7 @@ public class OSQLFunctionAstarTest {
     v6 = graph.bindToSession(v6);
 
     final List<OVertex> result =
-        functionAstar.execute(null, null, null, new Object[] {v1, v6, "'weight'", options}, ctx);
+        functionAstar.execute(null, null, null, new Object[]{v1, v6, "'weight'", options}, ctx);
     try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
@@ -284,8 +284,8 @@ public class OSQLFunctionAstarTest {
     Map<String, Object> options = new HashMap<String, Object>();
     options.put(OSQLFunctionAstar.PARAM_DIRECTION, "out");
     options.put(OSQLFunctionAstar.PARAM_PARALLEL, true);
-    options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[] {"has_path"});
-    options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[] {"lat", "lon", "alt"});
+    options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
+    options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon", "alt"});
     OBasicCommandContext ctx = new OBasicCommandContext();
     ctx.setDatabase(graph);
 
@@ -293,7 +293,7 @@ public class OSQLFunctionAstarTest {
     v6 = graph.bindToSession(v6);
 
     final List<OVertex> result =
-        functionAstar.execute(null, null, null, new Object[] {v1, v6, "'weight'", options}, ctx);
+        functionAstar.execute(null, null, null, new Object[]{v1, v6, "'weight'", options}, ctx);
     try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
@@ -309,8 +309,8 @@ public class OSQLFunctionAstarTest {
     Map<String, Object> options = new HashMap<String, Object>();
     options.put(OSQLFunctionAstar.PARAM_DIRECTION, "out");
     options.put(OSQLFunctionAstar.PARAM_PARALLEL, true);
-    options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[] {"has_path"});
-    options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[] {"lat", "lon"});
+    options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
+    options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
     OBasicCommandContext ctx = new OBasicCommandContext();
     ctx.setDatabase(graph);
 
@@ -318,7 +318,7 @@ public class OSQLFunctionAstarTest {
     v5 = graph.bindToSession(v5);
 
     final List<OVertex> result =
-        functionAstar.execute(null, null, null, new Object[] {v3, v5, "'weight'", options}, ctx);
+        functionAstar.execute(null, null, null, new Object[]{v3, v5, "'weight'", options}, ctx);
     try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
@@ -334,8 +334,8 @@ public class OSQLFunctionAstarTest {
     Map<String, Object> options = new HashMap<String, Object>();
     options.put(OSQLFunctionAstar.PARAM_DIRECTION, "out");
     options.put(OSQLFunctionAstar.PARAM_PARALLEL, true);
-    options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[] {"has_path"});
-    options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[] {"lat", "lon"});
+    options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
+    options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
     OBasicCommandContext ctx = new OBasicCommandContext();
     ctx.setDatabase(graph);
 
@@ -343,7 +343,7 @@ public class OSQLFunctionAstarTest {
     v1 = graph.bindToSession(v1);
 
     final List<OVertex> result =
-        functionAstar.execute(null, null, null, new Object[] {v6, v1, "'weight'", options}, ctx);
+        functionAstar.execute(null, null, null, new Object[]{v6, v1, "'weight'", options}, ctx);
     try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
@@ -362,8 +362,8 @@ public class OSQLFunctionAstarTest {
     Map<String, Object> options = new HashMap<String, Object>();
     options.put(OSQLFunctionAstar.PARAM_DIRECTION, "out");
     options.put(OSQLFunctionAstar.PARAM_PARALLEL, true);
-    options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[] {"has_path"});
-    options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[] {"lat", "lon"});
+    options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
+    options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
     options.put(OSQLFunctionAstar.PARAM_HEURISTIC_FORMULA, "EucliDEAN");
     OBasicCommandContext ctx = new OBasicCommandContext();
     ctx.setDatabase(graph);
@@ -372,7 +372,7 @@ public class OSQLFunctionAstarTest {
     v1 = graph.bindToSession(v1);
 
     final List<OVertex> result =
-        functionAstar.execute(null, null, null, new Object[] {v6, v1, "'weight'", options}, ctx);
+        functionAstar.execute(null, null, null, new Object[]{v6, v1, "'weight'", options}, ctx);
     try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
@@ -392,8 +392,8 @@ public class OSQLFunctionAstarTest {
     options.put(OSQLFunctionAstar.PARAM_DIRECTION, ODirection.OUT);
     options.put(OSQLFunctionAstar.PARAM_PARALLEL, true);
     options.put(OSQLFunctionAstar.PARAM_TIE_BREAKER, false);
-    options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[] {"has_path"});
-    options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[] {"lat", "lon"});
+    options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
+    options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
     options.put(OSQLFunctionAstar.PARAM_HEURISTIC_FORMULA, HeuristicFormula.EUCLIDEANNOSQR);
     OBasicCommandContext ctx = new OBasicCommandContext();
     ctx.setDatabase(graph);
@@ -402,7 +402,7 @@ public class OSQLFunctionAstarTest {
     v1 = graph.bindToSession(v1);
 
     final List<OVertex> result =
-        functionAstar.execute(null, null, null, new Object[] {v6, v1, "'weight'", options}, ctx);
+        functionAstar.execute(null, null, null, new Object[]{v6, v1, "'weight'", options}, ctx);
     try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
@@ -421,8 +421,8 @@ public class OSQLFunctionAstarTest {
     options.put(OSQLFunctionAstar.PARAM_DIRECTION, ODirection.BOTH);
     options.put(OSQLFunctionAstar.PARAM_PARALLEL, true);
     options.put(OSQLFunctionAstar.PARAM_TIE_BREAKER, false);
-    options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[] {"has_path"});
-    options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[] {"lat", "lon"});
+    options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
+    options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
     options.put(OSQLFunctionAstar.PARAM_HEURISTIC_FORMULA, HeuristicFormula.MAXAXIS);
     OBasicCommandContext ctx = new OBasicCommandContext();
     ctx.setDatabase(graph);
@@ -430,7 +430,7 @@ public class OSQLFunctionAstarTest {
     v6 = graph.bindToSession(v6);
     v1 = graph.bindToSession(v1);
     final List<OVertex> result =
-        functionAstar.execute(null, null, null, new Object[] {v6, v1, "'weight'", options}, ctx);
+        functionAstar.execute(null, null, null, new Object[]{v6, v1, "'weight'", options}, ctx);
     try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
@@ -447,8 +447,8 @@ public class OSQLFunctionAstarTest {
     options.put(OSQLFunctionAstar.PARAM_DIRECTION, ODirection.OUT);
     options.put(OSQLFunctionAstar.PARAM_PARALLEL, true);
     options.put(OSQLFunctionAstar.PARAM_TIE_BREAKER, false);
-    options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[] {"has_path"});
-    options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[] {"lat", "lon"});
+    options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
+    options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
     options.put(OSQLFunctionAstar.PARAM_HEURISTIC_FORMULA, HeuristicFormula.CUSTOM);
     options.put(OSQLFunctionAstar.PARAM_CUSTOM_HEURISTIC_FORMULA, "myCustomHeuristic");
     OBasicCommandContext ctx = new OBasicCommandContext();
@@ -457,7 +457,7 @@ public class OSQLFunctionAstarTest {
     v6 = graph.bindToSession(v6);
     v1 = graph.bindToSession(v1);
     final List<OVertex> result =
-        functionAstar.execute(null, null, null, new Object[] {v6, v1, "'weight'", options}, ctx);
+        functionAstar.execute(null, null, null, new Object[]{v6, v1, "'weight'", options}, ctx);
     try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
@@ -479,8 +479,8 @@ public class OSQLFunctionAstarTest {
     options.put(OSQLFunctionAstar.PARAM_TIE_BREAKER, false);
     options.put(OSQLFunctionAstar.PARAM_EMPTY_IF_MAX_DEPTH, true);
     options.put(OSQLFunctionAstar.PARAM_MAX_DEPTH, 3);
-    options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[] {"has_path"});
-    options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[] {"lat", "lon"});
+    options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
+    options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
     options.put(OSQLFunctionAstar.PARAM_HEURISTIC_FORMULA, HeuristicFormula.CUSTOM);
     options.put(OSQLFunctionAstar.PARAM_CUSTOM_HEURISTIC_FORMULA, "myCustomHeuristic");
     OBasicCommandContext ctx = new OBasicCommandContext();
@@ -490,7 +490,7 @@ public class OSQLFunctionAstarTest {
     v1 = graph.bindToSession(v1);
 
     final List<OVertex> result =
-        functionAstar.execute(null, null, null, new Object[] {v6, v1, "'weight'", options}, ctx);
+        functionAstar.execute(null, null, null, new Object[]{v6, v1, "'weight'", options}, ctx);
     try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }
@@ -506,8 +506,8 @@ public class OSQLFunctionAstarTest {
     options.put(OSQLFunctionAstar.PARAM_TIE_BREAKER, false);
     options.put(OSQLFunctionAstar.PARAM_EMPTY_IF_MAX_DEPTH, false);
     options.put(OSQLFunctionAstar.PARAM_MAX_DEPTH, 3);
-    options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[] {"has_path"});
-    options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[] {"lat", "lon"});
+    options.put(OSQLFunctionAstar.PARAM_EDGE_TYPE_NAMES, new String[]{"has_path"});
+    options.put(OSQLFunctionAstar.PARAM_VERTEX_AXIS_NAMES, new String[]{"lat", "lon"});
     options.put(OSQLFunctionAstar.PARAM_HEURISTIC_FORMULA, HeuristicFormula.CUSTOM);
     options.put(OSQLFunctionAstar.PARAM_CUSTOM_HEURISTIC_FORMULA, "myCustomHeuristic");
     OBasicCommandContext ctx = new OBasicCommandContext();
@@ -517,7 +517,7 @@ public class OSQLFunctionAstarTest {
     v1 = graph.bindToSession(v1);
 
     final List<OVertex> result =
-        functionAstar.execute(null, null, null, new Object[] {v6, v1, "'weight'", options}, ctx);
+        functionAstar.execute(null, null, null, new Object[]{v6, v1, "'weight'", options}, ctx);
     try (OResultSet rs = graph.query("select count(*) as count from has_path")) {
       assertEquals((Object) 16L, rs.next().getProperty("count"));
     }

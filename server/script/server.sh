@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (c) OrientDB LTD (http://http://orientdb.com/)
+# Copyright (c) OxygenDB LTD (http://http://orientdb.com/)
 #
 
 echo "           .                                          "

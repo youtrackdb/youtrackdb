@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,21 +14,20 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.Collection;
 import java.util.Map;
 
 /**
  * Explains the execution of a command returning profiling information.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OCommandExecutorSQLExplain extends OCommandExecutorSQLDelegate {
 
@@ -54,12 +53,12 @@ public class OCommandExecutorSQLExplain extends OCommandExecutorSQLDelegate {
   }
 
   @Override
-  public Object execute(Map<Object, Object> iArgs) {
+  public Object execute(Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
     delegate.getContext().setRecordingMetrics(true);
 
     final long startTime = System.nanoTime();
 
-    final Object result = super.execute(iArgs);
+    final Object result = super.execute(iArgs, querySession);
     final ODocument report = new ODocument(delegate.getContext().getVariables());
 
     report.field("elapsed", (System.nanoTime() - startTime) / 1000000f);

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.functions;
@@ -24,6 +24,7 @@ import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.parser.OBaseParser;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandExecutorNotFoundException;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
@@ -42,8 +43,6 @@ import java.util.List;
 
 /**
  * Wraps function managing the binding of parameters.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionRuntime extends OSQLFilterItemAbstract {
 
@@ -51,8 +50,9 @@ public class OSQLFunctionRuntime extends OSQLFilterItemAbstract {
   public Object[] configuredParameters;
   public Object[] runtimeParameters;
 
-  public OSQLFunctionRuntime(final OBaseParser iQueryToParse, final String iText) {
-    super(iQueryToParse, iText);
+  public OSQLFunctionRuntime(ODatabaseSession session, final OBaseParser iQueryToParse,
+      final String iText) {
+    super(session, iQueryToParse, iText);
   }
 
   public OSQLFunctionRuntime(final OSQLFunction iFunction) {
@@ -99,11 +99,12 @@ public class OSQLFunctionRuntime extends OSQLFilterItemAbstract {
       } else if (configuredParameters[i] instanceof OCommandSQL) {
         try {
           runtimeParameters[i] =
-              ((OCommandSQL) configuredParameters[i]).setContext(iContext).execute();
+              ((OCommandSQL) configuredParameters[i]).setContext(iContext)
+                  .execute(iContext.getDatabase());
         } catch (OCommandExecutorNotFoundException ignore) {
           // TRY WITH SIMPLE CONDITION
           final String text = ((OCommandSQL) configuredParameters[i]).getText();
-          final OSQLPredicate pred = new OSQLPredicate(text);
+          final OSQLPredicate pred = new OSQLPredicate(iContext.getDatabase(), text);
           runtimeParameters[i] =
               pred.evaluate(
                   iCurrentRecord instanceof ORecord ? iCurrentRecord : null,
@@ -127,18 +128,20 @@ public class OSQLFunctionRuntime extends OSQLFilterItemAbstract {
       }
     }
 
-    if (function.getMaxParams() == -1 || function.getMaxParams() > 0) {
+    var db = iContext.getDatabase();
+    if (function.getMaxParams(db) == -1 || function.getMaxParams(db) > 0) {
       if (runtimeParameters.length < function.getMinParams()
-          || (function.getMaxParams() > -1 && runtimeParameters.length > function.getMaxParams())) {
+          || (function.getMaxParams(db) > -1 && runtimeParameters.length > function.getMaxParams(
+          db))) {
         String params;
-        if (function.getMinParams() == function.getMaxParams()) {
+        if (function.getMinParams() == function.getMaxParams(db)) {
           params = "" + function.getMinParams();
         } else {
-          params = function.getMinParams() + "-" + function.getMaxParams();
+          params = function.getMinParams() + "-" + function.getMaxParams(db);
         }
         throw new OCommandExecutionException(
             "Syntax error: function '"
-                + function.getName()
+                + function.getName(db)
                 + "' needs "
                 + params
                 + " argument(s) while has been received "
@@ -172,8 +175,8 @@ public class OSQLFunctionRuntime extends OSQLFilterItemAbstract {
   }
 
   @Override
-  public String getRoot() {
-    return function.getName();
+  public String getRoot(ODatabaseSession session) {
+    return function.getName(session);
   }
 
   public OSQLFunctionRuntime setParameters(final Object[] iParameters, final boolean iEvaluate) {
@@ -187,7 +190,7 @@ public class OSQLFunctionRuntime extends OSQLFilterItemAbstract {
             final Object v = OSQLHelper.parseValue(null, null, iParameters[i].toString(), null);
             if (v == OSQLHelper.VALUE_NOT_PARSED
                 || (OMultiValue.isMultiValue(v)
-                    && OMultiValue.getFirstValue(v) == OSQLHelper.VALUE_NOT_PARSED)) {
+                && OMultiValue.getFirstValue(v) == OSQLHelper.VALUE_NOT_PARSED)) {
               continue;
             }
 

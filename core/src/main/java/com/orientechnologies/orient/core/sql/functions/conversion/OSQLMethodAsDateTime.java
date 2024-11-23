@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  * Copyright 2013 Geomatys.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,9 +27,6 @@ import java.util.Date;
 
 /**
  * Transforms a value to datetime. If the conversion is not possible, null is returned.
- *
- * @author Johann Sorel (Geomatys)
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLMethodAsDateTime extends OAbstractSQLMethod {
 

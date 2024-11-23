@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.exception;
 
 /**
- * Created by tglman on 19/06/17.
+ *
  */
 public class OLiveQueryInterruptedException extends OCoreException {
 

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2016 OrientDB LTD (info(at)orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,27 +14,24 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.record.impl;
 
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordElement;
-import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.serialization.OSerializableStream;
+import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * @author Luigi Dell'Aquila
+ *
  */
 public class OVertexDelegate implements OVertexInternal {
 
@@ -135,57 +132,8 @@ public class OVertexDelegate implements OVertexInternal {
   }
 
   @Override
-  public STATUS getInternalStatus() {
-    return element.getInternalStatus();
-  }
-
-  @Override
-  public void setInternalStatus(STATUS iStatus) {
-    element.setInternalStatus(iStatus);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public OVertexDelegate setDirty() {
-    element.setDirty();
-    return this;
-  }
-
-  @Override
-  public void setDirtyNoChanged() {
-    element.setDirtyNoChanged();
-  }
-
-  @Override
-  public ORecordElement getOwner() {
-    return element.getOwner();
-  }
-
-  @Override
-  public byte[] toStream() throws OSerializationException {
-    return element.toStream();
-  }
-
-  @Override
-  public OSerializableStream fromStream(byte[] iStream) throws OSerializationException {
-    return element.fromStream(iStream);
-  }
-
-  @Override
-  public boolean detach() {
-    return element.detach();
-  }
-
-  @Override
-  public <RET extends ORecord> RET unload() {
-    element.unload();
-    return (RET) this;
-  }
-
-  @Override
-  public <RET extends ORecord> RET clear() {
+  public void clear() {
     element.clear();
-    return (RET) this;
   }
 
   @Override
@@ -196,6 +144,11 @@ public class OVertexDelegate implements OVertexInternal {
   @Override
   public boolean isEmbedded() {
     return false;
+  }
+
+  @Override
+  public void undo() {
+    element.undo();
   }
 
   @Override
@@ -214,21 +167,13 @@ public class OVertexDelegate implements OVertexInternal {
   }
 
   @Override
-  public <RET extends ORecord> RET save() {
+  public void save() {
     element.save();
-    return (RET) this;
   }
 
   @Override
-  public <RET extends ORecord> RET save(String iCluster) {
-    element.save(iCluster);
-    return (RET) this;
-  }
-
-  @Override
-  public <RET extends ORecord> RET fromJSON(String iJson) {
+  public void fromJSON(String iJson) {
     element.fromJSON(iJson);
-    return (RET) this;
   }
 
   @Override
@@ -239,11 +184,6 @@ public class OVertexDelegate implements OVertexInternal {
   @Override
   public String toJSON(String iFormat) {
     return element.toJSON(iFormat);
-  }
-
-  @Override
-  public int getSize() {
-    return element.getSize();
   }
 
   @Override
@@ -258,5 +198,15 @@ public class OVertexDelegate implements OVertexInternal {
   @Override
   public ODocument getBaseDocument() {
     return element;
+  }
+
+  @Override
+  public void fromMap(Map<String, ?> map) {
+    element.fromMap(map);
+  }
+
+  @Override
+  public Map<String, Object> toMap() {
+    return element.toMap();
   }
 }

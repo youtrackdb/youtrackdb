@@ -51,7 +51,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * Created by enricorisa on 08/10/14.
+ *
  */
 @RunWith(JUnit4.class)
 public class LuceneVsLuceneTest extends BaseLuceneTest {
@@ -106,7 +106,7 @@ public class LuceneVsLuceneTest extends BaseLuceneTest {
 
       IndexSearcher searcher = new IndexSearcher(reader);
 
-      Query query = new MultiFieldQueryParser(new String[] {"title"}, analyzer).parse("down the");
+      Query query = new MultiFieldQueryParser(new String[]{"title"}, analyzer).parse("down the");
       final TopDocs docs = searcher.search(query, Integer.MAX_VALUE);
       ScoreDoc[] hits = docs.scoreDocs;
 

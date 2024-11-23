@@ -23,5 +23,6 @@ public class OResultIteratorExecutionStream implements OExecutionStream {
   }
 
   @Override
-  public void close(OCommandContext ctx) {}
+  public void close(OCommandContext ctx) {
+  }
 }

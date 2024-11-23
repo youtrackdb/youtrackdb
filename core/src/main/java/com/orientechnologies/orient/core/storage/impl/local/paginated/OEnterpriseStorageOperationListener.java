@@ -4,7 +4,7 @@ import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import java.util.List;
 
 /**
- * Created by Enrico Risa on 20/07/2018.
+ *
  */
 public interface OEnterpriseStorageOperationListener {
 

@@ -16,8 +16,6 @@ import java.util.List;
 
 /**
  * Returns an OResult containing metadata regarding the storage
- *
- * @author Luigi Dell'Aquila (l.dellaquila - at - orientdb.com)
  */
 public class FetchFromStorageMetadataStep extends AbstractExecutionStep {
 
@@ -50,7 +48,7 @@ public class FetchFromStorageMetadataStep extends AbstractExecutionStep {
               ? null
               : storage.getRecordConflictStrategy().getName());
       result.setProperty("name", storage.getName());
-      result.setProperty("size", storage.getSize());
+      result.setProperty("size", storage.getSize(ctx.getDatabase()));
       result.setProperty("type", storage.getType());
       result.setProperty("version", storage.getVersion());
       result.setProperty("createdAtVersion", storage.getCreatedAtVersion());

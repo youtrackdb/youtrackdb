@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,7 +9,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://orientdb.com
+ * <p>*
  */
 package com.orientechnologies.orient.jdbc;
 
@@ -19,8 +17,8 @@ import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.util.OURLConnection;
 import com.orientechnologies.orient.core.util.OURLHelper;
 import java.sql.Array;
@@ -45,15 +43,14 @@ import java.util.Properties;
 import java.util.concurrent.Executor;
 
 /**
- * @author Roberto Franchini (CELI Srl - franchini@celi.it)
- * @author Salvatore Piccione (TXT e-solutions SpA - salvo.picci@gmail.com)
+ *
  */
 public class OrientJdbcConnection implements Connection {
 
   private ODatabaseSession database;
   private String dbUrl;
   private final Properties info;
-  private final OrientDB orientDB;
+  private final OxygenDB oxygenDB;
   private boolean readOnly;
   private boolean autoCommit;
   private ODatabaseSession.STATUS status;
@@ -74,15 +71,15 @@ public class OrientJdbcConnection implements Connection {
     final String serverPassword = info.getProperty("serverPassword", "");
 
     OURLConnection connUrl = OURLHelper.parseNew(dbUrl);
-    orientDB =
-        new OrientDB(
+    oxygenDB =
+        new OxygenDB(
             connUrl.getType() + ":" + connUrl.getPath(),
             serverUsername,
             serverPassword,
-            OrientDBConfig.defaultConfig());
+            OxygenDBConfig.defaultConfig());
 
     if (!serverUsername.isEmpty() && !serverPassword.isEmpty()) {
-      orientDB.createIfNotExists(
+      oxygenDB.createIfNotExists(
           connUrl.getDbName(),
           connUrl.getDbType().orElse(ODatabaseType.MEMORY),
           username,
@@ -90,22 +87,22 @@ public class OrientJdbcConnection implements Connection {
           "admin");
     }
 
-    database = orientDB.open(connUrl.getDbName(), username, password);
+    database = oxygenDB.open(connUrl.getDbName(), username, password);
 
     orientDBisPrivate = true;
     status = ODatabaseSession.STATUS.OPEN;
   }
 
-  public OrientJdbcConnection(ODatabaseSession database, OrientDB orientDB, Properties info) {
+  public OrientJdbcConnection(ODatabaseSession database, OxygenDB oxygenDB, Properties info) {
     this.database = database;
-    this.orientDB = orientDB;
+    this.oxygenDB = oxygenDB;
     this.info = info;
     orientDBisPrivate = false;
     status = ODatabaseSession.STATUS.OPEN;
   }
 
-  protected OrientDB getOrientDB() {
-    return orientDB;
+  protected OxygenDB getOrientDB() {
+    return oxygenDB;
   }
 
   public Statement createStatement() throws SQLException {
@@ -125,7 +122,8 @@ public class OrientJdbcConnection implements Connection {
     throw new SQLFeatureNotSupportedException();
   }
 
-  public void clearWarnings() throws SQLException {}
+  public void clearWarnings() throws SQLException {
+  }
 
   public <T> T unwrap(Class<T> iface) throws SQLException {
 
@@ -150,7 +148,7 @@ public class OrientJdbcConnection implements Connection {
     }
     if (orientDBisPrivate) {
 
-      orientDB.close();
+      oxygenDB.close();
     }
   }
 
@@ -231,7 +229,8 @@ public class OrientJdbcConnection implements Connection {
     return database.getName();
   }
 
-  public void setCatalog(String catalog) throws SQLException {}
+  public void setCatalog(String catalog) throws SQLException {
+  }
 
   public Properties getClientInfo() throws SQLException {
 
@@ -250,7 +249,8 @@ public class OrientJdbcConnection implements Connection {
     return ResultSet.CLOSE_CURSORS_AT_COMMIT;
   }
 
-  public void setHoldability(int holdability) throws SQLException {}
+  public void setHoldability(int holdability) throws SQLException {
+  }
 
   public DatabaseMetaData getMetaData() throws SQLException {
     return new OrientJdbcDatabaseMetaData(this, (ODatabaseSessionInternal) database);
@@ -260,13 +260,15 @@ public class OrientJdbcConnection implements Connection {
     return Connection.TRANSACTION_SERIALIZABLE;
   }
 
-  public void setTransactionIsolation(int level) throws SQLException {}
+  public void setTransactionIsolation(int level) throws SQLException {
+  }
 
   public Map<String, Class<?>> getTypeMap() throws SQLException {
     return null;
   }
 
-  public void setTypeMap(Map<String, Class<?>> map) throws SQLException {}
+  public void setTypeMap(Map<String, Class<?>> map) throws SQLException {
+  }
 
   public SQLWarning getWarnings() throws SQLException {
     return null;
@@ -333,7 +335,8 @@ public class OrientJdbcConnection implements Connection {
     return database;
   }
 
-  public void abort(Executor arg0) throws SQLException {}
+  public void abort(Executor arg0) throws SQLException {
+  }
 
   public int getNetworkTimeout() throws SQLException {
     return OGlobalConfiguration.NETWORK_SOCKET_TIMEOUT.getValueAsInteger();
@@ -346,7 +349,8 @@ public class OrientJdbcConnection implements Connection {
     return null;
   }
 
-  public void setSchema(String arg0) throws SQLException {}
+  public void setSchema(String arg0) throws SQLException {
+  }
 
   public void setNetworkTimeout(Executor arg0, int arg1) throws SQLException {
     OGlobalConfiguration.NETWORK_SOCKET_TIMEOUT.setValue(arg1);

@@ -23,9 +23,9 @@ public class CheckHookCallCountTest extends BaseMemoryDatabase {
   @Test
   public void testMultipleCallHook() {
     OClass aClass = db.getMetadata().getSchema().createClass(CLASS_NAME);
-    aClass.createProperty(FIELD_ID, OType.STRING);
-    aClass.createProperty(FIELD_STATUS, OType.STRING);
-    aClass.createIndex("IDX", OClass.INDEX_TYPE.NOTUNIQUE, FIELD_ID);
+    aClass.createProperty(db, FIELD_ID, OType.STRING);
+    aClass.createProperty(db, FIELD_STATUS, OType.STRING);
+    aClass.createIndex(db, "IDX", OClass.INDEX_TYPE.NOTUNIQUE, FIELD_ID);
     TestHook hook = new TestHook();
     db.registerHook(hook);
 
@@ -52,9 +52,9 @@ public class CheckHookCallCountTest extends BaseMemoryDatabase {
   public void testInHook() throws Exception {
     OSchema schema = db.getMetadata().getSchema();
     OClass oClass = schema.createClass("TestInHook");
-    oClass.createProperty("a", OType.INTEGER);
-    oClass.createProperty("b", OType.INTEGER);
-    oClass.createProperty("c", OType.INTEGER);
+    oClass.createProperty(db, "a", OType.INTEGER);
+    oClass.createProperty(db, "b", OType.INTEGER);
+    oClass.createProperty(db, "c", OType.INTEGER);
 
     db.begin();
     ODocument doc = new ODocument(oClass);

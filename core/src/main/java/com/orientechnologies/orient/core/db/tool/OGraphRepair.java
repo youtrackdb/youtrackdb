@@ -28,8 +28,6 @@ import java.util.Map;
 /**
  * Repairs a graph. Current implementation scan the entire graph. In the future the WAL will be used
  * to make this repair task much faster.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OGraphRepair {
 
@@ -321,7 +319,7 @@ public class OGraphRepair {
 
             message(outputListener, "Scanning " + countVertices + " vertices...\n");
 
-            long[] parsedVertices = new long[] {0L};
+            long[] parsedVertices = new long[]{0L};
             final long beginTime = System.currentTimeMillis();
 
             for (ODocument vertex : db.browseClass(vertexClass.getName())) {
@@ -422,8 +420,8 @@ public class OGraphRepair {
                       vertex.removeField(fieldName);
                     } else if (!ridbag.isEmbedded()
                         && ridbag.size()
-                            < OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD
-                                .getValueAsInteger()) {
+                        < OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD
+                        .getValueAsInteger()) {
                       vertex.setDirty();
                     }
                     for (Iterator<?> it = ridbag.iterator(); it.hasNext(); ) {

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,13 +14,14 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.functions.coll;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.Collection;
@@ -34,8 +35,6 @@ import java.util.Set;
 /**
  * This operator add an item in a set. The set doesn't accept duplicates, so adding multiple times
  * the same value has no effect: the value is contained only once.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionSet extends OSQLFunctionMultiValueAbstract<Set<Object>> {
 
@@ -76,7 +75,7 @@ public class OSQLFunctionSet extends OSQLFunctionMultiValueAbstract<Set<Object>>
     return prepareResult(context);
   }
 
-  public String getSyntax() {
+  public String getSyntax(ODatabaseSession session) {
     return "set(<value>*)";
   }
 

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -33,7 +33,6 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import java.util.Objects;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 19.03.13
  */
 public final class OClusterPage extends ODurablePage {
@@ -240,14 +239,14 @@ public final class OClusterPage extends ODurablePage {
         if (holeSize >= requestedSize) {
           if (holeSize > requestedSize) {
             if (holeSize - requestedSize > Integer.BYTES) {
-              return new int[] {initialHolePosition, holeSize};
+              return new int[]{initialHolePosition, holeSize};
             } else {
               currentPosition += Math.abs(size);
               continue;
             }
           }
 
-          return new int[] {initialHolePosition, holeSize};
+          return new int[]{initialHolePosition, holeSize};
         }
       } else {
         holeSize = 0;
@@ -756,7 +755,7 @@ public final class OClusterPage extends ODurablePage {
 
       if (mergedDataSize > 0
           && (entryKind == ENTRY_KIND_HOLE
-              || i == 0)) { // move consecutive merged data segments in one go
+          || i == 0)) { // move consecutive merged data segments in one go
         moveData(lastDataPosition, lastDataPosition + shift, mergedDataSize);
         mergedDataSize = 0;
       }

@@ -31,9 +31,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * implementation is an adaption of the numeric 64-bit <code>java.util.concurrent.atomic.Striped64
  * </code> class, which is used by atomic counters. The approach was modified to lazily grow an
  * array of buffers in order to minimize memory usage for caches that are not heavily contended on.
- *
- * @author dl@cs.oswego.edu (Doug Lea)
- * @author ben.manes@gmail.com (Ben Manes)
  */
 abstract class StripedBuffer implements Buffer {
   /*
@@ -287,8 +284,7 @@ abstract class StripedBuffer implements Buffer {
         boolean init = false;
         try { // Initialize table
           if (table == buffers) {
-            @SuppressWarnings({"unchecked"})
-            final Buffer[] rs = new Buffer[1];
+            @SuppressWarnings({"unchecked"}) final Buffer[] rs = new Buffer[1];
             rs[0] = create(e);
             table = rs;
             init = true;

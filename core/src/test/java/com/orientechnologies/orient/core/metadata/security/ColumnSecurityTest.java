@@ -4,8 +4,8 @@ import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.exception.OSecurityException;
 import com.orientechnologies.orient.core.index.OIndexException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -26,15 +26,15 @@ import org.junit.Test;
 public class ColumnSecurityTest {
 
   static String DB_NAME = "test";
-  static OrientDB context;
+  static OxygenDB context;
   private ODatabaseSession db;
 
   @BeforeClass
   public static void beforeClass() {
     context =
-        new OrientDB(
+        new OxygenDB(
             "plocal:.",
-            OrientDBConfig.builder()
+            OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
   }
@@ -69,7 +69,7 @@ public class ColumnSecurityTest {
     OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
-    person.createProperty("name", OType.STRING);
+    person.createProperty(db, "name", OType.STRING);
 
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(true);
@@ -86,8 +86,8 @@ public class ColumnSecurityTest {
     OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
-    person.createProperty("name", OType.STRING);
-    person.createProperty("surname", OType.STRING);
+    person.createProperty(db, "name", OType.STRING);
+    person.createProperty(db, "surname", OType.STRING);
 
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(true);
@@ -110,7 +110,7 @@ public class ColumnSecurityTest {
     OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
-    person.createProperty("name", OType.STRING);
+    person.createProperty(db, "name", OType.STRING);
 
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(true);
@@ -131,7 +131,7 @@ public class ColumnSecurityTest {
     OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
-    person.createProperty("name", OType.STRING);
+    person.createProperty(db, "name", OType.STRING);
 
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
     policy.setActive(true);
@@ -148,8 +148,8 @@ public class ColumnSecurityTest {
     OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
-    person.createProperty("name", OType.STRING);
-    person.createProperty("address", OType.STRING);
+    person.createProperty(db, "name", OType.STRING);
+    person.createProperty(db, "address", OType.STRING);
 
     db.command("create index Person.name_address on Person (name, address) NOTUNIQUE");
 
@@ -166,8 +166,8 @@ public class ColumnSecurityTest {
     OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
-    person.createProperty("name", OType.STRING);
-    person.createProperty("surname", OType.STRING);
+    person.createProperty(db, "name", OType.STRING);
+    person.createProperty(db, "surname", OType.STRING);
 
     db.command("create index Person.name_surname on Person (name, surname) NOTUNIQUE");
 
@@ -189,7 +189,7 @@ public class ColumnSecurityTest {
     OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
-    person.createProperty("name", OType.STRING);
+    person.createProperty(db, "name", OType.STRING);
 
     db.command("create index Person.name on Person (name) NOTUNIQUE");
 
@@ -250,7 +250,7 @@ public class ColumnSecurityTest {
     OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
 
     OClass clazz = db.createClass("Person");
-    clazz.createProperty("name", OType.STRING);
+    clazz.createProperty(db, "name", OType.STRING);
 
     db.command("create index Person.name on Person (name) NOTUNIQUE");
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -153,31 +153,32 @@ public class CRUDInheritanceTest extends DocumentDBBaseTest {
     OClass testSchemaClass = schema.createClass("JavaTestSchemaGeneration");
     OClass childClass = schema.createClass("TestSchemaGenerationChild");
 
-    testSchemaClass.createProperty("text", OType.STRING);
-    testSchemaClass.createProperty("enumeration", OType.STRING);
-    testSchemaClass.createProperty("numberSimple", OType.INTEGER);
-    testSchemaClass.createProperty("longSimple", OType.LONG);
-    testSchemaClass.createProperty("doubleSimple", OType.DOUBLE);
-    testSchemaClass.createProperty("floatSimple", OType.FLOAT);
-    testSchemaClass.createProperty("byteSimple", OType.BYTE);
-    testSchemaClass.createProperty("flagSimple", OType.BOOLEAN);
-    testSchemaClass.createProperty("dateField", OType.DATETIME);
+    testSchemaClass.createProperty(database, "text", OType.STRING);
+    testSchemaClass.createProperty(database, "enumeration", OType.STRING);
+    testSchemaClass.createProperty(database, "numberSimple", OType.INTEGER);
+    testSchemaClass.createProperty(database, "longSimple", OType.LONG);
+    testSchemaClass.createProperty(database, "doubleSimple", OType.DOUBLE);
+    testSchemaClass.createProperty(database, "floatSimple", OType.FLOAT);
+    testSchemaClass.createProperty(database, "byteSimple", OType.BYTE);
+    testSchemaClass.createProperty(database, "flagSimple", OType.BOOLEAN);
+    testSchemaClass.createProperty(database, "dateField", OType.DATETIME);
 
-    testSchemaClass.createProperty("stringListMap", OType.EMBEDDEDMAP, OType.EMBEDDEDLIST);
-    testSchemaClass.createProperty("enumList", OType.EMBEDDEDLIST, OType.STRING);
-    testSchemaClass.createProperty("enumSet", OType.EMBEDDEDSET, OType.STRING);
-    testSchemaClass.createProperty("stringSet", OType.EMBEDDEDSET, OType.STRING);
-    testSchemaClass.createProperty("stringMap", OType.EMBEDDEDMAP, OType.STRING);
+    testSchemaClass.createProperty(database, "stringListMap", OType.EMBEDDEDMAP,
+        OType.EMBEDDEDLIST);
+    testSchemaClass.createProperty(database, "enumList", OType.EMBEDDEDLIST, OType.STRING);
+    testSchemaClass.createProperty(database, "enumSet", OType.EMBEDDEDSET, OType.STRING);
+    testSchemaClass.createProperty(database, "stringSet", OType.EMBEDDEDSET, OType.STRING);
+    testSchemaClass.createProperty(database, "stringMap", OType.EMBEDDEDMAP, OType.STRING);
 
-    testSchemaClass.createProperty("list", OType.LINKLIST, childClass);
-    testSchemaClass.createProperty("set", OType.LINKSET, childClass);
-    testSchemaClass.createProperty("children", OType.LINKMAP, childClass);
-    testSchemaClass.createProperty("child", OType.LINK, childClass);
+    testSchemaClass.createProperty(database, "list", OType.LINKLIST, childClass);
+    testSchemaClass.createProperty(database, "set", OType.LINKSET, childClass);
+    testSchemaClass.createProperty(database, "children", OType.LINKMAP, childClass);
+    testSchemaClass.createProperty(database, "child", OType.LINK, childClass);
 
-    testSchemaClass.createProperty("embeddedSet", OType.EMBEDDEDSET, childClass);
-    testSchemaClass.createProperty("embeddedChildren", OType.EMBEDDEDMAP, childClass);
-    testSchemaClass.createProperty("embeddedChild", OType.EMBEDDED, childClass);
-    testSchemaClass.createProperty("embeddedList", OType.EMBEDDEDLIST, childClass);
+    testSchemaClass.createProperty(database, "embeddedSet", OType.EMBEDDEDSET, childClass);
+    testSchemaClass.createProperty(database, "embeddedChildren", OType.EMBEDDEDMAP, childClass);
+    testSchemaClass.createProperty(database, "embeddedChild", OType.EMBEDDED, childClass);
+    testSchemaClass.createProperty(database, "embeddedList", OType.EMBEDDEDLIST, childClass);
 
     // Test simple types
     checkProperty(testSchemaClass, "text", OType.STRING);

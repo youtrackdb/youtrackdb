@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
@@ -141,31 +141,30 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
             || type == OType.LINKMAP) {
           prop =
               (OPropertyImpl)
-                  cls.createProperty(
+                  cls.createProperty(db,
                       fields.get("name"),
-                      type,
-                      db.getMetadata().getSchema().getClass(fields.get("linkedClass")));
+                      type, db.getMetadata().getSchema().getClass(fields.get("linkedClass")));
         } else {
-          prop = (OPropertyImpl) cls.createProperty(fields.get("name"), type);
+          prop = (OPropertyImpl) cls.createProperty(db, fields.get("name"), type);
         }
 
         if (fields.get("linkedType") != null) {
-          prop.setLinkedType(OType.valueOf(fields.get("linkedType")));
+          prop.setLinkedType(db, OType.valueOf(fields.get("linkedType")));
         }
         if (fields.get("mandatory") != null) {
-          prop.setMandatory("on".equals(fields.get("mandatory")));
+          prop.setMandatory(db, "on".equals(fields.get("mandatory")));
         }
         if (fields.get("readonly") != null) {
-          prop.setReadonly("on".equals(fields.get("readonly")));
+          prop.setReadonly(db, "on".equals(fields.get("readonly")));
         }
         if (fields.get("notNull") != null) {
-          prop.setNotNull("on".equals(fields.get("notNull")));
+          prop.setNotNull(db, "on".equals(fields.get("notNull")));
         }
         if (fields.get("min") != null) {
           prop.setMin(fields.get("min"));
         }
         if (fields.get("max") != null) {
-          prop.setMax(fields.get("max"));
+          prop.setMax(db, fields.get("max"));
         }
 
         iResponse.send(
@@ -186,7 +185,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
     } else if ("del".equals(operation)) {
       iRequest.getData().commandInfo = "Studio delete property";
 
-      cls.dropProperty(className);
+      cls.dropProperty(db, className);
 
       iResponse.send(
           OHttpUtils.STATUS_OK_CODE,
@@ -226,7 +225,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
 
         final String alias = fields.get("alias");
         if (alias != null) {
-          cls.setShortName(alias);
+          cls.setShortName(db, alias);
         }
 
         iResponse.send(
@@ -418,7 +417,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
             OPatternConst.PATTERN_COMMA_SEPARATED.split(fields.get("fields").trim());
         final String indexType = fields.get("type");
 
-        cls.createIndex(fields.get("name"), indexType, fieldNames);
+        cls.createIndex(db, fields.get("name"), indexType, fieldNames);
 
         iResponse.send(
             OHttpUtils.STATUS_OK_CODE,
@@ -439,7 +438,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
       iRequest.getData().commandInfo = "Studio delete index";
 
       try {
-        final OIndex index = cls.getClassIndex(className);
+        final OIndex index = cls.getClassIndex(db, className);
         if (index == null) {
           iResponse.send(
               OHttpUtils.STATUS_INTERNALERROR_CODE,

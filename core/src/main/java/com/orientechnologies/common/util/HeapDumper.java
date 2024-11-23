@@ -18,8 +18,8 @@ public class HeapDumper {
       server.invoke(
           new ObjectName(HOTSPOT_BEAN_NAME),
           "dumpHeap",
-          new Object[] {fileName, live},
-          new String[] {String.class.getName(), Boolean.TYPE.getName()});
+          new Object[]{fileName, live},
+          new String[]{String.class.getName(), Boolean.TYPE.getName()});
     } catch (RuntimeException re) {
       throw re;
     } catch (Exception exp) {

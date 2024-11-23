@@ -5,7 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.orient.core.command.OServerCommandContext;
-import com.orientechnologies.orient.core.db.OrientDBInternal;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
@@ -36,7 +36,8 @@ public class OServerStatement extends SimpleNode {
     throw new UnsupportedOperationException();
   }
 
-  public void validate() throws OCommandSQLParsingException {}
+  public void validate() throws OCommandSQLParsingException {
+  }
 
   @Override
   public String toString(String prefix) {
@@ -52,41 +53,41 @@ public class OServerStatement extends SimpleNode {
     throw new UnsupportedOperationException("Unsupported command: " + getClass().getSimpleName());
   }
 
-  public OResultSet execute(OrientDBInternal db, Object[] args) {
+  public OResultSet execute(OxygenDBInternal db, Object[] args) {
     return execute(db, args, true);
   }
 
   public OResultSet execute(
-      OrientDBInternal db, Object[] args, OServerCommandContext parentContext) {
+      OxygenDBInternal db, Object[] args, OServerCommandContext parentContext) {
     return execute(db, args, parentContext, true);
   }
 
-  public OResultSet execute(OrientDBInternal db, Map args) {
+  public OResultSet execute(OxygenDBInternal db, Map args) {
     return execute(db, args, true);
   }
 
-  public OResultSet execute(OrientDBInternal db, Map args, OServerCommandContext parentContext) {
+  public OResultSet execute(OxygenDBInternal db, Map args, OServerCommandContext parentContext) {
     return execute(db, args, parentContext, true);
   }
 
-  public OResultSet execute(OrientDBInternal db, Object[] args, boolean usePlanCache) {
+  public OResultSet execute(OxygenDBInternal db, Object[] args, boolean usePlanCache) {
     return execute(db, args, null, usePlanCache);
   }
 
   public OResultSet execute(
-      OrientDBInternal db,
+      OxygenDBInternal db,
       Object[] args,
       OServerCommandContext parentContext,
       boolean usePlanCache) {
     throw new UnsupportedOperationException();
   }
 
-  public OResultSet execute(OrientDBInternal db, Map args, boolean usePlanCache) {
+  public OResultSet execute(OxygenDBInternal db, Map args, boolean usePlanCache) {
     return execute(db, args, null, usePlanCache);
   }
 
   public OResultSet execute(
-      OrientDBInternal db, Map args, OServerCommandContext parentContext, boolean usePlanCache) {
+      OxygenDBInternal db, Map args, OServerCommandContext parentContext, boolean usePlanCache) {
     throw new UnsupportedOperationException();
   }
 

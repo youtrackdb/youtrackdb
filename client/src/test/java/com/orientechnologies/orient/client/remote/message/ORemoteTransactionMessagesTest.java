@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.common.comparator.ODefaultComparator;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.id.ORID;
@@ -28,13 +29,13 @@ import java.util.UUID;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class ORemoteTransactionMessagesTest {
+public class ORemoteTransactionMessagesTest extends BaseMemoryDatabase {
 
   @Test
   public void testBeginTransactionEmptyWriteRead() throws IOException {
     MockChannel channel = new MockChannel();
-    OBeginTransactionRequest request = new OBeginTransactionRequest(0, false, true, null, null);
-    request.write(channel, null);
+    OBeginTransactionRequest request = new OBeginTransactionRequest(db, 0, false, true, null, null);
+    request.write(db, channel, null);
     channel.close();
     OBeginTransactionRequest readRequest = new OBeginTransactionRequest();
     readRequest.read(channel, 0, null);
@@ -58,8 +59,8 @@ public class ORemoteTransactionMessagesTest {
 
     MockChannel channel = new MockChannel();
     OBeginTransactionRequest request =
-        new OBeginTransactionRequest(0, true, true, operations, changes);
-    request.write(channel, null);
+        new OBeginTransactionRequest(db, 0, true, true, operations, changes);
+    request.write(db, channel, null);
 
     channel.close();
 
@@ -97,8 +98,8 @@ public class ORemoteTransactionMessagesTest {
     changes.put("some", change);
 
     MockChannel channel = new MockChannel();
-    OCommit37Request request = new OCommit37Request(0, true, true, operations, changes);
-    request.write(channel, null);
+    OCommit37Request request = new OCommit37Request(db, 0, true, true, operations, changes);
+    request.write(db, channel, null);
 
     channel.close();
 
@@ -135,7 +136,7 @@ public class ORemoteTransactionMessagesTest {
     updatedRids.put(new ORecordId(10, 21), new ORecordId(10, 31));
 
     OCommit37Response response = new OCommit37Response(updatedRids, changes);
-    response.write(channel, 0, null);
+    response.write(db, channel, 0, null);
     channel.close();
 
     OCommit37Response readResponse = new OCommit37Response();
@@ -160,8 +161,8 @@ public class ORemoteTransactionMessagesTest {
   public void testEmptyCommitTransactionWriteRead() throws IOException {
 
     MockChannel channel = new MockChannel();
-    OCommit37Request request = new OCommit37Request(0, false, true, null, null);
-    request.write(channel, null);
+    OCommit37Request request = new OCommit37Request(db, 0, false, true, null, null);
+    request.write(db, channel, null);
 
     channel.close();
 
@@ -194,8 +195,8 @@ public class ORemoteTransactionMessagesTest {
 
     MockChannel channel = new MockChannel();
     OFetchTransactionResponse response =
-        new OFetchTransactionResponse(10, operations, changes, new HashMap<>());
-    response.write(channel, 0, ORecordSerializerNetworkV37.INSTANCE);
+        new OFetchTransactionResponse(db, 10, operations, changes, new HashMap<>());
+    response.write(db, channel, 0, ORecordSerializerNetworkV37.INSTANCE);
 
     channel.close();
 
@@ -246,8 +247,8 @@ public class ORemoteTransactionMessagesTest {
 
     MockChannel channel = new MockChannel();
     OFetchTransaction38Response response =
-        new OFetchTransaction38Response(10, operations, changes, new HashMap<>(), null);
-    response.write(channel, 0, ORecordSerializerNetworkV37.INSTANCE);
+        new OFetchTransaction38Response(db, 10, operations, changes, new HashMap<>(), null);
+    response.write(db, channel, 0, ORecordSerializerNetworkV37.INSTANCE);
 
     channel.close();
 
@@ -292,13 +293,13 @@ public class ORemoteTransactionMessagesTest {
 
     MockChannel channel = new MockChannel();
     OFetchTransactionResponse response =
-        new OFetchTransactionResponse(10, operations, changes, new HashMap<>());
-    response.write(channel, 0, ORecordSerializerNetworkV37.INSTANCE);
+        new OFetchTransactionResponse(db, 10, operations, changes, new HashMap<>());
+    response.write(db, channel, 0, ORecordSerializerNetworkV37.INSTANCE);
 
     channel.close();
 
     OFetchTransactionResponse readResponse =
-        new OFetchTransactionResponse(10, operations, changes, new HashMap<>());
+        new OFetchTransactionResponse(db, 10, operations, changes, new HashMap<>());
     readResponse.read(channel, null);
 
     assertEquals(readResponse.getTxId(), 10);

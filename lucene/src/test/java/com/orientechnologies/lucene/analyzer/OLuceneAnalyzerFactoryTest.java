@@ -20,7 +20,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 /**
- * Created by frank on 30/10/2015.
+ *
  */
 public class OLuceneAnalyzerFactoryTest {
 
@@ -37,7 +37,9 @@ public class OLuceneAnalyzerFactoryTest {
 
     String metajson =
         OIOUtils.readFileAsString(new File("./src/test/resources/index_metadata_new.json"));
-    metadata = new ODocument().fromJSON(metajson);
+    metadata = new ODocument();
+    metadata.fromJSON(metajson);
+
     indexDef = Mockito.mock(OIndexDefinition.class);
     when(indexDef.getFields())
         .thenReturn(asList("name", "title", "author", "lyrics", "genre", "description"));

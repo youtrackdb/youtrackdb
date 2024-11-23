@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql;
@@ -23,10 +23,11 @@ import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
-import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.record.impl.OVertexInternal;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionRuntime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,8 +37,6 @@ import java.util.Set;
 
 /**
  * SQL CREATE VERTEX command.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OCommandExecutorSQLCreateVertex extends OCommandExecutorSQLSetAware
     implements OCommandDistributedReplicateRequest {
@@ -120,14 +119,14 @@ public class OCommandExecutorSQLCreateVertex extends OCommandExecutorSQLSetAware
   /**
    * Execute the command and return the ODocument object created.
    */
-  public Object execute(final Map<Object, Object> iArgs) {
+  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
     if (clazz == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
     // CREATE VERTEX DOES NOT HAVE TO BE IN TX
-    final OVertex vertex = getDatabase().newVertex(clazz);
+    final OVertexInternal vertex = (OVertexInternal) getDatabase().newVertex(clazz);
 
     if (fields != null)
     // EVALUATE FIELDS
@@ -147,7 +146,7 @@ public class OCommandExecutorSQLCreateVertex extends OCommandExecutorSQLSetAware
     }
 
     if (clusterName != null) {
-      vertex.save(clusterName);
+      vertex.getBaseDocument().save(clusterName);
     } else {
       vertex.save();
     }

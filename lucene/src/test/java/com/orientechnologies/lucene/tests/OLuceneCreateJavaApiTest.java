@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -30,16 +30,16 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by Enrico Risa on 07/07/15.
+ *
  */
 public class OLuceneCreateJavaApiTest extends OLuceneBaseTest {
 
   @Before
   public void init() {
     OClass song = db.createVertexClass("Song");
-    song.createProperty("title", OType.STRING);
-    song.createProperty("author", OType.STRING);
-    song.createProperty("description", OType.STRING);
+    song.createProperty(db, "title", OType.STRING);
+    song.createProperty(db, "author", OType.STRING);
+    song.createProperty(db, "description", OType.STRING);
   }
 
   @Test
@@ -50,13 +50,12 @@ public class OLuceneCreateJavaApiTest extends OLuceneBaseTest {
 
     ODocument meta = new ODocument().field("analyzer", StandardAnalyzer.class.getName());
     OIndex lucene =
-        song.createIndex(
+        song.createIndex(db,
             "Song.title",
             OClass.INDEX_TYPE.FULLTEXT.toString(),
             null,
             meta,
-            "LUCENE",
-            new String[] {"title"});
+            "LUCENE", new String[]{"title"});
 
     assertThat(lucene).isNotNull();
 
@@ -73,13 +72,12 @@ public class OLuceneCreateJavaApiTest extends OLuceneBaseTest {
     OClass song = schema.getClass("Song");
 
     OIndex lucene =
-        song.createIndex(
+        song.createIndex(db,
             "Song.author_description",
             OClass.INDEX_TYPE.FULLTEXT.toString(),
             null,
             null,
-            "LUCENE",
-            new String[] {"author", "description"});
+            "LUCENE", new String[]{"author", "description"});
 
     assertThat(lucene).isNotNull();
 

@@ -49,7 +49,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * Created by enricorisa on 08/10/14.
+ *
  */
 public class OLuceneIndexVsLuceneTest extends OLuceneBaseTest {
 
@@ -113,7 +113,7 @@ public class OLuceneIndexVsLuceneTest extends OLuceneBaseTest {
 
     IndexSearcher searcher = new IndexSearcher(reader);
 
-    Query query = new MultiFieldQueryParser(new String[] {"title"}, analyzer).parse("down the");
+    Query query = new MultiFieldQueryParser(new String[]{"title"}, analyzer).parse("down the");
     final TopDocs docs = searcher.search(query, Integer.MAX_VALUE);
     ScoreDoc[] hits = docs.scoreDocs;
 

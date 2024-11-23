@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server;
@@ -347,7 +347,7 @@ public class OClientConnection {
     if (database != null) {
       database.activateOnCurrentThread();
       stats.lastDatabase = database.getName();
-      stats.lastUser = database.getUser() != null ? database.getUser().getName() : null;
+      stats.lastUser = database.getUser() != null ? database.getUser().getName(database) : null;
       stats.activeQueries = getActiveQueries(database);
     } else {
       stats.lastDatabase = null;

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2016 OrientDB LTD (info(at)orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,14 +14,14 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  */
 
 package com.orientechnologies;
 
 import com.orientechnologies.common.directmemory.OByteBufferPool;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import org.testng.Assert;
 import org.testng.ISuite;
 import org.testng.ISuiteListener;
@@ -36,8 +36,6 @@ import org.testng.ISuiteResult;
  *   <li>Triggers {@link AssertionError} if {@link OLogManager} is shutdown before test is finished.
  *       We may miss some errors because {@link OLogManager} is shutdown
  * </ol>
- *
- * @author Sergey Sitnikov
  */
 public class OTestNGTestListener implements ISuiteListener {
 
@@ -52,10 +50,10 @@ public class OTestNGTestListener implements ISuiteListener {
     }
     if (!isFailed(suite)) {
       System.out.println("Shutting down engine and checking for direct memory leaks...");
-      final Orient orient = Orient.instance();
-      if (orient != null) {
+      final Oxygen oxygen = Oxygen.instance();
+      if (oxygen != null) {
         // state is verified during shutdown
-        orient.shutdown();
+        oxygen.shutdown();
       } else {
         OByteBufferPool.instance(null).checkMemoryLeaks();
       }

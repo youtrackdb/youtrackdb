@@ -7,8 +7,6 @@ import org.junit.Test;
 
 /**
  * Tests HTTP "listDatabases" command.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com) (l.garulli--at-orientdb.com)
  */
 public class HttpListDatabasesTest extends BaseHttpTest {
 

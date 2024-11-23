@@ -70,15 +70,15 @@ public class OStringSerializerHelperTest {
   @Test
   public void testEncodeAndDecode() {
     String[] values = {
-      "test",
-      "test\"",
-      "test\"test",
-      "test\\test",
-      "test\\\\test",
-      "test\\\\\"test",
-      "\\\\\\\\",
-      "\"\"\"\"",
-      "\\\"\\\"\\\""
+        "test",
+        "test\"",
+        "test\"test",
+        "test\\test",
+        "test\\\\test",
+        "test\\\\\"test",
+        "\\\\\\\\",
+        "\"\"\"\"",
+        "\\\"\\\"\\\""
     };
     for (String value : values) {
       String encoded = encode(value);

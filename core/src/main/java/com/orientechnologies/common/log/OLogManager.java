@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -43,7 +43,6 @@ import org.slf4j.event.Level;
  * <p>There are additional methods to manage JUL runtime configuration. That is used for logging
  * messages in server and console.
  *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @see OSL4JLogManager
  */
 public class OLogManager extends OSL4JLogManager {
@@ -55,7 +54,8 @@ public class OLogManager extends OSL4JLogManager {
 
   private final AtomicBoolean shutdownFlag = new AtomicBoolean();
 
-  protected OLogManager() {}
+  protected OLogManager() {
+  }
 
   public static OLogManager instance() {
     return instance;

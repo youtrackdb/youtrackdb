@@ -7,7 +7,7 @@ import java.util.Iterator;
 
 /**
  * Wrapper of OIteratorResultSet Used in script results with conversion to OResult for single
- * iteration Created by Enrico Risa on 27/01/17.
+ * iteration
  */
 public class OScriptResultSet extends OIteratorResultSet {
 

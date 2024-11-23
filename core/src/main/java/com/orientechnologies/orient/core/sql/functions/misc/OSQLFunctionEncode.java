@@ -16,11 +16,12 @@
 package com.orientechnologies.orient.core.sql.functions.misc;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
@@ -28,8 +29,6 @@ import java.util.Base64;
 
 /**
  * Encode a string in various format (only base64 for now)
- *
- * @author Johann Sorel (Geomatys)
  */
 public class OSQLFunctionEncode extends OSQLFunctionAbstract {
 
@@ -58,7 +57,7 @@ public class OSQLFunctionEncode extends OSQLFunctionAbstract {
       data = (byte[]) candidate;
     } else if (candidate instanceof ORecordId) {
       try {
-        final ORecord rec = ((ORecordId) candidate).getRecord();
+        final ORecordAbstract rec = ((ORecordId) candidate).getRecord();
         if (rec instanceof OBlob) {
           data = rec.toStream();
         }
@@ -81,7 +80,7 @@ public class OSQLFunctionEncode extends OSQLFunctionAbstract {
   }
 
   @Override
-  public String getSyntax() {
+  public String getSyntax(ODatabaseSession session) {
     return "encode(<binaryfield>, <format>)";
   }
 }

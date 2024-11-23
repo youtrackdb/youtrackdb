@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.listener.OProgressListener;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OProxedResource;
 import com.orientechnologies.orient.core.dictionary.ODictionary;
@@ -36,7 +37,8 @@ public class OIndexManagerProxy extends OProxedResource<OIndexManagerAbstract>
     super(iDelegate, iDatabase);
   }
 
-  public void load() {}
+  public void load() {
+  }
 
   /**
    * Force reloading of indexes.
@@ -93,8 +95,8 @@ public class OIndexManagerProxy extends OProxedResource<OIndexManagerAbstract>
         algorithm);
   }
 
-  public ODocument getConfiguration() {
-    return delegate.getConfiguration();
+  public ODocument getConfiguration(ODatabaseSession session) {
+    return delegate.getConfiguration((ODatabaseSessionInternal) session);
   }
 
   public OIndexManager dropIndex(final String iIndexName) {
@@ -169,24 +171,25 @@ public class OIndexManagerProxy extends OProxedResource<OIndexManagerAbstract>
   }
 
   @Override
-  public void addClusterToIndex(String clusterName, String indexName) {
-    delegate.addClusterToIndex(clusterName, indexName);
+  public void addClusterToIndex(ODatabaseSession session, String clusterName, String indexName) {
+    delegate.addClusterToIndex((ODatabaseSessionInternal) session, clusterName, indexName);
   }
 
   @Override
-  public void removeClusterFromIndex(String clusterName, String indexName) {
-    delegate.removeClusterFromIndex(clusterName, indexName);
+  public void removeClusterFromIndex(ODatabaseSession session, String clusterName,
+      String indexName) {
+    delegate.removeClusterFromIndex((ODatabaseSessionInternal) session, clusterName, indexName);
   }
 
   @Override
-  public OIndexManager save() {
-    delegate.save();
+  public OIndexManager save(ODatabaseSession session) {
+    delegate.save((ODatabaseSessionInternal) session);
     return this;
   }
 
-  public void removeClassPropertyIndex(final OIndex idx) {
+  public void removeClassPropertyIndex(ODatabaseSession session, final OIndex idx) {
     //noinspection deprecation
-    delegate.removeClassPropertyIndex(idx);
+    delegate.removeClassPropertyIndex((ODatabaseSessionInternal) session, idx);
   }
 
   public void getClassRawIndexes(String name, Collection<OIndex> indexes) {

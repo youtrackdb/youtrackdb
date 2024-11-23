@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,13 +14,155 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
 package com.orientechnologies.orient.core.storage.impl.local.paginated.wal;
 
-import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.*;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.ATOMIC_UNIT_END_RECORD;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.ATOMIC_UNIT_START_METADATA_RECORD;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.ATOMIC_UNIT_START_RECORD;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_MULTI_VALUE_V2_ADD_ALL_LEAF_ENTRIES_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_MULTI_VALUE_V2_ADD_ALL_NON_LEAF_ENTRIES_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_MULTI_VALUE_V2_ADD_NON_LEAF_ENTRY_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_MULTI_VALUE_V2_APPEND_NEW_LEAF_ENTRY_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_MULTI_VALUE_V2_CREATE_MAIN_LEAF_ENTRY_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_MULTI_VALUE_V2_DECREMENT_ENTRIES_COUNT_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_MULTI_VALUE_V2_INCREMENT_ENTRIES_COUNT_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_MULTI_VALUE_V2_INIT_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_MULTI_VALUE_V2_REMOVE_LEAF_ENTRY_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_MULTI_VALUE_V2_REMOVE_MAIN_LEAF_ENTRY_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_MULTI_VALUE_V2_REMOVE_NON_LEAF_ENTRY_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_MULTI_VALUE_V2_SET_LEFT_SIBLING_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_MULTI_VALUE_V2_SET_RIGHT_SIBLING_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_MULTI_VALUE_V2_SHRINK_LEAF_ENTRIES_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_MULTI_VALUE_V2_SHRINK_NON_LEAF_ENTRIES_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_MULTI_VALUE_V2_SWITCH_BUCKET_TYPE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_SINGLE_VALUE_V1_ADD_ALL_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_SINGLE_VALUE_V1_ADD_LEAF_ENTRY_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_SINGLE_VALUE_V1_ADD_NON_LEAF_ENTRY_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_SINGLE_VALUE_V1_INIT_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_SINGLE_VALUE_V1_REMOVE_LEAF_ENTRY_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_SINGLE_VALUE_V1_REMOVE_NON_LEAF_ENTRY_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_SINGLE_VALUE_V1_SET_LEFT_SIBLING_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_SINGLE_VALUE_V1_SET_RIGHT_SIBLING_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_SINGLE_VALUE_V1_SHRINK_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_SINGLE_VALUE_V1_UPDATE_VALUE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_SINGLE_VALUE_V3_ADD_ALL_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_SINGLE_VALUE_V3_ADD_LEAF_ENTRY_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_SINGLE_VALUE_V3_ADD_NON_LEAF_ENTRY_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_SINGLE_VALUE_V3_INIT_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_SINGLE_VALUE_V3_REMOVE_LEAF_ENTRY_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_SINGLE_VALUE_V3_REMOVE_NON_LEAF_ENTRY_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_SINGLE_VALUE_V3_SET_LEFT_SIBLING_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_SINGLE_VALUE_V3_SET_NEXT_FREE_LIST_PAGE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_SINGLE_VALUE_V3_SET_RIGHT_SIBLING_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_SINGLE_VALUE_V3_SHRINK_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_BUCKET_SINGLE_VALUE_V3_UPDATE_VALUE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_ENTRY_POINT_MULTI_VALUE_V2_INIT_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_ENTRY_POINT_MULTI_VALUE_V2_SET_ENTRY_ID_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_ENTRY_POINT_MULTI_VALUE_V2_SET_PAGES_SIZE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_ENTRY_POINT_MULTI_VALUE_V2_SET_TREE_SIZE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_ENTRY_POINT_SINGLE_VALUE_V1_INIT_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_ENTRY_POINT_SINGLE_VALUE_V1_SET_PAGES_SIZE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_ENTRY_POINT_SINGLE_VALUE_V1_SET_TREE_SIZE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_ENTRY_POINT_SINGLE_VALUE_V3_INIT_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_ENTRY_POINT_SINGLE_VALUE_V3_SET_FREE_LIST_HEAD_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_ENTRY_POINT_SINGLE_VALUE_V3_SET_PAGES_SIZE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_ENTRY_POINT_SINGLE_VALUE_V3_SET_TREE_SIZE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_NULL_BUCKET_MULTI_VALUE_V2_ADD_VALUE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_NULL_BUCKET_MULTI_VALUE_V2_DECREMENT_SIZE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_NULL_BUCKET_MULTI_VALUE_V2_INCREMENT_SIZE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_NULL_BUCKET_MULTI_VALUE_V2_REMOVE_VALUE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_NULL_BUCKET_MULTI_VALUE_V2_SET_RIGHT_SIBLING_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_NULL_BUCKET_SINGLE_VALUE_V1_INIT_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_NULL_BUCKET_SINGLE_VALUE_V1_REMOVE_VALUE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_NULL_BUCKET_SINGLE_VALUE_V1_SET_VALUE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_NULL_BUCKET_SINGLE_VALUE_V3_INIT_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_NULL_BUCKET_SINGLE_VALUE_V3_REMOVE_VALUE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CELL_BTREE_NULL_BUCKET_SINGLE_VALUE_V3_SET_VALUE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CLUSTER_PAGE_APPEND_RECORD_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CLUSTER_PAGE_DELETE_RECORD_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CLUSTER_PAGE_INIT_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CLUSTER_PAGE_REPLACE_RECORD_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CLUSTER_PAGE_SET_NEXT_PAGE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CLUSTER_PAGE_SET_PREV_PAGE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CLUSTER_PAGE_SET_RECORD_LONG_VALUE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CLUSTER_POSITION_MAP_ADD_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CLUSTER_POSITION_MAP_ALLOCATE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CLUSTER_POSITION_MAP_INIT_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CLUSTER_POSITION_MAP_TRUNCATE_LAST_ENTRY_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CLUSTER_POSITION_MAP_UPDATE_ENTRY_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.CLUSTER_POSITION_MAP_UPDATE_STATUS_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.EMPTY_WAL_RECORD;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.FILE_CREATED_WAL_RECORD;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.FILE_DELETED_WAL_RECORD;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.FREE_SPACE_MAP_INIT;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.FREE_SPACE_MAP_UPDATE;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.HIGH_LEVEL_TRANSACTION_CHANGE_RECORD;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.LOCAL_HASH_TABLE_V2_BUCKET_ADD_ENTRY_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.LOCAL_HASH_TABLE_V2_BUCKET_DELETE_ENTRY_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.LOCAL_HASH_TABLE_V2_BUCKET_INIT_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.LOCAL_HASH_TABLE_V2_BUCKET_SET_DEPTH_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.LOCAL_HASH_TABLE_V2_BUCKET_UPDATE_ENTRY_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.LOCAL_HASH_TABLE_V2_DIRECTORY_FIRST_PAGE_SET_MAX_LEFT_CHILDREN_DEPTH_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.LOCAL_HASH_TABLE_V2_DIRECTORY_FIRST_PAGE_SET_MAX_RIGHT_CHILDREN_DEPTH_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.LOCAL_HASH_TABLE_V2_DIRECTORY_FIRST_PAGE_SET_NODE_LOCAL_DEPTH_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.LOCAL_HASH_TABLE_V2_DIRECTORY_FIRST_PAGE_SET_POINTER_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.LOCAL_HASH_TABLE_V2_DIRECTORY_FIRST_PAGE_SET_TOMBSTONE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.LOCAL_HASH_TABLE_V2_DIRECTORY_FIRST_PAGE_SET_TREE_SIZE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.LOCAL_HASH_TABLE_V2_DIRECTORY_PAGE_SET_MAX_LEFT_CHILDREN_DEPTH_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.LOCAL_HASH_TABLE_V2_DIRECTORY_PAGE_SET_MAX_RIGHT_CHILDREN_DEPTH_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.LOCAL_HASH_TABLE_V2_DIRECTORY_PAGE_SET_NODE_LOCAL_DEPTH_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.LOCAL_HASH_TABLE_V2_DIRECTORY_PAGE_SET_POINTER_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.LOCAL_HASH_TABLE_V2_METADATA_PAGE_INIT_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.LOCAL_HASH_TABLE_V2_METADATA_PAGE_SET_RECORDS_COUNT_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.LOCAL_HASH_TABLE_V2_NULL_BUCKET_INIT_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.LOCAL_HASH_TABLE_V2_NULL_BUCKET_REMOVE_VALUE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.LOCAL_HASH_TABLE_V2_NULL_BUCKET_SET_VALUE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.NON_TX_OPERATION_PERFORMED_WAL_RECORD;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.PAGINATED_CLUSTER_STATE_V0_SET_FREE_LIST_PAGE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.PAGINATED_CLUSTER_STATE_V0_SET_RECORDS_SIZE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.PAGINATED_CLUSTER_STATE_V0_SET_SIZE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.PAGINATED_CLUSTER_STATE_V1_SET_FILE_SIZE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.PAGINATED_CLUSTER_STATE_V1_SET_FREE_LIST_PAGE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.PAGINATED_CLUSTER_STATE_V1_SET_RECORDS_SIZE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.PAGINATED_CLUSTER_STATE_V1_SET_SIZE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.PAGINATED_CLUSTER_STATE_V2_SET_FILE_SIZE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.PAGINATED_CLUSTER_STATE_V2_SET_FREE_LIST_PAGE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.PAGINATED_CLUSTER_STATE_V2_SET_RECORDS_SIZE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.PAGINATED_CLUSTER_STATE_V2_SET_SIZE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.SBTREE_BUCKET_V1_ADD_ALL_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.SBTREE_BUCKET_V1_ADD_LEAF_ENTRY_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.SBTREE_BUCKET_V1_INIT_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.SBTREE_BUCKET_V1_REMOVE_LEAF_ENTRY_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.SBTREE_BUCKET_V1_REMOVE_NON_LEAF_ENTRY_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.SBTREE_BUCKET_V1_SET_LEFT_SIBLING_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.SBTREE_BUCKET_V1_SET_RIGHT_SIBLING_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.SBTREE_BUCKET_V1_SET_TREE_SIZE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.SBTREE_BUCKET_V1_SHRINK_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.SBTREE_BUCKET_V1_SWITCH_BUCKET_TYPE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.SBTREE_BUCKET_V1_UPDATE_VALUE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.SBTREE_BUCKET_V2_ADD_ALL_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.SBTREE_BUCKET_V2_ADD_LEAF_ENTRY_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.SBTREE_BUCKET_V2_INIT_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.SBTREE_BUCKET_V2_REMOVE_LEAF_ENTRY_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.SBTREE_BUCKET_V2_REMOVE_NON_LEAF_ENTRY_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.SBTREE_BUCKET_V2_SET_LEFT_SIBLING_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.SBTREE_BUCKET_V2_SET_RIGHT_SIBLING_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.SBTREE_BUCKET_V2_SET_TREE_SIZE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.SBTREE_BUCKET_V2_SHRINK_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.SBTREE_BUCKET_V2_SWITCH_BUCKET_TYPE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.SBTREE_BUCKET_V2_UPDATE_VALUE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.SBTREE_NULL_BUCKET_V1_INIT_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.SBTREE_NULL_BUCKET_V1_REMOVE_VALUE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.SBTREE_NULL_BUCKET_V1_SET_VALUE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.SBTREE_NULL_BUCKET_V2_INIT_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.SBTREE_NULL_BUCKET_V2_REMOVE_VALUE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.SBTREE_NULL_BUCKET_V2_SET_VALUE_PO;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.TX_METADATA;
+import static com.orientechnologies.orient.core.storage.impl.local.paginated.wal.WALRecordTypes.UPDATE_PAGE_RECORD;
 
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OShortSerializer;
@@ -36,7 +178,6 @@ import net.jpountz.lz4.LZ4Factory;
 import net.jpountz.lz4.LZ4FastDecompressor;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 25.04.13
  */
 public final class OWALRecordsFactory {
@@ -591,9 +732,9 @@ public final class OWALRecordsFactory {
                 (WriteableWALRecord)
                     idToTypeMap.get(recordId).getDeclaredConstructor().newInstance();
           } catch (final InstantiationException
-              | NoSuchMethodException
-              | InvocationTargetException
-              | IllegalAccessException e) {
+                         | NoSuchMethodException
+                         | InvocationTargetException
+                         | IllegalAccessException e) {
             throw new IllegalStateException("Cannot deserialize passed in record", e);
           }
         } else {

@@ -10,7 +10,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by Enrico Risa on 27/10/16.
+ *
  */
 public class LuceneReuseTest extends BaseLuceneTest {
 
@@ -20,10 +20,10 @@ public class LuceneReuseTest extends BaseLuceneTest {
     OSchema schema = db.getMetadata().getSchema();
 
     OClass cls = schema.createClass("Reuse");
-    cls.createProperty("name", OType.STRING);
-    cls.createProperty("date", OType.DATETIME);
-    cls.createProperty("surname", OType.STRING);
-    cls.createProperty("age", OType.LONG);
+    cls.createProperty(db, "name", OType.STRING);
+    cls.createProperty(db, "date", OType.DATETIME);
+    cls.createProperty(db, "surname", OType.STRING);
+    cls.createProperty(db, "age", OType.LONG);
 
     db.command("create index Reuse.composite on Reuse (name,surname,date,age) UNIQUE").close();
     db.command("create index Reuse.surname on Reuse (surname) FULLTEXT ENGINE LUCENE").close();
@@ -54,10 +54,10 @@ public class LuceneReuseTest extends BaseLuceneTest {
     OSchema schema = db.getMetadata().getSchema();
 
     OClass cls = schema.createClass("Reuse");
-    cls.createProperty("name", OType.STRING);
-    cls.createProperty("date", OType.DATETIME);
-    cls.createProperty("surname", OType.STRING);
-    cls.createProperty("age", OType.LONG);
+    cls.createProperty(db, "name", OType.STRING);
+    cls.createProperty(db, "date", OType.DATETIME);
+    cls.createProperty(db, "surname", OType.STRING);
+    cls.createProperty(db, "age", OType.LONG);
 
     db.command("create index Reuse.composite on Reuse (name,surname,date,age) UNIQUE").close();
 

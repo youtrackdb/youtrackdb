@@ -30,7 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by Enrico Risa on 07/08/15.
+ *
  */
 public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
 
@@ -40,15 +40,15 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
     OSchema schema = db.getMetadata().getSchema();
     OClass v = schema.getClass("V");
     OClass oClass = schema.createClass("City");
-    oClass.setSuperClass(v);
-    oClass.createProperty("location", OType.EMBEDDED, schema.getClass("OPoint"));
-    oClass.createProperty("name", OType.STRING);
+    oClass.setSuperClass(db, v);
+    oClass.createProperty(db, "location", OType.EMBEDDED, schema.getClass("OPoint"));
+    oClass.createProperty(db, "name", OType.STRING);
 
     OClass place = schema.createClass("Place");
-    place.setSuperClass(v);
-    place.createProperty("latitude", OType.DOUBLE);
-    place.createProperty("longitude", OType.DOUBLE);
-    place.createProperty("name", OType.STRING);
+    place.setSuperClass(db, v);
+    place.createProperty(db, "latitude", OType.DOUBLE);
+    place.createProperty(db, "longitude", OType.DOUBLE);
+    place.createProperty(db, "name", OType.STRING);
 
     db.command("CREATE INDEX City.location ON City(location) SPATIAL ENGINE LUCENE").close();
   }
@@ -130,7 +130,7 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
 
     db.begin();
-    Assert.assertEquals(1, index.getInternal().size());
+    Assert.assertEquals(1, index.getInternal().size(db));
     db.commit();
   }
 
@@ -163,7 +163,7 @@ public class LuceneSpatialTxPointTest extends BaseSpatialLuceneTest {
     db.begin();
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "City.location");
 
-    Assert.assertEquals(2, index.getInternal().size());
+    Assert.assertEquals(2, index.getInternal().size(db));
     db.commit();
   }
 }

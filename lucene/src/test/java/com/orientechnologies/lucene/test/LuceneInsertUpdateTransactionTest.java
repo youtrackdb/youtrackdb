@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by enricorisa on 28/06/14.
+ *
  */
 public class LuceneInsertUpdateTransactionTest extends BaseLuceneTest {
 
@@ -46,7 +46,7 @@ public class LuceneInsertUpdateTransactionTest extends BaseLuceneTest {
     OSchema schema = db.getMetadata().getSchema();
 
     OClass oClass = schema.createClass("City");
-    oClass.createProperty("name", OType.STRING);
+    oClass.createProperty(db, "name", OType.STRING);
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
   }
 
@@ -59,17 +59,17 @@ public class LuceneInsertUpdateTransactionTest extends BaseLuceneTest {
     doc.field("name", "Rome");
     db.save(doc);
 
-    OIndex idx = schema.getClass("City").getClassIndex("City.name");
+    OIndex idx = schema.getClass("City").getClassIndex(db, "City.name");
     Assert.assertNotNull(idx);
 
     Collection<?> coll;
-    try (Stream<ORID> stream = idx.getInternal().getRids("Rome")) {
+    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
 
     Assert.assertEquals(coll.size(), 1);
     db.rollback();
-    try (Stream<ORID> stream = idx.getInternal().getRids("Rome")) {
+    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 0);
@@ -78,11 +78,11 @@ public class LuceneInsertUpdateTransactionTest extends BaseLuceneTest {
     doc.field("name", "Rome");
     db.save(doc);
 
-    OUser user = new OUser("test", "test");
-    db.save(user.getDocument());
+    OUser user = new OUser(db, "test", "test");
+    db.save(user.getDocument(db));
 
     db.commit();
-    try (Stream<ORID> stream = idx.getInternal().getRids("Rome")) {
+    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 1);

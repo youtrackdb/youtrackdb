@@ -7,7 +7,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by tglman on 10/06/16.
+ *
  */
 public class SaveLinkedTypeAnyTest extends BaseMemoryDatabase {
 
@@ -15,7 +15,7 @@ public class SaveLinkedTypeAnyTest extends BaseMemoryDatabase {
   public void testRemoveLinkedType() {
     OSchema schema = db.getMetadata().getSchema();
     OClass classA = schema.createClass("TestRemoveLinkedType");
-    classA.createProperty("prop", OType.EMBEDDEDLIST, OType.ANY);
+    classA.createProperty(db, "prop", OType.EMBEDDEDLIST, OType.ANY);
 
     db.begin();
     db.command("insert into TestRemoveLinkedType set prop = [4]").close();
@@ -34,7 +34,7 @@ public class SaveLinkedTypeAnyTest extends BaseMemoryDatabase {
   public void testAlterRemoveLinkedType() {
     OSchema schema = db.getMetadata().getSchema();
     OClass classA = schema.createClass("TestRemoveLinkedType");
-    OProperty prop = classA.createProperty("prop", OType.EMBEDDEDLIST, OType.ANY);
+    classA.createProperty(db, "prop", OType.EMBEDDEDLIST, OType.ANY);
 
     db.command("alter property TestRemoveLinkedType.prop linkedtype null").close();
 

@@ -2,20 +2,20 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.metadata.sequence.OSequence;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ *
  */
 public class OAlterSequenceStatementExecutionTest extends BaseMemoryDatabase {
 
   @Override
-  protected OrientDBConfig createConfig(OrientDBConfigBuilder builder) {
+  protected OxygenDBConfig createConfig(OrientDBConfigBuilder builder) {
     builder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
     return builder.build();
   }

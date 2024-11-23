@@ -37,7 +37,7 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     OClass oClass = oSchema.createClass("Test1");
     final int oldClusterId = oClass.getDefaultClusterId();
 
-    oClass.setAbstract(false);
+    oClass.setAbstract(db, false);
 
     assertEquals(oClass.getDefaultClusterId(), oldClusterId);
   }
@@ -54,7 +54,7 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
 
     OClass oClass = oSchema.createAbstractClass("Test2");
 
-    oClass.setAbstract(false);
+    oClass.setAbstract(db, false);
 
     assertNotEquals(-1, oClass.getDefaultClusterId());
     assertNotEquals(oClass.getDefaultClusterId(), db.getDefaultClusterId());
@@ -65,8 +65,8 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     final OSchema oSchema = db.getMetadata().getSchema();
 
     OClass oClass = oSchema.createClass("Test21");
-    oClass.createProperty("some", OType.LINKLIST, (OClass) null);
-    oClass.createProperty("some2", OType.LINKLIST, (OClass) null, true);
+    oClass.createProperty(db, "some", OType.LINKLIST, (OClass) null);
+    oClass.createProperty(db, "some2", OType.LINKLIST, (OClass) null, true);
 
     assertNotNull(oClass.getProperty("some"));
     assertNotNull(oClass.getProperty("some2"));
@@ -84,7 +84,7 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
           db.save(document);
         });
 
-    oClass.createProperty("some", OType.INTEGER);
+    oClass.createProperty(db, "some", OType.INTEGER);
   }
 
   @Test(expected = OSchemaException.class)
@@ -101,7 +101,7 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
           db.save(document);
         });
 
-    oClass.createProperty("some", OType.EMBEDDEDLIST);
+    oClass.createProperty(db, "some", OType.EMBEDDEDLIST);
   }
 
   @Test(expected = OSchemaException.class)
@@ -118,7 +118,7 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
           db.save(document);
         });
 
-    oClass.createProperty("somelinkset", OType.EMBEDDEDSET);
+    oClass.createProperty(db, "somelinkset", OType.EMBEDDEDSET);
   }
 
   @Test(expected = OSchemaException.class)
@@ -135,7 +135,7 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
           db.save(document);
         });
 
-    oClass.createProperty("someembededset", OType.LINKSET);
+    oClass.createProperty(db, "someembededset", OType.LINKSET);
   }
 
   @Test(expected = OSchemaException.class)
@@ -152,7 +152,7 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
           db.save(document);
         });
 
-    oClass.createProperty("someembeddedlist", OType.LINKLIST);
+    oClass.createProperty(db, "someembeddedlist", OType.LINKLIST);
   }
 
   @Test(expected = OSchemaException.class)
@@ -169,7 +169,7 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
           db.save(document);
         });
 
-    oClass.createProperty("someembededmap", OType.LINKMAP);
+    oClass.createProperty(db, "someembededmap", OType.LINKMAP);
   }
 
   @Test(expected = OSchemaException.class)
@@ -187,7 +187,7 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
           db.save(document);
         });
 
-    oClass.createProperty("somelinkmap", OType.EMBEDDEDMAP);
+    oClass.createProperty(db, "somelinkmap", OType.EMBEDDEDMAP);
   }
 
   @Test
@@ -210,12 +210,12 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
               return document.getIdentity();
             });
 
-    oClass.createProperty("test1", OType.INTEGER);
-    oClass.createProperty("test2", OType.LONG);
-    oClass.createProperty("test3", OType.DOUBLE);
-    oClass.createProperty("test4", OType.DOUBLE);
-    oClass.createProperty("test5", OType.DECIMAL);
-    oClass.createProperty("test6", OType.FLOAT);
+    oClass.createProperty(db, "test1", OType.INTEGER);
+    oClass.createProperty(db, "test2", OType.LONG);
+    oClass.createProperty(db, "test3", OType.DOUBLE);
+    oClass.createProperty(db, "test4", OType.DOUBLE);
+    oClass.createProperty(db, "test5", OType.DECIMAL);
+    oClass.createProperty(db, "test6", OType.FLOAT);
 
     ODocument doc1 = db.load(rid);
     assertEquals(doc1.fieldType("test1"), OType.INTEGER);
@@ -251,12 +251,12 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
               return document.getIdentity();
             });
 
-    oClass.createProperty("test1", OType.LINKLIST);
-    oClass.createProperty("test2", OType.EMBEDDEDLIST);
-    oClass.createProperty("test3", OType.LINKSET);
-    oClass.createProperty("test4", OType.EMBEDDEDSET);
-    oClass.createProperty("test5", OType.LINKMAP);
-    oClass.createProperty("test6", OType.EMBEDDEDMAP);
+    oClass.createProperty(db, "test1", OType.LINKLIST);
+    oClass.createProperty(db, "test2", OType.EMBEDDEDLIST);
+    oClass.createProperty(db, "test3", OType.LINKSET);
+    oClass.createProperty(db, "test4", OType.EMBEDDEDSET);
+    oClass.createProperty(db, "test5", OType.LINKMAP);
+    oClass.createProperty(db, "test6", OType.EMBEDDEDMAP);
 
     ODocument doc1 = db.load(rid);
     assertEquals(doc1.fieldType("test1"), OType.LINKLIST);
@@ -271,10 +271,10 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
   public void testCreatePropertyIdKeep() {
     final OSchema oSchema = db.getMetadata().getSchema();
     OClass oClass = oSchema.createClass("Test12");
-    OProperty prop = oClass.createProperty("test2", OType.STRING);
+    OProperty prop = oClass.createProperty(db, "test2", OType.STRING);
     Integer id = prop.getId();
-    oClass.dropProperty("test2");
-    prop = oClass.createProperty("test2", OType.STRING);
+    oClass.dropProperty(db, "test2");
+    prop = oClass.createProperty(db, "test2", OType.STRING);
     assertEquals(id, prop.getId());
   }
 
@@ -282,9 +282,9 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
   public void testRenameProperty() {
     final OSchema oSchema = db.getMetadata().getSchema();
     OClass oClass = oSchema.createClass("Test13");
-    OProperty prop = oClass.createProperty("test1", OType.STRING);
+    OProperty prop = oClass.createProperty(db, "test1", OType.STRING);
     Integer id = prop.getId();
-    prop.setName("test2");
+    prop.setName(db, "test2");
     assertNotEquals(id, prop.getId());
   }
 
@@ -292,9 +292,9 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
   public void testChangeTypeProperty() {
     final OSchema oSchema = db.getMetadata().getSchema();
     OClass oClass = oSchema.createClass("Test14");
-    OProperty prop = oClass.createProperty("test1", OType.SHORT);
+    OProperty prop = oClass.createProperty(db, "test1", OType.SHORT);
     Integer id = prop.getId();
-    prop.setType(OType.INTEGER);
+    prop.setType(db, OType.INTEGER);
     assertNotEquals(id, prop.getId());
   }
 
@@ -302,11 +302,11 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
   public void testRenameBackProperty() {
     final OSchema oSchema = db.getMetadata().getSchema();
     OClass oClass = oSchema.createClass("Test15");
-    OProperty prop = oClass.createProperty("test1", OType.STRING);
+    OProperty prop = oClass.createProperty(db, "test1", OType.STRING);
     Integer id = prop.getId();
-    prop.setName("test2");
+    prop.setName(db, "test2");
     assertNotEquals(id, prop.getId());
-    prop.setName("test1");
+    prop.setName(db, "test1");
     assertEquals(id, prop.getId());
   }
 
@@ -314,15 +314,15 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
   public void testSetUncastableType() {
     final OSchema oSchema = db.getMetadata().getSchema();
     OClass oClass = oSchema.createClass("Test16");
-    OProperty prop = oClass.createProperty("test1", OType.STRING);
-    prop.setType(OType.INTEGER);
+    OProperty prop = oClass.createProperty(db, "test1", OType.STRING);
+    prop.setType(db, OType.INTEGER);
   }
 
   @Test
   public void testFindById() {
     final OSchema oSchema = db.getMetadata().getSchema();
     OClass oClass = oSchema.createClass("Test17");
-    OProperty prop = oClass.createProperty("testaaa", OType.STRING);
+    OProperty prop = oClass.createProperty(db, "testaaa", OType.STRING);
     OGlobalProperty global = oSchema.getGlobalPropertyById(prop.getId());
 
     assertEquals(prop.getId(), global.getId());
@@ -334,9 +334,9 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
   public void testFindByIdDrop() {
     final OSchema oSchema = db.getMetadata().getSchema();
     OClass oClass = oSchema.createClass("Test18");
-    OProperty prop = oClass.createProperty("testaaa", OType.STRING);
+    OProperty prop = oClass.createProperty(db, "testaaa", OType.STRING);
     Integer id = prop.getId();
-    oClass.dropProperty("testaaa");
+    oClass.dropProperty(db, "testaaa");
     OGlobalProperty global = oSchema.getGlobalPropertyById(id);
 
     assertEquals(id, global.getId());
@@ -349,12 +349,12 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     final OSchema oSchema = db.getMetadata().getSchema();
     OClass oClass = oSchema.createClass("Test19");
 
-    oClass.createProperty("test1", OType.SHORT);
-    oClass.createProperty("test2", OType.INTEGER);
-    oClass.createProperty("test3", OType.LONG);
-    oClass.createProperty("test4", OType.FLOAT);
-    oClass.createProperty("test5", OType.DOUBLE);
-    oClass.createProperty("test6", OType.INTEGER);
+    oClass.createProperty(db, "test1", OType.SHORT);
+    oClass.createProperty(db, "test2", OType.INTEGER);
+    oClass.createProperty(db, "test3", OType.LONG);
+    oClass.createProperty(db, "test4", OType.FLOAT);
+    oClass.createProperty(db, "test5", OType.DOUBLE);
+    oClass.createProperty(db, "test6", OType.INTEGER);
 
     var rid =
         db.computeInTx(
@@ -371,12 +371,12 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
               return document.getIdentity();
             });
 
-    oClass.getProperty("test1").setType(OType.INTEGER);
-    oClass.getProperty("test2").setType(OType.LONG);
-    oClass.getProperty("test3").setType(OType.DOUBLE);
-    oClass.getProperty("test4").setType(OType.DOUBLE);
-    oClass.getProperty("test5").setType(OType.DECIMAL);
-    oClass.getProperty("test6").setType(OType.FLOAT);
+    oClass.getProperty("test1").setType(db, OType.INTEGER);
+    oClass.getProperty("test2").setType(db, OType.LONG);
+    oClass.getProperty("test3").setType(db, OType.DOUBLE);
+    oClass.getProperty("test4").setType(db, OType.DOUBLE);
+    oClass.getProperty("test5").setType(db, OType.DECIMAL);
+    oClass.getProperty("test6").setType(db, OType.FLOAT);
 
     ODocument doc1 = db.load(rid);
     assertEquals(doc1.fieldType("test1"), OType.INTEGER);
@@ -398,12 +398,12 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     final OSchema oSchema = db.getMetadata().getSchema();
     OClass oClass = oSchema.createClass("Test20");
 
-    oClass.createProperty("test1", OType.SHORT);
-    oClass.createProperty("test2", OType.INTEGER);
-    oClass.createProperty("test3", OType.LONG);
-    oClass.createProperty("test4", OType.FLOAT);
-    oClass.createProperty("test5", OType.DOUBLE);
-    oClass.createProperty("test6", OType.INTEGER);
+    oClass.createProperty(db, "test1", OType.SHORT);
+    oClass.createProperty(db, "test2", OType.INTEGER);
+    oClass.createProperty(db, "test3", OType.LONG);
+    oClass.createProperty(db, "test4", OType.FLOAT);
+    oClass.createProperty(db, "test5", OType.DOUBLE);
+    oClass.createProperty(db, "test6", OType.INTEGER);
 
     var rid =
         db.computeInTx(
@@ -420,12 +420,12 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
               return document.getIdentity();
             });
 
-    oClass.getProperty("test1").setName("test1a");
-    oClass.getProperty("test2").setName("test2a");
-    oClass.getProperty("test3").setName("test3a");
-    oClass.getProperty("test4").setName("test4a");
-    oClass.getProperty("test5").setName("test5a");
-    oClass.getProperty("test6").setName("test6a");
+    oClass.getProperty("test1").setName(db, "test1a");
+    oClass.getProperty("test2").setName(db, "test2a");
+    oClass.getProperty("test3").setName(db, "test3a");
+    oClass.getProperty("test4").setName(db, "test4a");
+    oClass.getProperty("test5").setName(db, "test5a");
+    oClass.getProperty("test6").setName(db, "test6a");
 
     ODocument doc1 = db.load(rid);
     assertEquals(doc1.fieldType("test1a"), OType.SHORT);
@@ -462,12 +462,12 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
 
               return document.getIdentity();
             });
-    oClass.createProperty("test1", OType.LINKLIST);
-    oClass.createProperty("test2", OType.EMBEDDEDLIST);
-    oClass.createProperty("test3", OType.LINKSET);
-    oClass.createProperty("test4", OType.EMBEDDEDSET);
-    oClass.createProperty("test5", OType.LINKMAP);
-    oClass.createProperty("test6", OType.EMBEDDEDMAP);
+    oClass.createProperty(db, "test1", OType.LINKLIST);
+    oClass.createProperty(db, "test2", OType.EMBEDDEDLIST);
+    oClass.createProperty(db, "test3", OType.LINKSET);
+    oClass.createProperty(db, "test4", OType.EMBEDDEDSET);
+    oClass.createProperty(db, "test5", OType.LINKMAP);
+    oClass.createProperty(db, "test6", OType.EMBEDDEDMAP);
 
     ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -512,16 +512,16 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     assertNotNull(oSchema.createClass("OClassImplTesttestC$la23ssNameSyntax_12"));
     assertNotNull(oSchema.createClass("oOClassImplTesttestC$la23ssNameSyntax_12"));
     String[] validClassNamesSince30 = {
-      "foo bar",
-      "12",
-      "#12",
-      "12AAA",
-      ",asdfasdf",
-      "adsf,asdf",
-      "asdf.sadf",
-      ".asdf",
-      "asdfaf.",
-      "asdf:asdf"
+        "foo bar",
+        "12",
+        "#12",
+        "12AAA",
+        ",asdfasdf",
+        "adsf,asdf",
+        "asdf.sadf",
+        ".asdf",
+        "asdfaf.",
+        "asdf:asdf"
     };
     for (String s : validClassNamesSince30) {
       assertNotNull(oSchema.createClass(s));
@@ -542,7 +542,7 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
           record.save();
         });
 
-    oClass.createProperty("name", OType.ANY);
+    oClass.createProperty(db, "name", OType.ANY);
 
     try (OResultSet result = db.query("select from " + className + " where name = 'foo'")) {
       assertEquals(result.stream().count(), 1);
@@ -554,10 +554,10 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     OSchema schema = db.getMetadata().getSchema();
     OClass oClass = schema.createClass("TestCreateCustomAttributeClass");
 
-    oClass.setCustom("customAttribute", "value1");
+    oClass.setCustom(db, "customAttribute", "value1");
     assertEquals("value1", oClass.getCustom("customAttribute"));
 
-    oClass.setCustom("custom.attribute", "value2");
+    oClass.setCustom(db, "custom.attribute", "value2");
     assertEquals("value2", oClass.getCustom("custom.attribute"));
   }
 }

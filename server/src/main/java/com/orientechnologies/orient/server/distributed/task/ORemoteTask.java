@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.distributed.task;
@@ -33,14 +33,13 @@ import java.io.IOException;
 
 /**
  * Remote Task interface.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface ORemoteTask {
 
   boolean hasResponse();
 
-  default void received(ODistributedRequest request, ODistributedDatabase distributedDatabase) {}
+  default void received(ODistributedRequest request, ODistributedDatabase distributedDatabase) {
+  }
 
   enum RESULT_STRATEGY {
     ANY,
@@ -82,5 +81,6 @@ public interface ORemoteTask {
 
   void fromStream(DataInput in, ORemoteTaskFactory factory) throws IOException;
 
-  default void finished(ODistributedDatabase distributedDatabase) {}
+  default void finished(ODistributedDatabase distributedDatabase) {
+  }
 }

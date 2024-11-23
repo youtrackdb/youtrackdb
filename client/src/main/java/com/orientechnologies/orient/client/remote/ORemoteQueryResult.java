@@ -3,7 +3,7 @@ package com.orientechnologies.orient.client.remote;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 
 /**
- * Created by tglman on 02/01/17.
+ *
  */
 public class ORemoteQueryResult {
 

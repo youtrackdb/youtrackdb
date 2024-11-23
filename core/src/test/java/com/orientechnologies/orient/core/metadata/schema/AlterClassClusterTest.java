@@ -13,9 +13,9 @@ public class AlterClassClusterTest extends BaseMemoryDatabase {
   @Test
   public void testRemoveClusterDefaultCluster() {
     OClass clazz = db.getMetadata().getSchema().createClass("Test", 1, null);
-    clazz.addCluster("TestOneMore");
+    clazz.addCluster(db, "TestOneMore");
 
-    clazz.removeClusterId(db.getClusterIdByName("Test"));
+    clazz.removeClusterId(db, db.getClusterIdByName("Test"));
     clazz = db.getMetadata().getSchema().getClass("Test");
     assertEquals(clazz.getDefaultClusterId(), db.getClusterIdByName("TestOneMore"));
   }
@@ -23,20 +23,20 @@ public class AlterClassClusterTest extends BaseMemoryDatabase {
   @Test(expected = ODatabaseException.class)
   public void testRemoveLastClassCluster() {
     OClass clazz = db.getMetadata().getSchema().createClass("Test", 1, null);
-    clazz.removeClusterId(db.getClusterIdByName("Test"));
+    clazz.removeClusterId(db, db.getClusterIdByName("Test"));
   }
 
   @Test(expected = OSchemaException.class)
   public void testAddClusterToAbstracClass() {
     OClass clazz = db.getMetadata().getSchema().createAbstractClass("Test");
-    clazz.addCluster("TestOneMore");
+    clazz.addCluster(db, "TestOneMore");
   }
 
   @Test(expected = OSchemaException.class)
   public void testAddClusterIdToAbstracClass() {
     OClass clazz = db.getMetadata().getSchema().createAbstractClass("Test");
     int id = db.addCluster("TestOneMore");
-    clazz.addClusterId(id);
+    clazz.addClusterId(db, id);
   }
 
   @Test
@@ -44,10 +44,10 @@ public class AlterClassClusterTest extends BaseMemoryDatabase {
     OSchema oSchema = db.getMetadata().getSchema();
     OClass oRestricted = oSchema.getClass("ORestricted");
     OClass v = oSchema.getClass("V");
-    v.addSuperClass(oRestricted);
+    v.addSuperClass(db, oRestricted);
 
     OClass ovt = oSchema.createClass("Some", v);
-    ovt.setAbstract(true);
+    ovt.setAbstract(db, true);
     assertTrue(ovt.isAbstract());
   }
 }

@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import org.junit.Test;
 
 /**
- * Created by tglman on 03/01/17.
+ *
  */
 public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
 
@@ -36,10 +36,10 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
     db.createClass("SomeTx2");
 
     OClass klass = db.createClass("IndexedTx");
-    klass.createProperty("name", OType.STRING).createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
+    klass.createProperty(db, "name", OType.STRING).createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
 
     OClass uniqueClass = db.createClass("UniqueIndexedTx");
-    uniqueClass.createProperty("name", OType.STRING).createIndex(OClass.INDEX_TYPE.UNIQUE);
+    uniqueClass.createProperty(db, "name", OType.STRING).createIndex(db, OClass.INDEX_TYPE.UNIQUE);
   }
 
   @Test
@@ -379,7 +379,8 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
     OElement someTx = db.newElement("SomeTx");
     someTx.setProperty("name", "foo");
     ORecord id = db.save(someTx);
-    try (OResultSet rs = db.query("select from ?", id)) {}
+    try (OResultSet rs = db.query("select from ?", id)) {
+    }
 
     db.commit();
 

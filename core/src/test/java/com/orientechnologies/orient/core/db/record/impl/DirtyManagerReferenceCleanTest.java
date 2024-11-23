@@ -8,7 +8,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by tglman on 01/10/15.
+ *
  */
 public class DirtyManagerReferenceCleanTest extends BaseMemoryDatabase {
 
@@ -26,7 +26,8 @@ public class DirtyManagerReferenceCleanTest extends BaseMemoryDatabase {
     doc.field("ref", doc1);
     doc.field("bb");
 
-    OIdentifiable id = doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+    OIdentifiable id = doc.getIdentity();
     db.commit();
 
     db.begin();

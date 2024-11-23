@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2016 OrientDB LTD (info(-at-)orientdb.com)
+
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.security.authenticator;
 
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -29,8 +30,6 @@ import javax.security.auth.Subject;
 
 /**
  * Provides an abstract implementation of OSecurityAuthenticator.
- *
- * @author S. Colin Leister
  */
 public abstract class OSecurityAuthenticatorAbstract implements OSecurityAuthenticator {
 
@@ -53,10 +52,12 @@ public abstract class OSecurityAuthenticatorAbstract implements OSecurityAuthent
   }
 
   // OSecurityComponent
-  public void active() {}
+  public void active() {
+  }
 
   // OSecurityComponent
-  public void config(final ODocument jsonConfig, OSecuritySystem security) {
+  public void config(ODatabaseSessionInternal session, final ODocument jsonConfig,
+      OSecuritySystem security) {
     this.security = security;
     if (jsonConfig != null) {
       if (jsonConfig.containsField("name")) {
@@ -78,7 +79,8 @@ public abstract class OSecurityAuthenticatorAbstract implements OSecurityAuthent
   }
 
   // OSecurityComponent
-  public void dispose() {}
+  public void dispose() {
+  }
 
   // OSecurityComponent
   public boolean isEnabled() {
@@ -92,9 +94,9 @@ public abstract class OSecurityAuthenticatorAbstract implements OSecurityAuthent
 
     // Default to Basic.
     if (databaseName != null) {
-      header = "WWW-Authenticate: Basic realm=\"OrientDB db-" + databaseName + "\"";
+      header = "WWW-Authenticate: Basic realm=\"OxygenDB db-" + databaseName + "\"";
     } else {
-      header = "WWW-Authenticate: Basic realm=\"OrientDB Server\"";
+      header = "WWW-Authenticate: Basic realm=\"OxygenDB Server\"";
     }
 
     return header;
@@ -109,11 +111,12 @@ public abstract class OSecurityAuthenticatorAbstract implements OSecurityAuthent
     return name;
   }
 
-  public OSecurityUser getUser(final String username) {
+  public OSecurityUser getUser(final String username, ODatabaseSessionInternal session) {
     return null;
   }
 
-  public boolean isAuthorized(final String username, final String resource) {
+  public boolean isAuthorized(ODatabaseSession session, final String username,
+      final String resource) {
     return false;
   }
 
@@ -128,7 +131,8 @@ public abstract class OSecurityAuthenticatorAbstract implements OSecurityAuthent
     return false;
   }
 
-  protected boolean isPasswordValid(final OSecurityUser user) {
-    return user != null && user.getPassword() != null && !user.getPassword().isEmpty();
+  protected boolean isPasswordValid(ODatabaseSession session, final OSecurityUser user) {
+    return user != null && user.getPassword(session) != null && !user.getPassword(session)
+        .isEmpty();
   }
 }

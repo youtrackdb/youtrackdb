@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,13 +14,14 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.metadata.schema;
 
 import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OClassTrigger;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -46,7 +47,6 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 10/21/14
  */
 public class OImmutableClass implements OClass {
@@ -54,12 +54,14 @@ public class OImmutableClass implements OClass {
   /**
    * use OClass.EDGE_CLASS_NAME instead
    */
-  @Deprecated public static final String EDGE_CLASS_NAME = OClass.EDGE_CLASS_NAME;
+  @Deprecated
+  public static final String EDGE_CLASS_NAME = OClass.EDGE_CLASS_NAME;
 
   /**
    * use OClass.EDGE_CLASS_NAME instead
    */
-  @Deprecated public static final String VERTEX_CLASS_NAME = OClass.VERTEX_CLASS_NAME;
+  @Deprecated
+  public static final String VERTEX_CLASS_NAME = OClass.VERTEX_CLASS_NAME;
 
   private boolean inited = false;
   private final boolean isAbstract;
@@ -99,7 +101,8 @@ public class OImmutableClass implements OClass {
   private OIndex autoShardingIndex;
   private HashSet<OIndex> indexes;
 
-  public OImmutableClass(final OClass oClass, final OImmutableSchema schema) {
+  public OImmutableClass(ODatabaseSessionInternal session, final OClass oClass,
+      final OImmutableSchema schema) {
     isAbstract = oClass.isAbstract();
     strictMode = oClass.isStrictMode();
     this.schema = schema;
@@ -125,7 +128,7 @@ public class OImmutableClass implements OClass {
 
     properties = new HashMap<String, OProperty>();
     for (OProperty p : oClass.declaredProperties()) {
-      properties.put(p.getName(), new OImmutableProperty(p, this));
+      properties.put(p.getName(), new OImmutableProperty(session, p, this));
     }
 
     Map<String, String> customFields = new HashMap<String, String>();
@@ -195,7 +198,7 @@ public class OImmutableClass implements OClass {
   }
 
   @Override
-  public OClass setAbstract(boolean iAbstract) {
+  public OClass setAbstract(ODatabaseSession session, boolean iAbstract) {
     throw new UnsupportedOperationException();
   }
 
@@ -205,7 +208,7 @@ public class OImmutableClass implements OClass {
   }
 
   @Override
-  public OClass setStrictMode(boolean iMode) {
+  public OClass setStrictMode(ODatabaseSession session, boolean iMode) {
     throw new UnsupportedOperationException();
   }
 
@@ -219,7 +222,7 @@ public class OImmutableClass implements OClass {
 
   @Override
   @Deprecated
-  public OClass setSuperClass(OClass iSuperClass) {
+  public OClass setSuperClass(ODatabaseSession session, OClass iSuperClass) {
     throw new UnsupportedOperationException();
   }
 
@@ -239,17 +242,17 @@ public class OImmutableClass implements OClass {
   }
 
   @Override
-  public OClass setSuperClasses(List<? extends OClass> classes) {
+  public OClass setSuperClasses(ODatabaseSession session, List<? extends OClass> classes) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public OClass addSuperClass(OClass superClass) {
+  public OClass addSuperClass(ODatabaseSession session, OClass superClass) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public OClass removeSuperClass(OClass superClass) {
+  public OClass removeSuperClass(ODatabaseSession session, OClass superClass) {
     throw new UnsupportedOperationException();
   }
 
@@ -259,7 +262,7 @@ public class OImmutableClass implements OClass {
   }
 
   @Override
-  public OClass setName(String iName) {
+  public OClass setName(ODatabaseSession session, String iName) {
     throw new UnsupportedOperationException();
   }
 
@@ -274,31 +277,32 @@ public class OImmutableClass implements OClass {
   }
 
   @Override
-  public Collection<OProperty> properties() {
+  public Collection<OProperty> properties(ODatabaseSession session) {
     return allProperties;
   }
 
   @Override
-  public Map<String, OProperty> propertiesMap() {
+  public Map<String, OProperty> propertiesMap(ODatabaseSession session) {
     return allPropertiesMap;
   }
 
-  public void getIndexedProperties(Collection<OProperty> indexedProperties) {
+  public void getIndexedProperties(ODatabaseSessionInternal session,
+      Collection<OProperty> indexedProperties) {
     for (OProperty p : properties.values()) {
-      if (areIndexed(p.getName())) {
+      if (areIndexed(session, p.getName())) {
         indexedProperties.add(p);
       }
     }
     initSuperClasses();
     for (OImmutableClass superClass : superClasses) {
-      superClass.getIndexedProperties(indexedProperties);
+      superClass.getIndexedProperties(session, indexedProperties);
     }
   }
 
   @Override
-  public Collection<OProperty> getIndexedProperties() {
+  public Collection<OProperty> getIndexedProperties(ODatabaseSession session) {
     Collection<OProperty> indexedProps = new HashSet<OProperty>();
-    getIndexedProperties(indexedProps);
+    getIndexedProperties((ODatabaseSessionInternal) session, indexedProps);
     return indexedProps;
   }
 
@@ -317,34 +321,38 @@ public class OImmutableClass implements OClass {
   }
 
   @Override
-  public OProperty createProperty(String iPropertyName, OType iType) {
+  public OProperty createProperty(ODatabaseSession session, String iPropertyName, OType iType) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public OProperty createProperty(String iPropertyName, OType iType, OClass iLinkedClass) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public OProperty createProperty(
-      String iPropertyName, OType iType, OClass iLinkedClass, boolean unsafe) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public OProperty createProperty(String iPropertyName, OType iType, OType iLinkedType) {
+  public OProperty createProperty(ODatabaseSession session, String iPropertyName, OType iType,
+      OClass iLinkedClass) {
     throw new UnsupportedOperationException();
   }
 
   @Override
   public OProperty createProperty(
-      String iPropertyName, OType iType, OType iLinkedType, boolean unsafe) {
+      ODatabaseSession session, String iPropertyName, OType iType, OClass iLinkedClass,
+      boolean unsafe) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void dropProperty(String iPropertyName) {
+  public OProperty createProperty(ODatabaseSession session, String iPropertyName, OType iType,
+      OType iLinkedType) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public OProperty createProperty(
+      ODatabaseSession session, String iPropertyName, OType iType, OType iLinkedType,
+      boolean unsafe) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void dropProperty(ODatabaseSession session, String iPropertyName) {
     throw new UnsupportedOperationException();
   }
 
@@ -374,7 +382,7 @@ public class OImmutableClass implements OClass {
   }
 
   @Override
-  public void setDefaultClusterId(int iDefaultClusterId) {
+  public void setDefaultClusterId(ODatabaseSession session, int iDefaultClusterId) {
     throw new UnsupportedOperationException();
   }
 
@@ -384,7 +392,7 @@ public class OImmutableClass implements OClass {
   }
 
   @Override
-  public OClass addClusterId(int iId) {
+  public OClass addClusterId(ODatabaseSession session, int iId) {
     throw new UnsupportedOperationException();
   }
 
@@ -394,27 +402,28 @@ public class OImmutableClass implements OClass {
   }
 
   @Override
-  public OClass setClusterSelection(OClusterSelectionStrategy clusterSelection) {
+  public OClass setClusterSelection(ODatabaseSession session,
+      OClusterSelectionStrategy clusterSelection) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public OClass setClusterSelection(String iStrategyName) {
+  public OClass setClusterSelection(ODatabaseSession session, String iStrategyName) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public OClass addCluster(String iClusterName) {
+  public OClass addCluster(ODatabaseSession session, String iClusterName) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public OClass truncateCluster(String clusterName) {
+  public OClass truncateCluster(ODatabaseSession session, String clusterName) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public OClass removeClusterId(int iId) {
+  public OClass removeClusterId(ODatabaseSession session, int iId) {
     throw new UnsupportedOperationException();
   }
 
@@ -480,7 +489,7 @@ public class OImmutableClass implements OClass {
   }
 
   @Override
-  public long getSize() {
+  public long getSize(ODatabaseSessionInternal session) {
     long size = 0;
     for (int clusterId : clusterIds) {
       size += getDatabase().getClusterRecordSizeById(clusterId);
@@ -500,17 +509,17 @@ public class OImmutableClass implements OClass {
   }
 
   @Override
-  public OClass setOverSize(float overSize) {
+  public OClass setOverSize(ODatabaseSession session, float overSize) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public long count() {
-    return count(true);
+  public long count(ODatabaseSession session) {
+    return count(session, true);
   }
 
   @Override
-  public long count(boolean isPolymorphic) {
+  public long count(ODatabaseSession session, boolean isPolymorphic) {
     return getDatabase().countClass(name, isPolymorphic);
   }
 
@@ -526,7 +535,7 @@ public class OImmutableClass implements OClass {
   }
 
   @Override
-  public void truncate() throws IOException {
+  public void truncate(ODatabaseSession session) throws IOException {
     throw new UnsupportedOperationException();
   }
 
@@ -579,7 +588,7 @@ public class OImmutableClass implements OClass {
   }
 
   @Override
-  public OClass setShortName(String shortName) {
+  public OClass setShortName(ODatabaseSession session, String shortName) {
     throw new UnsupportedOperationException();
   }
 
@@ -589,7 +598,7 @@ public class OImmutableClass implements OClass {
   }
 
   @Override
-  public OClass setDescription(String iDescription) {
+  public OClass setDescription(ODatabaseSession session, String iDescription) {
     throw new UnsupportedOperationException();
   }
 
@@ -626,29 +635,32 @@ public class OImmutableClass implements OClass {
   }
 
   @Override
-  public OClass set(ATTRIBUTES attribute, Object iValue) {
+  public OClass set(ODatabaseSession session, ATTRIBUTES attribute, Object iValue) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public OIndex createIndex(String iName, INDEX_TYPE iType, String... fields) {
+  public OIndex createIndex(ODatabaseSession session, String iName, INDEX_TYPE iType,
+      String... fields) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public OIndex createIndex(String iName, String iType, String... fields) {
+  public OIndex createIndex(ODatabaseSession session, String iName, String iType,
+      String... fields) {
     throw new UnsupportedOperationException();
   }
 
   @Override
   public OIndex createIndex(
-      String iName, INDEX_TYPE iType, OProgressListener iProgressListener, String... fields) {
+      ODatabaseSession session, String iName, INDEX_TYPE iType, OProgressListener iProgressListener,
+      String... fields) {
     throw new UnsupportedOperationException();
   }
 
   @Override
   public OIndex createIndex(
-      String iName,
+      ODatabaseSession session, String iName,
       String iType,
       OProgressListener iProgressListener,
       ODocument metadata,
@@ -659,7 +671,7 @@ public class OImmutableClass implements OClass {
 
   @Override
   public OIndex createIndex(
-      String iName,
+      ODatabaseSession session, String iName,
       String iType,
       OProgressListener iProgressListener,
       ODocument metadata,
@@ -668,36 +680,36 @@ public class OImmutableClass implements OClass {
   }
 
   @Override
-  public Set<OIndex> getInvolvedIndexes(Collection<String> fields) {
+  public Set<OIndex> getInvolvedIndexes(ODatabaseSession session, Collection<String> fields) {
     initSuperClasses();
 
-    final Set<OIndex> result = new HashSet<OIndex>(getClassInvolvedIndexes(fields));
+    final Set<OIndex> result = new HashSet<OIndex>(getClassInvolvedIndexes(session, fields));
 
     for (OImmutableClass superClass : superClasses) {
-      result.addAll(superClass.getInvolvedIndexes(fields));
+      result.addAll(superClass.getInvolvedIndexes(session, fields));
     }
     return result;
   }
 
   @Override
-  public Set<OIndex> getInvolvedIndexes(String... fields) {
-    return getInvolvedIndexes(Arrays.asList(fields));
+  public Set<OIndex> getInvolvedIndexes(ODatabaseSession session, String... fields) {
+    return getInvolvedIndexes(session, Arrays.asList(fields));
   }
 
   @Override
-  public Set<OIndex> getClassInvolvedIndexes(Collection<String> fields) {
+  public Set<OIndex> getClassInvolvedIndexes(ODatabaseSession session, Collection<String> fields) {
     final ODatabaseSessionInternal database = getDatabase();
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
     return indexManager.getClassInvolvedIndexes(database, name, fields);
   }
 
   @Override
-  public Set<OIndex> getClassInvolvedIndexes(String... fields) {
-    return getClassInvolvedIndexes(Arrays.asList(fields));
+  public Set<OIndex> getClassInvolvedIndexes(ODatabaseSession session, String... fields) {
+    return getClassInvolvedIndexes(session, Arrays.asList(fields));
   }
 
   @Override
-  public boolean areIndexed(Collection<String> fields) {
+  public boolean areIndexed(ODatabaseSession session, Collection<String> fields) {
     final ODatabaseSessionInternal database = getDatabase();
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
     final boolean currentClassResult = indexManager.areIndexed(name, fields);
@@ -708,7 +720,7 @@ public class OImmutableClass implements OClass {
       return true;
     }
     for (OImmutableClass superClass : superClasses) {
-      if (superClass.areIndexed(fields)) {
+      if (superClass.areIndexed(session, fields)) {
         return true;
       }
     }
@@ -716,12 +728,12 @@ public class OImmutableClass implements OClass {
   }
 
   @Override
-  public boolean areIndexed(String... fields) {
-    return areIndexed(Arrays.asList(fields));
+  public boolean areIndexed(ODatabaseSession session, String... fields) {
+    return areIndexed(session, Arrays.asList(fields));
   }
 
   @Override
-  public OIndex getClassIndex(String iName) {
+  public OIndex getClassIndex(ODatabaseSession session, String iName) {
     final ODatabaseSessionInternal database = getDatabase();
     return database
         .getMetadata()
@@ -730,12 +742,12 @@ public class OImmutableClass implements OClass {
   }
 
   @Override
-  public Set<OIndex> getClassIndexes() {
+  public Set<OIndex> getClassIndexes(ODatabaseSession session) {
     return this.indexes;
   }
 
   @Override
-  public void getClassIndexes(final Collection<OIndex> indexes) {
+  public void getClassIndexes(ODatabaseSession session, final Collection<OIndex> indexes) {
     final ODatabaseSessionInternal database = getDatabase();
     database.getMetadata().getIndexManagerInternal().getClassIndexes(database, name, indexes);
   }
@@ -745,12 +757,12 @@ public class OImmutableClass implements OClass {
   }
 
   @Override
-  public void getIndexes(final Collection<OIndex> indexes) {
+  public void getIndexes(ODatabaseSession session, final Collection<OIndex> indexes) {
     initSuperClasses();
 
-    getClassIndexes(indexes);
+    getClassIndexes(session, indexes);
     for (OClass superClass : superClasses) {
-      superClass.getIndexes(indexes);
+      superClass.getIndexes(session, indexes);
     }
   }
 
@@ -764,7 +776,7 @@ public class OImmutableClass implements OClass {
   }
 
   @Override
-  public Set<OIndex> getIndexes() {
+  public Set<OIndex> getIndexes(ODatabaseSession session) {
     return this.indexes;
   }
 
@@ -773,7 +785,7 @@ public class OImmutableClass implements OClass {
   }
 
   @Override
-  public OIndex getAutoShardingIndex() {
+  public OIndex getAutoShardingIndex(ODatabaseSession session) {
     return autoShardingIndex;
   }
 
@@ -799,7 +811,9 @@ public class OImmutableClass implements OClass {
     final OClass other = (OClass) obj;
     if (name == null) {
       return other.getName() == null;
-    } else return name.equals(other.getName());
+    } else {
+      return name.equals(other.getName());
+    }
   }
 
   @Override
@@ -813,17 +827,17 @@ public class OImmutableClass implements OClass {
   }
 
   @Override
-  public OClass setCustom(String iName, String iValue) {
+  public OClass setCustom(ODatabaseSession session, String iName, String iValue) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void removeCustom(String iName) {
+  public void removeCustom(ODatabaseSession session, String iName) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void clearCustom() {
+  public void clearCustom(ODatabaseSession session) {
     throw new UnsupportedOperationException();
   }
 

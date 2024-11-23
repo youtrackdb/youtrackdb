@@ -14,7 +14,8 @@ public class NodeOperationTaskResponse implements Externalizable {
   private int messageId;
   private NodeOperationResponse response;
 
-  public NodeOperationTaskResponse() {}
+  public NodeOperationTaskResponse() {
+  }
 
   public NodeOperationTaskResponse(int messageId, NodeOperationResponse response) {
     this.messageId = messageId;

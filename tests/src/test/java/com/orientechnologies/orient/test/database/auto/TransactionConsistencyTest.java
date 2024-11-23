@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -350,15 +350,15 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     OClass profile = database.getMetadata().getSchema().createClass("MyProfile", 1);
     OClass edge = database.getMetadata().getSchema().createClass("MyEdge", 1);
     profile
-        .createProperty("name", OType.STRING)
+        .createProperty(database, "name", OType.STRING)
         .setMin("3")
-        .setMax("30")
-        .createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
-    profile.createProperty("surname", OType.STRING).setMin("3").setMax("30");
-    profile.createProperty("in", OType.LINKSET, edge);
-    profile.createProperty("out", OType.LINKSET, edge);
-    edge.createProperty("in", OType.LINK, profile);
-    edge.createProperty("out", OType.LINK, profile);
+        .setMax(database, "30")
+        .createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
+    profile.createProperty(database, "surname", OType.STRING).setMin("3").setMax(database, "30");
+    profile.createProperty(database, "in", OType.LINKSET, edge);
+    profile.createProperty(database, "out", OType.LINKSET, edge);
+    edge.createProperty(database, "in", OType.LINK, profile);
+    edge.createProperty(database, "out", OType.LINK, profile);
 
     database.begin();
 
@@ -430,28 +430,28 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
   public void testTransactionPopulateDelete() {
     if (!database.getMetadata().getSchema().existsClass("MyFruit")) {
       OClass fruitClass = database.getMetadata().getSchema().createClass("MyFruit");
-      fruitClass.createProperty("name", OType.STRING);
-      fruitClass.createProperty("color", OType.STRING);
-      fruitClass.createProperty("flavor", OType.STRING);
+      fruitClass.createProperty(database, "name", OType.STRING);
+      fruitClass.createProperty(database, "color", OType.STRING);
+      fruitClass.createProperty(database, "flavor", OType.STRING);
 
       database
           .getMetadata()
           .getSchema()
           .getClass("MyFruit")
           .getProperty("name")
-          .createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
+          .createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
       database
           .getMetadata()
           .getSchema()
           .getClass("MyFruit")
           .getProperty("color")
-          .createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
+          .createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
       database
           .getMetadata()
           .getSchema()
           .getClass("MyFruit")
           .getProperty("flavor")
-          .createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
+          .createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
     }
 
     int chunkSize = 10;
@@ -600,15 +600,17 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
   public void transactionRollbackConstistencyTest() {
     OClass vertexClass = database.getMetadata().getSchema().createClass("TRVertex");
     OClass edgeClass = database.getMetadata().getSchema().createClass("TREdge");
-    vertexClass.createProperty("in", OType.LINKSET, edgeClass);
-    vertexClass.createProperty("out", OType.LINKSET, edgeClass);
-    edgeClass.createProperty("in", OType.LINK, vertexClass);
-    edgeClass.createProperty("out", OType.LINK, vertexClass);
+    vertexClass.createProperty(database, "in", OType.LINKSET, edgeClass);
+    vertexClass.createProperty(database, "out", OType.LINKSET, edgeClass);
+    edgeClass.createProperty(database, "in", OType.LINK, vertexClass);
+    edgeClass.createProperty(database, "out", OType.LINK, vertexClass);
 
     OClass personClass = database.getMetadata().getSchema().createClass("TRPerson", vertexClass);
-    personClass.createProperty("name", OType.STRING).createIndex(OClass.INDEX_TYPE.UNIQUE);
-    personClass.createProperty("surname", OType.STRING).createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
-    personClass.createProperty("version", OType.INTEGER);
+    personClass.createProperty(database, "name", OType.STRING)
+        .createIndex(database, OClass.INDEX_TYPE.UNIQUE);
+    personClass.createProperty(database, "surname", OType.STRING)
+        .createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
+    personClass.createProperty(database, "version", OType.INTEGER);
 
     database.close();
 
@@ -788,7 +790,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     Assert.assertFalse(database.getTransaction().isActive());
     OSchema schema = database.getMetadata().getSchema();
     OClass classA = schema.createClass("TransA");
-    classA.createProperty("name", OType.STRING);
+    classA.createProperty(database, "name", OType.STRING);
     ODocument doc = new ODocument(classA);
     doc.field("name", "test1");
 

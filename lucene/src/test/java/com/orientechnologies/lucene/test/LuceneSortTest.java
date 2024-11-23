@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by frank on 13/12/2016.
+ *
  */
 public class LuceneSortTest extends BaseLuceneTest {
 
@@ -556,9 +556,9 @@ public class LuceneSortTest extends BaseLuceneTest {
     OSchema schema = db.getMetadata().getSchema();
 
     OClass cls = schema.createClass("Person");
-    cls.createProperty("name", OType.STRING);
-    cls.createProperty("surname", OType.STRING);
-    cls.createProperty("description", OType.STRING);
+    cls.createProperty(db, "name", OType.STRING);
+    cls.createProperty(db, "surname", OType.STRING);
+    cls.createProperty(db, "description", OType.STRING);
   }
 
   @Test

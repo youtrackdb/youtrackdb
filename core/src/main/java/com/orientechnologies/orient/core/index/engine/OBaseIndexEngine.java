@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.index.engine;
 
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.config.IndexEngineData;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
@@ -27,7 +28,7 @@ public interface OBaseIndexEngine {
   void close();
 
   Stream<ORawPair<Object, ORID>> iterateEntriesBetween(
-      Object rangeFrom,
+      ODatabaseSessionInternal session, Object rangeFrom,
       boolean fromInclusive,
       Object rangeTo,
       boolean toInclusive,

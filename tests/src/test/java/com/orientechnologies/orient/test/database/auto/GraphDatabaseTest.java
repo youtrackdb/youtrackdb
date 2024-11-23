@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,11 +101,11 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
     }
 
     if (!oc.existsProperty("name")) {
-      oc.createProperty("name", OType.STRING);
+      oc.createProperty(database, "name", OType.STRING);
     }
 
-    if (oc.getClassIndex("vertexA_name_idx") == null) {
-      oc.createIndex("vertexA_name_idx", OClass.INDEX_TYPE.UNIQUE, "name");
+    if (oc.getClassIndex(database, "vertexA_name_idx") == null) {
+      oc.createIndex(database, "vertexA_name_idx", OClass.INDEX_TYPE.UNIQUE, "name");
     }
 
     database.begin();
@@ -264,7 +264,7 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
     Iterable<OIdentifiable> deletedVertices =
         database
             .command(new OCommandSQL("delete from GraphVehicle return before limit 1 unsafe"))
-            .execute();
+            .execute(database);
     Assert.assertTrue(deletedVertices.iterator().hasNext());
 
     OVertex v = (OVertex) deletedVertices.iterator().next();
@@ -273,14 +273,16 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
 
     database.begin();
     Integer confirmDeleted =
-        database.command(new OCommandSQL("delete from " + v.getIdentity() + " unsafe")).execute();
+        database.command(new OCommandSQL("delete from " + v.getIdentity() + " unsafe"))
+            .execute(database);
     Assert.assertEquals(confirmDeleted.intValue(), 0);
     database.commit();
 
     database.begin();
     for (OEdge e : edges) {
       Integer deletedEdges =
-          database.command(new OCommandSQL("delete from " + e.getIdentity() + " unsafe")).execute();
+          database.command(new OCommandSQL("delete from " + e.getIdentity() + " unsafe"))
+              .execute(database);
       Assert.assertEquals(deletedEdges.intValue(), 1);
     }
     database.commit();
@@ -288,7 +290,7 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
 
   public void testInsertOfEdgeWithInsertCommand() {
     try {
-      database.command(new OCommandSQL("insert into E set a = 33")).execute();
+      database.command(new OCommandSQL("insert into E set a = 33")).execute(database);
       Assert.fail();
     } catch (OCommandExecutionException e) {
       Assert.assertTrue(true);

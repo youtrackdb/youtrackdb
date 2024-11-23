@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.index;
@@ -45,15 +45,13 @@ import java.util.WeakHashMap;
 /**
  * Container for the list of heterogeneous values that are going to be stored in in index as
  * composite keys.
- *
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com), Artem Orobets
  */
 public class OCompositeKey
     implements Comparable<OCompositeKey>,
-        Serializable,
-        ODocumentSerializable,
-        ChangeableIdentity,
-        IdentityChangeListener {
+    Serializable,
+    ODocumentSerializable,
+    ChangeableIdentity,
+    IdentityChangeListener {
 
   private boolean canChangeIdentity;
   private static final long serialVersionUID = 1L;

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.network.protocol.http.command;
@@ -52,8 +52,6 @@ import java.util.Map;
  * <pre>
  * <command>/<database>[/...]
  * </pre>
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OServerCommandAuthenticatedDbAbstract extends OServerCommandAbstract {
 
@@ -219,7 +217,7 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
 
       // Set user rid after authentication
       iRequest.getData().currentUserId =
-          db.getUser() == null ? "<server user>" : db.getUser().getIdentity().toString();
+          db.getUser() == null ? "<server user>" : db.getUser().getIdentity(db).toString();
 
       // AUTHENTICATED: CREATE THE SESSION
       iRequest.setSessionId(
@@ -299,16 +297,17 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
     } else {
       ORID currentUserId = iRequest.getBearerToken().getToken().getUserId();
       if (currentUserId != null && localDatabase.getUser() != null) {
-        if (!currentUserId.equals(localDatabase.getUser().getIdentity().getIdentity())) {
+        if (!currentUserId.equals(
+            localDatabase.getUser().getIdentity(localDatabase).getIdentity())) {
           ODocument userDoc = localDatabase.load(currentUserId);
-          localDatabase.setUser(new OUser(userDoc));
+          localDatabase.setUser(new OUser(localDatabase, userDoc));
         }
       }
     }
 
     iRequest.getData().lastDatabase = localDatabase.getName();
     iRequest.getData().lastUser =
-        localDatabase.getUser() != null ? localDatabase.getUser().getName() : null;
+        localDatabase.getUser() != null ? localDatabase.getUser().getName(localDatabase) : null;
     return localDatabase.getDatabaseOwner();
   }
 
@@ -328,19 +327,18 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
           server.openDatabase(
               iRequest.getDatabaseName(), session.getUserName(), session.getUserPassword());
     } else {
-
       String currentUserId = iRequest.getData().currentUserId;
       if (currentUserId != null && !currentUserId.isEmpty() && localDatabase.getUser() != null) {
-        if (!currentUserId.equals(localDatabase.getUser().getIdentity().toString())) {
+        if (!currentUserId.equals(localDatabase.getUser().getIdentity(localDatabase).toString())) {
           ODocument userDoc = localDatabase.load(new ORecordId(currentUserId));
-          localDatabase.setUser(new OUser(userDoc));
+          localDatabase.setUser(new OUser(localDatabase, userDoc));
         }
       }
     }
 
     iRequest.getData().lastDatabase = localDatabase.getName();
     iRequest.getData().lastUser =
-        localDatabase.getUser() != null ? localDatabase.getUser().getName() : null;
+        localDatabase.getUser() != null ? localDatabase.getUser().getName(localDatabase) : null;
     iRequest.getExecutor().setDatabase(localDatabase);
     return localDatabase.getDatabaseOwner();
   }
@@ -348,8 +346,8 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
   private void init() {
     if (tokenHandler == null
         && server
-            .getContextConfiguration()
-            .getValueAsBoolean(OGlobalConfiguration.NETWORK_HTTP_USE_TOKEN)) {
+        .getContextConfiguration()
+        .getValueAsBoolean(OGlobalConfiguration.NETWORK_HTTP_USE_TOKEN)) {
       tokenHandler = server.getTokenHandler();
     }
   }

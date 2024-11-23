@@ -90,13 +90,13 @@ public class OCreateClassStatement extends ODDLStatement {
 
   private OClass[] getSuperClasses(OSchema schema) {
     if (superclasses == null) {
-      return new OClass[] {};
+      return new OClass[]{};
     }
     return superclasses.stream()
         .map(x -> schema.getClass(x.getStringValue()))
         .filter(x -> x != null)
         .collect(Collectors.toList())
-        .toArray(new OClass[] {});
+        .toArray(new OClass[]{});
   }
 
   private void checkSuperclasses(OSchema schema, OCommandContext ctx) {

@@ -16,7 +16,8 @@ public class ONodeIdentity implements Cloneable {
     this.name = name;
   }
 
-  public ONodeIdentity() {}
+  public ONodeIdentity() {
+  }
 
   public static ONodeIdentity generate(String nodeName) {
     return new ONodeIdentity(UUID.randomUUID().toString(), nodeName);

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.command;
 
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OExecutionThreadLocal;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.index.OCompositeKey;
@@ -36,8 +37,6 @@ import java.util.Map.Entry;
 
 /**
  * Text based Command Request abstract class.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 @SuppressWarnings("serial")
 public abstract class OCommandRequestTextAbstract extends OCommandRequestAbstract
@@ -45,7 +44,8 @@ public abstract class OCommandRequestTextAbstract extends OCommandRequestAbstrac
 
   protected String text;
 
-  protected OCommandRequestTextAbstract() {}
+  protected OCommandRequestTextAbstract() {
+  }
 
   protected OCommandRequestTextAbstract(final String iText) {
     if (iText == null) {
@@ -59,13 +59,14 @@ public abstract class OCommandRequestTextAbstract extends OCommandRequestAbstrac
    * Delegates the execution to the configured command executor.
    */
   @SuppressWarnings("unchecked")
-  public <RET> RET execute(final Object... iArgs) {
+  public <RET> RET execute(ODatabaseSessionInternal querySession, final Object... iArgs) {
     setParameters(iArgs);
 
     OExecutionThreadLocal.INSTANCE.get().onAsyncReplicationOk = onAsyncReplicationOk;
     OExecutionThreadLocal.INSTANCE.get().onAsyncReplicationError = onAsyncReplicationError;
 
-    return (RET) ODatabaseRecordThreadLocal.instance().get().getStorage().command(this);
+    return (RET) ODatabaseRecordThreadLocal.instance().get().getStorage()
+        .command(querySession, this);
   }
 
   public String getText() {

@@ -91,7 +91,9 @@ public class OCreatePropertyStatement extends ODDLStatement {
     // CREATE IT LOCALLY
     OPropertyImpl internalProp =
         (OPropertyImpl)
-            clazz.addProperty(propertyName.getStringValue(), type, linkedType, linkedClass, unsafe);
+            clazz.addProperty(ctx.getDatabase(), propertyName.getStringValue(), type, linkedType,
+                linkedClass,
+                unsafe);
     for (OCreatePropertyAttributeStatement attr : attributes) {
       Object val = attr.setOnProperty(internalProp, ctx);
       result.setProperty(attr.settingName.getStringValue(), val);

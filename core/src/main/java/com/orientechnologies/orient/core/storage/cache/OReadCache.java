@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.storage.cache;
@@ -23,7 +23,7 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OLogSe
 import java.io.IOException;
 
 /**
- * This class is heart of OrientDB storage model it presents disk backed data cache which works with
+ * This class is heart of OxygenDB storage model it presents disk backed data cache which works with
  * direct memory.
  *
  * <p>Model of this cache is based on page model. All direct memory area is mapped to disk files
@@ -32,7 +32,6 @@ import java.io.IOException;
  * demand, if there is not enough RAM to store all data, part of them will by flushed to the disk.
  * If disk cache is closed all changes will be flushed to the disk.
  *
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 14.03.13
  */
 public interface OReadCache {

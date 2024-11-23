@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import com.orientechnologies.orient.core.sql.parser.OLimit;
 
 /**
- * Created by luigidellaquila on 08/07/16.
+ *
  */
 public class LimitExecutionStep extends AbstractExecutionStep {
 
@@ -29,7 +29,8 @@ public class LimitExecutionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public void sendTimeout() {}
+  public void sendTimeout() {
+  }
 
   @Override
   public void close() {

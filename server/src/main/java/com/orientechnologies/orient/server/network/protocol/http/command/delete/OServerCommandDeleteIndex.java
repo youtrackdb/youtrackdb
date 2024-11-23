@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.delete;
@@ -50,9 +50,9 @@ public class OServerCommandDeleteIndex extends OServerCommandDocumentAbstract {
 
       final boolean found;
       if (urlParts.length > 4) {
-        found = index.remove(urlParts[3], new ORecordId(urlParts[3]));
+        found = index.remove(db, urlParts[3], new ORecordId(urlParts[3]));
       } else {
-        found = index.remove(urlParts[3]);
+        found = index.remove(db, urlParts[3]);
       }
 
       if (found) {

@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,7 +9,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://www.orientdb.com
+ * <p>*
  */
 package com.orientechnologies.spatial;
 
@@ -19,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.lucene.test.BaseLuceneTest;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -38,7 +36,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * Created by enricorisa on 02/10/14.
+ *
  */
 public class LuceneSpatialQueryTest extends BaseLuceneTest {
 
@@ -48,10 +46,10 @@ public class LuceneSpatialQueryTest extends BaseLuceneTest {
     OClass v = schema.getClass("V");
 
     OClass oClass = schema.createClass("Place");
-    oClass.setSuperClass(v);
-    oClass.createProperty("latitude", OType.DOUBLE);
-    oClass.createProperty("longitude", OType.DOUBLE);
-    oClass.createProperty("name", OType.STRING);
+    oClass.setSuperClass(db, v);
+    oClass.createProperty(db, "latitude", OType.DOUBLE);
+    oClass.createProperty(db, "longitude", OType.DOUBLE);
+    oClass.createProperty(db, "name", OType.STRING);
 
     db.command("CREATE INDEX Place.l_lon ON Place(latitude,longitude) SPATIAL ENGINE LUCENE")
         .close();
@@ -63,7 +61,7 @@ public class LuceneSpatialQueryTest extends BaseLuceneTest {
       while (entries.hasMoreElements()) {
         ZipEntry entry = entries.nextElement();
 
-        Orient.instance()
+        Oxygen.instance()
             .scheduleTask(
                 new Runnable() {
                   @Override
@@ -101,8 +99,8 @@ public class LuceneSpatialQueryTest extends BaseLuceneTest {
             doc.field("country", nextLine[1]);
             try {
 
-              Double lat = ((Double) OType.convert(nextLine[5], Double.class)).doubleValue();
-              Double lng = ((Double) OType.convert(nextLine[6], Double.class)).doubleValue();
+              Double lat = ((Double) OType.convert(db, nextLine[5], Double.class)).doubleValue();
+              Double lng = ((Double) OType.convert(db, nextLine[6], Double.class)).doubleValue();
               doc.field("latitude", lat);
               doc.field("longitude", lng);
             } catch (Exception e) {
@@ -141,7 +139,7 @@ public class LuceneSpatialQueryTest extends BaseLuceneTest {
 
     // WHY ? 0.2749329729746763
     // Assert.assertEquals(0.27504313167833594, docs.get(0).field("$distance"));
-    //    Assert.assertEquals(, docs.get(0).field("$distance"));
+    //    Assert.assertEquals(db, docs.get(0).field("$distance"));
 
     assertThat(docs.next().<Float>getProperty("$distance")).isEqualTo(0.2749329729746763);
     Assert.assertFalse(docs.hasNext());

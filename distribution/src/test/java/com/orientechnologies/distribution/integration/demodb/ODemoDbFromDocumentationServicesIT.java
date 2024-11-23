@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 /**
- * Created by santo-it on 2017-08-28.
+ *
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ODemoDbFromDocumentationServicesIT extends OIntegrationTestTemplate {

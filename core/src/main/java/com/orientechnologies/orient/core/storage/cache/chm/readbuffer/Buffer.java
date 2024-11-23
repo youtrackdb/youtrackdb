@@ -26,7 +26,6 @@ import com.orientechnologies.orient.core.storage.cache.chm.WTinyLFUPolicy;
  * <em>not</em> include fail-fast behavior to guard against incorrect consumer usage.
  *
  * @param <E> the type of elements maintained by this buffer
- * @author ben.manes@gmail.com (Ben Manes)
  */
 public interface Buffer {
 

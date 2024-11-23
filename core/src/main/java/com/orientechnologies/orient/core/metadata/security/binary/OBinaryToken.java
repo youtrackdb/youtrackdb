@@ -46,7 +46,7 @@ public class OBinaryToken implements OToken {
     if (this.payload.getUserRid() != null) {
       ODocument result = db.load(new ORecordId(this.payload.getUserRid()), "roles:1");
       if (result != null && result.getClassName().equals(OUser.CLASS_NAME)) {
-        return new OUser(result);
+        return new OUser(db, result);
       }
     }
     return null;

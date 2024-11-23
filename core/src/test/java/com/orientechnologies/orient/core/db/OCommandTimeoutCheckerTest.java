@@ -29,15 +29,15 @@ public class OCommandTimeoutCheckerTest implements OSchedulerInternal {
     CountDownLatch latch = new CountDownLatch(10);
     for (int i = 0; i < 10; i++) {
       new Thread(
-              () -> {
-                checker.startCommand(Optional.empty());
-                try {
-                  Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                  latch.countDown();
-                }
-                checker.endCommand();
-              })
+          () -> {
+            checker.startCommand(Optional.empty());
+            try {
+              Thread.sleep(1000);
+            } catch (InterruptedException e) {
+              latch.countDown();
+            }
+            checker.endCommand();
+          })
           .start();
     }
 
@@ -51,16 +51,16 @@ public class OCommandTimeoutCheckerTest implements OSchedulerInternal {
     CountDownLatch latch = new CountDownLatch(10);
     for (int i = 0; i < 10; i++) {
       new Thread(
-              () -> {
-                checker.startCommand(Optional.empty());
-                try {
-                  Thread.sleep(100);
-                } catch (InterruptedException e) {
-                  throw new RuntimeException(e);
-                }
-                latch.countDown();
-                checker.endCommand();
-              })
+          () -> {
+            checker.startCommand(Optional.empty());
+            try {
+              Thread.sleep(100);
+            } catch (InterruptedException e) {
+              throw new RuntimeException(e);
+            }
+            latch.countDown();
+            checker.endCommand();
+          })
           .start();
     }
 

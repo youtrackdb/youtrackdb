@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 OrientDB.
+ * Copyright 2018 OxygenDB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.orientechnologies.lucene.engine;
 import org.apache.lucene.store.Directory;
 
 /**
- * @author mdjurovi
+ *
  */
 public class OLuceneDirectory {
 

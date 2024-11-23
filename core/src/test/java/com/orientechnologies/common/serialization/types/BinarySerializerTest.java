@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * @author Ilya Bershadskiy (ibersh20-at-gmail.com)
  * @since 20.01.12
  */
 public class BinarySerializerTest {
@@ -37,7 +36,7 @@ public class BinarySerializerTest {
   @Before
   public void beforeClass() {
     binarySerializer = new OBinaryTypeSerializer();
-    OBJECT = new byte[] {1, 2, 3, 4, 5, 6};
+    OBJECT = new byte[]{1, 2, 3, 4, 5, 6};
     FIELD_SIZE = OBJECT.length + OIntegerSerializer.INT_SIZE;
     stream = new byte[FIELD_SIZE];
   }

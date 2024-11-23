@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.core.sql.functions.text;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionConfigurableAbstract;
 
@@ -37,7 +38,7 @@ public class OSQLFunctionConcat extends OSQLFunctionConfigurableAbstract {
   }
 
   @Override
-  public String getSyntax() {
+  public String getSyntax(ODatabaseSession session) {
     return "concat(<field>, [<delim>])";
   }
 

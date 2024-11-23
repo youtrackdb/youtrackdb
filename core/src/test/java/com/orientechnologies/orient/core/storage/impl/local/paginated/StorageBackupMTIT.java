@@ -5,10 +5,10 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.OrientDBEmbedded;
-import com.orientechnologies.orient.core.db.OrientDBInternal;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDBEmbedded;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -31,7 +31,7 @@ public class StorageBackupMTIT {
 
   private final CountDownLatch latch = new CountDownLatch(1);
   private volatile boolean stop = false;
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
   private String dbName;
 
   @Test
@@ -46,18 +46,18 @@ public class StorageBackupMTIT {
 
     try {
 
-      orientDB = new OrientDB("embedded:" + buildDirectory, OrientDBConfig.defaultConfig());
-      orientDB.execute(
+      oxygenDB = new OxygenDB("embedded:" + buildDirectory, OxygenDBConfig.defaultConfig());
+      oxygenDB.execute(
           "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
 
-      var db = orientDB.open(dbName, "admin", "admin");
+      var db = oxygenDB.open(dbName, "admin", "admin");
 
       final OSchema schema = db.getMetadata().getSchema();
       final OClass backupClass = schema.createClass("BackupClass");
-      backupClass.createProperty("num", OType.INTEGER);
-      backupClass.createProperty("data", OType.BINARY);
+      backupClass.createProperty(db, "num", OType.INTEGER);
+      backupClass.createProperty(db, "data", OType.BINARY);
 
-      backupClass.createIndex("backupIndex", OClass.INDEX_TYPE.NOTUNIQUE, "num");
+      backupClass.createIndex(db, "backupIndex", OClass.INDEX_TYPE.NOTUNIQUE, "num");
 
       OFileUtils.deleteRecursively(backupDir);
 
@@ -87,30 +87,30 @@ public class StorageBackupMTIT {
       System.out.println("do inc backup last time");
       db.incrementalBackup(backupDir.getAbsolutePath());
 
-      orientDB.close();
+      oxygenDB.close();
 
       final String backedUpDbDirectory = buildDirectory + File.separator + backupDbName;
       OFileUtils.deleteRecursively(new File(backedUpDbDirectory));
 
       System.out.println("create and restore");
 
-      OrientDBEmbedded embedded =
-          (OrientDBEmbedded)
-              OrientDBInternal.embedded(buildDirectory, OrientDBConfig.defaultConfig());
+      OxygenDBEmbedded embedded =
+          (OxygenDBEmbedded)
+              OxygenDBInternal.embedded(buildDirectory, OxygenDBConfig.defaultConfig());
       embedded.restore(
           backupDbName,
           null,
           null,
           null,
           backupDir.getAbsolutePath(),
-          OrientDBConfig.defaultConfig());
+          OxygenDBConfig.defaultConfig());
       embedded.close();
 
-      orientDB = new OrientDB("embedded:" + buildDirectory, OrientDBConfig.defaultConfig());
+      oxygenDB = new OxygenDB("embedded:" + buildDirectory, OxygenDBConfig.defaultConfig());
       final ODatabaseCompare compare =
           new ODatabaseCompare(
-              (ODatabaseSessionInternal) orientDB.open(dbName, "admin", "admin"),
-              (ODatabaseSessionInternal) orientDB.open(backupDbName, "admin", "admin"),
+              (ODatabaseSessionInternal) oxygenDB.open(dbName, "admin", "admin"),
+              (ODatabaseSessionInternal) oxygenDB.open(backupDbName, "admin", "admin"),
               System.out::println);
 
       System.out.println("compare");
@@ -118,19 +118,19 @@ public class StorageBackupMTIT {
       Assert.assertTrue(areSame);
 
     } finally {
-      if (orientDB != null && orientDB.isOpen()) {
+      if (oxygenDB != null && oxygenDB.isOpen()) {
         try {
-          orientDB.close();
+          oxygenDB.close();
         } catch (Exception ex) {
           OLogManager.instance().error(this, "", ex);
         }
       }
       try {
-        orientDB = new OrientDB("embedded:" + buildDirectory, OrientDBConfig.defaultConfig());
-        orientDB.drop(dbName);
-        orientDB.drop(backupDbName);
+        oxygenDB = new OxygenDB("embedded:" + buildDirectory, OxygenDBConfig.defaultConfig());
+        oxygenDB.drop(dbName);
+        oxygenDB.drop(backupDbName);
 
-        orientDB.close();
+        oxygenDB.close();
 
         OFileUtils.deleteRecursively(backupDir);
       } catch (Exception ex) {
@@ -149,8 +149,8 @@ public class StorageBackupMTIT {
     dbName = StorageBackupMTIT.class.getSimpleName();
     String dbDirectory = buildDirectory + File.separator + dbName;
 
-    final OrientDBConfig config =
-        OrientDBConfig.builder()
+    final OxygenDBConfig config =
+        OxygenDBConfig.builder()
             .addConfig(OGlobalConfiguration.STORAGE_ENCRYPTION_KEY, "T1JJRU5UREJfSVNfQ09PTA==")
             .build();
 
@@ -158,18 +158,18 @@ public class StorageBackupMTIT {
 
       OFileUtils.deleteRecursively(new File(dbDirectory));
 
-      orientDB = new OrientDB("embedded:" + buildDirectory, config);
-      orientDB.execute(
+      oxygenDB = new OxygenDB("embedded:" + buildDirectory, config);
+      oxygenDB.execute(
           "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
 
-      var db = orientDB.open(dbName, "admin", "admin");
+      var db = oxygenDB.open(dbName, "admin", "admin");
 
       final OSchema schema = db.getMetadata().getSchema();
       final OClass backupClass = schema.createClass("BackupClass");
-      backupClass.createProperty("num", OType.INTEGER);
-      backupClass.createProperty("data", OType.BINARY);
+      backupClass.createProperty(db, "num", OType.INTEGER);
+      backupClass.createProperty(db, "data", OType.BINARY);
 
-      backupClass.createIndex("backupIndex", OClass.INDEX_TYPE.NOTUNIQUE, "num");
+      backupClass.createIndex(db, "backupIndex", OClass.INDEX_TYPE.NOTUNIQUE, "num");
 
       OFileUtils.deleteRecursively(backupDir);
 
@@ -199,23 +199,23 @@ public class StorageBackupMTIT {
       System.out.println("do inc backup last time");
       db.incrementalBackup(backupDir.getAbsolutePath());
 
-      orientDB.close();
+      oxygenDB.close();
 
       OFileUtils.deleteRecursively(new File(backedUpDbDirectory));
 
       System.out.println("create and restore");
 
-      OrientDBEmbedded embedded =
-          (OrientDBEmbedded) OrientDBInternal.embedded(buildDirectory, config);
+      OxygenDBEmbedded embedded =
+          (OxygenDBEmbedded) OxygenDBInternal.embedded(buildDirectory, config);
       embedded.restore(backupDbName, null, null, null, backupDir.getAbsolutePath(), config);
       embedded.close();
 
       OGlobalConfiguration.STORAGE_ENCRYPTION_KEY.setValue("T1JJRU5UREJfSVNfQ09PTA==");
-      orientDB = new OrientDB("embedded:" + buildDirectory, OrientDBConfig.defaultConfig());
+      oxygenDB = new OxygenDB("embedded:" + buildDirectory, OxygenDBConfig.defaultConfig());
       final ODatabaseCompare compare =
           new ODatabaseCompare(
-              (ODatabaseSessionInternal) orientDB.open(dbName, "admin", "admin"),
-              (ODatabaseSessionInternal) orientDB.open(backupDbName, "admin", "admin"),
+              (ODatabaseSessionInternal) oxygenDB.open(dbName, "admin", "admin"),
+              (ODatabaseSessionInternal) oxygenDB.open(backupDbName, "admin", "admin"),
               System.out::println);
       System.out.println("compare");
 
@@ -223,19 +223,19 @@ public class StorageBackupMTIT {
       Assert.assertTrue(areSame);
 
     } finally {
-      if (orientDB != null && orientDB.isOpen()) {
+      if (oxygenDB != null && oxygenDB.isOpen()) {
         try {
-          orientDB.close();
+          oxygenDB.close();
         } catch (Exception ex) {
           OLogManager.instance().error(this, "", ex);
         }
       }
       try {
-        orientDB = new OrientDB("embedded:" + buildDirectory, config);
-        orientDB.drop(dbName);
-        orientDB.drop(backupDbName);
+        oxygenDB = new OxygenDB("embedded:" + buildDirectory, config);
+        oxygenDB.drop(dbName);
+        oxygenDB.drop(backupDbName);
 
-        orientDB.close();
+        oxygenDB.close();
 
         OFileUtils.deleteRecursively(backupDir);
       } catch (Exception ex) {
@@ -252,7 +252,7 @@ public class StorageBackupMTIT {
 
       System.out.println(Thread.currentThread() + " - start writing");
 
-      try (var ignored = orientDB.open(dbName, "admin", "admin")) {
+      try (var ignored = oxygenDB.open(dbName, "admin", "admin")) {
         final Random random = new Random();
         while (!stop) {
           try {
@@ -295,7 +295,7 @@ public class StorageBackupMTIT {
     public Void call() throws Exception {
       latch.await();
 
-      try (var db = orientDB.open(dbName, "admin", "admin")) {
+      try (var db = oxygenDB.open(dbName, "admin", "admin")) {
         System.out.println(Thread.currentThread() + " - start backup");
         while (!stop) {
           TimeUnit.MINUTES.sleep(1);

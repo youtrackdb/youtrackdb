@@ -137,7 +137,7 @@ public class ORemoteURLs {
 
     if (serverURLs.size() == 1
         && contextConfiguration.getValueAsBoolean(
-            OGlobalConfiguration.NETWORK_BINARY_DNS_LOADBALANCING_ENABLED)) {
+        OGlobalConfiguration.NETWORK_BINARY_DNS_LOADBALANCING_ENABLED)) {
       List<String> toAdd = fetchHostsFromDns(lastHost, contextConfiguration);
       serverURLs.addAll(toAdd);
     }
@@ -174,7 +174,7 @@ public class ORemoteURLs {
           !primaryServer.contains(":")
               ? primaryServer
               : primaryServer.substring(0, primaryServer.indexOf(':'));
-      final Attributes attrs = ictx.getAttributes(hostName, new String[] {"TXT"});
+      final Attributes attrs = ictx.getAttributes(hostName, new String[]{"TXT"});
       final Attribute attr = attrs.get("TXT");
       if (attr != null) {
         for (int i = 0; i < attr.size(); ++i) {

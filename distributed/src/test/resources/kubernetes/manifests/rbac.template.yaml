@@ -30,5 +30,5 @@ roleRef:
   kind: Role
   name: hazelcast-k8s-role
 subjects:
-- kind: ServiceAccount
-  name: hazelcast-k8s
+  - kind: ServiceAccount
+    name: hazelcast-k8s

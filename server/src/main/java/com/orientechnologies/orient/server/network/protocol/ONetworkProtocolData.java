@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.network.protocol;
@@ -28,8 +28,6 @@ import com.orientechnologies.orient.core.serialization.serializer.record.binary.
 /**
  * Saves all the important information about the network connection. Useful for monitoring and
  * statistics.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ONetworkProtocolData {
 

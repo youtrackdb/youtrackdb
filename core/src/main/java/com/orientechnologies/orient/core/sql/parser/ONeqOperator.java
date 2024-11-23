@@ -18,7 +18,7 @@ public class ONeqOperator extends SimpleNode implements OBinaryCompareOperator {
 
   @Override
   public boolean execute(Object left, Object right) {
-    return !OQueryOperatorEquals.equals(left, right);
+    return !OQueryOperatorEquals.equals(null, left, right);
   }
 
   @Override

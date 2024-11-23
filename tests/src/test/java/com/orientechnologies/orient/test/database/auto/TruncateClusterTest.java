@@ -45,10 +45,10 @@ public class TruncateClusterTest extends DocumentDBBaseTest {
     final OSchema schema = database.getMetadata().getSchema();
 
     final OClass clazz = schema.createClass(className);
-    clazz.addClusterId(clusterId);
+    clazz.addClusterId(database, clusterId);
 
-    clazz.createProperty("value", OType.STRING);
-    clazz.createIndex("TruncateClusterIndex", OClass.INDEX_TYPE.UNIQUE, "value");
+    clazz.createProperty(database, "value", OType.STRING);
+    clazz.createIndex(database, "TruncateClusterIndex", OClass.INDEX_TYPE.UNIQUE, "value");
 
     final ODocument document = new ODocument();
     document.field("value", "val");
@@ -105,7 +105,7 @@ public class TruncateClusterTest extends DocumentDBBaseTest {
     final OSchema schema = database.getMetadata().getSchema();
 
     final OClass clazz = schema.createClass(className);
-    clazz.addClusterId(clusterId);
+    clazz.addClusterId(database, clusterId);
 
     final ODocument document = new ODocument();
 
@@ -117,7 +117,7 @@ public class TruncateClusterTest extends DocumentDBBaseTest {
     Assert.assertEquals(database.countClass(className), 1);
 
     try {
-      clazz.truncateCluster("Wrong" + clusterName);
+      clazz.truncateCluster(database, "Wrong" + clusterName);
       Assert.fail();
     } catch (OException e) {
       Assert.assertTrue(true);

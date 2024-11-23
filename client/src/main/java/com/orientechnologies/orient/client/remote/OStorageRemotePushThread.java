@@ -16,7 +16,7 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by tglman on 11/01/17.
+ *
  */
 public class OStorageRemotePushThread extends Thread {
 
@@ -72,7 +72,7 @@ public class OStorageRemotePushThread extends Thread {
           OBinaryPushRequest request = pushHandler.createPush(push);
           request.read(network);
           try {
-            OBinaryPushResponse response = request.execute(pushHandler);
+            OBinaryPushResponse response = request.execute(null, pushHandler);
             if (response != null) {
               synchronized (this) {
                 network.writeByte(OChannelBinaryProtocol.REQUEST_OK_PUSH);
@@ -120,7 +120,7 @@ public class OStorageRemotePushThread extends Thread {
         this.currentRequest = new OSubscribeRequest(request);
         ((OChannelBinaryAsynchClient) network)
             .beginRequest(OChannelBinaryProtocol.SUBSCRIBE_PUSH, session);
-        this.currentRequest.write(network, null);
+        this.currentRequest.write(null, network, null);
         network.flush();
       }
       Object poll = blockingQueue.poll(requestTimeout, TimeUnit.MILLISECONDS);

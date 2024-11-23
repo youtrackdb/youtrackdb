@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by frank on 18/11/2016.
+ *
  */
 public class LucenePhraseQueriesTest extends BaseLuceneTest {
 
@@ -18,7 +18,7 @@ public class LucenePhraseQueriesTest extends BaseLuceneTest {
   public void setUp() throws Exception {
 
     OClass type = db.createVertexClass("Role");
-    type.createProperty("name", OType.STRING);
+    type.createProperty(db, "name", OType.STRING);
 
     db.command(
             "create index Role.name on Role (name) FULLTEXT ENGINE LUCENE "

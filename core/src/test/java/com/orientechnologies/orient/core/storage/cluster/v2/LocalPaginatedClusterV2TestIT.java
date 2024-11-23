@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.storage.cluster.v2;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.storage.cluster.LocalPaginatedClusterAbstract;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import java.io.File;
@@ -24,12 +24,12 @@ public class LocalPaginatedClusterV2TestIT extends LocalPaginatedClusterAbstract
 
     dbName = "clusterTest";
 
-    final OrientDBConfig config = OrientDBConfig.defaultConfig();
-    orientDB = new OrientDB("plocal:" + buildDirectory, config);
-    orientDB.execute(
+    final OxygenDBConfig config = OxygenDBConfig.defaultConfig();
+    oxygenDB = new OxygenDB("plocal:" + buildDirectory, config);
+    oxygenDB.execute(
         "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
 
-    databaseDocumentTx = (ODatabaseSessionInternal) orientDB.open(dbName, "admin", "admin");
+    databaseDocumentTx = (ODatabaseSessionInternal) oxygenDB.open(dbName, "admin", "admin");
 
     storage = (OAbstractPaginatedStorage) databaseDocumentTx.getStorage();
 

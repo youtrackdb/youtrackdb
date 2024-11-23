@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by luigidellaquila on 03/01/17.
+ *
  */
 public abstract class OSQLFunctionMove extends OSQLFunctionConfigurableAbstract {
 
@@ -33,7 +33,7 @@ public abstract class OSQLFunctionMove extends OSQLFunctionConfigurableAbstract 
   protected abstract Object move(
       final ODatabaseSession db, final OIdentifiable iRecord, final String[] iLabels);
 
-  public String getSyntax() {
+  public String getSyntax(ODatabaseSession session) {
     return "Syntax error: " + name + "([<labels>])";
   }
 

@@ -4,6 +4,7 @@ import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
@@ -12,14 +13,18 @@ import java.io.IOException;
 
 public class OServerInfoRequest implements OBinaryRequest<OServerInfoResponse> {
 
-  public OServerInfoRequest() {}
+  public OServerInfoRequest() {
+  }
 
   @Override
-  public void write(OChannelDataOutput network, OStorageRemoteSession session) throws IOException {}
+  public void write(ODatabaseSessionInternal database, OChannelDataOutput network,
+      OStorageRemoteSession session) throws IOException {
+  }
 
   @Override
   public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
-      throws IOException {}
+      throws IOException {
+  }
 
   @Override
   public byte getCommand() {

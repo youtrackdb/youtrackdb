@@ -15,8 +15,8 @@ import javax.crypto.spec.DESKeySpec;
  * * Stateful compression implementation that encrypt the content using DES algorithm
  * (https://docs.oracle.com/javase/7/docs/technotes/guides/security/SunProviders.html). Issue
  * https://github.com/orientechnologies/orientdb/issues/89.
- *
- * @author giastfader This implementation uses DES and ECB mode and is thus not secure. See
+ * <p>
+ * <p>
  * https://github.com/orientechnologies/orientdb/issues/8207.
  */
 public class ODESEncryption extends OAbstractEncryption {
@@ -39,7 +39,8 @@ public class ODESEncryption extends OAbstractEncryption {
     return NAME;
   }
 
-  public ODESEncryption() {}
+  public ODESEncryption() {
+  }
 
   public OEncryption configure(final String iOptions) {
     initialized = false;

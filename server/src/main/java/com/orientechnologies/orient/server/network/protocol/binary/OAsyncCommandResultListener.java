@@ -1,6 +1,4 @@
 /*
- *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,14 +12,13 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
- *
  */
 
 package com.orientechnologies.orient.server.network.protocol.binary;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OFetchException;
 import com.orientechnologies.orient.core.fetch.OFetchContext;
@@ -29,7 +26,7 @@ import com.orientechnologies.orient.core.fetch.OFetchHelper;
 import com.orientechnologies.orient.core.fetch.remote.ORemoteFetchContext;
 import com.orientechnologies.orient.core.fetch.remote.ORemoteFetchListener;
 import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.server.OClientConnection;
 import java.io.IOException;
@@ -40,8 +37,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Asynchronous command result manager. As soon as a record is returned by the command is sent over
  * the wire.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OAsyncCommandResultListener extends OAbstractCommandResultListener {
 
@@ -60,7 +55,7 @@ public class OAsyncCommandResultListener extends OAbstractCommandResultListener 
   }
 
   @Override
-  public boolean result(final Object iRecord) {
+  public boolean result(ODatabaseSessionInternal querySession, final Object iRecord) {
     empty.compareAndSet(true, false);
 
     try {
@@ -68,7 +63,7 @@ public class OAsyncCommandResultListener extends OAbstractCommandResultListener 
           iRecord,
           new ORemoteFetchListener() {
             @Override
-            protected void sendRecord(ORecord iLinked) {
+            protected void sendRecord(ORecordAbstract iLinked) {
               if (!alreadySent.contains(iLinked.getIdentity())) {
                 alreadySent.add(iLinked.getIdentity());
                 try {
@@ -89,7 +84,7 @@ public class OAsyncCommandResultListener extends OAbstractCommandResultListener 
       if (wrappedResultListener != null)
       // NOTIFY THE WRAPPED LISTENER
       {
-        wrappedResultListener.result(iRecord);
+        wrappedResultListener.result(querySession, iRecord);
       }
 
     } catch (IOException e) {
@@ -108,7 +103,7 @@ public class OAsyncCommandResultListener extends OAbstractCommandResultListener 
     ORemoteFetchListener listener =
         new ORemoteFetchListener() {
           @Override
-          protected void sendRecord(ORecord iLinked) {
+          protected void sendRecord(ORecordAbstract iLinked) {
             if (!alreadySent.contains(iLinked.getIdentity())) {
               alreadySent.add(iLinked.getIdentity());
               try {
@@ -128,8 +123,8 @@ public class OAsyncCommandResultListener extends OAbstractCommandResultListener 
               String iFieldName,
               OFetchContext iContext)
               throws OFetchException {
-            if (iLinked instanceof ORecord) {
-              sendRecord((ORecord) iLinked);
+            if (iLinked instanceof ORecordAbstract record) {
+              sendRecord(record);
             }
           }
 
@@ -141,8 +136,8 @@ public class OAsyncCommandResultListener extends OAbstractCommandResultListener 
               String iFieldName,
               OFetchContext iContext)
               throws OFetchException {
-            if (iLinked instanceof ORecord) {
-              sendRecord((ORecord) iLinked);
+            if (iLinked instanceof ORecordAbstract record) {
+              sendRecord(record);
             }
           }
         };

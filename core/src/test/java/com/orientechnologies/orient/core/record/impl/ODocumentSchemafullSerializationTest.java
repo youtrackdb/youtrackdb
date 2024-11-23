@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import com.orientechnologies.BaseMemoryInternalDatabase;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentAbstract;
+import com.orientechnologies.orient.core.db.document.ODatabaseSessionAbstract;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -58,7 +58,8 @@ public abstract class ODocumentSchemafullSerializationTest extends BaseMemoryInt
   private static final String RECORDID_FIELD = "recordField";
   private static final String EMBEDDED_FIELD = "embeddedField";
   private static final String ANY_FIELD = "anyField";
-  @Rule public TestName name = new TestName();
+  @Rule
+  public TestName name = new TestName();
   private OClass simple;
   private final ORecordSerializer serializer;
   private OClass embSimp;
@@ -75,60 +76,60 @@ public abstract class ODocumentSchemafullSerializationTest extends BaseMemoryInt
   }
 
   public void beforeTest() {
-    ODatabaseDocumentAbstract.setDefaultSerializer(serializer);
+    ODatabaseSessionAbstract.setDefaultSerializer(serializer);
     super.beforeTest();
     // databaseDocument.getMetadata().
     OSchema schema = db.getMetadata().getSchema();
     address = schema.createClass("Address");
-    address.createProperty(NAME, OType.STRING);
-    address.createProperty(NUMBER, OType.INTEGER);
-    address.createProperty(CITY, OType.STRING);
+    address.createProperty(db, NAME, OType.STRING);
+    address.createProperty(db, NUMBER, OType.INTEGER);
+    address.createProperty(db, CITY, OType.STRING);
 
     simple = schema.createClass("Simple");
-    simple.createProperty(STRING_FIELD, OType.STRING);
-    simple.createProperty(INT_FIELD, OType.INTEGER);
-    simple.createProperty(SHORT_FIELD, OType.SHORT);
-    simple.createProperty(LONG_FIELD, OType.LONG);
-    simple.createProperty(FLOAT_NUMBER, OType.FLOAT);
-    simple.createProperty(DOUBLE_NUMBER, OType.DOUBLE);
-    simple.createProperty(BYTE_FIELD, OType.BYTE);
-    simple.createProperty(BOOLEAN_FIELD, OType.BOOLEAN);
-    simple.createProperty(DATE_FIELD, OType.DATETIME);
-    simple.createProperty(RECORDID_FIELD, OType.LINK);
-    simple.createProperty(EMBEDDED_FIELD, OType.EMBEDDED, address);
-    simple.createProperty(ANY_FIELD, OType.ANY);
+    simple.createProperty(db, STRING_FIELD, OType.STRING);
+    simple.createProperty(db, INT_FIELD, OType.INTEGER);
+    simple.createProperty(db, SHORT_FIELD, OType.SHORT);
+    simple.createProperty(db, LONG_FIELD, OType.LONG);
+    simple.createProperty(db, FLOAT_NUMBER, OType.FLOAT);
+    simple.createProperty(db, DOUBLE_NUMBER, OType.DOUBLE);
+    simple.createProperty(db, BYTE_FIELD, OType.BYTE);
+    simple.createProperty(db, BOOLEAN_FIELD, OType.BOOLEAN);
+    simple.createProperty(db, DATE_FIELD, OType.DATETIME);
+    simple.createProperty(db, RECORDID_FIELD, OType.LINK);
+    simple.createProperty(db, EMBEDDED_FIELD, OType.EMBEDDED, address);
+    simple.createProperty(db, ANY_FIELD, OType.ANY);
 
     embSimp = schema.createClass("EmbeddedCollectionSimple");
-    embSimp.createProperty(LIST_BOOLEANS, OType.EMBEDDEDLIST);
-    embSimp.createProperty(LIST_BYTES, OType.EMBEDDEDLIST);
-    embSimp.createProperty(LIST_DATES, OType.EMBEDDEDLIST);
-    embSimp.createProperty(LIST_DOUBLES, OType.EMBEDDEDLIST);
-    embSimp.createProperty(LIST_FLOATS, OType.EMBEDDEDLIST);
-    embSimp.createProperty(LIST_INTEGERS, OType.EMBEDDEDLIST);
-    embSimp.createProperty(LIST_LONGS, OType.EMBEDDEDLIST);
-    embSimp.createProperty(LIST_SHORTS, OType.EMBEDDEDLIST);
-    embSimp.createProperty(LIST_STRINGS, OType.EMBEDDEDLIST);
-    embSimp.createProperty(LIST_MIXED, OType.EMBEDDEDLIST);
+    embSimp.createProperty(db, LIST_BOOLEANS, OType.EMBEDDEDLIST);
+    embSimp.createProperty(db, LIST_BYTES, OType.EMBEDDEDLIST);
+    embSimp.createProperty(db, LIST_DATES, OType.EMBEDDEDLIST);
+    embSimp.createProperty(db, LIST_DOUBLES, OType.EMBEDDEDLIST);
+    embSimp.createProperty(db, LIST_FLOATS, OType.EMBEDDEDLIST);
+    embSimp.createProperty(db, LIST_INTEGERS, OType.EMBEDDEDLIST);
+    embSimp.createProperty(db, LIST_LONGS, OType.EMBEDDEDLIST);
+    embSimp.createProperty(db, LIST_SHORTS, OType.EMBEDDEDLIST);
+    embSimp.createProperty(db, LIST_STRINGS, OType.EMBEDDEDLIST);
+    embSimp.createProperty(db, LIST_MIXED, OType.EMBEDDEDLIST);
 
     embMapSimple = schema.createClass("EmbeddedMapSimple");
-    embMapSimple.createProperty(MAP_BYTES, OType.EMBEDDEDMAP);
-    embMapSimple.createProperty(MAP_DATE, OType.EMBEDDEDMAP);
-    embMapSimple.createProperty(MAP_DOUBLE, OType.EMBEDDEDMAP);
-    embMapSimple.createProperty(MAP_FLOAT, OType.EMBEDDEDMAP);
-    embMapSimple.createProperty(MAP_INT, OType.EMBEDDEDMAP);
-    embMapSimple.createProperty(MAP_LONG, OType.EMBEDDEDMAP);
-    embMapSimple.createProperty(MAP_SHORT, OType.EMBEDDEDMAP);
-    embMapSimple.createProperty(MAP_STRING, OType.EMBEDDEDMAP);
+    embMapSimple.createProperty(db, MAP_BYTES, OType.EMBEDDEDMAP);
+    embMapSimple.createProperty(db, MAP_DATE, OType.EMBEDDEDMAP);
+    embMapSimple.createProperty(db, MAP_DOUBLE, OType.EMBEDDEDMAP);
+    embMapSimple.createProperty(db, MAP_FLOAT, OType.EMBEDDEDMAP);
+    embMapSimple.createProperty(db, MAP_INT, OType.EMBEDDEDMAP);
+    embMapSimple.createProperty(db, MAP_LONG, OType.EMBEDDEDMAP);
+    embMapSimple.createProperty(db, MAP_SHORT, OType.EMBEDDEDMAP);
+    embMapSimple.createProperty(db, MAP_STRING, OType.EMBEDDEDMAP);
 
     OClass clazzEmbComp = schema.createClass("EmbeddedComplex");
-    clazzEmbComp.createProperty("addresses", OType.EMBEDDEDLIST, address);
-    clazzEmbComp.createProperty("uniqueAddresses", OType.EMBEDDEDSET, address);
-    clazzEmbComp.createProperty("addressByStreet", OType.EMBEDDEDMAP, address);
+    clazzEmbComp.createProperty(db, "addresses", OType.EMBEDDEDLIST, address);
+    clazzEmbComp.createProperty(db, "uniqueAddresses", OType.EMBEDDEDSET, address);
+    clazzEmbComp.createProperty(db, "addressByStreet", OType.EMBEDDEDMAP, address);
   }
 
   public void afterTest() {
     super.afterTest();
-    ODatabaseDocumentAbstract.setDefaultSerializer(
+    ODatabaseSessionAbstract.setDefaultSerializer(
         ORecordSerializerFactory.instance()
             .getFormat(OGlobalConfiguration.DB_DOCUMENT_SERIALIZER.getValueAsString()));
   }
@@ -149,8 +150,8 @@ public abstract class ODocumentSchemafullSerializationTest extends BaseMemoryInt
     document.field(DATE_FIELD, new Date());
     document.field(RECORDID_FIELD, new ORecordId(10, 0));
 
-    byte[] res = serializer.toStream(document);
-    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[] {});
+    byte[] res = serializer.toStream(db, document);
+    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
 
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field(STRING_FIELD), document.field(STRING_FIELD));
@@ -243,8 +244,8 @@ public abstract class ODocumentSchemafullSerializationTest extends BaseMemoryInt
     listMixed.add((byte) 10);
     document.field(LIST_MIXED, listMixed);
 
-    byte[] res = serializer.toStream(document);
-    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[] {});
+    byte[] res = serializer.toStream(db, document);
+    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
 
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field(LIST_STRINGS), document.field(LIST_STRINGS));
@@ -301,8 +302,8 @@ public abstract class ODocumentSchemafullSerializationTest extends BaseMemoryInt
     bytesMap.put("key1", (byte) 11);
     document.field(MAP_BYTES, bytesMap);
 
-    byte[] res = serializer.toStream(document);
-    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[] {});
+    byte[] res = serializer.toStream(db, document);
+    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field(MAP_STRING), document.field(MAP_STRING));
     assertEquals(extr.<Object>field(MAP_LONG), document.field(MAP_LONG));
@@ -322,8 +323,8 @@ public abstract class ODocumentSchemafullSerializationTest extends BaseMemoryInt
     embedded.field(CITY, "aaa");
     document.field(EMBEDDED_FIELD, embedded);
 
-    byte[] res = serializer.toStream(document);
-    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[] {});
+    byte[] res = serializer.toStream(db, document);
+    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
     assertEquals(document.fields(), extr.fields());
     ODocument emb = extr.field(EMBEDDED_FIELD);
     assertNotNull(emb);
@@ -338,15 +339,15 @@ public abstract class ODocumentSchemafullSerializationTest extends BaseMemoryInt
     ODocument document = new ODocument(simple);
     document.field(ANY_FIELD, false);
 
-    byte[] res = serializer.toStream(document);
-    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[] {});
+    byte[] res = serializer.toStream(db, document);
+    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
     assertEquals(document.fields(), extr.fields());
     assertEquals(extr.field(ANY_FIELD), false);
 
     extr.field(ANY_FIELD, false);
 
-    res = serializer.toStream(extr);
-    ODocument extr2 = (ODocument) serializer.fromStream(res, new ODocument(), new String[] {});
+    res = serializer.toStream(db, extr);
+    ODocument extr2 = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
     assertEquals(extr.fields(), extr2.fields());
     assertEquals(extr2.field(ANY_FIELD), false);
   }
@@ -357,7 +358,7 @@ public abstract class ODocumentSchemafullSerializationTest extends BaseMemoryInt
     ODocument document = new ODocument();
     document.field("name", "test");
 
-    byte[] res = serializer.toStream(document);
+    byte[] res = serializer.toStream(db, document);
     ODocument extr = new ODocument();
     ORecordInternal.unsetDirty(extr);
     extr.fromStream(res);

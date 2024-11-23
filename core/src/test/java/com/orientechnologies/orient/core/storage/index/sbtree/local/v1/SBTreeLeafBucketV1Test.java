@@ -19,7 +19,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 09.08.13
  */
 public class SBTreeLeafBucketV1Test {
@@ -128,9 +127,9 @@ public class SBTreeLeafBucketV1Test {
     for (Long key : keys) {
       if (index >= 1
           || !treeBucket.addLeafEntry(
-              index,
-              OLongSerializer.INSTANCE.serializeNativeAsWhole(key),
-              OLinkSerializer.INSTANCE.serializeNativeAsWhole(new ORecordId(index, index)))) {
+          index,
+          OLongSerializer.INSTANCE.serializeNativeAsWhole(key),
+          OLinkSerializer.INSTANCE.serializeNativeAsWhole(new ORecordId(index, index)))) {
         break;
       }
       keyIndexMap.put(key, index);

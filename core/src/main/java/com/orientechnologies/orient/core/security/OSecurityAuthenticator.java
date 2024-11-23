@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2016 OrientDB LTD (info(-at-)orientdb.com)
+
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.security;
 
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
 import java.util.HashMap;
@@ -28,8 +29,6 @@ import javax.security.auth.Subject;
 
 /**
  * Provides an interface for creating security authenticators.
- *
- * @author S. Colin Leister
  */
 public interface OSecurityAuthenticator extends OSecurityComponent {
 
@@ -52,9 +51,9 @@ public interface OSecurityAuthenticator extends OSecurityComponent {
   // Returns the name of this OSecurityAuthenticator.
   String getName();
 
-  OSecurityUser getUser(final String username);
+  OSecurityUser getUser(final String username, ODatabaseSessionInternal session);
 
-  boolean isAuthorized(final String username, final String resource);
+  boolean isAuthorized(ODatabaseSession session, final String username, final String resource);
 
   boolean isSingleSignOnSupported();
 }

@@ -12,7 +12,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
 /**
- * Created by tglman on 19/07/16.
+ *
  */
 public class ODatabaseImportRemote extends ODatabaseImpExpAbstract {
 
@@ -42,12 +42,14 @@ public class ODatabaseImportRemote extends ODatabaseImpExpAbstract {
     OStorageRemote storage = (OStorageRemote) getDatabase().getStorage();
     File file = new File(getFileName());
     try {
-      storage.importDatabase(options, new FileInputStream(file), file.getName(), getListener());
+      storage.importDatabase(database, options, new FileInputStream(file), file.getName(),
+          getListener());
     } catch (FileNotFoundException e) {
       throw OException.wrapException(
           new ODatabaseImportException("Error importing the database"), e);
     }
   }
 
-  public void close() {}
+  public void close() {
+  }
 }

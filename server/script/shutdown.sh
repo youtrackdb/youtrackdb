@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Copyright (c) OrientDB LTD (http://www.orientdb.com)
+# Copyright (c) OxygenDB LTD (http://www.orientdb.com)
 #
 # HISTORY:
 # 2012-07-31: Added -w option

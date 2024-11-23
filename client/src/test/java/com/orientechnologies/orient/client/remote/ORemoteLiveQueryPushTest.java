@@ -20,7 +20,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 /**
- * Created by tglman on 17/05/17.
+ *
  */
 public class ORemoteLiveQueryPushTest {
 
@@ -47,7 +47,8 @@ public class ORemoteLiveQueryPushTest {
     }
 
     @Override
-    public void onError(ODatabaseSession database, OException exception) {}
+    public void onError(ODatabaseSession database, OException exception) {
+    }
 
     @Override
     public void onEnd(ODatabaseSession database) {
@@ -58,16 +59,18 @@ public class ORemoteLiveQueryPushTest {
 
   private OStorageRemote storage;
 
-  @Mock private ORemoteConnectionManager connectionManager;
+  @Mock
+  private ORemoteConnectionManager connectionManager;
 
-  @Mock private ODatabaseSession database;
+  @Mock
+  private ODatabaseSession database;
 
   @Before
   public void before() throws IOException {
     MockitoAnnotations.initMocks(this);
     storage =
         new OStorageRemote(
-            new ORemoteURLs(new String[] {}, new OContextConfiguration()),
+            new ORemoteURLs(new String[]{}, new OContextConfiguration()),
             "none",
             null,
             "",
@@ -88,7 +91,7 @@ public class ORemoteLiveQueryPushTest {
 
     OLiveQueryPushRequest request =
         new OLiveQueryPushRequest(10, OLiveQueryPushRequest.END, events);
-    request.execute(storage);
+    request.execute(null, storage);
     assertEquals(mock.countCreate, 1);
     assertEquals(mock.countUpdate, 1);
     assertEquals(mock.countDelete, 1);

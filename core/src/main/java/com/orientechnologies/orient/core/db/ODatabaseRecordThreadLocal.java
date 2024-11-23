@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.db;
 
 import com.orientechnologies.orient.core.OOrientListenerAbstract;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nonnull;
@@ -49,14 +49,15 @@ public class ODatabaseRecordThreadLocal extends ThreadLocal<ODatabaseSessionInte
   private static void registerCleanUpHandler() {
     // we can do that to avoid thread local memory leaks in containers
     if (INSTANCE.get() == null) {
-      final Orient inst = Orient.instance();
+      final Oxygen inst = Oxygen.instance();
       if (inst == null) {
-        throw new ODatabaseException("OrientDB API is not active.");
+        throw new ODatabaseException("OxygenDB API is not active.");
       }
       inst.registerListener(
           new OOrientListenerAbstract() {
             @Override
-            public void onStartup() {}
+            public void onStartup() {
+            }
 
             @Override
             public void onShutdown() {
@@ -72,12 +73,12 @@ public class ODatabaseRecordThreadLocal extends ThreadLocal<ODatabaseSessionInte
   public ODatabaseSessionInternal get() {
     ODatabaseSessionInternal db = super.get();
     if (db == null) {
-      if (Orient.instance().getDatabaseThreadFactory() == null) {
+      if (Oxygen.instance().getDatabaseThreadFactory() == null) {
         throw new ODatabaseException(
             "The database instance is not set in the current thread. Be sure to set it with:"
                 + " ODatabaseRecordThreadLocal.instance().set(db);");
       } else {
-        db = Orient.instance().getDatabaseThreadFactory().getThreadDatabase();
+        db = Oxygen.instance().getDatabaseThreadFactory().getThreadDatabase();
         if (db == null) {
           throw new ODatabaseException(
               "The database instance is not set in the current thread. Be sure to set it with:"

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.db.document;
@@ -121,10 +121,10 @@ public class ODocumentFieldWalker {
       if (!updated
           && fieldValue != null
           && !(OType.LINK.equals(fieldType)
-              || OType.LINKBAG.equals(fieldType)
-              || OType.LINKLIST.equals(fieldType)
-              || OType.LINKSET.equals(fieldType)
-              || (fieldValue instanceof OIdentifiableMultiValue))) {
+          || OType.LINKBAG.equals(fieldType)
+          || OType.LINKLIST.equals(fieldType)
+          || OType.LINKSET.equals(fieldType)
+          || (fieldValue instanceof OIdentifiableMultiValue))) {
         if (fieldWalker.goDeeper(fieldType, linkedType, fieldValue)) {
           if (fieldValue instanceof Map) {
             walkMap(session, (Map) fieldValue, fieldType, fieldWalker, walked);

@@ -3,6 +3,7 @@ package com.orientechnologies.orient.client.remote.message;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OExecutionStep;
@@ -19,7 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Created by luigidellaquila on 01/12/16.
+ *
  */
 public class OQueryResponse implements OBinaryResponse {
 
@@ -54,19 +55,21 @@ public class OQueryResponse implements OBinaryResponse {
     this.reloadMetadata = reloadMetadata;
   }
 
-  public OQueryResponse() {}
+  public OQueryResponse() {
+  }
 
   @Override
-  public void write(OChannelDataOutput channel, int protocolVersion, ORecordSerializer serializer)
+  public void write(ODatabaseSessionInternal session, OChannelDataOutput channel,
+      int protocolVersion, ORecordSerializer serializer)
       throws IOException {
     channel.writeString(queryId);
     channel.writeBoolean(txChanges);
-    writeExecutionPlan(executionPlan, channel, serializer);
+    writeExecutionPlan(session, executionPlan, channel, serializer);
     // THIS IS A PREFETCHED COLLECTION NOT YET HERE
     channel.writeInt(0);
     channel.writeInt(result.size());
     for (OResult res : result) {
-      OMessageHelper.writeResult(res, channel, serializer);
+      OMessageHelper.writeResult(session, res, channel, serializer);
     }
     channel.writeBoolean(hasNextPage);
     writeQueryStats(queryStats, channel);
@@ -114,15 +117,16 @@ public class OQueryResponse implements OBinaryResponse {
     return result;
   }
 
-  private void writeExecutionPlan(
-      Optional<OExecutionPlan> executionPlan,
+  private static void writeExecutionPlan(
+      ODatabaseSessionInternal session, Optional<OExecutionPlan> executionPlan,
       OChannelDataOutput channel,
       ORecordSerializer recordSerializer)
       throws IOException {
     if (executionPlan.isPresent()
         && OGlobalConfiguration.QUERY_REMOTE_SEND_EXECUTION_PLAN.getValueAsBoolean()) {
       channel.writeBoolean(true);
-      OMessageHelper.writeResult(executionPlan.get().toResult(), channel, recordSerializer);
+      OMessageHelper.writeResult(session, executionPlan.get().toResult(), channel,
+          recordSerializer);
     } else {
       channel.writeBoolean(false);
     }

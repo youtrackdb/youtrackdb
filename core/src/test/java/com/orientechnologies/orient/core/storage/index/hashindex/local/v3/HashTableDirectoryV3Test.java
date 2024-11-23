@@ -11,7 +11,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 5/15/14
  */
 public class HashTableDirectoryV3Test extends BaseMemoryInternalDatabase {

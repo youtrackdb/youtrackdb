@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.command.script;
@@ -24,7 +24,6 @@ import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandExecutorAbstract;
 import com.orientechnologies.orient.core.command.OCommandRequest;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.security.ORole;
@@ -40,14 +39,14 @@ import javax.script.ScriptException;
 /**
  * Executes Script Commands.
  *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @see OCommandScript
  */
 public class OCommandExecutorFunction extends OCommandExecutorAbstract {
 
   protected OCommandFunction request;
 
-  public OCommandExecutorFunction() {}
+  public OCommandExecutorFunction() {
+  }
 
   @SuppressWarnings("unchecked")
   public OCommandExecutorFunction parse(final OCommandRequest iRequest) {
@@ -55,7 +54,7 @@ public class OCommandExecutorFunction extends OCommandExecutorAbstract {
     return this;
   }
 
-  public Object execute(final Map<Object, Object> iArgs) {
+  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
     return executeInContext(null, iArgs);
   }
 
@@ -63,15 +62,15 @@ public class OCommandExecutorFunction extends OCommandExecutorAbstract {
 
     parserText = request.getText();
 
-    ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
+    ODatabaseSessionInternal db = iContext.getDatabase();
     final OFunction f = db.getMetadata().getFunctionLibrary().getFunction(parserText);
 
-    db.checkSecurity(ORule.ResourceGeneric.FUNCTION, ORole.PERMISSION_READ, f.getName());
+    db.checkSecurity(ORule.ResourceGeneric.FUNCTION, ORole.PERMISSION_READ, f.getName(db));
 
     final OScriptManager scriptManager = db.getSharedContext().getOrientDB().getScriptManager();
 
     final ScriptEngine scriptEngine =
-        scriptManager.acquireDatabaseEngine(db.getName(), f.getLanguage());
+        scriptManager.acquireDatabaseEngine(db.getName(), f.getLanguage(db));
     try {
       final Bindings binding =
           scriptManager.bind(
@@ -101,10 +100,10 @@ public class OCommandExecutorFunction extends OCommandExecutorAbstract {
         } else {
           // INVOKE THE CODE SNIPPET
           final Object[] args = iArgs == null ? null : iArgs.values().toArray();
-          result = scriptEngine.eval(scriptManager.getFunctionInvoke(f, args), binding);
+          result = scriptEngine.eval(scriptManager.getFunctionInvoke(db, f, args), binding);
         }
         return OCommandExecutorUtility.transformResult(
-            scriptManager.handleResult(f.getLanguage(), result, scriptEngine, binding, db));
+            scriptManager.handleResult(f.getLanguage(db), result, scriptEngine, binding, db));
 
       } catch (ScriptException e) {
         throw OException.wrapException(
@@ -123,7 +122,7 @@ public class OCommandExecutorFunction extends OCommandExecutorAbstract {
         scriptManager.unbind(scriptEngine, binding, iContext, iArgs);
       }
     } finally {
-      scriptManager.releaseDatabaseEngine(f.getLanguage(), db.getName(), scriptEngine);
+      scriptManager.releaseDatabaseEngine(f.getLanguage(db), db.getName(), scriptEngine);
     }
   }
 

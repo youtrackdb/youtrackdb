@@ -9,10 +9,11 @@ import com.orientechnologies.orient.client.remote.message.OPushIndexManagerReque
 import com.orientechnologies.orient.client.remote.message.OPushSchemaRequest;
 import com.orientechnologies.orient.client.remote.message.OPushSequencesRequest;
 import com.orientechnologies.orient.client.remote.message.OPushStorageConfigurationRequest;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
 
 /**
- * Created by tglman on 10/05/17.
+ *
  */
 public interface ORemotePushHandler {
 
@@ -32,7 +33,8 @@ public interface ORemotePushHandler {
 
   void returnSocket(OChannelBinary network);
 
-  OBinaryPushResponse executeUpdateSchema(OPushSchemaRequest request);
+  OBinaryPushResponse executeUpdateSchema(ODatabaseSessionInternal session,
+      OPushSchemaRequest request);
 
   OBinaryPushResponse executeUpdateIndexManager(OPushIndexManagerRequest request);
 

@@ -3,10 +3,10 @@ package com.orientechnologies.orient.server.tx;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -19,13 +19,13 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * Created by tglman on 23/05/17.
+ *
  */
 public class RemoteTransactionHookTest {
 
   private static final String SERVER_DIRECTORY = "./target/hook-transaction";
   private OServer server;
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
   private ODatabaseSession db;
 
   @Before
@@ -38,23 +38,23 @@ public class RemoteTransactionHookTest {
     server.getHookManager().addHook(hookConfig);
     server.activate();
 
-    orientDB = new OrientDB("remote:localhost", "root", "root", OrientDBConfig.defaultConfig());
-    orientDB.execute(
+    oxygenDB = new OxygenDB("remote:localhost", "root", "root", OxygenDBConfig.defaultConfig());
+    oxygenDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         RemoteTransactionHookTest.class.getSimpleName());
-    db = orientDB.open(RemoteTransactionHookTest.class.getSimpleName(), "admin", "admin");
+    db = oxygenDB.open(RemoteTransactionHookTest.class.getSimpleName(), "admin", "admin");
     db.createClass("SomeTx");
   }
 
   @After
   public void after() {
     db.close();
-    orientDB.close();
+    oxygenDB.close();
     server.shutdown();
 
-    Orient.instance().shutdown();
+    Oxygen.instance().shutdown();
     OFileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
-    Orient.instance().startup();
+    Oxygen.instance().startup();
   }
 
   @Test
@@ -84,9 +84,9 @@ public class RemoteTransactionHookTest {
 
   @Test
   public void testCalledInClientTx() {
-    OrientDB orientDB = new OrientDB("embedded:", OrientDBConfig.defaultConfig());
-    orientDB.execute("create database test memory users (admin identified by 'admin' role admin)");
-    var database = orientDB.open("test", "admin", "admin");
+    OxygenDB oxygenDB = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
+    oxygenDB.execute("create database test memory users (admin identified by 'admin' role admin)");
+    var database = oxygenDB.open("test", "admin", "admin");
     CountCallHook calls = new CountCallHook(database);
     database.registerHook(calls);
     database.createClassIfNotExist("SomeTx");
@@ -108,7 +108,7 @@ public class RemoteTransactionHookTest {
     assertEquals(1, calls.getBeforeDelete());
     assertEquals(1, calls.getAfterDelete());
     database.close();
-    orientDB.close();
+    oxygenDB.close();
     this.db.activateOnCurrentThread();
   }
 

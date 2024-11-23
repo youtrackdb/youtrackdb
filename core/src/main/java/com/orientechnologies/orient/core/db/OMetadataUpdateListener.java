@@ -6,13 +6,15 @@ import com.orientechnologies.orient.core.metadata.schema.OSchemaShared;
 
 public interface OMetadataUpdateListener {
 
-  void onSchemaUpdate(String database, OSchemaShared schema);
+  void onSchemaUpdate(ODatabaseSessionInternal session, String database, OSchemaShared schema);
 
-  void onIndexManagerUpdate(String database, OIndexManagerAbstract indexManager);
+  void onIndexManagerUpdate(ODatabaseSessionInternal session, String database,
+      OIndexManagerAbstract indexManager);
 
-  void onFunctionLibraryUpdate(String database);
+  void onFunctionLibraryUpdate(ODatabaseSessionInternal session, String database);
 
-  void onSequenceLibraryUpdate(String database);
+  void onSequenceLibraryUpdate(ODatabaseSessionInternal session, String database);
 
-  void onStorageConfigurationUpdate(String database, OStorageConfiguration update);
+  void onStorageConfigurationUpdate(String database,
+      OStorageConfiguration update);
 }

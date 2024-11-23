@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.command;
@@ -45,10 +45,10 @@ public class OCommandManager {
       new HashMap<String, Class<? extends OCommandRequest>>();
   private final Map<Class<? extends OCommandRequest>, OCallable<Void, OCommandRequest>>
       configCallbacks =
-          new HashMap<Class<? extends OCommandRequest>, OCallable<Void, OCommandRequest>>();
+      new HashMap<Class<? extends OCommandRequest>, OCallable<Void, OCommandRequest>>();
   private final Map<Class<? extends OCommandRequest>, Class<? extends OCommandExecutor>>
       commandReqExecMap =
-          new HashMap<Class<? extends OCommandRequest>, Class<? extends OCommandExecutor>>();
+      new HashMap<Class<? extends OCommandRequest>, Class<? extends OCommandExecutor>>();
   private final Map<String, OScriptExecutor> scriptExecutors = new HashMap<>();
 
   public OCommandManager() {

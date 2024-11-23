@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,13 +9,14 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://www.orientdb.com
+ * <p>*
  */
 package com.orientechnologies.security.ldap;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDBInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -27,15 +26,21 @@ import com.orientechnologies.orient.core.security.OSecurityComponent;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.naming.directory.DirContext;
 import javax.security.auth.Subject;
 
 /**
  * Provides an LDAP importer.
- *
- * @author S. Colin Leister
  */
 public class OLDAPImporter implements OSecurityComponent {
 
@@ -44,7 +49,7 @@ public class OLDAPImporter implements OSecurityComponent {
   private boolean debug = false;
   private boolean enabled = true;
 
-  private OrientDBInternal context;
+  private OxygenDBInternal context;
 
   private int importPeriod = 60; // Default to 60
   // seconds.
@@ -83,12 +88,13 @@ public class OLDAPImporter implements OSecurityComponent {
         importTask, 30000, importPeriod * 1000L); // Wait 30 seconds before starting
 
     OLogManager.instance().info(this, "**************************************");
-    OLogManager.instance().info(this, "** OrientDB LDAP Importer Is Active **");
+    OLogManager.instance().info(this, "** OxygenDB LDAP Importer Is Active **");
     OLogManager.instance().info(this, "**************************************");
   }
 
   // OSecurityComponent
-  public void config(final ODocument importDoc, OSecuritySystem security) {
+  public void config(ODatabaseSessionInternal session, final ODocument importDoc,
+      OSecuritySystem security) {
     try {
       context = security.getContext();
       this.security = security;
@@ -294,24 +300,24 @@ public class OLDAPImporter implements OSecurityComponent {
 
         System.out.println("calling createProperty");
 
-        OProperty prop = ldapUser.createProperty("Domain", OType.STRING);
+        OProperty prop = ldapUser.createProperty(odb, "Domain", OType.STRING);
 
         System.out.println("calling setMandatory");
 
-        prop.setMandatory(true);
-        prop.setNotNull(true);
+        prop.setMandatory(odb, true);
+        prop.setNotNull(odb, true);
 
-        prop = ldapUser.createProperty("BaseDN", OType.STRING);
-        prop.setMandatory(true);
-        prop.setNotNull(true);
+        prop = ldapUser.createProperty(odb, "BaseDN", OType.STRING);
+        prop.setMandatory(odb, true);
+        prop.setNotNull(odb, true);
 
-        prop = ldapUser.createProperty("Filter", OType.STRING);
-        prop.setMandatory(true);
-        prop.setNotNull(true);
+        prop = ldapUser.createProperty(odb, "Filter", OType.STRING);
+        prop.setMandatory(odb, true);
+        prop.setNotNull(odb, true);
 
-        prop = ldapUser.createProperty("Roles", OType.STRING);
-        prop.setMandatory(true);
-        prop.setNotNull(true);
+        prop = ldapUser.createProperty(odb, "Roles", OType.STRING);
+        prop.setMandatory(odb, true);
+        prop.setNotNull(odb, true);
       }
     } catch (Exception ex) {
       OLogManager.instance().error(this, "OLDAPImporter.verifySchema()", ex);
@@ -491,7 +497,7 @@ public class OLDAPImporter implements OSecurityComponent {
           // again.
           boolean deleteUsers = false;
 
-          // Retrieves all the current OrientDB users from the specified ODatabase and stores them
+          // Retrieves all the current OxygenDB users from the specified ODatabase and stores them
           // in usersToBeDeleted.
           retrieveAllUsers(odb, db.ignoreLocal(), usersToBeDeleted);
 

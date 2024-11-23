@@ -8,8 +8,6 @@ import com.orientechnologies.orient.core.sql.parser.OIdentifier;
 
 /**
  * Assigns a class to documents coming from upstream
- *
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class SetDocumentClassStep extends AbstractExecutionStep {
 

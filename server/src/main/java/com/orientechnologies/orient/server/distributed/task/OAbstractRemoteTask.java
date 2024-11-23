@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.distributed.task;
@@ -27,8 +27,6 @@ import java.io.IOException;
 
 /**
  * Base class for Tasks to be executed remotely.
- *
- * @author Luca Garulli (l.garulli--at--orientdb.com)
  */
 public abstract class OAbstractRemoteTask implements ORemoteTask {
 
@@ -37,7 +35,8 @@ public abstract class OAbstractRemoteTask implements ORemoteTask {
   /**
    * Constructor used from unmarshalling.
    */
-  public OAbstractRemoteTask() {}
+  public OAbstractRemoteTask() {
+  }
 
   @Override
   public long getDistributedTimeout() {
@@ -103,8 +102,10 @@ public abstract class OAbstractRemoteTask implements ORemoteTask {
   }
 
   @Override
-  public void toStream(DataOutput out) throws IOException {}
+  public void toStream(DataOutput out) throws IOException {
+  }
 
   @Override
-  public void fromStream(DataInput in, ORemoteTaskFactory factory) throws IOException {}
+  public void fromStream(DataInput in, ORemoteTaskFactory factory) throws IOException {
+  }
 }

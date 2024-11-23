@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.server.security;
 
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.exception.OSecurityException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -19,7 +19,7 @@ import org.junit.Test;
 public class ORemoteSecurityTests {
 
   private static final String DB_NAME = ORemoteSecurityTests.class.getSimpleName();
-  private OrientDB orient;
+  private OxygenDB orient;
   private OServer server;
   private ODatabaseSession db;
 
@@ -27,14 +27,14 @@ public class ORemoteSecurityTests {
   public void before()
       throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
     server = OServer.startFromClasspathConfig("abstract-orientdb-server-config.xml");
-    orient = new OrientDB("remote:localhost", "root", "root", OrientDBConfig.defaultConfig());
+    orient = new OxygenDB("remote:localhost", "root", "root", OxygenDBConfig.defaultConfig());
     orient.execute(
         "create database ? memory users (admin identified by 'admin' role admin, writer identified"
             + " by 'writer' role writer, reader identified by 'reader' role reader)",
         DB_NAME);
     this.db = orient.open(DB_NAME, "admin", "admin");
     OClass person = db.createClass("Person");
-    person.createProperty("name", OType.STRING);
+    person.createProperty(db, "name", OType.STRING);
   }
 
   @After

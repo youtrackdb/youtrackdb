@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2014 OrientDB LTD (info(at)orientdb.com)
+ *  *  Copyright 2014 OxygenDB LTD (info(at)orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  *
  */
 
@@ -36,7 +36,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * @author Matan Shukry (matanshukry@gmail.com)
  * @since 3/2/2015
  */
 public class OSequenceLibraryImpl {
@@ -44,7 +43,7 @@ public class OSequenceLibraryImpl {
   private final Map<String, OSequence> sequences = new ConcurrentHashMap<String, OSequence>();
   private final AtomicBoolean reloadNeeded = new AtomicBoolean(false);
 
-  public void create(ODatabaseSessionInternal database) {
+  public static void create(ODatabaseSessionInternal database) {
     init(database);
   }
 
@@ -160,14 +159,14 @@ public class OSequenceLibraryImpl {
     onSequenceLibraryUpdate(database);
   }
 
-  private void init(final ODatabaseSessionInternal database) {
+  private static void init(final ODatabaseSessionInternal database) {
     if (database.getMetadata().getSchema().existsClass(OSequence.CLASS_NAME)) {
       return;
     }
 
     final OClassImpl sequenceClass =
         (OClassImpl) database.getMetadata().getSchema().createClass(OSequence.CLASS_NAME);
-    OSequence.initClass(sequenceClass);
+    OSequence.initClass(database, sequenceClass);
   }
 
   private void validateSequenceNoExists(final String iName) {
@@ -176,9 +175,9 @@ public class OSequenceLibraryImpl {
     }
   }
 
-  private void onSequenceLibraryUpdate(ODatabaseSessionInternal database) {
+  private static void onSequenceLibraryUpdate(ODatabaseSessionInternal database) {
     for (OMetadataUpdateListener one : database.getSharedContext().browseListeners()) {
-      one.onSequenceLibraryUpdate(database.getName());
+      one.onSequenceLibraryUpdate(database, database.getName());
     }
   }
 

@@ -25,7 +25,7 @@ public class DateBinaryComparatorTest extends BaseMemoryDatabase {
 
   private void initSchema() {
     OClass testClass = db.getMetadata().getSchema().createClass("Test");
-    testClass.createProperty("date", OType.DATE);
+    testClass.createProperty(db, "date", OType.DATE);
     db.begin();
     ODocument document = new ODocument(testClass.getName());
 

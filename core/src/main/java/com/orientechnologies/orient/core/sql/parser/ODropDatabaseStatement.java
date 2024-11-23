@@ -3,7 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OServerCommandContext;
-import com.orientechnologies.orient.core.db.OrientDBInternal;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -31,7 +31,7 @@ public class ODropDatabaseStatement extends OSimpleExecServerStatement {
     } else {
       nameString = "" + nameParam.getValue(ctx.getInputParameters());
     }
-    OrientDBInternal server = ctx.getServer();
+    OxygenDBInternal server = ctx.getServer();
     OResultInternal result = new OResultInternal();
     result.setProperty("operation", "drop database");
     result.setProperty("name", nameString);

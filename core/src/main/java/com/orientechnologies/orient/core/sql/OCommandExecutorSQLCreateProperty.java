@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql;
@@ -23,6 +23,7 @@ import com.orientechnologies.orient.core.command.OCommandDistributedReplicateReq
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OClassEmbedded;
@@ -38,9 +39,6 @@ import java.util.regex.Pattern;
 
 /**
  * SQL CREATE PROPERTY command: Creates a new property in the target class.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
- * @author Michael MacFadden
  */
 @SuppressWarnings("unchecked")
 public class OCommandExecutorSQLCreateProperty extends OCommandExecutorSQLAbstract
@@ -276,7 +274,7 @@ public class OCommandExecutorSQLCreateProperty extends OCommandExecutorSQLAbstra
     if (nextToken.length() > 0) {
       result.add(nextToken);
     }
-    return result.toArray(new String[] {});
+    return result.toArray(new String[]{});
   }
 
   @Override
@@ -289,7 +287,7 @@ public class OCommandExecutorSQLCreateProperty extends OCommandExecutorSQLAbstra
   /**
    * Execute the CREATE PROPERTY.
    */
-  public Object execute(final Map<Object, Object> iArgs) {
+  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
     if (type == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
@@ -306,7 +304,7 @@ public class OCommandExecutorSQLCreateProperty extends OCommandExecutorSQLAbstra
 
     if (prop != null) {
       if (ifNotExists) {
-        return sourceClass.properties().size();
+        return sourceClass.properties(database).size();
       }
       throw new OCommandExecutionException(
           "Property '"
@@ -332,21 +330,21 @@ public class OCommandExecutorSQLCreateProperty extends OCommandExecutorSQLAbstra
 
     // CREATE IT LOCALLY
     OProperty internalProp =
-        sourceClass.addProperty(fieldName, type, linkedType, linkedClass, unsafe);
+        sourceClass.addProperty(database, fieldName, type, linkedType, linkedClass, unsafe);
     if (readonly) {
-      internalProp.setReadonly(true);
+      internalProp.setReadonly(database, true);
     }
 
     if (mandatory) {
-      internalProp.setMandatory(true);
+      internalProp.setMandatory(database, true);
     }
 
     if (notnull) {
-      internalProp.setNotNull(true);
+      internalProp.setNotNull(database, true);
     }
 
     if (max != null) {
-      internalProp.setMax(max);
+      internalProp.setMax(database, max);
     }
 
     if (min != null) {
@@ -354,10 +352,10 @@ public class OCommandExecutorSQLCreateProperty extends OCommandExecutorSQLAbstra
     }
 
     if (defaultValue != null) {
-      internalProp.setDefaultValue(defaultValue);
+      internalProp.setDefaultValue(database, defaultValue);
     }
 
-    return sourceClass.properties().size();
+    return sourceClass.properties(database).size();
   }
 
   @Override

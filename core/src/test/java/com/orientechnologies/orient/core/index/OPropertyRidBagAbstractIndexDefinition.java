@@ -17,7 +17,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 1/30/14
  */
 public abstract class OPropertyRidBagAbstractIndexDefinition extends BaseMemoryDatabase {

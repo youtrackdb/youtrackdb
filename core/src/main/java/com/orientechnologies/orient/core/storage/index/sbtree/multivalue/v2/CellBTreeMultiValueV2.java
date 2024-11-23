@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -90,7 +90,6 @@ import java.util.stream.StreamSupport;
  *         amount of memory involved in performing of operations and as result speed up data
  *         processing.
  *
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 8/7/13
  */
 public final class CellBTreeMultiValueV2<K> extends ODurableComponent
@@ -174,8 +173,7 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
             }
 
             try (final OCacheEntry rootCacheEntry = addPage(atomicOperation, fileId)) {
-              @SuppressWarnings("unused")
-              final CellBTreeMultiValueV2Bucket<K> rootBucket =
+              @SuppressWarnings("unused") final CellBTreeMultiValueV2Bucket<K> rootBucket =
                   new CellBTreeMultiValueV2Bucket<>(rootCacheEntry);
               rootBucket.init(true);
             }
@@ -240,8 +238,7 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
           while (leftSibling >= 0) {
 
             try (OCacheEntry cacheEntry = loadPageForRead(atomicOperation, fileId, leftSibling)) {
-              @SuppressWarnings("ObjectAllocationInLoop")
-              final CellBTreeMultiValueV2Bucket<K> bucket =
+              @SuppressWarnings("ObjectAllocationInLoop") final CellBTreeMultiValueV2Bucket<K> bucket =
                   new CellBTreeMultiValueV2Bucket<>(cacheEntry);
               final int size = bucket.size();
 
@@ -736,11 +733,11 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
                 if (result == 0) {
                   removed =
                       multiContainer.remove(
-                              atomicOperation,
-                              new MultiValueEntry(
-                                  nullBucket.getMid(),
-                                  value.getClusterId(),
-                                  value.getClusterPosition()))
+                          atomicOperation,
+                          new MultiValueEntry(
+                              nullBucket.getMid(),
+                              value.getClusterId(),
+                              value.getClusterPosition()))
                           != null;
                   if (removed) {
                     nullBucket.decrementSize();
@@ -777,8 +774,8 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
       final long mId = bucket.getMid(itemIndex);
       removed =
           multiContainer.remove(
-                  atomicOperation,
-                  new MultiValueEntry(mId, value.getClusterId(), value.getClusterPosition()))
+              atomicOperation,
+              new MultiValueEntry(mId, value.getClusterId(), value.getClusterPosition()))
               != null;
       if (removed) {
         if (bucket.decrementEntriesCount(itemIndex)) {
@@ -1438,8 +1435,8 @@ public final class CellBTreeMultiValueV2<K> extends ODurableComponent
           resultInsertionIndexes);
     } else if (splitLeaf
         && keyToInsert.equals(
-            Optional.ofNullable(separationKey)
-                .orElseGet(() -> deserializeKey(serializedSeparationKey)))) {
+        Optional.ofNullable(separationKey)
+            .orElseGet(() -> deserializeKey(serializedSeparationKey)))) {
       return addToTheRightNonRootBucket(
           keyIndex,
           true,

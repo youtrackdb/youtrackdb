@@ -12,8 +12,6 @@ import com.orientechnologies.orient.core.sql.parser.OIdentifier;
 /**
  * Returns the number of records contained in a class (including subclasses) Executes a count(*) on
  * a class and returns a single record that contains that value (with a specific alias).
- *
- * @author Luigi Dell'Aquila (luigi.dellaquila - at - gmail.com)
  */
 public class CountFromClassStep extends AbstractExecutionStep {
 
@@ -43,7 +41,8 @@ public class CountFromClassStep extends AbstractExecutionStep {
   }
 
   private OResult produce(OCommandContext ctx) {
-    OImmutableSchema schema = ctx.getDatabase().getMetadata().getImmutableSchemaSnapshot();
+    var db = ctx.getDatabase();
+    OImmutableSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
     OClass clazz = schema.getClass(target.getStringValue());
     if (clazz == null) {
       clazz = schema.getView(target.getStringValue());
@@ -52,7 +51,7 @@ public class CountFromClassStep extends AbstractExecutionStep {
       throw new OCommandExecutionException(
           "Class " + target.getStringValue() + " does not exist in the database schema");
     }
-    long size = clazz.count();
+    long size = clazz.count(db);
     OResultInternal result = new OResultInternal();
     result.setProperty(alias, size);
     return result;

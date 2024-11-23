@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.metadata.security;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.After;
@@ -17,15 +17,15 @@ import org.junit.Test;
 public class OClassSecurityTest {
 
   private static final String DB_NAME = OClassSecurityTest.class.getSimpleName();
-  private static OrientDB orient;
+  private static OxygenDB orient;
   private ODatabaseSession db;
 
   @BeforeClass
   public static void beforeClass() {
     orient =
-        new OrientDB(
+        new OxygenDB(
             "plocal:.",
-            OrientDBConfig.builder()
+            OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
   }
@@ -64,9 +64,9 @@ public class OClassSecurityTest {
     db.createClass("Person");
     db.begin();
     ORole reader = db.getMetadata().getSecurity().getRole("reader");
-    reader.grant(ORule.ResourceGeneric.CLASS, "Person", ORole.PERMISSION_NONE);
-    reader.revoke(ORule.ResourceGeneric.CLASS, "Person", ORole.PERMISSION_READ);
-    reader.save();
+    reader.grant(db, ORule.ResourceGeneric.CLASS, "Person", ORole.PERMISSION_NONE);
+    reader.revoke(db, ORule.ResourceGeneric.CLASS, "Person", ORole.PERMISSION_READ);
+    reader.save(db);
     db.commit();
 
     db.begin();

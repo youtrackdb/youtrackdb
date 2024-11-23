@@ -39,7 +39,7 @@ public class OTruncateClassStatement extends ODDLStatement {
       throw new OCommandExecutionException("Schema Class not found: " + className);
     }
 
-    final long recs = clazz.count(polymorphic);
+    final long recs = clazz.count(ctx.getDatabase(), polymorphic);
     if (recs > 0 && !unsafe) {
       if (clazz.isSubClassOf("V")) {
         throw new OCommandExecutionException(
@@ -52,11 +52,11 @@ public class OTruncateClassStatement extends ODDLStatement {
       }
     }
 
-    List<OResult> rs = new ArrayList();
+    List<OResult> rs = new ArrayList<>();
     Collection<OClass> subclasses = clazz.getAllSubclasses();
     if (polymorphic && !unsafe) { // for multiple inheritance
       for (OClass subclass : subclasses) {
-        long subclassRecs = clazz.count();
+        long subclassRecs = clazz.count(db);
         if (subclassRecs > 0) {
           if (subclass.isSubClassOf("V")) {
             throw new OCommandExecutionException(

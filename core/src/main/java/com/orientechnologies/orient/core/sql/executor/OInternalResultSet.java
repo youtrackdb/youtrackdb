@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Created by luigidellaquila on 07/07/16.
+ *
  */
 public class OInternalResultSet implements OResultSet, OResettable {
 

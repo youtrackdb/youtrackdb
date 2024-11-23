@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.client.remote.message;
@@ -24,6 +24,7 @@ import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.client.remote.TreeEntry;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
@@ -70,13 +71,14 @@ public class OSBTFetchEntriesMajorResponse<K, V> implements OBinaryResponse {
     }
   }
 
-  public void write(OChannelDataOutput channel, int protocolVersion, ORecordSerializer serializer)
+  public void write(ODatabaseSessionInternal session, OChannelDataOutput channel,
+      int protocolVersion, ORecordSerializer serializer)
       throws IOException {
     byte[] stream =
         new byte
             [OIntegerSerializer.INT_SIZE
-                + list.size()
-                    * (keySerializer.getFixedLength() + valueSerializer.getFixedLength())];
+            + list.size()
+            * (keySerializer.getFixedLength() + valueSerializer.getFixedLength())];
     int offset = 0;
 
     OIntegerSerializer.INSTANCE.serializeLiteral(list.size(), stream, offset);

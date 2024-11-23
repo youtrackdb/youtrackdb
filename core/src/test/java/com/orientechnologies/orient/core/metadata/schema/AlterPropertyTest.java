@@ -16,10 +16,10 @@ public class AlterPropertyTest extends BaseMemoryDatabase {
   public void testPropertyRenaming() {
     OSchema schema = db.getMetadata().getSchema();
     OClass classA = schema.createClass("TestPropertyRenaming");
-    OProperty property = classA.createProperty("propertyOld", OType.STRING);
+    OProperty property = classA.createProperty(db, "propertyOld", OType.STRING);
     assertEquals(property, classA.getProperty("propertyOld"));
     assertNull(classA.getProperty("propertyNew"));
-    property.setName("propertyNew");
+    property.setName(db, "propertyNew");
     assertNull(classA.getProperty("propertyOld"));
     assertEquals(property, classA.getProperty("propertyNew"));
   }
@@ -28,10 +28,10 @@ public class AlterPropertyTest extends BaseMemoryDatabase {
   public void testPropertyRenamingReload() {
     OSchema schema = db.getMetadata().getSchema();
     OClass classA = schema.createClass("TestPropertyRenaming");
-    OProperty property = classA.createProperty("propertyOld", OType.STRING);
+    OProperty property = classA.createProperty(db, "propertyOld", OType.STRING);
     assertEquals(property, classA.getProperty("propertyOld"));
     assertNull(classA.getProperty("propertyNew"));
-    property.setName("propertyNew");
+    property.setName(db, "propertyNew");
     classA = schema.getClass("TestPropertyRenaming");
     assertNull(classA.getProperty("propertyOld"));
     assertEquals(property, classA.getProperty("propertyNew"));
@@ -42,7 +42,7 @@ public class AlterPropertyTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     OClass classA = schema.createClass("TestMapProperty");
     try {
-      classA.createProperty("propertyMap", OType.LINKMAP, OType.STRING);
+      classA.createProperty(db, "propertyMap", OType.LINKMAP, OType.STRING);
       fail("create linkmap property should not allow linked type");
     } catch (OSchemaException e) {
 
@@ -58,7 +58,7 @@ public class AlterPropertyTest extends BaseMemoryDatabase {
     OClass classA = schema.createClass("TestMapProperty");
     OClass classLinked = schema.createClass("LinkedClass");
     try {
-      classA.createProperty("propertyString", OType.STRING, classLinked);
+      classA.createProperty(db, "propertyString", OType.STRING, classLinked);
       fail("create linkmap property should not allow linked type");
     } catch (OSchemaException e) {
 
@@ -73,9 +73,9 @@ public class AlterPropertyTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     OClass classA = schema.createClass("TestRemoveLinkedClass");
     OClass classLinked = schema.createClass("LinkedClass");
-    OProperty prop = classA.createProperty("propertyLink", OType.LINK, classLinked);
+    OProperty prop = classA.createProperty(db, "propertyLink", OType.LINK, classLinked);
     assertNotNull(prop.getLinkedClass());
-    prop.setLinkedClass(null);
+    prop.setLinkedClass(db, null);
     assertNull(prop.getLinkedClass());
   }
 
@@ -84,7 +84,7 @@ public class AlterPropertyTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     OClass classA = schema.createClass("TestRemoveLinkedClass");
     OClass classLinked = schema.createClass("LinkedClass");
-    OProperty prop = classA.createProperty("propertyLink", OType.LINK, classLinked);
+    OProperty prop = classA.createProperty(db, "propertyLink", OType.LINK, classLinked);
     assertNotNull(prop.getLinkedClass());
     db.command("alter property TestRemoveLinkedClass.propertyLink linkedclass null").close();
     assertNull(prop.getLinkedClass());
@@ -94,7 +94,7 @@ public class AlterPropertyTest extends BaseMemoryDatabase {
   public void testMax() {
     OSchema schema = db.getMetadata().getSchema();
     OClass classA = schema.createClass("TestWrongMax");
-    OProperty prop = classA.createProperty("dates", OType.EMBEDDEDLIST, OType.DATE);
+    OProperty prop = classA.createProperty(db, "dates", OType.EMBEDDEDLIST, OType.DATE);
 
     db.command("alter property TestWrongMax.dates max 2016-05-25").close();
 
@@ -121,12 +121,12 @@ public class AlterPropertyTest extends BaseMemoryDatabase {
   public void testAlterCustomAttributeInProperty() {
     OSchema schema = db.getMetadata().getSchema();
     OClass oClass = schema.createClass("TestCreateCustomAttributeClass");
-    OProperty property = oClass.createProperty("property", OType.STRING);
+    OProperty property = oClass.createProperty(db, "property", OType.STRING);
 
-    property.setCustom("customAttribute", "value1");
+    property.setCustom(db, "customAttribute", "value1");
     assertEquals("value1", property.getCustom("customAttribute"));
 
-    property.setCustom("custom.attribute", "value2");
+    property.setCustom(db, "custom.attribute", "value2");
     assertEquals("value2", property.getCustom("custom.attribute"));
   }
 }

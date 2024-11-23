@@ -5,7 +5,7 @@ import com.orientechnologies.orient.server.BaseServerMemoryDatabase;
 import org.junit.Test;
 
 /**
- * Created by tglman on 03/01/17.
+ *
  */
 public class RemoteDropClusterTest extends BaseServerMemoryDatabase {
 

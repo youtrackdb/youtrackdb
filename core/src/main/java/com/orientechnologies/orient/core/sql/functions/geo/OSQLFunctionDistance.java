@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,20 +14,19 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.functions.geo;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 
 /**
  * Haversine formula to compute the distance between 2 gro points.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionDistance extends OSQLFunctionAbstract {
 
@@ -54,7 +53,8 @@ public class OSQLFunctionDistance extends OSQLFunctionAbstract {
         return null;
       }
 
-      values[i] = ((Double) OType.convert(iParams[i], Double.class)).doubleValue();
+      values[i] = (Double) OType.convert(iContext.getDatabase(), iParams[i],
+          Double.class);
     }
 
     final double deltaLat = Math.toRadians(values[2] - values[0]);
@@ -63,8 +63,8 @@ public class OSQLFunctionDistance extends OSQLFunctionAbstract {
     final double a =
         Math.pow(Math.sin(deltaLat / 2), 2)
             + Math.cos(Math.toRadians(values[0]))
-                * Math.cos(Math.toRadians(values[2]))
-                * Math.pow(Math.sin(deltaLon / 2), 2);
+            * Math.cos(Math.toRadians(values[2]))
+            * Math.pow(Math.sin(deltaLon / 2), 2);
     distance = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)) * EARTH_RADIUS;
 
     if (iParams.length > 4) {
@@ -89,7 +89,7 @@ public class OSQLFunctionDistance extends OSQLFunctionAbstract {
     return distance;
   }
 
-  public String getSyntax() {
+  public String getSyntax(ODatabaseSession session) {
     return "distance(<field-x>,<field-y>,<x-value>,<y-value>[,<unit>])";
   }
 }

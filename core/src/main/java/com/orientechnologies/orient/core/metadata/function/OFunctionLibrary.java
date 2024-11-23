@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,17 +14,16 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.metadata.function;
 
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import java.util.Set;
 
 /**
  * Manages stored functions.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OFunctionLibrary {
 
@@ -34,9 +33,9 @@ public interface OFunctionLibrary {
 
   OFunction createFunction(String iName);
 
-  void dropFunction(String iName);
+  void dropFunction(ODatabaseSession session, String iName);
 
-  void dropFunction(OFunction function);
+  void dropFunction(ODatabaseSession session, OFunction function);
 
   @Deprecated
   void create();

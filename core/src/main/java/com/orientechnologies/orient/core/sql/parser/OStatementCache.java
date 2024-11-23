@@ -4,7 +4,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDBInternal;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -15,8 +15,6 @@ import java.util.Map;
 /**
  * This class is an LRU cache for already parsed SQL statement executors. It stores itself in the
  * storage as a resource. It also acts an an entry point for the SQL parser.
- *
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class OStatementCache {
 
@@ -73,11 +71,11 @@ public class OStatementCache {
    * creating a new one (parsing and then putting it into the cache) if it doesn't
    *
    * @param statement the SQL statement
-   * @param db        the current OrientDB instance. If null, cache is ignored and a new executor is
+   * @param db        the current OxygenDB instance. If null, cache is ignored and a new executor is
    *                  created through statement parsing
    * @return a statement executor from the cache
    */
-  public static OServerStatement getServerStatement(String statement, OrientDBInternal db) {
+  public static OServerStatement getServerStatement(String statement, OxygenDBInternal db) {
     // TODO create a global cache!
     return parseServerStatement(statement);
   }

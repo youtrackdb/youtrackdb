@@ -11,7 +11,7 @@ import com.orientechnologies.orient.core.sql.parser.OFromClause;
 import java.util.Iterator;
 
 /**
- * Created by luigidellaquila on 06/08/16.
+ *
  */
 public class FetchFromIndexedFunctionStep extends AbstractExecutionStep {
 

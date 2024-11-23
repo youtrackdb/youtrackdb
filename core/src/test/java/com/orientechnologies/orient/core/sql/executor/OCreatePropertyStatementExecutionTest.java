@@ -13,7 +13,7 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
 import org.junit.Test;
 
 /**
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ *
  */
 public class OCreatePropertyStatementExecutionTest extends BaseMemoryDatabase {
 

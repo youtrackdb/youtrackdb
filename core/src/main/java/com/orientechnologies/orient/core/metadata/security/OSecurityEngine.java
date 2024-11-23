@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.metadata.security;
 
+import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
@@ -9,6 +10,7 @@ import com.orientechnologies.orient.core.exception.OSecurityException;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.parser.OAndBlock;
@@ -201,7 +203,7 @@ public class OSecurityEngine {
       OSecurityRole role,
       OFunction clazz,
       OSecurityPolicy.Scope scope) {
-    String resource = "database.function." + clazz.getName();
+    String resource = "database.function." + clazz.getName(session);
     Map<String, OSecurityPolicy> definedPolicies = security.getSecurityPolicies(session, role);
     OSecurityPolicy policy = definedPolicies.get(resource);
 
@@ -226,7 +228,7 @@ public class OSecurityEngine {
       OSecurityPolicy.Scope scope) {
     OBooleanExpression result;
     if (role != null) {
-      result = security.getPredicateFromCache(role.getName(), clazz.getName());
+      result = security.getPredicateFromCache(role.getName(session), clazz.getName());
       if (result != null) {
         return result;
       }
@@ -244,7 +246,7 @@ public class OSecurityEngine {
       result = OBooleanExpression.FALSE;
     }
     if (role != null) {
-      security.putPredicateInCache(role.getName(), clazz.getName(), result);
+      security.putPredicateInCache(role.getName(session), clazz.getName(), result);
     }
     return result;
   }
@@ -259,7 +261,7 @@ public class OSecurityEngine {
     String cacheKey = "$CLASS$" + clazz.getName() + "$PROP$" + propertyName + "$" + scope;
     OBooleanExpression result;
     if (role != null) {
-      result = security.getPredicateFromCache(role.getName(), cacheKey);
+      result = security.getPredicateFromCache(role.getName(session), cacheKey);
       if (result != null) {
         return result;
       }
@@ -275,7 +277,7 @@ public class OSecurityEngine {
       result = OBooleanExpression.FALSE;
     }
     if (role != null) {
-      security.putPredicateInCache(role.getName(), cacheKey, result);
+      security.putPredicateInCache(role.getName(session), cacheKey, result);
     }
     return result;
   }
@@ -416,21 +418,26 @@ public class OSecurityEngine {
     try {
       // Create a new instance of ODocument with a user record id, this will lazy load the user data
       // at the first access with the same execution permission of the policy
-      OIdentifiable user = session.getUser().getIdentity();
-      return ((ODatabaseSessionInternal) session)
+      OIdentifiable user = session.getUser().getIdentity(session);
+
+      var sessionInternal = (ODatabaseSessionInternal) session;
+      var recordCopy = ((ORecordAbstract) record).copy();
+      return sessionInternal
           .getSharedContext()
           .getOrientDB()
-          .executeNoAuthorization(
-              session.getName(),
+          .executeNoAuthorizationSync(
+              sessionInternal,
               (db -> {
                 OBasicCommandContext ctx = new OBasicCommandContext();
                 ctx.setDatabase(db);
                 ctx.setDynamicVariable("$currentUser", (inContext) -> user.getRecordSilently());
-                return predicate.evaluate(record, ctx);
-              }))
-          .get();
+
+                recordCopy.setup(db);
+                return predicate.evaluate(recordCopy, ctx);
+              }));
     } catch (Exception e) {
-      throw new OSecurityException("Cannot execute security predicate");
+      throw OException.wrapException(
+          new OSecurityException("Cannot execute security predicate"), e);
     }
   }
 
@@ -445,11 +452,11 @@ public class OSecurityEngine {
     try {
       // Create a new instance of ODocument with a user record id, this will lazy load the user data
       // at the first access with the same execution permission of the policy
-      final ODocument user = session.getUser().getIdentity().getRecordSilently();
+      final ODocument user = session.getUser().getIdentity(session).getRecordSilently();
       return ((ODatabaseSessionInternal) session)
           .getSharedContext()
           .getOrientDB()
-          .executeNoAuthorization(
+          .executeNoAuthorizationAsync(
               session.getName(),
               (db -> {
                 OBasicCommandContext ctx = new OBasicCommandContext();

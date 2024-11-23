@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
 import com.orientechnologies.lucene.query.OLuceneQueryContext;
 import com.orientechnologies.lucene.tx.OLuceneTxChanges;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.OContextualRecordId;
 import com.orientechnologies.orient.core.id.ORID;
@@ -119,23 +120,24 @@ public class OLuceneFullTextIndexEngine extends OLuceneIndexEngineAbstract {
   }
 
   @Override
-  public Object get(final Object key) {
-    return getInTx(key, null);
+  public Object get(ODatabaseSessionInternal session, final Object key) {
+    return getInTx(session, key, null);
   }
 
   @Override
   public void update(
-      final OAtomicOperation atomicOperation,
+      ODatabaseSessionInternal session, final OAtomicOperation atomicOperation,
       final Object key,
       final OIndexKeyUpdater<Object> updater) {
-    put(atomicOperation, key, updater.update(null, bonsayFileId).getValue());
+    put(session, atomicOperation, key, updater.update(null, bonsayFileId).getValue());
   }
 
   @Override
-  public void put(final OAtomicOperation atomicOperation, final Object key, final Object value) {
+  public void put(ODatabaseSessionInternal session, final OAtomicOperation atomicOperation,
+      final Object key, final Object value) {
     updateLastAccess();
     openIfClosed();
-    final Document doc = buildDocument(key, (OIdentifiable) value);
+    final Document doc = buildDocument(session, key, (OIdentifiable) value);
     addDocument(doc);
   }
 
@@ -151,13 +153,14 @@ public class OLuceneFullTextIndexEngine extends OLuceneIndexEngineAbstract {
 
   @Override
   public Stream<ORawPair<Object, ORID>> iterateEntriesBetween(
-      Object rangeFrom,
+      ODatabaseSessionInternal session, Object rangeFrom,
       boolean fromInclusive,
       Object rangeTo,
       boolean toInclusive,
       boolean ascSortOrder,
       IndexEngineValuesTransformer transformer) {
-    return LuceneIndexTransformer.transformToStream((OLuceneResultSet) get(rangeFrom), rangeFrom);
+    return LuceneIndexTransformer.transformToStream((OLuceneResultSet) get(session, rangeFrom),
+        rangeFrom);
   }
 
   private Set<OIdentifiable> getResults(
@@ -207,7 +210,7 @@ public class OLuceneFullTextIndexEngine extends OLuceneIndexEngineAbstract {
   }
 
   @Override
-  public Document buildDocument(Object key, OIdentifiable value) {
+  public Document buildDocument(ODatabaseSessionInternal session, Object key, OIdentifiable value) {
     if (indexDefinition.isAutomatic()) {
       //      builder.newBuild(index, key, value);
 
@@ -261,7 +264,8 @@ public class OLuceneFullTextIndexEngine extends OLuceneIndexEngineAbstract {
   }
 
   @Override
-  public Set<OIdentifiable> getInTx(Object key, OLuceneTxChanges changes) {
+  public Set<OIdentifiable> getInTx(ODatabaseSessionInternal session, Object key,
+      OLuceneTxChanges changes) {
     updateLastAccess();
     openIfClosed();
     try {

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.hook;
@@ -24,7 +24,6 @@ import com.orientechnologies.orient.core.record.ORecord;
 /**
  * Hook abstract class that calls separate methods for each hook defined.
  *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @see ORecordHook
  */
 public abstract class ORecordHookAbstract implements ORecordHook {
@@ -32,7 +31,8 @@ public abstract class ORecordHookAbstract implements ORecordHook {
   /**
    * Called on unregistration.
    */
-  public void onUnregister() {}
+  public void onUnregister() {
+  }
 
   /**
    * It's called just before to create the new iRecord.
@@ -50,11 +50,14 @@ public abstract class ORecordHookAbstract implements ORecordHook {
    *
    * @param iRecord The iRecord just created
    */
-  public void onRecordAfterCreate(final ORecord iRecord) {}
+  public void onRecordAfterCreate(final ORecord iRecord) {
+  }
 
-  public void onRecordCreateFailed(final ORecord iRecord) {}
+  public void onRecordCreateFailed(final ORecord iRecord) {
+  }
 
-  public void onRecordCreateReplicated(final ORecord iRecord) {}
+  public void onRecordCreateReplicated(final ORecord iRecord) {
+  }
 
   /**
    * It's called just before to read the iRecord.
@@ -71,11 +74,14 @@ public abstract class ORecordHookAbstract implements ORecordHook {
    *
    * @param iRecord The iRecord just read
    */
-  public void onRecordAfterRead(final ORecord iRecord) {}
+  public void onRecordAfterRead(final ORecord iRecord) {
+  }
 
-  public void onRecordReadFailed(final ORecord iRecord) {}
+  public void onRecordReadFailed(final ORecord iRecord) {
+  }
 
-  public void onRecordReadReplicated(final ORecord iRecord) {}
+  public void onRecordReadReplicated(final ORecord iRecord) {
+  }
 
   /**
    * It's called just before to update the iRecord.
@@ -93,11 +99,14 @@ public abstract class ORecordHookAbstract implements ORecordHook {
    *
    * @param iRecord The iRecord just updated
    */
-  public void onRecordAfterUpdate(final ORecord iRecord) {}
+  public void onRecordAfterUpdate(final ORecord iRecord) {
+  }
 
-  public void onRecordUpdateFailed(final ORecord iRecord) {}
+  public void onRecordUpdateFailed(final ORecord iRecord) {
+  }
 
-  public void onRecordUpdateReplicated(final ORecord iRecord) {}
+  public void onRecordUpdateReplicated(final ORecord iRecord) {
+  }
 
   /**
    * It's called just before to delete the iRecord.
@@ -115,41 +124,53 @@ public abstract class ORecordHookAbstract implements ORecordHook {
    *
    * @param iRecord The iRecord just deleted
    */
-  public void onRecordAfterDelete(final ORecord iRecord) {}
+  public void onRecordAfterDelete(final ORecord iRecord) {
+  }
 
-  public void onRecordDeleteFailed(final ORecord iRecord) {}
+  public void onRecordDeleteFailed(final ORecord iRecord) {
+  }
 
-  public void onRecordDeleteReplicated(final ORecord iRecord) {}
+  public void onRecordDeleteReplicated(final ORecord iRecord) {
+  }
 
   public RESULT onRecordBeforeReplicaAdd(final ORecord record) {
     return RESULT.RECORD_NOT_CHANGED;
   }
 
-  public void onRecordAfterReplicaAdd(final ORecord record) {}
+  public void onRecordAfterReplicaAdd(final ORecord record) {
+  }
 
-  public void onRecordReplicaAddFailed(final ORecord record) {}
+  public void onRecordReplicaAddFailed(final ORecord record) {
+  }
 
   public RESULT onRecordBeforeReplicaUpdate(final ORecord record) {
     return RESULT.RECORD_NOT_CHANGED;
   }
 
-  public void onRecordAfterReplicaUpdate(final ORecord record) {}
+  public void onRecordAfterReplicaUpdate(final ORecord record) {
+  }
 
-  public void onRecordReplicaUpdateFailed(final ORecord record) {}
+  public void onRecordReplicaUpdateFailed(final ORecord record) {
+  }
 
   public RESULT onRecordBeforeReplicaDelete(final ORecord record) {
     return RESULT.RECORD_NOT_CHANGED;
   }
 
-  public void onRecordAfterReplicaDelete(final ORecord record) {}
+  public void onRecordAfterReplicaDelete(final ORecord record) {
+  }
 
-  public void onRecordReplicaDeleteFailed(final ORecord record) {}
+  public void onRecordReplicaDeleteFailed(final ORecord record) {
+  }
 
-  public void onRecordFinalizeUpdate(final ORecord record) {}
+  public void onRecordFinalizeUpdate(final ORecord record) {
+  }
 
-  public void onRecordFinalizeCreation(final ORecord record) {}
+  public void onRecordFinalizeCreation(final ORecord record) {
+  }
 
-  public void onRecordFinalizeDeletion(final ORecord record) {}
+  public void onRecordFinalizeDeletion(final ORecord record) {
+  }
 
   public RESULT onTrigger(final TYPE iType, final ORecord record) {
     switch (iType) {

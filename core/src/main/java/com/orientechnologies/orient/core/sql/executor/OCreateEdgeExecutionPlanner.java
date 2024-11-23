@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by luigidellaquila on 08/08/16.
+ *
  */
 public class OCreateEdgeExecutionPlanner {
 
@@ -110,7 +110,7 @@ public class OCreateEdgeExecutionPlanner {
             "Class " + targetClass + " not found in the db schema");
       }
       uniqueIndexName =
-          clazz.getIndexes().stream()
+          clazz.getIndexes(db).stream()
               .filter(OIndex::isUnique)
               .filter(
                   x ->

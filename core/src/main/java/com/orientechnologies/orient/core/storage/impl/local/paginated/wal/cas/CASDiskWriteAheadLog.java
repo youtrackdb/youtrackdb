@@ -18,8 +18,18 @@ import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.OCheckpointRequestListener;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationMetadata;
-import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.*;
-import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.common.*;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OAtomicUnitEndRecord;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OAtomicUnitStartMetadataRecord;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OAtomicUnitStartRecord;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OLogSequenceNumber;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWALRecord;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWALRecordsFactory;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWriteAheadLog;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.common.CASWALPage;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.common.EmptyWALRecord;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.common.MilestoneWALRecord;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.common.StartWALRecord;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.common.WriteableWALRecord;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.common.deque.Cursor;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.common.deque.MPSCFAAArrayDequeue;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
@@ -33,14 +43,42 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Locale;
+import java.util.Map;
+import java.util.NavigableSet;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import javax.crypto.*;
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.ShortBufferException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import net.jpountz.xxhash.XXHash64;
@@ -67,11 +105,11 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
   static {
     commitExecutor =
         OThreadPoolExecutors.newSingleThreadScheduledPool(
-            "OrientDB WAL Flush Task", OAbstractPaginatedStorage.storageThreadGroup);
+            "OxygenDB WAL Flush Task", OAbstractPaginatedStorage.storageThreadGroup);
 
     writeExecutor =
         OThreadPoolExecutors.newSingleThreadPool(
-            "OrientDB WAL Write Task Thread", OAbstractPaginatedStorage.storageThreadGroup);
+            "OxygenDB WAL Write Task Thread", OAbstractPaginatedStorage.storageThreadGroup);
   }
 
   private final boolean keepSingleWALSegment;
@@ -1452,9 +1490,9 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
       final OWALRecord record, final OWALRecord prevRecord, int pageSize, int maxRecordSize) {
     assert prevRecord.getLsn().getSegment() <= record.getLsn().getSegment()
         : "prev segment "
-            + prevRecord.getLsn().getSegment()
-            + " segment "
-            + record.getLsn().getSegment();
+        + prevRecord.getLsn().getSegment()
+        + " segment "
+        + record.getLsn().getSegment();
 
     if (prevRecord instanceof StartWALRecord) {
       assert prevRecord.getLsn().getSegment() == record.getLsn().getSegment();
@@ -1585,8 +1623,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
     } else {
       length -= freeSpace;
 
-      @SuppressWarnings("UnnecessaryLocalVariable")
-      final int firstChunk = freeSpace;
+      @SuppressWarnings("UnnecessaryLocalVariable") final int firstChunk = freeSpace;
       final int pages = length / maxRecordSize;
       final int offset = length - pages * maxRecordSize;
 
@@ -1773,7 +1810,7 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
                   }
 
                   assert written != 0
-                          || currentPosition + writeBuffer.position() == lsn.getPosition()
+                      || currentPosition + writeBuffer.position() == lsn.getPosition()
                       : (currentPosition + writeBuffer.position()) + " vs " + lsn.getPosition();
                   final int chunkSize =
                       Math.min(
@@ -2043,13 +2080,13 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
         assert buffer.position() == initialPos + written;
         assert file.position() == expectedPosition - buffer.limit() + initialPos + written
             : "File position "
-                + file.position()
-                + " buffer limit "
-                + buffer.limit()
-                + " initial pos "
-                + initialPos
-                + " written "
-                + written;
+            + file.position()
+            + " buffer limit "
+            + buffer.limit()
+            + " initial pos "
+            + initialPos
+            + " written "
+            + written;
       }
 
       assert file.position() == expectedPosition;
@@ -2106,14 +2143,14 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
       final long threadsWaitingSum = CASDiskWriteAheadLog.this.threadsWaitingSum.sum();
 
       final Object[] additionalArgs =
-          new Object[] {
-            storageName,
-            bytesWritten / 1024,
-            writtenTime > 0 ? 1_000_000_000L * bytesWritten / writtenTime / 1024 : -1,
-            fsyncCount,
-            fsyncCount > 0 ? fsyncTime / fsyncCount / 1_000_000 : -1,
-            threadsWaitingCount,
-            threadsWaitingCount > 0 ? threadsWaitingSum / threadsWaitingCount / 1_000_000 : -1
+          new Object[]{
+              storageName,
+              bytesWritten / 1024,
+              writtenTime > 0 ? 1_000_000_000L * bytesWritten / writtenTime / 1024 : -1,
+              fsyncCount,
+              fsyncCount > 0 ? fsyncTime / fsyncCount / 1_000_000 : -1,
+              threadsWaitingCount,
+              threadsWaitingCount > 0 ? threadsWaitingSum / threadsWaitingCount / 1_000_000 : -1
           };
       OLogManager.instance()
           .info(

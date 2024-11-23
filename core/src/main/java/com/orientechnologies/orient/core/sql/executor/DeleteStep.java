@@ -8,8 +8,6 @@ import java.util.Optional;
 
 /**
  * Deletes records coming from upstream steps
- *
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class DeleteStep extends AbstractExecutionStep {
 

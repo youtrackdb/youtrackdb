@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.config;
@@ -28,13 +28,17 @@ import jakarta.xml.bind.annotation.XmlType;
 @XmlType(propOrder = {"resources", "password", "name"})
 public class OServerUserConfiguration implements OGlobalUser {
 
-  @XmlAttribute public String name;
+  @XmlAttribute
+  public String name;
 
-  @XmlAttribute public String password;
+  @XmlAttribute
+  public String password;
 
-  @XmlAttribute public String resources;
+  @XmlAttribute
+  public String resources;
 
-  public OServerUserConfiguration() {}
+  public OServerUserConfiguration() {
+  }
 
   public OServerUserConfiguration(
       final String iName, final String iPassword, final String iResources) {

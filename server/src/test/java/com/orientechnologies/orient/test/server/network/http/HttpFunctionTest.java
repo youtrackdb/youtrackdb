@@ -9,8 +9,6 @@ import org.junit.Test;
 
 /**
  * Test HTTP "function" command.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com) (l.garulli--at-orientdb.com)
  */
 public class HttpFunctionTest extends BaseHttpDatabaseTest {
 
@@ -38,8 +36,10 @@ public class HttpFunctionTest extends BaseHttpDatabaseTest {
 
     Assert.assertNotNull(response);
 
+    var responseDoc = new ODocument();
+    responseDoc.fromJSON(response);
     ODocument result =
-        ((List<ODocument>) new ODocument().fromJSON(response).field("result")).get(0);
+        ((List<ODocument>) responseDoc.field("result")).get(0);
 
     Assert.assertEquals(result.field("value"), "Hello Jay Miner");
   }

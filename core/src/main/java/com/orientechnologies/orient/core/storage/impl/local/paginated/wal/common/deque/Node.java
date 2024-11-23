@@ -14,7 +14,8 @@ public final class Node<T> extends AtomicReference<Node<T>> {
   public final AtomicReferenceArray<T> items = new AtomicReferenceArray<>(BUFFER_SIZE);
   public final AtomicInteger enqidx = new AtomicInteger(1);
 
-  Node() {}
+  Node() {
+  }
 
   Node(T record, Node<T> prev) {
     items.lazySet(0, record);

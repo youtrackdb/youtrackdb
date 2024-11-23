@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by Enrico Risa on 07/07/15.
+ *
  */
 public class LuceneExportImportTest extends BaseLuceneTest {
 
@@ -50,7 +50,7 @@ public class LuceneExportImportTest extends BaseLuceneTest {
     OSchema schema = db.getMetadata().getSchema();
     OClass oClass = schema.createClass("City");
 
-    oClass.createProperty("name", OType.STRING);
+    oClass.createProperty(db, "name", OType.STRING);
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
 
     ODocument doc = new ODocument("City");
@@ -74,12 +74,13 @@ public class LuceneExportImportTest extends BaseLuceneTest {
 
       // export
       new ODatabaseExport(
-              db,
-              file,
-              new OCommandOutputListener() {
-                @Override
-                public void onMessage(String s) {}
-              })
+          db,
+          file,
+          new OCommandOutputListener() {
+            @Override
+            public void onMessage(String s) {
+            }
+          })
           .exportDatabase();
 
       dropDatabase();
@@ -90,12 +91,13 @@ public class LuceneExportImportTest extends BaseLuceneTest {
 
       GZIPInputStream stream = new GZIPInputStream(new FileInputStream(file + ".gz"));
       new ODatabaseImport(
-              db,
-              stream,
-              new OCommandOutputListener() {
-                @Override
-                public void onMessage(String s) {}
-              })
+          db,
+          stream,
+          new OCommandOutputListener() {
+            @Override
+            public void onMessage(String s) {
+            }
+          })
           .importDatabase();
     } catch (IOException e) {
       Assert.fail(e.getMessage());

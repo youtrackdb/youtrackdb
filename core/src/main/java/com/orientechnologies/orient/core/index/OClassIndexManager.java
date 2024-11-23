@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -25,7 +25,6 @@ import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
-import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.db.record.OTrackedMultiValue;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
@@ -42,19 +41,17 @@ import java.util.Set;
 
 /**
  * Handles indexing when records change.
- *
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com), Artem Orobets
  */
 public class OClassIndexManager {
 
   public static void checkIndexesAfterCreate(
       ODocument document, ODatabaseSessionInternal database) {
-    document = checkForLoading(document);
+    document = checkForLoading(database, document);
     processIndexOnCreate(database, document);
   }
 
   public static void reIndex(ODatabaseSessionInternal session, ODocument document, OIndex index) {
-    document = checkForLoading(document);
+    document = checkForLoading(session, document);
     addIndexEntry(session, document, document.getIdentity(), index);
   }
 
@@ -68,7 +65,7 @@ public class OClassIndexManager {
 
   public static void checkIndexesAfterUpdate(
       ODocument iDocument, ODatabaseSessionInternal database) {
-    iDocument = checkForLoading(iDocument);
+    iDocument = checkForLoading(database, iDocument);
     processIndexOnUpdate(database, iDocument);
   }
 
@@ -124,11 +121,11 @@ public class OClassIndexManager {
           final Object newValue = indexDefinition.getDocumentValueToIndex(session, iRecord);
 
           if (!indexDefinition.isNullValuesIgnored() || origValue != null) {
-            addRemove(index, origValue, iRecord);
+            addRemove(session, index, origValue, iRecord);
           }
 
           if (!indexDefinition.isNullValuesIgnored() || newValue != null) {
-            addPut(index, newValue, iRecord.getIdentity());
+            addPut(session, index, newValue, iRecord.getIdentity());
           }
         } else {
           final OMultiValueChangeTimeLine<?, ?> multiValueChangeTimeLine =
@@ -146,7 +143,7 @@ public class OClassIndexManager {
             final Object origValue = indexDefinition.createValue(session, origValues);
             final Object newValue = indexDefinition.getDocumentValueToIndex(session, iRecord);
 
-            processIndexUpdateFieldAssignment(index, iRecord, origValue, newValue);
+            processIndexUpdateFieldAssignment(session, index, iRecord, origValue, newValue);
           } else {
             // in case of null values support and empty collection field we put null placeholder in
             // place where collection item should be located so we can not use "fast path" to
@@ -165,17 +162,16 @@ public class OClassIndexManager {
               }
 
               for (final Object keyToRemove : keysToRemove.keySet()) {
-                addRemove(index, keyToRemove, iRecord);
+                addRemove(session, index, keyToRemove, iRecord);
               }
 
               for (final Object keyToAdd : keysToAdd.keySet()) {
-                addPut(index, keyToAdd, iRecord.getIdentity());
+                addPut(session, index, keyToAdd, iRecord.getIdentity());
               }
             } else {
-              @SuppressWarnings("rawtypes")
-              final OTrackedMultiValue fieldValue = iRecord.field(multiValueField);
-              @SuppressWarnings("unchecked")
-              final Object restoredMultiValue =
+              @SuppressWarnings("rawtypes") final OTrackedMultiValue fieldValue = iRecord.field(
+                  multiValueField);
+              @SuppressWarnings("unchecked") final Object restoredMultiValue =
                   fieldValue.returnOriginalState(
                       multiValueChangeTimeLine.getMultiValueChangeEvents());
 
@@ -184,7 +180,7 @@ public class OClassIndexManager {
               final Object origValue = indexDefinition.createValue(session, origValues);
               final Object newValue = indexDefinition.getDocumentValueToIndex(session, iRecord);
 
-              processIndexUpdateFieldAssignment(index, iRecord, origValue, newValue);
+              processIndexUpdateFieldAssignment(session, index, iRecord, origValue, newValue);
             }
           }
         }
@@ -226,11 +222,11 @@ public class OClassIndexManager {
       }
 
       for (final Object keyToRemove : keysToRemove.keySet()) {
-        addRemove(index, keyToRemove, iRecord);
+        addRemove(session, index, keyToRemove, iRecord);
       }
 
       for (final Object keyToAdd : keysToAdd.keySet()) {
-        addPut(index, keyToAdd, iRecord.getIdentity());
+        addPut(session, index, keyToAdd, iRecord.getIdentity());
       }
 
     } else {
@@ -238,12 +234,13 @@ public class OClassIndexManager {
           indexDefinition.createValue(session, iRecord.getOriginalValue(indexField));
       final Object newValue = indexDefinition.getDocumentValueToIndex(session, iRecord);
 
-      processIndexUpdateFieldAssignment(index, iRecord, origValue, newValue);
+      processIndexUpdateFieldAssignment(session, index, iRecord, origValue, newValue);
     }
   }
 
   private static void processIndexUpdateFieldAssignment(
-      OIndex index, ODocument iRecord, final Object origValue, final Object newValue) {
+      ODatabaseSessionInternal session, OIndex index, ODocument iRecord, final Object origValue,
+      final Object newValue) {
     final OIndexDefinition indexDefinition = index.getDefinition();
     if ((origValue instanceof Collection) && (newValue instanceof Collection)) {
       final Set<Object> valuesToRemove = new HashSet<>((Collection<?>) origValue);
@@ -254,24 +251,23 @@ public class OClassIndexManager {
 
       for (final Object valueToRemove : valuesToRemove) {
         if (!indexDefinition.isNullValuesIgnored() || valueToRemove != null) {
-          addRemove(index, valueToRemove, iRecord);
+          addRemove(session, index, valueToRemove, iRecord);
         }
       }
 
       for (final Object valueToAdd : valuesToAdd) {
         if (!indexDefinition.isNullValuesIgnored() || valueToAdd != null) {
-          addPut(index, valueToAdd, iRecord);
+          addPut(session, index, valueToAdd, iRecord);
         }
       }
     } else {
-      deleteIndexKey(index, iRecord, origValue);
-
+      deleteIndexKey(session, index, iRecord, origValue);
       if (newValue instanceof Collection) {
         for (final Object newValueItem : (Collection<?>) newValue) {
-          addPut(index, newValueItem, iRecord.getIdentity());
+          addPut(session, index, newValueItem, iRecord.getIdentity());
         }
       } else if (!indexDefinition.isNullValuesIgnored() || newValue != null) {
-        addPut(index, newValue, iRecord.getIdentity());
+        addPut(session, index, newValue, iRecord.getIdentity());
       }
     }
   }
@@ -306,10 +302,9 @@ public class OClassIndexManager {
           final OMultiValueChangeTimeLine<?, ?> multiValueChangeTimeLine =
               iRecord.getCollectionTimeLine(multiValueField);
           if (multiValueChangeTimeLine != null) {
-            @SuppressWarnings("rawtypes")
-            final OTrackedMultiValue fieldValue = iRecord.field(multiValueField);
-            @SuppressWarnings("unchecked")
-            final Object restoredMultiValue =
+            @SuppressWarnings("rawtypes") final OTrackedMultiValue fieldValue = iRecord.field(
+                multiValueField);
+            @SuppressWarnings("unchecked") final Object restoredMultiValue =
                 fieldValue.returnOriginalState(
                     multiValueChangeTimeLine.getMultiValueChangeEvents());
             origValues.add(indexDefinition.getMultiValueDefinitionIndex(), restoredMultiValue);
@@ -324,7 +319,7 @@ public class OClassIndexManager {
         }
 
         final Object origValue = indexDefinition.createValue(session, origValues);
-        deleteIndexKey(index, iRecord, origValue);
+        deleteIndexKey(session, index, iRecord, origValue);
         return true;
       }
     }
@@ -332,16 +327,17 @@ public class OClassIndexManager {
   }
 
   private static void deleteIndexKey(
-      final OIndex index, final ODocument iRecord, final Object origValue) {
+      ODatabaseSessionInternal session, final OIndex index, final ODocument iRecord,
+      final Object origValue) {
     final OIndexDefinition indexDefinition = index.getDefinition();
     if (origValue instanceof Collection) {
       for (final Object valueItem : (Collection<?>) origValue) {
         if (!indexDefinition.isNullValuesIgnored() || valueItem != null) {
-          addRemove(index, valueItem, iRecord);
+          addRemove(session, index, valueItem, iRecord);
         }
       }
     } else if (!indexDefinition.isNullValuesIgnored() || origValue != null) {
-      addRemove(index, origValue, iRecord);
+      addRemove(session, index, origValue, iRecord);
     }
   }
 
@@ -372,16 +368,17 @@ public class OClassIndexManager {
       } else {
         origValue = indexDefinition.createValue(session, iRecord.getOriginalValue(indexField));
       }
-      deleteIndexKey(index, iRecord, origValue);
+      deleteIndexKey(session, index, iRecord, origValue);
       return true;
     }
     return false;
   }
 
-  private static ODocument checkForLoading(final ODocument iRecord) {
-    if (iRecord.getInternalStatus() == ORecordElement.STATUS.NOT_LOADED) {
+  private static ODocument checkForLoading(ODatabaseSessionInternal session,
+      final ODocument iRecord) {
+    if (iRecord.isUnloaded()) {
       try {
-        return iRecord.getDatabase().load(iRecord.getIdentity());
+        return session.load(iRecord.getIdentity());
       } catch (final ORecordNotFoundException e) {
         throw OException.wrapException(
             new OIndexException("Error during loading of record with id " + iRecord.getIdentity()),
@@ -420,11 +417,11 @@ public class OClassIndexManager {
     if (key instanceof Collection) {
       for (final Object keyItem : (Collection<?>) key) {
         if (!indexDefinition.isNullValuesIgnored() || keyItem != null) {
-          addPut(index, keyItem, rid);
+          addPut(session, index, keyItem, rid);
         }
       }
     } else if (!indexDefinition.isNullValuesIgnored() || key != null) {
-      addPut(index, key, rid);
+      addPut(session, index, key, rid);
     }
   }
 
@@ -463,15 +460,17 @@ public class OClassIndexManager {
     // REMOVE INDEX OF ENTRIES FOR THE NON CHANGED ONLY VALUES
     for (final OIndex index : indexes) {
       final Object key = index.getDefinition().getDocumentValueToIndex(database, iDocument);
-      deleteIndexKey(index, iDocument, key);
+      deleteIndexKey(database, index, iDocument, key);
     }
   }
 
-  private static void addPut(OIndex index, Object key, OIdentifiable value) {
-    index.put(key, value);
+  private static void addPut(ODatabaseSessionInternal session, OIndex index, Object key,
+      OIdentifiable value) {
+    index.put(session, key, value);
   }
 
-  private static void addRemove(OIndex index, Object key, OIdentifiable value) {
-    index.remove(key, value);
+  private static void addRemove(ODatabaseSessionInternal session, OIndex index, Object key,
+      OIdentifiable value) {
+    index.remove(session, key, value);
   }
 }

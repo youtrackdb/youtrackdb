@@ -18,18 +18,19 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 
 /**
- * Created by tglman on 14/03/16.
+ *
  */
 public class OConsoleDatabaseAppTest {
 
-  @Rule public TestName testName = new TestName();
+  @Rule
+  public TestName testName = new TestName();
 
   @Test
   public void testSelectBinaryDoc() throws IOException {
     final StringBuilder builder = new StringBuilder();
 
     OConsoleDatabaseApp app =
-        new OConsoleDatabaseApp(new String[] {}) {
+        new OConsoleDatabaseApp(new String[]{}) {
           @Override
           public void message(String iMessage) {
             builder.append(iMessage).append("\n");
@@ -73,7 +74,7 @@ public class OConsoleDatabaseAppTest {
             + "blabla;\n" // <- wrong command, this should break the console
             + "update foo set surname = 'bar' where name = 'foo';\n"
             + "commit;\n";
-    ConsoleTest c = new ConsoleTest(new String[] {builder});
+    ConsoleTest c = new ConsoleTest(new String[]{builder});
     OConsoleDatabaseApp console = c.console();
 
     try {
@@ -103,7 +104,7 @@ public class OConsoleDatabaseAppTest {
             + "insert into foo set name = 'foo';\n"
             + "insert into foo set name = 'bla';\n"
             + "commit;";
-    ConsoleTest c = new ConsoleTest(new String[] {builder});
+    ConsoleTest c = new ConsoleTest(new String[]{builder});
     OConsoleDatabaseApp console = c.console();
 
     try {
@@ -240,7 +241,7 @@ public class OConsoleDatabaseAppTest {
             + "traverse out() from V;\n"
             + "profile storage off;\n"
             + "repair database -v;\n";
-    ConsoleTest c = new ConsoleTest(new String[] {builder});
+    ConsoleTest c = new ConsoleTest(new String[]{builder});
     OConsoleDatabaseApp console = c.console();
 
     try {
@@ -305,7 +306,7 @@ public class OConsoleDatabaseAppTest {
             + "(select from V where name = 'foo') \n"
             + "to (select from V where name = 'bar');\n";
 
-    ConsoleTest c = new ConsoleTest(new String[] {builder});
+    ConsoleTest c = new ConsoleTest(new String[]{builder});
     OConsoleDatabaseApp console = c.console();
 
     try {

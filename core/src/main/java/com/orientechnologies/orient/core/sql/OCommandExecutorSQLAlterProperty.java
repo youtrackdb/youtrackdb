@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql;
@@ -24,6 +24,7 @@ import com.orientechnologies.orient.core.command.OCommandDistributedReplicateReq
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClassImpl;
@@ -40,8 +41,6 @@ import java.util.Map;
 
 /**
  * SQL ALTER PROPERTY command: Changes an attribute of an existent property in the target class.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 @SuppressWarnings("unchecked")
 public class OCommandExecutorSQLAlterProperty extends OCommandExecutorSQLAbstract
@@ -99,7 +98,7 @@ public class OCommandExecutorSQLAlterProperty extends OCommandExecutorSQLAbstrac
             }
             fullName.append(parts[i]);
           }
-          parts = new String[] {parts[0], fullName.toString()};
+          parts = new String[]{parts[0], fullName.toString()};
         } else {
           throw new OCommandSQLParsingException(
               "Expected <class>.<property>. Use " + getSyntax(), parserText, oldPos);
@@ -212,14 +211,15 @@ public class OCommandExecutorSQLAlterProperty extends OCommandExecutorSQLAbstrac
   /**
    * Execute the ALTER PROPERTY.
    */
-  public Object execute(final Map<Object, Object> iArgs) {
+  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
     if (attribute == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not yet been parsed");
     }
 
+    var db = getDatabase();
     final OClassImpl sourceClass =
-        (OClassImpl) getDatabase().getMetadata().getSchema().getClass(className);
+        (OClassImpl) db.getMetadata().getSchema().getClass(className);
     if (sourceClass == null) {
       throw new OCommandExecutionException("Source class '" + className + "' not found");
     }
@@ -231,9 +231,9 @@ public class OCommandExecutorSQLAlterProperty extends OCommandExecutorSQLAbstrac
     }
 
     if ("null".equalsIgnoreCase(value)) {
-      prop.set(attribute, null);
+      prop.set(db, attribute, null);
     } else {
-      prop.set(attribute, value);
+      prop.set(db, attribute, value);
     }
     return null;
   }

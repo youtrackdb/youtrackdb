@@ -10,8 +10,8 @@ import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
 import java.io.IOException;
@@ -21,7 +21,7 @@ import java.util.List;
 import org.junit.Test;
 
 /**
- * Created by tglman on 09/05/17.
+ *
  */
 public class ORemotePushMessagesTest {
 
@@ -32,7 +32,7 @@ public class ORemotePushMessagesTest {
     hosts.add("one");
     hosts.add("two");
     OPushDistributedConfigurationRequest request = new OPushDistributedConfigurationRequest(hosts);
-    request.write(channel);
+    request.write(null, channel);
     channel.close();
 
     OPushDistributedConfigurationRequest readRequest = new OPushDistributedConfigurationRequest();
@@ -45,17 +45,17 @@ public class ORemotePushMessagesTest {
   @Test
   public void testSchema() throws IOException {
 
-    OrientDB orientDB = new OrientDB("embedded:", OrientDBConfig.defaultConfig());
-    orientDB.execute("create database test memory users (admin identified by 'admin' role admin)");
-    ODatabaseSession session = orientDB.open("test", "admin", "admin");
+    OxygenDB oxygenDB = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
+    oxygenDB.execute("create database test memory users (admin identified by 'admin' role admin)");
+    ODatabaseSession session = oxygenDB.open("test", "admin", "admin");
     ODocument schema =
         ((ODatabaseSessionInternal) session).getSharedContext().getSchema().toStream();
     session.close();
-    orientDB.close();
+    oxygenDB.close();
     MockChannel channel = new MockChannel();
 
     OPushSchemaRequest request = new OPushSchemaRequest(schema);
-    request.write(channel);
+    request.write((ODatabaseSessionInternal) session, channel);
     channel.close();
 
     OPushSchemaRequest readRequest = new OPushSchemaRequest();
@@ -66,17 +66,18 @@ public class ORemotePushMessagesTest {
   @Test
   public void testIndexManager() throws IOException {
 
-    OrientDB orientDB = new OrientDB("embedded:", OrientDBConfig.defaultConfig());
-    orientDB.execute("create database test memory users (admin identified by 'admin' role admin)");
-    ODatabaseSession session = orientDB.open("test", "admin", "admin");
+    OxygenDB oxygenDB = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
+    oxygenDB.execute("create database test memory users (admin identified by 'admin' role admin)");
+    ODatabaseSession session = oxygenDB.open("test", "admin", "admin");
     ODocument schema =
-        ((ODatabaseSessionInternal) session).getSharedContext().getIndexManager().toStream();
+        ((ODatabaseSessionInternal) session).getSharedContext().getIndexManager()
+            .toStream((ODatabaseSessionInternal) session);
     session.close();
-    orientDB.close();
+    oxygenDB.close();
     MockChannel channel = new MockChannel();
 
     OPushIndexManagerRequest request = new OPushIndexManagerRequest(schema);
-    request.write(channel);
+    request.write(null, channel);
     channel.close();
 
     OPushIndexManagerRequest readRequest = new OPushIndexManagerRequest();
@@ -86,17 +87,17 @@ public class ORemotePushMessagesTest {
 
   @Test
   public void testStorageConfiguration() throws IOException {
-    OrientDB orientDB = new OrientDB("embedded:", OrientDBConfig.defaultConfig());
-    orientDB.execute("create database test memory users (admin identified by 'admin' role admin)");
-    ODatabaseSession session = orientDB.open("test", "admin", "admin");
+    OxygenDB oxygenDB = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
+    oxygenDB.execute("create database test memory users (admin identified by 'admin' role admin)");
+    ODatabaseSession session = oxygenDB.open("test", "admin", "admin");
     OStorageConfiguration configuration =
         ((ODatabaseSessionInternal) session).getStorage().getConfiguration();
     session.close();
-    orientDB.close();
+    oxygenDB.close();
     MockChannel channel = new MockChannel();
 
     OPushStorageConfigurationRequest request = new OPushStorageConfigurationRequest(configuration);
-    request.write(channel);
+    request.write(null, channel);
     channel.close();
 
     OPushStorageConfigurationRequest readRequest = new OPushStorageConfigurationRequest();
@@ -151,7 +152,7 @@ public class ORemotePushMessagesTest {
 
     OSubscribeRequest request =
         new OSubscribeRequest(new OSubscribeLiveQueryRequest("10", new HashMap<>()));
-    request.write(channel, null);
+    request.write(null, channel, null);
     channel.close();
 
     OSubscribeRequest requestRead = new OSubscribeRequest();
@@ -166,7 +167,7 @@ public class ORemotePushMessagesTest {
     MockChannel channel = new MockChannel();
 
     OSubscribeResponse response = new OSubscribeResponse(new OSubscribeLiveQueryResponse(10));
-    response.write(channel, 1, ORecordSerializerNetworkV37.INSTANCE);
+    response.write(null, channel, 1, ORecordSerializerNetworkV37.INSTANCE);
     channel.close();
 
     OSubscribeResponse responseRead = new OSubscribeResponse(new OSubscribeLiveQueryResponse());
@@ -180,7 +181,7 @@ public class ORemotePushMessagesTest {
   public void testUnsubscribeRequest() throws IOException {
     MockChannel channel = new MockChannel();
     OUnsubscribeRequest request = new OUnsubscribeRequest(new OUnsubscribeLiveQueryRequest(10));
-    request.write(channel, null);
+    request.write(null, channel, null);
     channel.close();
     OUnsubscribeRequest readRequest = new OUnsubscribeRequest();
     readRequest.read(channel, 0, null);

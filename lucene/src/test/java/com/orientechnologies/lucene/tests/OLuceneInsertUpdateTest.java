@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by enricorisa on 28/06/14.
+ *
  */
 public class OLuceneInsertUpdateTest extends OLuceneBaseTest {
 
@@ -44,10 +44,11 @@ public class OLuceneInsertUpdateTest extends OLuceneBaseTest {
     OSchema schema = db.getMetadata().getSchema();
     OClass oClass = schema.createClass("City");
 
-    oClass.createProperty("name", OType.STRING);
+    oClass.createProperty(db, "name", OType.STRING);
     //noinspection EmptyTryBlock
     try (OResultSet command =
-        db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE")) {}
+        db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE")) {
+    }
   }
 
   @Test
@@ -62,9 +63,9 @@ public class OLuceneInsertUpdateTest extends OLuceneBaseTest {
     db.save(doc);
     db.commit();
 
-    OIndex idx = schema.getClass("City").getClassIndex("City.name");
+    OIndex idx = schema.getClass("City").getClassIndex(db, "City.name");
     Collection<?> coll;
-    try (Stream<ORID> stream = idx.getInternal().getRids("Rome")) {
+    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 1);
@@ -79,11 +80,11 @@ public class OLuceneInsertUpdateTest extends OLuceneBaseTest {
     db.save(doc);
     db.commit();
 
-    try (Stream<ORID> stream = idx.getInternal().getRids("Rome")) {
+    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 0);
-    try (Stream<ORID> stream = idx.getInternal().getRids("London")) {
+    try (Stream<ORID> stream = idx.getInternal().getRids(db, "London")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 1);
@@ -98,16 +99,16 @@ public class OLuceneInsertUpdateTest extends OLuceneBaseTest {
     db.save(doc);
     db.commit();
 
-    try (Stream<ORID> stream = idx.getInternal().getRids("Rome")) {
+    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 0);
-    try (Stream<ORID> stream = idx.getInternal().getRids("London")) {
+    try (Stream<ORID> stream = idx.getInternal().getRids(db, "London")) {
       coll = stream.collect(Collectors.toList());
     }
 
     Assert.assertEquals(coll.size(), 0);
-    try (Stream<ORID> stream = idx.getInternal().getRids("Berlin")) {
+    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Berlin")) {
       coll = stream.collect(Collectors.toList());
     }
     Assert.assertEquals(coll.size(), 1);

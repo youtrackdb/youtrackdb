@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -185,7 +185,7 @@ public class TTYConsoleReader implements OConsoleReader {
             if (history.size() > 0) { // UP
               if (!hintedHistory
                   && (historyNum == history.size()
-                      || !buffer.toString().equals(history.get(historyNum)))) {
+                  || !buffer.toString().equals(history.get(historyNum)))) {
                 if (buffer.length() > 0) {
                   hintedHistory = true;
                   historyBuffer = buffer.toString();
@@ -311,7 +311,7 @@ public class TTYConsoleReader implements OConsoleReader {
       if (cachedConsoleWidth == -1) { // no cached value
         try {
           final Process process =
-              Runtime.getRuntime().exec(new String[] {"sh", "-c", "tput cols 2> /dev/tty"});
+              Runtime.getRuntime().exec(new String[]{"sh", "-c", "tput cols 2> /dev/tty"});
           final String line =
               new BufferedReader(new InputStreamReader(process.getInputStream())).readLine();
           process.waitFor();
@@ -592,7 +592,7 @@ public class TTYConsoleReader implements OConsoleReader {
     try {
       Files.createDirectories(orientDBDir);
     } catch (IOException e) {
-      OLogManager.instance().error(this, "Error creating OrientDB directory", e);
+      OLogManager.instance().error(this, "Error creating OxygenDB directory", e);
     }
 
     Path history = orientDBDir.resolve(HISTORY_FILE_NAME);

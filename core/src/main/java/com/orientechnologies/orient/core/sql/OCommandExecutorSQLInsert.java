@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql;
@@ -25,6 +25,7 @@ import com.orientechnologies.orient.core.command.OCommandDistributedReplicateReq
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
@@ -33,7 +34,7 @@ import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexAbstract;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.OElementInternal;
@@ -52,9 +53,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * SQL INSERT command.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
- * @author Johann Sorel (Geomatys)
  */
 public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
     implements OCommandDistributedReplicateRequest, OCommandResultListener {
@@ -220,7 +218,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
   /**
    * Execute the INSERT and return the ODocument object created.
    */
-  public Object execute(final Map<Object, Object> iArgs) {
+  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
     final ODatabaseSessionInternal database = getDatabase();
     if (newRecords == null && content == null && subQuery == null) {
       throw new OCommandExecutionException(
@@ -245,9 +243,9 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
       Map<String, Object> result = new HashMap<String, Object>();
 
       for (Map<String, Object> candidate : newRecords) {
-        Object indexKey = getIndexKeyValue(commandParameters, candidate);
-        OIdentifiable indexValue = getIndexValue(commandParameters, candidate);
-        index.put(indexKey, indexValue);
+        Object indexKey = getIndexKeyValue(database, commandParameters, candidate);
+        OIdentifiable indexValue = getIndexValue(database, commandParameters, candidate);
+        index.put(database, indexKey, indexValue);
 
         result.put(KEYWORD_KEY, indexKey);
         result.put(KEYWORD_RID, indexValue);
@@ -278,7 +276,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
         saveRecord(doc);
         return prepareReturnItem(doc);
       } else if (subQuery != null) {
-        subQuery.execute();
+        subQuery.execute(querySession);
         if (queryResult != null) {
           return prepareReturnResult(queryResult);
         }
@@ -291,7 +289,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
 
   @Override
   public OCommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE
-      getDistributedExecutionMode() {
+  getDistributedExecutionMode() {
     return indexName != null
         ? DISTRIBUTED_EXECUTION_MODE.REPLICATE
         : DISTRIBUTED_EXECUTION_MODE.LOCAL;
@@ -319,13 +317,14 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
   }
 
   @Override
-  public boolean result(final Object iRecord) {
+  public boolean result(ODatabaseSessionInternal querySession, final Object iRecord) {
     OClass oldClass = null;
-    ORecord oldRecord = ((OIdentifiable) iRecord).getRecord();
+    ORecordAbstract oldRecord = ((OIdentifiable) iRecord).getRecord();
+
     if (oldRecord instanceof ODocument) {
       oldClass = ODocumentInternal.getImmutableSchemaClass(((ODocument) oldRecord));
     }
-    final ORecord rec = oldRecord.copy();
+    final ORecordAbstract rec = oldRecord.copy();
 
     // RESET THE IDENTITY TO AVOID UPDATE
     rec.getIdentity().reset();
@@ -386,7 +385,8 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
   }
 
   @Override
-  public void end() {}
+  public void end() {
+  }
 
   protected Object prepareReturnResult(List<ODocument> res) {
     if (returnExpression == null) {
@@ -417,7 +417,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
     }
   }
 
-  protected void saveRecord(final ORecord rec) {
+  protected void saveRecord(final ORecordAbstract rec) {
     if (clusterName != null) {
       rec.save(clusterName);
     } else {
@@ -463,7 +463,7 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
 
     final List<String> records =
         OStringSerializerHelper.smartSplit(
-            parserText, new char[] {','}, blockStart, -1, true, true, false, false);
+            parserText, new char[]{','}, blockStart, -1, true, true, false, false);
     for (String record : records) {
 
       final List<String> values = new ArrayList<String>();
@@ -521,34 +521,36 @@ public class OCommandExecutorSQLInsert extends OCommandExecutorSQLSetAware
   }
 
   private Object getIndexKeyValue(
-      OCommandParameters commandParameters, Map<String, Object> candidate) {
+      ODatabaseSession session, OCommandParameters commandParameters,
+      Map<String, Object> candidate) {
     final Object parsedKey = candidate.get(KEYWORD_KEY);
     if (parsedKey instanceof OSQLFilterItemField f) {
-      if (f.getRoot().equals("?"))
+      if (f.getRoot(session).equals("?"))
       // POSITIONAL PARAMETER
       {
         return commandParameters.getNext();
-      } else if (f.getRoot().startsWith(":"))
+      } else if (f.getRoot(session).startsWith(":"))
       // NAMED PARAMETER
       {
-        return commandParameters.getByName(f.getRoot().substring(1));
+        return commandParameters.getByName(f.getRoot(session).substring(1));
       }
     }
     return parsedKey;
   }
 
   private OIdentifiable getIndexValue(
-      OCommandParameters commandParameters, Map<String, Object> candidate) {
+      ODatabaseSession session, OCommandParameters commandParameters,
+      Map<String, Object> candidate) {
     final Object parsedRid = candidate.get(KEYWORD_RID);
     if (parsedRid instanceof OSQLFilterItemField f) {
-      if (f.getRoot().equals("?"))
+      if (f.getRoot(session).equals("?"))
       // POSITIONAL PARAMETER
       {
         return (OIdentifiable) commandParameters.getNext();
-      } else if (f.getRoot().startsWith(":"))
+      } else if (f.getRoot(session).startsWith(":"))
       // NAMED PARAMETER
       {
-        return (OIdentifiable) commandParameters.getByName(f.getRoot().substring(1));
+        return (OIdentifiable) commandParameters.getByName(f.getRoot(session).substring(1));
       }
     }
     return (OIdentifiable) parsedRid;

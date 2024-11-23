@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2017-2018 OrientDB LTD (http://orientdb.com)
+ *  *  Copyright 2017-2018 OxygenDB LTD (http://orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.tx;
@@ -23,7 +23,9 @@ import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.id.ORID;
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
 import javax.annotation.Nullable;
 
 /**
@@ -87,7 +89,8 @@ public interface OTransactionInternal extends OTransaction {
 
   void setMetadataHolder(OTxMetadataHolder metadata);
 
-  default void storageBegun() {}
+  default void storageBegun() {
+  }
 
   void prepareSerializedOperations() throws IOException;
 

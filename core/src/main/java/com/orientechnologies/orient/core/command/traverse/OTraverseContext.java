@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.command.traverse;
@@ -63,17 +63,20 @@ public class OTraverseContext extends OBasicCommandContext {
     if ("DEPTH".startsWith(name)) {
       return getDepth();
     } else if (name.startsWith("PATH")) {
-      return ODocumentHelper.getFieldValue(getPath(), iName.substring("PATH".length()));
+      return ODocumentHelper.getFieldValue(getDatabase(), getPath(),
+          iName.substring("PATH".length()));
     } else if (name.startsWith("STACK")) {
 
       Object result =
-          ODocumentHelper.getFieldValue(memory.getUnderlying(), iName.substring("STACK".length()));
+          ODocumentHelper.getFieldValue(getDatabase(), memory.getUnderlying(),
+              iName.substring("STACK".length()));
       if (result instanceof ArrayDeque) {
         result = ((ArrayDeque) result).clone();
       }
       return result;
     } else if (name.startsWith("HISTORY")) {
-      return ODocumentHelper.getFieldValue(history, iName.substring("HISTORY".length()));
+      return ODocumentHelper.getFieldValue(getDatabase(), history,
+          iName.substring("HISTORY".length()));
     } else
     // DELEGATE
     {

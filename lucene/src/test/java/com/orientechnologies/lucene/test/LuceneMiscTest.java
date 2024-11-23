@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by Enrico Risa on 18/09/15.
+ *
  */
 public class LuceneMiscTest extends BaseLuceneTest {
 
@@ -118,13 +118,13 @@ public class LuceneMiscTest extends BaseLuceneTest {
     OClass v = schema.getClass("V");
     OClass e = schema.getClass("E");
     OClass author = schema.createClass("Author", v);
-    author.createProperty("name", OType.STRING);
+    author.createProperty(db, "name", OType.STRING);
 
     OClass song = schema.createClass("Song", v);
-    song.createProperty("title", OType.STRING);
+    song.createProperty(db, "title", OType.STRING);
 
     OClass authorOf = schema.createClass("AuthorOf", e);
-    authorOf.createProperty("in", OType.LINK, song);
+    authorOf.createProperty(db, "in", OType.LINK, song);
 
     db.command("create index AuthorOf.in on AuthorOf (in) NOTUNIQUE").close();
     db.command("create index Song.title on Song (title) FULLTEXT ENGINE LUCENE").close();
@@ -155,7 +155,7 @@ public class LuceneMiscTest extends BaseLuceneTest {
 
     List<?> results1 =
         db.command(new OCommandSQL("select from AuthorOf where in.title lucene 'hurricane'"))
-            .execute();
+            .execute(db);
 
     Assert.assertEquals(results1.size(), 1);
   }

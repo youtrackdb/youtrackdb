@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2014 OrientDB LTD (info(-at-)orientdb.com)
+ * Copyright 2010-2014 OxygenDB LTD (info(-at-)orientdb.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Returns the cluster selecting by round robin algorithm.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ORoundRobinClusterSelectionStrategy implements OClusterSelectionStrategy {
 

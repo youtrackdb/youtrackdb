@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import com.orientechnologies.orient.core.sql.parser.OSkip;
 
 /**
- * Created by luigidellaquila on 08/07/16.
+ *
  */
 public class SkipExecutionStep extends AbstractExecutionStep {
 
@@ -32,7 +32,8 @@ public class SkipExecutionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public void sendTimeout() {}
+  public void sendTimeout() {
+  }
 
   @Override
   public void close() {

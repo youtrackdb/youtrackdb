@@ -121,9 +121,11 @@ public class OValueExpression extends OExpression {
     return 1;
   }
 
-  public void extractSubQueries(SubQueryCollector collector) {}
+  public void extractSubQueries(SubQueryCollector collector) {
+  }
 
-  public void extractSubQueries(OIdentifier letAlias, SubQueryCollector collector) {}
+  public void extractSubQueries(OIdentifier letAlias, SubQueryCollector collector) {
+  }
 
   public boolean refersToParent() {
 

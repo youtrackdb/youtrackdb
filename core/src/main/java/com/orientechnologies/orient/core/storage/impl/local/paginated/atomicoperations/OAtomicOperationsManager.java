@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -43,7 +43,6 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 12/3/13
  */
 public class OAtomicOperationsManager {
@@ -52,7 +51,8 @@ public class OAtomicOperationsManager {
 
   private final OAbstractPaginatedStorage storage;
 
-  @Nonnull private final OWriteAheadLog writeAheadLog;
+  @Nonnull
+  private final OWriteAheadLog writeAheadLog;
   private final OOneEntryPerKeyLockManager<String> lockManager =
       new OOneEntryPerKeyLockManager<>(
           true, -1, OGlobalConfiguration.COMPONENTS_LOCK_CACHE.getValueAsInteger());

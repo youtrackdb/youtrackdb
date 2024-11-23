@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -27,14 +27,14 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by Enrico Risa on 29/04/15.
+ *
  */
 public class OLuceneGetSearcherTest extends OLuceneBaseTest {
 
   @Before
   public void init() {
     OClass song = db.createVertexClass("Person");
-    song.createProperty("isDeleted", OType.BOOLEAN);
+    song.createProperty(db, "isDeleted", OType.BOOLEAN);
 
     db.command("create index Person.isDeleted on Person (isDeleted) FULLTEXT ENGINE LUCENE");
   }

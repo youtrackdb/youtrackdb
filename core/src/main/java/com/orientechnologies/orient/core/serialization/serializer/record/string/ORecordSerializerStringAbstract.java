@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,20 +14,22 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.serialization.serializer.record.string;
 
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.profiler.OProfiler;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
@@ -38,12 +40,17 @@ import com.orientechnologies.orient.core.util.ODateHelper;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 @SuppressWarnings("serial")
 public abstract class ORecordSerializerStringAbstract implements ORecordSerializer, Serializable {
 
-  protected static final OProfiler PROFILER = Orient.instance().getProfiler();
+  protected static final OProfiler PROFILER = Oxygen.instance().getProfiler();
   private static final char DECIMAL_SEPARATOR = '.';
   private static final String MAX_INTEGER_AS_STRING = String.valueOf(Integer.MAX_VALUE);
   private static final int MAX_INTEGER_DIGITS = MAX_INTEGER_AS_STRING.length();
@@ -74,18 +81,17 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
       case LINK:
         return simpleValueFromStream(iValue, iType);
 
-      case EMBEDDED:
-        {
-          // EMBEDED RECORD
-          final Object embeddedObject =
-              OStringSerializerEmbedded.INSTANCE.fromStream((String) iValue);
-          if (embeddedObject instanceof ODocument) {
-            ODocumentInternal.addOwner((ODocument) embeddedObject, iDocument);
-          }
-
-          // EMBEDDED OBJECT
-          return embeddedObject;
+      case EMBEDDED: {
+        // EMBEDED RECORD
+        final Object embeddedObject =
+            OStringSerializerEmbedded.INSTANCE.fromStream((String) iValue);
+        if (embeddedObject instanceof ODocument) {
+          ODocumentInternal.addOwner((ODocument) embeddedObject, iDocument);
         }
+
+        // EMBEDDED OBJECT
+        return embeddedObject;
+      }
 
       case CUSTOM:
         // RECORD
@@ -96,19 +102,17 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
         return result;
 
       case EMBEDDEDSET:
-      case EMBEDDEDLIST:
-        {
-          final String value = (String) iValue;
-          return ORecordSerializerSchemaAware2CSV.INSTANCE.embeddedCollectionFromStream(
-              iDocument, iType, null, null, value);
-        }
+      case EMBEDDEDLIST: {
+        final String value = (String) iValue;
+        return ORecordSerializerSchemaAware2CSV.INSTANCE.embeddedCollectionFromStream(
+            iDocument, iType, null, null, value);
+      }
 
-      case EMBEDDEDMAP:
-        {
-          final String value = (String) iValue;
-          return ORecordSerializerSchemaAware2CSV.INSTANCE.embeddedMapFromStream(
-              iDocument, null, value, null);
-        }
+      case EMBEDDEDMAP: {
+        final String value = (String) iValue;
+        return ORecordSerializerSchemaAware2CSV.INSTANCE.embeddedMapFromStream(
+            iDocument, null, value, null);
+      }
     }
 
     throw new IllegalArgumentException(
@@ -117,7 +121,7 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
 
   public static Object convertValue(final String iValue, final OType iExpectedType) {
     final Object v = getTypeValue(iValue);
-    return OType.convert(v, iExpectedType.getDefaultJavaType());
+    return OType.convert(null, v, iExpectedType.getDefaultJavaType());
   }
 
   public static void fieldTypeToString(
@@ -710,7 +714,7 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
         iBuffer.append(OStringSerializerHelper.BINARY_BEGINEND);
         if (iValue instanceof Byte) {
           iBuffer.append(
-              Base64.getEncoder().encodeToString(new byte[] {((Byte) iValue).byteValue()}));
+              Base64.getEncoder().encodeToString(new byte[]{((Byte) iValue).byteValue()}));
         } else {
           iBuffer.append(Base64.getEncoder().encodeToString((byte[]) iValue));
         }
@@ -745,7 +749,8 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
     }
   }
 
-  public abstract ORecord fromString(String iContent, ORecord iRecord, String[] iFields);
+  public abstract ORecordAbstract fromString(
+      String iContent, ORecordAbstract iRecord, String[] iFields);
 
   public StringBuilder toString(
       final ORecord iRecord, final StringBuilder iOutput, final String iFormat) {
@@ -762,7 +767,8 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
   }
 
   @Override
-  public ORecord fromStream(final byte[] iSource, final ORecord iRecord, final String[] iFields) {
+  public ORecordAbstract fromStream(
+      final byte[] iSource, final ORecordAbstract iRecord, final String[] iFields) {
     final long timer = PROFILER.startChrono();
 
     try {
@@ -776,7 +782,7 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
     }
   }
 
-  public byte[] toStream(final ORecord iRecord) {
+  public byte[] toStream(ODatabaseSessionInternal session, final ORecordAbstract iRecord) {
     final long timer = PROFILER.startChrono();
 
     try {

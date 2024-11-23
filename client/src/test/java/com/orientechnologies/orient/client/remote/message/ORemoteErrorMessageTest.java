@@ -10,7 +10,7 @@ import java.util.Map;
 import org.junit.Test;
 
 /**
- * Created by tglman on 13/06/17.
+ *
  */
 public class ORemoteErrorMessageTest {
 
@@ -21,7 +21,7 @@ public class ORemoteErrorMessageTest {
     messages.put("one", "two");
     OError37Response response =
         new OError37Response(OErrorCode.GENERIC_ERROR, 10, messages, "some".getBytes());
-    response.write(channel, 0, null);
+    response.write(null, channel, 0, null);
     channel.close();
     OError37Response readResponse = new OError37Response();
     readResponse.read(channel, null);

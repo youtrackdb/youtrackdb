@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.sql.select;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -16,36 +16,36 @@ public class TestManyProperties {
   @Test
   @Ignore
   public void test() {
-    try (OrientDB orientdb = new OrientDB("embedded:", OrientDBConfig.defaultConfig())) {
+    try (OxygenDB orientdb = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig())) {
       orientdb
           .execute("create database test memory users(admin identified by 'admin' role admin)")
           .close();
       try (ODatabaseSession session = orientdb.open("test", "admin", "admin")) {
         OClass clazz = session.createClass("test");
-        clazz.createProperty("property1", OType.STRING);
-        clazz.createProperty("property2", OType.STRING);
-        clazz.createProperty("property3", OType.STRING);
-        clazz.createProperty("property4", OType.STRING);
-        clazz.createProperty("property5", OType.STRING);
-        clazz.createProperty("property6", OType.STRING);
-        clazz.createProperty("property7", OType.STRING);
-        clazz.createProperty("property8", OType.STRING);
-        clazz.createProperty("property9", OType.STRING);
-        clazz.createProperty("property10", OType.STRING);
-        clazz.createProperty("property11", OType.STRING);
-        clazz.createProperty("property12", OType.STRING);
-        clazz.createProperty("property13", OType.STRING);
-        clazz.createProperty("property14", OType.STRING);
-        clazz.createProperty("property15", OType.STRING);
-        clazz.createProperty("property16", OType.STRING);
-        clazz.createProperty("property17", OType.STRING);
-        clazz.createProperty("property18", OType.STRING);
-        clazz.createProperty("property19", OType.STRING);
-        clazz.createProperty("property20", OType.STRING);
-        clazz.createProperty("property21", OType.STRING);
-        clazz.createProperty("property22", OType.STRING);
-        clazz.createProperty("property23", OType.STRING);
-        clazz.createProperty("property24", OType.STRING);
+        clazz.createProperty(session, "property1", OType.STRING);
+        clazz.createProperty(session, "property2", OType.STRING);
+        clazz.createProperty(session, "property3", OType.STRING);
+        clazz.createProperty(session, "property4", OType.STRING);
+        clazz.createProperty(session, "property5", OType.STRING);
+        clazz.createProperty(session, "property6", OType.STRING);
+        clazz.createProperty(session, "property7", OType.STRING);
+        clazz.createProperty(session, "property8", OType.STRING);
+        clazz.createProperty(session, "property9", OType.STRING);
+        clazz.createProperty(session, "property10", OType.STRING);
+        clazz.createProperty(session, "property11", OType.STRING);
+        clazz.createProperty(session, "property12", OType.STRING);
+        clazz.createProperty(session, "property13", OType.STRING);
+        clazz.createProperty(session, "property14", OType.STRING);
+        clazz.createProperty(session, "property15", OType.STRING);
+        clazz.createProperty(session, "property16", OType.STRING);
+        clazz.createProperty(session, "property17", OType.STRING);
+        clazz.createProperty(session, "property18", OType.STRING);
+        clazz.createProperty(session, "property19", OType.STRING);
+        clazz.createProperty(session, "property20", OType.STRING);
+        clazz.createProperty(session, "property21", OType.STRING);
+        clazz.createProperty(session, "property22", OType.STRING);
+        clazz.createProperty(session, "property23", OType.STRING);
+        clazz.createProperty(session, "property24", OType.STRING);
 
         try (OResultSet set =
             session.query(

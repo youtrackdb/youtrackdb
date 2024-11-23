@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.db;
@@ -25,8 +25,6 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 
 /**
  * Listener Interface to receive callbacks on database usage.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface ODatabaseLifecycleListener {
 
@@ -51,14 +49,18 @@ public interface ODatabaseLifecycleListener {
   void onDrop(ODatabaseSessionInternal iDatabase);
 
   @Deprecated
-  default void onCreateClass(ODatabaseSessionInternal iDatabase, OClass iClass) {}
+  default void onCreateClass(ODatabaseSessionInternal iDatabase, OClass iClass) {
+  }
 
   @Deprecated
-  default void onDropClass(ODatabaseSessionInternal iDatabase, OClass iClass) {}
+  default void onDropClass(ODatabaseSessionInternal iDatabase, OClass iClass) {
+  }
 
-  default void onCreateView(ODatabaseSessionInternal database, OView view) {}
+  default void onCreateView(ODatabaseSessionInternal database, OView view) {
+  }
 
-  default void onDropView(ODatabaseSessionInternal database, OView cls) {}
+  default void onDropView(ODatabaseSessionInternal database, OView cls) {
+  }
 
   /**
    * Event called during the retrieving of distributed configuration, usually at startup and when

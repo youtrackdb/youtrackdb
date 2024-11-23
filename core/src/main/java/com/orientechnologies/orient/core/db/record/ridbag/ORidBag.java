@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -23,12 +23,12 @@ package com.orientechnologies.orient.core.db.record.ridbag;
 import com.orientechnologies.common.collection.OCollection;
 import com.orientechnologies.common.serialization.types.OByteSerializer;
 import com.orientechnologies.common.serialization.types.OUUIDSerializer;
+import com.orientechnologies.common.util.OSizeable;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.OIdentifiableMultiValue;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
@@ -84,17 +84,15 @@ import java.util.UUID;
  * Does not implement {@link Collection} interface because some operations could not be efficiently
  * implemented and that's why should be avoided.<br>
  *
- * @author Artem Orobets (enisher-at-gmail.com)
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 1.7rc1
  */
 public class ORidBag
     implements OStringBuilderSerializable,
-        Iterable<OIdentifiable>,
-        OIdentifiableMultiValue,
-        OTrackedMultiValue<OIdentifiable, OIdentifiable>,
-        OCollection<OIdentifiable>,
-        ORecordElement {
+    Iterable<OIdentifiable>,
+    OSizeable,
+    OTrackedMultiValue<OIdentifiable, OIdentifiable>,
+    OCollection<OIdentifiable>,
+    ORecordElement {
 
   private ORidBagDelegate delegate;
   private ORecordId ownerRecord;
@@ -199,11 +197,6 @@ public class ORidBag
   @Override
   public Iterator<OIdentifiable> iterator() {
     return delegate.iterator();
-  }
-
-  @Override
-  public boolean detach() {
-    return delegate.detach();
   }
 
   @Override

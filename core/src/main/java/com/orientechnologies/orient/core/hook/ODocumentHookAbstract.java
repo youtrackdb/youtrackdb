@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.hook;
@@ -31,7 +31,6 @@ import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 /**
  * Hook abstract class that calls separate methods for ODocument records.
  *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @see ORecordHook
  */
 public abstract class ODocumentHookAbstract implements ORecordHook {
@@ -51,7 +50,8 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
   }
 
   @Override
-  public void onUnregister() {}
+  public void onUnregister() {
+  }
 
   /**
    * It's called just before to create the new document.
@@ -69,21 +69,24 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
    *
    * @param iDocument The document is going to be created
    */
-  public void onRecordAfterCreate(final ODocument iDocument) {}
+  public void onRecordAfterCreate(final ODocument iDocument) {
+  }
 
   /**
    * It's called just after the document creation was failed.
    *
    * @param iDocument The document just created
    */
-  public void onRecordCreateFailed(final ODocument iDocument) {}
+  public void onRecordCreateFailed(final ODocument iDocument) {
+  }
 
   /**
    * It's called just after the document creation was replicated on another node.
    *
    * @param iDocument The document just created
    */
-  public void onRecordCreateReplicated(final ODocument iDocument) {}
+  public void onRecordCreateReplicated(final ODocument iDocument) {
+  }
 
   /**
    * It's called just before to read the document.
@@ -101,21 +104,24 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
    *
    * @param iDocument The document just read
    */
-  public void onRecordAfterRead(final ODocument iDocument) {}
+  public void onRecordAfterRead(final ODocument iDocument) {
+  }
 
   /**
    * It's called just after the document read was failed.
    *
    * @param iDocument The document just created
    */
-  public void onRecordReadFailed(final ODocument iDocument) {}
+  public void onRecordReadFailed(final ODocument iDocument) {
+  }
 
   /**
    * It's called just after the document read was replicated on another node.
    *
    * @param iDocument The document just created
    */
-  public void onRecordReadReplicated(final ODocument iDocument) {}
+  public void onRecordReadReplicated(final ODocument iDocument) {
+  }
 
   /**
    * It's called just before to update the document.
@@ -133,21 +139,24 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
    *
    * @param iDocument The document just updated
    */
-  public void onRecordAfterUpdate(final ODocument iDocument) {}
+  public void onRecordAfterUpdate(final ODocument iDocument) {
+  }
 
   /**
    * It's called just after the document updated was failed.
    *
    * @param iDocument The document is going to be updated
    */
-  public void onRecordUpdateFailed(final ODocument iDocument) {}
+  public void onRecordUpdateFailed(final ODocument iDocument) {
+  }
 
   /**
    * It's called just after the document updated was replicated.
    *
    * @param iDocument The document is going to be updated
    */
-  public void onRecordUpdateReplicated(final ODocument iDocument) {}
+  public void onRecordUpdateReplicated(final ODocument iDocument) {
+  }
 
   /**
    * It's called just before to delete the document.
@@ -165,27 +174,33 @@ public abstract class ODocumentHookAbstract implements ORecordHook {
    *
    * @param iDocument The document just deleted
    */
-  public void onRecordAfterDelete(final ODocument iDocument) {}
+  public void onRecordAfterDelete(final ODocument iDocument) {
+  }
 
   /**
    * It's called just after the document deletion was failed.
    *
    * @param iDocument The document is going to be deleted
    */
-  public void onRecordDeleteFailed(final ODocument iDocument) {}
+  public void onRecordDeleteFailed(final ODocument iDocument) {
+  }
 
   /**
    * It's called just after the document deletion was replicated.
    *
    * @param iDocument The document is going to be deleted
    */
-  public void onRecordDeleteReplicated(final ODocument iDocument) {}
+  public void onRecordDeleteReplicated(final ODocument iDocument) {
+  }
 
-  public void onRecordFinalizeUpdate(final ODocument document) {}
+  public void onRecordFinalizeUpdate(final ODocument document) {
+  }
 
-  public void onRecordFinalizeCreation(final ODocument document) {}
+  public void onRecordFinalizeCreation(final ODocument document) {
+  }
 
-  public void onRecordFinalizeDeletion(final ODocument document) {}
+  public void onRecordFinalizeDeletion(final ODocument document) {
+  }
 
   public RESULT onTrigger(final TYPE iType, final ORecord iRecord) {
     if (database.getStatus() != STATUS.OPEN) {

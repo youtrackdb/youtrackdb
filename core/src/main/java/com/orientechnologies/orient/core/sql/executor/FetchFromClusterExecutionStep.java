@@ -20,7 +20,7 @@ import com.orientechnologies.orient.core.sql.parser.ORid;
 import java.util.Iterator;
 
 /**
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ *
  */
 public class FetchFromClusterExecutionStep extends AbstractExecutionStep {
 

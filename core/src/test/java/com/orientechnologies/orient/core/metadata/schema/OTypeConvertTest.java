@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -17,10 +18,8 @@ import org.junit.Test;
 
 /**
  * Test the covert method of the OType class.
- *
- * @author Michael MacFadden
  */
-public class OTypeConvertTest {
+public class OTypeConvertTest extends BaseMemoryDatabase {
 
   //
   // General cases
@@ -31,7 +30,7 @@ public class OTypeConvertTest {
     ArrayList<Object> aList = new ArrayList<Object>();
     aList.add(1);
     aList.add("2");
-    Object result = OType.convert(aList, ArrayList.class);
+    Object result = OType.convert(db, aList, ArrayList.class);
 
     assertEquals(result, aList);
   }
@@ -41,21 +40,21 @@ public class OTypeConvertTest {
     ArrayList<Object> aList = new ArrayList<Object>();
     aList.add(1);
     aList.add("2");
-    Object result = OType.convert(aList, List.class);
+    Object result = OType.convert(db, aList, List.class);
 
     assertEquals(result, aList);
   }
 
   @Test
   public void testNull() {
-    Object result = OType.convert(null, Boolean.class);
+    Object result = OType.convert(db, null, Boolean.class);
     assertNull(result);
   }
 
   @Test(expected = ODatabaseException.class)
   public void testCannotConvert() {
     // Expected behavior is to not convert and return null
-    Object result = OType.convert(true, Long.class);
+    Object result = OType.convert(db, true, Long.class);
     assertNull(result);
   }
 
@@ -65,13 +64,13 @@ public class OTypeConvertTest {
 
   @Test
   public void testToStringFromString() {
-    Object result = OType.convert("foo", String.class);
+    Object result = OType.convert(db, "foo", String.class);
     assertEquals(result, "foo");
   }
 
   @Test
   public void testToStringFromNumber() {
-    Object result = OType.convert(10, String.class);
+    Object result = OType.convert(db, 10, String.class);
     assertEquals(result, "10");
   }
 
@@ -81,25 +80,25 @@ public class OTypeConvertTest {
 
   @Test
   public void testToBytePrimitiveFromByte() {
-    Object result = OType.convert((byte) 10, Byte.TYPE);
+    Object result = OType.convert(db, (byte) 10, Byte.TYPE);
     assertEquals(result, (byte) 10);
   }
 
   @Test
   public void testToByteFromByte() {
-    Object result = OType.convert((byte) 10, Byte.class);
+    Object result = OType.convert(db, (byte) 10, Byte.class);
     assertEquals(result, (byte) 10);
   }
 
   @Test
   public void testToByteFromString() {
-    Object result = OType.convert("10", Byte.class);
+    Object result = OType.convert(db, "10", Byte.class);
     assertEquals(result, (byte) 10);
   }
 
   @Test
   public void testToByteFromNumber() {
-    Object result = OType.convert(10.0D, Byte.class);
+    Object result = OType.convert(db, 10.0D, Byte.class);
     assertEquals(result, (byte) 10);
   }
 
@@ -109,25 +108,25 @@ public class OTypeConvertTest {
 
   @Test
   public void testToShortPrmitveFromShort() {
-    Object result = OType.convert((short) 10, Short.TYPE);
+    Object result = OType.convert(db, (short) 10, Short.TYPE);
     assertEquals(result, (short) 10);
   }
 
   @Test
   public void testToShortFromShort() {
-    Object result = OType.convert((short) 10, Short.class);
+    Object result = OType.convert(db, (short) 10, Short.class);
     assertEquals(result, (short) 10);
   }
 
   @Test
   public void testToShortFromString() {
-    Object result = OType.convert("10", Short.class);
+    Object result = OType.convert(db, "10", Short.class);
     assertEquals(result, (short) 10);
   }
 
   @Test
   public void testToShortFromNumber() {
-    Object result = OType.convert(10.0D, Short.class);
+    Object result = OType.convert(db, 10.0D, Short.class);
     assertEquals(result, (short) 10);
   }
 
@@ -137,25 +136,25 @@ public class OTypeConvertTest {
 
   @Test
   public void testToIntegerPrimitveFromInteger() {
-    Object result = OType.convert(10, Integer.TYPE);
+    Object result = OType.convert(db, 10, Integer.TYPE);
     assertEquals(result, 10);
   }
 
   @Test
   public void testToIntegerFromInteger() {
-    Object result = OType.convert(10, Integer.class);
+    Object result = OType.convert(db, 10, Integer.class);
     assertEquals(result, 10);
   }
 
   @Test
   public void testToIntegerFromString() {
-    Object result = OType.convert("10", Integer.class);
+    Object result = OType.convert(db, "10", Integer.class);
     assertEquals(result, 10);
   }
 
   @Test
   public void testToIntegerFromNumber() {
-    Object result = OType.convert(10.0D, Integer.class);
+    Object result = OType.convert(db, 10.0D, Integer.class);
     assertEquals(result, 10);
   }
 
@@ -165,25 +164,25 @@ public class OTypeConvertTest {
 
   @Test
   public void testToLongPrimitiveFromLong() {
-    Object result = OType.convert(10L, Long.TYPE);
+    Object result = OType.convert(db, 10L, Long.TYPE);
     assertEquals(result, 10L);
   }
 
   @Test
   public void testToLongFromLong() {
-    Object result = OType.convert(10L, Long.class);
+    Object result = OType.convert(db, 10L, Long.class);
     assertEquals(result, 10L);
   }
 
   @Test
   public void testToLongFromString() {
-    Object result = OType.convert("10", Long.class);
+    Object result = OType.convert(db, "10", Long.class);
     assertEquals(result, 10L);
   }
 
   @Test
   public void testToLongFromNumber() {
-    Object result = OType.convert(10.0D, Long.class);
+    Object result = OType.convert(db, 10.0D, Long.class);
     assertEquals(result, 10L);
   }
 
@@ -193,25 +192,25 @@ public class OTypeConvertTest {
 
   @Test
   public void testToFloatPrimitiveFromFloat() {
-    Object result = OType.convert(10.65f, Float.TYPE);
+    Object result = OType.convert(db, 10.65f, Float.TYPE);
     assertEquals(result, 10.65f);
   }
 
   @Test
   public void testToFloatFromFloat() {
-    Object result = OType.convert(10.65f, Float.class);
+    Object result = OType.convert(db, 10.65f, Float.class);
     assertEquals(result, 10.65f);
   }
 
   @Test
   public void testToFloatFromString() {
-    Object result = OType.convert("10.65", Float.class);
+    Object result = OType.convert(db, "10.65", Float.class);
     assertEquals(result, 10.65f);
   }
 
   @Test
   public void testToFloatFromNumber() {
-    Object result = OType.convert(4, Float.class);
+    Object result = OType.convert(db, 4, Float.class);
     assertEquals(result, 4f);
   }
 
@@ -221,19 +220,19 @@ public class OTypeConvertTest {
 
   @Test
   public void testToBigDecimalFromBigDecimal() {
-    Object result = OType.convert(new BigDecimal("10.65"), BigDecimal.class);
+    Object result = OType.convert(db, new BigDecimal("10.65"), BigDecimal.class);
     assertEquals(result, new BigDecimal("10.65"));
   }
 
   @Test
   public void testToBigDecimalFromString() {
-    Object result = OType.convert("10.65", BigDecimal.class);
+    Object result = OType.convert(db, "10.65", BigDecimal.class);
     assertEquals(result, new BigDecimal("10.65"));
   }
 
   @Test
   public void testToBigDecimalFromNumber() {
-    Object result = OType.convert(4.98D, BigDecimal.class);
+    Object result = OType.convert(db, 4.98D, BigDecimal.class);
     assertEquals(result, new BigDecimal("4.98"));
   }
 
@@ -243,31 +242,31 @@ public class OTypeConvertTest {
 
   @Test
   public void testToDoublePrimitiveFromDouble() {
-    Object result = OType.convert(5.4D, Double.TYPE);
+    Object result = OType.convert(db, 5.4D, Double.TYPE);
     assertEquals(result, 5.4D);
   }
 
   @Test
   public void testToDoubleFromDouble() {
-    Object result = OType.convert(5.4D, Double.class);
+    Object result = OType.convert(db, 5.4D, Double.class);
     assertEquals(result, 5.4D);
   }
 
   @Test
   public void testToDoubleFromString() {
-    Object result = OType.convert("5.4", Double.class);
+    Object result = OType.convert(db, "5.4", Double.class);
     assertEquals(result, 5.4D);
   }
 
   @Test
   public void testToDoubleFromFloat() {
-    Object result = OType.convert(5.4f, Double.class);
+    Object result = OType.convert(db, 5.4f, Double.class);
     assertEquals(result, 5.4D);
   }
 
   @Test
   public void testToDoubleFromNonFloatNumber() {
-    Object result = OType.convert(5, Double.class);
+    Object result = OType.convert(db, 5, Double.class);
     assertEquals(result, 5D);
   }
 
@@ -277,42 +276,42 @@ public class OTypeConvertTest {
 
   @Test
   public void testToBooleanPrimitiveFromBoolean() {
-    Object result = OType.convert(true, Boolean.TYPE);
+    Object result = OType.convert(db, true, Boolean.TYPE);
     assertEquals(result, true);
   }
 
   @Test
   public void testToBooleanFromBoolean() {
-    Object result = OType.convert(true, Boolean.class);
+    Object result = OType.convert(db, true, Boolean.class);
     assertEquals(result, true);
   }
 
   @Test
   public void testToBooleanFromFalseString() {
-    Object result = OType.convert("false", Boolean.class);
+    Object result = OType.convert(db, "false", Boolean.class);
     assertEquals(result, false);
   }
 
   @Test
   public void testToBooleanFromTrueString() {
-    Object result = OType.convert("true", Boolean.class);
+    Object result = OType.convert(db, "true", Boolean.class);
     assertEquals(result, true);
   }
 
   @Test(expected = ODatabaseException.class)
   public void testToBooleanFromInvalidString() {
-    OType.convert("invalid", Boolean.class);
+    OType.convert(db, "invalid", Boolean.class);
   }
 
   @Test
   public void testToBooleanFromZeroNumber() {
-    Object result = OType.convert(0, Boolean.class);
+    Object result = OType.convert(db, 0, Boolean.class);
     assertEquals(result, false);
   }
 
   @Test
   public void testToBooleanFromNonZeroNumber() {
-    Object result = OType.convert(1, Boolean.class);
+    Object result = OType.convert(db, 1, Boolean.class);
     assertEquals(result, true);
   }
 
@@ -323,28 +322,28 @@ public class OTypeConvertTest {
   @Test
   public void testToDateFromDate() {
     Date d = Calendar.getInstance().getTime();
-    Object result = OType.convert(d, Date.class);
+    Object result = OType.convert(db, d, Date.class);
     assertEquals(result, d);
   }
 
   @Test
   public void testToDateFromNumber() {
     Long time = System.currentTimeMillis();
-    Object result = OType.convert(time, Date.class);
+    Object result = OType.convert(db, time, Date.class);
     assertEquals(result, new Date(time));
   }
 
   @Test
   public void testToDateFromLongString() {
     Long time = System.currentTimeMillis();
-    Object result = OType.convert(time.toString(), Date.class);
+    Object result = OType.convert(db, time.toString(), Date.class);
     assertEquals(result, new Date(time));
   }
 
   @Test
   public void testToDateFromDateString() {
     Long time = System.currentTimeMillis();
-    Object result = OType.convert(time.toString(), Date.class);
+    Object result = OType.convert(db, time.toString(), Date.class);
     assertEquals(result, new Date(time));
   }
 
@@ -357,7 +356,7 @@ public class OTypeConvertTest {
     HashSet<Object> set = new HashSet<Object>();
     set.add(1);
     set.add("2");
-    Object result = OType.convert(set, Set.class);
+    Object result = OType.convert(db, set, Set.class);
     assertEquals(result, set);
   }
 
@@ -367,7 +366,7 @@ public class OTypeConvertTest {
     list.add(1);
     list.add("2");
 
-    Object result = OType.convert(list, Set.class);
+    Object result = OType.convert(db, list, Set.class);
 
     HashSet<Object> expected = new HashSet<Object>();
     expected.add(1);
@@ -379,7 +378,7 @@ public class OTypeConvertTest {
   public void testToSetFromNonCollection() {
     HashSet<Object> set = new HashSet<Object>();
     set.add(1);
-    Object result = OType.convert(1, Set.class);
+    Object result = OType.convert(db, 1, Set.class);
     assertEquals(result, set);
   }
 
@@ -392,7 +391,7 @@ public class OTypeConvertTest {
     ArrayList<Object> list = new ArrayList<Object>();
     list.add(1);
     list.add("2");
-    Object result = OType.convert(list, List.class);
+    Object result = OType.convert(db, list, List.class);
     assertEquals(result, list);
   }
 
@@ -403,7 +402,7 @@ public class OTypeConvertTest {
     set.add("2");
 
     @SuppressWarnings("unchecked")
-    List<Object> result = (List<Object>) OType.convert(set, List.class);
+    List<Object> result = (List<Object>) OType.convert(db, set, List.class);
 
     assertEquals(result.size(), 2);
     assertTrue(result.containsAll(set));
@@ -413,7 +412,7 @@ public class OTypeConvertTest {
   public void testToListFromNonCollection() {
     ArrayList<Object> expected = new ArrayList<Object>();
     expected.add(1);
-    Object result = OType.convert(1, List.class);
+    Object result = OType.convert(db, 1, List.class);
     assertEquals(result, expected);
   }
 
@@ -426,7 +425,7 @@ public class OTypeConvertTest {
     ArrayList<Object> list = new ArrayList<Object>();
     list.add(1);
     list.add("2");
-    Object result = OType.convert(list, Collection.class);
+    Object result = OType.convert(db, list, Collection.class);
     assertEquals(result, list);
   }
 
@@ -437,7 +436,7 @@ public class OTypeConvertTest {
     set.add("2");
 
     @SuppressWarnings("unchecked")
-    Collection<Object> result = (Collection<Object>) OType.convert(set, Collection.class);
+    Collection<Object> result = (Collection<Object>) OType.convert(db, set, Collection.class);
 
     assertEquals(result.size(), 2);
     assertTrue(result.containsAll(set));
@@ -446,7 +445,7 @@ public class OTypeConvertTest {
   @Test
   public void testToCollectionFromNonCollection() {
     @SuppressWarnings("unchecked")
-    Collection<Object> result = (Collection<Object>) OType.convert(1, Collection.class);
+    Collection<Object> result = (Collection<Object>) OType.convert(db, 1, Collection.class);
 
     assertEquals(result.size(), 1);
     assertTrue(result.contains(1));

@@ -11,7 +11,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ *
  */
 public class OTruncateClusterStatementExecutionTest extends BaseMemoryDatabase {
 
@@ -24,10 +24,10 @@ public class OTruncateClusterStatementExecutionTest extends BaseMemoryDatabase {
     final OSchema schema = db.getMetadata().getSchema();
 
     final OClass clazz = schema.createClass(className);
-    clazz.addClusterId(clusterId);
+    clazz.addClusterId(db, clusterId);
 
-    clazz.createProperty("value", OType.STRING);
-    clazz.createIndex("TruncateClusterIndex", OClass.INDEX_TYPE.UNIQUE, "value");
+    clazz.createProperty(db, "value", OType.STRING);
+    clazz.createIndex(db, "TruncateClusterIndex", OClass.INDEX_TYPE.UNIQUE, "value");
 
     db.begin();
     final ODocument document = new ODocument();

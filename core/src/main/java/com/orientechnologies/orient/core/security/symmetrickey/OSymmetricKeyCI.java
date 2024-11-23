@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2016 OrientDB LTD
+ *  *  Copyright 2016 OxygenDB LTD
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.security.symmetrickey;
@@ -33,8 +33,6 @@ import com.orientechnologies.orient.core.security.OCredentialInterceptor;
  *
  * <p>The method getPassword() will return a Base64-encoded JSON document with the encrypted
  * "username" as its payload.
- *
- * @author S. Colin Leister
  */
 public class OSymmetricKeyCI implements OCredentialInterceptor {
 
@@ -110,41 +108,42 @@ public class OSymmetricKeyCI implements OCredentialInterceptor {
       key = OSymmetricKey.fromString(algorithm, base64Key);
       key.setDefaultCipherTransform(transform);
     } else // "keyFile" has priority over "keyStore".
-    if (jsonDoc.containsField("keyFile")) {
-      key = OSymmetricKey.fromFile(algorithm, jsonDoc.field("keyFile"));
-      key.setDefaultCipherTransform(transform);
-    } else if (jsonDoc.containsField("keyStore")) {
-      ODocument ksDoc = jsonDoc.field("keyStore");
+      if (jsonDoc.containsField("keyFile")) {
+        key = OSymmetricKey.fromFile(algorithm, jsonDoc.field("keyFile"));
+        key.setDefaultCipherTransform(transform);
+      } else if (jsonDoc.containsField("keyStore")) {
+        ODocument ksDoc = jsonDoc.field("keyStore");
 
-      if (ksDoc.containsField("file")) {
-        keystoreFile = ksDoc.field("file");
+        if (ksDoc.containsField("file")) {
+          keystoreFile = ksDoc.field("file");
+        }
+
+        if (keystoreFile == null || keystoreFile.isEmpty()) {
+          throw new OSecurityException("OSymmetricKeyCI.intercept() keystore file is required");
+        }
+
+        // Specific to Keystore, but override if present in the JSON document.
+        if (ksDoc.containsField("password")) {
+          keystorePassword = ksDoc.field("password");
+        }
+
+        String keyAlias = ksDoc.field("keyAlias");
+
+        if (keyAlias == null || keyAlias.isEmpty()) {
+          throw new OSecurityException(
+              "OSymmetricKeyCI.intercept() keystore key alias is required");
+        }
+
+        // keyPassword may be null.
+        String keyPassword = ksDoc.field("keyPassword");
+
+        // keystorePassword may be null.
+        key = OSymmetricKey.fromKeystore(keystoreFile, keystorePassword, keyAlias, keyPassword);
+        key.setDefaultCipherTransform(transform);
+      } else {
+        throw new OSecurityException(
+            "OSymmetricKeyCI.intercept() No suitable symmetric key property exists");
       }
-
-      if (keystoreFile == null || keystoreFile.isEmpty()) {
-        throw new OSecurityException("OSymmetricKeyCI.intercept() keystore file is required");
-      }
-
-      // Specific to Keystore, but override if present in the JSON document.
-      if (ksDoc.containsField("password")) {
-        keystorePassword = ksDoc.field("password");
-      }
-
-      String keyAlias = ksDoc.field("keyAlias");
-
-      if (keyAlias == null || keyAlias.isEmpty()) {
-        throw new OSecurityException("OSymmetricKeyCI.intercept() keystore key alias is required");
-      }
-
-      // keyPassword may be null.
-      String keyPassword = ksDoc.field("keyPassword");
-
-      // keystorePassword may be null.
-      key = OSymmetricKey.fromKeystore(keystoreFile, keystorePassword, keyAlias, keyPassword);
-      key.setDefaultCipherTransform(transform);
-    } else {
-      throw new OSecurityException(
-          "OSymmetricKeyCI.intercept() No suitable symmetric key property exists");
-    }
 
     // This should never happen, but...
     if (key == null) {

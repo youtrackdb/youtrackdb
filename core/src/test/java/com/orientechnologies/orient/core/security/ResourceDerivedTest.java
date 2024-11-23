@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2016 OrientDB LTD (info(at)orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  */
 
 package com.orientechnologies.orient.core.security;
@@ -22,25 +22,25 @@ package com.orientechnologies.orient.core.security;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
- * @author SDIPro
+ *
  */
 public class ResourceDerivedTest {
 
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
 
   @Before
   public void before() {
-    orientDB = new OrientDB("embedded:", OrientDBConfig.defaultConfig());
-    orientDB.execute("create database test memory users (admin identified by 'admin' role admin)");
-    ODatabaseSession db = orientDB.open("test", "admin", "admin");
+    oxygenDB = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
+    oxygenDB.execute("create database test memory users (admin identified by 'admin' role admin)");
+    ODatabaseSession db = oxygenDB.open("test", "admin", "admin");
 
     db.begin();
     db.command(
@@ -129,14 +129,14 @@ public class ResourceDerivedTest {
 
   @After
   public void after() {
-    orientDB.close();
+    oxygenDB.close();
   }
 
   @Test
   // This tests for a result size of three.  The "Customer_u2" record should not be included.
   public void shouldTestFiltering() {
 
-    ODatabaseSession db = orientDB.open("test", "tenant1", "password");
+    ODatabaseSession db = oxygenDB.open("test", "tenant1", "password");
 
     try {
       OResultSet result = query(db, "SELECT FROM Customer");
@@ -151,7 +151,7 @@ public class ResourceDerivedTest {
   // This should return the record in "Customer_t2" but filter out the "Customer_u2" record.
   public void shouldTestCustomer_t2() {
 
-    ODatabaseSession db = orientDB.open("test", "tenant1", "password");
+    ODatabaseSession db = oxygenDB.open("test", "tenant1", "password");
 
     try {
       OResultSet result = query(db, "SELECT FROM Customer_t2");
@@ -164,7 +164,7 @@ public class ResourceDerivedTest {
 
   public void shouldTestAccess2() {
 
-    ODatabaseSession db = orientDB.open("test", "tenant1", "password");
+    ODatabaseSession db = oxygenDB.open("test", "tenant1", "password");
 
     try {
       OResultSet result = query(db, "SELECT FROM Customer_u2");
@@ -176,7 +176,7 @@ public class ResourceDerivedTest {
 
   public void shouldTestCustomer() {
 
-    ODatabaseSession db = orientDB.open("test", "tenant2", "password");
+    ODatabaseSession db = oxygenDB.open("test", "tenant2", "password");
 
     try {
       OResultSet result = query(db, "SELECT FROM Customer");
@@ -191,7 +191,7 @@ public class ResourceDerivedTest {
   // included.
   public void shouldTestCustomer_t2Tenant2() {
 
-    ODatabaseSession db = orientDB.open("test", "tenant2", "password");
+    ODatabaseSession db = oxygenDB.open("test", "tenant2", "password");
 
     try {
       OResultSet result = query(db, "SELECT FROM Customer_t2");

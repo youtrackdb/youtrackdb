@@ -24,7 +24,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.junit.Assert;
 
 /**
- * @author Matan Shukry (matanshukry@gmail.com)
  * @since 3/2/2015
  */
 public abstract class AbstractServerClusterSequenceTest extends AbstractServerClusterTest {

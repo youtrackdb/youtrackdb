@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.metadata.security;
@@ -31,8 +31,6 @@ import java.util.Set;
 /**
  * Checks the access against restricted resources. Restricted resources are those documents of
  * classes that implement ORestricted abstract class.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ORestrictedAccessHook {
 
@@ -54,12 +52,12 @@ public class ORestrictedAccessHook {
       if (identityType.equals("user")) {
         final OSecurityUser user = database.getUser();
         if (user != null) {
-          identity = user.getIdentity();
+          identity = user.getIdentity(database);
         }
       } else if (identityType.equals("role")) {
         final Set<? extends OSecurityRole> roles = database.getUser().getRoles();
         if (!roles.isEmpty()) {
-          identity = roles.iterator().next().getIdentity();
+          identity = roles.iterator().next().getIdentity(database);
         }
       } else {
         throw new OConfigurationException(
@@ -95,11 +93,12 @@ public class ORestrictedAccessHook {
         return true;
       }
 
-      if (database.getUser().isRuleDefined(ORule.ResourceGeneric.BYPASS_RESTRICTED, null)) {
+      if (database.getUser()
+          .isRuleDefined(database, ORule.ResourceGeneric.BYPASS_RESTRICTED, null)) {
         if (database
-                .getUser()
-                .checkIfAllowed(
-                    ORule.ResourceGeneric.BYPASS_RESTRICTED, null, ORole.PERMISSION_READ)
+            .getUser()
+            .checkIfAllowed(database,
+                ORule.ResourceGeneric.BYPASS_RESTRICTED, null, ORole.PERMISSION_READ)
             != null)
         // BYPASS RECORD LEVEL SECURITY: ONLY "ADMIN" ROLE CAN BY DEFAULT
         {

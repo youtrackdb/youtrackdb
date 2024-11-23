@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,26 +40,32 @@ public class GEOTest extends DocumentDBBaseTest {
   @Test
   public void geoSchema() {
     final OClass mapPointClass = database.getMetadata().getSchema().createClass("MapPoint");
-    mapPointClass.createProperty("x", OType.DOUBLE).createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
-    mapPointClass.createProperty("y", OType.DOUBLE).createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
+    mapPointClass.createProperty(database, "x", OType.DOUBLE)
+        .createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
+    mapPointClass.createProperty(database, "y", OType.DOUBLE)
+        .createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
 
     final Set<OIndex> xIndexes =
-        database.getMetadata().getSchema().getClass("MapPoint").getProperty("x").getIndexes();
+        database.getMetadata().getSchema().getClass("MapPoint").getProperty("x")
+            .getIndexes(database);
     Assert.assertEquals(xIndexes.size(), 1);
 
     final Set<OIndex> yIndexes =
-        database.getMetadata().getSchema().getClass("MapPoint").getProperty("y").getIndexes();
+        database.getMetadata().getSchema().getClass("MapPoint").getProperty("y")
+            .getIndexes(database);
     Assert.assertEquals(yIndexes.size(), 1);
   }
 
   @Test(dependsOnMethods = "geoSchema")
   public void checkGeoIndexes() {
     final Set<OIndex> xIndexes =
-        database.getMetadata().getSchema().getClass("MapPoint").getProperty("x").getIndexes();
+        database.getMetadata().getSchema().getClass("MapPoint").getProperty("x")
+            .getIndexes(database);
     Assert.assertEquals(xIndexes.size(), 1);
 
     final Set<OIndex> yIndexDefinitions =
-        database.getMetadata().getSchema().getClass("MapPoint").getProperty("y").getIndexes();
+        database.getMetadata().getSchema().getClass("MapPoint").getProperty("y")
+            .getIndexes(database);
     Assert.assertEquals(yIndexDefinitions.size(), 1);
   }
 
@@ -89,7 +95,7 @@ public class GEOTest extends DocumentDBBaseTest {
             .command(
                 new OSQLSynchQuery<ODocument>(
                     "select from MapPoint where distance(x, y,52.20472, 0.14056 ) <= 30"))
-            .execute();
+            .execute(database);
 
     Assert.assertTrue(result.size() != 0);
 
@@ -105,7 +111,8 @@ public class GEOTest extends DocumentDBBaseTest {
 
     // MAKE THE FIRST RECORD DIRTY TO TEST IF DISTANCE JUMP IT
     List<ODocument> result =
-        database.command(new OSQLSynchQuery<ODocument>("select from MapPoint limit 1")).execute();
+        database.command(new OSQLSynchQuery<ODocument>("select from MapPoint limit 1"))
+            .execute(database);
     try {
       result.get(0).field("x", "--wrong--");
       Assert.fail();
@@ -119,7 +126,7 @@ public class GEOTest extends DocumentDBBaseTest {
                 new OSQLSynchQuery<ODocument>(
                     "select distance(x, y,52.20472, 0.14056 ) as distance from MapPoint order by"
                         + " distance desc"))
-            .execute();
+            .execute(database);
 
     Assert.assertTrue(result.size() != 0);
 

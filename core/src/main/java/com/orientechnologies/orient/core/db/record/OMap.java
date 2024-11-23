@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,11 +14,12 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.db.record;
 
+import com.orientechnologies.common.util.OSizeable;
 import com.orientechnologies.orient.core.db.record.ORecordMultiValueHelper.MULTIVALUE_CONTENT_TYPE;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
@@ -32,11 +33,9 @@ import java.util.Map;
 /**
  * Lazy implementation of LinkedHashMap. It's bound to a source ORecord object to keep track of
  * changes. This avoid to call the makeDirty() by hand when the map is changed.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 @SuppressWarnings({"serial"})
-public class OMap extends OTrackedMap<OIdentifiable> implements OIdentifiableMultiValue {
+public class OMap extends OTrackedMap<OIdentifiable> implements OSizeable {
 
   private final byte recordType;
   private ORecordMultiValueHelper.MULTIVALUE_CONTENT_TYPE multiValueStatus =
@@ -183,7 +182,9 @@ public class OMap extends OTrackedMap<OIdentifiable> implements OIdentifiableMul
         super.putInternal(iKey, ((ORecord) value).getIdentity());
         // CONVERTED
         return true;
-      } else return value instanceof ORID;
+      } else {
+        return value instanceof ORID;
+      }
     }
 
     return false;

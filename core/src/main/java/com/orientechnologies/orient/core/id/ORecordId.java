@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.id;
@@ -40,12 +40,14 @@ import javax.annotation.Nonnull;
 
 public class ORecordId implements ORID {
 
-  @Serial private static final long serialVersionUID = 247070594054408657L;
+  @Serial
+  private static final long serialVersionUID = 247070594054408657L;
   // INT TO AVOID JVM PENALTY, BUT IT'S STORED AS SHORT
   protected int clusterId = CLUSTER_ID_INVALID;
   protected long clusterPosition = CLUSTER_POS_INVALID;
 
-  protected ORecordId() {}
+  protected ORecordId() {
+  }
 
   public ORecordId(final int clusterId, final long position) {
     this.clusterId = clusterId;

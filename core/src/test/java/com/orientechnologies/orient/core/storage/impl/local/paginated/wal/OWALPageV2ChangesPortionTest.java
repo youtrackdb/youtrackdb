@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.storage.impl.local.paginated.wal;
 
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
@@ -11,14 +11,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com) <lomakin.andrey@gmail.com>.
  * @since 8/19/2015
  */
 public class OWALPageV2ChangesPortionTest {
 
   @Before
   public void before() {
-    Orient.instance();
+    Oxygen.instance();
   }
 
   @Test
@@ -99,13 +98,13 @@ public class OWALPageV2ChangesPortionTest {
     ByteBuffer pointer = ByteBuffer.wrap(data).order(ByteOrder.nativeOrder());
 
     pointer.position(64);
-    pointer.put(new byte[] {11, 12, 13, 14});
+    pointer.put(new byte[]{11, 12, 13, 14});
 
     pointer.position(74);
-    pointer.put(new byte[] {21, 22, 23, 24});
+    pointer.put(new byte[]{21, 22, 23, 24});
 
     OWALPageChangesPortion changesCollector = new OWALPageChangesPortion(1024);
-    byte[] values = new byte[] {1, 2, 3, 4};
+    byte[] values = new byte[]{1, 2, 3, 4};
 
     changesCollector.setBinaryValue(pointer, values, 64);
     changesCollector.moveData(pointer, 64, 74, 4);

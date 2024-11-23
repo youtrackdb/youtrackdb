@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Created by luigidellaquila on 08/07/16.
+ *
  */
 public class OExplainResultSet implements OResultSet {
 
@@ -43,7 +43,8 @@ public class OExplainResultSet implements OResultSet {
   }
 
   @Override
-  public void close() {}
+  public void close() {
+  }
 
   @Override
   public Optional<OExecutionPlan> getExecutionPlan() {

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -27,7 +27,6 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODura
 import java.io.IOException;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 5/14/14
  */
 public class ODirectoryPage extends ODurablePage {
@@ -95,7 +94,7 @@ public class ODirectoryPage extends ODurablePage {
     int offset =
         getItemsOffset()
             + (localNodeIndex * OHashTableDirectory.BINARY_LEVEL_SIZE
-                + 3 * OByteSerializer.BYTE_SIZE)
+            + 3 * OByteSerializer.BYTE_SIZE)
             + index * OHashTableDirectory.ITEM_SIZE;
 
     setLongValue(offset, pointer);
@@ -105,7 +104,7 @@ public class ODirectoryPage extends ODurablePage {
     int offset =
         getItemsOffset()
             + (localNodeIndex * OHashTableDirectory.BINARY_LEVEL_SIZE
-                + 3 * OByteSerializer.BYTE_SIZE)
+            + 3 * OByteSerializer.BYTE_SIZE)
             + index * OHashTableDirectory.ITEM_SIZE;
 
     return getLongValue(offset);

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,13 +14,13 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.config;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategyFactory;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.exception.OStorageException;
@@ -67,8 +67,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  *   <li>18 = we keep version of product release under which storage was created
  *   <li>19 = Page size and related parameters are stored inside configuration
  * </ul>
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 @SuppressWarnings("serial")
 public class OStorageConfigurationImpl implements OSerializableStream, OStorageConfiguration {
@@ -306,7 +304,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
     try {
       initConfiguration(configuration);
 
-      final byte[] record = storage.readRecord(CONFIG_RID, false, false, null).buffer;
+      final byte[] record = storage.readRecord(null, CONFIG_RID, false, false, null).buffer;
 
       if (record == null) {
         throw new OStorageException(
@@ -455,7 +453,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
       this.charset = read(values[index++]);
 
       final ORecordConflictStrategyFactory conflictStrategyFactory =
-          Orient.instance().getRecordConflictStrategy();
+          Oxygen.instance().getRecordConflictStrategy();
       conflictStrategy = conflictStrategyFactory.getStrategy(read(values[index++])).getName();
 
       // @COMPATIBILITY
@@ -574,7 +572,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
         final OGlobalConfiguration cfg = OGlobalConfiguration.findByKey(key);
         if (cfg != null) {
           if (value != null) {
-            configuration.setValue(key, OType.convert(value, cfg.getType()));
+            configuration.setValue(key, OType.convert(null, value, cfg.getType()));
           }
         } else {
           OLogManager.instance()
@@ -880,7 +878,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
   public void create() throws IOException {
     lock.writeLock().lock();
     try {
-      storage.createRecord(CONFIG_RID, new byte[] {0, 0, 0, 0}, 0, OBlob.RECORD_TYPE, null);
+      storage.createRecord(CONFIG_RID, new byte[]{0, 0, 0, 0}, 0, OBlob.RECORD_TYPE, null);
     } finally {
       lock.writeLock().unlock();
     }
@@ -1277,8 +1275,8 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
     iSegment.fileIncrementSize = read(values[index++]);
     iSegment.defrag = read(values[index++]);
 
-    @SuppressWarnings("ConstantConditions")
-    final int size = Integer.parseInt(read(values[index++]));
+    @SuppressWarnings("ConstantConditions") final int size = Integer.parseInt(
+        read(values[index++]));
     iSegment.infoFiles = new OStorageFileConfiguration[size];
     String fileName;
     for (int i = 0; i < size; ++i) {
@@ -1289,7 +1287,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
         // @COMPATIBILITY 0.9.25
         int pos = fileName.indexOf("/databases");
         if (pos > -1) {
-          fileName = "${" + Orient.ORIENTDB_HOME + "}" + fileName.substring(pos);
+          fileName = "${" + Oxygen.OXYGENDB_HOME + "}" + fileName.substring(pos);
         }
       }
 

@@ -30,13 +30,13 @@ public class OSQLFunctionPercentileTest {
 
   @Test
   public void testSingleValueLower() {
-    percentile.execute(null, null, null, new Object[] {10, .25}, null);
+    percentile.execute(null, null, null, new Object[]{10, .25}, null);
     assertEquals(10, percentile.getResult());
   }
 
   @Test
   public void testSingleValueUpper() {
-    percentile.execute(null, null, null, new Object[] {10, .75}, null);
+    percentile.execute(null, null, null, new Object[]{10, .75}, null);
     assertEquals(10, percentile.getResult());
   }
 
@@ -45,7 +45,7 @@ public class OSQLFunctionPercentileTest {
     int[] scores = {1, 2, 3, 4, 5};
 
     for (int s : scores) {
-      percentile.execute(null, null, null, new Object[] {s, .5}, null);
+      percentile.execute(null, null, null, new Object[]{s, .5}, null);
     }
 
     Object result = percentile.getResult();
@@ -57,7 +57,7 @@ public class OSQLFunctionPercentileTest {
     Integer[] scores = {null, 1, 2, null, 3, 4, null, 5};
 
     for (Integer s : scores) {
-      percentile.execute(null, null, null, new Object[] {s, .5}, null);
+      percentile.execute(null, null, null, new Object[]{s, .5}, null);
     }
 
     Object result = percentile.getResult();
@@ -69,7 +69,7 @@ public class OSQLFunctionPercentileTest {
     int[] scores = {1, 2, 4, 5};
 
     for (int s : scores) {
-      percentile.execute(null, null, null, new Object[] {s, .5}, null);
+      percentile.execute(null, null, null, new Object[]{s, .5}, null);
     }
 
     Object result = percentile.getResult();
@@ -81,7 +81,7 @@ public class OSQLFunctionPercentileTest {
     int[] scores = {1, 2, 3, 4, 5};
 
     for (int s : scores) {
-      percentile.execute(null, null, null, new Object[] {s, .25}, null);
+      percentile.execute(null, null, null, new Object[]{s, .25}, null);
     }
 
     Object result = percentile.getResult();
@@ -93,7 +93,7 @@ public class OSQLFunctionPercentileTest {
     int[] scores = {1, 2, 3, 4, 5};
 
     for (int s : scores) {
-      percentile.execute(null, null, null, new Object[] {s, .75}, null);
+      percentile.execute(null, null, null, new Object[]{s, .75}, null);
     }
 
     Object result = percentile.getResult();
@@ -105,7 +105,7 @@ public class OSQLFunctionPercentileTest {
     int[] scores = {1, 2, 3, 4, 5};
 
     for (int s : scores) {
-      percentile.execute(null, null, null, new Object[] {s, .25, .75}, null);
+      percentile.execute(null, null, null, new Object[]{s, .25, .75}, null);
     }
 
     List<Number> result = (List<Number>) percentile.getResult();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  * Copyright 2013 Geomatys.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,8 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author Johann Sorel (Geomatys)
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
+ *
  */
 public class OSQLMethodField extends OAbstractSQLMethod {
 
@@ -54,6 +53,7 @@ public class OSQLMethodField extends OAbstractSQLMethod {
       return null;
     }
 
+    var db = iContext.getDatabase();
     final String paramAsString = iParams[0].toString();
 
     if (ioResult != null) {
@@ -83,7 +83,7 @@ public class OSQLMethodField extends OAbstractSQLMethod {
           || ioResult.getClass().isArray()) {
         final List<Object> result = new ArrayList<Object>(OMultiValue.getSize(ioResult));
         for (Object o : OMultiValue.getMultiValueIterable(ioResult)) {
-          Object newlyAdded = ODocumentHelper.getFieldValue(o, paramAsString);
+          Object newlyAdded = ODocumentHelper.getFieldValue(db, o, paramAsString);
           if (OMultiValue.isMultiValue(newlyAdded)) {
             if (newlyAdded instanceof Map || newlyAdded instanceof OIdentifiable) {
               result.add(newlyAdded);
@@ -104,7 +104,7 @@ public class OSQLMethodField extends OAbstractSQLMethod {
       if (ioResult instanceof OCommandContext) {
         ioResult = ((OCommandContext) ioResult).getVariable(paramAsString);
       } else {
-        ioResult = ODocumentHelper.getFieldValue(ioResult, paramAsString, iContext);
+        ioResult = ODocumentHelper.getFieldValue(db, ioResult, paramAsString, iContext);
       }
     }
 

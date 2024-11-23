@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
 import com.orientechnologies.orient.server.config.OServerNetworkConfiguration;
 import com.orientechnologies.orient.server.config.OServerNetworkListenerConfiguration;
@@ -20,7 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by frank on 19/11/2015.
+ *
  */
 public class OServerShutdownMainTest {
 
@@ -60,9 +60,9 @@ public class OServerShutdownMainTest {
       server.shutdown();
     }
 
-    Orient.instance().shutdown();
+    Oxygen.instance().shutdown();
     OFileUtils.deleteRecursively(new File("./target/testhome"));
-    Orient.instance().startup();
+    Oxygen.instance().startup();
 
     if (prevOrientHome != null) {
       System.setProperty("ORIENTDB_HOME", prevOrientHome);
@@ -87,7 +87,7 @@ public class OServerShutdownMainTest {
   public void shouldShutdownServerParsingShortArguments() throws Exception {
 
     OServerShutdownMain.main(
-        new String[] {"-h", "localhost", "-P", "2424", "-p", "rootPassword", "-u", "root"});
+        new String[]{"-h", "localhost", "-P", "2424", "-p", "rootPassword", "-u", "root"});
 
     TimeUnit.SECONDS.sleep(2);
     assertThat(server.isActive()).isFalse();
@@ -97,8 +97,8 @@ public class OServerShutdownMainTest {
   public void shouldShutdownServerParsingLongArguments() throws Exception {
 
     OServerShutdownMain.main(
-        new String[] {
-          "--host", "localhost", "--ports", "2424", "--password", "rootPassword", "--user", "root"
+        new String[]{
+            "--host", "localhost", "--ports", "2424", "--password", "rootPassword", "--user", "root"
         });
 
     TimeUnit.SECONDS.sleep(2);

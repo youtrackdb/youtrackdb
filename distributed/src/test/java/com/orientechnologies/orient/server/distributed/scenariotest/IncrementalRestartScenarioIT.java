@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 OrientDB LTD (info--at--orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,6 @@ import org.junit.Test;
  * they succeed - restart server2 - 5 threads for each running server write 100 records - restart
  * server3 - 5 threads on server3 write 100 records - check consistency
  *
- * @author Gabriele Ponzi
  * @email <gabriele.ponzi--at--gmail.com>
  */
 public class IncrementalRestartScenarioIT extends AbstractScenarioTest {

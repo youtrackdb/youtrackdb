@@ -16,6 +16,7 @@
 
 package com.orientechnologies.orient.core.schedule;
 
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OProxedResource;
 import java.util.Map;
@@ -23,9 +24,6 @@ import java.util.Map;
 /**
  * Proxy implementation of the Scheduler. <<<<<<< HEAD
  *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com) =======
- * @author Luca Garulli >>>>>>> 1b627a8... HA: fixed issues with distributed scheduler events
- * @author henryzhao81-at-gmail.com
  * @since Mar 28, 2013
  */
 public class OSchedulerProxy extends OProxedResource<OSchedulerImpl> implements OScheduler {
@@ -35,18 +33,18 @@ public class OSchedulerProxy extends OProxedResource<OSchedulerImpl> implements 
   }
 
   @Override
-  public void scheduleEvent(final OScheduledEvent scheduler) {
-    delegate.scheduleEvent(scheduler);
+  public void scheduleEvent(ODatabaseSession session, final OScheduledEvent scheduler) {
+    delegate.scheduleEvent(session, scheduler);
   }
 
   @Override
-  public void removeEvent(final String eventName) {
-    delegate.removeEvent(eventName);
+  public void removeEvent(ODatabaseSession session, final String eventName) {
+    delegate.removeEvent((ODatabaseSessionInternal) session, eventName);
   }
 
   @Override
-  public void updateEvent(final OScheduledEvent event) {
-    delegate.updateEvent(event);
+  public void updateEvent(ODatabaseSession session, final OScheduledEvent event) {
+    delegate.updateEvent((ODatabaseSessionInternal) session, event);
   }
 
   @Override
@@ -71,6 +69,6 @@ public class OSchedulerProxy extends OProxedResource<OSchedulerImpl> implements 
 
   @Override
   public void create() {
-    delegate.create(database);
+    OSchedulerImpl.create(database);
   }
 }

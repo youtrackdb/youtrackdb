@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,13 +14,14 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.functions.math;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -29,8 +30,6 @@ import java.util.List;
 
 /**
  * Evaluates a complex expression.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionEval extends OSQLFunctionMathAbstract {
 
@@ -52,7 +51,7 @@ public class OSQLFunctionEval extends OSQLFunctionMathAbstract {
       throw new OCommandExecutionException("invalid ");
     }
     if (predicate == null) {
-      predicate = new OSQLPredicate(String.valueOf(iParams[0]));
+      predicate = new OSQLPredicate(iContext.getDatabase(), String.valueOf(iParams[0]));
     }
 
     final ODocument currentResult =
@@ -74,7 +73,7 @@ public class OSQLFunctionEval extends OSQLFunctionMathAbstract {
     return false;
   }
 
-  public String getSyntax() {
+  public String getSyntax(ODatabaseSession session) {
     return "eval(<expression>)";
   }
 

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.enterprise.channel;
@@ -24,7 +24,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.profiler.OAbstractProfiler.OProfilerHookValue;
 import com.orientechnologies.common.profiler.OProfiler;
 import com.orientechnologies.common.profiler.OProfiler.METRIC_TYPE;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import java.io.IOException;
@@ -41,7 +41,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public abstract class OChannel {
 
-  private static final OProfiler PROFILER = Orient.instance().getProfiler();
+  private static final OProfiler PROFILER = Oxygen.instance().getProfiler();
   private static final AtomicLong metricGlobalTransmittedBytes = new AtomicLong();
   private static final AtomicLong metricGlobalReceivedBytes = new AtomicLong();
   private static final AtomicLong metricGlobalFlushes = new AtomicLong();

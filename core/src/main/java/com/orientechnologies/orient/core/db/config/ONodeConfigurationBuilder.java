@@ -6,13 +6,14 @@ public class ONodeConfigurationBuilder {
 
   private int quorum = 2;
   private String nodeName = UUID.randomUUID().toString();
-  private String groupName = "OrientDB";
+  private String groupName = "OxygenDB";
   private Integer tcpPort = null;
-  private String groupPassword = "OrientDB";
+  private String groupPassword = "OxygenDB";
   private OMulticastConfguration multicastConfguration;
   private OUDPUnicastConfiguration unicastConfiguration;
 
-  protected ONodeConfigurationBuilder() {}
+  protected ONodeConfigurationBuilder() {
+  }
 
   public ONodeConfigurationBuilder setQuorum(int quorum) {
     this.quorum = quorum;

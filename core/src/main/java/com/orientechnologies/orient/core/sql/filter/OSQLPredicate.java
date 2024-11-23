@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.filter;
@@ -23,6 +23,7 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.parser.OBaseParser;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandPredicate;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
@@ -46,8 +47,6 @@ import java.util.Set;
 
 /**
  * Parses text in SQL format and build a tree of conditions.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
 
@@ -58,10 +57,11 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
   protected int braces;
   protected OCommandContext context;
 
-  public OSQLPredicate() {}
+  public OSQLPredicate() {
+  }
 
-  public OSQLPredicate(final String iText) {
-    text(iText);
+  public OSQLPredicate(ODatabaseSession session, final String iText) {
+    text(session, iText);
   }
 
   protected void throwSyntaxErrorException(final String iText) {
@@ -87,7 +87,7 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
     return result.toString();
   }
 
-  public OSQLPredicate text(final String iText) {
+  public OSQLPredicate text(ODatabaseSession session, final String iText) {
     if (iText == null) {
       throw new OCommandSQLParsingException("Query text is null");
     }
@@ -98,9 +98,9 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
       parserSetCurrentPosition(0);
       parserSkipWhiteSpaces();
 
-      rootCondition = (OSQLFilterCondition) extractConditions(null);
+      rootCondition = (OSQLFilterCondition) extractConditions(session, null);
 
-      optimize();
+      optimize(session);
     } catch (OQueryParsingException e) {
       if (e.getText() == null)
       // QUERY EXCEPTION BUT WITHOUT TEXT: NEST IT
@@ -138,7 +138,8 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
     return rootCondition.evaluate(iRecord, iCurrentResult, iContext);
   }
 
-  protected Object extractConditions(final OSQLFilterCondition iParentCondition) {
+  protected Object extractConditions(ODatabaseSession session,
+      final OSQLFilterCondition iParentCondition) {
     final int oldPosition = parserGetCurrentPosition();
     parserNextWord(true, " )=><,\r\n");
     final String word = parserGetLastWord();
@@ -156,7 +157,7 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
     }
 
     parserSetCurrentPosition(oldPosition);
-    OSQLFilterCondition currentCondition = extractCondition();
+    OSQLFilterCondition currentCondition = extractCondition(session);
 
     // CHECK IF THERE IS ANOTHER CONDITION ON RIGHT
     while (parserSkipWhiteSpaces()) {
@@ -175,11 +176,11 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
         final OSQLFilterCondition subCondition =
             new OSQLFilterCondition(currentCondition.right, nextOperator);
         currentCondition.right = subCondition;
-        subCondition.right = extractConditionItem(false, 1);
+        subCondition.right = extractConditionItem(session, false, 1);
       } else {
         final OSQLFilterCondition parentCondition =
             new OSQLFilterCondition(currentCondition, nextOperator);
-        parentCondition.right = extractConditions(parentCondition);
+        parentCondition.right = extractConditions(session, parentCondition);
         currentCondition = parentCondition;
       }
     }
@@ -190,7 +191,7 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
     return currentCondition;
   }
 
-  protected OSQLFilterCondition extractCondition() {
+  protected OSQLFilterCondition extractCondition(ODatabaseSession session) {
 
     if (!parserSkipWhiteSpaces())
     // END OF TEXT
@@ -199,7 +200,7 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
     }
 
     // EXTRACT ITEMS
-    Object left = extractConditionItem(true, 1);
+    Object left = extractConditionItem(session, true, 1);
 
     if (left != null && checkForEnd(left.toString())) {
       return null;
@@ -210,7 +211,7 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
 
     if (left instanceof OQueryOperator && ((OQueryOperator) left).isUnary()) {
       oper = (OQueryOperator) left;
-      left = extractConditionItem(false, 1);
+      left = extractConditionItem(session, false, 1);
       right = null;
     } else {
       oper = extractConditionOperator();
@@ -222,9 +223,9 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
       }
 
       if (oper instanceof OQueryOperatorAnd || oper instanceof OQueryOperatorOr) {
-        right = extractCondition();
+        right = extractCondition(session);
       } else {
-        right = oper != null ? extractConditionItem(false, oper.expectedRightWords) : null;
+        right = oper != null ? extractConditionItem(session, false, oper.expectedRightWords) : null;
       }
     }
 
@@ -235,9 +236,9 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
   protected boolean checkForEnd(final String iWord) {
     if (iWord != null
         && (iWord.equals(OCommandExecutorSQLSelect.KEYWORD_ORDER)
-            || iWord.equals(OCommandExecutorSQLSelect.KEYWORD_LIMIT)
-            || iWord.equals(OCommandExecutorSQLSelect.KEYWORD_SKIP)
-            || iWord.equals(OCommandExecutorSQLSelect.KEYWORD_OFFSET))) {
+        || iWord.equals(OCommandExecutorSQLSelect.KEYWORD_LIMIT)
+        || iWord.equals(OCommandExecutorSQLSelect.KEYWORD_SKIP)
+        || iWord.equals(OCommandExecutorSQLSelect.KEYWORD_OFFSET))) {
       parserMoveCurrentPosition(iWord.length() * -1);
       return true;
     }
@@ -305,7 +306,8 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
     return op;
   }
 
-  private Object extractConditionItem(final boolean iAllowOperator, final int iExpectedWords) {
+  private Object extractConditionItem(ODatabaseSession session, final boolean iAllowOperator,
+      final int iExpectedWords) {
     final Object[] result = new Object[iExpectedWords];
 
     for (int i = 0; i < iExpectedWords; ++i) {
@@ -328,7 +330,7 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
         // SUB-CONDITION
         parserSetCurrentPosition(lastPosition - word.length() + 1);
 
-        final Object subCondition = extractConditions(null);
+        final Object subCondition = extractConditions(session, null);
 
         if (!parserSkipWhiteSpaces() || parserGetCurrentChar() == ')') {
           braces--;
@@ -353,12 +355,12 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
       } else if (uWord.startsWith(
           OSQLFilterItemFieldAll.NAME + OStringSerializerHelper.EMBEDDED_BEGIN)) {
 
-        result[i] = new OSQLFilterItemFieldAll(this, word, null);
+        result[i] = new OSQLFilterItemFieldAll(session, this, word, null);
 
       } else if (uWord.startsWith(
           OSQLFilterItemFieldAny.NAME + OStringSerializerHelper.EMBEDDED_BEGIN)) {
 
-        result[i] = new OSQLFilterItemFieldAny(this, word, null);
+        result[i] = new OSQLFilterItemFieldAny(session, this, word, null);
 
       } else {
 
@@ -469,28 +471,28 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
     rootCondition = iCondition;
   }
 
-  protected void optimize() {
+  protected void optimize(ODatabaseSession session) {
     if (rootCondition != null) {
-      computePrefetchFieldList(rootCondition, new HashSet<String>());
+      computePrefetchFieldList(session, rootCondition, new HashSet<String>());
     }
   }
 
   protected Set<String> computePrefetchFieldList(
-      final OSQLFilterCondition iCondition, final Set<String> iFields) {
+      ODatabaseSession session, final OSQLFilterCondition iCondition, final Set<String> iFields) {
     Object left = iCondition.getLeft();
     Object right = iCondition.getRight();
     if (left instanceof OSQLFilterItemField) {
       ((OSQLFilterItemField) left).setPreLoadedFields(iFields);
-      iFields.add(((OSQLFilterItemField) left).getRoot());
+      iFields.add(((OSQLFilterItemField) left).getRoot(session));
     } else if (left instanceof OSQLFilterCondition) {
-      computePrefetchFieldList((OSQLFilterCondition) left, iFields);
+      computePrefetchFieldList(session, (OSQLFilterCondition) left, iFields);
     }
 
     if (right instanceof OSQLFilterItemField) {
       ((OSQLFilterItemField) right).setPreLoadedFields(iFields);
-      iFields.add(((OSQLFilterItemField) right).getRoot());
+      iFields.add(((OSQLFilterItemField) right).getRoot(session));
     } else if (right instanceof OSQLFilterCondition) {
-      computePrefetchFieldList((OSQLFilterCondition) right, iFields);
+      computePrefetchFieldList(session, (OSQLFilterCondition) right, iFields);
     }
 
     return iFields;

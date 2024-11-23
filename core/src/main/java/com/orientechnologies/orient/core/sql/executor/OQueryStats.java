@@ -10,8 +10,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * This class contains statistics about graph structure and query execution.
  *
  * <p>To obtain a copy of this object, use
- *
- * @author Luigi Dell'Aquila
  */
 public class OQueryStats {
 

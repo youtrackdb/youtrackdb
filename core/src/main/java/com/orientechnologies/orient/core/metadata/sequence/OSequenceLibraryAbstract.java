@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 OrientDB.
+ * Copyright 2018 OxygenDB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import com.orientechnologies.orient.core.db.record.OProxedResource;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 
 /**
- * @author mdjurovi
+ *
  */
 public abstract class OSequenceLibraryAbstract extends OProxedResource<OSequenceLibraryImpl>
     implements OSequenceLibrary {

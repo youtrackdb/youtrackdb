@@ -11,7 +11,8 @@ import javax.annotation.Nonnull;
 public final class IndexEngineData {
 
   private final int indexId;
-  @Nonnull private final String name;
+  @Nonnull
+  private final String name;
   private final String algorithm;
   private final String indexType;
 

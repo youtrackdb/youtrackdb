@@ -4,6 +4,7 @@ import com.orientechnologies.common.collection.OMultiCollectionIterator;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandExecutorAbstract;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.id.ORID;
@@ -31,8 +32,6 @@ import java.util.stream.Collectors;
 /**
  * Shortest path algorithm to find the shortest path from one node to another node in a directed
  * graph.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
 
@@ -142,10 +141,10 @@ public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
         ctx.edgeTypeParam = (String[]) ((Collection) param).toArray(new String[0]);
       } else {
         ctx.edgeType = param == null ? null : "" + param;
-        ctx.edgeTypeParam = new String[] {ctx.edgeType};
+        ctx.edgeTypeParam = new String[]{ctx.edgeType};
       }
     } else {
-      ctx.edgeTypeParam = new String[] {null};
+      ctx.edgeTypeParam = new String[]{null};
     }
 
     if (iParams.length > 4) {
@@ -229,7 +228,7 @@ public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
     if (additionalParams == null) {
       return;
     }
-    Map<String, Object> mapParams = null;
+    Map<String, ?> mapParams = null;
     if (additionalParams instanceof Map) {
       mapParams = (Map) additionalParams;
     } else if (additionalParams instanceof OIdentifiable) {
@@ -260,7 +259,6 @@ public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
 
   /**
    * @return
-   * @author Thomas Young (YJJThomasYoung@hotmail.com)
    */
   private Boolean toBoolean(Object fromObject) {
     if (fromObject == null) {
@@ -285,7 +283,6 @@ public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
    * @param direction
    * @param types
    * @return
-   * @author Thomas Young (YJJThomasYoung@hotmail.com)
    */
   private ORawPair<Iterable<OVertex>, Iterable<OEdge>> getVerticesAndEdges(
       OVertex srcVertex, ODirection direction, String... types) {
@@ -314,14 +311,13 @@ public class OSQLFunctionShortestPath extends OSQLFunctionMathAbstract {
    * @param srcVertex
    * @param direction
    * @return
-   * @author Thomas Young (YJJThomasYoung@hotmail.com)
    */
   private ORawPair<Iterable<OVertex>, Iterable<OEdge>> getVerticesAndEdges(
       OVertex srcVertex, ODirection direction) {
     return getVerticesAndEdges(srcVertex, direction, (String[]) null);
   }
 
-  public String getSyntax() {
+  public String getSyntax(ODatabaseSession session) {
     return "shortestPath(<sourceVertex>, <destinationVertex>, [<direction>, [ <edgeTypeAsString>"
         + " ]])";
   }

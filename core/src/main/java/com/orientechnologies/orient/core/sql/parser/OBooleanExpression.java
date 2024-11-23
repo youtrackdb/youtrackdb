@@ -18,7 +18,7 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Created by luigidellaquila on 07/11/14.
+ *
  */
 public abstract class OBooleanExpression extends SimpleNode {
 
@@ -65,7 +65,8 @@ public abstract class OBooleanExpression extends SimpleNode {
         }
 
         @Override
-        public void translateLuceneOperator() {}
+        public void translateLuceneOperator() {
+        }
 
         @Override
         public boolean isCacheable() {
@@ -92,7 +93,8 @@ public abstract class OBooleanExpression extends SimpleNode {
         }
 
         @Override
-        public void extractSubQueries(SubQueryCollector collector) {}
+        public void extractSubQueries(SubQueryCollector collector) {
+        }
 
         @Override
         public boolean refersToParent() {
@@ -148,7 +150,8 @@ public abstract class OBooleanExpression extends SimpleNode {
         }
 
         @Override
-        public void translateLuceneOperator() {}
+        public void translateLuceneOperator() {
+        }
 
         @Override
         public boolean isCacheable() {
@@ -175,7 +178,8 @@ public abstract class OBooleanExpression extends SimpleNode {
         }
 
         @Override
-        public void extractSubQueries(SubQueryCollector collector) {}
+        public void extractSubQueries(SubQueryCollector collector) {
+        }
 
         @Override
         public boolean refersToParent() {
@@ -259,7 +263,8 @@ public abstract class OBooleanExpression extends SimpleNode {
 
   public abstract List<String> getMatchPatternInvolvedAliases();
 
-  public void translateLuceneOperator() {}
+  public void translateLuceneOperator() {
+  }
 
   public static OBooleanExpression deserializeFromOResult(OResult doc) {
     try {

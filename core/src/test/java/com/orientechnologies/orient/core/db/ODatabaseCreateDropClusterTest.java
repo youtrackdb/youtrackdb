@@ -18,7 +18,7 @@ public class ODatabaseCreateDropClusterTest extends BaseMemoryDatabase {
   @Test
   public void createDropClusterOnClass() {
     OClass test = db.getMetadata().getSchema().createClass("test", 1, null);
-    test.addCluster("aTest");
+    test.addCluster(db, "aTest");
     Assert.assertNotEquals(db.getClusterIdByName("aTest"), -1);
     Assert.assertEquals(test.getClusterIds().length, 2);
     db.dropCluster("aTest");

@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by luigidellaquila on 12/08/16.
+ *
  */
 public abstract class ODDLStatement extends OStatement {
 

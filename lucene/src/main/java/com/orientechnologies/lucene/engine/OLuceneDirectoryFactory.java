@@ -13,7 +13,7 @@ import org.apache.lucene.store.NIOFSDirectory;
 import org.apache.lucene.store.RAMDirectory;
 
 /**
- * Created by frank on 03/03/2016.
+ *
  */
 public class OLuceneDirectoryFactory {
 

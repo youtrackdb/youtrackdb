@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  * Copyright 2013 Geomatys.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,14 +17,13 @@
 package com.orientechnologies.orient.core.sql.method.misc;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunction;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionRuntime;
 
 /**
  * Delegates the execution to a function.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLMethodFunctionDelegate extends OAbstractSQLMethod {
 
@@ -43,8 +42,8 @@ public class OSQLMethodFunctionDelegate extends OAbstractSQLMethod {
   }
 
   @Override
-  public int getMaxParams() {
-    final int max = func.getFunction().getMaxParams();
+  public int getMaxParams(ODatabaseSession session) {
+    final int max = func.getFunction().getMaxParams(session);
     return max == -1 ? -1 : max - 1;
   }
 

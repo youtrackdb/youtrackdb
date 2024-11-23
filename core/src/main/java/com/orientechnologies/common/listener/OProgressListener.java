@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,15 +14,15 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.common.listener;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+
 /**
  * Listener interface called on task execution.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OProgressListener {
 
@@ -30,5 +30,5 @@ public interface OProgressListener {
 
   boolean onProgress(Object iTask, long iCounter, float iPercent);
 
-  void onCompletition(Object iTask, boolean iSucceed);
+  void onCompletition(ODatabaseSessionInternal session, Object iTask, boolean iSucceed);
 }

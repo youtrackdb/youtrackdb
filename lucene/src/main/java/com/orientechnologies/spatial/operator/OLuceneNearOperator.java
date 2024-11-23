@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,29 +9,27 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://www.orientdb.com
+ * <p>*
  */
 package com.orientechnologies.spatial.operator;
 
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.lucene.operator.OLuceneOperatorUtil;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializer;
 import com.orientechnologies.orient.core.sql.OIndexSearchResult;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
-import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemField;
 import com.orientechnologies.orient.core.sql.operator.OIndexReuseType;
 import com.orientechnologies.orient.core.sql.operator.OQueryTargetOperator;
 import com.orientechnologies.spatial.collections.OSpatialCompositeKey;
 import com.orientechnologies.spatial.shape.OShapeFactory;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -95,47 +91,23 @@ public class OLuceneNearOperator extends OQueryTargetOperator {
     return shape.relate(circle) == SpatialRelation.WITHIN;
   }
 
-  private Object[] parseParams(OIdentifiable iRecord, OSQLFilterCondition iCondition) {
-
-    ODocument oDocument = (ODocument) iRecord;
-    Collection left = (Collection) iCondition.getLeft();
-    Collection right = (Collection) iCondition.getRight();
-    Object[] params = new Object[(left.size() * 2) - 2];
-    int i = 0;
-    for (Object obj : left) {
-      if (obj instanceof OSQLFilterItemField) {
-        String fName = ((OSQLFilterItemField) obj).getFieldChain().getItemName(0);
-        params[i] = oDocument.field(fName);
-        i++;
-      }
-    }
-    for (Object obj : right) {
-      if (obj instanceof Number) {
-        params[i] = ((Double) OType.convert(obj, Double.class)).doubleValue();
-        i++;
-      }
-    }
-    return params;
-  }
-
   @Override
   public Stream<ORawPair<Object, ORID>> executeIndexQuery(
       OCommandContext iContext, OIndex index, List<Object> keyParams, boolean ascSortOrder) {
-    OIndexDefinition definition = index.getDefinition();
-    int idxSize = definition.getFields().size();
-    int paramsSize = keyParams.size();
 
     double distance = 0;
     Object spatial = iContext.getVariable("spatial");
     if (spatial != null) {
       if (spatial instanceof Number) {
-        distance = ((Double) OType.convert(spatial, Double.class)).doubleValue();
+        distance = ((Double) OType.convert(iContext.getDatabase(), spatial,
+            Double.class)).doubleValue();
       } else if (spatial instanceof Map) {
         Map<String, Object> params = (Map<String, Object>) spatial;
 
         Object dst = params.get("maxDistance");
         if (dst != null && dst instanceof Number) {
-          distance = ((Double) OType.convert(dst, Double.class)).doubleValue();
+          distance = ((Double) OType.convert(iContext.getDatabase(), dst,
+              Double.class)).doubleValue();
         }
       }
     }
@@ -144,7 +116,8 @@ public class OLuceneNearOperator extends OQueryTargetOperator {
 
     return index
         .getInternal()
-        .getRids(new OSpatialCompositeKey(keyParams).setMaxDistance(distance).setContext(iContext))
+        .getRids(iContext.getDatabase(),
+            new OSpatialCompositeKey(keyParams).setMaxDistance(distance).setContext(iContext))
         .map((rid) -> new ORawPair<>(new OSpatialCompositeKey(keyParams), rid));
   }
 
@@ -154,12 +127,12 @@ public class OLuceneNearOperator extends OQueryTargetOperator {
   }
 
   @Override
-  public ORID getBeginRidRange(Object iLeft, Object iRight) {
+  public ORID getBeginRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 
   @Override
-  public ORID getEndRidRange(Object iLeft, Object iRight) {
+  public ORID getEndRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 

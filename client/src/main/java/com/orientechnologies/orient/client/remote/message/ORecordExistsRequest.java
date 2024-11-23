@@ -4,6 +4,7 @@ import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
@@ -15,14 +16,16 @@ public class ORecordExistsRequest implements OBinaryRequest<ORecordExistsRespons
 
   private ORID recordId;
 
-  public ORecordExistsRequest() {}
+  public ORecordExistsRequest() {
+  }
 
   public ORecordExistsRequest(ORID recordId) {
     this.recordId = recordId;
   }
 
   @Override
-  public void write(OChannelDataOutput network, OStorageRemoteSession session) throws IOException {
+  public void write(ODatabaseSessionInternal database, OChannelDataOutput network,
+      OStorageRemoteSession session) throws IOException {
     network.writeRID(recordId);
   }
 

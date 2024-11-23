@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientechnologies.com
+ *
  *
  */
 
@@ -31,8 +31,6 @@ package com.orientechnologies.orient.core.compression;
  *       implementations, the same instance will be shared across all the storages./li>
  * </ul>
  *
- * @author Andrey Lomakin
- * @author Luca Garulli
  * @since 05.06.13
  */
 public interface OCompression {

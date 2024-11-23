@@ -13,7 +13,7 @@ public class LinksetInTransactionTest extends BaseMemoryDatabase {
   @Test
   public void test() {
 
-    db.createClass("WithLinks").createProperty("links", OType.LINKSET);
+    db.createClass("WithLinks").createProperty(db, "links", OType.LINKSET);
     db.createClass("Linked");
 
     db.begin();

@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
 import com.orientechnologies.orient.server.config.OServerHandlerConfiguration;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
@@ -17,7 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by frank on 21/01/2016.
+ *
  */
 public class OServerTest {
 
@@ -49,7 +49,7 @@ public class OServerTest {
       server.shutdown();
     }
 
-    Orient.instance().shutdown();
+    Oxygen.instance().shutdown();
     OFileUtils.deleteRecursively(new File("./target/testhome"));
 
     if (prevOrientHome != null) {
@@ -59,7 +59,7 @@ public class OServerTest {
       System.setProperty("ORIENTDB_ROOT_PASSWORD", prevPassword);
     }
 
-    Orient.instance().startup();
+    Oxygen.instance().startup();
   }
 
   @Test

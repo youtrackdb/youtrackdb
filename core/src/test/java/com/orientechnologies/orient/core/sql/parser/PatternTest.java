@@ -7,7 +7,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by luigidellaquila on 11/10/16.
+ *
  */
 public class PatternTest extends OParserTestAbstract {
 

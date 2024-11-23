@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -56,7 +57,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
     database.begin();
 
     OBlob recordBytes = new ORecordBytes("This is the first version".getBytes());
-    recordBytes.save("binary");
+    ((ORecordAbstract) recordBytes).save("binary");
 
     database.rollback();
 
@@ -74,7 +75,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
     database.begin();
 
     OBlob recordBytes = new ORecordBytes("This is the first version".getBytes());
-    recordBytes.save("binary");
+    ((ORecordAbstract) recordBytes).save("binary");
 
     database.commit();
 
@@ -92,7 +93,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
     OBlob record1 = new ORecordBytes("This is the first version".getBytes());
 
     database.begin();
-    record1.save("binary");
+    ((ORecordAbstract) record1).save("binary");
     database.commit();
 
     try {

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,14 +14,14 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.OConstants;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
@@ -92,9 +92,9 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
       json.writeAttribute("records", "? (Error)");
     }
 
-    if (cls.properties() != null && cls.properties().size() > 0) {
+    if (cls.properties(db) != null && cls.properties(db).size() > 0) {
       json.beginCollection("properties");
-      for (final OProperty prop : cls.properties()) {
+      for (final OProperty prop : cls.properties(db)) {
         json.beginObject();
         json.writeAttribute("name", prop.getName());
         if (prop.getLinkedClass() != null) {
@@ -126,7 +126,7 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
       json.endCollection();
     }
 
-    final Set<OIndex> indexes = cls.getIndexes();
+    final Set<OIndex> indexes = cls.getIndexes(db);
     if (!indexes.isEmpty()) {
       json.beginCollection("indexes");
       for (final OIndex index : indexes) {
@@ -196,7 +196,7 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
       json.beginCollection("conflictStrategies");
 
       Set<String> strategies =
-          Orient.instance().getRecordConflictStrategy().getRegisteredImplementationNames();
+          Oxygen.instance().getRecordConflictStrategy().getRegisteredImplementationNames();
 
       int i = 0;
       for (String strategy : strategies) {
@@ -269,7 +269,7 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
       }
 
       if (db.getUser() != null) {
-        json.writeAttribute("currentUser", db.getUser().getName());
+        json.writeAttribute("currentUser", db.getUser().getName(db));
 
         // exportSecurityInfo(db, json);
       }
@@ -295,16 +295,16 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
       OStorageConfiguration configuration = db.getStorageInfo().getConfiguration();
       json.writeObjects(
           null,
-          new Object[] {"name", "dateFormat", "value", configuration.getDateFormat()},
-          new Object[] {"name", "dateTimeFormat", "value", configuration.getDateTimeFormat()},
-          new Object[] {"name", "localeCountry", "value", configuration.getLocaleCountry()},
-          new Object[] {"name", "localeLanguage", "value", configuration.getLocaleLanguage()},
-          new Object[] {"name", "charSet", "value", configuration.getCharset()},
-          new Object[] {"name", "timezone", "value", configuration.getTimeZone().getID()},
-          new Object[] {"name", "definitionVersion", "value", configuration.getVersion()},
-          new Object[] {"name", "clusterSelection", "value", configuration.getClusterSelection()},
-          new Object[] {"name", "minimumClusters", "value", configuration.getMinimumClusters()},
-          new Object[] {"name", "conflictStrategy", "value", configuration.getConflictStrategy()});
+          new Object[]{"name", "dateFormat", "value", configuration.getDateFormat()},
+          new Object[]{"name", "dateTimeFormat", "value", configuration.getDateTimeFormat()},
+          new Object[]{"name", "localeCountry", "value", configuration.getLocaleCountry()},
+          new Object[]{"name", "localeLanguage", "value", configuration.getLocaleLanguage()},
+          new Object[]{"name", "charSet", "value", configuration.getCharset()},
+          new Object[]{"name", "timezone", "value", configuration.getTimeZone().getID()},
+          new Object[]{"name", "definitionVersion", "value", configuration.getVersion()},
+          new Object[]{"name", "clusterSelection", "value", configuration.getClusterSelection()},
+          new Object[]{"name", "minimumClusters", "value", configuration.getMinimumClusters()},
+          new Object[]{"name", "conflictStrategy", "value", configuration.getConflictStrategy()});
       json.endCollection();
 
       json.beginCollection("properties");
@@ -340,9 +340,9 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
   private void exportSecurityInfo(ODatabaseSession db, OJSONWriter json) throws IOException {
     json.beginCollection("users");
     for (ODocument doc : db.getMetadata().getSecurity().getAllUsers()) {
-      OUser user = new OUser(doc);
+      OUser user = new OUser(db, doc);
       json.beginObject();
-      json.writeAttribute("name", user.getName());
+      json.writeAttribute("name", user.getName(db));
       json.writeAttribute(
           "roles", user.getRoles() != null ? Arrays.toString(user.getRoles().toArray()) : "null");
       json.endObject();
@@ -352,9 +352,9 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
     json.beginCollection("roles");
     ORole role;
     for (ODocument doc : db.getMetadata().getSecurity().getAllRoles()) {
-      role = new ORole(doc);
+      role = new ORole(db, doc);
       json.beginObject();
-      json.writeAttribute("name", role.getName());
+      json.writeAttribute("name", role.getName(db));
       json.writeAttribute("mode", role.getMode().toString());
 
       json.beginCollection("rules");

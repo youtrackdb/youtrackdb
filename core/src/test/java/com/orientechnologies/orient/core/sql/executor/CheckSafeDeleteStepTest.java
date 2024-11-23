@@ -29,8 +29,8 @@ public class CheckSafeDeleteStepTest extends TestUtilsFixture {
   @Parameterized.Parameters(name = "{0}")
   public static Iterable<Object[]> documentTypes() {
     return Arrays.asList(
-        new Object[][] {
-          {VERTEX_CLASS_NAME}, {EDGE_CLASS_NAME},
+        new Object[][]{
+            {VERTEX_CLASS_NAME}, {EDGE_CLASS_NAME},
         });
   }
 

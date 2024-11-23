@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,19 +14,18 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.filter;
 
 import com.orientechnologies.common.parser.OBaseParser;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 
 /**
  * Represent one or more object fields as value in the query condition.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFilterItemFieldAny extends OSQLFilterItemFieldMultiAbstract {
 
@@ -34,15 +33,17 @@ public class OSQLFilterItemFieldAny extends OSQLFilterItemFieldMultiAbstract {
   public static final String FULL_NAME = "ANY()";
 
   public OSQLFilterItemFieldAny(
-      final OSQLPredicate iQueryCompiled, final String iName, final OClass iClass) {
-    super(iQueryCompiled, iName, iClass, OStringSerializerHelper.getParameters(iName));
+      ODatabaseSession session, final OSQLPredicate iQueryCompiled, final String iName,
+      final OClass iClass) {
+    super(session, iQueryCompiled, iName, iClass, OStringSerializerHelper.getParameters(iName));
   }
 
   @Override
-  public String getRoot() {
+  public String getRoot(ODatabaseSession session) {
     return FULL_NAME;
   }
 
   @Override
-  protected void setRoot(final OBaseParser iQueryToParse, final String iRoot) {}
+  protected void setRoot(final OBaseParser iQueryToParse, final String iRoot) {
+  }
 }

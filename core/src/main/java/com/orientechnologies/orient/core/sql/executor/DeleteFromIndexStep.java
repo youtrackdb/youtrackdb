@@ -34,7 +34,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- * Created by luigidellaquila on 11/08/16.
+ *
  */
 public class DeleteFromIndexStep extends AbstractExecutionStep {
 
@@ -77,7 +77,8 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
       prev.start(ctx).close(ctx);
     }
 
-    Set<Stream<ORawPair<Object, ORID>>> streams = init(condition);
+    var session = ctx.getDatabase();
+    Set<Stream<ORawPair<Object, ORID>>> streams = init(session, condition);
     OExecutionStreamProducer res =
         new OExecutionStreamProducer() {
           private final Iterator<Stream<ORawPair<Object, ORID>>> iter = streams.iterator();
@@ -90,7 +91,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
                         (entry) -> {
                           return filter(entry, ctx);
                         })
-                    .map((nextEntry) -> readResult(nextEntry))
+                    .map((nextEntry) -> readResult(session, nextEntry))
                     .iterator());
           }
 
@@ -109,10 +110,10 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     return new OMultipleExecutionStream(res);
   }
 
-  private OResult readResult(ORawPair<Object, ORID> entry) {
+  private OResult readResult(ODatabaseSessionInternal session, ORawPair<Object, ORID> entry) {
     OResultInternal result = new OResultInternal();
     ORID value = entry.second;
-    index.remove(entry.first, value);
+    index.remove(session, entry.first, value);
     return result;
   }
 
@@ -131,18 +132,19 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     super.close();
   }
 
-  private Set<Stream<ORawPair<Object, ORID>>> init(OBooleanExpression condition) {
+  private Set<Stream<ORawPair<Object, ORID>>> init(ODatabaseSessionInternal session,
+      OBooleanExpression condition) {
     Set<Stream<ORawPair<Object, ORID>>> acquiredStreams =
         Collections.newSetFromMap(new IdentityHashMap<>());
     if (index.getDefinition() == null) {
       return acquiredStreams;
     }
     if (condition == null) {
-      processFlatIteration(acquiredStreams);
+      processFlatIteration(session, acquiredStreams);
     } else if (condition instanceof OBinaryCondition) {
       processBinaryCondition(acquiredStreams);
     } else if (condition instanceof OBetweenCondition) {
-      processBetweenCondition(acquiredStreams);
+      processBetweenCondition(session, acquiredStreams);
     } else if (condition instanceof OAndBlock) {
       processAndBlock(acquiredStreams);
     } else {
@@ -166,12 +168,14 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     init(acquiredStreams, fromKey, fromKeyIncluded, toKey, toKeyIncluded);
   }
 
-  private void processFlatIteration(Set<Stream<ORawPair<Object, ORID>>> acquiredStreams) {
-    Stream<ORawPair<Object, ORID>> stream = orderAsc ? index.stream() : index.descStream();
+  private void processFlatIteration(ODatabaseSessionInternal session,
+      Set<Stream<ORawPair<Object, ORID>>> acquiredStreams) {
+    Stream<ORawPair<Object, ORID>> stream =
+        orderAsc ? index.stream(session) : index.descStream(session);
     storeAcquiredStream(stream, acquiredStreams);
   }
 
-  private void storeAcquiredStream(
+  private static void storeAcquiredStream(
       Stream<ORawPair<Object, ORID>> stream, Set<Stream<ORawPair<Object, ORID>>> acquiredStreams) {
     if (stream != null) {
       acquiredStreams.add(stream);
@@ -188,17 +192,18 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     Object thirdValue = toKey.execute((OResult) null, ctx);
     OIndexDefinition indexDef = index.getDefinition();
     Stream<ORawPair<Object, ORID>> stream;
+    var database = ctx.getDatabase();
     if (index.supportsOrderedIterations()) {
       stream =
-          index.streamEntriesBetween(
-              toBetweenIndexKey(ctx.getDatabase(), indexDef, secondValue),
+          index.streamEntriesBetween(database,
+              toBetweenIndexKey(database, indexDef, secondValue),
               fromKeyIncluded,
-              toBetweenIndexKey(ctx.getDatabase(), indexDef, thirdValue),
-              toKeyIncluded,
-              orderAsc);
+              toBetweenIndexKey(database, indexDef, thirdValue),
+              toKeyIncluded, orderAsc);
       storeAcquiredStream(stream, acquiredStreams);
     } else if (additional == null && allEqualities((OAndBlock) condition)) {
-      stream = index.streamEntries(toIndexKey(ctx.getDatabase(), indexDef, secondValue), orderAsc);
+      stream = index.streamEntries(database, toIndexKey(ctx.getDatabase(), indexDef, secondValue),
+          orderAsc);
       storeAcquiredStream(stream, acquiredStreams);
     } else {
       throw new UnsupportedOperationException(
@@ -222,7 +227,8 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     return true;
   }
 
-  private void processBetweenCondition(Set<Stream<ORawPair<Object, ORID>>> acquiredStreams) {
+  private void processBetweenCondition(ODatabaseSessionInternal session,
+      Set<Stream<ORawPair<Object, ORID>>> acquiredStreams) {
     OIndexDefinition definition = index.getDefinition();
     OExpression key = ((OBetweenCondition) condition).getFirst();
     if (!key.toString().equalsIgnoreCase("key")) {
@@ -235,12 +241,11 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
     Object secondValue = second.execute((OResult) null, ctx);
     Object thirdValue = third.execute((OResult) null, ctx);
     Stream<ORawPair<Object, ORID>> stream =
-        index.streamEntriesBetween(
-            toBetweenIndexKey(ctx.getDatabase(), definition, secondValue),
+        index.streamEntriesBetween(session,
+            toBetweenIndexKey(session, definition, secondValue),
             true,
-            toBetweenIndexKey(ctx.getDatabase(), definition, thirdValue),
-            true,
-            orderAsc);
+            toBetweenIndexKey(session, definition, thirdValue),
+            true, orderAsc);
     storeAcquiredStream(stream, acquiredStreams);
   }
 
@@ -294,15 +299,15 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
       Object value) {
     boolean orderAsc = this.orderAsc;
     if (operator instanceof OEqualsCompareOperator) {
-      return index.streamEntries(toIndexKey(session, definition, value), orderAsc);
+      return index.streamEntries(session, toIndexKey(session, definition, value), orderAsc);
     } else if (operator instanceof OGeOperator) {
-      return index.streamEntriesMajor(value, true, orderAsc);
+      return index.streamEntriesMajor(session, value, true, orderAsc);
     } else if (operator instanceof OGtOperator) {
-      return index.streamEntriesMajor(value, false, orderAsc);
+      return index.streamEntriesMajor(session, value, false, orderAsc);
     } else if (operator instanceof OLeOperator) {
-      return index.streamEntriesMinor(value, true, orderAsc);
+      return index.streamEntriesMinor(session, value, true, orderAsc);
     } else if (operator instanceof OLtOperator) {
-      return index.streamEntriesMinor(value, false, orderAsc);
+      return index.streamEntriesMinor(session, value, false, orderAsc);
     } else {
       throw new OCommandExecutionException(
           "search for index for " + condition + " is not supported yet");

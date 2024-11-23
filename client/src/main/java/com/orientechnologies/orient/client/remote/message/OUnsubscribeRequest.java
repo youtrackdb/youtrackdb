@@ -4,6 +4,7 @@ import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
@@ -12,7 +13,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 /**
- * Created by tglman on 19/06/17.
+ *
  */
 public class OUnsubscribeRequest implements OBinaryRequest<OUnsubscribeResponse> {
 
@@ -24,12 +25,14 @@ public class OUnsubscribeRequest implements OBinaryRequest<OUnsubscribeResponse>
     this.unsubscribeRequest = unsubscribeRequest;
   }
 
-  public OUnsubscribeRequest() {}
+  public OUnsubscribeRequest() {
+  }
 
   @Override
-  public void write(OChannelDataOutput network, OStorageRemoteSession session) throws IOException {
+  public void write(ODatabaseSessionInternal database, OChannelDataOutput network,
+      OStorageRemoteSession session) throws IOException {
     network.writeByte(unsubscribeMessage);
-    unsubscribeRequest.write(network, session);
+    unsubscribeRequest.write(database, network, session);
   }
 
   @Override

@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.metadata.schema;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.collate.ODefaultCollate;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
@@ -18,7 +19,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Created by tglman on 14/06/17.
+ *
  */
 public class OPropertyEmbedded extends OPropertyImpl {
 
@@ -30,17 +31,17 @@ public class OPropertyEmbedded extends OPropertyImpl {
     super(oClassImpl, global);
   }
 
-  public OPropertyImpl setType(final OType type) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  public OPropertyImpl setType(ODatabaseSession session, final OType type) {
+    var sessionInternal = (ODatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    final ODatabaseSessionInternal database = getDatabase();
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(sessionInternal);
     try {
-      setTypeInternal(type);
+      setTypeInternal(sessionInternal, type);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(sessionInternal);
     }
-    owner.fireDatabaseMigration(database, globalRef.getName(), globalRef.getType());
+    owner.fireDatabaseMigration(sessionInternal, globalRef.getName(), globalRef.getType());
 
     return this;
   }
@@ -48,12 +49,13 @@ public class OPropertyEmbedded extends OPropertyImpl {
   /**
    * Change the type. It checks for compatibility between the change of type.
    *
+   * @param session
    * @param iType
    */
-  protected void setTypeInternal(final OType iType) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  protected void setTypeInternal(ODatabaseSessionInternal session, final OType iType) {
+    session.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(session);
     try {
       if (iType == globalRef.getType())
       // NO CHANGES
@@ -68,86 +70,90 @@ public class OPropertyEmbedded extends OPropertyImpl {
 
       this.globalRef = owner.owner.findOrCreateGlobalProperty(this.globalRef.getName(), iType);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
   }
 
-  public OProperty setName(final String name) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  public OProperty setName(ODatabaseSession session, final String name) {
+    var sessionInternal = (ODatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(sessionInternal);
     try {
-      setNameInternal(name);
+      setNameInternal(sessionInternal, name);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(sessionInternal);
     }
 
     return this;
   }
 
-  protected void setNameInternal(final String name) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  protected void setNameInternal(ODatabaseSessionInternal session, final String name) {
+    session.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
     String oldName = this.globalRef.getName();
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(session);
     try {
-      checkEmbedded();
+      checkEmbedded(session);
 
       owner.renameProperty(oldName, name);
       this.globalRef = owner.owner.findOrCreateGlobalProperty(name, this.globalRef.getType());
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
-    owner.firePropertyNameMigration(getDatabase(), oldName, name, this.globalRef.getType());
+    owner.firePropertyNameMigration(session, oldName, name, this.globalRef.getType());
   }
 
   @Override
-  public OPropertyImpl setDescription(final String iDescription) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  public OPropertyImpl setDescription(ODatabaseSession session, final String iDescription) {
+    var sessionInternal = (ODatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(sessionInternal);
     try {
-      setDescriptionInternal(iDescription);
+      setDescriptionInternal(sessionInternal, iDescription);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(sessionInternal);
     }
     return this;
   }
 
-  protected void setDescriptionInternal(final String iDescription) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  protected void setDescriptionInternal(ODatabaseSessionInternal session,
+      final String iDescription) {
+    session.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(session);
     try {
-      checkEmbedded();
+      checkEmbedded(session);
 
       this.description = iDescription;
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
   }
 
-  public OProperty setCollate(String collate) {
+  public OProperty setCollate(ODatabaseSession session, String collate) {
     if (collate == null) {
       collate = ODefaultCollate.NAME;
     }
 
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+    var sessionInternal = (ODatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(sessionInternal);
     try {
-      setCollateInternal(collate);
+      setCollateInternal(sessionInternal, collate);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(sessionInternal);
     }
 
     return this;
   }
 
-  protected OProperty setCollateInternal(String iCollate) {
-    acquireSchemaWriteLock();
+  protected void setCollateInternal(ODatabaseSessionInternal session, String iCollate) {
+    acquireSchemaWriteLock(session);
     try {
-      checkEmbedded();
+      checkEmbedded(session);
 
       final OCollate oldCollate = this.collate;
 
@@ -159,7 +165,7 @@ public class OPropertyEmbedded extends OPropertyImpl {
 
       if ((this.collate != null && !this.collate.equals(oldCollate))
           || (this.collate == null && oldCollate != null)) {
-        final Set<OIndex> indexes = owner.getClassIndexes();
+        final Set<OIndex> indexes = owner.getClassIndexes(session);
         final List<OIndex> indexesToRecreate = new ArrayList<OIndex>();
 
         for (OIndex index : indexes) {
@@ -178,9 +184,8 @@ public class OPropertyEmbedded extends OPropertyImpl {
                   "Collate value was changed, following indexes will be rebuilt %s",
                   indexesToRecreate);
 
-          final ODatabaseSessionInternal database = getDatabase();
           final OIndexManagerAbstract indexManager =
-              database.getMetadata().getIndexManagerInternal();
+              session.getMetadata().getIndexManagerInternal();
 
           for (OIndex indexToRecreate : indexesToRecreate) {
             final OIndexMetadata indexMetadata =
@@ -188,67 +193,68 @@ public class OPropertyEmbedded extends OPropertyImpl {
 
             final ODocument metadata = indexToRecreate.getMetadata();
             final List<String> fields = indexMetadata.getIndexDefinition().getFields();
-            final String[] fieldsToIndex = fields.toArray(new String[fields.size()]);
+            final String[] fieldsToIndex = fields.toArray(new String[0]);
 
-            indexManager.dropIndex(database, indexMetadata.getName());
-            owner.createIndex(
+            indexManager.dropIndex(session, indexMetadata.getName());
+            owner.createIndex(session,
                 indexMetadata.getName(),
                 indexMetadata.getType(),
                 null,
                 metadata,
-                indexMetadata.getAlgorithm(),
-                fieldsToIndex);
+                indexMetadata.getAlgorithm(), fieldsToIndex);
           }
         }
       }
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
-    return this;
   }
 
-  public void clearCustom() {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  public void clearCustom(ODatabaseSession session) {
+    var sessionInternal = (ODatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(sessionInternal);
     try {
-      clearCustomInternal();
+      clearCustomInternal(sessionInternal);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(sessionInternal);
     }
   }
 
-  protected void clearCustomInternal() {
-    acquireSchemaWriteLock();
+  protected void clearCustomInternal(ODatabaseSessionInternal session) {
+    acquireSchemaWriteLock(session);
     try {
-      checkEmbedded();
+      checkEmbedded(session);
 
       customFields = null;
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
   }
 
-  public OPropertyImpl setCustom(final String name, final String value) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  public OPropertyImpl setCustom(ODatabaseSession session, final String name, final String value) {
+    var sessionInternal = (ODatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(sessionInternal);
     try {
-      setCustomInternal(name, value);
+      setCustomInternal(sessionInternal, name, value);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(sessionInternal);
     }
 
     return this;
   }
 
-  protected void setCustomInternal(final String iName, final String iValue) {
-    acquireSchemaWriteLock();
+  protected void setCustomInternal(ODatabaseSessionInternal session, final String iName,
+      final String iValue) {
+    acquireSchemaWriteLock(session);
     try {
-      checkEmbedded();
+      checkEmbedded(session);
 
       if (customFields == null) {
-        customFields = new HashMap<String, String>();
+        customFields = new HashMap<>();
       }
       if (iValue == null || "null".equalsIgnoreCase(iValue)) {
         customFields.remove(iName);
@@ -256,153 +262,161 @@ public class OPropertyEmbedded extends OPropertyImpl {
         customFields.put(iName, iValue);
       }
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
   }
 
-  public OPropertyImpl setRegexp(final String regexp) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  public OPropertyImpl setRegexp(ODatabaseSession session, final String regexp) {
+    var sessionInternal = (ODatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(sessionInternal);
     try {
-      setRegexpInternal(regexp);
+      setRegexpInternal(sessionInternal, regexp);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(sessionInternal);
     }
     return this;
   }
 
-  protected void setRegexpInternal(final String regexp) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  protected void setRegexpInternal(ODatabaseSessionInternal session, final String regexp) {
+    session.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(session);
     try {
       this.regexp = regexp;
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
   }
 
-  public OPropertyImpl setLinkedClass(final OClass linkedClass) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  public OPropertyImpl setLinkedClass(ODatabaseSession session, final OClass linkedClass) {
+    var sessionInternal = (ODatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
     checkSupportLinkedClass(getType());
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(sessionInternal);
     try {
-      setLinkedClassInternal(linkedClass);
+      setLinkedClassInternal(sessionInternal, linkedClass);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(sessionInternal);
     }
 
     return this;
   }
 
-  protected void setLinkedClassInternal(final OClass iLinkedClass) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  protected void setLinkedClassInternal(ODatabaseSessionInternal session,
+      final OClass iLinkedClass) {
+    session.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(session);
     try {
-      checkEmbedded();
+      checkEmbedded(session);
 
       this.linkedClass = iLinkedClass;
 
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
   }
 
-  public OProperty setLinkedType(final OType linkedType) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  public OProperty setLinkedType(ODatabaseSession session, final OType linkedType) {
+    var sessionInternal = (ODatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
     checkLinkTypeSupport(getType());
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(sessionInternal);
     try {
-      setLinkedTypeInternal(linkedType);
+      setLinkedTypeInternal(sessionInternal, linkedType);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(sessionInternal);
     }
 
     return this;
   }
 
-  protected void setLinkedTypeInternal(final OType iLinkedType) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
-    acquireSchemaWriteLock();
+  protected void setLinkedTypeInternal(ODatabaseSessionInternal session, final OType iLinkedType) {
+    session.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+    acquireSchemaWriteLock(session);
     try {
-      checkEmbedded();
+      checkEmbedded(session);
       this.linkedType = iLinkedType;
 
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
   }
 
-  public OPropertyImpl setNotNull(final boolean isNotNull) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  public OPropertyImpl setNotNull(ODatabaseSession session, final boolean isNotNull) {
+    var sessionInternal = (ODatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(sessionInternal);
     try {
-      setNotNullInternal(isNotNull);
+      setNotNullInternal(sessionInternal, isNotNull);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(sessionInternal);
     }
     return this;
   }
 
-  protected void setNotNullInternal(final boolean isNotNull) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  protected void setNotNullInternal(ODatabaseSessionInternal session, final boolean isNotNull) {
+    session.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(session);
     try {
       notNull = isNotNull;
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
   }
 
-  public OPropertyImpl setDefaultValue(final String defaultValue) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  public OPropertyImpl setDefaultValue(ODatabaseSession session, final String defaultValue) {
+    var sessionInternal = (ODatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(sessionInternal);
     try {
-      setDefaultValueInternal(defaultValue);
+      setDefaultValueInternal(sessionInternal, defaultValue);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(sessionInternal);
     }
 
     return this;
   }
 
-  protected void setDefaultValueInternal(final String defaultValue) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  protected void setDefaultValueInternal(ODatabaseSessionInternal session,
+      final String defaultValue) {
+    session.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(session);
     try {
-      checkEmbedded();
+      checkEmbedded(session);
 
       this.defaultValue = defaultValue;
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
   }
 
-  public OPropertyImpl setMax(final String max) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
-    checkCorrectLimitValue(max);
+  public OPropertyImpl setMax(ODatabaseSession session, final String max) {
+    var sessionInternal = (ODatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+    checkCorrectLimitValue(sessionInternal, max);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(sessionInternal);
     try {
-      setMaxInternal(max);
+      setMaxInternal(sessionInternal, max);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(sessionInternal);
     }
 
     return this;
   }
 
-  private void checkCorrectLimitValue(final String value) {
+  private void checkCorrectLimitValue(ODatabaseSessionInternal session, final String value) {
     if (value != null) {
       if (this.getType().equals(OType.STRING)
           || this.getType().equals(OType.LINKBAG)
@@ -414,7 +428,7 @@ public class OPropertyEmbedded extends OPropertyImpl {
           || this.getType().equals(OType.LINKBAG)
           || this.getType().equals(OType.EMBEDDEDMAP)
           || this.getType().equals(OType.LINKMAP)) {
-        OType.convert(value, Integer.class);
+        OType.convert(session, value, Integer.class);
       } else if (this.getType().equals(OType.DATE)
           || this.getType().equals(OType.BYTE)
           || this.getType().equals(OType.SHORT)
@@ -424,102 +438,103 @@ public class OPropertyEmbedded extends OPropertyImpl {
           || this.getType().equals(OType.DOUBLE)
           || this.getType().equals(OType.DECIMAL)
           || this.getType().equals(OType.DATETIME)) {
-        OType.convert(value, this.getType().getDefaultJavaType());
+        OType.convert(session, value, this.getType().getDefaultJavaType());
       }
     }
   }
 
-  protected void setMaxInternal(final String max) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  protected void setMaxInternal(ODatabaseSessionInternal sesisson, final String max) {
+    sesisson.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(sesisson);
     try {
-      checkEmbedded();
+      checkEmbedded(sesisson);
 
-      checkForDateFormat(max);
+      checkForDateFormat(sesisson, max);
       this.max = max;
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(sesisson);
     }
   }
 
-  public OPropertyImpl setMin(final String min) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
-    checkCorrectLimitValue(min);
+  public OPropertyImpl setMin(ODatabaseSession session, final String min) {
+    var sessionInternal = (ODatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+    checkCorrectLimitValue(sessionInternal, min);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(sessionInternal);
     try {
-      setMinInternal(min);
+      setMinInternal(sessionInternal, min);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(sessionInternal);
     }
 
     return this;
   }
 
-  protected void setMinInternal(final String min) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  protected void setMinInternal(ODatabaseSessionInternal session, final String min) {
+    session.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(session);
     try {
-      checkEmbedded();
+      checkEmbedded(session);
 
-      checkForDateFormat(min);
+      checkForDateFormat(session, min);
       this.min = min;
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
   }
 
-  public OPropertyImpl setReadonly(final boolean isReadonly) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  public OPropertyImpl setReadonly(ODatabaseSession session, final boolean isReadonly) {
+    var sessionInternal = (ODatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(sessionInternal);
     try {
-      setReadonlyInternal(isReadonly);
+      setReadonlyInternal(sessionInternal, isReadonly);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(sessionInternal);
     }
 
     return this;
   }
 
-  protected void setReadonlyInternal(final boolean isReadonly) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  protected void setReadonlyInternal(ODatabaseSessionInternal session, final boolean isReadonly) {
+    session.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(session);
     try {
-      checkEmbedded();
+      checkEmbedded(session);
 
       this.readonly = isReadonly;
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
   }
 
-  public OPropertyImpl setMandatory(final boolean isMandatory) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  public OPropertyImpl setMandatory(ODatabaseSession session, final boolean isMandatory) {
+    var sessionInternal = (ODatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(sessionInternal);
     try {
-      setMandatoryInternal(isMandatory);
+      setMandatoryInternal(sessionInternal, isMandatory);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(sessionInternal);
     }
 
     return this;
   }
 
-  protected void setMandatoryInternal(final boolean isMandatory) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
-
-    acquireSchemaWriteLock();
+  protected void setMandatoryInternal(ODatabaseSessionInternal session, final boolean isMandatory) {
+    session.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+    acquireSchemaWriteLock(session);
     try {
-      checkEmbedded();
-
+      checkEmbedded(session);
       this.mandatory = isMandatory;
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
   }
 }

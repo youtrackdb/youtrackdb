@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.security.symmetrickey;
@@ -57,8 +57,6 @@ import javax.crypto.spec.SecretKeySpec;
  *
  * <p>A symmetric key credential interceptor is provided (OSymmetricKeyCI) as well as several
  * authenticators: OSecuritySymmetricKeyAuth, OSystemSymmetricKeyAuth
- *
- * @author S. Colin Leister
  */
 public class OSymmetricKey {
 

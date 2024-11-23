@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2013 OrientDB LTD (info--at--orientdb.com)
+ * Copyright 2010-2013 OxygenDB LTD (info--at--orientdb.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import com.orientechnologies.common.serialization.types.OByteSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.common.util.ORawPairObjectInteger;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.config.OStorageClusterConfiguration;
 import com.orientechnologies.orient.core.config.OStoragePaginatedClusterConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
@@ -55,7 +55,6 @@ import java.util.function.Consumer;
 import javax.annotation.Nonnull;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 10/7/13
  */
 public final class OPaginatedClusterV2 extends OPaginatedCluster {
@@ -204,14 +203,14 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
             if (freeSpaceMap.exists(atomicOperation)) {
               freeSpaceMap.open(atomicOperation);
             } else {
-              final Object[] additionalArgs2 = new Object[] {getName(), storageName};
+              final Object[] additionalArgs2 = new Object[]{getName(), storageName};
               OLogManager.instance()
                   .info(
                       this,
                       "Free space map is absent inside of %s cluster of storage %s . Information"
                           + " about free space present inside of each page will be recovered.",
                       additionalArgs2);
-              final Object[] additionalArgs1 = new Object[] {getName(), storageName};
+              final Object[] additionalArgs1 = new Object[]{getName(), storageName};
               OLogManager.instance()
                   .info(
                       this,
@@ -231,8 +230,8 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
 
                 if (pageIndex > 0 && pageIndex % 1_000 == 0) {
                   final Object[] additionalArgs =
-                      new Object[] {
-                        pageIndex + 1, filledUpTo, 100L * (pageIndex + 1) / filledUpTo, getName()
+                      new Object[]{
+                          pageIndex + 1, filledUpTo, 100L * (pageIndex + 1) / filledUpTo, getName()
                       };
                   OLogManager.instance()
                       .info(
@@ -242,7 +241,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
                 }
               }
 
-              final Object[] additionalArgs = new Object[] {getName()};
+              final Object[] additionalArgs = new Object[]{getName()};
               OLogManager.instance()
                   .info(this, "Page scan for cluster %s " + "is completed.", additionalArgs);
             }
@@ -432,7 +431,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
     while (bytesToWrite > 0) {
       final OClusterPage page = pageSupplier.apply(bytesToWrite);
       if (page == null) {
-        return new int[] {nextPageIndex, nextPageOffset, bytesToWrite};
+        return new int[]{nextPageIndex, nextPageOffset, bytesToWrite};
       }
 
       int maxRecordSize;
@@ -475,7 +474,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
       freeSpaceMap.updatePageFreeSpace(atomicOperation, nextPageIndex, maxRecordSize);
     }
 
-    return new int[] {nextPageIndex, nextPageOffset, 0};
+    return new int[]{nextPageIndex, nextPageOffset, 0};
   }
 
   private static ORawPairObjectInteger<byte[]> serializeEntryChunk(
@@ -683,7 +682,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
 
         if (firstEntry
             && content[content.length - OLongSerializer.LONG_SIZE - OByteSerializer.BYTE_SIZE]
-                == 0) {
+            == 0) {
           throw new ORecordNotFoundException(new ORecordId(id, clusterPosition));
         }
 
@@ -956,7 +955,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
           }
 
           if (localPage.getRecordByteValue(
-                  recordPosition, -OLongSerializer.LONG_SIZE - OByteSerializer.BYTE_SIZE)
+              recordPosition, -OLongSerializer.LONG_SIZE - OByteSerializer.BYTE_SIZE)
               == 0) {
             return null;
           }
@@ -1224,7 +1223,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
     acquireExclusiveLock();
     try {
       recordConflictStrategy =
-          Orient.instance().getRecordConflictStrategy().getStrategy(stringValue);
+          Oxygen.instance().getRecordConflictStrategy().getStrategy(stringValue);
     } finally {
       releaseExclusiveLock();
     }
@@ -1253,7 +1252,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
 
     if (conflictStrategy != null) {
       this.recordConflictStrategy =
-          Orient.instance().getRecordConflictStrategy().getStrategy(conflictStrategy);
+          Oxygen.instance().getRecordConflictStrategy().getStrategy(conflictStrategy);
     }
 
     this.id = id;
@@ -1387,9 +1386,8 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
         case OClusterPositionMapBucket.ALLOCATED -> RECORD_STATUS.ALLOCATED;
         case OClusterPositionMapBucket.FILLED -> RECORD_STATUS.PRESENT;
         case OClusterPositionMapBucket.REMOVED -> RECORD_STATUS.REMOVED;
-        default ->
-            throw new IllegalStateException(
-                "Invalid record status : " + status + " for cluster " + getName());
+        default -> throw new IllegalStateException(
+            "Invalid record status : " + status + " for cluster " + getName());
       };
 
     } finally {

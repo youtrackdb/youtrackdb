@@ -149,7 +149,7 @@ public class TestOTypeDetection {
 
     assertEquals(OType.STRING, OType.getTypeByValue("yaaahooooo"));
 
-    assertEquals(OType.BINARY, OType.getTypeByValue(new byte[] {0, 1, 2}));
+    assertEquals(OType.BINARY, OType.getTypeByValue(new byte[]{0, 1, 2}));
 
     assertEquals(OType.DATETIME, OType.getTypeByValue(new Date()));
 
@@ -180,9 +180,9 @@ public class TestOTypeDetection {
 
     assertEquals(OType.CUSTOM, OType.getTypeByValue(new CustomClass()));
 
-    assertEquals(OType.EMBEDDEDLIST, OType.getTypeByValue(new Object[] {}));
+    assertEquals(OType.EMBEDDEDLIST, OType.getTypeByValue(new Object[]{}));
 
-    assertEquals(OType.EMBEDDEDLIST, OType.getTypeByValue(new String[] {}));
+    assertEquals(OType.EMBEDDEDLIST, OType.getTypeByValue(new String[]{}));
 
     assertEquals(OType.EMBEDDED, OType.getTypeByValue(new DocumentSer()));
 

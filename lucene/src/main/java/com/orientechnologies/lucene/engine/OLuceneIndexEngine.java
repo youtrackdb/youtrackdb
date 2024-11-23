@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ package com.orientechnologies.lucene.engine;
 
 import com.orientechnologies.lucene.query.OLuceneQueryContext;
 import com.orientechnologies.lucene.tx.OLuceneTxChanges;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.OContextualRecordId;
 import com.orientechnologies.orient.core.index.engine.OIndexEngine;
@@ -33,7 +34,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 
 /**
- * Created by Enrico Risa on 04/09/15.
+ *
  */
 public interface OLuceneIndexEngine extends OIndexEngine, OFreezableStorageComponent {
 
@@ -42,7 +43,7 @@ public interface OLuceneIndexEngine extends OIndexEngine, OFreezableStorageCompo
   void onRecordAddedToResultSet(
       OLuceneQueryContext queryContext, OContextualRecordId recordId, Document ret, ScoreDoc score);
 
-  Document buildDocument(Object key, OIdentifiable value);
+  Document buildDocument(ODatabaseSessionInternal session, Object key, OIdentifiable value);
 
   Query buildQuery(Object query);
 
@@ -58,7 +59,8 @@ public interface OLuceneIndexEngine extends OIndexEngine, OFreezableStorageCompo
 
   void release(IndexSearcher searcher);
 
-  Set<OIdentifiable> getInTx(Object key, OLuceneTxChanges changes);
+  Set<OIdentifiable> getInTx(ODatabaseSessionInternal session, Object key,
+      OLuceneTxChanges changes);
 
   long sizeInTx(OLuceneTxChanges changes);
 

@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,7 +9,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://orientdb.com
+ * <p>*
  */
 package com.orientechnologies.orient.jdbc;
 
@@ -64,20 +62,20 @@ public class OrientDbCreationHelper {
     doc.field("stringKey", itemKey);
     doc.field("intKey", id);
     String contents =
-        "OrientDB is a deeply scalable Document-Graph DBMS with the flexibility of the Document"
+        "OxygenDB is a deeply scalable Document-Graph DBMS with the flexibility of the Document"
             + " databases and the power to manage links of the Graph databases. It can work in"
             + " schema-less mode, schema-full or a mix of both. Supports advanced features such as"
             + " ACID Transactions, Fast Indexes, Native and SQL queries. It imports and exports"
             + " documents in JSON. Graphs of hundreads of linked documents can be retrieved all in"
             + " memory in few milliseconds without executing costly JOIN such as the Relational"
-            + " DBMSs do. OrientDB uses a new indexing algorithm called MVRB-Tree, derived from the"
+            + " DBMSs do. OxygenDB uses a new indexing algorithm called MVRB-Tree, derived from the"
             + " Red-Black Tree and from the B+Tree with benefits of both: fast insertion and ultra"
             + " fast lookup. The transactional engine can run in distributed systems supporting up"
             + " to 9.223.372.036 Billions of records for the maximum capacity of"
             + " 19.807.040.628.566.084 Terabytes of data distributed on multiple disks in multiple"
-            + " nodes. OrientDB is FREE for any use. Open Source License Apache 2.0. ";
+            + " nodes. OxygenDB is FREE for any use. Open Source License Apache 2.0. ";
     doc.field("text", contents);
-    doc.field("title", "orientDB");
+    doc.field("title", "oxygenDB");
     doc.field("score", BigDecimal.valueOf(contents.length() / id));
     doc.field("length", contents.length(), OType.LONG);
     doc.field("published", (id % 2 > 0));
@@ -248,37 +246,37 @@ public class OrientDbCreationHelper {
     // item
     OClass item = schema.createClass("Item");
 
-    item.createProperty("stringKey", OType.STRING).createIndex(INDEX_TYPE.UNIQUE);
-    item.createProperty("intKey", OType.INTEGER).createIndex(INDEX_TYPE.UNIQUE);
-    item.createProperty("date", OType.DATE).createIndex(INDEX_TYPE.NOTUNIQUE);
-    item.createProperty("time", OType.DATETIME).createIndex(INDEX_TYPE.NOTUNIQUE);
-    item.createProperty("text", OType.STRING);
-    item.createProperty("score", OType.DECIMAL);
-    item.createProperty("length", OType.INTEGER).createIndex(INDEX_TYPE.NOTUNIQUE);
-    item.createProperty("published", OType.BOOLEAN).createIndex(INDEX_TYPE.NOTUNIQUE);
-    item.createProperty("title", OType.STRING).createIndex(INDEX_TYPE.NOTUNIQUE);
-    item.createProperty("author", OType.STRING).createIndex(INDEX_TYPE.NOTUNIQUE);
-    item.createProperty("tags", OType.EMBEDDEDLIST);
+    item.createProperty(db, "stringKey", OType.STRING).createIndex(db, INDEX_TYPE.UNIQUE);
+    item.createProperty(db, "intKey", OType.INTEGER).createIndex(db, INDEX_TYPE.UNIQUE);
+    item.createProperty(db, "date", OType.DATE).createIndex(db, INDEX_TYPE.NOTUNIQUE);
+    item.createProperty(db, "time", OType.DATETIME).createIndex(db, INDEX_TYPE.NOTUNIQUE);
+    item.createProperty(db, "text", OType.STRING);
+    item.createProperty(db, "score", OType.DECIMAL);
+    item.createProperty(db, "length", OType.INTEGER).createIndex(db, INDEX_TYPE.NOTUNIQUE);
+    item.createProperty(db, "published", OType.BOOLEAN).createIndex(db, INDEX_TYPE.NOTUNIQUE);
+    item.createProperty(db, "title", OType.STRING).createIndex(db, INDEX_TYPE.NOTUNIQUE);
+    item.createProperty(db, "author", OType.STRING).createIndex(db, INDEX_TYPE.NOTUNIQUE);
+    item.createProperty(db, "tags", OType.EMBEDDEDLIST);
 
     // class Article
     OClass article = schema.createClass("Article");
 
-    article.createProperty("uuid", OType.LONG).createIndex(INDEX_TYPE.UNIQUE);
-    article.createProperty("date", OType.DATE).createIndex(INDEX_TYPE.NOTUNIQUE);
-    article.createProperty("title", OType.STRING);
-    article.createProperty("content", OType.STRING);
+    article.createProperty(db, "uuid", OType.LONG).createIndex(db, INDEX_TYPE.UNIQUE);
+    article.createProperty(db, "date", OType.DATE).createIndex(db, INDEX_TYPE.NOTUNIQUE);
+    article.createProperty(db, "title", OType.STRING);
+    article.createProperty(db, "content", OType.STRING);
     // article.createProperty("attachment", OType.LINK);
 
     // author
     OClass author = schema.createClass("Author");
 
-    author.createProperty("uuid", OType.LONG).createIndex(INDEX_TYPE.UNIQUE);
-    author.createProperty("name", OType.STRING).setMin("3");
-    author.createProperty("rating", OType.DOUBLE);
-    author.createProperty("articles", OType.LINKLIST, article);
+    author.createProperty(db, "uuid", OType.LONG).createIndex(db, INDEX_TYPE.UNIQUE);
+    author.createProperty(db, "name", OType.STRING).setMin("3");
+    author.createProperty(db, "rating", OType.DOUBLE);
+    author.createProperty(db, "articles", OType.LINKLIST, article);
 
     // link article-->author
-    article.createProperty("author", OType.LINK, author);
+    article.createProperty(db, "author", OType.LINK, author);
 
     // Graph
 
@@ -288,16 +286,16 @@ public class OrientDbCreationHelper {
     }
 
     OClass post = schema.createClass("Post", v);
-    post.createProperty("uuid", OType.LONG);
-    post.createProperty("title", OType.STRING);
-    post.createProperty("date", OType.DATE).createIndex(INDEX_TYPE.NOTUNIQUE);
-    post.createProperty("content", OType.STRING);
+    post.createProperty(db, "uuid", OType.LONG);
+    post.createProperty(db, "title", OType.STRING);
+    post.createProperty(db, "date", OType.DATE).createIndex(db, INDEX_TYPE.NOTUNIQUE);
+    post.createProperty(db, "content", OType.STRING);
 
     OClass writer = schema.createClass("Writer", v);
-    writer.createProperty("uuid", OType.LONG).createIndex(INDEX_TYPE.UNIQUE);
-    writer.createProperty("name", OType.STRING);
-    writer.createProperty("is_active", OType.BOOLEAN);
-    writer.createProperty("isActive", OType.BOOLEAN);
+    writer.createProperty(db, "uuid", OType.LONG).createIndex(db, INDEX_TYPE.UNIQUE);
+    writer.createProperty(db, "name", OType.STRING);
+    writer.createProperty(db, "is_active", OType.BOOLEAN);
+    writer.createProperty(db, "isActive", OType.BOOLEAN);
 
     OClass e = schema.getClass("E");
     if (e == null) {

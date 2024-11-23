@@ -7,7 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by Enrico Risa on 05/10/16.
+ *
  */
 public class OLuceneNullTest extends OLuceneBaseTest {
 
@@ -30,14 +30,14 @@ public class OLuceneNullTest extends OLuceneBaseTest {
 
     db.begin();
     doc = db.bindToSession(doc);
-    doc.field("names", new String[] {"foo"});
+    doc.field("names", new String[]{"foo"});
     db.save(doc);
     db.commit();
 
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Test.names");
 
     db.begin();
-    Assert.assertEquals(1, index.getInternal().size());
+    Assert.assertEquals(1, index.getInternal().size(db));
     db.commit();
   }
 
@@ -47,7 +47,7 @@ public class OLuceneNullTest extends OLuceneBaseTest {
     ODocument doc = new ODocument("Test");
 
     db.begin();
-    doc.field("names", new String[] {"foo"});
+    doc.field("names", new String[]{"foo"});
     db.save(doc);
     db.commit();
 
@@ -61,7 +61,7 @@ public class OLuceneNullTest extends OLuceneBaseTest {
 
     db.begin();
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Test.names");
-    Assert.assertEquals(0, index.getInternal().size());
+    Assert.assertEquals(0, index.getInternal().size(db));
     db.commit();
   }
 }

@@ -39,7 +39,7 @@ public class NestedInsertTest extends BaseMemoryDatabase {
     OSchema schm = db.getMetadata().getSchema();
     OClass cl = schm.createClass("myClass");
     OClass linked = schm.createClass("Linked");
-    cl.createProperty("some", OType.LINK, linked);
+    cl.createProperty(db, "some", OType.LINK, linked);
 
     db.begin();
     OResultSet result =

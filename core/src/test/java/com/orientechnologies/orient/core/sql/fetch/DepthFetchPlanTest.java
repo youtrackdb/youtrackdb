@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.fetch.OFetchContext;
 import com.orientechnologies.orient.core.fetch.OFetchHelper;
 import com.orientechnologies.orient.core.fetch.remote.ORemoteFetchContext;
 import com.orientechnologies.orient.core.fetch.remote.ORemoteFetchListener;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.junit.Test;
 
@@ -101,7 +101,7 @@ public class DepthFetchPlanTest extends BaseMemoryDatabase {
     }
 
     @Override
-    protected void sendRecord(ORecord iLinked) {
+    protected void sendRecord(ORecordAbstract iLinked) {
       count++;
     }
   }

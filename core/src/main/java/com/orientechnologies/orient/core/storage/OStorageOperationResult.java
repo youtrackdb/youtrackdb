@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -28,11 +28,10 @@ import java.io.ObjectOutput;
 /**
  * This class represent CRUD operation result RET is the actual result Stores addition information
  * about command execution process Flag {@code isMoved == true} indicates that operation has been
- * executed on local OrientDB server node, {@code isMoved == false} indicates that operation has
- * been executed on remote OrientDB node. This information will help to maintain local indexes and
+ * executed on local OxygenDB server node, {@code isMoved == false} indicates that operation has
+ * been executed on remote OxygenDB node. This information will help to maintain local indexes and
  * caches in consistent state
  *
- * @author edegtyarenko
  * @since 28.09.12 13:47
  */
 public class OStorageOperationResult<RET> implements Externalizable {
@@ -45,7 +44,8 @@ public class OStorageOperationResult<RET> implements Externalizable {
   /**
    * OStorageOperationResult void constructor as required for Exernalizable
    */
-  public OStorageOperationResult() {}
+  public OStorageOperationResult() {
+  }
 
   public OStorageOperationResult(final RET result) {
     this(result, null, false);

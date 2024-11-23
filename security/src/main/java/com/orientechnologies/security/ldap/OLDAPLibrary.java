@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,7 +9,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://www.orientdb.com
+ * <p>*
  */
 package com.orientechnologies.security.ldap;
 
@@ -21,17 +19,18 @@ import java.net.UnknownHostException;
 import java.security.PrivilegedAction;
 import java.util.Hashtable;
 import java.util.List;
-import javax.naming.*;
+import javax.naming.Context;
 import javax.naming.NamingEnumeration;
-import javax.naming.directory.*;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
+import javax.naming.directory.DirContext;
+import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.security.auth.Subject;
 
 /**
  * LDAP Library
- *
- * @author S. Colin Leister
  */
 public class OLDAPLibrary {
 

@@ -7,6 +7,7 @@ import static org.junit.Assert.fail;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.storage.ORecordCallback;
@@ -23,17 +24,21 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 /**
- * Created by tglman on 09/06/16.
+ *
  */
 public class OStorageRemoteAsyncOperationTest {
 
   private OStorageRemote storage;
 
-  @Mock private OChannelBinaryAsynchClient channel;
+  @Mock
+  private OChannelBinaryAsynchClient channel;
 
-  @Mock private ORemoteConnectionManager connectionManager;
-  @Mock private OStorageRemoteSession session;
-  @Mock private OStorageRemoteNodeSession nodeSession;
+  @Mock
+  private ORemoteConnectionManager connectionManager;
+  @Mock
+  private OStorageRemoteSession session;
+  @Mock
+  private OStorageRemoteNodeSession nodeSession;
 
   private class CallStatus {
 
@@ -46,7 +51,7 @@ public class OStorageRemoteAsyncOperationTest {
     Mockito.when(session.getServerSession(Mockito.anyString())).thenReturn(nodeSession);
     storage =
         new OStorageRemote(
-            new ORemoteURLs(new String[] {}, new OContextConfiguration()),
+            new ORemoteURLs(new String[]{}, new OContextConfiguration()),
             "mock",
             null,
             "mock",
@@ -69,7 +74,7 @@ public class OStorageRemoteAsyncOperationTest {
   @Ignore
   public void testSyncCall() {
     final CallStatus status = new CallStatus();
-    storage.asyncNetworkOperationNoRetry(
+    storage.asyncNetworkOperationNoRetry(null,
         new OBinaryAsyncRequest<OBinaryResponse>() {
           @Override
           public byte getCommand() {
@@ -77,7 +82,8 @@ public class OStorageRemoteAsyncOperationTest {
           }
 
           @Override
-          public void write(OChannelDataOutput network, OStorageRemoteSession session)
+          public void write(ODatabaseSessionInternal database, OChannelDataOutput network,
+              OStorageRemoteSession session)
               throws IOException {
             assertNull(status.status);
             status.status = "write";
@@ -86,7 +92,8 @@ public class OStorageRemoteAsyncOperationTest {
           @Override
           public void read(
               OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
-              throws IOException {}
+              throws IOException {
+          }
 
           @Override
           public byte getMode() {
@@ -94,7 +101,8 @@ public class OStorageRemoteAsyncOperationTest {
           }
 
           @Override
-          public void setMode(byte mode) {}
+          public void setMode(byte mode) {
+          }
 
           @Override
           public String getDescription() {
@@ -118,15 +126,16 @@ public class OStorageRemoteAsyncOperationTest {
 
               @Override
               public void write(
-                  OChannelDataOutput channel, int protocolVersion, ORecordSerializer serializer)
-                  throws IOException {}
+                  ODatabaseSessionInternal session, OChannelDataOutput channel, int protocolVersion,
+                  ORecordSerializer serializer)
+                  throws IOException {
+              }
             };
           }
         },
         0,
         new ORecordId(-1, -1),
-        null,
-        "");
+        null, "");
 
     assertEquals(status.status, "read");
   }
@@ -134,7 +143,7 @@ public class OStorageRemoteAsyncOperationTest {
   @Test
   public void testNoReadCall() {
     final CallStatus status = new CallStatus();
-    storage.asyncNetworkOperationNoRetry(
+    storage.asyncNetworkOperationNoRetry(null,
         new OBinaryAsyncRequest<OBinaryResponse>() {
           @Override
           public byte getCommand() {
@@ -143,7 +152,8 @@ public class OStorageRemoteAsyncOperationTest {
           }
 
           @Override
-          public void write(OChannelDataOutput network, OStorageRemoteSession session)
+          public void write(ODatabaseSessionInternal database, OChannelDataOutput network,
+              OStorageRemoteSession session)
               throws IOException {
             assertNull(status.status);
             status.status = "write";
@@ -152,7 +162,8 @@ public class OStorageRemoteAsyncOperationTest {
           @Override
           public void read(
               OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
-              throws IOException {}
+              throws IOException {
+          }
 
           @Override
           public byte getMode() {
@@ -160,7 +171,8 @@ public class OStorageRemoteAsyncOperationTest {
           }
 
           @Override
-          public void setMode(byte mode) {}
+          public void setMode(byte mode) {
+          }
 
           @Override
           public String getDescription() {
@@ -184,15 +196,16 @@ public class OStorageRemoteAsyncOperationTest {
 
               @Override
               public void write(
-                  OChannelDataOutput channel, int protocolVersion, ORecordSerializer serializer)
-                  throws IOException {}
+                  ODatabaseSessionInternal session, OChannelDataOutput channel, int protocolVersion,
+                  ORecordSerializer serializer)
+                  throws IOException {
+              }
             };
           }
         },
         1,
         new ORecordId(-1, -1),
-        null,
-        "");
+        null, "");
 
     assertEquals(status.status, "write");
   }
@@ -204,7 +217,7 @@ public class OStorageRemoteAsyncOperationTest {
     final CountDownLatch callBackWait = new CountDownLatch(1);
     final CountDownLatch readDone = new CountDownLatch(1);
     final CountDownLatch callBackDone = new CountDownLatch(1);
-    storage.asyncNetworkOperationNoRetry(
+    storage.asyncNetworkOperationNoRetry(null,
         new OBinaryAsyncRequest<OBinaryResponse>() {
           @Override
           public byte getCommand() {
@@ -213,7 +226,8 @@ public class OStorageRemoteAsyncOperationTest {
           }
 
           @Override
-          public void write(OChannelDataOutput network, OStorageRemoteSession session)
+          public void write(ODatabaseSessionInternal database, OChannelDataOutput network,
+              OStorageRemoteSession session)
               throws IOException {
             assertNull(status.status);
             status.status = "write";
@@ -222,7 +236,8 @@ public class OStorageRemoteAsyncOperationTest {
           @Override
           public void read(
               OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
-              throws IOException {}
+              throws IOException {
+          }
 
           @Override
           public byte getMode() {
@@ -230,7 +245,8 @@ public class OStorageRemoteAsyncOperationTest {
           }
 
           @Override
-          public void setMode(byte mode) {}
+          public void setMode(byte mode) {
+          }
 
           @Override
           public String getDescription() {
@@ -259,8 +275,10 @@ public class OStorageRemoteAsyncOperationTest {
 
               @Override
               public void write(
-                  OChannelDataOutput channel, int protocolVersion, ORecordSerializer serializer)
-                  throws IOException {}
+                  ODatabaseSessionInternal session, OChannelDataOutput channel, int protocolVersion,
+                  ORecordSerializer serializer)
+                  throws IOException {
+              }
             };
           }
         },
@@ -271,8 +289,7 @@ public class OStorageRemoteAsyncOperationTest {
           public void call(ORecordId iRID, OBinaryResponse iParameter) {
             callBackDone.countDown();
           }
-        },
-        "");
+        }, "");
 
     // SBLCK THE CALLBAC THAT SHOULD BE IN ANOTHER THREAD
     callBackWait.countDown();

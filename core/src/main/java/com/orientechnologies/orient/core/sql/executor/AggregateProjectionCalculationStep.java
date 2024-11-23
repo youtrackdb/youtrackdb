@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by luigidellaquila on 12/07/16.
+ *
  */
 public class AggregateProjectionCalculationStep extends ProjectionCalculationStep {
 

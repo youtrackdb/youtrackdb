@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.metadata.security;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
@@ -21,7 +21,7 @@ public class OSecurityPolicyImpl implements OSecurityPolicy {
 
   public OElement getElement() {
     if (element.isUnloaded()) {
-      element = ODatabaseSession.getActiveSession().bindToSession(element);
+      element = ODatabaseSessionInternal.getActiveSession().bindToSession(element);
     }
     return element;
   }

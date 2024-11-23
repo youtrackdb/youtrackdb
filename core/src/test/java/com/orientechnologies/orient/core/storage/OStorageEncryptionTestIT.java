@@ -6,8 +6,8 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
@@ -31,22 +31,22 @@ public class OStorageEncryptionTestIT {
   public void testEncryption() {
     final File dbDirectoryFile = cleanAndGetDirectory();
 
-    final OrientDBConfig orientDBConfig =
-        OrientDBConfig.builder()
+    final OxygenDBConfig oxygenDBConfig =
+        OxygenDBConfig.builder()
             .addConfig(OGlobalConfiguration.STORAGE_ENCRYPTION_KEY, "T1JJRU5UREJfSVNfQ09PTA==")
             .build();
-    try (final OrientDB orientDB =
-        new OrientDB("embedded:" + dbDirectoryFile.getAbsolutePath(), orientDBConfig)) {
-      orientDB.execute(
+    try (final OxygenDB oxygenDB =
+        new OxygenDB("embedded:" + dbDirectoryFile.getAbsolutePath(), oxygenDBConfig)) {
+      oxygenDB.execute(
           "create database encryption plocal users ( admin identified by 'admin' role admin)");
-      try (final ODatabaseSession session = orientDB.open("encryption", "admin", "admin")) {
+      try (final ODatabaseSession session = oxygenDB.open("encryption", "admin", "admin")) {
         final OSchema schema = session.getMetadata().getSchema();
         final OClass cls = schema.createClass("EncryptedData");
-        cls.createProperty("id", OType.INTEGER);
-        cls.createProperty("value", OType.STRING);
+        cls.createProperty(session, "id", OType.INTEGER);
+        cls.createProperty(session, "value", OType.STRING);
 
-        cls.createIndex("EncryptedTree", OClass.INDEX_TYPE.UNIQUE, "id");
-        cls.createIndex("EncryptedHash", OClass.INDEX_TYPE.UNIQUE_HASH_INDEX, "id");
+        cls.createIndex(session, "EncryptedTree", OClass.INDEX_TYPE.UNIQUE, "id");
+        cls.createIndex(session, "EncryptedHash", OClass.INDEX_TYPE.UNIQUE_HASH_INDEX, "id");
 
         for (int i = 0; i < 10_000; i++) {
           final ODocument document = new ODocument(cls);
@@ -73,11 +73,11 @@ public class OStorageEncryptionTestIT {
       }
     }
 
-    try (final OrientDB orientDB =
-        new OrientDB(
-            "embedded:" + dbDirectoryFile.getAbsolutePath(), OrientDBConfig.defaultConfig())) {
+    try (final OxygenDB oxygenDB =
+        new OxygenDB(
+            "embedded:" + dbDirectoryFile.getAbsolutePath(), OxygenDBConfig.defaultConfig())) {
       try {
-        try (final ODatabaseSession session = orientDB.open("encryption", "admin", "admin")) {
+        try (final ODatabaseSession session = oxygenDB.open("encryption", "admin", "admin")) {
           Assert.fail();
         }
       } catch (Exception e) {
@@ -85,16 +85,16 @@ public class OStorageEncryptionTestIT {
       }
     }
 
-    final OrientDBConfig wrongKeyOneOrientDBConfig =
-        OrientDBConfig.builder()
+    final OxygenDBConfig wrongKeyOneOxygenDBConfig =
+        OxygenDBConfig.builder()
             .addConfig(
                 OGlobalConfiguration.STORAGE_ENCRYPTION_KEY,
                 "DD0ViGecppQOx4ijWL4XGBwun9NAfbqFaDnVpn9+lj8=")
             .build();
-    try (final OrientDB orientDB =
-        new OrientDB("embedded:" + dbDirectoryFile.getAbsolutePath(), wrongKeyOneOrientDBConfig)) {
+    try (final OxygenDB oxygenDB =
+        new OxygenDB("embedded:" + dbDirectoryFile.getAbsolutePath(), wrongKeyOneOxygenDBConfig)) {
       try {
-        try (final ODatabaseSession session = orientDB.open("encryption", "admin", "admin")) {
+        try (final ODatabaseSession session = oxygenDB.open("encryption", "admin", "admin")) {
           Assert.fail();
         }
       } catch (Exception e) {
@@ -102,16 +102,16 @@ public class OStorageEncryptionTestIT {
       }
     }
 
-    final OrientDBConfig wrongKeyTwoOrientDBConfig =
-        OrientDBConfig.builder()
+    final OxygenDBConfig wrongKeyTwoOxygenDBConfig =
+        OxygenDBConfig.builder()
             .addConfig(
                 OGlobalConfiguration.STORAGE_ENCRYPTION_KEY,
                 "DD0ViGecppQOx4ijWL4XGBwun9NAfbqFaDnVpn9+lj8")
             .build();
-    try (final OrientDB orientDB =
-        new OrientDB("embedded:" + dbDirectoryFile.getAbsolutePath(), wrongKeyTwoOrientDBConfig)) {
+    try (final OxygenDB oxygenDB =
+        new OxygenDB("embedded:" + dbDirectoryFile.getAbsolutePath(), wrongKeyTwoOxygenDBConfig)) {
       try {
-        try (final ODatabaseSession session = orientDB.open("encryption", "admin", "admin")) {
+        try (final ODatabaseSession session = oxygenDB.open("encryption", "admin", "admin")) {
           Assert.fail();
         }
       } catch (Exception e) {
@@ -119,10 +119,10 @@ public class OStorageEncryptionTestIT {
       }
     }
 
-    try (final OrientDB orientDB =
-        new OrientDB("embedded:" + dbDirectoryFile.getAbsolutePath(), orientDBConfig)) {
+    try (final OxygenDB oxygenDB =
+        new OxygenDB("embedded:" + dbDirectoryFile.getAbsolutePath(), oxygenDBConfig)) {
       try (final ODatabaseSessionInternal session =
-          (ODatabaseSessionInternal) orientDB.open("encryption", "admin", "admin")) {
+          (ODatabaseSessionInternal) oxygenDB.open("encryption", "admin", "admin")) {
         final OIndexManagerAbstract indexManager = session.getMetadata().getIndexManagerInternal();
         final OIndex treeIndex = indexManager.getIndex(session, "EncryptedTree");
         final OIndex hashIndex = indexManager.getIndex(session, "EncryptedHash");
@@ -130,11 +130,11 @@ public class OStorageEncryptionTestIT {
         for (final ODocument document : session.browseClass("EncryptedData")) {
           final int id = document.getProperty("id");
           final ORID treeRid;
-          try (Stream<ORID> rids = treeIndex.getInternal().getRids(id)) {
+          try (Stream<ORID> rids = treeIndex.getInternal().getRids(session, id)) {
             treeRid = rids.findFirst().orElse(null);
           }
           final ORID hashRid;
-          try (Stream<ORID> rids = hashIndex.getInternal().getRids(id)) {
+          try (Stream<ORID> rids = hashIndex.getInternal().getRids(session, id)) {
             hashRid = rids.findFirst().orElse(null);
           }
 
@@ -142,8 +142,10 @@ public class OStorageEncryptionTestIT {
           Assert.assertEquals(document.getIdentity(), hashRid);
         }
 
-        Assert.assertEquals(session.countClass("EncryptedData"), treeIndex.getInternal().size());
-        Assert.assertEquals(session.countClass("EncryptedData"), hashIndex.getInternal().size());
+        Assert.assertEquals(session.countClass("EncryptedData"),
+            treeIndex.getInternal().size(session));
+        Assert.assertEquals(session.countClass("EncryptedData"),
+            hashIndex.getInternal().size(session));
       }
     }
   }
@@ -161,26 +163,26 @@ public class OStorageEncryptionTestIT {
   public void testEncryptionSingleDatabase() {
     final File dbDirectoryFile = cleanAndGetDirectory();
 
-    try (final OrientDB orientDB =
-        new OrientDB(
-            "embedded:" + dbDirectoryFile.getAbsolutePath(), OrientDBConfig.defaultConfig())) {
-      final OrientDBConfig orientDBConfig =
-          OrientDBConfig.builder()
+    try (final OxygenDB oxygenDB =
+        new OxygenDB(
+            "embedded:" + dbDirectoryFile.getAbsolutePath(), OxygenDBConfig.defaultConfig())) {
+      final OxygenDBConfig oxygenDBConfig =
+          OxygenDBConfig.builder()
               .addConfig(OGlobalConfiguration.STORAGE_ENCRYPTION_KEY, "T1JJRU5UREJfSVNfQ09PTA==")
               .build();
 
-      orientDB.execute(
+      oxygenDB.execute(
           "create database encryption plocal users ( admin identified by 'admin' role admin)");
     }
-    try (final OrientDB orientDB =
-        new OrientDB(
-            "embedded:" + dbDirectoryFile.getAbsolutePath(), OrientDBConfig.defaultConfig())) {
-      final OrientDBConfig orientDBConfig =
-          OrientDBConfig.builder()
+    try (final OxygenDB oxygenDB =
+        new OxygenDB(
+            "embedded:" + dbDirectoryFile.getAbsolutePath(), OxygenDBConfig.defaultConfig())) {
+      final OxygenDBConfig oxygenDBConfig =
+          OxygenDBConfig.builder()
               .addConfig(OGlobalConfiguration.STORAGE_ENCRYPTION_KEY, "T1JJRU5UREJfSVNfQ09PTA==")
               .build();
       try (final ODatabaseSession session =
-          orientDB.open("encryption", "admin", "admin", orientDBConfig)) {
+          oxygenDB.open("encryption", "admin", "admin", oxygenDBConfig)) {
         final OSchema schema = session.getMetadata().getSchema();
         final OClass cls = schema.createClass("EncryptedData");
 

@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * Created by frank on 16/01/2017.
+ *
  */
 public class OrientJdbcArray implements Array {
 
@@ -71,5 +71,6 @@ public class OrientJdbcArray implements Array {
   }
 
   @Override
-  public void free() throws SQLException {}
+  public void free() throws SQLException {
+  }
 }

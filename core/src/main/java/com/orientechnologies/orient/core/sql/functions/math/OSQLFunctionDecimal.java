@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.functions.math;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -27,8 +28,6 @@ import java.util.List;
 
 /**
  * Evaluates a complex expression.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionDecimal extends OSQLFunctionMathAbstract {
 
@@ -88,7 +87,7 @@ public class OSQLFunctionDecimal extends OSQLFunctionMathAbstract {
     return false;
   }
 
-  public String getSyntax() {
+  public String getSyntax(ODatabaseSession session) {
     return "decimal(<val>)";
   }
 

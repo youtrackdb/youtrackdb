@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.common.comparator;
@@ -24,7 +24,6 @@ import java.util.Comparator;
 /**
  * Comparator for byte arrays comparison. Bytes are compared like unsigned not like signed bytes.
  *
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 03.07.12
  */
 public class OByteArrayComparator implements Comparator<byte[]> {

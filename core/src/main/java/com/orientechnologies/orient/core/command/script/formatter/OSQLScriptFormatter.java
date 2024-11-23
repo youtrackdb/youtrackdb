@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,27 +14,27 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.command.script.formatter;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 
 /**
  * SQL script formatter.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLScriptFormatter implements OScriptFormatter {
 
-  public String getFunctionDefinition(final OFunction f) {
+  public String getFunctionDefinition(ODatabaseSessionInternal session, final OFunction f) {
     return null;
   }
 
   @Override
-  public String getFunctionInvoke(final OFunction iFunction, final Object[] iArgs) {
+  public String getFunctionInvoke(ODatabaseSessionInternal session, final OFunction iFunction,
+      final Object[] iArgs) {
     // TODO: BIND ARGS
-    return iFunction.getCode();
+    return iFunction.getCode(session);
   }
 }

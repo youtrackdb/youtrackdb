@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,28 +14,19 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
 package com.orientechnologies.orient.core.conflict;
 
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
-import com.orientechnologies.orient.core.storage.ORawBuffer;
 import com.orientechnologies.orient.core.storage.OStorage;
-import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Record conflict strategy that check the records content: if content is the same, se the higher
  * version number.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OContentRecordConflictStrategy extends OVersionRecordConflictStrategy {
 
@@ -50,35 +41,7 @@ public class OContentRecordConflictStrategy extends OVersionRecordConflictStrate
       final byte[] iRecordContent,
       final AtomicInteger iDatabaseVersion) {
 
-    final boolean hasSameContent;
-
-    if (iRecordType == ODocument.RECORD_TYPE) {
-      // No need lock, is already inside a lock.
-      ORawBuffer res = storage.readRecord(rid, false, false, null);
-      final ODocument storedRecord = new ODocument(rid).fromStream(res.buffer);
-      final ODocument newRecord = new ODocument().fromStream(iRecordContent);
-
-      final ODatabaseSessionInternal currentDb = ODatabaseRecordThreadLocal.instance().get();
-      hasSameContent =
-          ODocumentHelper.hasSameContentOf(
-              storedRecord, currentDb, newRecord, currentDb, null, false);
-    } else {
-      // CHECK BYTE PER BYTE
-      final ORecordAbstract storedRecord = rid.getRecord();
-      hasSameContent = Arrays.equals(storedRecord.toStream(), iRecordContent);
-    }
-
-    if (hasSameContent)
-    // OK
-    {
-      iDatabaseVersion.set(Math.max(iDatabaseVersion.get(), iRecordVersion));
-    } else
-    // NO DOCUMENT, CANNOT MERGE SO RELY TO THE VERSION CHECK
-    {
-      checkVersions(rid, iRecordVersion, iDatabaseVersion.get());
-    }
-
-    return null;
+    throw new UnsupportedOperationException();
   }
 
   @Override

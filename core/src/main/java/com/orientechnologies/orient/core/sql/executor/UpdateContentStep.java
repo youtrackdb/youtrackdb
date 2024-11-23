@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by luigidellaquila on 09/08/16.
+ *
  */
 public class UpdateContentStep extends AbstractExecutionStep {
 
@@ -65,13 +65,13 @@ public class UpdateContentStep extends AbstractExecutionStep {
               .getMetadata()
               .getImmutableSchemaSnapshot()
               .getClass(OSecurity.RESTRICTED_CLASSNAME);
-      for (OProperty prop : restricted.properties()) {
+      for (OProperty prop : restricted.properties(ctx.getDatabase())) {
         fieldsToPreserve.field(prop.getName(), record.<Object>getProperty(prop.getName()));
       }
     }
     Map<String, Object> preDefaultValues = null;
     if (clazz != null) {
-      for (OProperty prop : clazz.properties()) {
+      for (OProperty prop : clazz.properties(ctx.getDatabase())) {
         if (prop.getDefaultValue() != null) {
           if (preDefaultValues == null) {
             preDefaultValues = new HashMap<>();
@@ -110,8 +110,10 @@ public class UpdateContentStep extends AbstractExecutionStep {
       if (val instanceof OElement) {
         doc.merge(((OElement) val).getRecord(), false, false);
       } else if (val instanceof Map<?, ?> map) {
+        var mapDoc = new ODocument();
         //noinspection unchecked
-        doc.merge(new ODocument().fromMap((Map<String, ?>) map), false, false);
+        mapDoc.fromMap((Map<String, ?>) map);
+        doc.merge(mapDoc, false, false);
       } else {
         throw new OCommandExecutionException("Invalid value for UPDATE CONTENT: " + val);
       }

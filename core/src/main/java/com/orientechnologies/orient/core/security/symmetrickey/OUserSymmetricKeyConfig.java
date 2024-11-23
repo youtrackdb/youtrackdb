@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2016 OrientDB LTD
+ *  *  Copyright 2016 OxygenDB LTD
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.security.symmetrickey;
@@ -27,8 +27,6 @@ import java.util.Map;
  * Implements the OSymmetricKeyConfig interface for OUser records. The constructor looks for a
  * "properties" field on the OUser document. The "properties" field should be a JSON document
  * containing the OSymmetricKey-specific fields.
- *
- * @author S. Colin Leister
  */
 public class OUserSymmetricKeyConfig implements OSymmetricKeyConfig {
 
@@ -121,12 +119,8 @@ public class OUserSymmetricKeyConfig implements OSymmetricKeyConfig {
       } else {
         Map<String, Object> ksMap = props.field("keyStore");
 
-        ODocument ksDoc = new ODocument().fromMap(ksMap);
-
-        if (ksDoc == null) {
-          throw new OSecurityException(
-              "OUserSymmetricKeyConfig() key, keyFile, and keyStore cannot all be null");
-        }
+        ODocument ksDoc = new ODocument();
+        ksDoc.fromMap(ksMap);
 
         this.keystoreFile = ksDoc.field("file");
         this.keystorePassword = ksDoc.field("passsword");

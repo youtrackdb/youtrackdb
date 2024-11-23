@@ -26,7 +26,7 @@ public class TestSerializationCompatibilityRecord extends BaseMemoryDatabase {
     doc.field("map", map, OType.LINKMAP);
     ORID id = db.save(doc).getIdentity();
     db.commit();
-    klass.createProperty("map", OType.EMBEDDEDMAP, (OType) null, true);
+    klass.createProperty(db, "map", OType.EMBEDDEDMAP, (OType) null, true);
 
     db.begin();
     ODocument record = db.load(id);

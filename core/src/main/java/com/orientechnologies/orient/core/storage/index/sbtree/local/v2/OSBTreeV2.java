@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -84,7 +84,6 @@ import java.util.stream.StreamSupport;
  *         amount of memory involved in performing of operations and as result speed up data
  *         processing.
  *
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 8/7/13
  */
 public class OSBTreeV2<K, V> extends ODurableComponent implements OSBTree<K, V> {
@@ -438,9 +437,9 @@ public class OSBTreeV2<K, V> extends ODurableComponent implements OSBTree<K, V> 
                 } else if (updatedValue.isRemove()) {
                   removeNullBucket(atomicOperation);
                 } else //noinspection StatementWithEmptyBody
-                if (updatedValue.isNothing()) {
-                  // Do Nothing
-                }
+                  if (updatedValue.isNothing()) {
+                    // Do Nothing
+                  }
               } finally {
                 cacheEntry.close();
               }
@@ -889,13 +888,11 @@ public class OSBTreeV2<K, V> extends ODurableComponent implements OSBTree<K, V> 
             path.add(new PagePathItemUnit(bucketIndex, itemIndex));
 
             if (itemIndex < bucket.size()) {
-              @SuppressWarnings("ObjectAllocationInLoop")
-              final OSBTreeBucketV2.SBTreeEntry<K, V> entry =
+              @SuppressWarnings("ObjectAllocationInLoop") final OSBTreeBucketV2.SBTreeEntry<K, V> entry =
                   bucket.getEntry(itemIndex, keySerializer, valueSerializer);
               bucketIndex = entry.leftChild;
             } else {
-              @SuppressWarnings("ObjectAllocationInLoop")
-              final OSBTreeBucketV2.SBTreeEntry<K, V> entry =
+              @SuppressWarnings("ObjectAllocationInLoop") final OSBTreeBucketV2.SBTreeEntry<K, V> entry =
                   bucket.getEntry(itemIndex - 1, keySerializer, valueSerializer);
               bucketIndex = entry.rightChild;
             }
@@ -963,13 +960,11 @@ public class OSBTreeV2<K, V> extends ODurableComponent implements OSBTree<K, V> 
             path.add(new PagePathItemUnit(bucketIndex, itemIndex));
 
             if (itemIndex > -1) {
-              @SuppressWarnings("ObjectAllocationInLoop")
-              final OSBTreeBucketV2.SBTreeEntry<K, V> entry =
+              @SuppressWarnings("ObjectAllocationInLoop") final OSBTreeBucketV2.SBTreeEntry<K, V> entry =
                   bucket.getEntry(itemIndex, keySerializer, valueSerializer);
               bucketIndex = entry.rightChild;
             } else {
-              @SuppressWarnings("ObjectAllocationInLoop")
-              final OSBTreeBucketV2.SBTreeEntry<K, V> entry =
+              @SuppressWarnings("ObjectAllocationInLoop") final OSBTreeBucketV2.SBTreeEntry<K, V> entry =
                   bucket.getEntry(0, keySerializer, valueSerializer);
               bucketIndex = entry.leftChild;
             }
@@ -1321,8 +1316,8 @@ public class OSBTreeV2<K, V> extends ODurableComponent implements OSBTree<K, V> 
       final OSBTreeBucketV2.SBTreeEntry<K, V> entry;
 
       try (final OCacheEntry bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
-        @SuppressWarnings("ObjectAllocationInLoop")
-        final OSBTreeBucketV2<K, V> keyBucket = new OSBTreeBucketV2<>(bucketEntry);
+        @SuppressWarnings("ObjectAllocationInLoop") final OSBTreeBucketV2<K, V> keyBucket = new OSBTreeBucketV2<>(
+            bucketEntry);
         final int index = keyBucket.find(key, keySerializer);
 
         if (keyBucket.isLeaf()) {

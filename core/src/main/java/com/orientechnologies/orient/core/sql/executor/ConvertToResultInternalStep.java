@@ -9,8 +9,6 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
  * made of normal OResultInternal instances.
  *
  * <p>This is the opposite of ConvertToUpdatableResultStep
- *
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class ConvertToResultInternalStep extends AbstractExecutionStep {
 

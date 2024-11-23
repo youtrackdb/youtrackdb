@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.common.concur.lock;
@@ -34,8 +34,6 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Adaptive class to handle shared resources. It's configurable specifying if it's running in a
  * concurrent environment and allow o specify a maximum timeout to avoid deadlocks.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OAdaptiveLock extends OAbstractLock {
 
@@ -190,10 +188,10 @@ public class OAdaptiveLock extends OAbstractLock {
       printWriter.flush();
       return stringWriter.toString();
     } catch (RuntimeException
-        | NoSuchFieldException
-        | IllegalAccessException
-        | InvocationTargetException
-        | NoSuchMethodException ignore) {
+             | NoSuchFieldException
+             | IllegalAccessException
+             | InvocationTargetException
+             | NoSuchMethodException ignore) {
       return null;
     }
   }

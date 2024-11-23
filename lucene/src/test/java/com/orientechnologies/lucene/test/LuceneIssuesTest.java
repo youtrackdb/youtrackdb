@@ -10,7 +10,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * Created by frank on 27/04/2017.
+ *
  */
 public class LuceneIssuesTest extends BaseLuceneTest {
 
@@ -26,7 +26,7 @@ public class LuceneIssuesTest extends BaseLuceneTest {
     try (Stream<ORID> rids =
         index
             .getInternal()
-            .getRids("server:206012226875414 AND date:[201703120000 TO  201703120001]")) {
+            .getRids(db, "server:206012226875414 AND date:[201703120000 TO  201703120001]")) {
       Assertions.assertThat(rids.count()).isEqualTo(1);
     }
   }
@@ -57,7 +57,7 @@ public class LuceneIssuesTest extends BaseLuceneTest {
     }
 
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Item.content");
-    try (Stream<ORID> rids = index.getInternal().getRids("'Харько~0.2")) {
+    try (Stream<ORID> rids = index.getInternal().getRids(db, "'Харько~0.2")) {
       Assertions.assertThat(rids.count() >= 3).isTrue();
     }
   }

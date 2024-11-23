@@ -4,8 +4,8 @@ import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,7 +49,7 @@ public class FulltextIndexFunctionBenchmark {
   }
 
   private ODatabaseSessionInternal db;
-  private OrientDB context;
+  private OxygenDB context;
   private ODatabaseType type;
 
   private final String name = "lucene-benchmark";
@@ -78,7 +78,7 @@ public class FulltextIndexFunctionBenchmark {
       type = ODatabaseType.MEMORY;
       path = "embedded:.";
     }
-    context = new OrientDB(path, OrientDBConfig.defaultConfig());
+    context = new OxygenDB(path, OxygenDBConfig.defaultConfig());
 
     if (context.exists(name)) {
       context.drop(name);

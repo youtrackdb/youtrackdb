@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql;
@@ -37,8 +37,6 @@ import java.util.Map;
 
 /**
  * SQL ALTER PROPERTY command: Changes an attribute of an existent property in the target class.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 @SuppressWarnings("unchecked")
 public class OCommandExecutorSQLAlterClass extends OCommandExecutorSQLAbstract
@@ -148,9 +146,8 @@ public class OCommandExecutorSQLAlterClass extends OCommandExecutorSQLAbstract
   /**
    * Execute the ALTER CLASS.
    */
-  public Object execute(final Map<Object, Object> iArgs) {
+  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
     final var database = getDatabase();
-
     if (attribute == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
@@ -180,7 +177,7 @@ public class OCommandExecutorSQLAlterClass extends OCommandExecutorSQLAbstract
       }
     }
     if (!unsafe && value != null && attribute == ATTRIBUTES.NAME) {
-      if (!cls.getIndexes().isEmpty()) {
+      if (!cls.getIndexes(database).isEmpty()) {
         throw new OCommandExecutionException(
             "Cannot rename class '"
                 + className
@@ -188,7 +185,7 @@ public class OCommandExecutorSQLAlterClass extends OCommandExecutorSQLAbstract
                 + " your won risk)");
       }
     }
-    cls.set(attribute, value);
+    cls.set(database, attribute, value);
 
     return Boolean.TRUE;
   }
@@ -206,9 +203,9 @@ public class OCommandExecutorSQLAlterClass extends OCommandExecutorSQLAbstract
       superClass = superClass.substring(1);
     }
     if (((ODatabaseSessionInternal) database)
-            .getMetadata()
-            .getImmutableSchemaSnapshot()
-            .getClass(decodeClassName(superClass))
+        .getMetadata()
+        .getImmutableSchemaSnapshot()
+        .getClass(decodeClassName(superClass))
         == null) {
       throw new OCommandExecutionException(
           "Cannot alter superClass of '"

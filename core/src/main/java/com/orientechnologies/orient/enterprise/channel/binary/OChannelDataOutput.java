@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 /**
- * Created by luigidellaquila on 12/12/16.
+ *
  */
 public interface OChannelDataOutput {
 

@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,7 +24,7 @@ import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 import java.util.Arrays;
 
 /**
- * @author Luca Molino (molino.luca--at--gmail.com)
+ *
  */
 public class OServerCommandAuthProxy extends OServerCommandPatternAbstract {
 
@@ -67,7 +67,7 @@ public class OServerCommandAuthProxy extends OServerCommandPatternAbstract {
     if (iRequest.getSessionId() == null
         || OServerCommandAuthenticatedDbAbstract.SESSIONID_LOGOUT.equals(iRequest.getSessionId())
         || iRequest.getSessionId().length() > 1
-            && server.getHttpSessionManager().getSession(iRequest.getSessionId()) == null)
+        && server.getHttpSessionManager().getSession(iRequest.getSessionId()) == null)
     // AUTHENTICATED: CREATE THE SESSION
     {
       iRequest.setSessionId(

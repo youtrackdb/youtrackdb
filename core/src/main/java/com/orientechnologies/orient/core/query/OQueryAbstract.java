@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.query;
 
 import com.orientechnologies.orient.core.command.OCommandRequestAbstract;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.fetch.OFetchHelper;
 
 @SuppressWarnings("serial")
@@ -31,7 +32,7 @@ public abstract class OQueryAbstract<T extends Object> extends OCommandRequestAb
   }
 
   @SuppressWarnings("unchecked")
-  public <RET> RET execute(final Object... iArgs) {
+  public <RET> RET execute(ODatabaseSessionInternal querySession, final Object... iArgs) {
     return (RET) run(iArgs);
   }
 
@@ -60,7 +61,8 @@ public abstract class OQueryAbstract<T extends Object> extends OCommandRequestAb
    * pagination.
    */
   @Override
-  public void reset() {}
+  public void reset() {
+  }
 
   @Override
   public boolean isIdempotent() {

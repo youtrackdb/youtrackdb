@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.OVertex;
@@ -17,14 +17,14 @@ import org.junit.Test;
 
 public class LightWeightEdgesTest {
 
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
   private ODatabaseSession session;
 
   @Before
   public void before() {
-    orientDB =
+    oxygenDB =
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    session = orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    session = oxygenDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     session.createVertexClass("Vertex");
     session.createLightweightEdgeClass("Edge");
@@ -64,8 +64,8 @@ public class LightWeightEdgesTest {
     String eClazz = "EtestRegularBySchema";
     OClass eClass = session.createEdgeClass(eClazz);
 
-    vClass.createProperty("out_" + eClazz, OType.LINKBAG, eClass);
-    vClass.createProperty("in_" + eClazz, OType.LINKBAG, eClass);
+    vClass.createProperty(session, "out_" + eClazz, OType.LINKBAG, eClass);
+    vClass.createProperty(session, "in_" + eClazz, OType.LINKBAG, eClass);
 
     session.begin();
     OVertex v = session.newVertex(vClass);
@@ -106,6 +106,6 @@ public class LightWeightEdgesTest {
   @After
   public void after() {
     session.close();
-    orientDB.close();
+    oxygenDB.close();
   }
 }

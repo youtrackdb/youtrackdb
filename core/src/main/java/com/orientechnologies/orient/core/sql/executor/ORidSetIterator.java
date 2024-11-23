@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.id.ORecordId;
 import java.util.Iterator;
 
 /**
- * Created by luigidellaquila on 25/10/16.
+ *
  */
 public class ORidSetIterator implements Iterator<ORID> {
 

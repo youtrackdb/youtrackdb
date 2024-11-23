@@ -9,7 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ *
  */
 public class ODropPropertyStatementExecutionTest extends BaseMemoryDatabase {
 
@@ -18,7 +18,7 @@ public class ODropPropertyStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testPlain";
     String propertyName = "foo";
     OSchema schema = db.getMetadata().getSchema();
-    schema.createClass(className).createProperty(propertyName, OType.STRING);
+    schema.createClass(className).createProperty(db, propertyName, OType.STRING);
 
     Assert.assertNotNull(schema.getClass(className).getProperty(propertyName));
     OResultSet result = db.command("drop property " + className + "." + propertyName);
@@ -38,8 +38,8 @@ public class ODropPropertyStatementExecutionTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     schema
         .createClass(className)
-        .createProperty(propertyName, OType.STRING)
-        .createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
+        .createProperty(db, propertyName, OType.STRING)
+        .createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
 
     Assert.assertNotNull(schema.getClass(className).getProperty(propertyName));
     OResultSet result = db.command("drop property " + className + "." + propertyName + " force");
@@ -63,8 +63,8 @@ public class ODropPropertyStatementExecutionTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     schema
         .createClass(className)
-        .createProperty(propertyName, OType.STRING)
-        .createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
+        .createProperty(db, propertyName, OType.STRING)
+        .createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
 
     Assert.assertNotNull(schema.getClass(className).getProperty(propertyName));
     try {

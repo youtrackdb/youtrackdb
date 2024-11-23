@@ -14,14 +14,14 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.distributed;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.exception.OConcurrentCreateException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -48,8 +48,6 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * <p>TODO: - set flags during collecting of response for fast computation on checking for the
  * status
- *
- * @author Luca Garulli (l.garulli--at--orientdb.com)
  */
 public class ODistributedResponseManagerImpl implements ODistributedResponseManager {
 
@@ -132,7 +130,7 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
             request,
             getExpectedNodes());
 
-        Orient.instance()
+        Oxygen.instance()
             .getProfiler()
             .updateCounter(
                 "distributed.node.unexpectedNodeResponse",
@@ -394,7 +392,7 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
       return isMinimumQuorumReached(reachedTimeout);
 
     } finally {
-      Orient.instance()
+      Oxygen.instance()
           .getProfiler()
           .stopChrono(
               "distributed.synchResponses",
@@ -443,26 +441,25 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
 
       // MANAGE THE RESULT BASED ON RESULT STRATEGY
       switch (request.getTask().getResultStrategy()) {
-        case UNION:
-          {
-            // COLLECT ALL THE RESPONSE IN A MAP OF <NODE, RESULT>
-            final Map<String, Object> payloads = new HashMap<String, Object>();
-            for (Map.Entry<String, Object> entry : responses.entrySet()) {
-              if (entry.getValue() != NO_RESPONSE) {
-                payloads.put(
-                    entry.getKey(), ((ODistributedResponse) entry.getValue()).getPayload());
-              }
+        case UNION: {
+          // COLLECT ALL THE RESPONSE IN A MAP OF <NODE, RESULT>
+          final Map<String, Object> payloads = new HashMap<String, Object>();
+          for (Map.Entry<String, Object> entry : responses.entrySet()) {
+            if (entry.getValue() != NO_RESPONSE) {
+              payloads.put(
+                  entry.getKey(), ((ODistributedResponse) entry.getValue()).getPayload());
             }
-
-            if (payloads.isEmpty()) {
-              return null;
-            }
-
-            final ODistributedResponse response = getReceivedResponses().iterator().next();
-            response.setExecutorNodeName(responses.keySet().toString());
-            response.setPayload(payloads);
-            return response;
           }
+
+          if (payloads.isEmpty()) {
+            return null;
+          }
+
+          final ODistributedResponse response = getReceivedResponses().iterator().next();
+          response.setExecutorNodeName(responses.keySet().toString());
+          response.setPayload(payloads);
+          return response;
+        }
 
         default:
           // DEFAULT: RETURN BEST ANSWER
@@ -681,7 +678,7 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
   protected RuntimeException manageConflicts() {
     if (!groupResponsesByResult
         || request.getTask().getQuorumType()
-            == OCommandDistributedReplicateRequest.QUORUM_TYPE.NONE)
+        == OCommandDistributedReplicateRequest.QUORUM_TYPE.NONE)
     // NO QUORUM
     {
       return null;

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,16 +14,18 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.storage;
 
 import com.orientechnologies.common.util.OCallable;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
-import com.orientechnologies.orient.core.db.OrientDBInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.id.ORID;
@@ -45,7 +47,6 @@ import javax.annotation.Nonnull;
  * This is the gateway interface between the Database side and the storage. Provided implementations
  * are: Local, Remote and Memory.
  *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @see com.orientechnologies.orient.core.storage.memory.ODirectMemoryStorage
  */
 public interface OStorage extends OBackupable, OStorageInfo {
@@ -68,7 +69,7 @@ public interface OStorage extends OBackupable, OStorageInfo {
 
   boolean exists();
 
-  void reload();
+  void reload(ODatabaseSessionInternal database);
 
   void delete();
 
@@ -81,17 +82,18 @@ public interface OStorage extends OBackupable, OStorageInfo {
   // CRUD OPERATIONS
   @Nonnull
   ORawBuffer readRecord(
-      ORecordId iRid,
+      ODatabaseSessionInternal session, ORecordId iRid,
       boolean iIgnoreCache,
       boolean prefetchRecords,
       ORecordCallback<ORawBuffer> iCallback);
 
-  boolean recordExists(ORID rid);
+  boolean recordExists(ODatabaseSessionInternal session, ORID rid);
 
-  ORecordMetadata getRecordMetadata(final ORID rid);
+  ORecordMetadata getRecordMetadata(ODatabaseSessionInternal session, final ORID rid);
 
   boolean cleanOutRecord(
-      ORecordId recordId, int recordVersion, int iMode, ORecordCallback<Boolean> callback);
+      ODatabaseSessionInternal session, ORecordId recordId, int recordVersion, int iMode,
+      ORecordCallback<Boolean> callback);
 
   // TX OPERATIONS
   List<ORecordOperation> commit(OTransactionOptimistic iTx);
@@ -103,31 +105,34 @@ public interface OStorage extends OBackupable, OStorageInfo {
   /**
    * Add a new cluster into the storage.
    *
+   * @param database
    * @param iClusterName name of the cluster
    */
-  int addCluster(String iClusterName, Object... iParameters);
+  int addCluster(ODatabaseSessionInternal database, String iClusterName, Object... iParameters);
 
   /**
    * Add a new cluster into the storage.
    *
+   * @param database
    * @param iClusterName name of the cluster
    * @param iRequestedId requested id of the cluster
    */
-  int addCluster(String iClusterName, int iRequestedId);
+  int addCluster(ODatabaseSessionInternal database, String iClusterName, int iRequestedId);
 
-  boolean dropCluster(String iClusterName);
+  boolean dropCluster(ODatabaseSessionInternal session, String iClusterName);
 
-  String getClusterName(final int clusterId);
+  String getClusterName(ODatabaseSessionInternal database, final int clusterId);
 
   boolean setClusterAttribute(final int id, OCluster.ATTRIBUTES attribute, Object value);
 
   /**
    * Drops a cluster.
    *
-   * @param iId id of the cluster to delete
+   * @param database
+   * @param iId      id of the cluster to delete
    * @return true if has been removed, otherwise false
    */
-  boolean dropCluster(int iId);
+  boolean dropCluster(ODatabaseSessionInternal database, int iId);
 
   String getClusterNameById(final int clusterId);
 
@@ -147,23 +152,23 @@ public interface OStorage extends OBackupable, OStorageInfo {
 
   OPaginatedCluster.RECORD_STATUS getRecordStatus(final ORID rid);
 
-  long count(int iClusterId);
+  long count(ODatabaseSessionInternal session, int iClusterId);
 
-  long count(int iClusterId, boolean countTombstones);
+  long count(ODatabaseSessionInternal session, int iClusterId, boolean countTombstones);
 
-  long count(int[] iClusterIds);
+  long count(ODatabaseSessionInternal session, int[] iClusterIds);
 
-  long count(int[] iClusterIds, boolean countTombstones);
+  long count(ODatabaseSessionInternal session, int[] iClusterIds, boolean countTombstones);
 
   /**
    * Returns the size of the database.
    */
-  long getSize();
+  long getSize(ODatabaseSessionInternal session);
 
   /**
    * Returns the total number of records.
    */
-  long countRecords();
+  long countRecords(ODatabaseSessionInternal session);
 
   void setDefaultClusterId(final int defaultClusterId);
 
@@ -187,23 +192,28 @@ public interface OStorage extends OBackupable, OStorageInfo {
   /**
    * Execute the command request and return the result back.
    */
-  Object command(OCommandRequestText iCommand);
+  Object command(ODatabaseSessionInternal database, OCommandRequestText iCommand);
 
   /**
    * Returns a pair of long values telling the begin and end positions of data in the requested
    * cluster. Useful to know the range of the records.
    *
+   * @param session
    * @param currentClusterId Cluster id
    */
-  long[] getClusterDataRange(int currentClusterId);
+  long[] getClusterDataRange(ODatabaseSessionInternal session, int currentClusterId);
 
-  OPhysicalPosition[] higherPhysicalPositions(int clusterId, OPhysicalPosition physicalPosition);
+  OPhysicalPosition[] higherPhysicalPositions(ODatabaseSessionInternal session, int clusterId,
+      OPhysicalPosition physicalPosition);
 
-  OPhysicalPosition[] lowerPhysicalPositions(int clusterId, OPhysicalPosition physicalPosition);
+  OPhysicalPosition[] lowerPhysicalPositions(ODatabaseSessionInternal session, int clusterId,
+      OPhysicalPosition physicalPosition);
 
-  OPhysicalPosition[] ceilingPhysicalPositions(int clusterId, OPhysicalPosition physicalPosition);
+  OPhysicalPosition[] ceilingPhysicalPositions(ODatabaseSessionInternal session, int clusterId,
+      OPhysicalPosition physicalPosition);
 
-  OPhysicalPosition[] floorPhysicalPositions(int clusterId, OPhysicalPosition physicalPosition);
+  OPhysicalPosition[] floorPhysicalPositions(ODatabaseSessionInternal session, int clusterId,
+      OPhysicalPosition physicalPosition);
 
   /**
    * Returns the current storage's status
@@ -235,21 +245,23 @@ public interface OStorage extends OBackupable, OStorageInfo {
   /**
    * @return Backup file name
    */
-  String incrementalBackup(String backupDirectory, OCallable<Void, Void> started)
+  String incrementalBackup(ODatabaseSessionInternal session, String backupDirectory,
+      OCallable<Void, Void> started)
       throws UnsupportedOperationException;
 
   boolean supportIncremental();
 
   void fullIncrementalBackup(OutputStream stream) throws UnsupportedOperationException;
 
-  void restoreFromIncrementalBackup(String filePath);
+  void restoreFromIncrementalBackup(ODatabaseSessionInternal session, String filePath);
 
-  void restoreFullIncrementalBackup(InputStream stream) throws UnsupportedOperationException;
+  void restoreFullIncrementalBackup(ODatabaseSessionInternal session, InputStream stream)
+      throws UnsupportedOperationException;
 
   /**
-   * This method is called in {@link com.orientechnologies.orient.core.Orient#shutdown()} method.
-   * For most of the storages it means that storage will be merely closed, but sometimes additional
-   * operations are need to be taken in account.
+   * This method is called in {@link Oxygen#shutdown()} method. For most of the storages it means
+   * that storage will be merely closed, but sometimes additional operations are need to be taken in
+   * account.
    */
   void shutdown();
 
@@ -289,5 +301,5 @@ public interface OStorage extends OBackupable, OStorageInfo {
     return false;
   }
 
-  OrientDBInternal getContext();
+  OxygenDBInternal getContext();
 }

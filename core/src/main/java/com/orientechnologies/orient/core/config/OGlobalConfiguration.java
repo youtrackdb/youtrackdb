@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.config;
@@ -23,7 +23,7 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.profiler.OProfiler;
 import com.orientechnologies.orient.core.OConstants;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.engine.local.OEngineLocalPaginated;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerBinary;
@@ -39,8 +39,6 @@ import java.util.logging.Level;
 /**
  * Keeps all configuration settings. At startup assigns the configuration values by reading system
  * properties.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public enum OGlobalConfiguration { // ENVIRONMENT
   ENVIRONMENT_DUMP_CFG_AT_STARTUP(
@@ -75,7 +73,7 @@ public enum OGlobalConfiguration { // ENVIRONMENT
 
   MEMORY_PROFILING(
       "memory.profiling",
-      "Switches on profiling of allocations of direct memory inside of OrientDB.",
+      "Switches on profiling of allocations of direct memory inside of OxygenDB.",
       Boolean.class,
       false),
 
@@ -87,10 +85,10 @@ public enum OGlobalConfiguration { // ENVIRONMENT
 
   MEMORY_LEFT_TO_OS(
       "memory.leftToOS",
-      "Amount of free memory which should be left unallocated in case of OrientDB is started"
-          + " outside of container. Value can be set as % of total memory provided to OrientDB or"
+      "Amount of free memory which should be left unallocated in case of OxygenDB is started"
+          + " outside of container. Value can be set as % of total memory provided to OxygenDB or"
           + " as absolute value in bytes, kilobytes, megabytes or gigabytes. If you set value as"
-          + " 10% it means that 10% of memory will not be allocated by OrientDB and will be left to"
+          + " 10% it means that 10% of memory will not be allocated by OxygenDB and will be left to"
           + " use by the rest of applications, if 2g value is provided it means that 2 gigabytes of"
           + " memory will be left to use by the rest of applications. Default value is 2g",
       String.class,
@@ -98,10 +96,10 @@ public enum OGlobalConfiguration { // ENVIRONMENT
 
   MEMORY_LEFT_TO_CONTAINER(
       "memory.leftToContainer",
-      "Amount of free memory which should be left unallocated in case of OrientDB is started inside"
-          + " of container. Value can be set as % of total memory provided to OrientDB or as"
+      "Amount of free memory which should be left unallocated in case of OxygenDB is started inside"
+          + " of container. Value can be set as % of total memory provided to OxygenDB or as"
           + " absolute value in bytes, kilobytes, megabytes or gigabytes. If you set value as 10%"
-          + " it means that 10% of memory will not be allocated by OrientDB and will be left to use"
+          + " it means that 10% of memory will not be allocated by OxygenDB and will be left to use"
           + " by the rest of applications, if 2g value is provided it means that 2 gigabytes of"
           + " memory will be left to use by the rest of applications. Default value is 256m",
       String.class,
@@ -679,7 +677,7 @@ public enum OGlobalConfiguration { // ENVIRONMENT
 
   INDEX_ALLOW_MANUAL_INDEXES(
       "index.allowManualIndexes",
-      "Switch which allows usage of manual indexes inside OrientDB. It is not recommended to switch"
+      "Switch which allows usage of manual indexes inside OxygenDB. It is not recommended to switch"
           + " it on, because manual indexes are deprecated, not supported and will be removed in"
           + " next versions",
       Boolean.class,
@@ -932,9 +930,9 @@ public enum OGlobalConfiguration { // ENVIRONMENT
   NETWORK_HTTP_SERVER_INFO(
       "network.http.serverInfo",
       "Server info to send in HTTP responses. Change the default if you want to hide it is a"
-          + " OrientDB Server",
+          + " OxygenDB Server",
       String.class,
-      "OrientDB Server v." + OConstants.getVersion(),
+      "OxygenDB Server v." + OConstants.getVersion(),
       true),
 
   NETWORK_HTTP_MAX_CONTENT_LENGTH(
@@ -994,7 +992,7 @@ public enum OGlobalConfiguration { // ENVIRONMENT
 
   INIT_IN_SERVLET_CONTEXT_LISTENER(
       "orient.initInServletContextListener",
-      "If this value set to ture (default) OrientDB engine "
+      "If this value set to ture (default) OxygenDB engine "
           + "will be initialzed using embedded ServletContextListener",
       Boolean.class,
       true),
@@ -1657,7 +1655,7 @@ public enum OGlobalConfiguration { // ENVIRONMENT
    */
   SERVER_SECURITY_FILE(
       "server.security.file",
-      "Location of the OrientDB security.json configuration file",
+      "Location of the OxygenDB security.json configuration file",
       String.class,
       null),
 
@@ -1706,7 +1704,7 @@ public enum OGlobalConfiguration { // ENVIRONMENT
    */
   DISTRIBUTED_NODE_NAME(
       "distributed.nodeName",
-      "Name of the OrientDB node in the cluster",
+      "Name of the OxygenDB node in the cluster",
       String.class,
       null,
       false,
@@ -1727,6 +1725,13 @@ public enum OGlobalConfiguration { // ENVIRONMENT
           + " possible option.",
       String.class,
       "WARN"),
+
+  TX_BATCH_SIZE(
+      "tx.batchSize",
+      "Size of the single batch by default in case of call to the"
+          + " ODatabaseSession#executeInTxBatches call. 1_000 by default.",
+      Integer.class,
+      1_000),
 
   CLIENT_CHANNEL_IDLE_TIMEOUT(
       "client.channel.idleTimeout", "sockets maximum time idle in seconds", Integer.class, 900),
@@ -1843,7 +1848,7 @@ public enum OGlobalConfiguration { // ENVIRONMENT
   }
 
   public static void dumpConfiguration(final PrintStream out) {
-    out.print("OrientDB ");
+    out.print("OxygenDB ");
     out.print(OConstants.getVersion());
     out.println(" configuration dump:");
 
@@ -2052,10 +2057,10 @@ public enum OGlobalConfiguration { // ENVIRONMENT
 
     @Override
     public void change(Object currentValue, Object newValue) {
-      final Orient orient = Orient.instance();
-      if (orient != null) {
+      final Oxygen oxygen = Oxygen.instance();
+      if (oxygen != null) {
         final OEngineLocalPaginated engineLocalPaginated =
-            (OEngineLocalPaginated) orient.getEngineIfRunning(OEngineLocalPaginated.NAME);
+            (OEngineLocalPaginated) oxygen.getEngineIfRunning(OEngineLocalPaginated.NAME);
         if (engineLocalPaginated != null) {
           engineLocalPaginated.changeCacheSize(((Integer) (newValue)) * 1024L * 1024L);
         }
@@ -2066,7 +2071,7 @@ public enum OGlobalConfiguration { // ENVIRONMENT
   private static class OProfileEnabledChangeCallbac implements OConfigurationChangeCallback {
 
     public void change(final Object iCurrentValue, final Object iNewValue) {
-      Orient instance = Orient.instance();
+      Oxygen instance = Oxygen.instance();
       if (instance != null) {
         final OProfiler prof = instance.getProfiler();
         if (prof != null) {
@@ -2083,14 +2088,14 @@ public enum OGlobalConfiguration { // ENVIRONMENT
   private static class OProfileConfigChangeCallback implements OConfigurationChangeCallback {
 
     public void change(final Object iCurrentValue, final Object iNewValue) {
-      Orient.instance().getProfiler().configure(iNewValue.toString());
+      Oxygen.instance().getProfiler().configure(iNewValue.toString());
     }
   }
 
   private static class OProfileDumpIntervalChangeCallback implements OConfigurationChangeCallback {
 
     public void change(final Object iCurrentValue, final Object iNewValue) {
-      Orient.instance().getProfiler().setAutoDump((Integer) iNewValue);
+      Oxygen.instance().getProfiler().setAutoDump((Integer) iNewValue);
     }
   }
 }

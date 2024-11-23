@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -153,9 +154,9 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
             .getMetadata()
             .getSecurity()
             .createRole("byPassRestrictedRole", ORole.ALLOW_MODES.DENY_ALL_BUT);
-    byPassRestrictedRole.addRule(
+    byPassRestrictedRole.addRule(database,
         ORule.ResourceGeneric.BYPASS_RESTRICTED, null, ORole.PERMISSION_READ);
-    byPassRestrictedRole.save();
+    byPassRestrictedRole.save(dbName);
 
     database
         .getMetadata()
@@ -165,14 +166,16 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
     ODocument docAdmin = new ODocument("QueryCountExtendsRestrictedClass");
     docAdmin.field(
         "_allowRead",
-        new HashSet<OIdentifiable>(Collections.singletonList(admin.getIdentity().getIdentity())));
+        new HashSet<OIdentifiable>(
+            Collections.singletonList(admin.getIdentity(database).getIdentity())));
 
     docAdmin.save();
     database.commit();
 
     database.begin();
     ODocument docReader = new ODocument("QueryCountExtendsRestrictedClass");
-    docReader.field("_allowRead", new HashSet<>(Collections.singletonList(reader.getIdentity())));
+    docReader.field("_allowRead",
+        new HashSet<>(Collections.singletonList(reader.getIdentity(database))));
     docReader.save();
     database.commit();
 
@@ -208,8 +211,8 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
   @Test
   public void queryCountWithConditions() {
     OClass indexed = database.getMetadata().getSchema().getOrCreateClass("Indexed");
-    indexed.createProperty("key", OType.STRING);
-    indexed.createIndex("keyed", OClass.INDEX_TYPE.NOTUNIQUE, "key");
+    indexed.createProperty(database, "key", OType.STRING);
+    indexed.createIndex(database, "keyed", OClass.INDEX_TYPE.NOTUNIQUE, "key");
 
     database.begin();
     database.<ODocument>newInstance("Indexed").field("key", "one").save();
@@ -506,7 +509,7 @@ public class SQLFunctionsTest extends DocumentDBBaseTest {
             "bigger",
             new OSQLFunctionAbstract("bigger", 2, 2) {
               @Override
-              public String getSyntax() {
+              public String getSyntax(ODatabaseSession session) {
                 return "bigger(<first>, <second>)";
               }
 

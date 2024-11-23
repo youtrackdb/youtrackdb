@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexFinder;
 
 /**
- * Created by luigidellaquila on 12/11/14.
+ *
  */
 public interface OBinaryCompareOperator {
 

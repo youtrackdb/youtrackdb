@@ -4,6 +4,7 @@ import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
@@ -11,20 +12,22 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 /**
- * Created by tglman on 30/12/16.
+ *
  */
 public class OFetchTransactionRequest implements OBinaryRequest<OFetchTransactionResponse> {
 
   private int txId;
 
-  public OFetchTransactionRequest() {}
+  public OFetchTransactionRequest() {
+  }
 
   public OFetchTransactionRequest(int txId) {
     this.txId = txId;
   }
 
   @Override
-  public void write(OChannelDataOutput network, OStorageRemoteSession session) throws IOException {
+  public void write(ODatabaseSessionInternal database, OChannelDataOutput network,
+      OStorageRemoteSession session) throws IOException {
     network.writeInt(txId);
   }
 

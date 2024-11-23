@@ -5,5 +5,6 @@ import org.junit.Test;
 public class LRUListConcurrentTest {
 
   @Test
-  public void testConcurrentAccess() throws Exception {}
+  public void testConcurrentAccess() throws Exception {
+  }
 }

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2016 OrientDB LTD (info(at)orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.record;
@@ -25,16 +25,17 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
 
 /**
  * Implementation of a generic element. It's bound to the record and allows to read and write
  * values. It's schema aware.
- *
- * @author Luigi Dell'Aquila
  */
 public interface OElement extends ORecord {
+
+  String DEFAULT_CLASS_NAME = "O";
 
   /**
    * Returns all the names of defined properties
@@ -295,13 +296,16 @@ public interface OElement extends ORecord {
   }
 
   /**
-   * Creates a copy of the record. All the record contents are copied.
-   *
-   * @return The Object instance itself giving a "fluent interface". Useful to call multiple methods
-   * in chain.
+   * Fills a document passing the field names/values as a Map String,Object where the keys are the
+   * field names and the values are the field values.
    */
-  @Override
-  OElement copy();
+  void fromMap(final Map<String, ?> map);
+
+  /**
+   * Returns the document as Map String,Object . If the document has identity, then the @rid entry
+   * is valued. If the document has a class, then the @class entry is valued.
+   */
+  Map<String, Object> toMap();
 
   /**
    * Returns true if the current element is embedded
@@ -309,4 +313,9 @@ public interface OElement extends ORecord {
    * @return true if the current element is embedded
    */
   boolean isEmbedded();
+
+  /**
+   * Rollbacks changes to the loaded version without reloading the element.
+   */
+  void undo();
 }

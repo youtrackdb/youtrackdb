@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ package com.orientechnologies.lucene.tx;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.lucene.engine.OLuceneIndexEngine;
 import com.orientechnologies.lucene.exception.OLuceneIndexException;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ import org.apache.lucene.index.memory.MemoryIndex;
 import org.apache.lucene.search.Query;
 
 /**
- * Created by Enrico Risa on 15/09/15.
+ *
  */
 public class OLuceneTxChangesMultiRid extends OLuceneTxChangesAbstract {
 
@@ -58,7 +59,8 @@ public class OLuceneTxChangesMultiRid extends OLuceneTxChangesAbstract {
     }
   }
 
-  public void remove(final Object key, final OIdentifiable value) {
+  public void remove(ODatabaseSessionInternal session, final Object key,
+      final OIdentifiable value) {
     try {
       if (value.getIdentity().isTemporary()) {
         writer.deleteDocuments(engine.deleteQuery(key, value));
@@ -66,7 +68,7 @@ public class OLuceneTxChangesMultiRid extends OLuceneTxChangesAbstract {
         deleted.putIfAbsent(value.getIdentity().toString(), new ArrayList<>());
         deleted.get(value.getIdentity().toString()).add(key.toString());
 
-        final Document doc = engine.buildDocument(key, value);
+        final Document doc = engine.buildDocument(session, key, value);
         deletedDocs.add(doc);
         deletedIdx.addDocument(doc);
       }

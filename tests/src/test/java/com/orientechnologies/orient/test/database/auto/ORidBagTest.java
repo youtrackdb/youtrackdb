@@ -1004,8 +1004,8 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     database.begin();
     ODocument docB =
         new ODocument()
-            .field("name", "B")
-            .save(database.getClusterNameById(database.getDefaultClusterId()));
+            .field("name", "B");
+    docB.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
     ORidBag ridBag = new ORidBag();
@@ -1571,14 +1571,15 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
   }
 
   @Test
-  public void testSizeNotChangeAfterRemoveNotExistentElement() throws Exception {
+  public void testSizeNotChangeAfterRemoveNotExistentElement() {
     final ODocument bob = new ODocument();
 
     database.begin();
-    final ODocument fred =
-        new ODocument().save(database.getClusterNameById(database.getDefaultClusterId()));
+    final ODocument fred = new ODocument();
+    fred.save(database.getClusterNameById(database.getDefaultClusterId()));
     final ODocument jim =
-        new ODocument().save(database.getClusterNameById(database.getDefaultClusterId()));
+        new ODocument();
+    jim.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
     ORidBag teamMates = new ORidBag();
@@ -1598,8 +1599,8 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     ORidBag teamMates = new ORidBag();
 
     database.begin();
-    final ODocument bob =
-        new ODocument().save(database.getClusterNameById(database.getDefaultClusterId()));
+    final ODocument bob = new ODocument();
+    bob.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
     teamMates.remove(bob);
@@ -1713,8 +1714,10 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     final ORidBag highLevelRidBag = new ORidBag();
 
     for (int i = 0; i < 10; i++) {
-      highLevelRidBag.add(
-          new ODocument().save(database.getClusterNameById(database.getDefaultClusterId())));
+      var doc = new ODocument();
+      doc.save(database.getClusterNameById(database.getDefaultClusterId()));
+
+      highLevelRidBag.add(doc);
     }
 
     externalDoc.save(database.getClusterNameById(database.getDefaultClusterId()));

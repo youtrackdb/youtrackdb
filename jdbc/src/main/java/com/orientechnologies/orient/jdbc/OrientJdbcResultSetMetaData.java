@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,7 +9,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://orientdb.com
+ * <p>*
  */
 package com.orientechnologies.orient.jdbc;
 
@@ -33,8 +31,7 @@ import java.util.ListIterator;
 import java.util.Map;
 
 /**
- * @author Roberto Franchini (CELI Srl - franchini@celi.it)
- * @author Salvatore Piccione (TXT e-solutions SpA - salvo.picci@gmail.com)
+ *
  */
 public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
 
@@ -73,7 +70,7 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
   public OrientJdbcResultSetMetaData(
       OrientJdbcResultSet orientJdbcResultSet, List<String> fieldNames) {
     resultSet = orientJdbcResultSet;
-    this.fieldNames = fieldNames.toArray(new String[] {});
+    this.fieldNames = fieldNames.toArray(new String[]{});
   }
 
   public static Integer getSqlType(final OType iType) {
@@ -261,7 +258,7 @@ public class OrientJdbcResultSetMetaData implements ResultSetMetaData {
     if (currentRecord == null) {
       return "";
     } else {
-      return ((ODocument) currentRecord.toElement()).getDatabase().getName();
+      return ((ODocument) currentRecord.toElement()).getSession().getName();
     }
   }
 

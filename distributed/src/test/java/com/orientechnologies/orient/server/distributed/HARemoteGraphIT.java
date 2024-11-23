@@ -10,8 +10,6 @@ import com.orientechnologies.orient.setup.ServerRun;
  *
  * <p>3 nodes, the test is started after the 1st node is up & running. The test is composed by
  * multiple (8) parallel threads that update the same records 20,000 times.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class HARemoteGraphIT extends HALocalGraphIT {
 

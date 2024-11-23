@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -24,6 +24,7 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.config.IndexEngineData;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.encryption.OEncryption;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndexException;
@@ -45,7 +46,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 8/30/13
  */
 public class OSBTreeIndexEngine implements OIndexEngine {
@@ -87,7 +87,8 @@ public class OSBTreeIndexEngine implements OIndexEngine {
   }
 
   @Override
-  public void init(OIndexMetadata metadata) {}
+  public void init(OIndexMetadata metadata) {
+  }
 
   @Override
   public String getName() {
@@ -95,7 +96,8 @@ public class OSBTreeIndexEngine implements OIndexEngine {
   }
 
   @Override
-  public void flush() {}
+  public void flush() {
+  }
 
   public void create(OAtomicOperation atomicOperation, IndexEngineData data) throws IOException {
 
@@ -199,7 +201,7 @@ public class OSBTreeIndexEngine implements OIndexEngine {
   }
 
   @Override
-  public Object get(Object key) {
+  public Object get(ODatabaseSessionInternal session, Object key) {
     return sbTree.get(key);
   }
 
@@ -243,7 +245,8 @@ public class OSBTreeIndexEngine implements OIndexEngine {
   }
 
   @Override
-  public void put(OAtomicOperation atomicOperation, Object key, Object value) {
+  public void put(ODatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
+      Object value) {
     try {
       sbTree.put(atomicOperation, key, value);
     } catch (IOException e) {
@@ -254,7 +257,8 @@ public class OSBTreeIndexEngine implements OIndexEngine {
 
   @Override
   public void update(
-      OAtomicOperation atomicOperation, Object key, OIndexKeyUpdater<Object> updater) {
+      ODatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
+      OIndexKeyUpdater<Object> updater) {
     try {
       sbTree.update(atomicOperation, key, updater, null);
     } catch (IOException e) {
@@ -280,7 +284,7 @@ public class OSBTreeIndexEngine implements OIndexEngine {
 
   @Override
   public Stream<ORawPair<Object, ORID>> iterateEntriesBetween(
-      Object rangeFrom,
+      ODatabaseSessionInternal session, Object rangeFrom,
       boolean fromInclusive,
       Object rangeTo,
       boolean toInclusive,

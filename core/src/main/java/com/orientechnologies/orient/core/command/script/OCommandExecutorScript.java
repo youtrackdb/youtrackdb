@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.command.script;
@@ -75,7 +75,6 @@ import javax.script.SimpleBindings;
 /**
  * Executes Script Commands.
  *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @see OCommandScript
  */
 public class OCommandExecutorScript extends OCommandExecutorAbstract
@@ -86,7 +85,8 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
   protected DISTRIBUTED_EXECUTION_MODE executionMode = DISTRIBUTED_EXECUTION_MODE.LOCAL;
   protected AtomicInteger serialTempRID = new AtomicInteger(0);
 
-  public OCommandExecutorScript() {}
+  public OCommandExecutorScript() {
+  }
 
   @SuppressWarnings("unchecked")
   public OCommandExecutorScript parse(final OCommandRequest iRequest) {
@@ -96,11 +96,11 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
   }
 
   public OCommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE
-      getDistributedExecutionMode() {
+  getDistributedExecutionMode() {
     return executionMode;
   }
 
-  public Object execute(final Map<Object, Object> iArgs) {
+  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
     if (context == null) {
       context = new OBasicCommandContext();
     }
@@ -559,10 +559,11 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
 
   private Object executeCommand(final String lastCommand, final ODatabaseSession db) {
     final OCommandSQL command = new OCommandSQL(lastCommand);
+    var database = (ODatabaseSessionInternal) db;
     Object result =
-        ((ODatabaseSessionInternal) db)
+        database
             .command(command.setContext(getContext()))
-            .execute(toMap(parameters));
+            .execute(database, toMap(parameters));
     request.setFetchPlan(command.getFetchPlan());
     return result;
   }
@@ -646,7 +647,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
     } else if (iValue.startsWith("(") && iValue.endsWith(")")) {
       lastResult = executeCommand(iValue, db);
     } else {
-      lastResult = new OSQLPredicate(iValue).evaluate(context);
+      lastResult = new OSQLPredicate(db, iValue).evaluate(context);
     }
     // END OF THE SCRIPT
     return lastResult;

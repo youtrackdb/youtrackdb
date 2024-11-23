@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2016 OrientDB LTD (info(at)orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,29 +14,29 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  */
 
 package com.orientechnologies.orient.core.storage;
 
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.exception.OInvalidDatabaseNameException;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author Sergey Sitnikov
+ *
  */
 public class StorageNamingTests {
 
   @Test
   public void testSpecialLettersOne() {
-    try (OrientDB orientDB = new OrientDB("embedded:", OrientDBConfig.defaultConfig())) {
+    try (OxygenDB oxygenDB = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig())) {
       try {
-        orientDB.create("name%", ODatabaseType.MEMORY);
+        oxygenDB.create("name%", ODatabaseType.MEMORY);
         Assert.fail();
       } catch (OInvalidDatabaseNameException e) {
         // skip
@@ -46,9 +46,9 @@ public class StorageNamingTests {
 
   @Test
   public void testSpecialLettersTwo() {
-    try (OrientDB orientDB = new OrientDB("embedded:", OrientDBConfig.defaultConfig())) {
+    try (OxygenDB oxygenDB = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig())) {
       try {
-        orientDB.create("na.me", ODatabaseType.MEMORY);
+        oxygenDB.create("na.me", ODatabaseType.MEMORY);
         Assert.fail();
       } catch (OInvalidDatabaseNameException e) {
         // skip
@@ -58,9 +58,9 @@ public class StorageNamingTests {
 
   @Test
   public void testSpecialLettersThree() {
-    try (OrientDB orientDB = new OrientDB("embedded:", OrientDBConfig.defaultConfig())) {
-      orientDB.create("na_me$", ODatabaseType.MEMORY);
-      orientDB.drop("na_me$");
+    try (OxygenDB oxygenDB = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig())) {
+      oxygenDB.create("na_me$", ODatabaseType.MEMORY);
+      oxygenDB.drop("na_me$");
     }
   }
 

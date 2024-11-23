@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.db;
@@ -23,7 +23,7 @@ import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
 import com.googlecode.concurrentlinkedhashmap.EvictionListener;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.OOrientListenerAbstract;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -36,7 +36,6 @@ import java.util.Iterator;
  * close pool. So in case of remote storage you should close pool factory at the end of it's usage,
  * it also may be closed on application shutdown but you should not rely on this behaviour.
  *
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 06/11/14
  */
 public class OPartitionedDatabasePoolFactory extends OOrientListenerAbstract {
@@ -67,8 +66,8 @@ public class OPartitionedDatabasePoolFactory extends OOrientListenerAbstract {
             .listener(evictionListener)
             .build();
 
-    Orient.instance().registerWeakOrientStartupListener(this);
-    Orient.instance().registerWeakOrientShutdownListener(this);
+    Oxygen.instance().registerWeakOrientStartupListener(this);
+    Oxygen.instance().registerWeakOrientShutdownListener(this);
   }
 
   public int getMaxPoolSize() {

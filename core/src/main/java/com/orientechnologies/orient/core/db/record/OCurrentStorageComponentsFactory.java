@@ -21,11 +21,10 @@ import com.orientechnologies.orient.core.serialization.serializer.binary.OBinary
 
 /**
  * The factory that defines a set of components that current database should use to be compatible to
- * current version of storage. So if you open a database create with old version of OrientDB it
+ * current version of storage. So if you open a database create with old version of OxygenDB it
  * defines a components that should be used to provide backward compatibility with that version of
  * database.
  *
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 2/14/14
  */
 public class OCurrentStorageComponentsFactory {

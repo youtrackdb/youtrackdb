@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.core.metadata.schema;
 
 import com.orientechnologies.common.util.OArrays;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OSchemaException;
@@ -24,7 +25,7 @@ public class OViewEmbedded extends OViewImpl {
   }
 
   public OProperty addProperty(
-      final String propertyName,
+      ODatabaseSessionInternal session, final String propertyName,
       final OType type,
       final OType linkedType,
       final OClass linkedClass,
@@ -32,30 +33,30 @@ public class OViewEmbedded extends OViewImpl {
     throw new UnsupportedOperationException();
   }
 
-  public OClassImpl setEncryption(final String iValue) {
+  public OClassImpl setEncryption(ODatabaseSessionInternal session, final String iValue) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public OClass setClusterSelection(final String value) {
+  public OClass setClusterSelection(ODatabaseSession session, final String value) {
     throw new UnsupportedOperationException();
   }
 
-  public OClassImpl setCustom(final String name, final String value) {
+  public OClassImpl setCustom(ODatabaseSession session, final String name, final String value) {
     throw new UnsupportedOperationException();
   }
 
-  public void clearCustom() {
+  public void clearCustom(ODatabaseSession session) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public OClass setSuperClasses(final List<? extends OClass> classes) {
+  public OClass setSuperClasses(ODatabaseSession session, final List<? extends OClass> classes) {
     throw new UnsupportedOperationException();
   }
 
-  public OClass removeBaseClassInternal(final OClass baseClass) {
-    acquireSchemaWriteLock();
+  public OClass removeBaseClassInternal(ODatabaseSessionInternal session, final OClass baseClass) {
+    acquireSchemaWriteLock(session);
     try {
       checkEmbedded();
 
@@ -64,27 +65,28 @@ public class OViewEmbedded extends OViewImpl {
       }
 
       if (subclasses.remove(baseClass)) {
-        removePolymorphicClusterIds((OClassImpl) baseClass);
+        removePolymorphicClusterIds(session, (OClassImpl) baseClass);
       }
 
       return this;
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
   }
 
   @Override
-  public OClass addSuperClass(final OClass superClass) {
+  public OClass addSuperClass(ODatabaseSession session, final OClass superClass) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public OClass removeSuperClass(OClass superClass) {
+  public OClass removeSuperClass(ODatabaseSession session, OClass superClass) {
     throw new UnsupportedOperationException();
   }
 
-  protected void setSuperClassesInternal(final List<? extends OClass> classes) {
-    List<OClassImpl> newSuperClasses = new ArrayList<OClassImpl>();
+  protected void setSuperClassesInternal(ODatabaseSessionInternal session,
+      final List<? extends OClass> classes) {
+    List<OClassImpl> newSuperClasses = new ArrayList<>();
     OClassImpl cls;
     for (OClass superClass : classes) {
       if (superClass instanceof OClassAbstractDelegate) {
@@ -100,37 +102,38 @@ public class OViewEmbedded extends OViewImpl {
       newSuperClasses.add(cls);
     }
 
-    List<OClassImpl> toAddList = new ArrayList<OClassImpl>(newSuperClasses);
+    List<OClassImpl> toAddList = new ArrayList<>(newSuperClasses);
     toAddList.removeAll(superClasses);
-    List<OClassImpl> toRemoveList = new ArrayList<OClassImpl>(superClasses);
+    List<OClassImpl> toRemoveList = new ArrayList<>(superClasses);
     toRemoveList.removeAll(newSuperClasses);
 
     for (OClassImpl toRemove : toRemoveList) {
-      toRemove.removeBaseClassInternal(this);
+      toRemove.removeBaseClassInternal(session, this);
     }
     for (OClassImpl addTo : toAddList) {
-      addTo.addBaseClass(this);
+      addTo.addBaseClass(session, this);
     }
     superClasses.clear();
     superClasses.addAll(newSuperClasses);
   }
 
-  public OClass setName(final String name) {
+  public OClass setName(ODatabaseSession session, final String name) {
     throw new UnsupportedOperationException();
   }
 
-  public void setDefaultClusterId(final int defaultClusterId) {
-    acquireSchemaWriteLock();
+  public void setDefaultClusterId(ODatabaseSession session, final int defaultClusterId) {
+    var sessionInternal = (ODatabaseSessionInternal) session;
+    acquireSchemaWriteLock(sessionInternal);
     try {
       checkEmbedded();
       this.defaultClusterId = defaultClusterId;
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(sessionInternal);
     }
   }
 
-  protected OClass addClusterIdInternal(ODatabaseSessionInternal database, final int clusterId) {
-    acquireSchemaWriteLock();
+  protected void addClusterIdInternal(ODatabaseSessionInternal database, final int clusterId) {
+    acquireSchemaWriteLock(database);
     try {
       checkEmbedded();
 
@@ -140,7 +143,7 @@ public class OViewEmbedded extends OViewImpl {
         if (currId == clusterId)
         // ALREADY ADDED
         {
-          return this;
+          return;
         }
       }
 
@@ -155,13 +158,12 @@ public class OViewEmbedded extends OViewImpl {
       }
 
       ((OSchemaEmbedded) owner).addClusterForView(database, clusterId, this);
-      return this;
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(database);
     }
   }
 
-  public OClass setShortName(String shortName) {
+  public OClass setShortName(ODatabaseSession session, String shortName) {
     throw new UnsupportedOperationException();
   }
 
@@ -173,39 +175,39 @@ public class OViewEmbedded extends OViewImpl {
    * {@inheritDoc}
    */
   @Override
-  public OClass truncateCluster(String clusterName) {
+  public OClass truncateCluster(ODatabaseSession session, String clusterName) {
     throw new UnsupportedOperationException();
   }
 
-  public OClass setStrictMode(final boolean isStrict) {
+  public OClass setStrictMode(ODatabaseSession session, final boolean isStrict) {
     throw new UnsupportedOperationException();
   }
 
-  public OClass setDescription(String iDescription) {
+  public OClass setDescription(ODatabaseSession session, String iDescription) {
     throw new UnsupportedOperationException();
   }
 
-  public OClass addClusterId(final int clusterId) {
-    final ODatabaseSessionInternal database = getDatabase();
-    database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  public OClass addClusterId(ODatabaseSession session, final int clusterId) {
+    var internalSession = (ODatabaseSessionInternal) session;
+    internalSession.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
     if (isAbstract()) {
       throw new OSchemaException("Impossible to associate a cluster to an abstract class class");
     }
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(internalSession);
     try {
-      addClusterIdInternal(database, clusterId);
+      addClusterIdInternal(internalSession, clusterId);
 
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(internalSession);
     }
     return this;
   }
 
-  public OClass removeClusterId(final int clusterId) {
-    final ODatabaseSessionInternal database = getDatabase();
-    database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  public OClass removeClusterId(ODatabaseSession session, final int clusterId) {
+    var sessionInternal = (ODatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
     if (clusterIds.length == 1 && clusterId == clusterIds[0]) {
       throw new ODatabaseException(
@@ -214,20 +216,20 @@ public class OViewEmbedded extends OViewImpl {
               + "' drop the class instead");
     }
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(sessionInternal);
     try {
-      removeClusterIdInternal(database, clusterId);
+      removeClusterIdInternal(sessionInternal, clusterId);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(sessionInternal);
     }
 
     return this;
   }
 
-  private OClass removeClusterIdInternal(
+  private void removeClusterIdInternal(
       ODatabaseSessionInternal database, final int clusterToRemove) {
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(database);
     try {
       checkEmbedded();
 
@@ -264,62 +266,62 @@ public class OViewEmbedded extends OViewImpl {
         }
       }
 
-      ((OSchemaEmbedded) owner).removeClusterForView(database, clusterToRemove, this);
+      ((OSchemaEmbedded) owner).removeClusterForView(database, clusterToRemove);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(database);
     }
 
-    return this;
   }
 
-  public void dropProperty(final String propertyName) {
+  public void dropProperty(ODatabaseSession session, final String propertyName) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public OClass addCluster(final String clusterNameOrId) {
+  public OClass addCluster(ODatabaseSession session, final String clusterNameOrId) {
     throw new UnsupportedOperationException();
   }
 
-  public OClass setOverSize(final float overSize) {
+  public OClass setOverSize(ODatabaseSession session, final float overSize) {
     throw new UnsupportedOperationException();
   }
 
-  public OClass setAbstract(boolean isAbstract) {
+  public OClass setAbstract(ODatabaseSession session, boolean isAbstract) {
     throw new UnsupportedOperationException();
   }
 
   @Override
   public OViewRemovedMetadata replaceViewClusterAndIndex(
-      final int cluster, List<OIndex> indexes, long lastRefreshTime) {
-    acquireSchemaWriteLock();
+      ODatabaseSessionInternal session, final int cluster, List<OIndex> indexes,
+      long lastRefreshTime) {
+    acquireSchemaWriteLock(session);
     try {
       this.lastRefreshTime = lastRefreshTime;
-      List<String> oldIndexes = inactivateIndexes();
+      List<String> oldIndexes = inactivateIndexes(session);
       int[] oldClusters = getClusterIds();
-      addClusterId(cluster);
+      addClusterId(session, cluster);
       for (int i : oldClusters) {
-        removeClusterId(i);
+        removeClusterId(session, i);
       }
-      addActiveIndexes(indexes.stream().map(x -> x.getName()).collect(Collectors.toList()));
+      addActiveIndexes(session, indexes.stream().map(OIndex::getName).collect(Collectors.toList()));
       return new OViewRemovedMetadata(oldClusters, oldIndexes);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
   }
 
-  protected void addClusterIdToIndexes(int iId) {
-    final String clusterName = getDatabase().getClusterNameById(iId);
-    final List<String> indexesToAdd = new ArrayList<String>();
+  protected void addClusterIdToIndexes(ODatabaseSessionInternal session, int iId) {
+    final String clusterName = session.getClusterNameById(iId);
+    final List<String> indexesToAdd = new ArrayList<>();
 
-    for (OIndex index : getIndexes()) {
+    for (OIndex index : getIndexes(session)) {
       indexesToAdd.add(index.getName());
     }
 
     final OIndexManagerAbstract indexManager =
-        getDatabase().getMetadata().getIndexManagerInternal();
+        session.getMetadata().getIndexManagerInternal();
     for (String indexName : indexesToAdd) {
-      indexManager.addClusterToIndex(clusterName, indexName);
+      indexManager.addClusterToIndex(session, clusterName, indexName);
     }
   }
 }

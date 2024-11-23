@@ -17,8 +17,8 @@ public class TestOrderByIndexPropDesc extends BaseMemoryDatabase {
   public void beforeTest() {
     super.beforeTest();
     OClass oclass = db.getMetadata().getSchema().createClass(DOCUMENT_CLASS_NAME);
-    oclass.createProperty(PROP_INDEXED_STRING, OType.INTEGER);
-    oclass.createIndex("index", INDEX_TYPE.NOTUNIQUE, PROP_INDEXED_STRING);
+    oclass.createProperty(db, PROP_INDEXED_STRING, OType.INTEGER);
+    oclass.createIndex(db, "index", INDEX_TYPE.NOTUNIQUE, PROP_INDEXED_STRING);
   }
 
   @Test

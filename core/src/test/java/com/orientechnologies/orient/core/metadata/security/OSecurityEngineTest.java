@@ -2,10 +2,10 @@ package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.sql.parser.OBooleanExpression;
 import org.junit.After;
@@ -17,16 +17,16 @@ import org.junit.Test;
 
 public class OSecurityEngineTest {
 
-  static OrientDB orient;
-  private ODatabaseSession db;
+  static OxygenDB orient;
+  private ODatabaseSessionInternal db;
   private static final String DB_NAME = "test";
 
   @BeforeClass
   public static void beforeClass() {
     orient =
-        new OrientDB(
+        new OxygenDB(
             "plocal:./target/securityEngineTest",
-            OrientDBConfig.builder()
+            OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
   }
@@ -46,7 +46,9 @@ public class OSecurityEngineTest {
             + " users ( admin identified by '"
             + OCreateDatabaseUtil.NEW_ADMIN_PASSWORD
             + "' role admin)");
-    this.db = orient.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    this.db =
+        (ODatabaseSessionInternal)
+            orient.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
 
   @After
@@ -58,7 +60,7 @@ public class OSecurityEngineTest {
 
   @Test
   public void testAllClasses() {
-    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
     db.createClass("Person");
 
     db.begin();
@@ -78,7 +80,7 @@ public class OSecurityEngineTest {
 
   @Test
   public void testSingleClass() {
-    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
@@ -99,7 +101,7 @@ public class OSecurityEngineTest {
 
   @Test
   public void testSuperclass() {
-    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
     db.createClass("Employee", "Person");
@@ -121,7 +123,7 @@ public class OSecurityEngineTest {
 
   @Test
   public void testSuperclass2() {
-    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
     db.createClass("Employee", "Person");
@@ -150,7 +152,7 @@ public class OSecurityEngineTest {
 
   @Test
   public void testSuperclass3() {
-    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
     db.createClass("Employee", "Person");
@@ -178,7 +180,7 @@ public class OSecurityEngineTest {
 
   @Test
   public void testTwoSuperclasses() {
-    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
     db.createClass("Foo");
@@ -216,9 +218,11 @@ public class OSecurityEngineTest {
             + " 'admin'");
     db.commit();
     db.close();
-    db = orient.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    db =
+        (ODatabaseSessionInternal)
+            orient.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
-    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
@@ -247,7 +251,7 @@ public class OSecurityEngineTest {
 
   @Test
   public void testRecordFiltering() {
-    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
     var rec1 =
@@ -276,11 +280,14 @@ public class OSecurityEngineTest {
     security.setSecurityPolicy(db, security.getRole(db, "admin"), "database.class.Person", policy);
     db.commit();
 
-    OBooleanExpression pred =
-        OSecurityEngine.getPredicateForSecurityResource(
-            db, (OSecurityShared) security, "database.class.Person", OSecurityPolicy.Scope.READ);
+    db.bindToSession(rec1);
+    Assert.assertTrue(rec1.getIdentity().isPersistent());
 
-    Assert.assertTrue(OSecurityEngine.evaluateSecuirtyPolicyPredicate(db, pred, rec1));
-    Assert.assertFalse(OSecurityEngine.evaluateSecuirtyPolicyPredicate(db, pred, rec2));
+    try {
+      db.bindToSession(rec2);
+      Assert.fail();
+    } catch (ORecordNotFoundException e) {
+      // ignore
+    }
   }
 }

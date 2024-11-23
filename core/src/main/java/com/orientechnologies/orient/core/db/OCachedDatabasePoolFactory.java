@@ -2,8 +2,6 @@ package com.orientechnologies.orient.core.db;
 
 /**
  * Cached database pool factory which allows store database pools associated with users
- *
- * @author Vitalii Honchar (weaxme@gmail.com)
  */
 public interface OCachedDatabasePoolFactory {
 
@@ -17,7 +15,7 @@ public interface OCachedDatabasePoolFactory {
    * @return {@link ODatabasePoolInternal} cached database pool
    */
   ODatabasePoolInternal get(
-      String database, String username, String password, OrientDBConfig config);
+      String database, String username, String password, OxygenDBConfig config);
 
   /**
    * Close all cached pools and clear cache

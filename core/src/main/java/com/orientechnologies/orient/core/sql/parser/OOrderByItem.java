@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Created by luigidellaquila on 06/02/15.
+ *
  */
 public class OOrderByItem {
 

@@ -17,17 +17,21 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 /**
- * Created by tglman on 27/12/15.
+ *
  */
 public class OClientConnectionTest extends BaseMemoryInternalDatabase {
 
-  @Mock private ONetworkProtocolBinary protocol;
+  @Mock
+  private ONetworkProtocolBinary protocol;
 
-  @Mock private ONetworkProtocolBinary protocol1;
+  @Mock
+  private ONetworkProtocolBinary protocol1;
 
-  @Mock private OClientConnectionManager manager;
+  @Mock
+  private OClientConnectionManager manager;
 
-  @Mock private OServer server;
+  @Mock
+  private OServer server;
 
   public void beforeTest() {
     super.beforeTest();

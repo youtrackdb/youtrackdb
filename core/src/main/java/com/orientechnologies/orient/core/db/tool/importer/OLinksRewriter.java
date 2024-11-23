@@ -4,7 +4,7 @@ import com.orientechnologies.orient.core.db.document.ODocumentFieldVisitor;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 
 /**
- * Created by tglman on 28/07/17.
+ *
  */
 public final class OLinksRewriter implements ODocumentFieldVisitor {
 

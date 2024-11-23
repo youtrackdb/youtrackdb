@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.distributed;
@@ -30,8 +30,6 @@ import java.util.List;
 /**
  * Modifiable Distributed configuration. It's created starting from a ODistributedConfiguration
  * object. Every changes increment the field "version".
- *
- * @author Luca Garulli (l.garulli--at--orientdb.com)
  */
 public class OModifiableDistributedConfiguration extends ODistributedConfiguration {
 

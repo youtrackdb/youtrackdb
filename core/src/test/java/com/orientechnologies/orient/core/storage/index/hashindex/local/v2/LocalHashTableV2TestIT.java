@@ -4,8 +4,8 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.serialization.serializer.binary.OBinarySerializerFactory;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -15,12 +15,11 @@ import org.junit.After;
 import org.junit.Before;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 19.02.13
  */
 public class LocalHashTableV2TestIT extends LocalHashTableV2Base {
 
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
 
   private static final String DB_NAME = "localHashTableTest";
 
@@ -30,12 +29,12 @@ public class LocalHashTableV2TestIT extends LocalHashTableV2Base {
     final File dbDirectory = new File(buildDirectory, DB_NAME);
 
     OFileUtils.deleteRecursively(dbDirectory);
-    final OrientDBConfig config = OrientDBConfig.builder().build();
-    orientDB = new OrientDB("plocal:" + buildDirectory, config);
+    final OxygenDBConfig config = OxygenDBConfig.builder().build();
+    oxygenDB = new OxygenDB("plocal:" + buildDirectory, config);
 
-    orientDB.execute(
+    oxygenDB.execute(
         "create database " + DB_NAME + " plocal users ( admin identified by 'admin' role admin)");
-    final ODatabaseSession databaseDocumentTx = orientDB.open(DB_NAME, "admin", "admin", config);
+    final ODatabaseSession databaseDocumentTx = oxygenDB.open(DB_NAME, "admin", "admin", config);
     storage =
         (OAbstractPaginatedStorage) ((ODatabaseSessionInternal) databaseDocumentTx).getStorage();
     OMurmurHash3HashFunction<Integer> murmurHash3HashFunction =
@@ -61,7 +60,7 @@ public class LocalHashTableV2TestIT extends LocalHashTableV2Base {
 
   @After
   public void after() {
-    orientDB.drop(DB_NAME);
-    orientDB.close();
+    oxygenDB.drop(DB_NAME);
+    oxygenDB.close();
   }
 }

@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.distributed;
@@ -28,8 +28,6 @@ import java.util.Set;
 
 /**
  * Represent a distributed transaction context.
- *
- * @author Luca Garulli
  */
 public interface ODistributedTxContext {
 

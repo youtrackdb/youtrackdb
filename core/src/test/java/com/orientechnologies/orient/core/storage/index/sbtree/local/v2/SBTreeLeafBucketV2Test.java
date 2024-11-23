@@ -19,7 +19,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 09.08.13
  */
 public class SBTreeLeafBucketV2Test {

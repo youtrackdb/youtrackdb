@@ -14,7 +14,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by luigidellaquila on 14/12/16.
+ *
  */
 public class OQueryResponseTest {
 
@@ -32,7 +32,7 @@ public class OQueryResponseTest {
         new OQueryResponse("query", true, resuls, Optional.empty(), false, new HashMap<>(), true);
 
     MockChannel channel = new MockChannel();
-    response.write(
+    response.write(null,
         channel,
         OChannelBinaryProtocol.CURRENT_PROTOCOL_VERSION,
         ORecordSerializerNetworkFactory.INSTANCE.current());

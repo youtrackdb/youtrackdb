@@ -50,8 +50,6 @@ import java.util.Set;
  *
  * <p>Example:<br>
  * <code>org.mycompany.index.MyIndexFactory</code>
- *
- * @author Johann Sorel (Geomatys)
  */
 public final class OIndexes {
 
@@ -60,7 +58,8 @@ public final class OIndexes {
       Collections.synchronizedSet(new HashSet<>());
   private static final ClassLoader orientClassLoader = OIndexes.class.getClassLoader();
 
-  private OIndexes() {}
+  private OIndexes() {
+  }
 
   /**
    * Cache a set of all factories. we do not use the service loader directly since it is not
@@ -161,7 +160,7 @@ public final class OIndexes {
       if (indexType == null
           || indexType.isEmpty()
           || (factory.getTypes().contains(indexType))
-              && factory.getAlgorithms().contains(algorithm)) {
+          && factory.getAlgorithms().contains(algorithm)) {
         return factory;
       }
     }

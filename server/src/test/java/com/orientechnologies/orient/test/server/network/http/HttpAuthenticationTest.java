@@ -7,17 +7,17 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.junit.Assert;
 
 /**
- * @author Luca Garulli (l.garulli--(at)--orientdb.com) (l.garulli--at-orientdb.com)
+ *
  */
 public class HttpAuthenticationTest extends BaseHttpDatabaseTest {
 
   public void testChangeOfUserOnSameConnectionIsAllowed() throws IOException {
     ClassicHttpResponse response =
         get("query/"
-                + getDatabaseName()
-                + "/sql/"
-                + URLEncoder.encode("select from OUSer", StandardCharsets.UTF_8)
-                + "/10")
+            + getDatabaseName()
+            + "/sql/"
+            + URLEncoder.encode("select from OUSer", StandardCharsets.UTF_8)
+            + "/10")
             .setUserName("root")
             .setUserPassword("root")
             .getResponse();
@@ -25,10 +25,10 @@ public class HttpAuthenticationTest extends BaseHttpDatabaseTest {
 
     ClassicHttpResponse response1 =
         get("query/"
-                + getDatabaseName()
-                + "/sql/"
-                + URLEncoder.encode("select from OUSer", StandardCharsets.UTF_8)
-                + "/10")
+            + getDatabaseName()
+            + "/sql/"
+            + URLEncoder.encode("select from OUSer", StandardCharsets.UTF_8)
+            + "/10")
             .setUserName("admin")
             .setUserPassword("admin")
             .getResponse();

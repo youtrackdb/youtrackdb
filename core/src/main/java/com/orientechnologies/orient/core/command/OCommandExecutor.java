@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,19 +14,18 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.command;
 
 import com.orientechnologies.common.listener.OProgressListener;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * Generic GOF command pattern implementation.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OCommandExecutor {
 
@@ -36,18 +35,19 @@ public interface OCommandExecutor {
    *
    * @param iRequest Command request implementation.
    * @return
-   * @see #execute(Map<Object, Object>...)
+   * @see #execute(Map, ODatabaseSessionInternal) <Object, Object>...)
    */
   <RET extends OCommandExecutor> RET parse(OCommandRequest iRequest);
 
   /**
    * Execute the requested command parsed previously.
    *
-   * @param iArgs Optional variable arguments to pass to the command.
+   * @param iArgs        Optional variable arguments to pass to the command.
+   * @param querySession
    * @return
    * @see #parse(OCommandRequest)
    */
-  Object execute(final Map<Object, Object> iArgs);
+  Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession);
 
   /**
    * Set the listener invoked while the command is executing.

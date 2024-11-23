@@ -3,11 +3,11 @@ package com.orientechnologies.orient.server.network;
 import static org.junit.Assert.assertNotNull;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
@@ -23,19 +23,19 @@ public class TestConcurrentSequenceGenerationIT {
   static final int THREADS = 20;
   static final int RECORDS = 100;
   private OServer server;
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
 
   @Before
   public void before() throws Exception {
     server = new OServer(false);
     server.startup(getClass().getResourceAsStream("orientdb-server-config.xml"));
     server.activate();
-    orientDB = new OrientDB("remote:localhost", "root", "root", OrientDBConfig.defaultConfig());
-    orientDB.execute(
+    oxygenDB = new OxygenDB("remote:localhost", "root", "root", OxygenDBConfig.defaultConfig());
+    oxygenDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         TestConcurrentSequenceGenerationIT.class.getSimpleName());
     ODatabaseSession databaseSession =
-        orientDB.open(TestConcurrentSequenceGenerationIT.class.getSimpleName(), "admin", "admin");
+        oxygenDB.open(TestConcurrentSequenceGenerationIT.class.getSimpleName(), "admin", "admin");
     databaseSession.execute(
         "sql",
         """
@@ -51,7 +51,7 @@ public class TestConcurrentSequenceGenerationIT {
   public void test() throws Exception {
     try (ODatabasePool pool =
         new ODatabasePool(
-            orientDB, TestConcurrentSequenceGenerationIT.class.getSimpleName(), "admin", "admin")) {
+            oxygenDB, TestConcurrentSequenceGenerationIT.class.getSimpleName(), "admin", "admin")) {
 
       var executorService = Executors.newFixedThreadPool(THREADS);
       var futures = new ArrayList<Future<Object>>();
@@ -85,12 +85,12 @@ public class TestConcurrentSequenceGenerationIT {
 
   @After
   public void after() {
-    orientDB.drop(TestConcurrentSequenceGenerationIT.class.getSimpleName());
-    orientDB.close();
+    oxygenDB.drop(TestConcurrentSequenceGenerationIT.class.getSimpleName());
+    oxygenDB.close();
     server.shutdown();
 
-    Orient.instance().shutdown();
+    Oxygen.instance().shutdown();
     OFileUtils.deleteRecursively(new File(server.getDatabaseDirectory()));
-    Orient.instance().startup();
+    Oxygen.instance().startup();
   }
 }

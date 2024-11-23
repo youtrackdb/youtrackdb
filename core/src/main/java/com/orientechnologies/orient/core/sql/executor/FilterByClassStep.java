@@ -10,7 +10,7 @@ import com.orientechnologies.orient.core.sql.parser.OIdentifier;
 import java.util.Optional;
 
 /**
- * Created by luigidellaquila on 01/03/17.
+ *
  */
 public class FilterByClassStep extends AbstractExecutionStep {
 

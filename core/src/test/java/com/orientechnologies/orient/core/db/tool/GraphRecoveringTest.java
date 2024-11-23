@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.db.tool;
 
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.OVertex;
@@ -81,11 +81,11 @@ public class GraphRecoveringTest {
 
   @Test
   public void testRecoverPerfectGraphNonLW() {
-    try (OrientDB orientDB = new OrientDB("embedded:./", OrientDBConfig.defaultConfig())) {
-      orientDB.execute(
+    try (OxygenDB oxygenDB = new OxygenDB("embedded:./", OxygenDBConfig.defaultConfig())) {
+      oxygenDB.execute(
           "create database testRecoverPerfectGraphNonLW"
               + " memory users ( admin identified by 'admin' role admin)");
-      try (var session = orientDB.open("testRecoverPerfectGraphNonLW", "admin", "admin")) {
+      try (var session = oxygenDB.open("testRecoverPerfectGraphNonLW", "admin", "admin")) {
         init(session);
 
         final TestListener eventListener = new TestListener();
@@ -104,11 +104,11 @@ public class GraphRecoveringTest {
 
   @Test
   public void testRecoverBrokenGraphAllEdges() {
-    try (OrientDB orientDB = new OrientDB("embedded:./", OrientDBConfig.defaultConfig())) {
-      orientDB.execute(
+    try (OxygenDB oxygenDB = new OxygenDB("embedded:./", OxygenDBConfig.defaultConfig())) {
+      oxygenDB.execute(
           "create database testRecoverBrokenGraphAllEdges"
               + " memory users ( admin identified by 'admin' role admin)");
-      try (var session = orientDB.open("testRecoverBrokenGraphAllEdges", "admin", "admin")) {
+      try (var session = oxygenDB.open("testRecoverBrokenGraphAllEdges", "admin", "admin")) {
         init(session);
 
         session.begin();
@@ -140,12 +140,12 @@ public class GraphRecoveringTest {
 
   @Test
   public void testRecoverBrokenGraphLinksInVerticesNonLW() {
-    try (OrientDB orientDB = new OrientDB("embedded:./", OrientDBConfig.defaultConfig())) {
-      orientDB.execute(
+    try (OxygenDB oxygenDB = new OxygenDB("embedded:./", OxygenDBConfig.defaultConfig())) {
+      oxygenDB.execute(
           "create database testRecoverBrokenGraphLinksInVerticesNonLW"
               + " memory users ( admin identified by 'admin' role admin)");
       try (var session =
-          orientDB.open("testRecoverBrokenGraphLinksInVerticesNonLW", "admin", "admin")) {
+          oxygenDB.open("testRecoverBrokenGraphLinksInVerticesNonLW", "admin", "admin")) {
         init(session);
 
         session.begin();

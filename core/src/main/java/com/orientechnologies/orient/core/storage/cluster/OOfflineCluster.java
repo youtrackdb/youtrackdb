@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2013 OrientDB LTD (info--at--orientdb.com)
+ * Copyright 2010-2013 OxygenDB LTD (info--at--orientdb.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,6 @@ import javax.annotation.Nonnull;
  * restore the original cluster assure to have the cluster files in the right path and execute:
  * "alter cluster X status online".
  *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @since 2.0
  */
 public class OOfflineCluster implements OCluster {
@@ -55,7 +54,8 @@ public class OOfflineCluster implements OCluster {
   }
 
   @Override
-  public void configure(int iId, String iClusterName) throws IOException {}
+  public void configure(int iId, String iClusterName) throws IOException {
+  }
 
   @Override
   public void configure(OStorage iStorage, OStorageClusterConfiguration iConfig)
@@ -64,19 +64,24 @@ public class OOfflineCluster implements OCluster {
   }
 
   @Override
-  public void create(OAtomicOperation atomicOperation) throws IOException {}
+  public void create(OAtomicOperation atomicOperation) throws IOException {
+  }
 
   @Override
-  public void open(OAtomicOperation atomicOperation) throws IOException {}
+  public void open(OAtomicOperation atomicOperation) throws IOException {
+  }
 
   @Override
-  public void close() throws IOException {}
+  public void close() throws IOException {
+  }
 
   @Override
-  public void close(boolean flush) throws IOException {}
+  public void close(boolean flush) throws IOException {
+  }
 
   @Override
-  public void delete(OAtomicOperation atomicOperation) throws IOException {}
+  public void delete(OAtomicOperation atomicOperation) throws IOException {
+  }
 
   @Override
   public void setClusterName(final String name) {
@@ -188,7 +193,8 @@ public class OOfflineCluster implements OCluster {
   }
 
   @Override
-  public void synch() throws IOException {}
+  public void synch() throws IOException {
+  }
 
   @Override
   public String getName() {

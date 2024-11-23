@@ -7,17 +7,17 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ *
  */
 public class OCreateLinkStatementExecutionTest extends BaseMemoryDatabase {
 
   @Test
   public void testBasic() {
     var basic1 = db.getMetadata().getSchema().createClass("Basic1");
-    basic1.createProperty("theLink", OType.LINK);
+    basic1.createProperty(db, "theLink", OType.LINK);
 
     var basic2 = db.getMetadata().getSchema().createClass("Basic2");
-    basic2.createProperty("theLink", OType.LINK);
+    basic2.createProperty(db, "theLink", OType.LINK);
 
     db.begin();
     db.command("insert into Basic1 set pk = 'pkb1_1', fk = 'pkb2_1'").close();
@@ -48,10 +48,10 @@ public class OCreateLinkStatementExecutionTest extends BaseMemoryDatabase {
   @Test
   public void testInverse() throws Exception {
     var inverse1 = db.getMetadata().getSchema().createClass("Inverse1");
-    inverse1.createProperty("theLink", OType.LINKSET);
+    inverse1.createProperty(db, "theLink", OType.LINKSET);
 
     var inverse2 = db.getMetadata().getSchema().createClass("Inverse2");
-    inverse2.createProperty("theLink", OType.LINKSET);
+    inverse2.createProperty(db, "theLink", OType.LINKSET);
 
     db.begin();
     db.command("insert into Inverse1 set pk = 'pkb1_1', fk = 'pkb2_1'").close();

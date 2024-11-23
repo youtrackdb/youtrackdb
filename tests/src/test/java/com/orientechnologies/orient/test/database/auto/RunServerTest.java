@@ -19,7 +19,8 @@ public class RunServerTest {
   }
 
   @Test
-  public void test() {}
+  public void test() {
+  }
 
   @AfterSuite
   public void after() {

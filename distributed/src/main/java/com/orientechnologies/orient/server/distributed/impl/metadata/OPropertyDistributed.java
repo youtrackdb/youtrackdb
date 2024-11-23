@@ -13,7 +13,7 @@ import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 
 /**
- * Created by tglman on 22/06/17.
+ *
  */
 public class OPropertyDistributed extends OPropertyEmbedded {
 

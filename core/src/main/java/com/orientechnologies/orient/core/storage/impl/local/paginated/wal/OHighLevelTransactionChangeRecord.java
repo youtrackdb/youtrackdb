@@ -9,7 +9,8 @@ public class OHighLevelTransactionChangeRecord extends OOperationUnitRecord {
 
   private byte[] data;
 
-  public OHighLevelTransactionChangeRecord() {}
+  public OHighLevelTransactionChangeRecord() {
+  }
 
   public OHighLevelTransactionChangeRecord(long operationUnitId, byte[] data) {
     super(operationUnitId);

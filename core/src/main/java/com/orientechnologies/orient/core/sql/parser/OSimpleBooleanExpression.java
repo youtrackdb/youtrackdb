@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import java.util.List;
 
 /**
- * Created by luigidellaquila on 21/11/16.
+ *
  */
 public interface OSimpleBooleanExpression {
 

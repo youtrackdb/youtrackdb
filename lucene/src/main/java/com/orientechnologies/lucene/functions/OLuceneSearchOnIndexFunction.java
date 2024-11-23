@@ -5,6 +5,7 @@ import com.orientechnologies.lucene.collections.OLuceneCompositeKey;
 import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
@@ -26,7 +27,7 @@ import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.memory.MemoryIndex;
 
 /**
- * Created by frank on 15/01/2017.
+ *
  */
 public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate {
 
@@ -39,7 +40,7 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
   }
 
   @Override
-  public String getName() {
+  public String getName(ODatabaseSession session) {
     return NAME;
   }
 
@@ -69,7 +70,7 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
             .map(s -> element.getProperty(s))
             .collect(Collectors.toList());
 
-    for (IndexableField field : index.buildDocument(key).getFields()) {
+    for (IndexableField field : index.buildDocument(ctx.getDatabase(), key).getFields()) {
       memoryIndex.addField(field, index.indexAnalyzer());
     }
 
@@ -84,7 +85,10 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
   private ODocument getMetadata(Object[] params) {
 
     if (params.length == 3) {
-      return new ODocument().fromMap((Map<String, ?>) params[2]);
+      var doc = new ODocument();
+      //noinspection unchecked
+      doc.fromMap((Map<String, ?>) params[2]);
+      return doc;
     }
 
     return OLuceneQueryBuilder.EMPTY_METADATA;
@@ -102,7 +106,7 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
   }
 
   @Override
-  public String getSyntax() {
+  public String getSyntax(ODatabaseSession session) {
     return "SEARCH_INDEX( indexName, [ metdatada {} ] )";
   }
 
@@ -131,7 +135,7 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
       try (Stream<ORID> rids =
           index
               .getInternal()
-              .getRids(
+              .getRids(ctx.getDatabase(),
                   new OLuceneKeyAndMetadata(
                       new OLuceneCompositeKey(List.of(query)).setContext(ctx), meta))) {
         luceneResultSet = rids.collect(Collectors.toList());

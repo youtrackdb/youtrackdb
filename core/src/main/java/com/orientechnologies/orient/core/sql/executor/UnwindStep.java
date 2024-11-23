@@ -16,8 +16,6 @@ import java.util.stream.Collectors;
 
 /**
  * unwinds a result-set.
- *
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class UnwindStep extends AbstractExecutionStep {
 

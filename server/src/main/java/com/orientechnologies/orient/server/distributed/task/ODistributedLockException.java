@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientechnologies.com
+ *
  *
  */
 package com.orientechnologies.orient.server.distributed.task;
@@ -23,8 +23,6 @@ import com.orientechnologies.common.exception.OHighLevelException;
 
 /**
  * Exception thrown when a distributed resource is locked.
- *
- * @author Luca Garulli (l.garulli--at--orientechnologies.com)
  */
 public class ODistributedLockException extends ODistributedOperationException
     implements OHighLevelException {

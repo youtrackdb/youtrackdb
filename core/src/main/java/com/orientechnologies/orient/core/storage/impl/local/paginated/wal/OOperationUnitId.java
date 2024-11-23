@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2013 OrientDB LTD (info--at--orientdb.com)
+ * Copyright 2010-2013 OxygenDB LTD (info--at--orientdb.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,11 @@ package com.orientechnologies.orient.core.storage.impl.local.paginated.wal;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.common.types.OModifiableLong;
 import com.orientechnologies.orient.core.OOrientListenerAbstract;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 06.06.13
  */
 public class OOperationUnitId {
@@ -36,7 +35,7 @@ public class OOperationUnitId {
   public static final int SERIALIZED_SIZE = 2 * OLongSerializer.LONG_SIZE;
 
   static {
-    Orient.instance()
+    Oxygen.instance()
         .registerListener(
             new OOrientListenerAbstract() {
               @Override
@@ -88,7 +87,8 @@ public class OOperationUnitId {
     return operationUnitId;
   }
 
-  public OOperationUnitId() {}
+  public OOperationUnitId() {
+  }
 
   public int toStream(byte[] content, int offset) {
     OLongSerializer.INSTANCE.serializeNative(sId, content, offset);

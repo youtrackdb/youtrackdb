@@ -10,8 +10,6 @@ import java.util.Set;
  * Special implementation of Java Set&lt;ORID&gt; to efficiently handle memory and performance. It
  * does not store actual RIDs, but it only keeps track that a RID was stored, so the iterator will
  * return new instances.
- *
- * @author Luigi Dell'Aquila
  */
 public class ORidSet implements Set<ORID> {
 

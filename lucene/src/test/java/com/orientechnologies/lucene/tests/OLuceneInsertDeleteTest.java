@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by enricorisa on 28/06/14.
+ *
  */
 public class OLuceneInsertDeleteTest extends OLuceneBaseTest {
 
@@ -47,10 +47,11 @@ public class OLuceneInsertDeleteTest extends OLuceneBaseTest {
     OSchema schema = db.getMetadata().getSchema();
     OClass oClass = schema.createClass("City");
 
-    oClass.createProperty("name", OType.STRING);
+    oClass.createProperty(db, "name", OType.STRING);
     //noinspection EmptyTryBlock
     try (OResultSet resultSet =
-        db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE")) {}
+        db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE")) {
+    }
   }
 
   @Test
@@ -66,15 +67,15 @@ public class OLuceneInsertDeleteTest extends OLuceneBaseTest {
     db.save(doc);
     db.commit();
 
-    OIndex idx = schema.getClass("City").getClassIndex("City.name");
+    OIndex idx = schema.getClass("City").getClassIndex(db, "City.name");
     Collection<?> coll;
-    try (Stream<ORID> stream = idx.getInternal().getRids("Rome")) {
+    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
 
     db.begin();
     assertThat(coll).hasSize(1);
-    assertThat(idx.getInternal().size()).isEqualTo(1);
+    assertThat(idx.getInternal().size(db)).isEqualTo(1);
 
     OIdentifiable next = (OIdentifiable) coll.iterator().next();
     doc = db.load(next.getIdentity());
@@ -82,11 +83,11 @@ public class OLuceneInsertDeleteTest extends OLuceneBaseTest {
     db.delete(doc);
     db.commit();
 
-    try (Stream<ORID> stream = idx.getInternal().getRids("Rome")) {
+    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
     assertThat(coll).hasSize(0);
-    assertThat(idx.getInternal().size()).isEqualTo(0);
+    assertThat(idx.getInternal().size(db)).isEqualTo(0);
   }
 
   @Test
@@ -94,14 +95,16 @@ public class OLuceneInsertDeleteTest extends OLuceneBaseTest {
 
     try (InputStream stream = ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql")) {
       //noinspection EmptyTryBlock
-      try (OResultSet resultSet = db.execute("sql", getScriptFromStream(stream))) {}
+      try (OResultSet resultSet = db.execute("sql", getScriptFromStream(stream))) {
+      }
     }
 
     //noinspection EmptyTryBlock
     try (OResultSet resultSet =
         db.command(
             "create index Song.title on Song (title) FULLTEXT ENGINE LUCENE metadata"
-                + " {'closeAfterInterval':1000 , 'firstFlushAfter':1000 }")) {}
+                + " {'closeAfterInterval':1000 , 'firstFlushAfter':1000 }")) {
+    }
 
     try (OResultSet docs = db.query("select from Song where title lucene 'mountain'")) {
 
@@ -112,7 +115,8 @@ public class OLuceneInsertDeleteTest extends OLuceneBaseTest {
       db.begin();
       //noinspection EmptyTryBlock
       try (OResultSet command =
-          db.command("delete vertex from Song where title lucene 'mountain'")) {}
+          db.command("delete vertex from Song where title lucene 'mountain'")) {
+      }
       db.commit();
 
       try (OResultSet resultSet = db.query("select from Song where  title lucene 'mountain'")) {

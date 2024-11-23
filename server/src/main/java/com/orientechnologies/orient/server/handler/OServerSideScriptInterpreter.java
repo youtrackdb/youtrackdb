@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.handler;
@@ -23,7 +23,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OScriptInterceptor;
 import com.orientechnologies.orient.core.command.script.OCommandExecutorScript;
 import com.orientechnologies.orient.core.command.script.OCommandScript;
-import com.orientechnologies.orient.core.db.OrientDBInternal;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.exception.OSecurityException;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
@@ -36,8 +36,6 @@ import java.util.Set;
 /**
  * Allow the execution of server-side scripting. This could be a security hole in your configuration
  * if users have access to the database and can execute any kind of code.
- *
- * @author Luca
  */
 public class OServerSideScriptInterpreter extends OServerPluginAbstract {
 
@@ -61,7 +59,7 @@ public class OServerSideScriptInterpreter extends OServerPluginAbstract {
         allowedLanguages =
             new HashSet<>(Arrays.asList(param.value.toLowerCase(Locale.ENGLISH).split(",")));
       } else if (param.name.equalsIgnoreCase("allowedPackages")) {
-        OrientDBInternal.extract(iServer.getContext())
+        OxygenDBInternal.extract(iServer.getContext())
             .getScriptManager()
             .addAllowedPackages(new HashSet<>(Arrays.asList(param.value.split(","))));
       }
@@ -80,7 +78,7 @@ public class OServerSideScriptInterpreter extends OServerPluginAbstract {
       return;
     }
 
-    OrientDBInternal.extract(server.getContext())
+    OxygenDBInternal.extract(server.getContext())
         .getScriptManager()
         .getCommandManager()
         .registerExecutor(
@@ -99,7 +97,7 @@ public class OServerSideScriptInterpreter extends OServerPluginAbstract {
           checkLanguage(language);
         };
 
-    OrientDBInternal.extract(server.getContext())
+    OxygenDBInternal.extract(server.getContext())
         .getScriptManager()
         .getCommandManager()
         .getScriptExecutors()
@@ -120,7 +118,7 @@ public class OServerSideScriptInterpreter extends OServerPluginAbstract {
     }
 
     if (interceptor != null) {
-      OrientDBInternal.extract(server.getContext())
+      OxygenDBInternal.extract(server.getContext())
           .getScriptManager()
           .getCommandManager()
           .getScriptExecutors()
@@ -128,7 +126,7 @@ public class OServerSideScriptInterpreter extends OServerPluginAbstract {
           .forEach(e -> e.getValue().unregisterInterceptor(interceptor));
     }
 
-    OrientDBInternal.extract(server.getContext())
+    OxygenDBInternal.extract(server.getContext())
         .getScriptManager()
         .getCommandManager()
         .unregisterExecutor(OCommandScript.class);

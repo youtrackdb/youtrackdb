@@ -8,8 +8,6 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OProduceExecutio
 
 /**
  * Returns an OResult containing metadata regarding the database
- *
- * @author Luigi Dell'Aquila (l.dellaquila - at - orientdb.com)
  */
 public class FetchFromDatabaseMetadataStep extends AbstractExecutionStep {
 
@@ -32,7 +30,7 @@ public class FetchFromDatabaseMetadataStep extends AbstractExecutionStep {
 
     ODatabaseSession db = ctx.getDatabase();
     result.setProperty("name", db.getName());
-    result.setProperty("user", db.getUser() == null ? null : db.getUser().getName());
+    result.setProperty("user", db.getUser() == null ? null : db.getUser().getName(db));
     result.setProperty("type", String.valueOf(db.get(ODatabaseSession.ATTRIBUTES.TYPE)));
     result.setProperty("status", String.valueOf(db.get(ODatabaseSession.ATTRIBUTES.STATUS)));
     result.setProperty(

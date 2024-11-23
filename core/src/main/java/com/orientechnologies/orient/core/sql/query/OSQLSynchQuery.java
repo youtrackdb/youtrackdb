@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,12 +14,14 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.query;
 
 import com.orientechnologies.orient.core.command.OCommandResultListener;
+import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -34,7 +36,6 @@ import java.util.Map;
  * SQL synchronous query. When executed the caller wait for the result.
  *
  * @param <T>
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @see OSQLAsynchQuery
  */
 @SuppressWarnings({"unchecked", "serial"})
@@ -64,7 +65,7 @@ public class OSQLSynchQuery<T extends Object> extends OSQLAsynchQuery<T>
     result.clear();
   }
 
-  public boolean result(final Object iRecord) {
+  public boolean result(ODatabaseSessionInternal querySession, final Object iRecord) {
     if (iRecord != null) {
       result.add((T) iRecord);
     }
@@ -126,7 +127,7 @@ public class OSQLSynchQuery<T extends Object> extends OSQLAsynchQuery<T>
   }
 
   public Iterator<T> iterator() {
-    execute();
+    execute(ODatabaseRecordThreadLocal.instance().get());
     return ((Iterable<T>) getResult()).iterator();
   }
 

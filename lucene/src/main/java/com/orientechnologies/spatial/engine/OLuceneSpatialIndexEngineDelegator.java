@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -10,7 +10,7 @@
  * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  * <p>
- * For more information: http://www.orientdb.com
+ * *
  */
 package com.orientechnologies.spatial.engine;
 
@@ -20,6 +20,7 @@ import com.orientechnologies.lucene.engine.OLuceneIndexEngine;
 import com.orientechnologies.lucene.query.OLuceneQueryContext;
 import com.orientechnologies.lucene.tx.OLuceneTxChanges;
 import com.orientechnologies.orient.core.config.IndexEngineData;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.OContextualRecordId;
 import com.orientechnologies.orient.core.id.ORID;
@@ -43,7 +44,7 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.spatial.SpatialStrategy;
 
 /**
- * Created by Enrico Risa on 04/09/15.
+ *
  */
 public class OLuceneSpatialIndexEngineDelegator
     implements OLuceneIndexEngine, OLuceneSpatialIndexContainer {
@@ -89,7 +90,8 @@ public class OLuceneSpatialIndexEngineDelegator
     delegate.flush();
   }
 
-  public void create(OAtomicOperation atomicOperation, IndexEngineData data) throws IOException {}
+  public void create(OAtomicOperation atomicOperation, IndexEngineData data) throws IOException {
+  }
 
   @Override
   public void delete(OAtomicOperation atomicOperation) {
@@ -123,15 +125,16 @@ public class OLuceneSpatialIndexEngineDelegator
   }
 
   @Override
-  public Object get(Object key) {
-    return delegate.get(key);
+  public Object get(ODatabaseSessionInternal session, Object key) {
+    return delegate.get(session, key);
   }
 
   @Override
-  public void put(OAtomicOperation atomicOperation, Object key, Object value) {
+  public void put(ODatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
+      Object value) {
 
     try {
-      delegate.put(atomicOperation, key, value);
+      delegate.put(session, atomicOperation, key, value);
     } catch (IOException e) {
       throw OException.wrapException(
           new OIndexException("Error during insertion of key " + key + " in index " + indexName),
@@ -141,9 +144,10 @@ public class OLuceneSpatialIndexEngineDelegator
 
   @Override
   public void update(
-      OAtomicOperation atomicOperation, Object key, OIndexKeyUpdater<Object> updater) {
+      ODatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
+      OIndexKeyUpdater<Object> updater) {
     try {
-      delegate.update(atomicOperation, key, updater);
+      delegate.update(session, atomicOperation, key, updater);
     } catch (IOException e) {
       throw OException.wrapException(
           new OIndexException("Error during update of key " + key + " in index " + indexName), e);
@@ -167,14 +171,14 @@ public class OLuceneSpatialIndexEngineDelegator
 
   @Override
   public Stream<ORawPair<Object, ORID>> iterateEntriesBetween(
-      Object rangeFrom,
+      ODatabaseSessionInternal session, Object rangeFrom,
       boolean fromInclusive,
       Object rangeTo,
       boolean toInclusive,
       boolean ascSortOrder,
       IndexEngineValuesTransformer transformer) {
-    return delegate.iterateEntriesBetween(
-        rangeFrom, fromInclusive, rangeTo, toInclusive, ascSortOrder, transformer);
+    return delegate.iterateEntriesBetween(session
+        , rangeFrom, fromInclusive, rangeTo, toInclusive, ascSortOrder, transformer);
   }
 
   @Override
@@ -240,8 +244,8 @@ public class OLuceneSpatialIndexEngineDelegator
   }
 
   @Override
-  public Document buildDocument(Object key, OIdentifiable value) {
-    return delegate.buildDocument(key, value);
+  public Document buildDocument(ODatabaseSessionInternal session, Object key, OIdentifiable value) {
+    return delegate.buildDocument(session, key, value);
   }
 
   @Override
@@ -290,8 +294,9 @@ public class OLuceneSpatialIndexEngineDelegator
   }
 
   @Override
-  public Set<OIdentifiable> getInTx(Object key, OLuceneTxChanges changes) {
-    return delegate.getInTx(key, changes);
+  public Set<OIdentifiable> getInTx(ODatabaseSessionInternal session, Object key,
+      OLuceneTxChanges changes) {
+    return delegate.getInTx(session, key, changes);
   }
 
   @Override

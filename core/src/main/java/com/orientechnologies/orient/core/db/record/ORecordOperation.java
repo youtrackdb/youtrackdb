@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,39 +14,36 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.db.record;
 
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
 import java.util.Locale;
 
 /**
  * Contains the information about a database operation.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
-public class ORecordOperation implements Comparable<ORecordOperation> {
+public final class ORecordOperation implements Comparable<ORecordOperation> {
 
   public static final byte UPDATED = 1;
   public static final byte DELETED = 2;
   public static final byte CREATED = 3;
 
   public byte type;
-  public OIdentifiable record;
-
+  public ORecordAbstract record;
   // used in processing of server transactions
   public boolean callHooksOnServerTx = false;
 
-  public ORecordOperation() {}
+  public ORecordOperation() {
+  }
 
-  public ORecordOperation(final OIdentifiable iRecord, final byte iStatus) {
+  public ORecordOperation(final ORecordAbstract record, final byte status) {
     // CLONE RECORD AND CONTENT
-    this.record = iRecord;
-    this.type = iStatus;
+    this.record = record;
+    this.type = status;
   }
 
   @Override
@@ -66,25 +63,6 @@ public class ORecordOperation implements Comparable<ORecordOperation> {
   @Override
   public String toString() {
     return "ORecordOperation [record=" + record + ", type=" + getName(type) + "]";
-  }
-
-  public OIdentifiable setRecord(final OIdentifiable record) {
-    this.record = record;
-    return record;
-  }
-
-  public ORecordAbstract getRecord() {
-    if (record instanceof ORecordAbstract recordAbstract) {
-      return recordAbstract;
-    }
-    if (record == null) {
-      return null;
-    }
-    try {
-      return record.getRecord();
-    } catch (ORecordNotFoundException e) {
-      return null;
-    }
   }
 
   public ORID getRID() {
@@ -112,10 +90,6 @@ public class ORecordOperation implements Comparable<ORecordOperation> {
     } else {
       return -1;
     }
-  }
-
-  public byte getType() {
-    return type;
   }
 
   @Override

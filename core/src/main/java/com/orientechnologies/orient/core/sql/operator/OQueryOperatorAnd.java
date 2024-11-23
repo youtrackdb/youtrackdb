@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.operator;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -28,8 +29,6 @@ import com.orientechnologies.orient.core.sql.filter.OSQLFilterCondition;
 
 /**
  * AND operator.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OQueryOperatorAnd extends OQueryOperator {
 
@@ -61,18 +60,18 @@ public class OQueryOperatorAnd extends OQueryOperator {
   }
 
   @Override
-  public ORID getBeginRidRange(final Object iLeft, final Object iRight) {
+  public ORID getBeginRidRange(ODatabaseSession session, final Object iLeft, final Object iRight) {
     final ORID leftRange;
     final ORID rightRange;
 
     if (iLeft instanceof OSQLFilterCondition) {
-      leftRange = ((OSQLFilterCondition) iLeft).getBeginRidRange();
+      leftRange = ((OSQLFilterCondition) iLeft).getBeginRidRange(session);
     } else {
       leftRange = null;
     }
 
     if (iRight instanceof OSQLFilterCondition) {
-      rightRange = ((OSQLFilterCondition) iRight).getBeginRidRange();
+      rightRange = ((OSQLFilterCondition) iRight).getBeginRidRange(session);
     } else {
       rightRange = null;
     }
@@ -89,18 +88,18 @@ public class OQueryOperatorAnd extends OQueryOperator {
   }
 
   @Override
-  public ORID getEndRidRange(final Object iLeft, final Object iRight) {
+  public ORID getEndRidRange(ODatabaseSession session, final Object iLeft, final Object iRight) {
     final ORID leftRange;
     final ORID rightRange;
 
     if (iLeft instanceof OSQLFilterCondition) {
-      leftRange = ((OSQLFilterCondition) iLeft).getEndRidRange();
+      leftRange = ((OSQLFilterCondition) iLeft).getEndRidRange(session);
     } else {
       leftRange = null;
     }
 
     if (iRight instanceof OSQLFilterCondition) {
-      rightRange = ((OSQLFilterCondition) iRight).getEndRidRange();
+      rightRange = ((OSQLFilterCondition) iRight).getEndRidRange(session);
     } else {
       rightRange = null;
     }

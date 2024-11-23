@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,30 +14,32 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
 package com.orientechnologies.orient.core.index.engine;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndexKeyUpdater;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import java.io.IOException;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 6/29/13
  */
 public interface OIndexEngine extends OBaseIndexEngine {
 
   int VERSION = 0;
 
-  Object get(Object key);
+  Object get(ODatabaseSessionInternal session, Object key);
 
-  void put(OAtomicOperation atomicOperation, Object key, Object value) throws IOException;
+  void put(ODatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
+      Object value) throws IOException;
 
-  void update(OAtomicOperation atomicOperation, Object key, OIndexKeyUpdater<Object> updater)
+  void update(ODatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
+      OIndexKeyUpdater<Object> updater)
       throws IOException;
 
   boolean remove(OAtomicOperation atomicOperation, Object key) throws IOException;

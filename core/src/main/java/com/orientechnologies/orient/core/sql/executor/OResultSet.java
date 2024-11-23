@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 /**
- * Created by luigidellaquila on 07/07/16.
+ *
  */
 public interface OResultSet extends Spliterator<OResult>, Iterator<OResult>, AutoCloseable {
 

@@ -16,9 +16,22 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.NavigableMap;
+import java.util.Random;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.stream.Stream;
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 
 public class CASDiskWriteAheadLogIT {
 
@@ -148,7 +161,7 @@ public class CASDiskWriteAheadLogIT {
   public void testAddSingleOnePageRecordEncrypted() throws Exception {
     final String aesKeyEncoded = "T1JJRU5UREJfSVNfQ09PTA==";
     final byte[] aesKey = Base64.getDecoder().decode(aesKeyEncoded);
-    final byte[] iv = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    final byte[] iv = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 
     final int iterations = 10;
 
@@ -255,7 +268,7 @@ public class CASDiskWriteAheadLogIT {
   public void testAddSingleOnePageRecordNonEncrypted() throws Exception {
     final String aesKeyEncoded = "T1JJRU5UREJfSVNfQ09PTA==";
     final byte[] aesKey = Base64.getDecoder().decode(aesKeyEncoded);
-    final byte[] iv = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    final byte[] iv = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 
     final int iterations = 10;
 
@@ -359,7 +372,7 @@ public class CASDiskWriteAheadLogIT {
   public void testAddSingleOnePageRecordWrongEncryption() throws Exception {
     final String aesKeyEncoded = "T1JJRU5UREJfSVNfQ09PTA==";
     final byte[] aesKey = Base64.getDecoder().decode(aesKeyEncoded);
-    final byte[] iv = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    final byte[] iv = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 
     final int iterations = 10;
 
@@ -566,7 +579,7 @@ public class CASDiskWriteAheadLogIT {
   public void testAddSingleRecordSeveralPagesEncrypted() throws Exception {
     final String aesKeyEncoded = "T1JJRU5UREJfSVNfQ09PTA==";
     final byte[] aesKey = Base64.getDecoder().decode(aesKeyEncoded);
-    final byte[] iv = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    final byte[] iv = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 
     final int iterations = 10;
     for (int i = 0; i < iterations; i++) {
@@ -797,7 +810,7 @@ public class CASDiskWriteAheadLogIT {
   public void testAddFewSmallRecordsEncrypted() throws Exception {
     final String aesKeyEncoded = "T1JJRU5UREJfSVNfQ09PTA==";
     final byte[] aesKey = Base64.getDecoder().decode(aesKeyEncoded);
-    final byte[] iv = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    final byte[] iv = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 
     final int iterations = 10;
     for (int n = 0; n < iterations; n++) {
@@ -1060,7 +1073,7 @@ public class CASDiskWriteAheadLogIT {
   public void testNextAddFewSmallRecordsEncrypted() throws Exception {
     final String aesKeyEncoded = "T1JJRU5UREJfSVNfQ09PTA==";
     final byte[] aesKey = Base64.getDecoder().decode(aesKeyEncoded);
-    final byte[] iv = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    final byte[] iv = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 
     final int iterations = 10;
 
@@ -1323,7 +1336,7 @@ public class CASDiskWriteAheadLogIT {
   public void testAddFewBigRecordsEncrypted() throws Exception {
     final String aesKeyEncoded = "T1JJRU5UREJfSVNfQ09PTA==";
     final byte[] aesKey = Base64.getDecoder().decode(aesKeyEncoded);
-    final byte[] iv = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    final byte[] iv = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 
     final int iterations = 10;
 
@@ -1585,7 +1598,7 @@ public class CASDiskWriteAheadLogIT {
   public void testNextAddFewBigRecordsEncrypted() throws Exception {
     final String aesKeyEncoded = "T1JJRU5UREJfSVNfQ09PTA==";
     final byte[] aesKey = Base64.getDecoder().decode(aesKeyEncoded);
-    final byte[] iv = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    final byte[] iv = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 
     final int iterations = 10;
 
@@ -1852,7 +1865,7 @@ public class CASDiskWriteAheadLogIT {
   public void testAddNSmallRecordsEncrypted() throws Exception {
     final String aesKeyEncoded = "T1JJRU5UREJfSVNfQ09PTA==";
     final byte[] aesKey = Base64.getDecoder().decode(aesKeyEncoded);
-    final byte[] iv = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    final byte[] iv = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 
     final int iterations = 1;
 
@@ -2116,7 +2129,7 @@ public class CASDiskWriteAheadLogIT {
   public void testNextAddNSmallRecordsEncrypted() throws Exception {
     final String aesKeyEncoded = "T1JJRU5UREJfSVNfQ09PTA==";
     final byte[] aesKey = Base64.getDecoder().decode(aesKeyEncoded);
-    final byte[] iv = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    final byte[] iv = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 
     final int iterations = 1;
 
@@ -2465,7 +2478,7 @@ public class CASDiskWriteAheadLogIT {
   public void testAddNSegmentsEncrypted() throws Exception {
     final String aesKeyEncoded = "T1JJRU5UREJfSVNfQ09PTA==";
     final byte[] aesKey = Base64.getDecoder().decode(aesKeyEncoded);
-    final byte[] iv = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    final byte[] iv = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 
     int iterations = 1;
 
@@ -2806,7 +2819,7 @@ public class CASDiskWriteAheadLogIT {
   public void testAddNBigRecordsEncrypted() throws Exception {
     final String aesKeyEncoded = "T1JJRU5UREJfSVNfQ09PTA==";
     final byte[] aesKey = Base64.getDecoder().decode(aesKeyEncoded);
-    final byte[] iv = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    final byte[] iv = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 
     final int iterations = 1;
 
@@ -3080,7 +3093,7 @@ public class CASDiskWriteAheadLogIT {
   public void testNextAddNBigRecordsEncrypted() throws Exception {
     final String aesKeyEncoded = "T1JJRU5UREJfSVNfQ09PTA==";
     final byte[] aesKey = Base64.getDecoder().decode(aesKeyEncoded);
-    final byte[] iv = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    final byte[] iv = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 
     final int iterations = 1;
 
@@ -3352,7 +3365,7 @@ public class CASDiskWriteAheadLogIT {
   public void testAddRecordsMixEncrypted() throws Exception {
     final String aesKeyEncoded = "T1JJRU5UREJfSVNfQ09PTA==";
     final byte[] aesKey = Base64.getDecoder().decode(aesKeyEncoded);
-    final byte[] iv = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    final byte[] iv = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 
     final int iterations = 1;
     for (int n = 0; n < iterations; n++) {
@@ -3622,7 +3635,7 @@ public class CASDiskWriteAheadLogIT {
   public void testNextAddRecordsMixEncryption() throws Exception {
     final String aesKeyEncoded = "T1JJRU5UREJfSVNfQ09PTA==";
     final byte[] aesKey = Base64.getDecoder().decode(aesKeyEncoded);
-    final byte[] iv = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    final byte[] iv = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 
     final int iterations = 1;
     for (int n = 0; n < iterations; n++) {
@@ -4821,7 +4834,8 @@ public class CASDiskWriteAheadLogIT {
     private byte[] data;
 
     @SuppressWarnings("unused")
-    public TestRecord() {}
+    public TestRecord() {
+    }
 
     @SuppressWarnings("unused")
     public TestRecord(byte[] data) {

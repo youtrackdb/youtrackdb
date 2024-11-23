@@ -30,7 +30,8 @@ public class SpeedTestData {
   protected int partialTimerCounter = 0;
   private long cyclesElapsed;
 
-  protected SpeedTestData() {}
+  protected SpeedTestData() {
+  }
 
   protected SpeedTestData(final long iCycles) {
     cycles = iCycles;
@@ -172,8 +173,8 @@ public class SpeedTestData {
       System.out.println(
           "   Medium cycle elapsed:.............: "
               + (cyclesDone > 0 && elapsed > 0
-                  ? new BigDecimal((float) elapsed / cyclesDone).toPlainString()
-                  : 0));
+              ? new BigDecimal((float) elapsed / cyclesDone).toPlainString()
+              : 0));
       System.out.println(
           "   Cycles per second.................: "
               + new BigDecimal((float) cyclesDone / elapsed * 1000).toPlainString());

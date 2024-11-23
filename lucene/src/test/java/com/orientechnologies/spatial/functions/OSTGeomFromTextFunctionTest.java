@@ -19,12 +19,12 @@ public class OSTGeomFromTextFunctionTest extends BaseSpatialLuceneTest {
     try {
       OSTGeomFromTextFunction func = new OSTGeomFromTextFunction();
       ODocument item =
-          (ODocument) func.execute(null, null, null, new Object[] {"POINT (100.0 80.0)"}, null);
+          (ODocument) func.execute(null, null, null, new Object[]{"POINT (100.0 80.0)"}, null);
       Assert.assertEquals("OPoint", item.getClassName());
       Assert.assertEquals(2, ((List) item.getProperty("coordinates")).size());
 
       item =
-          (ODocument) func.execute(null, null, null, new Object[] {"POINT Z(100.0 80.0 10)"}, null);
+          (ODocument) func.execute(null, null, null, new Object[]{"POINT Z(100.0 80.0 10)"}, null);
       Assert.assertEquals("OPointZ", item.getClassName());
       Assert.assertEquals(3, ((List) item.getProperty("coordinates")).size());
 
@@ -34,7 +34,7 @@ public class OSTGeomFromTextFunctionTest extends BaseSpatialLuceneTest {
                   null,
                   null,
                   null,
-                  new Object[] {"LINESTRING Z (1 1 0, 1 2 0, 1 3 1, 2 2 0)"},
+                  new Object[]{"LINESTRING Z (1 1 0, 1 2 0, 1 3 1, 2 2 0)"},
                   null);
       Assert.assertEquals("OLineStringZ", item.getClassName());
       Assert.assertEquals(3, ((List<List<Double>>) item.getProperty("coordinates")).get(0).size());
@@ -47,7 +47,7 @@ public class OSTGeomFromTextFunctionTest extends BaseSpatialLuceneTest {
                   null,
                   null,
                   null,
-                  new Object[] {"POLYGON Z ((0 0 1, 0 1 0, 1 1 0, 1 0 0, 0 0 0))"},
+                  new Object[]{"POLYGON Z ((0 0 1, 0 1 0, 1 1 0, 1 0 0, 0 0 0))"},
                   null);
       Assert.assertEquals("OPolygonZ", item.getClassName());
       Assert.assertEquals(
@@ -62,7 +62,7 @@ public class OSTGeomFromTextFunctionTest extends BaseSpatialLuceneTest {
                   null,
                   null,
                   null,
-                  new Object[] {"MULTILINESTRING Z ((1 1 0, 1 2 0), (1 3 1, 2 2 0))"},
+                  new Object[]{"MULTILINESTRING Z ((1 1 0, 1 2 0), (1 3 1, 2 2 0))"},
                   null);
       Assert.assertEquals("OMultiLineStringZ", item.getClassName());
       Assert.assertEquals(

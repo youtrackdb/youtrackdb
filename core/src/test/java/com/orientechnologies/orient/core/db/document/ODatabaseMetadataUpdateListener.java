@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
-import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -23,38 +23,40 @@ import org.junit.Test;
 
 public class ODatabaseMetadataUpdateListener {
 
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
   private ODatabaseSession session;
   private int count;
 
   @Before
   public void before() {
-    orientDB =
+    oxygenDB =
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    session = orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    session = oxygenDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     count = 0;
     OMetadataUpdateListener listener =
         new OMetadataUpdateListener() {
 
           @Override
-          public void onSchemaUpdate(String database, OSchemaShared schema) {
+          public void onSchemaUpdate(ODatabaseSessionInternal session, String database,
+              OSchemaShared schema) {
             count++;
             assertNotNull(schema);
           }
 
           @Override
-          public void onIndexManagerUpdate(String database, OIndexManagerAbstract indexManager) {
+          public void onIndexManagerUpdate(ODatabaseSessionInternal session, String database,
+              OIndexManagerAbstract indexManager) {
             count++;
             assertNotNull(indexManager);
           }
 
           @Override
-          public void onFunctionLibraryUpdate(String database) {
+          public void onFunctionLibraryUpdate(ODatabaseSessionInternal session, String database) {
             count++;
           }
 
           @Override
-          public void onSequenceLibraryUpdate(String database) {
+          public void onSequenceLibraryUpdate(ODatabaseSessionInternal session, String database) {
             count++;
           }
 
@@ -97,8 +99,8 @@ public class ODatabaseMetadataUpdateListener {
   public void testIndexUpdate() {
     session
         .createClass("Some")
-        .createProperty("test", OType.STRING)
-        .createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
+        .createProperty(session, "test", OType.STRING)
+        .createIndex(session, OClass.INDEX_TYPE.NOTUNIQUE);
     assertEquals(count, 3);
   }
 
@@ -111,6 +113,6 @@ public class ODatabaseMetadataUpdateListener {
   @After
   public void after() {
     session.close();
-    orientDB.close();
+    oxygenDB.close();
   }
 }

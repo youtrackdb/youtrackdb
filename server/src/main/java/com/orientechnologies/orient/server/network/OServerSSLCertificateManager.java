@@ -2,8 +2,18 @@ package com.orientechnologies.orient.server.network;
 
 import com.orientechnologies.orient.server.security.OSelfSignedCertificate;
 import com.orientechnologies.orient.server.security.SwitchToDefaultParamsException;
-import java.io.*;
-import java.security.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
+import java.security.SignatureException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
@@ -18,7 +28,8 @@ public class OServerSSLCertificateManager {
   private char[] trustStorePass;
   private File trustStoreFile;
 
-  private OServerSSLCertificateManager() {}
+  private OServerSSLCertificateManager() {
+  }
 
   public OServerSSLCertificateManager(
       OServerSSLSocketFactory oServerSSLSocketFactory,
@@ -146,11 +157,11 @@ public class OServerSSLCertificateManager {
   public static OSelfSignedCertificate autoGenerateSelfSignedX509Cerificate(
       OSelfSignedCertificate oCert)
       throws SwitchToDefaultParamsException,
-          NoSuchAlgorithmException,
-          CertificateException,
-          NoSuchProviderException,
-          InvalidKeyException,
-          SignatureException {
+      NoSuchAlgorithmException,
+      CertificateException,
+      NoSuchProviderException,
+      InvalidKeyException,
+      SignatureException {
     oCert.generateCertificateKeyPair();
     oCert.composeSelfSignedCertificate();
     oCert.checkThisCertificate();
@@ -206,7 +217,7 @@ public class OServerSSLCertificateManager {
       ksFOs = new FileOutputStream(keyStore_FilePointer, true);
 
       keyStore_instance.setKeyEntry(
-          certName, key, certPwd, new java.security.cert.Certificate[] {cert});
+          certName, key, certPwd, new java.security.cert.Certificate[]{cert});
 
       keyStore_instance.store(ksFOs, ksPwd);
 

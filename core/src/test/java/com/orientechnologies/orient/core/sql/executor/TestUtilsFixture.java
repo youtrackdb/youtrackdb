@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import org.apache.commons.lang.RandomStringUtils;
 
 /**
- * Created by olena.kolesnyk on 28/07/2017.
+ *
  */
 public class TestUtilsFixture extends BaseMemoryDatabase {
 

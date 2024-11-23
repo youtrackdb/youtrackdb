@@ -29,7 +29,7 @@ public class ORevokeStatement extends OSimpleExecStatement {
 
   @Override
   public OExecutionStream executeSimple(OCommandContext ctx) {
-    ODatabaseSessionInternal db = getDatabase();
+    ODatabaseSessionInternal db = ctx.getDatabase();
     ORole role = db.getMetadata().getSecurity().getRole(actor.getStringValue());
     if (role == null) {
       throw new OCommandExecutionException("Invalid role: " + actor.getStringValue());
@@ -37,8 +37,8 @@ public class ORevokeStatement extends OSimpleExecStatement {
 
     String resourcePath = securityResource.toString();
     if (permission != null) {
-      role.revoke(resourcePath, toPrivilege(permission.permission));
-      role.save();
+      role.revoke(db, resourcePath, toPrivilege(permission.permission));
+      role.save(db);
     } else {
       OSecurityInternal security = db.getSharedContext().getSecurity();
       security.removeSecurityPolicy(db, role, resourcePath);

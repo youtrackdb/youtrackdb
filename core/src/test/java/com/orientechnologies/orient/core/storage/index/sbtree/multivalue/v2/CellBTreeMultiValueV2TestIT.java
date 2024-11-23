@@ -8,8 +8,8 @@ import com.orientechnologies.common.types.OModifiableInteger;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -35,7 +35,7 @@ import org.junit.Test;
 public class CellBTreeMultiValueV2TestIT {
 
   private CellBTreeMultiValueV2<String> multiValueTree;
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
   private OAbstractPaginatedStorage storage;
   private OAtomicOperationsManager atomicOperationsManager;
 
@@ -51,12 +51,12 @@ public class CellBTreeMultiValueV2TestIT {
     final File dbDirectory = new File(buildDirectory, DB_NAME);
     OFileUtils.deleteRecursively(dbDirectory);
 
-    final OrientDBConfig config = OrientDBConfig.builder().build();
-    orientDB = new OrientDB("plocal:" + buildDirectory, config);
-    orientDB.execute(
+    final OxygenDBConfig config = OxygenDBConfig.builder().build();
+    oxygenDB = new OxygenDB("plocal:" + buildDirectory, config);
+    oxygenDB.execute(
         "create database " + DB_NAME + " plocal users ( admin identified by 'admin' role admin)");
 
-    try (ODatabaseSession databaseDocumentTx = orientDB.open(DB_NAME, "admin", "admin")) {
+    try (ODatabaseSession databaseDocumentTx = oxygenDB.open(DB_NAME, "admin", "admin")) {
       storage =
           (OAbstractPaginatedStorage) ((ODatabaseSessionInternal) databaseDocumentTx).getStorage();
     }
@@ -72,8 +72,8 @@ public class CellBTreeMultiValueV2TestIT {
 
   @After
   public void afterMethod() {
-    orientDB.drop(DB_NAME);
-    orientDB.close();
+    oxygenDB.drop(DB_NAME);
+    oxygenDB.close();
   }
 
   @Test

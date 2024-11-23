@@ -6,9 +6,7 @@ import java.security.Key;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * Created by emrul on 28/09/2014.
  *
- * @author Emrul Islam <emrul@emrul.com> Copyright 2014 Emrul Islam
  */
 public class DefaultKeyProvider implements OKeyProvider {
 
@@ -30,6 +28,6 @@ public class DefaultKeyProvider implements OKeyProvider {
 
   @Override
   public String[] getKeys() {
-    return new String[] {"default"};
+    return new String[]{"default"};
   }
 }

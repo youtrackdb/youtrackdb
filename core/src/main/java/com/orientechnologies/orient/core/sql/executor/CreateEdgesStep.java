@@ -7,9 +7,9 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.record.impl.OEdgeInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OBatch;
 import com.orientechnologies.orient.core.sql.parser.OIdentifier;
@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 /**
- * Created by luigidellaquila on 28/11/16.
+ *
  */
 public class CreateEdgesStep extends AbstractExecutionStep {
 
@@ -140,9 +140,9 @@ public class CreateEdgesStep extends AbstractExecutionStep {
               if (currentTo == null) {
                 throw new OCommandExecutionException("Invalid TO vertex for edge");
               }
-              OEdge edgeToUpdate = null;
+              OEdgeInternal edgeToUpdate = null;
               if (uniqueIndex != null) {
-                OEdge existingEdge =
+                OEdgeInternal existingEdge =
                     getExistingEdge(ctx.getDatabase(), currentFrom, currentTo, uniqueIndex);
                 if (existingEdge != null) {
                   edgeToUpdate = existingEdge;
@@ -150,14 +150,15 @@ public class CreateEdgesStep extends AbstractExecutionStep {
               }
 
               if (edgeToUpdate == null) {
-                edgeToUpdate = currentFrom.addEdge(currentTo, targetClass.getStringValue());
+                edgeToUpdate =
+                    (OEdgeInternal) currentFrom.addEdge(currentTo, targetClass.getStringValue());
                 if (targetCluster != null) {
                   if (edgeToUpdate.isLightweight()) {
                     throw new OCommandExecutionException(
                         "Cannot set target cluster on lightweight edges");
                   }
 
-                  edgeToUpdate.save(targetCluster.getStringValue());
+                  edgeToUpdate.getBaseDocument().save(targetCluster.getStringValue());
                 }
               }
 
@@ -169,7 +170,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
             });
   }
 
-  private static OEdge getExistingEdge(
+  private static OEdgeInternal getExistingEdge(
       ODatabaseSessionInternal session,
       OVertex currentFrom,
       OVertex currentTo,
@@ -180,7 +181,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
             .createValue(session, currentFrom.getIdentity(), currentTo.getIdentity());
 
     final Iterator<ORID> iterator;
-    try (Stream<ORID> stream = uniqueIndex.getInternal().getRids(key)) {
+    try (Stream<ORID> stream = uniqueIndex.getInternal().getRids(session, key)) {
       iterator = stream.iterator();
       if (iterator.hasNext()) {
         return iterator.next().getRecord();

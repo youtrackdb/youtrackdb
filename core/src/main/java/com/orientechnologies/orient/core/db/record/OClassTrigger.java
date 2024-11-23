@@ -238,7 +238,7 @@ public class OClassTrigger {
     try {
       Class clz = ClassLoader.getSystemClassLoader().loadClass(clzName);
       Method method = clz.getMethod(methodName, ODocument.class);
-      return new Object[] {clz, method};
+      return new Object[]{clz, method};
     } catch (Exception ex) {
       OLogManager.instance()
           .error(
@@ -275,7 +275,7 @@ public class OClassTrigger {
         database.getSharedContext().getOrientDB().getScriptManager();
 
     final ScriptEngine scriptEngine =
-        scriptManager.acquireDatabaseEngine(database.getName(), func.getLanguage());
+        scriptManager.acquireDatabaseEngine(database.getName(), func.getLanguage(database));
     try {
       final Bindings binding = scriptEngine.getBindings(ScriptContext.ENGINE_SCOPE);
 
@@ -284,11 +284,11 @@ public class OClassTrigger {
 
       String result = null;
       try {
-        if (func.getLanguage() == null) {
+        if (func.getLanguage(database) == null) {
           throw new OConfigurationException(
-              "Database function '" + func.getName() + "' has no language");
+              "Database function '" + func.getName(database) + "' has no language");
         }
-        final String funcStr = scriptManager.getFunctionDefinition(func);
+        final String funcStr = scriptManager.getFunctionDefinition(database, func);
         if (funcStr != null) {
           try {
             scriptEngine.eval(funcStr);
@@ -298,16 +298,17 @@ public class OClassTrigger {
         }
         if (scriptEngine instanceof Invocable invocableEngine) {
           Object[] empty = OCommonConst.EMPTY_OBJECT_ARRAY;
-          result = (String) invocableEngine.invokeFunction(func.getName(), empty);
+          result = (String) invocableEngine.invokeFunction(func.getName(database), empty);
         }
       } catch (ScriptException e) {
         throw OException.wrapException(
             new OCommandScriptException(
-                "Error on execution of the script", func.getName(), e.getColumnNumber()),
+                "Error on execution of the script", func.getName(database), e.getColumnNumber()),
             e);
       } catch (NoSuchMethodException e) {
         throw OException.wrapException(
-            new OCommandScriptException("Error on execution of the script", func.getName(), 0), e);
+            new OCommandScriptException("Error on execution of the script", func.getName(database),
+                0), e);
       } catch (OCommandScriptException e) {
         // PASS THROUGH
         throw e;
@@ -321,7 +322,8 @@ public class OClassTrigger {
       return ORecordHook.RESULT.valueOf(result);
 
     } finally {
-      scriptManager.releaseDatabaseEngine(func.getLanguage(), database.getName(), scriptEngine);
+      scriptManager.releaseDatabaseEngine(func.getLanguage(database), database.getName(),
+          scriptEngine);
     }
   }
 }

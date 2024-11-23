@@ -3,6 +3,7 @@ package com.orientechnologies.orient.client.remote.message;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
@@ -14,7 +15,8 @@ public class OConnectResponse implements OBinaryResponse {
   private int sessionId;
   private byte[] sessionToken;
 
-  public OConnectResponse() {}
+  public OConnectResponse() {
+  }
 
   public OConnectResponse(int sessionId, byte[] token) {
     this.sessionId = sessionId;
@@ -22,7 +24,8 @@ public class OConnectResponse implements OBinaryResponse {
   }
 
   @Override
-  public void write(OChannelDataOutput channel, int protocolVersion, ORecordSerializer serializer)
+  public void write(ODatabaseSessionInternal session, OChannelDataOutput channel,
+      int protocolVersion, ORecordSerializer serializer)
       throws IOException {
     channel.writeInt(sessionId);
     if (protocolVersion > OChannelBinaryProtocol.PROTOCOL_VERSION_26) {

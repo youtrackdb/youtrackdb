@@ -11,7 +11,6 @@ import com.orientechnologies.orient.core.metadata.sequence.OSequence;
 import java.util.Map;
 
 /**
- * @author Matan Shukry (matanshukry@gmail.com)
  * @since 3/5/2015
  */
 public class OCommandExecutorSQLAlterSequence extends OCommandExecutorSQLAbstract
@@ -70,7 +69,7 @@ public class OCommandExecutorSQLAlterSequence extends OCommandExecutorSQLAbstrac
   }
 
   @Override
-  public Object execute(Map<Object, Object> iArgs) {
+  public Object execute(Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
     if (this.sequenceName == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");

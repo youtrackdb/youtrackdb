@@ -19,7 +19,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 /**
- * Created by luigidellaquila on 21/07/16.
+ *
  */
 public interface OResult {
 

@@ -13,7 +13,8 @@ public class ORecordOperation38Response {
   private int version;
   private boolean contentChanged;
 
-  public ORecordOperation38Response() {}
+  public ORecordOperation38Response() {
+  }
 
   public ORecordOperation38Response(
       byte type,

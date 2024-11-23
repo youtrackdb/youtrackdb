@@ -10,7 +10,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 /**
- * Created by tglman on 10/05/17.
+ *
  */
 public class MockPipeChannel extends OChannelBinary {
 

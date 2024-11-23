@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,13 +9,14 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://www.orientdb.com
+ * <p>*
  */
 package com.orientechnologies.security.kerberos;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.parser.OSystemVariableResolver;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.metadata.security.OImmutableUser;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
@@ -42,8 +41,6 @@ import javax.security.auth.login.LoginContext;
 
 /**
  * Implements the Kerberos authenticator module.
- *
- * @author S. Colin Leister
  */
 public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
 
@@ -88,7 +85,7 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
         (long) clientPeriod * 1000 * 60); // Wait 30 seconds before starting
 
     OLogManager.instance()
-        .debug(this, "OrientDB Kerberos Authenticator Is Active Version: " + kerberosPluginVersion);
+        .debug(this, "OxygenDB Kerberos Authenticator Is Active Version: " + kerberosPluginVersion);
   }
 
   // OSecurityAuthenticator
@@ -190,12 +187,14 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
       OLogManager.instance().debug(this, "OKerberosAuthenticator.authenticate() Exception: ", ex);
     }
 
-    return new OImmutableUser(principal, OSecurityUser.SERVER_USER_TYPE);
+    return new OImmutableUser((ODatabaseSessionInternal) session, principal,
+        OSecurityUser.SERVER_USER_TYPE);
   }
 
   // OSecurityAuthenticator
-  public void config(final ODocument kerbConfig, OSecuritySystem security) {
-    super.config(kerbConfig, security);
+  public void config(ODatabaseSessionInternal session, final ODocument kerbConfig,
+      OSecuritySystem security) {
+    super.config(session, kerbConfig, security);
 
     if (kerbConfig.containsField("krb5_config")) {
       krb5Config = OSystemVariableResolver.resolveSystemVariables(kerbConfig.field("krb5_config"));
@@ -304,15 +303,15 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
     String header = null;
 
     // SPNEGO support.
-    //		if(databaseName != null) header = "WWW-Authenticate: Negotiate realm=\"OrientDB db-" +
+    //		if(databaseName != null) header = "WWW-Authenticate: Negotiate realm=\"OxygenDB db-" +
     // databaseName + "\"";
-    //		else header = "WWW-Authenticate: Negotiate realm=\"OrientDB Server\"";
+    //		else header = "WWW-Authenticate: Negotiate realm=\"OxygenDB Server\"";
 
     header = OHttpUtils.HEADER_AUTHENTICATE_NEGOTIATE; // "WWW-Authenticate: Negotiate";
 
     //		if(databaseName != null) header = "WWW-Authenticate: Negotiate\nWWW-Authenticate: Basic
-    // realm=\"OrientDB db-" + databaseName + "\"";
-    //		else header = "WWW-Authenticate: Negotiate\nWWW-Authenticate: Basic realm=\"OrientDB
+    // realm=\"OxygenDB db-" + databaseName + "\"";
+    //		else header = "WWW-Authenticate: Negotiate\nWWW-Authenticate: Basic realm=\"OxygenDB
     // Server\"";
 
     return header;

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,13 +14,14 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.operator;
 
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OCompositeIndexDefinition;
@@ -36,8 +37,6 @@ import java.util.stream.Stream;
 
 /**
  * CONTAINS KEY operator.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OQueryOperatorContainsKey extends OQueryOperatorEqualityNotNulls {
 
@@ -85,7 +84,7 @@ public class OQueryOperatorContainsKey extends OQueryOperatorEqualityNotNulls {
     if (indexDefinition.getParamCount() == 1) {
       if (!((indexDefinition instanceof OPropertyMapIndexDefinition)
           && ((OPropertyMapIndexDefinition) indexDefinition).getIndexBy()
-              == OPropertyMapIndexDefinition.INDEX_BY.KEY)) {
+          == OPropertyMapIndexDefinition.INDEX_BY.KEY)) {
         return null;
       }
 
@@ -97,7 +96,8 @@ public class OQueryOperatorContainsKey extends OQueryOperatorEqualityNotNulls {
         return null;
       }
 
-      stream = index.getInternal().getRids(key).map((rid) -> new ORawPair<>(key, rid));
+      stream = index.getInternal().getRids(iContext.getDatabase(), key)
+          .map((rid) -> new ORawPair<>(key, rid));
     } else {
       // in case of composite keys several items can be returned in case of we perform search
       // using part of composite key stored in index.
@@ -106,10 +106,10 @@ public class OQueryOperatorContainsKey extends OQueryOperatorEqualityNotNulls {
           (OCompositeIndexDefinition) indexDefinition;
 
       if (!((compositeIndexDefinition.getMultiValueDefinition()
-              instanceof OPropertyMapIndexDefinition)
+          instanceof OPropertyMapIndexDefinition)
           && ((OPropertyMapIndexDefinition) compositeIndexDefinition.getMultiValueDefinition())
-                  .getIndexBy()
-              == OPropertyMapIndexDefinition.INDEX_BY.KEY)) {
+          .getIndexBy()
+          == OPropertyMapIndexDefinition.INDEX_BY.KEY)) {
         return null;
       }
 
@@ -123,10 +123,13 @@ public class OQueryOperatorContainsKey extends OQueryOperatorEqualityNotNulls {
       if (internalIndex.hasRangeQuerySupport()) {
         final Object keyTwo =
             compositeIndexDefinition.createSingleValue(iContext.getDatabase(), keyParams);
-        stream = index.getInternal().streamEntriesBetween(keyOne, true, keyTwo, true, ascSortOrder);
+        stream = index.getInternal()
+            .streamEntriesBetween(iContext.getDatabase(), keyOne, true, keyTwo, true,
+                ascSortOrder);
       } else {
         if (indexDefinition.getParamCount() == keyParams.size()) {
-          stream = index.getInternal().getRids(keyOne).map((rid) -> new ORawPair<>(keyOne, rid));
+          stream = index.getInternal().getRids(iContext.getDatabase(), keyOne)
+              .map((rid) -> new ORawPair<>(keyOne, rid));
         } else {
           return null;
         }
@@ -138,12 +141,12 @@ public class OQueryOperatorContainsKey extends OQueryOperatorEqualityNotNulls {
   }
 
   @Override
-  public ORID getBeginRidRange(Object iLeft, Object iRight) {
+  public ORID getBeginRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 
   @Override
-  public ORID getEndRidRange(Object iLeft, Object iRight) {
+  public ORID getEndRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 }

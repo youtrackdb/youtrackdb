@@ -7,8 +7,6 @@ import org.junit.Test;
 
 /**
  * Tests HTTP errors command.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com) (l.garulli--at-orientdb.com)
  */
 public class HttpErrorsTest extends BaseHttpTest {
 

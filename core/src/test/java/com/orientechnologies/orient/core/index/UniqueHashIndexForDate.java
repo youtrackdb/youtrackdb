@@ -16,8 +16,8 @@ public class UniqueHashIndexForDate extends BaseMemoryDatabase {
   @Test
   public void testSimpleUniqueDateIndex() throws ParseException {
     OClass clazz = db.getMetadata().getSchema().createClass("test_edge");
-    OProperty prop = clazz.createProperty("date", OType.DATETIME);
-    prop.createIndex(INDEX_TYPE.UNIQUE);
+    OProperty prop = clazz.createProperty(db, "date", OType.DATETIME);
+    prop.createIndex(db, INDEX_TYPE.UNIQUE);
     ODocument doc = new ODocument("test_edge");
     doc.field("date", "2015-03-24 08:54:49");
 

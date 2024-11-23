@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server;
@@ -23,14 +23,10 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.profiler.OAbstractProfiler.OProfilerHookValue;
 import com.orientechnologies.common.profiler.OProfiler.METRIC_TYPE;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.security.OParsedToken;
-import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
-import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializerFactory;
-import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.enterprise.channel.binary.OTokenSecurityException;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocol;
@@ -40,12 +36,10 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -68,7 +62,7 @@ public class OClientConnectionManager {
     final int delay = OGlobalConfiguration.SERVER_CHANNEL_CLEAN_DELAY.getValueAsInteger();
 
     timerTask =
-        Orient.instance()
+        Oxygen.instance()
             .scheduleTask(
                 () -> {
                   try {
@@ -80,7 +74,7 @@ public class OClientConnectionManager {
                 delay,
                 delay);
 
-    Orient.instance()
+    Oxygen.instance()
         .getProfiler()
         .registerHookValue(
             "server.connections.actives",
@@ -317,9 +311,8 @@ public class OClientConnectionManager {
    * Disconnects a client connections
    *
    * @param iChannelId id of connection
-   * @return true if was last one, otherwise false
    */
-  public boolean disconnect(final int iChannelId) {
+  public void disconnect(final int iChannelId) {
     OLogManager.instance().debug(this, "Disconnecting connection with id=%d", iChannelId);
 
     final OClientConnection connection = connections.remove(iChannelId);
@@ -337,7 +330,7 @@ public class OClientConnectionManager {
                   this,
                   "Disconnected connection with id=%d but are present other active channels",
                   iChannelId);
-          return false;
+          return;
         }
       }
 
@@ -346,11 +339,10 @@ public class OClientConnectionManager {
               this,
               "Disconnected connection with id=%d, no other active channels found",
               iChannelId);
-      return true;
+      return;
     }
 
     OLogManager.instance().debug(this, "Cannot find connection with id=%d", iChannelId);
-    return false;
   }
 
   private void removeConnectionFromSession(OClientConnection connection) {
@@ -397,96 +389,12 @@ public class OClientConnectionManager {
     return connections.size();
   }
 
-  /**
-   * Pushes the distributed configuration to all the connected clients.
-   */
-  public void pushDistribCfg2Clients(final ODocument iConfig) {
-    if (iConfig == null) {
-      return;
-    }
-
-    final Set<String> pushed = new HashSet<String>();
-    for (OClientConnection c : connections.values()) {
-      if (!c.getData().supportsLegacyPushMessages) {
-        continue;
-      }
-
-      try {
-        final String remoteAddress = c.getRemoteAddress();
-        if (pushed.contains(remoteAddress))
-        // ALREADY SENT: JUMP IT
-        {
-          continue;
-        }
-
-      } catch (Exception e) {
-        // SOCKET EXCEPTION SKIP IT
-        continue;
-      }
-
-      if (!(c.getProtocol() instanceof ONetworkProtocolBinary p)
-          || c.getData().getSerializationImpl() == null)
-      // INVOLVE ONLY BINARY PROTOCOLS
-      {
-        continue;
-      }
-
-      final OChannelBinary channel = p.getChannel();
-      final ORecordSerializer ser =
-          ORecordSerializerFactory.instance().getFormat(c.getData().getSerializationImpl());
-      if (ser == null) {
-        return;
-      }
-
-      final byte[] content = ser.toStream(iConfig);
-
-      try {
-        // TRY ACQUIRING THE LOCK FOR MAXIMUM 3 SECS TO AVOID TO FREEZE CURRENT THREAD
-        if (channel.tryAcquireWriteLock(TIMEOUT_PUSH)) {
-          try {
-            channel.writeByte(OChannelBinaryProtocol.PUSH_DATA);
-            channel.writeInt(Integer.MIN_VALUE);
-            channel.writeByte(OChannelBinaryProtocol.REQUEST_PUSH_DISTRIB_CONFIG);
-            channel.writeBytes(content);
-            channel.flush();
-
-            pushed.add(c.getRemoteAddress());
-            OLogManager.instance()
-                .debug(
-                    this,
-                    "Sent updated cluster configuration to the remote client %s",
-                    c.getRemoteAddress());
-
-          } finally {
-            channel.releaseWriteLock();
-          }
-        } else {
-          OLogManager.instance()
-              .info(
-                  this,
-                  "Timeout on sending updated cluster configuration to the remote client %s",
-                  c.getRemoteAddress());
-        }
-      } catch (Exception e) {
-        OLogManager.instance()
-            .warn(
-                this,
-                "Cannot push cluster configuration to the client %s",
-                e,
-                c.getRemoteAddress());
-      }
-    }
-  }
-
   public void shutdown() {
     timerTask.cancel();
 
     List<ONetworkProtocol> toWait = new ArrayList<ONetworkProtocol>();
 
-    final Iterator<Entry<Integer, OClientConnection>> iterator = connections.entrySet().iterator();
-    while (iterator.hasNext()) {
-      final Entry<Integer, OClientConnection> entry = iterator.next();
-
+    for (Entry<Integer, OClientConnection> entry : connections.entrySet()) {
       final ONetworkProtocol protocol = entry.getValue().getProtocol();
 
       if (protocol != null) {
@@ -501,7 +409,7 @@ public class OClientConnectionManager {
       } else {
         if (protocol instanceof ONetworkProtocolBinary
             && ((ONetworkProtocolBinary) protocol).getRequestType()
-                == OChannelBinaryProtocol.REQUEST_SHUTDOWN) {
+            == OChannelBinaryProtocol.REQUEST_SHUTDOWN) {
           continue;
         }
 

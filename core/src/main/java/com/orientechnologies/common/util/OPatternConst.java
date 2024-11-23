@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2015 OrientDB LTD (info(-at-)orientdb.com)
+ *  *  Copyright 2015 OxygenDB LTD (info(-at-)orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.common.util;
@@ -34,5 +34,6 @@ public final class OPatternConst {
   public static final Pattern PATTERN_AMP = Pattern.compile("&");
   public static final Pattern PATTERN_REST_URL = Pattern.compile("\\{[a-zA-Z0-9%:]*\\}");
 
-  private OPatternConst() {}
+  private OPatternConst() {
+  }
 }

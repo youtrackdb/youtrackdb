@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.junit.Test;
 
 /**
- * Created by tglman on 26/10/15.
+ *
  */
 public class RecursiveLinkedSaveTest extends BaseMemoryDatabase {
 

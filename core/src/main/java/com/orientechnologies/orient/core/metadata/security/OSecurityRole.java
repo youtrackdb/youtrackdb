@@ -1,12 +1,13 @@
 package com.orientechnologies.orient.core.metadata.security;
 
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.metadata.security.ORule.ResourceGeneric;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 03/11/14
  */
 public interface OSecurityRole extends Serializable {
@@ -27,13 +28,16 @@ public interface OSecurityRole extends Serializable {
   boolean hasRule(final ORule.ResourceGeneric resourceGeneric, String resourceSpecific);
 
   OSecurityRole addRule(
-      final ORule.ResourceGeneric resourceGeneric, String resourceSpecific, final int iOperation);
+      ODatabaseSession session, final ResourceGeneric resourceGeneric, String resourceSpecific,
+      final int iOperation);
 
   OSecurityRole grant(
-      final ORule.ResourceGeneric resourceGeneric, String resourceSpecific, final int iOperation);
+      ODatabaseSession session, final ResourceGeneric resourceGeneric, String resourceSpecific,
+      final int iOperation);
 
   OSecurityRole revoke(
-      final ORule.ResourceGeneric resourceGeneric, String resourceSpecific, final int iOperation);
+      ODatabaseSession session, final ResourceGeneric resourceGeneric, String resourceSpecific,
+      final int iOperation);
 
   @Deprecated
   boolean allow(final String iResource, final int iCRUDOperation);
@@ -42,15 +46,15 @@ public interface OSecurityRole extends Serializable {
   boolean hasRule(final String iResource);
 
   @Deprecated
-  OSecurityRole addRule(final String iResource, final int iOperation);
+  OSecurityRole addRule(ODatabaseSession session, final String iResource, final int iOperation);
 
   @Deprecated
-  OSecurityRole grant(final String iResource, final int iOperation);
+  OSecurityRole grant(ODatabaseSession session, final String iResource, final int iOperation);
 
   @Deprecated
-  OSecurityRole revoke(final String iResource, final int iOperation);
+  OSecurityRole revoke(ODatabaseSession session, final String iResource, final int iOperation);
 
-  String getName();
+  String getName(ODatabaseSession session);
 
   OSecurityRole.ALLOW_MODES getMode();
 
@@ -58,13 +62,13 @@ public interface OSecurityRole extends Serializable {
 
   OSecurityRole getParentRole();
 
-  OSecurityRole setParentRole(final OSecurityRole iParent);
+  OSecurityRole setParentRole(ODatabaseSession session, final OSecurityRole iParent);
 
   Set<ORule> getRuleSet();
 
-  OIdentifiable getIdentity();
+  OIdentifiable getIdentity(ODatabaseSession session);
 
-  Map<String, OSecurityPolicy> getPolicies();
+  Map<String, OSecurityPolicy> getPolicies(ODatabaseSession session);
 
-  OSecurityPolicy getPolicy(String resource);
+  OSecurityPolicy getPolicy(ODatabaseSession session, String resource);
 }

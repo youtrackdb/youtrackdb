@@ -5,7 +5,7 @@ import static java.util.Arrays.asList;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.OVertex;
 import java.util.HashMap;
@@ -18,7 +18,7 @@ import org.junit.Test;
 
 public class OSQLFunctionShortestPathTest {
 
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
   private ODatabaseSession graph;
 
   private Map<Integer, OVertex> vertices = new HashMap<Integer, OVertex>();
@@ -34,24 +34,31 @@ public class OSQLFunctionShortestPathTest {
   @After
   public void tearDown() throws Exception {
     graph.close();
-    orientDB.close();
+    oxygenDB.close();
   }
 
   private void setUpDatabase() {
-    orientDB =
+    oxygenDB =
         OCreateDatabaseUtil.createDatabase(
             "OSQLFunctionShortestPath", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
     graph =
-        orientDB.open("OSQLFunctionShortestPath", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        oxygenDB.open("OSQLFunctionShortestPath", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     graph.createEdgeClass("Edge1");
     graph.createEdgeClass("Edge2");
 
     graph.begin();
-    vertices.put(1, graph.newVertex().save());
-    vertices.put(2, graph.newVertex().save());
-    vertices.put(3, graph.newVertex().save());
-    vertices.put(4, graph.newVertex().save());
+    var v1 = graph.newVertex();
+    v1.save();
+    vertices.put(1, v1);
+    var v2 = graph.newVertex();
+    v2.save();
+    vertices.put(2, v2);
+    var v3 = graph.newVertex();
+    vertices.put(3, v3);
+    var v4 = graph.newVertex();
+    v4.save();
+    vertices.put(4, v4);
 
     vertices.get(1).setProperty("node_id", "A");
     vertices.get(2).setProperty("node_id", "B");
@@ -64,7 +71,9 @@ public class OSQLFunctionShortestPathTest {
     graph.newEdge(vertices.get(3), vertices.get(4), "Edge1").save();
 
     for (int i = 5; i <= 20; i++) {
-      vertices.put(i, graph.newVertex().save());
+      var v = graph.newVertex();
+      v.save();
+      vertices.put(i, v);
       vertices.get(i).setProperty("node_id", "V" + i);
       graph.newEdge(vertices.get(i - 1), vertices.get(i), "Edge1").save();
       if (i % 2 == 0) {
@@ -83,7 +92,7 @@ public class OSQLFunctionShortestPathTest {
             null,
             null,
             null,
-            new Object[] {vertices.get(1), vertices.get(4)},
+            new Object[]{vertices.get(1), vertices.get(4)},
             new OBasicCommandContext());
 
     Assert.assertEquals(3, result.size());
@@ -101,7 +110,7 @@ public class OSQLFunctionShortestPathTest {
             null,
             null,
             null,
-            new Object[] {vertices.get(1), vertices.get(4), "out", null},
+            new Object[]{vertices.get(1), vertices.get(4), "out", null},
             new OBasicCommandContext());
 
     Assert.assertEquals(4, result.size());
@@ -120,7 +129,7 @@ public class OSQLFunctionShortestPathTest {
             null,
             null,
             null,
-            new Object[] {vertices.get(1), vertices.get(4), null, "Edge1"},
+            new Object[]{vertices.get(1), vertices.get(4), null, "Edge1"},
             new OBasicCommandContext());
 
     Assert.assertEquals(4, result.size());
@@ -139,7 +148,7 @@ public class OSQLFunctionShortestPathTest {
             null,
             null,
             null,
-            new Object[] {vertices.get(1), vertices.get(4), "BOTH", asList("Edge1", "Edge2")},
+            new Object[]{vertices.get(1), vertices.get(4), "BOTH", asList("Edge1", "Edge2")},
             new OBasicCommandContext());
 
     Assert.assertEquals(3, result.size());
@@ -157,7 +166,7 @@ public class OSQLFunctionShortestPathTest {
             null,
             null,
             null,
-            new Object[] {vertices.get(1), vertices.get(20)},
+            new Object[]{vertices.get(1), vertices.get(20)},
             new OBasicCommandContext());
 
     Assert.assertEquals(11, result.size());
@@ -180,7 +189,7 @@ public class OSQLFunctionShortestPathTest {
             null,
             null,
             null,
-            new Object[] {vertices.get(1), vertices.get(20), null, null, additionalParams},
+            new Object[]{vertices.get(1), vertices.get(20), null, null, additionalParams},
             new OBasicCommandContext());
 
     Assert.assertEquals(11, result.size());
@@ -197,7 +206,7 @@ public class OSQLFunctionShortestPathTest {
             null,
             null,
             null,
-            new Object[] {vertices.get(1), vertices.get(20), null, null, additionalParams},
+            new Object[]{vertices.get(1), vertices.get(20), null, null, additionalParams},
             new OBasicCommandContext());
 
     Assert.assertEquals(11, result.size());
@@ -214,7 +223,7 @@ public class OSQLFunctionShortestPathTest {
             null,
             null,
             null,
-            new Object[] {vertices.get(1), vertices.get(20), null, null, additionalParams},
+            new Object[]{vertices.get(1), vertices.get(20), null, null, additionalParams},
             new OBasicCommandContext());
 
     Assert.assertEquals(0, result.size());
@@ -231,7 +240,7 @@ public class OSQLFunctionShortestPathTest {
             null,
             null,
             null,
-            new Object[] {vertices.get(1), vertices.get(20), null, null, additionalParams},
+            new Object[]{vertices.get(1), vertices.get(20), null, null, additionalParams},
             new OBasicCommandContext());
 
     Assert.assertEquals(0, result.size());

@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientechnologies.com
+ *
  *
  */
 package com.orientechnologies.orient.server.distributed.impl.task;
@@ -31,8 +31,6 @@ import com.orientechnologies.orient.server.distributed.task.OAbstractRemoteTask;
 
 /**
  * Distributed message between server to exchange stats.
- *
- * @author Luca Garulli (l.garulli--at--orientdb.com)
  */
 public class OEnterpriseStatsTask extends OAbstractRemoteTask {
 

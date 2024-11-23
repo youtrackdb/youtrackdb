@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -89,9 +89,11 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
   protected int newRecordsPositionsGenerator = -2;
   private final HashMap<String, Object> userData = new HashMap<>();
 
-  @Nullable private OTxMetadataHolder metadata = null;
+  @Nullable
+  private OTxMetadataHolder metadata = null;
 
-  @Nullable private List<byte[]> serializedOperations;
+  @Nullable
+  private List<byte[]> serializedOperations;
 
   protected boolean changed = true;
   private boolean alreadyCleared = false;
@@ -168,7 +170,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
       if (e.type == ORecordOperation.DELETED) {
         return OTransactionAbstract.DELETED_RECORD;
       } else {
-        return e.getRecord();
+        return e.record;
       }
     }
     return null;
@@ -193,15 +195,17 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
       // FILTER RECORDS BY CLASSNAME
       for (ORecordOperation entry : recordOperations.values()) {
         if (entry.type == ORecordOperation.CREATED) {
-          if (entry.getRecord() != null && entry.getRecord() instanceof ODocument) {
-            if (iPolymorphic) {
-              if (iClass.isSuperClassOf(
-                  ODocumentInternal.getImmutableSchemaClass(((ODocument) entry.getRecord())))) {
-                result.add(entry);
-              }
-            } else {
-              if (iClass.getName().equals(((ODocument) entry.getRecord()).getClassName())) {
-                result.add(entry);
+          if (entry.record != null) {
+            if (entry.record instanceof ODocument) {
+              if (iPolymorphic) {
+                if (iClass.isSuperClassOf(
+                    ODocumentInternal.getImmutableSchemaClass(((ODocument) entry.record)))) {
+                  result.add(entry);
+                }
+              } else {
+                if (iClass.getName().equals(((ODocument) entry.record).getClassName())) {
+                  result.add(entry);
+                }
               }
             }
           }
@@ -231,11 +235,12 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     {
       for (ORecordOperation entry : recordOperations.values()) {
         for (int id : iIds) {
-          if (entry.getRecord() != null
-              && entry.getRecord().getIdentity().getClusterId() == id
-              && entry.type == ORecordOperation.CREATED) {
-            result.add(entry);
-            break;
+          if (entry.record != null) {
+            if (entry.record.getIdentity().getClusterId() == id
+                && entry.type == ORecordOperation.CREATED) {
+              result.add(entry);
+              break;
+            }
           }
         }
       }
@@ -380,7 +385,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
 
   private void invalidateChangesInCache() {
     for (final ORecordOperation v : recordOperations.values()) {
-      final ORecord rec = v.getRecord();
+      final ORecordAbstract rec = v.record;
       ORecordInternal.unsetDirty(rec);
       rec.unload();
     }
@@ -623,128 +628,132 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     status = iStatus;
   }
 
-  public void addRecord(ORecordAbstract iRecord, byte iStatus, String iClusterName) {
-    if (iRecord.isUnloaded()) {
+  public void addRecord(ORecordAbstract record, byte status, String clusterName) {
+    if (record.isUnloaded()) {
       throw new ODatabaseException(
           "Record "
-              + iRecord
+              + record
               + " is not bound to session, please call "
               + ODatabaseSession.class.getSimpleName()
               + ".bindToSession(record) before changing it");
     }
-
     changed = true;
     checkTransactionValid();
 
-    if (iClusterName == null) {
-      iClusterName = database.getClusterNameById(iRecord.getIdentity().getClusterId());
+    if (clusterName == null) {
+      clusterName = database.getClusterNameById(record.getIdentity().getClusterId());
     }
 
     try {
-      final ORecordId rid = (ORecordId) iRecord.getIdentity();
+      final ORecordId rid = (ORecordId) record.getIdentity();
       ORecordOperation txEntry = getRecordEntry(rid);
-      if (iStatus == ORecordOperation.CREATED && txEntry != null) {
-        iStatus = ORecordOperation.UPDATED;
+
+      if (txEntry != null) {
+        if (txEntry.record != record) {
+          throw new OTransactionException(
+              "Found record in transaction with the same RID but different instance");
+        }
       }
-      switch (iStatus) {
-        case ORecordOperation.CREATED:
-          {
-            OIdentifiable res = database.beforeCreateOperations(iRecord, iClusterName);
-            if (res != null) {
-              iRecord = (ORecordAbstract) res;
-            }
+
+      if (status == ORecordOperation.CREATED && txEntry != null) {
+        status = ORecordOperation.UPDATED;
+      }
+      switch (status) {
+        case ORecordOperation.CREATED: {
+          OIdentifiable res = database.beforeCreateOperations(record, clusterName);
+          if (res != null) {
+            record = (ORecordAbstract) res;
           }
-          break;
-        case ORecordOperation.UPDATED:
-          {
-            OIdentifiable res = database.beforeUpdateOperations(iRecord, iClusterName);
-            if (res != null) {
-              iRecord = (ORecordAbstract) res;
-            }
+        }
+        break;
+        case ORecordOperation.UPDATED: {
+          OIdentifiable res = database.beforeUpdateOperations(record, clusterName);
+          if (res != null) {
+            record = (ORecordAbstract) res;
           }
-          break;
+        }
+        break;
         case ORecordOperation.DELETED:
-          database.beforeDeleteOperations(iRecord, iClusterName);
+          database.beforeDeleteOperations(record, clusterName);
           break;
       }
 
       try {
         if (!rid.isValid()) {
-          ORecordInternal.onBeforeIdentityChanged(iRecord);
-          database.assignAndCheckCluster(iRecord, iClusterName);
+          ORecordInternal.onBeforeIdentityChanged(record);
+          database.assignAndCheckCluster(record, clusterName);
 
           rid.setClusterPosition(newRecordsPositionsGenerator--);
 
-          ORecordInternal.onAfterIdentityChanged(iRecord);
+          ORecordInternal.onAfterIdentityChanged(record);
         }
         if (txEntry == null) {
-          if (!(rid.isTemporary() && iStatus != ORecordOperation.CREATED)) {
+          if (!(rid.isTemporary() && status != ORecordOperation.CREATED)) {
             // NEW ENTRY: JUST REGISTER IT
-            txEntry = new ORecordOperation(iRecord, iStatus);
+            txEntry = new ORecordOperation(record, status);
             recordOperations.put(rid.copy(), txEntry);
           }
         } else {
           // UPDATE PREVIOUS STATUS
-          txEntry.record = iRecord;
+          txEntry.record = record;
 
           switch (txEntry.type) {
             case ORecordOperation.UPDATED:
-              if (iStatus == ORecordOperation.DELETED) {
+              if (status == ORecordOperation.DELETED) {
                 txEntry.type = ORecordOperation.DELETED;
               }
               break;
             case ORecordOperation.DELETED:
               break;
             case ORecordOperation.CREATED:
-              if (iStatus == ORecordOperation.DELETED) {
+              if (status == ORecordOperation.DELETED) {
                 recordOperations.remove(rid);
-                // txEntry.type = ORecordOperation.DELETED;
               }
               break;
           }
         }
 
-        switch (iStatus) {
+        switch (status) {
           case ORecordOperation.CREATED:
-            database.afterCreateOperations(iRecord);
+            database.afterCreateOperations(record);
             break;
           case ORecordOperation.UPDATED:
-            database.afterUpdateOperations(iRecord);
+            database.afterUpdateOperations(record);
             break;
           case ORecordOperation.DELETED:
-            database.afterDeleteOperations(iRecord);
+            database.afterDeleteOperations(record);
             break;
         }
 
         // RESET TRACKING
-        if (iRecord instanceof ODocument && ((ODocument) iRecord).isTrackingChanges()) {
-          ODocumentInternal.clearTrackData(((ODocument) iRecord));
+        if (record instanceof ODocument && ((ODocument) record).isTrackingChanges()) {
+          ODocumentInternal.clearTrackData(((ODocument) record));
         }
       } catch (final Exception e) {
-        switch (iStatus) {
+        switch (status) {
           case ORecordOperation.CREATED:
-            database.callbackHooks(TYPE.CREATE_FAILED, iRecord);
+            database.callbackHooks(TYPE.CREATE_FAILED, record);
             break;
           case ORecordOperation.UPDATED:
-            database.callbackHooks(TYPE.UPDATE_FAILED, iRecord);
+            database.callbackHooks(TYPE.UPDATE_FAILED, record);
             break;
           case ORecordOperation.DELETED:
-            database.callbackHooks(TYPE.DELETE_FAILED, iRecord);
+            database.callbackHooks(TYPE.DELETE_FAILED, record);
             break;
         }
         throw OException.wrapException(
-            new ODatabaseException("Error on saving record " + iRecord.getIdentity()), e);
+            new ODatabaseException("Error on saving record " + record.getIdentity()), e);
       }
     } finally {
-      switch (iStatus) {
+      switch (status) {
         case ORecordOperation.CREATED:
-          database.callbackHooks(TYPE.FINALIZE_CREATION, iRecord);
+          database.callbackHooks(TYPE.FINALIZE_CREATION, record);
           break;
         case ORecordOperation.UPDATED:
-          database.callbackHooks(TYPE.FINALIZE_UPDATE, iRecord);
+          database.callbackHooks(TYPE.FINALIZE_UPDATE, record);
           break;
         case ORecordOperation.DELETED:
-          database.callbackHooks(TYPE.FINALIZE_DELETION, iRecord);
+          database.callbackHooks(TYPE.FINALIZE_DELETION, record);
           break;
       }
     }
@@ -784,7 +793,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
   public void close() {
     final OLocalRecordCache dbCache = database.getLocalCache();
     for (ORecordOperation txEntry : recordOperations.values()) {
-      var record = txEntry.getRecord();
+      var record = txEntry.record;
 
       if (!record.isUnloaded()) {
         if (record instanceof ODocument document) {
@@ -843,7 +852,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
 
       final OTransactionIndexChanges indexChanges = entry.getValue();
       for (final Iterator<OTransactionIndexChangesPerKey> iterator =
-              indexChanges.changesPerKey.values().iterator();
+          indexChanges.changesPerKey.values().iterator();
           iterator.hasNext(); ) {
         final OTransactionIndexChangesPerKey keyChanges = iterator.next();
         if (isIndexKeyMayDependOnRid(keyChanges.key, oldRid, fieldRidDependencies)) {
@@ -863,18 +872,18 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     if (rec != null) {
       txGeneratedRealRecordIdMap.put(newRid.copy(), oldRid.copy());
 
-      if (!rec.getRecord().getIdentity().equals(newRid)) {
-        ORecordInternal.onBeforeIdentityChanged(rec.getRecord());
+      if (!rec.record.getIdentity().equals(newRid)) {
+        ORecordInternal.onBeforeIdentityChanged(rec.record);
 
-        final ORecordId recordId = (ORecordId) rec.getRecord().getIdentity();
+        final ORecordId recordId = (ORecordId) rec.record.getIdentity();
         if (recordId == null) {
-          ORecordInternal.setIdentity(rec.getRecord(), new ORecordId(newRid));
+          ORecordInternal.setIdentity(rec.record, new ORecordId(newRid));
         } else {
           recordId.setClusterPosition(newRid.getClusterPosition());
           recordId.setClusterId(newRid.getClusterId());
         }
 
-        ORecordInternal.onAfterIdentityChanged(rec.getRecord());
+        ORecordInternal.onAfterIdentityChanged(rec.record);
       }
     }
 
@@ -1056,8 +1065,8 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
       case CUSTOM, ANY -> Dependency.Unknown;
       case EMBEDDED, LINK -> Dependency.Yes;
       case LINKLIST, LINKSET, LINKMAP, LINKBAG, EMBEDDEDLIST, EMBEDDEDSET, EMBEDDEDMAP ->
-          // under normal conditions, collection field type is already resolved to its
-          // component type
+        // under normal conditions, collection field type is already resolved to its
+        // component type
           throw new IllegalStateException("Collection field type is not allowed here");
       default -> // all other primitive types which doesn't depend on rids
           Dependency.No;
@@ -1105,9 +1114,11 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     return id;
   }
 
-  public void clearRecordEntries() {}
+  public void clearRecordEntries() {
+  }
 
-  public void restore() {}
+  public void restore() {
+  }
 
   @Override
   public int getEntryCount() {
@@ -1163,7 +1174,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
   public void prepareSerializedOperations() throws IOException {
     List<byte[]> operations = new ArrayList<>();
     for (ORecordOperation value : recordOperations.values()) {
-      OTransactionDataChange change = new OTransactionDataChange(value);
+      OTransactionDataChange change = new OTransactionDataChange(database, value);
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       change.serialize(new DataOutputStream(out));
       operations.add(out.toByteArray());
@@ -1201,77 +1212,74 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
   }
 
   protected void resolveTracking(final ORecordOperation change) {
-    if (!(change.getRecord() instanceof ODocument rec)) {
+    if (!(change.record instanceof ODocument rec)) {
       return;
     }
 
-    switch (change.getType()) {
-      case ORecordOperation.CREATED:
-        {
-          final ODocument doc = (ODocument) change.getRecord();
-          OLiveQueryHook.addOp(doc, ORecordOperation.CREATED, database);
-          OLiveQueryHookV2.addOp(doc, ORecordOperation.CREATED, database);
-          final OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
-          if (clazz != null) {
-            OClassIndexManager.processIndexOnCreate(database, rec);
-            if (clazz.isFunction()) {
-              database.getSharedContext().getFunctionLibrary().createdFunction(doc);
-            }
-            if (clazz.isSequence()) {
-              ((OSequenceLibraryProxy) database.getMetadata().getSequenceLibrary())
-                  .getDelegate()
-                  .onSequenceCreated(database, doc);
-            }
-            if (clazz.isScheduler()) {
-              database.getMetadata().getScheduler().scheduleEvent(new OScheduledEvent(doc));
-            }
+    switch (change.type) {
+      case ORecordOperation.CREATED: {
+        final ODocument doc = (ODocument) change.record;
+        OLiveQueryHook.addOp(doc, ORecordOperation.CREATED, database);
+        OLiveQueryHookV2.addOp(doc, ORecordOperation.CREATED, database);
+        final OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
+        if (clazz != null) {
+          OClassIndexManager.processIndexOnCreate(database, rec);
+          if (clazz.isFunction()) {
+            database.getSharedContext().getFunctionLibrary().createdFunction(doc);
+          }
+          if (clazz.isSequence()) {
+            ((OSequenceLibraryProxy) database.getMetadata().getSequenceLibrary())
+                .getDelegate()
+                .onSequenceCreated(database, doc);
+          }
+          if (clazz.isScheduler()) {
+            database.getMetadata().getScheduler()
+                .scheduleEvent(database, new OScheduledEvent(doc, database));
           }
         }
-        break;
-      case ORecordOperation.UPDATED:
-        {
-          final OIdentifiable updateRecord = change.getRecord();
-          if (updateRecord instanceof ODocument updateDoc) {
-            OLiveQueryHook.addOp(updateDoc, ORecordOperation.UPDATED, database);
-            OLiveQueryHookV2.addOp(updateDoc, ORecordOperation.UPDATED, database);
-            final OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(updateDoc);
-            if (clazz != null) {
-              OClassIndexManager.processIndexOnUpdate(database, updateDoc);
-              if (clazz.isFunction()) {
-                database.getSharedContext().getFunctionLibrary().updatedFunction(updateDoc);
-              }
-            }
+      }
+      break;
+      case ORecordOperation.UPDATED: {
+        final OIdentifiable updateRecord = change.record;
+        ODocument updateDoc = (ODocument) updateRecord;
+        OLiveQueryHook.addOp(updateDoc, ORecordOperation.UPDATED, database);
+        OLiveQueryHookV2.addOp(updateDoc, ORecordOperation.UPDATED, database);
+        final OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(updateDoc);
+        if (clazz != null) {
+          OClassIndexManager.processIndexOnUpdate(database, updateDoc);
+          if (clazz.isFunction()) {
+            database.getSharedContext().getFunctionLibrary().updatedFunction(updateDoc);
           }
         }
-        break;
-      case ORecordOperation.DELETED:
-        {
-          final ODocument doc = (ODocument) change.getRecord();
-          final OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
-          if (clazz != null) {
-            OClassIndexManager.processIndexOnDelete(database, rec);
-            if (clazz.isFunction()) {
-              database.getSharedContext().getFunctionLibrary().droppedFunction(doc);
-              database
-                  .getSharedContext()
-                  .getOrientDB()
-                  .getScriptManager()
-                  .close(database.getName());
-            }
-            if (clazz.isSequence()) {
-              ((OSequenceLibraryProxy) database.getMetadata().getSequenceLibrary())
-                  .getDelegate()
-                  .onSequenceDropped(database, doc);
-            }
-            if (clazz.isScheduler()) {
-              final String eventName = doc.field(OScheduledEvent.PROP_NAME);
-              database.getSharedContext().getScheduler().removeEventInternal(eventName);
-            }
+      }
+      break;
+      case ORecordOperation.DELETED: {
+        final ODocument doc = (ODocument) change.record;
+        final OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
+        if (clazz != null) {
+          OClassIndexManager.processIndexOnDelete(database, rec);
+          if (clazz.isFunction()) {
+            database.getSharedContext().getFunctionLibrary().droppedFunction(doc);
+            database
+                .getSharedContext()
+                .getOrientDB()
+                .getScriptManager()
+                .close(database.getName());
           }
-          OLiveQueryHook.addOp(doc, ORecordOperation.DELETED, database);
-          OLiveQueryHookV2.addOp(doc, ORecordOperation.DELETED, database);
+          if (clazz.isSequence()) {
+            ((OSequenceLibraryProxy) database.getMetadata().getSequenceLibrary())
+                .getDelegate()
+                .onSequenceDropped(database, doc);
+          }
+          if (clazz.isScheduler()) {
+            final String eventName = doc.field(OScheduledEvent.PROP_NAME);
+            database.getSharedContext().getScheduler().removeEventInternal(eventName);
+          }
         }
-        break;
+        OLiveQueryHook.addOp(doc, ORecordOperation.DELETED, database);
+        OLiveQueryHookV2.addOp(doc, ORecordOperation.DELETED, database);
+      }
+      break;
       default:
         break;
     }

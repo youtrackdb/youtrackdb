@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ public class SQLCreateLinkTest extends DocumentDBBaseTest {
 
     database.begin();
     database.command("INSERT INTO POST (id, title) VALUES ( 10, 'NoSQL movement' )").close();
-    database.command("INSERT INTO POST (id, title) VALUES ( 20, 'New OrientDB' )").close();
+    database.command("INSERT INTO POST (id, title) VALUES ( 20, 'New OxygenDB' )").close();
 
     database.command("INSERT INTO POST (id, title) VALUES ( 30, '(')").close();
 
@@ -57,12 +57,12 @@ public class SQLCreateLinkTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(
         ((Number)
-                database
-                    .command(
-                        "CREATE LINK comments TYPE LINKSET FROM comment.postId TO post.id"
-                            + " INVERSE")
-                    .next()
-                    .getProperty("count"))
+            database
+                .command(
+                    "CREATE LINK comments TYPE LINKSET FROM comment.postId TO post.id"
+                        + " INVERSE")
+                .next()
+                .getProperty("count"))
             .intValue(),
         5);
     database.commit();
@@ -90,7 +90,7 @@ public class SQLCreateLinkTest extends DocumentDBBaseTest {
     Assert.assertTrue(p1 instanceof ODocument);
     Object p2 =
         database
-            .command("INSERT INTO POST2 (id, title) VALUES ( 20, 'New OrientDB' )")
+            .command("INSERT INTO POST2 (id, title) VALUES ( 20, 'New OxygenDB' )")
             .next()
             .toElement();
     Assert.assertTrue(p2 instanceof ODocument);
@@ -142,12 +142,12 @@ public class SQLCreateLinkTest extends DocumentDBBaseTest {
     database.begin();
     Assert.assertEquals(
         ((Number)
-                database
-                    .command(
-                        "CREATE LINK comments TYPE LINKSET FROM comment2.postId TO post2.id"
-                            + " INVERSE")
-                    .next()
-                    .getProperty("count"))
+            database
+                .command(
+                    "CREATE LINK comments TYPE LINKSET FROM comment2.postId TO post2.id"
+                        + " INVERSE")
+                .next()
+                .getProperty("count"))
             .intValue(),
         5);
     database.commit();

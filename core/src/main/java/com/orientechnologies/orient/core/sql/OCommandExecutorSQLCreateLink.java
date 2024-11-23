@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql;
@@ -44,8 +44,6 @@ import java.util.Set;
 
 /**
  * SQL CREATE LINK command: Transform a JOIN relationship to a physical LINK
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 @SuppressWarnings("unchecked")
 public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
@@ -194,7 +192,7 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
   /**
    * Execute the CREATE LINK.
    */
-  public Object execute(final Map<Object, Object> iArgs) {
+  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
     if (destField == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
@@ -277,7 +275,7 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
               }
             }
 
-            result = database.command(new OSQLSynchQuery<ODocument>(cmd + value)).execute();
+            result = database.command(new OSQLSynchQuery<ODocument>(cmd + value)).execute(database);
 
             if (result == null || result.size() == 0) {
               value = null;
@@ -359,7 +357,7 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
           OProperty prop = destClass.getProperty(linkName);
           destClass = database.getMetadata().getSchema().getClass(destClassName);
           if (prop != null) {
-            destClass.dropProperty(linkName);
+            destClass.dropProperty(database, linkName);
           }
 
           if (linkType == null) {
@@ -367,7 +365,7 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
           }
 
           // CREATE THE PROPERTY
-          destClass.createProperty(linkName, linkType, sourceClass);
+          destClass.createProperty(db, linkName, linkType, sourceClass);
 
         } else {
 
@@ -375,21 +373,21 @@ public class OCommandExecutorSQLCreateLink extends OCommandExecutorSQLAbstract {
           OProperty prop = sourceClass.getProperty(linkName);
           sourceClass = database.getMetadata().getSchema().getClass(sourceClassName);
           if (prop != null) {
-            sourceClass.dropProperty(linkName);
+            sourceClass.dropProperty(database, linkName);
           }
 
           // CREATE THE PROPERTY
-          sourceClass.createProperty(linkName, OType.LINK, destClass);
+          sourceClass.createProperty(db, linkName, OType.LINK, destClass);
         }
       }
 
       if (progressListener != null) {
-        progressListener.onCompletition(this, true);
+        progressListener.onCompletition(database, this, true);
       }
 
     } catch (Exception e) {
       if (progressListener != null) {
-        progressListener.onCompletition(this, false);
+        progressListener.onCompletition(database, this, false);
       }
 
       throw OException.wrapException(

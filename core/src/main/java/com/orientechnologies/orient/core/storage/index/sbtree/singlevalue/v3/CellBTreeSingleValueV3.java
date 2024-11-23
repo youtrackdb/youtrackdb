@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -47,7 +47,14 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Spliterator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.annotation.Nonnull;
@@ -78,7 +85,6 @@ import javax.annotation.Nonnull;
  * position of this offset inside of first part of array. Such approach allows to minimize amount of
  * memory involved in performing of operations and as result speed up data processing.
  *
- * @author Andrey Lomakin (lomakin.andrey-at-gmail.com)
  * @since 8/7/13
  */
 public final class CellBTreeSingleValueV3<K> extends ODurableComponent
@@ -150,15 +156,13 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
             }
 
             try (final OCacheEntry rootCacheEntry = addPage(atomicOperation, fileId)) {
-              @SuppressWarnings("unused")
-              final CellBTreeSingleValueBucketV3<K> rootBucket =
+              @SuppressWarnings("unused") final CellBTreeSingleValueBucketV3<K> rootBucket =
                   new CellBTreeSingleValueBucketV3<>(rootCacheEntry);
               rootBucket.init(true);
             }
 
             try (final OCacheEntry nullCacheEntry = addPage(atomicOperation, nullBucketFileId)) {
-              @SuppressWarnings("unused")
-              final CellBTreeSingleValueV3NullBucket nullBucket =
+              @SuppressWarnings("unused") final CellBTreeSingleValueV3NullBucket nullBucket =
                   new CellBTreeSingleValueV3NullBucket(nullCacheEntry);
               nullBucket.init();
             }
@@ -1687,8 +1691,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
       }
 
       try (final OCacheEntry bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
-        @SuppressWarnings("ObjectAllocationInLoop")
-        final CellBTreeSingleValueBucketV3<K> bucket =
+        @SuppressWarnings("ObjectAllocationInLoop") final CellBTreeSingleValueBucketV3<K> bucket =
             new CellBTreeSingleValueBucketV3<>(bucketEntry);
 
         final int index = bucket.find(key, keySerializer);
@@ -1737,8 +1740,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
       }
 
       try (final OCacheEntry bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
-        @SuppressWarnings("ObjectAllocationInLoop")
-        final CellBTreeSingleValueBucketV3<K> keyBucket =
+        @SuppressWarnings("ObjectAllocationInLoop") final CellBTreeSingleValueBucketV3<K> keyBucket =
             new CellBTreeSingleValueBucketV3<>(bucketEntry);
         final int index = keyBucket.find(key, keySerializer);
 
@@ -1778,8 +1780,7 @@ public final class CellBTreeSingleValueV3<K> extends ODurableComponent
 
       path.add(pageIndex);
       try (final OCacheEntry bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
-        @SuppressWarnings("ObjectAllocationInLoop")
-        final CellBTreeSingleValueBucketV3<K> keyBucket =
+        @SuppressWarnings("ObjectAllocationInLoop") final CellBTreeSingleValueBucketV3<K> keyBucket =
             new CellBTreeSingleValueBucketV3<>(bucketEntry);
         final int index = keyBucket.find(key, keySerializer);
 

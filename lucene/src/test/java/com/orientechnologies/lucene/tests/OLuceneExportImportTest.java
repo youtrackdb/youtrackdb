@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by Enrico Risa on 07/07/15.
+ *
  */
 public class OLuceneExportImportTest extends OLuceneBaseTest {
 
@@ -47,7 +47,7 @@ public class OLuceneExportImportTest extends OLuceneBaseTest {
 
     OSchema schema = db.getMetadata().getSchema();
     OClass city = schema.createClass("City");
-    city.createProperty("name", OType.STRING);
+    city.createProperty(db, "name", OType.STRING);
 
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE");
 
@@ -73,14 +73,16 @@ public class OLuceneExportImportTest extends OLuceneBaseTest {
     try {
 
       // export
-      new ODatabaseExport(db, file, s -> {}).exportDatabase();
+      new ODatabaseExport(db, file, s -> {
+      }).exportDatabase();
 
       // import
       dropDatabase();
       setupDatabase();
 
       GZIPInputStream stream = new GZIPInputStream(new FileInputStream(file + ".gz"));
-      new ODatabaseImport(db, stream, s -> {}).importDatabase();
+      new ODatabaseImport(db, stream, s -> {
+      }).importDatabase();
 
     } catch (IOException e) {
       Assert.fail(e.getMessage());

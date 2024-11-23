@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 OrientDB LTD (info--at--orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,6 @@ import org.junit.Test;
  * records - server3 joins the cluster - server3 receive the delta from the cluster - check
  * consistency
  *
- * @author Gabriele Ponzi
  * @email <gabriele.ponzi--at--gmail.com>
  */
 public class IsolatedNodeRejoinScenarioIT extends AbstractScenarioTest {

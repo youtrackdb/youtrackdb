@@ -28,7 +28,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
- * @author Matan Shukry (matanshukry@gmail.com)
  * @since 3/3/2015
  */
 public class DefaultValuesTrivialTest {
@@ -58,9 +57,10 @@ public class DefaultValuesTrivialTest {
     OSchema schema = database.getMetadata().getSchema();
     OClass classPerson = schema.createClass("Person");
 
-    classPerson.createProperty("name", OType.STRING);
-    classPerson.createProperty("join_date", OType.DATETIME).setDefaultValue("sysdate()");
-    classPerson.createProperty("active", OType.BOOLEAN).setDefaultValue("true");
+    classPerson.createProperty(database, "name", OType.STRING);
+    classPerson.createProperty(database, "join_date", OType.DATETIME)
+        .setDefaultValue(database, "sysdate()");
+    classPerson.createProperty(database, "active", OType.BOOLEAN).setDefaultValue(database, "true");
 
     Date dtStart = getDatabaseSysdate(database);
 
@@ -106,7 +106,8 @@ public class DefaultValuesTrivialTest {
   public void testDefaultValueConversion() {
     OSchema schema = database.getMetadata().getSchema();
     OClass classPerson = schema.createClass("Person");
-    classPerson.createProperty("users", OType.LINKSET).setDefaultValue("[#5:1]");
+    classPerson.createProperty(database, "users", OType.LINKSET)
+        .setDefaultValue(database, "[#5:1]");
 
     ODocument doc = new ODocument("Person");
 
@@ -126,9 +127,9 @@ public class DefaultValuesTrivialTest {
     OSchema schema = database.getMetadata().getSchema();
     OClass classA = schema.createClass("ClassA");
 
-    classA.createProperty("name", OType.STRING).setDefaultValue("default name");
-    classA.createProperty("date", OType.DATETIME).setDefaultValue("sysdate()");
-    classA.createProperty("active", OType.BOOLEAN).setDefaultValue("true");
+    classA.createProperty(database, "name", OType.STRING).setDefaultValue(database, "default name");
+    classA.createProperty(database, "date", OType.DATETIME).setDefaultValue(database, "sysdate()");
+    classA.createProperty(database, "active", OType.BOOLEAN).setDefaultValue(database, "true");
 
     {
       ODocument doc = new ODocument(classA);
@@ -166,9 +167,9 @@ public class DefaultValuesTrivialTest {
     OSchema schema = database.getMetadata().getSchema();
     OClass classA = schema.createClass("ClassA");
 
-    OProperty prop = classA.createProperty("name", OType.STRING);
-    prop.setDefaultValue("default name");
-    OIndex index = prop.createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
+    OProperty prop = classA.createProperty(database, "name", OType.STRING);
+    prop.setDefaultValue(database, "default name");
+    OIndex index = prop.createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
 
     {
       ODocument doc = new ODocument(classA);
@@ -176,7 +177,7 @@ public class DefaultValuesTrivialTest {
       database.begin();
       database.save(doc);
       database.commit();
-      try (Stream<ORID> stream = index.getInternal().getRids("default name")) {
+      try (Stream<ORID> stream = index.getInternal().getRids(database, "default name")) {
         assertEquals(1, stream.count());
       }
     }
@@ -189,9 +190,9 @@ public class DefaultValuesTrivialTest {
     OSchema schema = database.getMetadata().getSchema();
     OClass classA = schema.createClass("ClassA");
 
-    OProperty prop = classA.createProperty("name", OType.STRING);
-    prop.setDefaultValue("default name");
-    OIndex index = prop.createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
+    OProperty prop = classA.createProperty(database, "name", OType.STRING);
+    prop.setDefaultValue(database, "default name");
+    OIndex index = prop.createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
 
     {
       database.begin();
@@ -202,11 +203,11 @@ public class DefaultValuesTrivialTest {
       database.save(doc);
       database.commit();
 
-      try (Stream<ORID> stream = index.getInternal().getRids("default name")) {
+      try (Stream<ORID> stream = index.getInternal().getRids(database, "default name")) {
         assertEquals(1, stream.count());
       }
       database.commit();
-      try (Stream<ORID> stream = index.getInternal().getRids("default name")) {
+      try (Stream<ORID> stream = index.getInternal().getRids(database, "default name")) {
         assertEquals(1, stream.count());
       }
     }
@@ -219,10 +220,11 @@ public class DefaultValuesTrivialTest {
     OSchema schema = database.getMetadata().getSchema();
     OClass classA = schema.createClass("ClassA");
 
-    OProperty prop = classA.createProperty("name", OType.STRING);
-    prop.setDefaultValue("default name");
-    OProperty prop2 = classA.createProperty("value", OType.STRING);
-    OIndex index = classA.createIndex("multi", OClass.INDEX_TYPE.NOTUNIQUE, "value", "name");
+    OProperty prop = classA.createProperty(database, "name", OType.STRING);
+    prop.setDefaultValue(database, "default name");
+    OProperty prop2 = classA.createProperty(database, "value", OType.STRING);
+    OIndex index = classA.createIndex(database, "multi", OClass.INDEX_TYPE.NOTUNIQUE, "value",
+        "name");
 
     {
       ODocument doc = new ODocument(classA);
@@ -233,7 +235,7 @@ public class DefaultValuesTrivialTest {
       database.save(doc);
       database.commit();
 
-      try (Stream<ORID> stream = index.getInternal().getRids(new OCompositeKey("1"))) {
+      try (Stream<ORID> stream = index.getInternal().getRids(database, new OCompositeKey("1"))) {
         assertEquals(1, stream.count());
       }
     }
@@ -246,11 +248,11 @@ public class DefaultValuesTrivialTest {
       database.save(doc);
       database.commit();
 
-      try (Stream<ORID> stream = index.getInternal().getRids(new OCompositeKey("2"))) {
+      try (Stream<ORID> stream = index.getInternal().getRids(database, new OCompositeKey("2"))) {
         assertEquals(1, stream.count());
       }
     }
-    try (Stream<ORID> stream = index.getInternal().getRids(new OCompositeKey("3"))) {
+    try (Stream<ORID> stream = index.getInternal().getRids(database, new OCompositeKey("3"))) {
       assertEquals(0, stream.count());
     }
   }

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -42,7 +42,8 @@ public class OSimpleKeyIndexDefinition extends OAbstractIndexDefinition {
     this.keyTypes = keyTypes;
   }
 
-  public OSimpleKeyIndexDefinition() {}
+  public OSimpleKeyIndexDefinition() {
+  }
 
   public OSimpleKeyIndexDefinition(OType[] keyTypes2, List<OCollate> collatesList) {
     super();
@@ -88,7 +89,8 @@ public class OSimpleKeyIndexDefinition extends OAbstractIndexDefinition {
     }
 
     if (keyTypes.length == 1) {
-      return OType.convert(refreshRid(session, params[0]), keyTypes[0].getDefaultJavaType());
+      return OType.convert(session, refreshRid(session, params[0]),
+          keyTypes[0].getDefaultJavaType());
     }
 
     final OCompositeKey compositeKey = new OCompositeKey();
@@ -96,7 +98,8 @@ public class OSimpleKeyIndexDefinition extends OAbstractIndexDefinition {
     for (int i = 0; i < params.length; ++i) {
       final Comparable<?> paramValue =
           (Comparable<?>)
-              OType.convert(refreshRid(session, params[i]), keyTypes[i].getDefaultJavaType());
+              OType.convert(session, refreshRid(session, params[i]),
+                  keyTypes[i].getDefaultJavaType());
 
       if (paramValue == null) {
         return null;

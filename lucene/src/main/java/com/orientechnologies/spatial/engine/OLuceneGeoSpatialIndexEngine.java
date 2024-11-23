@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -10,7 +10,7 @@
  * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  * <p>
- * For more information: http://www.orientdb.com
+ * *
  */
 package com.orientechnologies.spatial.engine;
 
@@ -21,6 +21,7 @@ import com.orientechnologies.lucene.collections.OLuceneResultSet;
 import com.orientechnologies.lucene.collections.OLuceneResultSetEmpty;
 import com.orientechnologies.lucene.query.OLuceneQueryContext;
 import com.orientechnologies.lucene.tx.OLuceneTxChanges;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.OContextualRecordId;
 import com.orientechnologies.orient.core.id.ORID;
@@ -57,12 +58,13 @@ public class OLuceneGeoSpatialIndexEngine extends OLuceneSpatialIndexEngineAbstr
   }
 
   @Override
-  public Object get(Object key) {
-    return getInTx(key, null);
+  public Object get(ODatabaseSessionInternal session, Object key) {
+    return getInTx(session, key, null);
   }
 
   @Override
-  public Set<OIdentifiable> getInTx(Object key, OLuceneTxChanges changes) {
+  public Set<OIdentifiable> getInTx(ODatabaseSessionInternal session, Object key,
+      OLuceneTxChanges changes) {
     updateLastAccess();
     openIfClosed();
     try {
@@ -112,7 +114,8 @@ public class OLuceneGeoSpatialIndexEngine extends OLuceneSpatialIndexEngineAbstr
   }
 
   @Override
-  public void put(OAtomicOperation atomicOperation, Object key, Object value) {
+  public void put(ODatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
+      Object value) {
 
     if (key instanceof OIdentifiable) {
       openIfClosed();
@@ -124,7 +127,8 @@ public class OLuceneGeoSpatialIndexEngine extends OLuceneSpatialIndexEngineAbstr
 
   @Override
   public void update(
-      OAtomicOperation atomicOperation, Object key, OIndexKeyUpdater<Object> updater) {
+      ODatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
+      OIndexKeyUpdater<Object> updater) {
     throw new UnsupportedOperationException();
   }
 
@@ -139,7 +143,7 @@ public class OLuceneGeoSpatialIndexEngine extends OLuceneSpatialIndexEngineAbstr
   }
 
   @Override
-  public Document buildDocument(Object key, OIdentifiable value) {
+  public Document buildDocument(ODatabaseSessionInternal session, Object key, OIdentifiable value) {
     ODocument location = ((OIdentifiable) key).getRecord();
     return newGeoDocument(value, factory.fromDoc(location), location);
   }

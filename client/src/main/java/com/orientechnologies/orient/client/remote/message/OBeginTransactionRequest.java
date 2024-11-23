@@ -6,6 +6,7 @@ import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.client.remote.message.tx.IndexChange;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
@@ -29,7 +30,7 @@ public class OBeginTransactionRequest implements OBinaryRequest<OBeginTransactio
   private List<IndexChange> indexChanges;
 
   public OBeginTransactionRequest(
-      int txId,
+      ODatabaseSessionInternal session, int txId,
       boolean hasContent,
       boolean usingLog,
       Iterable<ORecordOperation> operations,
@@ -45,15 +46,15 @@ public class OBeginTransactionRequest implements OBinaryRequest<OBeginTransactio
       for (ORecordOperation txEntry : operations) {
         ORecordOperationRequest request = new ORecordOperationRequest();
         request.setType(txEntry.type);
-        request.setVersion(txEntry.getRecord().getVersion());
-        request.setId(txEntry.getRecord().getIdentity());
-        request.setRecordType(ORecordInternal.getRecordType(txEntry.getRecord()));
+        request.setVersion(txEntry.record.getVersion());
+        request.setId(txEntry.record.getIdentity());
+        request.setRecordType(ORecordInternal.getRecordType(txEntry.record));
         switch (txEntry.type) {
           case ORecordOperation.CREATED:
           case ORecordOperation.UPDATED:
             request.setRecord(
-                ORecordSerializerNetworkV37Client.INSTANCE.toStream(txEntry.getRecord()));
-            request.setContentChanged(ORecordInternal.isContentChanged(txEntry.getRecord()));
+                ORecordSerializerNetworkV37Client.INSTANCE.toStream(session, txEntry.record));
+            request.setContentChanged(ORecordInternal.isContentChanged(txEntry.record));
             break;
         }
         this.operations.add(request);
@@ -65,10 +66,12 @@ public class OBeginTransactionRequest implements OBinaryRequest<OBeginTransactio
     }
   }
 
-  public OBeginTransactionRequest() {}
+  public OBeginTransactionRequest() {
+  }
 
   @Override
-  public void write(OChannelDataOutput network, OStorageRemoteSession session) throws IOException {
+  public void write(ODatabaseSessionInternal database, OChannelDataOutput network,
+      OStorageRemoteSession session) throws IOException {
     // from 3.0 the the serializer is bound to the protocol
     ORecordSerializerNetworkV37Client serializer = ORecordSerializerNetworkV37Client.INSTANCE;
 

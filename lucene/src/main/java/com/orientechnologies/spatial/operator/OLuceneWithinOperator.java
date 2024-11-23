@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,13 +9,14 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://www.orientdb.com
+ * <p>*
  */
 package com.orientechnologies.spatial.operator;
 
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.lucene.operator.OLuceneOperatorUtil;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -63,7 +62,8 @@ public class OLuceneWithinOperator extends OQueryTargetOperator {
     Shape shape = SpatialContext.GEO.makePoint(lon, lat);
 
     Shape shape1 =
-        shapeFactory.makeShape(new OSpatialCompositeKey((List<?>) iRight), SpatialContext.GEO);
+        shapeFactory.makeShape(iContext.getDatabase(), new OSpatialCompositeKey((List<?>) iRight),
+            SpatialContext.GEO);
 
     return shape.relate(shape1) == SpatialRelation.WITHIN;
   }
@@ -77,20 +77,20 @@ public class OLuceneWithinOperator extends OQueryTargetOperator {
   public Stream<ORawPair<Object, ORID>> executeIndexQuery(
       OCommandContext iContext, OIndex index, List<Object> keyParams, boolean ascSortOrder) {
     iContext.setVariable("$luceneIndex", true);
-    //noinspection resource
     return index
         .getInternal()
-        .getRids(new OSpatialCompositeKey(keyParams).setOperation(SpatialOperation.IsWithin))
+        .getRids(iContext.getDatabase(),
+            new OSpatialCompositeKey(keyParams).setOperation(SpatialOperation.IsWithin))
         .map((rid) -> new ORawPair<>(new OSpatialCompositeKey(keyParams), rid));
   }
 
   @Override
-  public ORID getBeginRidRange(Object iLeft, Object iRight) {
+  public ORID getBeginRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 
   @Override
-  public ORID getEndRidRange(Object iLeft, Object iRight) {
+  public ORID getEndRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 

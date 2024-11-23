@@ -14,7 +14,7 @@ import java.util.Map;
 import org.junit.Test;
 
 /**
- * Created by tglman on 17/05/17.
+ *
  */
 public class OLiveQueryMessagesTests {
 
@@ -24,7 +24,7 @@ public class OLiveQueryMessagesTests {
     params.put("par", "value");
     OSubscribeLiveQueryRequest request = new OSubscribeLiveQueryRequest("select from Some", params);
     MockChannel channel = new MockChannel();
-    request.write(channel, null);
+    request.write(null, channel, null);
     channel.close();
     OSubscribeLiveQueryRequest requestRead = new OSubscribeLiveQueryRequest();
     requestRead.read(channel, -1, new ORecordSerializerNetworkV37());
@@ -36,7 +36,7 @@ public class OLiveQueryMessagesTests {
   public void testSubscribeResponseWriteRead() throws IOException {
     OSubscribeLiveQueryResponse response = new OSubscribeLiveQueryResponse(20);
     MockChannel channel = new MockChannel();
-    response.write(channel, 0, null);
+    response.write(null, channel, 0, null);
     channel.close();
     OSubscribeLiveQueryResponse responseRead = new OSubscribeLiveQueryResponse();
     responseRead.read(channel, null);
@@ -49,7 +49,7 @@ public class OLiveQueryMessagesTests {
     OLiveQueryPushRequest pushRequest =
         new OLiveQueryPushRequest(10, 20, OErrorCode.GENERIC_ERROR, "the message");
     MockChannel channel = new MockChannel();
-    pushRequest.write(channel);
+    pushRequest.write(null, channel);
     channel.close();
     OLiveQueryPushRequest pushRequestRead = new OLiveQueryPushRequest();
     pushRequestRead.read(channel);
@@ -76,7 +76,7 @@ public class OLiveQueryMessagesTests {
     OLiveQueryPushRequest pushRequest =
         new OLiveQueryPushRequest(10, OLiveQueryPushRequest.END, events);
     MockChannel channel = new MockChannel();
-    pushRequest.write(channel);
+    pushRequest.write(null, channel);
     channel.close();
     OLiveQueryPushRequest pushRequestRead = new OLiveQueryPushRequest();
     pushRequestRead.read(channel);

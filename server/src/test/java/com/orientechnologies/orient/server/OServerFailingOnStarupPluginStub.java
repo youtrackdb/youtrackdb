@@ -4,7 +4,7 @@ import com.orientechnologies.orient.server.distributed.ODistributedException;
 import com.orientechnologies.orient.server.plugin.OServerPluginAbstract;
 
 /**
- * Created by frank on 21/01/2016.
+ *
  */
 public class OServerFailingOnStarupPluginStub extends OServerPluginAbstract {
 

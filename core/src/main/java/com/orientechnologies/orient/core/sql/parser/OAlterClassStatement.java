@@ -4,6 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -326,7 +327,8 @@ public class OAlterClassStatement extends ODDLStatement {
 
   @Override
   public OExecutionStream executeDDL(OCommandContext ctx) {
-    OClass oClass = ctx.getDatabase().getMetadata().getSchema().getClass(name.getStringValue());
+    var database = ctx.getDatabase();
+    OClass oClass = database.getMetadata().getSchema().getClass(name.getStringValue());
     if (oClass == null) {
       throw new OCommandExecutionException("Class not found: " + name);
     }
@@ -335,10 +337,10 @@ public class OAlterClassStatement extends ODDLStatement {
         case NAME:
           if (!unsafe) {
             checkNotEdge(oClass);
-            checkNotIndexed(oClass);
+            checkNotIndexed(database, oClass);
           }
           try {
-            oClass.setName(identifierValue.getStringValue());
+            oClass.setName(database, identifierValue.getStringValue());
           } catch (Exception e) {
             OException x =
                 OException.wrapException(
@@ -349,7 +351,7 @@ public class OAlterClassStatement extends ODDLStatement {
         case SHORTNAME:
           if (identifierValue != null) {
             try {
-              oClass.setShortName(identifierValue.getStringValue());
+              oClass.setShortName(database, identifierValue.getStringValue());
             } catch (Exception e) {
               OException x =
                   OException.wrapException(
@@ -362,9 +364,9 @@ public class OAlterClassStatement extends ODDLStatement {
           break;
         case ADDCLUSTER:
           if (identifierValue != null) {
-            oClass.addCluster(identifierValue.getStringValue());
+            oClass.addCluster(database, identifierValue.getStringValue());
           } else if (numberValue != null) {
-            oClass.addClusterId(numberValue.getValue().intValue());
+            oClass.addClusterId(database, numberValue.getValue().intValue());
           } else {
             throw new OCommandExecutionException("Invalid cluster value: " + this);
           }
@@ -381,11 +383,11 @@ public class OAlterClassStatement extends ODDLStatement {
           } else {
             throw new OCommandExecutionException("Invalid cluster value: " + this);
           }
-          oClass.removeClusterId(clusterId);
+          oClass.removeClusterId(database, clusterId);
           break;
         case DESCRIPTION:
           if (identifierValue != null) {
-            oClass.setDescription(identifierValue.getStringValue());
+            oClass.setDescription(database, identifierValue.getStringValue());
           } else {
             throw new OCommandExecutionException("Invalid class name: " + this);
           }
@@ -396,11 +398,11 @@ public class OAlterClassStatement extends ODDLStatement {
           break;
         case CLUSTERSELECTION:
           if (identifierValue != null) {
-            oClass.setClusterSelection(identifierValue.getStringValue());
+            oClass.setClusterSelection(database, identifierValue.getStringValue());
           } else if (customString != null) {
-            oClass.setClusterSelection(customString);
+            oClass.setClusterSelection(database, customString);
           } else {
-            oClass.setClusterSelection("null");
+            oClass.setClusterSelection(database, "null");
           }
           break;
         case SUPERCLASS:
@@ -408,19 +410,19 @@ public class OAlterClassStatement extends ODDLStatement {
           break;
         case SUPERCLASSES:
           if (identifierListValue == null) {
-            oClass.setSuperClasses(Collections.EMPTY_LIST);
+            oClass.setSuperClasses(database, Collections.EMPTY_LIST);
           } else {
             doSetSuperclasses(ctx, oClass, identifierListValue);
           }
           break;
         case OVERSIZE:
-          oClass.setOverSize(numberValue.getValue().floatValue());
+          oClass.setOverSize(database, numberValue.getValue().floatValue());
           break;
         case STRICTMODE:
-          oClass.setStrictMode(booleanValue.booleanValue());
+          oClass.setStrictMode(database, booleanValue.booleanValue());
           break;
         case ABSTRACT:
-          oClass.setAbstract(booleanValue.booleanValue());
+          oClass.setAbstract(database, booleanValue.booleanValue());
           break;
         case CUSTOM:
           Object value = null;
@@ -430,14 +432,14 @@ public class OAlterClassStatement extends ODDLStatement {
           if (value != null) {
             value = "" + value;
           }
-          oClass.setCustom(customKey.getStringValue(), (String) value);
+          oClass.setCustom(database, customKey.getStringValue(), (String) value);
           break;
       }
     } else if (defaultClusterId != null) {
-      oClass.setDefaultClusterId(defaultClusterId.getValue().intValue());
+      oClass.setDefaultClusterId(database, defaultClusterId.getValue().intValue());
     } else if (defaultClusterName != null) {
-      int clusterId = ctx.getDatabase().getClusterIdByName(defaultClusterName.getStringValue());
-      oClass.setDefaultClusterId(clusterId);
+      int clusterId = database.getClusterIdByName(defaultClusterName.getStringValue());
+      oClass.setDefaultClusterId(database, clusterId);
     }
     OResultInternal result = new OResultInternal();
     result.setProperty("operation", "ALTER CLASS");
@@ -446,8 +448,8 @@ public class OAlterClassStatement extends ODDLStatement {
     return OExecutionStream.singleton(result);
   }
 
-  private void checkNotIndexed(OClass oClass) {
-    Set<OIndex> indexes = oClass.getIndexes();
+  private void checkNotIndexed(ODatabaseSessionInternal session, OClass oClass) {
+    Set<OIndex> indexes = oClass.getIndexes(session);
     if (indexes != null && indexes.size() > 0) {
       throw new OCommandExecutionException(
           "Cannot rename class '"
@@ -471,22 +473,24 @@ public class OAlterClassStatement extends ODDLStatement {
     if (superclassName == null) {
       throw new OCommandExecutionException("Invalid superclass name: " + this);
     }
+    var database = ctx.getDatabase();
     OClass superclass =
-        ctx.getDatabase().getMetadata().getSchema().getClass(superclassName.getStringValue());
+        database.getMetadata().getSchema().getClass(superclassName.getStringValue());
     if (superclass == null) {
       throw new OCommandExecutionException("superclass not found: " + this);
     }
     if (Boolean.TRUE.equals(add)) {
-      oClass.addSuperClass(superclass);
+      oClass.addSuperClass(database, superclass);
     } else if (Boolean.TRUE.equals(remove)) {
-      oClass.removeSuperClass(superclass);
+      oClass.removeSuperClass(database, superclass);
     } else {
-      oClass.setSuperClasses(Collections.singletonList(superclass));
+      oClass.setSuperClasses(database, Collections.singletonList(superclass));
     }
   }
 
   private void doSetSuperclasses(
       OCommandContext ctx, OClass oClass, List<OIdentifier> superclassNames) {
+    var database = ctx.getDatabase();
     if (superclassNames == null) {
       throw new OCommandExecutionException("Invalid superclass name: " + this);
     }
@@ -501,14 +505,14 @@ public class OAlterClassStatement extends ODDLStatement {
     }
     if (Boolean.TRUE.equals(add)) {
       for (OClass superclass : superclasses) {
-        oClass.addSuperClass(superclass);
+        oClass.addSuperClass(database, superclass);
       }
     } else if (Boolean.TRUE.equals(remove)) {
       for (OClass superclass : superclasses) {
-        oClass.removeSuperClass(superclass);
+        oClass.removeSuperClass(database, superclass);
       }
     } else {
-      oClass.setSuperClasses(superclasses);
+      oClass.setSuperClasses(database, superclasses);
     }
   }
 }

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,12 +14,16 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.test.database.auto;
 
+import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import java.io.IOException;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -27,8 +31,14 @@ import org.testng.annotations.Test;
 public class AlterDatabaseTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
-  public AlterDatabaseTest(boolean remote) {
-    super(remote);
+  public AlterDatabaseTest(@Optional Boolean remote) {
+    super(remote != null && remote);
+  }
+
+  @Override
+  protected OxygenDBConfig createConfig(OrientDBConfigBuilder builder) {
+    builder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    return builder.build();
   }
 
   public void alterDateFormatOk() throws IOException {

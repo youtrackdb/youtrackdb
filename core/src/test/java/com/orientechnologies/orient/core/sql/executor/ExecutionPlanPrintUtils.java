@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 /**
- * Created by frank on 21/10/2016.
+ *
  */
 public class ExecutionPlanPrintUtils {
 

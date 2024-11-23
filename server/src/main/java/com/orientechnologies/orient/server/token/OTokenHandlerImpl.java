@@ -35,9 +35,7 @@ import java.util.Base64;
 import java.util.UUID;
 
 /**
- * Created by emrul on 27/10/2014.
  *
- * @author Emrul Islam <emrul@emrul.com> Copyright 2014 Emrul Islam
  */
 public class OTokenHandlerImpl implements OTokenHandler {
 
@@ -65,10 +63,10 @@ public class OTokenHandlerImpl implements OTokenHandler {
     sessionInMills = sessionLength * 1000 * 60;
     this.binarySerializer =
         new OBinaryTokenSerializer(
-            new String[] {"plocal", "memory"},
+            new String[]{"plocal", "memory"},
             this.sign.getKeys(),
-            new String[] {this.sign.getAlgorithm()},
-            new String[] {"OrientDB", "node"});
+            new String[]{this.sign.getAlgorithm()},
+            new String[]{"OxygenDB", "node"});
   }
 
   protected OTokenHandlerImpl() {
@@ -265,7 +263,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
       final OrientJwtHeader header = new OrientJwtHeader();
       header.setAlgorithm(this.sign.getAlgorithm());
       header.setKeyId(this.sign.getDefaultKey());
-      header.setType("OrientDB");
+      header.setType("OxygenDB");
       token.setHeader(header);
       OBinaryTokenPayloadImpl payload = new OBinaryTokenPayloadImpl();
       if (db != null) {
@@ -277,7 +275,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
         payload.setUserName(data.serverUsername);
       }
       if (user != null) {
-        payload.setUserRid(user.getIdentity().getIdentity());
+        payload.setUserRid(user.getIdentity(db).getIdentity());
       }
       payload.setExpiry(curTime + sessionInMills);
       payload.setProtocolVersion(data.protocolVersion);
@@ -396,7 +394,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
   }
 
   protected OJwtPayload deserializeWebPayload(final String type, final byte[] decodedPayload) {
-    if (!"OrientDB".equals(type)) {
+    if (!"OxygenDB".equals(type)) {
       throw new OSystemException("Payload class not registered:" + type);
     }
     final ODocument doc = new ODocument();
@@ -455,7 +453,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
     }
 
     final OrientJwtPayload payload = new OrientJwtPayload();
-    payload.setAudience("OrientDBServer");
+    payload.setAudience("OxygenDBServer");
     payload.setDatabase("-");
     payload.setUserRid(OImmutableRecordId.EMPTY_RECORD_ID);
 
@@ -463,7 +461,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
     final long currTime = System.currentTimeMillis();
     payload.setIssuedAt(currTime);
     payload.setNotBefore(currTime);
-    payload.setUserName(serverUser.getName());
+    payload.setUserName(serverUser.getName(null));
     payload.setTokenId(UUID.randomUUID().toString());
     payload.setExpiry(currTime + expiryMinutes);
     return payload;
@@ -475,22 +473,22 @@ public class OTokenHandlerImpl implements OTokenHandler {
     }
 
     final OrientJwtPayload payload = new OrientJwtPayload();
-    payload.setAudience("OrientDB");
+    payload.setAudience("OxygenDB");
     payload.setDatabase(db.getName());
-    payload.setUserRid(user.getIdentity().getIdentity());
+    payload.setUserRid(user.getIdentity(db).getIdentity());
 
     final long expiryMinutes = sessionInMills;
     final long currTime = System.currentTimeMillis();
     payload.setIssuedAt(currTime);
     payload.setNotBefore(currTime);
-    payload.setUserName(user.getName());
+    payload.setUserName(user.getName(db));
     payload.setTokenId(UUID.randomUUID().toString());
     payload.setExpiry(currTime + expiryMinutes);
     return payload;
   }
 
   protected String getPayloadType(final OJwtPayload payload) {
-    return "OrientDB";
+    return "OxygenDB";
   }
 
   private OBinaryToken deserializeBinaryToken(final InputStream bais) {

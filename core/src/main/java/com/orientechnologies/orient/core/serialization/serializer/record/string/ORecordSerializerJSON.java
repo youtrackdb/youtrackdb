@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.serialization.serializer.record.string;
@@ -25,7 +25,7 @@ import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.parser.OStringParser;
 import com.orientechnologies.common.util.OCommonConst;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -47,6 +47,7 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.ORecordStringable;
 import com.orientechnologies.orient.core.record.impl.OBlob;
@@ -76,7 +77,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
 
   public static final String NAME = "json";
   public static final ORecordSerializerJSON INSTANCE = new ORecordSerializerJSON();
-  public static final char[] PARAMETER_SEPARATOR = new char[] {':', ','};
+  public static final char[] PARAMETER_SEPARATOR = new char[]{':', ','};
   public static final int INITIAL_SIZE = 5000;
   private static final Long MAX_INT = (long) Integer.MAX_VALUE;
   private static final Long MIN_INT = (long) Integer.MIN_VALUE;
@@ -190,28 +191,28 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
     return 0;
   }
 
-  public ORecord fromString(
-      String source, ORecord record, final String[] fields, boolean needReload) {
+  public ORecordAbstract fromString(
+      String source, ORecordAbstract record, final String[] fields, boolean needReload) {
     return fromString(source, record, fields, null, needReload);
   }
 
   @Override
-  public ORecord fromString(String source, ORecord record, final String[] fields) {
+  public ORecordAbstract fromString(String source, ORecordAbstract record, final String[] fields) {
     return fromString(source, record, fields, null, false);
   }
 
-  public ORecord fromString(
+  public ORecordAbstract fromString(
       String source,
-      ORecord record,
+      ORecordAbstract record,
       final String[] fields,
       final String options,
       boolean needReload) {
     return fromString(source, record, fields, options, needReload, -1, new IntOpenHashSet());
   }
 
-  public ORecord fromString(
+  public ORecordAbstract fromString(
       String source,
-      ORecord record,
+      ORecordAbstract record,
       final String[] iFields,
       final String iOptions,
       boolean needReload,
@@ -221,9 +222,9 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
         source, record, iOptions, needReload, maxRidbagSizeBeforeSkip, skippedPartsIndexes);
   }
 
-  public ORecord fromStringV0(
+  public ORecordAbstract fromStringV0(
       String source,
-      ORecord record,
+      ORecordAbstract record,
       final String iOptions,
       boolean needReload,
       int maxRidbagSizeBeforeSkip,
@@ -291,7 +292,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
                 || ORecordInternal.getRecordType(record) != fieldValueAsString.charAt(0)) {
               // CREATE THE RIGHT RECORD INSTANCE
               record =
-                  Orient.instance()
+                  Oxygen.instance()
                       .getRecordFactoryManager()
                       .newInstance(
                           (byte) fieldValueAsString.charAt(0),
@@ -360,7 +361,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
   }
 
   private void processRecordsV0(
-      ORecord record,
+      ORecordAbstract record,
       Map<String, Character> fieldTypes,
       boolean noMap,
       String iOptions,
@@ -519,7 +520,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
                 settings.indentLevel,
                 true,
                 "value",
-                Base64.getEncoder().encodeToString(record.toStream()));
+                Base64.getEncoder().encodeToString(((ORecordAbstract) record).toStream()));
           } else {
             throw new OSerializationException(
                 "Error on marshalling record of type '"
@@ -567,7 +568,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
                 settings.indentLevel,
                 true,
                 "value",
-                Base64.getEncoder().encodeToString(recordBlob.toStream()));
+                Base64.getEncoder().encodeToString(((ORecordAbstract) recordBlob).toStream()));
           } else {
             throw new OSerializationException(
                 "Error on marshalling record of type '"
@@ -770,18 +771,17 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
           }
         case BINARY:
           return OStringSerializerHelper.fieldTypeFromStream(iRecord, iType, iFieldValueAsString);
-        case CUSTOM:
-          {
-            try {
-              ByteArrayInputStream bais =
-                  new ByteArrayInputStream(Base64.getDecoder().decode(iFieldValueAsString));
-              ObjectInputStream input = new ObjectInputStream(bais);
-              return input.readObject();
-            } catch (IOException | ClassNotFoundException e) {
-              throw OException.wrapException(
-                  new OSerializationException("Error on custom field deserialization"), e);
-            }
+        case CUSTOM: {
+          try {
+            ByteArrayInputStream bais =
+                new ByteArrayInputStream(Base64.getDecoder().decode(iFieldValueAsString));
+            ObjectInputStream input = new ObjectInputStream(bais);
+            return input.readObject();
+          } catch (IOException | ClassNotFoundException e) {
+            throw OException.wrapException(
+                new OSerializationException("Error on custom field deserialization"), e);
           }
+        }
         default:
           return OStringSerializerHelper.fieldTypeFromStream(iRecord, iType, iFieldValue);
       }

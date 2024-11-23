@@ -11,7 +11,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 4/15/14
  */
 public class OSBTreeNullBucketV2Test {

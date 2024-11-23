@@ -25,7 +25,8 @@ public abstract class OServerSocketFactory {
   private static OServerSocketFactory theFactory;
   private String name;
 
-  public OServerSocketFactory() {}
+  public OServerSocketFactory() {
+  }
 
   public static OServerSocketFactory getDefault() {
     synchronized (OServerSocketFactory.class) {

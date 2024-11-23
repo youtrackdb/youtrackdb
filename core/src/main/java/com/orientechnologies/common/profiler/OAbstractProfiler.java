@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -25,7 +25,7 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.OOrientStartupListener;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.cache.OReadCache;
@@ -105,7 +105,7 @@ public abstract class OAbstractProfiler extends OSharedResourceAbstract
         final long jvmTotMemory = Runtime.getRuntime().totalMemory();
         final long jvmMaxMemory = Runtime.getRuntime().maxMemory();
 
-        for (OStorage s : Orient.instance().getStorages()) {
+        for (OStorage s : Oxygen.instance().getStorages()) {
           if (s instanceof OLocalPaginatedStorage) {
             final OReadCache dk = ((OLocalPaginatedStorage) s).getReadCache();
             final OWriteCache wk = ((OLocalPaginatedStorage) s).getWriteCache();
@@ -168,7 +168,7 @@ public abstract class OAbstractProfiler extends OSharedResourceAbstract
 
   public OAbstractProfiler(boolean registerListener) {
     if (registerListener) {
-      Orient.instance().registerWeakOrientStartupListener(this);
+      Oxygen.instance().registerWeakOrientStartupListener(this);
     }
   }
 
@@ -177,7 +177,7 @@ public abstract class OAbstractProfiler extends OSharedResourceAbstract
     dictionary.putAll(profiler.dictionary);
     types.putAll(profiler.types);
 
-    Orient.instance().registerWeakOrientStartupListener(this);
+    Oxygen.instance().registerWeakOrientStartupListener(this);
   }
 
   protected abstract void setTip(String iMessage, AtomicInteger counter);
@@ -195,7 +195,7 @@ public abstract class OAbstractProfiler extends OSharedResourceAbstract
     int stgs = 0;
     long diskCacheUsed = 0;
     long diskCacheTotal = 0;
-    for (OStorage stg : Orient.instance().getStorages()) {
+    for (OStorage stg : Oxygen.instance().getStorages()) {
       if (stg instanceof OLocalPaginatedStorage) {
         diskCacheUsed += ((OLocalPaginatedStorage) stg).getReadCache().getUsedMemory();
         diskCacheTotal += OGlobalConfiguration.DISK_CACHE_SIZE.getValueAsLong() * 1024 * 1024;
@@ -215,7 +215,7 @@ public abstract class OAbstractProfiler extends OSharedResourceAbstract
 
         buffer.append(
             String.format(
-                "OrientDB Memory profiler: HEAP=%s of %s - DISKCACHE (%s dbs)=%s of %s - OS=%s of"
+                "OxygenDB Memory profiler: HEAP=%s of %s - DISKCACHE (%s dbs)=%s of %s - OS=%s of"
                     + " %s - FS=%s of %s",
                 OFileUtils.getSizeAsString(runtime.totalMemory() - runtime.freeMemory()),
                 OFileUtils.getSizeAsString(runtime.maxMemory()),
@@ -232,7 +232,7 @@ public abstract class OAbstractProfiler extends OSharedResourceAbstract
       // JMX NOT AVAILABLE, AVOID OS DATA
       buffer.append(
           String.format(
-              "OrientDB Memory profiler: HEAP=%s of %s - DISKCACHE (%s dbs)=%s of %s - FS=%s of %s",
+              "OxygenDB Memory profiler: HEAP=%s of %s - DISKCACHE (%s dbs)=%s of %s - FS=%s of %s",
               OFileUtils.getSizeAsString(runtime.totalMemory() - runtime.freeMemory()),
               OFileUtils.getSizeAsString(runtime.maxMemory()),
               stgs,
@@ -255,26 +255,26 @@ public abstract class OAbstractProfiler extends OSharedResourceAbstract
         if (statsLastAutoDump > 0) {
           final long msFromLastDump = System.currentTimeMillis() - statsLastAutoDump;
 
-          final String[] hooks = Orient.instance().getProfiler().getHookAsString();
+          final String[] hooks = Oxygen.instance().getProfiler().getHookAsString();
           for (String h : hooks) {
             if (h.startsWith("db.") && h.endsWith("createRecord")) {
-              lastCreateRecords += (Long) Orient.instance().getProfiler().getHookValue(h);
+              lastCreateRecords += (Long) Oxygen.instance().getProfiler().getHookValue(h);
             } else if (h.startsWith("db.") && h.endsWith("readRecord")) {
-              lastReadRecords += (Long) Orient.instance().getProfiler().getHookValue(h);
+              lastReadRecords += (Long) Oxygen.instance().getProfiler().getHookValue(h);
             } else if (h.startsWith("db.") && h.endsWith("updateRecord")) {
-              lastUpdateRecords += (Long) Orient.instance().getProfiler().getHookValue(h);
+              lastUpdateRecords += (Long) Oxygen.instance().getProfiler().getHookValue(h);
             } else if (h.startsWith("db.") && h.endsWith("deleteRecord")) {
-              lastDeleteRecords += (Long) Orient.instance().getProfiler().getHookValue(h);
+              lastDeleteRecords += (Long) Oxygen.instance().getProfiler().getHookValue(h);
             } else if (h.startsWith("db.") && h.endsWith("txCommit")) {
-              lastTxCommit += (Long) Orient.instance().getProfiler().getHookValue(h);
+              lastTxCommit += (Long) Oxygen.instance().getProfiler().getHookValue(h);
             } else if (h.startsWith("db.") && h.endsWith("txRollback")) {
-              lastTxRollback += (Long) Orient.instance().getProfiler().getHookValue(h);
+              lastTxRollback += (Long) Oxygen.instance().getProfiler().getHookValue(h);
             }
           }
 
-          final List<String> chronos = Orient.instance().getProfiler().getChronos();
+          final List<String> chronos = Oxygen.instance().getProfiler().getChronos();
           for (String c : chronos) {
-            final OProfilerEntry chrono = Orient.instance().getProfiler().getChrono(c);
+            final OProfilerEntry chrono = Oxygen.instance().getProfiler().getChrono(c);
             if (chrono != null) {
               if (c.startsWith("db.") && c.contains(".command.")) {
                 lastCommands += chrono.entries;
@@ -521,7 +521,7 @@ public abstract class OAbstractProfiler extends OSharedResourceAbstract
       final int ms = iSeconds * 1000;
 
       autoDumpTask =
-          Orient.instance()
+          Oxygen.instance()
               .scheduleTask(
                   () -> {
                     final StringBuilder output = new StringBuilder();
@@ -630,7 +630,7 @@ public abstract class OAbstractProfiler extends OSharedResourceAbstract
         OGlobalConfiguration.PROFILER_MEMORYCHECK_INTERVAL.getValueAsLong();
 
     if (memoryCheckInterval > 0) {
-      Orient.instance().scheduleTask(new MemoryChecker(), memoryCheckInterval, memoryCheckInterval);
+      Oxygen.instance().scheduleTask(new MemoryChecker(), memoryCheckInterval, memoryCheckInterval);
     }
   }
 

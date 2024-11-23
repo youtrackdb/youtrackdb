@@ -70,7 +70,7 @@ public class OCreateLinkStatement extends OSimpleExecStatement {
           "Cannot execute the command because it has not been parsed yet");
     }
 
-    final ODatabaseSessionInternal database = getDatabase();
+    final ODatabaseSessionInternal database = ctx.getDatabase();
     if (database.getDatabaseOwner() == null) {
       throw new OCommandSQLParsingException(
           "This command supports only the database type ODatabaseDocumentTx and type '"

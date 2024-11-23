@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 /**
- * Created by olena.kolesnyk on 28/07/2017.
+ *
  */
 @RunWith(Parameterized.class)
 public class CountFromIndexStepTest extends TestUtilsFixture {
@@ -33,21 +33,21 @@ public class CountFromIndexStepTest extends TestUtilsFixture {
   @Parameterized.Parameters(name = "{0}")
   public static Iterable<Object[]> types() {
     return Arrays.asList(
-        new Object[][] {
-          {OIndexIdentifier.Type.INDEX},
-          {OIndexIdentifier.Type.VALUES},
-          {OIndexIdentifier.Type.VALUESASC},
-          {OIndexIdentifier.Type.VALUESDESC},
+        new Object[][]{
+            {OIndexIdentifier.Type.INDEX},
+            {OIndexIdentifier.Type.VALUES},
+            {OIndexIdentifier.Type.VALUESASC},
+            {OIndexIdentifier.Type.VALUESDESC},
         });
   }
 
   public void beforeTest() {
     super.beforeTest();
     OClass clazz = createClassInstance();
-    clazz.createProperty(PROPERTY_NAME, OType.STRING);
+    clazz.createProperty(db, PROPERTY_NAME, OType.STRING);
     String className = clazz.getName();
     indexName = className + "." + PROPERTY_NAME;
-    clazz.createIndex(indexName, OClass.INDEX_TYPE.NOTUNIQUE, PROPERTY_NAME);
+    clazz.createIndex(db, indexName, OClass.INDEX_TYPE.NOTUNIQUE, PROPERTY_NAME);
 
     for (int i = 0; i < 20; i++) {
       db.begin();

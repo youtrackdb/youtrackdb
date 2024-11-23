@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2016 OrientDB LTD (info(at)orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,13 +14,14 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.security.authenticator;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.security.OSecurityRole;
@@ -28,8 +29,6 @@ import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 
 /**
  * Provides a default password authenticator.
- *
- * @author S. Colin Leister
  */
 public class OSystemUserAuthenticator extends OSecurityAuthenticatorAbstract {
 
@@ -41,7 +40,8 @@ public class OSystemUserAuthenticator extends OSecurityAuthenticatorAbstract {
 
   // OSecurityComponent
   // Called on removal of the authenticator.
-  public void dispose() {}
+  public void dispose() {
+  }
 
   // OSecurityAuthenticator
   // Returns the actual username if successful, null otherwise.
@@ -54,8 +54,8 @@ public class OSystemUserAuthenticator extends OSecurityAuthenticatorAbstract {
         // dbName parameter is null because we don't need to filter any roles for this.
         OSecurityUser user = getSecurity().getSystemUser(username, null);
 
-        if (user != null && user.getAccountStatus() == OSecurityUser.STATUSES.ACTIVE) {
-          if (user.checkPassword(password)) {
+        if (user != null && user.getAccountStatus(session) == OSecurityUser.STATUSES.ACTIVE) {
+          if (user.checkPassword(session, password)) {
             return user;
           }
         }
@@ -70,7 +70,8 @@ public class OSystemUserAuthenticator extends OSecurityAuthenticatorAbstract {
   // OSecurityAuthenticator
   // If not supported by the authenticator, return false.
   // Checks to see if a
-  public boolean isAuthorized(final String username, final String resource) {
+  public boolean isAuthorized(ODatabaseSession session, final String username,
+      final String resource) {
     if (username == null || resource == null) {
       return false;
     }
@@ -79,7 +80,7 @@ public class OSystemUserAuthenticator extends OSecurityAuthenticatorAbstract {
       if (getSecurity() != null) {
         OSecurityUser user = getSecurity().getSystemUser(username, null);
 
-        if (user != null && user.getAccountStatus() == OSecurityUser.STATUSES.ACTIVE) {
+        if (user != null && user.getAccountStatus(session) == OSecurityUser.STATUSES.ACTIVE) {
           OSecurityRole role = null;
 
           ORule.ResourceGeneric rg = ORule.mapLegacyResourceToGenericResource(resource);
@@ -91,7 +92,7 @@ public class OSystemUserAuthenticator extends OSecurityAuthenticatorAbstract {
               specificResource = null;
             }
 
-            role = user.checkIfAllowed(rg, specificResource, ORole.PERMISSION_EXECUTE);
+            role = user.checkIfAllowed(session, rg, specificResource, ORole.PERMISSION_EXECUTE);
           }
 
           return role != null;
@@ -105,7 +106,7 @@ public class OSystemUserAuthenticator extends OSecurityAuthenticatorAbstract {
   }
 
   // OSecurityAuthenticator
-  public OSecurityUser getUser(final String username) {
+  public OSecurityUser getUser(final String username, ODatabaseSessionInternal session) {
     OSecurityUser userCfg = null;
 
     try {

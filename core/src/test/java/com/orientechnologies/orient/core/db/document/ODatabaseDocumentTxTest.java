@@ -32,7 +32,8 @@ public class ODatabaseDocumentTxTest extends BaseMemoryDatabase {
     db.getMetadata().getSchema().createClass("TestSubclass", testSuperclass);
 
     db.begin();
-    ODocument toDelete = new ODocument("TestSubclass").field("id", 1).save();
+    ODocument toDelete = new ODocument("TestSubclass").field("id", 1);
+    toDelete.save();
     db.commit();
 
     // 1 SUB, 0 SUPER
@@ -132,8 +133,8 @@ public class ODatabaseDocumentTxTest extends BaseMemoryDatabase {
     OClass c0 = schema.createClass("testDocFromJsonEmbedded_Class0");
 
     OClass c1 = schema.createClass("testDocFromJsonEmbedded_Class1");
-    c1.createProperty("account", OType.STRING);
-    c1.createProperty("meta", OType.EMBEDDED, c0);
+    c1.createProperty(db, "account", OType.STRING);
+    c1.createProperty(db, "meta", OType.EMBEDDED, c0);
 
     db.begin();
     ODocument doc = new ODocument("testDocFromJsonEmbedded_Class1");
@@ -249,8 +250,8 @@ public class ODatabaseDocumentTxTest extends BaseMemoryDatabase {
     String edgeClass = "testEdge";
     OClass vc = db.createClass(vertexClass, "V");
     db.createClass(edgeClass, "E");
-    vc.createProperty("out_testEdge", OType.LINK);
-    vc.createProperty("in_testEdge", OType.LINK);
+    vc.createProperty(db, "out_testEdge", OType.LINK);
+    vc.createProperty(db, "in_testEdge", OType.LINK);
 
     db.begin();
     OVertex doc1 = db.newVertex(vertexClass);
@@ -282,8 +283,8 @@ public class ODatabaseDocumentTxTest extends BaseMemoryDatabase {
     OClass vc = db.createClass(vertexClass, "V");
     db.createClass(edgeClass, "E");
 
-    vc.createProperty("out_testEdge", OType.LINKBAG);
-    vc.createProperty("in_testEdge", OType.LINK);
+    vc.createProperty(db, "out_testEdge", OType.LINKBAG);
+    vc.createProperty(db, "in_testEdge", OType.LINK);
 
     db.begin();
     OVertex doc1 = db.newVertex(vertexClass);
@@ -318,8 +319,8 @@ public class ODatabaseDocumentTxTest extends BaseMemoryDatabase {
     String edgeClass = "testEdge";
     OClass vc = db.createClass(vertexClass, "V");
     db.createClass(edgeClass, "E");
-    vc.createProperty("out_testEdge", OType.LINK);
-    vc.createProperty("in_testEdge", OType.LINK);
+    vc.createProperty(db, "out_testEdge", OType.LINK);
+    vc.createProperty(db, "in_testEdge", OType.LINK);
     OVertex doc1 = db.newVertex(vertexClass);
     doc1.setProperty("name", "first");
     doc1.save();

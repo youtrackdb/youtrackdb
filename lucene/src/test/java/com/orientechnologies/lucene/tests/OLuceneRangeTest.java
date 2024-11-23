@@ -18,7 +18,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * Created by frank on 13/12/2016.
+ *
  */
 public class OLuceneRangeTest extends OLuceneBaseTest {
 
@@ -27,11 +27,11 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
     OSchema schema = db.getMetadata().getSchema();
 
     OClass cls = schema.createClass("Person");
-    cls.createProperty("name", OType.STRING);
-    cls.createProperty("surname", OType.STRING);
-    cls.createProperty("date", OType.DATETIME);
-    cls.createProperty("age", OType.INTEGER);
-    cls.createProperty("weight", OType.FLOAT);
+    cls.createProperty(db, "name", OType.STRING);
+    cls.createProperty(db, "surname", OType.STRING);
+    cls.createProperty(db, "date", OType.DATETIME);
+    cls.createProperty(db, "age", OType.INTEGER);
+    cls.createProperty(db, "weight", OType.FLOAT);
 
     List<String> names =
         Arrays.asList(
@@ -64,15 +64,16 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
 
     //noinspection EmptyTryBlock
     try (final OResultSet command =
-        db.command("create index Person.weight on Person(weight) FULLTEXT ENGINE LUCENE")) {}
+        db.command("create index Person.weight on Person(weight) FULLTEXT ENGINE LUCENE")) {
+    }
 
     db.begin();
     assertThat(
-            db.getMetadata()
-                .getIndexManagerInternal()
-                .getIndex(db, "Person.weight")
-                .getInternal()
-                .size())
+        db.getMetadata()
+            .getIndexManagerInternal()
+            .getIndex(db, "Person.weight")
+            .getInternal()
+            .size(db))
         .isEqualTo(10);
     db.commit();
 
@@ -94,15 +95,16 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
 
     //noinspection EmptyTryBlock
     try (OResultSet command =
-        db.command("create index Person.age on Person(age) FULLTEXT ENGINE LUCENE")) {}
+        db.command("create index Person.age on Person(age) FULLTEXT ENGINE LUCENE")) {
+    }
 
     db.begin();
     assertThat(
-            db.getMetadata()
-                .getIndexManagerInternal()
-                .getIndex(db, "Person.age")
-                .getInternal()
-                .size())
+        db.getMetadata()
+            .getIndexManagerInternal()
+            .getIndex(db, "Person.age")
+            .getInternal()
+            .size(db))
         .isEqualTo(10);
     db.commit();
 
@@ -123,15 +125,16 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
   public void shouldUseRangeQueryOnSingleDateField() {
     //noinspection EmptyTryBlock
     try (OResultSet command =
-        db.command("create index Person.date on Person(date) FULLTEXT ENGINE LUCENE")) {}
+        db.command("create index Person.date on Person(date) FULLTEXT ENGINE LUCENE")) {
+    }
 
     db.begin();
     assertThat(
-            db.getMetadata()
-                .getIndexManagerInternal()
-                .getIndex(db, "Person.date")
-                .getInternal()
-                .size())
+        db.getMetadata()
+            .getIndexManagerInternal()
+            .getIndex(db, "Person.date")
+            .getInternal()
+            .size(db))
         .isEqualTo(10);
     db.commit();
 
@@ -160,14 +163,15 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
     try (OResultSet command =
         db.command(
             "create index Person.composite on Person(name,surname,date,age) FULLTEXT ENGINE"
-                + " LUCENE")) {}
+                + " LUCENE")) {
+    }
 
     assertThat(
-            db.getMetadata()
-                .getIndexManagerInternal()
-                .getIndex(db, "Person.composite")
-                .getInternal()
-                .size())
+        db.getMetadata()
+            .getIndexManagerInternal()
+            .getIndex(db, "Person.composite")
+            .getInternal()
+            .size(db))
         .isEqualTo(10);
 
     db.commit();
@@ -214,15 +218,16 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
     try (OResultSet command =
         db.command(
             "create index Person.composite on Person(name,surname,date,age) FULLTEXT ENGINE"
-                + " LUCENE")) {}
+                + " LUCENE")) {
+    }
 
     db.begin();
     assertThat(
-            db.getMetadata()
-                .getIndexManagerInternal()
-                .getIndex(db, "Person.composite")
-                .getInternal()
-                .size())
+        db.getMetadata()
+            .getIndexManagerInternal()
+            .getIndex(db, "Person.composite")
+            .getInternal()
+            .size(db))
         .isEqualTo(10);
     db.commit();
 
@@ -234,20 +239,20 @@ public class OLuceneRangeTest extends OLuceneBaseTest {
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Person.composite");
 
     // name and age range
-    try (Stream<ORID> stream = index.getInternal().getRids("name:luke  age:[5 TO 6]")) {
+    try (Stream<ORID> stream = index.getInternal().getRids(db, "name:luke  age:[5 TO 6]")) {
       assertThat(stream.count()).isEqualTo(2);
     }
     try (Stream<ORID> stream =
-        index.getInternal().getRids("date:[" + fiveDaysAgo + " TO " + today + "]")) {
+        index.getInternal().getRids(db, "date:[" + fiveDaysAgo + " TO " + today + "]")) {
       assertThat(stream.count()).isEqualTo(5);
     }
     try (Stream<ORID> stream =
         index
             .getInternal()
-            .getRids("+age:[4 TO 7]  +date:[" + fiveDaysAgo + " TO " + today + "]")) {
+            .getRids(db, "+age:[4 TO 7]  +date:[" + fiveDaysAgo + " TO " + today + "]")) {
       assertThat(stream.count()).isEqualTo(2);
     }
-    try (Stream<ORID> stream = index.getInternal().getRids("*:*")) {
+    try (Stream<ORID> stream = index.getInternal().getRids(db, "*:*")) {
       assertThat(stream.count()).isEqualTo(11);
     }
   }

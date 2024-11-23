@@ -78,7 +78,6 @@ import java.util.Optional;
  *   <li>Index of page of first removed bucket (is not split but removed) - 8 bytes
  * </ol>
  *
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 12.03.13
  */
 public class LocalHashTableV2<K, V> extends ODurableComponent implements OHashTable<K, V> {
@@ -169,8 +168,8 @@ public class LocalHashTableV2<K, V> extends ODurableComponent implements OHashTa
             directory.create(atomicOperation);
 
             try (final OCacheEntry hashStateEntry = addPage(atomicOperation, fileStateId)) {
-              @SuppressWarnings("unused")
-              final HashIndexMetadataPageV2 page = new HashIndexMetadataPageV2(hashStateEntry);
+              @SuppressWarnings("unused") final HashIndexMetadataPageV2 page = new HashIndexMetadataPageV2(
+                  hashStateEntry);
               page.init();
 
               hashStateEntryIndex = hashStateEntry.getPageIndex();
@@ -440,8 +439,8 @@ public class LocalHashTableV2<K, V> extends ODurableComponent implements OHashTa
 
           while (bucket.size() == 0
               || comparator.compare(
-                      bucket.getKey(bucket.size() - 1, encryption, keySerializer), key)
-                  <= 0) {
+              bucket.getKey(bucket.size() - 1, encryption, keySerializer), key)
+              <= 0) {
             bucketPath = nextBucketToFind(bucketPath, bucket.getDepth(), atomicOperation);
             if (bucketPath == null) {
               //noinspection unchecked
@@ -544,8 +543,7 @@ public class LocalHashTableV2<K, V> extends ODurableComponent implements OHashTa
 
   private Entry<K, V>[] convertBucketToEntries(
       final HashIndexBucketV2<K, V> bucket, final int startIndex, final int endIndex) {
-    @SuppressWarnings("unchecked")
-    final Entry<K, V>[] entries = new Entry[endIndex - startIndex];
+    @SuppressWarnings("unchecked") final Entry<K, V>[] entries = new Entry[endIndex - startIndex];
     final Iterator<Entry<K, V>> iterator =
         bucket.iterator(startIndex, keySerializer, valueSerializer, encryption);
 
@@ -613,8 +611,7 @@ public class LocalHashTableV2<K, V> extends ODurableComponent implements OHashTa
     while (bucketPath != null) {
       final long[] node = directory.getNode(bucketPath.nodeIndex, atomicOperation);
       final int startIndex = bucketPath.itemIndex + bucketPath.hashMapOffset;
-      @SuppressWarnings("UnnecessaryLocalVariable")
-      final int endIndex = MAX_LEVEL_SIZE;
+      @SuppressWarnings("UnnecessaryLocalVariable") final int endIndex = MAX_LEVEL_SIZE;
 
       for (int i = startIndex; i < endIndex; i++) {
         final long position = node[i];
@@ -1713,7 +1710,7 @@ public class LocalHashTableV2<K, V> extends ODurableComponent implements OHashTa
     } else {
       final int maxDepth = directory.getMaxRightChildDepth(bucketPath.nodeIndex, atomicOperation);
       assert getMaxLevelDepth(
-              bucketPath.nodeIndex, MAX_LEVEL_SIZE / 2, MAX_LEVEL_SIZE, atomicOperation)
+          bucketPath.nodeIndex, MAX_LEVEL_SIZE / 2, MAX_LEVEL_SIZE, atomicOperation)
           == maxDepth;
       if (maxDepth > 0) {
         newNodeDepth = maxDepth;
@@ -1814,8 +1811,7 @@ public class LocalHashTableV2<K, V> extends ODurableComponent implements OHashTa
         currentNode.itemIndex & ((LEVEL_MASK << (nodeLocalDepth - diff)) & LEVEL_MASK);
     final int firstEndIndex = firstStartIndex + interval;
 
-    @SuppressWarnings("UnnecessaryLocalVariable")
-    final int secondStartIndex = firstEndIndex;
+    @SuppressWarnings("UnnecessaryLocalVariable") final int secondStartIndex = firstEndIndex;
     final int secondEndIndex = secondStartIndex + interval;
 
     for (int i = firstStartIndex; i < firstEndIndex; i++) {
@@ -1988,8 +1984,7 @@ public class LocalHashTableV2<K, V> extends ODurableComponent implements OHashTa
     final int bucketDepth = bucket.getDepth();
     final int newBucketDepth = bucketDepth + 1;
 
-    @SuppressWarnings("UnnecessaryLocalVariable")
-    final long updatedBucketIndex = pageIndex;
+    @SuppressWarnings("UnnecessaryLocalVariable") final long updatedBucketIndex = pageIndex;
 
     try (final OCacheEntry newBucketCacheEntry = addPage(atomicOperation, fileId)) {
       final HashIndexBucketV2<K, V> newBucket = new HashIndexBucketV2<>(newBucketCacheEntry);
@@ -2054,8 +2049,8 @@ public class LocalHashTableV2<K, V> extends ODurableComponent implements OHashTa
 
       try (final OCacheEntry cacheEntry = addPage(atomicOperation, fileId)) {
         assert cacheEntry.getPageIndex() == pageIndex;
-        @SuppressWarnings("unused")
-        final HashIndexBucketV2<K, V> emptyBucket = new HashIndexBucketV2<>(cacheEntry);
+        @SuppressWarnings("unused") final HashIndexBucketV2<K, V> emptyBucket = new HashIndexBucketV2<>(
+            cacheEntry);
         emptyBucket.init(MAX_LEVEL_DEPTH);
       }
     }

@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientechnologies.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql;
@@ -27,7 +27,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author Enrico Risa
+ *
  */
 public class OCommandExecutorSQLCreateClassTest extends BaseMemoryDatabase {
 

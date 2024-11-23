@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.sql.parser.OFieldMatchPathItem;
 import com.orientechnologies.orient.core.sql.parser.OMultiMatchPathItem;
 
 /**
- * @author Luigi Dell'Aquila
+ *
  */
 public class MatchStep extends AbstractExecutionStep {
 

@@ -42,7 +42,7 @@ public class OAlterSequenceStatement extends ODDLStatement {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
-    final var database = getDatabase();
+    final var database = ctx.getDatabase();
     OSequence sequence = database.getMetadata().getSequenceLibrary().getSequence(sequenceName);
     if (sequence == null) {
       throw new OCommandExecutionException("Sequence not found: " + sequenceName);

@@ -7,7 +7,7 @@ import com.orientechnologies.BaseMemoryDatabase;
 import org.junit.Test;
 
 /**
- * Created by tglman on 10/02/16.
+ *
  */
 public class OFunctionLibraryTest extends BaseMemoryDatabase {
 
@@ -32,12 +32,12 @@ public class OFunctionLibraryTest extends BaseMemoryDatabase {
     assertNotNull(func);
     func = db.getMetadata().getFunctionLibrary().getFunction("TestFunc");
     assertNotNull(func);
-    db.getMetadata().getFunctionLibrary().dropFunction("TestFunc");
+    db.getMetadata().getFunctionLibrary().dropFunction(db, "TestFunc");
     func = db.getMetadata().getFunctionLibrary().getFunction("TestFunc");
     assertNull(func);
     func = db.getMetadata().getFunctionLibrary().createFunction("TestFunc1");
     db.begin();
-    db.getMetadata().getFunctionLibrary().dropFunction(func);
+    db.getMetadata().getFunctionLibrary().dropFunction(db, func);
     db.commit();
     func = db.getMetadata().getFunctionLibrary().getFunction("TestFunc");
     assertNull(func);

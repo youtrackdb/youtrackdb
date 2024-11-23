@@ -15,7 +15,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 /**
- * Created by luigidellaquila on 28/06/17.
+ *
  */
 public class OCloseQueryTask extends OAbstractRemoteTask {
 

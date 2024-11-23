@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -56,7 +56,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
 /**
- * @author Artem Orobets (enisher-at-gmail.com)
+ *
  */
 public final class OSBTreeCollectionManagerShared
     implements OSBTreeCollectionManager, OOrientStartupListener, OOrientShutdownListener {
@@ -301,10 +301,12 @@ public final class OSBTreeCollectionManagerShared
   }
 
   @Override
-  public void releaseSBTree(final OBonsaiCollectionPointer collectionPointer) {}
+  public void releaseSBTree(final OBonsaiCollectionPointer collectionPointer) {
+  }
 
   @Override
-  public void delete(final OBonsaiCollectionPointer collectionPointer) {}
+  public void delete(final OBonsaiCollectionPointer collectionPointer) {
+  }
 
   @Override
   public OBonsaiCollectionPointer createSBTree(
@@ -342,10 +344,12 @@ public final class OSBTreeCollectionManagerShared
   }
 
   @Override
-  public void updateCollectionPointer(UUID uuid, OBonsaiCollectionPointer pointer) {}
+  public void updateCollectionPointer(UUID uuid, OBonsaiCollectionPointer pointer) {
+  }
 
   @Override
-  public void clearPendingCollections() {}
+  public void clearPendingCollections() {
+  }
 
   @Override
   public Map<UUID, OBonsaiCollectionPointer> changedIds() {
@@ -358,10 +362,12 @@ public final class OSBTreeCollectionManagerShared
   }
 
   @Override
-  public void onShutdown() {}
+  public void onShutdown() {
+  }
 
   @Override
-  public void onStartup() {}
+  public void onStartup() {
+  }
 
   public void close() {
     fileIdBTreeMap.clear();

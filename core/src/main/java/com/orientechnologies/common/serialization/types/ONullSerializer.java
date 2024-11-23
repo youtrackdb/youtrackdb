@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -25,8 +25,6 @@ import java.nio.ByteBuffer;
 
 /**
  * Serializes and deserializes null values.
- *
- * @author Evgeniy Degtiarenko (gmandnepr-at-gmail.com)
  */
 public class ONullSerializer implements OBinarySerializer<Object> {
 
@@ -60,7 +58,8 @@ public class ONullSerializer implements OBinarySerializer<Object> {
   }
 
   public void serializeNativeObject(
-      Object object, byte[] stream, int startPosition, Object... hints) {}
+      Object object, byte[] stream, int startPosition, Object... hints) {
+  }
 
   public Object deserializeNativeObject(byte[] stream, int startPosition) {
     return null;
@@ -83,7 +82,8 @@ public class ONullSerializer implements OBinarySerializer<Object> {
    * {@inheritDoc}
    */
   @Override
-  public void serializeInByteBufferObject(Object object, ByteBuffer buffer, Object... hints) {}
+  public void serializeInByteBufferObject(Object object, ByteBuffer buffer, Object... hints) {
+  }
 
   /**
    * {@inheritDoc}

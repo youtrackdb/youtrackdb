@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import java.util.Set;
 import org.junit.Test;
 
 /**
- * @author edegtyarenko
  * @since 11.10.12 14:40
  */
 public class SQLFunctionSymmetricDifferenceTest {
@@ -46,7 +45,7 @@ public class SQLFunctionSymmetricDifferenceTest {
     final Set<Object> expectedResult = new HashSet<Object>(Arrays.asList(3, 4, 5));
 
     for (Object i : income) {
-      differenceFunction.execute(null, null, null, new Object[] {i}, null);
+      differenceFunction.execute(null, null, null, new Object[]{i}, null);
     }
 
     final Set<Object> actualResult = differenceFunction.getResult();
@@ -86,7 +85,7 @@ public class SQLFunctionSymmetricDifferenceTest {
 
     for (int j = 0; j < 3; j++) {
       for (Object i : incomes.get(j)) {
-        differences.get(j).execute(null, null, null, new Object[] {i}, null);
+        differences.get(j).execute(null, null, null, new Object[]{i}, null);
       }
     }
 

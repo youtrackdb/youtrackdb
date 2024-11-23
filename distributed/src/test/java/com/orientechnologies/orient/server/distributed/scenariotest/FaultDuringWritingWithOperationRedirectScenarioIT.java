@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 OrientDB LTD (info--at--orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,6 @@ import org.junit.Test;
  * inspect consistency for all 500 records - all records on each server are consistent in the
  * cluster
  *
- * @author Gabriele Ponzi
  * @email <gabriele.ponzi--at--gmail.com>
  */
 public class FaultDuringWritingWithOperationRedirectScenarioIT extends AbstractScenarioTest {

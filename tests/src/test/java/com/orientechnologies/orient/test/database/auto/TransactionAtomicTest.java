@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -116,13 +116,16 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
         new ODatabaseListener() {
 
           @Override
-          public void onAfterTxCommit(ODatabaseSession iDatabase) {}
+          public void onAfterTxCommit(ODatabaseSession iDatabase) {
+          }
 
           @Override
-          public void onAfterTxRollback(ODatabaseSession iDatabase) {}
+          public void onAfterTxRollback(ODatabaseSession iDatabase) {
+          }
 
           @Override
-          public void onBeforeTxBegin(ODatabaseSession iDatabase) {}
+          public void onBeforeTxBegin(ODatabaseSession iDatabase) {
+          }
 
           @Override
           public void onBeforeTxCommit(ODatabaseSession iDatabase) {
@@ -130,26 +133,33 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
           }
 
           @Override
-          public void onBeforeTxRollback(ODatabaseSession iDatabase) {}
+          public void onBeforeTxRollback(ODatabaseSession iDatabase) {
+          }
 
           @Override
-          public void onClose(ODatabaseSession iDatabase) {}
+          public void onClose(ODatabaseSession iDatabase) {
+          }
 
           @Override
-          public void onBeforeCommand(OCommandRequestText iCommand, OCommandExecutor executor) {}
+          public void onBeforeCommand(OCommandRequestText iCommand, OCommandExecutor executor) {
+          }
 
           @Override
           public void onAfterCommand(
-              OCommandRequestText iCommand, OCommandExecutor executor, Object result) {}
+              OCommandRequestText iCommand, OCommandExecutor executor, Object result) {
+          }
 
           @Override
-          public void onCreate(ODatabaseSession iDatabase) {}
+          public void onCreate(ODatabaseSession iDatabase) {
+          }
 
           @Override
-          public void onDelete(ODatabaseSession iDatabase) {}
+          public void onDelete(ODatabaseSession iDatabase) {
+          }
 
           @Override
-          public void onOpen(ODatabaseSession iDatabase) {}
+          public void onOpen(ODatabaseSession iDatabase) {
+          }
 
           @Override
           public boolean onCorruptionRepairDatabase(
@@ -178,15 +188,15 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
     if (fruitClass == null) {
       fruitClass = database.getMetadata().getSchema().createClass("Fruit");
 
-      fruitClass.createProperty("name", OType.STRING);
-      fruitClass.createProperty("color", OType.STRING);
+      fruitClass.createProperty(database, "name", OType.STRING);
+      fruitClass.createProperty(database, "color", OType.STRING);
 
       database
           .getMetadata()
           .getSchema()
           .getClass("Fruit")
           .getProperty("color")
-          .createIndex(OClass.INDEX_TYPE.UNIQUE);
+          .createIndex(database, OClass.INDEX_TYPE.UNIQUE);
     }
 
     Assert.assertEquals(database.countClusterElements("Fruit"), 0);
@@ -228,7 +238,7 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
     database.begin();
     database
         .command(new OCommandSQL("transactional insert into Account set name = 'txTest1'"))
-        .execute();
+        .execute(database);
     database.commit();
 
     Assert.assertEquals(database.countClass("Account"), prev + 1);
@@ -241,7 +251,7 @@ public class TransactionAtomicTest extends DocumentDBBaseTest {
     database.begin();
     database
         .command(new OCommandSQL("transactional insert into Account set name = 'txTest2'"))
-        .execute();
+        .execute(database);
 
     Assert.assertTrue(database.getTransaction().isActive());
 

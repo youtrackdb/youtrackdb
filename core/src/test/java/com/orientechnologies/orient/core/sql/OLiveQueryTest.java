@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2015 OrientDB LTD (info(at)orientdb.com)
+ *  *  Copyright 2015 OxygenDB LTD (info(at)orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql;
@@ -24,8 +24,8 @@ import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.id.ORID;
@@ -51,16 +51,16 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by luigidellaquila on 13/04/15.
+ *
  */
 public class OLiveQueryTest {
 
-  private OrientDB odb;
+  private OxygenDB odb;
   private ODatabaseSession db;
 
   @Before
   public void before() {
-    odb = new OrientDB("memory:", OrientDBConfig.defaultConfig());
+    odb = new OxygenDB("memory:", OxygenDBConfig.defaultConfig());
     odb.execute(
         "create database OLiveQueryTest memory users ( admin identified by 'admin' role admin,"
             + " reader identified by 'reader' role reader)");
@@ -92,10 +92,12 @@ public class OLiveQueryTest {
     }
 
     @Override
-    public void onError(int iLiveToken) {}
+    public void onError(int iLiveToken) {
+    }
 
     @Override
-    public void onUnsubscribe(int iLiveToken) {}
+    public void onUnsubscribe(int iLiveToken) {
+    }
 
     @Override
     public void onCreate(ODatabaseSession database, OResult data) {
@@ -104,16 +106,20 @@ public class OLiveQueryTest {
     }
 
     @Override
-    public void onUpdate(ODatabaseSession database, OResult before, OResult after) {}
+    public void onUpdate(ODatabaseSession database, OResult before, OResult after) {
+    }
 
     @Override
-    public void onDelete(ODatabaseSession database, OResult data) {}
+    public void onDelete(ODatabaseSession database, OResult data) {
+    }
 
     @Override
-    public void onError(ODatabaseSession database, OException exception) {}
+    public void onError(ODatabaseSession database, OException exception) {
+    }
 
     @Override
-    public void onEnd(ODatabaseSession database) {}
+    public void onEnd(ODatabaseSession database) {
+    }
   }
 
   @Test
@@ -194,7 +200,7 @@ public class OLiveQueryTest {
     OResultSet query = db.query("select from OUSer where name = 'reader'");
 
     final OIdentifiable reader = query.next().getIdentity().get();
-    final OIdentifiable current = db.getUser().getIdentity();
+    final OIdentifiable current = db.getUser().getIdentity(db);
 
     ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -221,16 +227,20 @@ public class OLiveQueryTest {
 
                         @Override
                         public void onUpdate(
-                            ODatabaseSession database, OResult before, OResult after) {}
+                            ODatabaseSession database, OResult before, OResult after) {
+                        }
 
                         @Override
-                        public void onDelete(ODatabaseSession database, OResult data) {}
+                        public void onDelete(ODatabaseSession database, OResult data) {
+                        }
 
                         @Override
-                        public void onError(ODatabaseSession database, OException exception) {}
+                        public void onError(ODatabaseSession database, OException exception) {
+                        }
 
                         @Override
-                        public void onEnd(ODatabaseSession database) {}
+                        public void onEnd(ODatabaseSession database) {
+                        }
                       });
                 } catch (RuntimeException e) {
                   e.printStackTrace();

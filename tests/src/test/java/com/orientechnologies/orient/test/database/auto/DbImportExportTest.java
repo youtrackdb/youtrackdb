@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,9 +22,9 @@ import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExport;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
@@ -84,12 +84,12 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
       importDir.mkdir();
     }
 
-    try (OrientDB orientDBImport =
-        OrientDB.embedded(
-            testPath + File.separator + IMPORT_DB_PATH, OrientDBConfig.defaultConfig())) {
-      orientDBImport.createIfNotExists(
+    try (OxygenDB oxygenDBImport =
+        OxygenDB.embedded(
+            testPath + File.separator + IMPORT_DB_PATH, OxygenDBConfig.defaultConfig())) {
+      oxygenDBImport.createIfNotExists(
           IMPORT_DB_NAME, ODatabaseType.PLOCAL, "admin", "admin", "admin");
-      try (var importDB = orientDBImport.open(IMPORT_DB_NAME, "admin", "admin")) {
+      try (var importDB = oxygenDBImport.open(IMPORT_DB_NAME, "admin", "admin")) {
         final ODatabaseImport dbImport =
             new ODatabaseImport(
                 (ODatabaseSessionInternal) importDB, testPath + "/" + exportFilePath, this);
@@ -113,10 +113,10 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
       }
       // EXECUTES ONLY IF NOT REMOTE ON CI/RELEASE TEST ENV
     }
-    try (OrientDB orientDBImport =
-        OrientDB.embedded(
-            testPath + File.separator + IMPORT_DB_PATH, OrientDBConfig.defaultConfig())) {
-      try (var importDB = orientDBImport.open(IMPORT_DB_NAME, "admin", "admin")) {
+    try (OxygenDB oxygenDBImport =
+        OxygenDB.embedded(
+            testPath + File.separator + IMPORT_DB_PATH, OxygenDBConfig.defaultConfig())) {
+      try (var importDB = oxygenDBImport.open(IMPORT_DB_NAME, "admin", "admin")) {
         final ODatabaseCompare databaseCompare =
             new ODatabaseCompare(database, (ODatabaseSessionInternal) importDB, this);
         databaseCompare.setCompareEntriesForAutomaticIndexes(true);
@@ -138,18 +138,18 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
 
     final File exportPath = new File(localTesPath, "export.json.gz");
 
-    final OrientDBConfig config =
+    final OxygenDBConfig config =
         new OrientDBConfigBuilder()
             .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, true)
             .build();
-    try (final OrientDB orientDB = new OrientDB("embedded:" + localTesPath.getPath(), config)) {
-      orientDB.create("original", ODatabaseType.PLOCAL);
+    try (final OxygenDB oxygenDB = new OxygenDB("embedded:" + localTesPath.getPath(), config)) {
+      oxygenDB.create("original", ODatabaseType.PLOCAL);
 
-      try (final ODatabaseSession session = orientDB.open("original", "admin", "admin")) {
+      try (final ODatabaseSession session = oxygenDB.open("original", "admin", "admin")) {
         final OSchema schema = session.getMetadata().getSchema();
 
         final OClass rootCls = schema.createClass("RootClass");
-        rootCls.createProperty("embeddedList", OType.EMBEDDEDLIST);
+        rootCls.createProperty(session, "embeddedList", OType.EMBEDDEDLIST);
 
         final OClass childCls = schema.createClass("ChildClass");
 
@@ -195,9 +195,9 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
         databaseExport.exportDatabase();
       }
 
-      orientDB.create("imported", ODatabaseType.PLOCAL);
+      oxygenDB.create("imported", ODatabaseType.PLOCAL);
       try (final ODatabaseSessionInternal session =
-          (ODatabaseSessionInternal) orientDB.open("imported", "admin", "admin")) {
+          (ODatabaseSessionInternal) oxygenDB.open("imported", "admin", "admin")) {
         final ODatabaseImport databaseImport =
             new ODatabaseImport(session, exportPath.getPath(), System.out::println);
         databaseImport.run();

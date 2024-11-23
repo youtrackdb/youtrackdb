@@ -16,7 +16,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 /**
- * @author Artem Orobets (enisher-at-gmail.com)
+ *
  */
 @RunWith(JUnit4.class)
 public class OCommandExecutorSQLDeleteEdgeTest extends BaseMemoryDatabase {
@@ -33,10 +33,12 @@ public class OCommandExecutorSQLDeleteEdgeTest extends BaseMemoryDatabase {
     schema.createClass("CanAccess", schema.getClass("E"));
 
     db.begin();
-    userId1 = new ODocument("User").field("username", "gongolo").save().getIdentity();
-    new ODocument("User").field("username", "user2").save().getIdentity();
-    folderId1 = new ODocument("Folder").field("keyId", "01234567893").save().getIdentity();
-    new ODocument("Folder").field("keyId", "01234567894").save().getIdentity();
+    var doc = new ODocument("User").field("username", "gongolo");
+    doc.save();
+    userId1 = doc.getIdentity();
+    doc = new ODocument("Folder").field("keyId", "01234567893");
+    doc.save();
+    folderId1 = doc.getIdentity();
     db.commit();
 
     db.begin();

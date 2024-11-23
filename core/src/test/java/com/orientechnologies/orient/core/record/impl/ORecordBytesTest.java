@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * @author bogdan
+ *
  */
 public class ORecordBytesTest {
 
@@ -66,8 +66,8 @@ public class ORecordBytesTest {
 
   @Before
   public void setUp() throws Exception {
-    inputStream = new ByteArrayInputStream(new byte[] {1, 2, 3, 4, 5});
-    emptyStream = new ByteArrayInputStream(new byte[] {});
+    inputStream = new ByteArrayInputStream(new byte[]{1, 2, 3, 4, 5});
+    emptyStream = new ByteArrayInputStream(new byte[]{});
     testedInstance = new ORecordBytes();
   }
 
@@ -114,7 +114,7 @@ public class ORecordBytesTest {
 
   @Test
   public void testReadFromInputStreamWithWait() throws Exception {
-    final byte[] data = new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    final byte[] data = new byte[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     final InputStream is = new NotFullyAvailableAtTheTimeInputStream(data, 5);
 
     final int result = testedInstance.fromInputStream(is);
@@ -127,7 +127,7 @@ public class ORecordBytesTest {
 
   @Test
   public void testReadFromInputStreamWithWaitSizeLimit() throws Exception {
-    final byte[] data = new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    final byte[] data = new byte[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     final InputStream is = new NotFullyAvailableAtTheTimeInputStream(data, 5);
 
     final int result = testedInstance.fromInputStream(is, 10);
@@ -140,7 +140,7 @@ public class ORecordBytesTest {
 
   @Test
   public void testReadFromInputStreamWithWaitSizeTooBigLimit() throws Exception {
-    final byte[] data = new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    final byte[] data = new byte[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     final InputStream is = new NotFullyAvailableAtTheTimeInputStream(data, 5);
 
     final int result = testedInstance.fromInputStream(is, 15);
@@ -153,7 +153,7 @@ public class ORecordBytesTest {
 
   @Test
   public void testReadFromInputStreamWithWaitSizeTooSmallLimit() throws Exception {
-    final byte[] data = new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    final byte[] data = new byte[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
     final byte[] expected = Arrays.copyOf(data, 8);
     final InputStream is = new NotFullyAvailableAtTheTimeInputStream(data, 5);
 

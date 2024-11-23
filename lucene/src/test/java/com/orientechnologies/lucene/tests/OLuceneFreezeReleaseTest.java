@@ -11,7 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by Enrico Risa on 23/09/16.
+ *
  */
 public class OLuceneFreezeReleaseTest extends OLuceneBaseTest {
 
@@ -27,7 +27,7 @@ public class OLuceneFreezeReleaseTest extends OLuceneBaseTest {
 
     OSchema schema = db.getMetadata().getSchema();
     OClass person = schema.createClass("Person");
-    person.createProperty("name", OType.STRING);
+    person.createProperty(db, "name", OType.STRING);
 
     db.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE");
 
@@ -66,7 +66,7 @@ public class OLuceneFreezeReleaseTest extends OLuceneBaseTest {
 
     OSchema schema = db.getMetadata().getSchema();
     OClass person = schema.createClass("Person");
-    person.createProperty("name", OType.STRING);
+    person.createProperty(db, "name", OType.STRING);
 
     db.command("create index Person.name on Person (name) FULLTEXT ENGINE LUCENE");
 

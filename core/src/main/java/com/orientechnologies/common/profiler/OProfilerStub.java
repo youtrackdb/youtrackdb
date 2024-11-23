@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -36,7 +36,8 @@ public class OProfilerStub extends OAbstractProfiler {
   private ConcurrentLinkedHashMap<String, AtomicInteger> tips;
   private ConcurrentLinkedHashMap<String, Long> tipsTimestamp;
 
-  public OProfilerStub() {}
+  public OProfilerStub() {
+  }
 
   public OProfilerStub(boolean registerListener) {
     super(registerListener);
@@ -292,7 +293,8 @@ public class OProfilerStub extends OAbstractProfiler {
   }
 
   @Override
-  public void resetRealtime(String iText) {}
+  public void resetRealtime(String iText) {
+  }
 
   @Override
   public String getStatsAsJson() {

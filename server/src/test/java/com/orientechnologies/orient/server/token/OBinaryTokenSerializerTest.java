@@ -19,10 +19,10 @@ public class OBinaryTokenSerializerTest {
 
   private final OBinaryTokenSerializer ser =
       new OBinaryTokenSerializer(
-          new String[] {"plocal", "memory"},
-          new String[] {"key"},
-          new String[] {"HmacSHA256"},
-          new String[] {"OrientDB"});
+          new String[]{"plocal", "memory"},
+          new String[]{"key"},
+          new String[]{"HmacSHA256"},
+          new String[]{"OxygenDB"});
 
   @Test
   public void testSerializerDeserializeToken() throws IOException {
@@ -34,7 +34,7 @@ public class OBinaryTokenSerializerTest {
     OrientJwtHeader header = new OrientJwtHeader();
     header.setKeyId("key");
     header.setAlgorithm("HmacSHA256");
-    header.setType("OrientDB");
+    header.setType("OxygenDB");
     token.setHeader(header);
     payload.setExpiry(20L);
     payload.setProtocolVersion((short) 2);
@@ -53,7 +53,7 @@ public class OBinaryTokenSerializerTest {
     assertEquals(43, id.getClusterId());
     assertEquals(20L, tok.getExpiry());
 
-    assertEquals("OrientDB", tok.getHeader().getType());
+    assertEquals("OxygenDB", tok.getHeader().getType());
     assertEquals("HmacSHA256", tok.getHeader().getAlgorithm());
     assertEquals("key", tok.getHeader().getKeyId());
 
@@ -73,7 +73,7 @@ public class OBinaryTokenSerializerTest {
     OrientJwtHeader header = new OrientJwtHeader();
     header.setKeyId("key");
     header.setAlgorithm("HmacSHA256");
-    header.setType("OrientDB");
+    header.setType("OxygenDB");
     token.setHeader(header);
     payload.setExpiry(20L);
     payload.setServerUser(true);
@@ -96,7 +96,7 @@ public class OBinaryTokenSerializerTest {
     assertTrue(token.isServerUser());
     assertEquals("aaa", tok.getUserName());
 
-    assertEquals("OrientDB", tok.getHeader().getType());
+    assertEquals("OxygenDB", tok.getHeader().getType());
     assertEquals("HmacSHA256", tok.getHeader().getAlgorithm());
     assertEquals("key", tok.getHeader().getKeyId());
 
@@ -116,7 +116,7 @@ public class OBinaryTokenSerializerTest {
     OrientJwtHeader header = new OrientJwtHeader();
     header.setKeyId("key");
     header.setAlgorithm("HmacSHA256");
-    header.setType("OrientDB");
+    header.setType("OxygenDB");
     token.setHeader(header);
     payload.setExpiry(20L);
     payload.setServerUser(true);
@@ -139,7 +139,7 @@ public class OBinaryTokenSerializerTest {
     assertTrue(token.isServerUser());
     assertEquals("aaa", tok.getUserName());
 
-    assertEquals("OrientDB", tok.getHeader().getType());
+    assertEquals("OxygenDB", tok.getHeader().getType());
     assertEquals("HmacSHA256", tok.getHeader().getAlgorithm());
     assertEquals("key", tok.getHeader().getKeyId());
 

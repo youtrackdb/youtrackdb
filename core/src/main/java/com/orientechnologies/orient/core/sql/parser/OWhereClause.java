@@ -2,7 +2,6 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.orientechnologies.orient.core.sql.parser;
 
-import com.orientechnologies.common.collection.OMultiCollectionIterator;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
@@ -80,7 +79,8 @@ public class OWhereClause extends SimpleNode {
    * if and only if sure that no records are returned
    */
   public long estimate(OClass oClass, long threshold, OCommandContext ctx) {
-    long count = oClass.count();
+    var database = ctx.getDatabase();
+    long count = oClass.count(database);
     if (count > 1) {
       count = count / 2;
     }
@@ -90,7 +90,7 @@ public class OWhereClause extends SimpleNode {
 
     long indexesCount = 0L;
     List<OAndBlock> flattenedConditions = flatten();
-    Set<OIndex> indexes = oClass.getIndexes();
+    Set<OIndex> indexes = oClass.getIndexes(database);
     for (OAndBlock condition : flattenedConditions) {
 
       List<OBinaryCondition> indexedFunctConditions =
@@ -125,7 +125,7 @@ public class OWhereClause extends SimpleNode {
             }
           }
           if (nMatchingKeys > 0) {
-            long newCount = estimateFromIndex(index, conditions, nMatchingKeys);
+            long newCount = estimateFromIndex(database, index, conditions, nMatchingKeys);
             if (newCount < conditionEstimation) {
               conditionEstimation = newCount;
             }
@@ -141,7 +141,8 @@ public class OWhereClause extends SimpleNode {
   }
 
   private static long estimateFromIndex(
-      OIndex index, Map<String, Object> conditions, int nMatchingKeys) {
+      ODatabaseSessionInternal session, OIndex index, Map<String, Object> conditions,
+      int nMatchingKeys) {
     if (nMatchingKeys < 1) {
       throw new IllegalArgumentException("Cannot estimate from an index with zero keys");
     }
@@ -149,25 +150,25 @@ public class OWhereClause extends SimpleNode {
     List<String> definitionFields = definition.getFields();
     Object key = null;
     if (definition instanceof OPropertyIndexDefinition) {
-      key = convert(conditions.get(definitionFields.get(0)), definition.getTypes()[0]);
+      key = convert(session, conditions.get(definitionFields.get(0)), definition.getTypes()[0]);
     } else if (definition instanceof OCompositeIndexDefinition) {
       key = new OCompositeKey();
       for (int i = 0; i < nMatchingKeys; i++) {
         Object keyValue =
-            convert(conditions.get(definitionFields.get(i)), definition.getTypes()[i]);
+            convert(session, conditions.get(definitionFields.get(i)), definition.getTypes()[i]);
         ((OCompositeKey) key).addKey(keyValue);
       }
     }
     if (key != null) {
       if (conditions.size() == definitionFields.size()) {
-        try (Stream<ORID> rids = index.getInternal().getRids(key)) {
+        try (Stream<ORID> rids = index.getInternal().getRids(session, key)) {
           return rids.count();
         }
       } else if (index.supportsOrderedIterations()) {
         final Spliterator<ORawPair<Object, ORID>> spliterator;
 
         try (Stream<ORawPair<Object, ORID>> stream =
-            index.getInternal().streamEntriesBetween(key, true, key, true, true)) {
+            index.getInternal().streamEntriesBetween(session, key, true, key, true, true)) {
           spliterator = stream.spliterator();
           return spliterator.estimateSize();
         }
@@ -176,82 +177,8 @@ public class OWhereClause extends SimpleNode {
     return Long.MAX_VALUE;
   }
 
-  public Iterable fetchFromIndexes(OClass oClass, OCommandContext ctx) {
-
-    List<OAndBlock> flattenedConditions = flatten();
-    if (flattenedConditions == null || flattenedConditions.size() == 0) {
-      return null;
-    }
-    Set<OIndex> indexes = oClass.getIndexes();
-    List<OIndex> bestIndexes = new ArrayList<>();
-    List<Map<String, Object>> indexConditions = new ArrayList<>();
-    for (OAndBlock condition : flattenedConditions) {
-      Map<String, Object> conditions = getEqualityOperations(condition, ctx);
-      long conditionEstimation = Long.MAX_VALUE;
-      OIndex bestIndex = null;
-      Map<String, Object> bestCondition = null;
-
-      for (OIndex index : indexes) {
-        List<String> indexedFields = index.getDefinition().getFields();
-        int nMatchingKeys = 0;
-        for (String indexedField : indexedFields) {
-          if (conditions.containsKey(indexedField)) {
-            nMatchingKeys++;
-          } else {
-            break;
-          }
-        }
-        if (nMatchingKeys > 0) {
-          long newCount = estimateFromIndex(index, conditions, nMatchingKeys);
-          if (newCount >= 0 && newCount <= conditionEstimation) {
-            conditionEstimation = newCount;
-            bestIndex = index;
-            bestCondition = conditions;
-          }
-        }
-      }
-      if (bestIndex == null) {
-        return null;
-      }
-      bestIndexes.add(bestIndex);
-      indexConditions.add(bestCondition);
-    }
-    OMultiCollectionIterator result = new OMultiCollectionIterator();
-
-    for (int i = 0; i < bestIndexes.size(); i++) {
-      OIndex index = bestIndexes.get(i);
-      Map<String, Object> condition = indexConditions.get(i);
-      result.add(fetchFromIndex(index, indexConditions.get(i)));
-    }
-    return result;
-  }
-
-  private static Iterable fetchFromIndex(OIndex index, Map<String, Object> conditions) {
-    OIndexDefinition definition = index.getDefinition();
-    List<String> definitionFields = definition.getFields();
-    Object key = null;
-    if (definition instanceof OPropertyIndexDefinition) {
-      key = convert(conditions.get(definitionFields.get(0)), definition.getTypes()[0]);
-    } else if (definition instanceof OCompositeIndexDefinition) {
-      key = new OCompositeKey();
-      for (int i = 0; i < definitionFields.size(); i++) {
-        String keyName = definitionFields.get(i);
-        if (!conditions.containsKey(keyName)) {
-          break;
-        }
-        Object keyValue = convert(conditions.get(keyName), definition.getTypes()[i]);
-        ((OCompositeKey) key).addKey(conditions.get(keyName));
-      }
-    }
-    if (key != null) {
-      final Object iteratorKey = key;
-      return () -> index.getInternal().getRids(iteratorKey).iterator();
-    }
-    return null;
-  }
-
-  private static Object convert(Object o, OType oType) {
-    return OType.convert(o, oType.getDefaultJavaType());
+  private static Object convert(ODatabaseSessionInternal session, Object o, OType oType) {
+    return OType.convert(session, o, oType.getDefaultJavaType());
   }
 
   private static Map<String, Object> getEqualityOperations(

@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.client.remote.metadata.schema;
 
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -17,7 +18,7 @@ import com.orientechnologies.orient.core.metadata.security.ORule;
 import java.util.List;
 
 /**
- * Created by tglman on 14/06/17.
+ *
  */
 public class OViewRemote extends OViewImpl {
 
@@ -26,7 +27,7 @@ public class OViewRemote extends OViewImpl {
   }
 
   protected OProperty addProperty(
-      final String propertyName,
+      ODatabaseSessionInternal session, final String propertyName,
       final OType type,
       final OType linkedType,
       final OClass linkedClass,
@@ -39,14 +40,13 @@ public class OViewRemote extends OViewImpl {
       throw new OSchemaException("Property name is null or empty");
     }
 
-    final ODatabaseSessionInternal database = getDatabase();
     validatePropertyName(propertyName);
-    if (database.getTransaction().isActive()) {
+    if (session.getTransaction().isActive()) {
       throw new OSchemaException(
           "Cannot create property '" + propertyName + "' inside a transaction");
     }
 
-    database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+    session.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
     if (linkedType != null) {
       OPropertyImpl.checkLinkTypeSupport(type);
@@ -56,7 +56,7 @@ public class OViewRemote extends OViewImpl {
       OPropertyImpl.checkSupportLinkedClass(type);
     }
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(session);
     try {
       final StringBuilder cmd = new StringBuilder("create property ");
       // CLASS.PROPERTY NAME
@@ -89,83 +89,82 @@ public class OViewRemote extends OViewImpl {
         cmd.append(" unsafe ");
       }
 
-      database.command(cmd.toString()).close();
+      session.command(cmd.toString()).close();
 
       return getProperty(propertyName);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
   }
 
-  public OClassImpl setEncryption(final String iValue) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  public OClassImpl setEncryption(ODatabaseSessionInternal session, final String iValue) {
+    session.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(session);
     try {
-      final ODatabaseSessionInternal database = getDatabase();
       final String cmd = String.format("alter view `%s` encryption %s", name, iValue);
-      database.command(cmd);
+      session.command(cmd);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
     return this;
   }
 
   @Override
-  public OClass setClusterSelection(final String value) {
+  public OClass setClusterSelection(ODatabaseSession session, final String value) {
     throw new UnsupportedOperationException();
   }
 
-  public OClassImpl setCustom(final String name, final String value) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  public OClassImpl setCustom(ODatabaseSession session, final String name, final String value) {
+    var sessionInternal = (ODatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(sessionInternal);
     try {
-      final ODatabaseSessionInternal database = getDatabase();
       final String cmd = String.format("alter view `%s` custom %s = ?", getName(), name);
-      database.command(cmd, value).close();
+      sessionInternal.command(cmd, value).close();
       return this;
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(sessionInternal);
     }
   }
 
-  public void clearCustom() {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  public void clearCustom(ODatabaseSession session) {
+    var sessionInternal = (ODatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(sessionInternal);
     try {
-      final ODatabaseSessionInternal database = getDatabase();
       final String cmd = String.format("alter view `%s` custom clear", getName());
-      database.command(cmd).close();
+      sessionInternal.command(cmd).close();
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(sessionInternal);
     }
   }
 
   @Override
-  public OClass setSuperClasses(final List<? extends OClass> classes) {
+  public OClass setSuperClasses(ODatabaseSession session, final List<? extends OClass> classes) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public OClass addSuperClass(final OClass superClass) {
+  public OClass addSuperClass(ODatabaseSession session, final OClass superClass) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public OClass removeSuperClass(OClass superClass) {
+  public OClass removeSuperClass(ODatabaseSession session, OClass superClass) {
     throw new UnsupportedOperationException();
   }
 
-  public OView setName(final String name) {
+  public OView setName(ODatabaseSession session, final String name) {
     if (getName().equals(name)) {
       return this;
     }
-    final ODatabaseSessionInternal database = getDatabase();
-    database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+    var sessionInternal = (ODatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
     final Character wrongCharacter = OSchemaShared.checkClassNameIfValid(name);
-    OView oClass = database.getMetadata().getSchema().getView(name);
+    OView oClass = sessionInternal.getMetadata().getSchema().getView(name);
     if (oClass != null) {
       String error =
           String.format(
@@ -180,35 +179,36 @@ public class OViewRemote extends OViewImpl {
               + name
               + "'");
     }
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(sessionInternal);
     try {
 
       final String cmd = String.format("alter view `%s` name `%s`", this.name, name);
-      database.command(cmd);
+      sessionInternal.command(cmd);
 
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(sessionInternal);
     }
 
     return this;
   }
 
-  public OView setShortName(String shortName) {
+  public OView setShortName(ODatabaseSession session, String shortName) {
     if (shortName != null) {
       shortName = shortName.trim();
       if (shortName.isEmpty()) {
         shortName = null;
       }
     }
-    final ODatabaseSessionInternal database = getDatabase();
-    database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    var sessionInternal = (ODatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+
+    acquireSchemaWriteLock(sessionInternal);
     try {
       final String cmd = String.format("alter view `%s` shortname `%s`", name, shortName);
-      database.command(cmd);
+      sessionInternal.command(cmd);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(sessionInternal);
     }
 
     return this;
@@ -222,14 +222,14 @@ public class OViewRemote extends OViewImpl {
    * {@inheritDoc}
    */
   @Override
-  public OView truncateCluster(String clusterName) {
-    final ODatabaseSessionInternal database = getDatabase();
-    database.checkSecurity(ORule.ResourceGeneric.CLASS, ORole.PERMISSION_DELETE, name);
+  public OView truncateCluster(ODatabaseSession session, String clusterName) {
+    var sessionInternal = (ODatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(ORule.ResourceGeneric.CLASS, ORole.PERMISSION_DELETE, name);
     acquireSchemaReadLock();
     try {
 
       final String cmd = String.format("truncate cluster %s", clusterName);
-      database.command(cmd).close();
+      sessionInternal.command(cmd).close();
     } finally {
       releaseSchemaReadLock();
     }
@@ -237,113 +237,115 @@ public class OViewRemote extends OViewImpl {
     return this;
   }
 
-  public OView setStrictMode(final boolean isStrict) {
-    final ODatabaseSessionInternal database = getDatabase();
-    database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
-    acquireSchemaWriteLock();
+  public OView setStrictMode(ODatabaseSession session, final boolean isStrict) {
+    var sessionInternal = (ODatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+    acquireSchemaWriteLock(sessionInternal);
     try {
       final String cmd = String.format("alter view `%s` strictmode %s", name, isStrict);
-      database.command(cmd);
+      sessionInternal.command(cmd);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(sessionInternal);
     }
 
     return this;
   }
 
-  public OView setDescription(String iDescription) {
+  public OView setDescription(ODatabaseSession session, String iDescription) {
     if (iDescription != null) {
       iDescription = iDescription.trim();
       if (iDescription.isEmpty()) {
         iDescription = null;
       }
     }
-    final ODatabaseSessionInternal database = getDatabase();
-    database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+    var sessionInternal = (ODatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(sessionInternal);
     try {
       final String cmd = String.format("alter view `%s` description ?", name);
-      database.command(cmd, iDescription).close();
+      sessionInternal.command(cmd, iDescription).close();
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(sessionInternal);
     }
 
     return this;
   }
 
-  public OView addClusterId(final int clusterId) {
+  public OView addClusterId(ODatabaseSession session, final int clusterId) {
     throw new UnsupportedOperationException();
   }
 
-  public OView removeClusterId(final int clusterId) {
+  public OView removeClusterId(ODatabaseSession session, final int clusterId) {
     throw new UnsupportedOperationException();
   }
 
-  public void dropProperty(final String propertyName) {
-    final ODatabaseSessionInternal database = getDatabase();
-    if (database.getTransaction().isActive()) {
+  public void dropProperty(ODatabaseSession session, final String propertyName) {
+    var sessionInternal = (ODatabaseSessionInternal) session;
+    if (sessionInternal.getTransaction().isActive()) {
       throw new IllegalStateException("Cannot drop a property inside a transaction");
     }
 
-    database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_DELETE);
+    sessionInternal.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_DELETE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(sessionInternal);
     try {
       if (!properties.containsKey(propertyName)) {
         throw new OSchemaException(
             "Property '" + propertyName + "' not found in class " + name + "'");
       }
 
-      database.command("drop property " + name + '.' + propertyName).close();
+      session.command("drop property " + name + '.' + propertyName).close();
 
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(sessionInternal);
     }
   }
 
   @Override
-  public OView addCluster(final String clusterNameOrId) {
+  public OView addCluster(ODatabaseSession session, final String clusterNameOrId) {
     throw new UnsupportedOperationException();
   }
 
-  public OView setOverSize(final float overSize) {
-    final ODatabaseSessionInternal database = getDatabase();
-    database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
-    acquireSchemaWriteLock();
+  public OView setOverSize(ODatabaseSession session, final float overSize) {
+    var sessionInternal = (ODatabaseSessionInternal) session;
+    sessionInternal.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+    acquireSchemaWriteLock(sessionInternal);
     try {
       // FORMAT FLOAT LOCALE AGNOSTIC
       final String cmd = Float.toString(overSize);
-      database.command(cmd).close();
+      sessionInternal.command(cmd).close();
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(sessionInternal);
     }
 
     return this;
   }
 
-  public OView setAbstract(boolean isAbstract) {
+  public OView setAbstract(ODatabaseSession session, boolean isAbstract) {
     throw new UnsupportedOperationException();
   }
 
-  public OView removeBaseClassInternal(final OClass baseClass) {
+  public OView removeBaseClassInternal(ODatabaseSessionInternal session, final OClass baseClass) {
     throw new UnsupportedOperationException();
   }
 
-  protected void setSuperClassesInternal(final List<? extends OClass> classes) {
+  protected void setSuperClassesInternal(ODatabaseSessionInternal session,
+      final List<? extends OClass> classes) {
     throw new UnsupportedOperationException();
   }
 
-  public void setDefaultClusterId(final int defaultClusterId) {
+  public void setDefaultClusterId(ODatabaseSession session, final int defaultClusterId) {
     throw new UnsupportedOperationException();
   }
 
   @Override
   public OViewRemovedMetadata replaceViewClusterAndIndex(
-      int cluster, List<OIndex> indexes, long lastRefreshTime) {
+      ODatabaseSessionInternal session, int cluster, List<OIndex> indexes, long lastRefreshTime) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  protected void addClusterIdToIndexes(int iId) {}
+  protected void addClusterIdToIndexes(ODatabaseSessionInternal session, int iId) {
+  }
 }

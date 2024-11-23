@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 /**
- * @author Artem Orobets (enisher-at-gmail.com)
+ *
  */
 @Test
 public class OSBTreeRidBagTest extends ORidBagTest {
@@ -139,16 +139,16 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     database.begin();
     ODocument scuti =
         new ODocument()
-            .field("name", "UY Scuti")
-            .save(database.getClusterNameById(database.getDefaultClusterId()));
+            .field("name", "UY Scuti");
+    scuti.save(database.getClusterNameById(database.getDefaultClusterId()));
     ODocument cygni =
         new ODocument()
-            .field("name", "NML Cygni")
-            .save(database.getClusterNameById(database.getDefaultClusterId()));
+            .field("name", "NML Cygni");
+    cygni.save(database.getClusterNameById(database.getDefaultClusterId()));
     ODocument scorpii =
         new ODocument()
-            .field("name", "AH Scorpii")
-            .save(database.getClusterNameById(database.getDefaultClusterId()));
+            .field("name", "AH Scorpii");
+    scorpii.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
     scuti = database.bindToSession(scuti);

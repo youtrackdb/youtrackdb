@@ -8,7 +8,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ *
  */
 public class OCreateIndexStatementExecutionTest extends BaseMemoryInternalDatabase {
 
@@ -16,7 +16,7 @@ public class OCreateIndexStatementExecutionTest extends BaseMemoryInternalDataba
   public void testPlain() {
     String className = "testPlain";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
+    clazz.createProperty(db, "name", OType.STRING);
 
     Assert.assertNull(db.getMetadata().getIndexManagerInternal().getIndex(db, className + ".name"));
     OResultSet result =
@@ -35,7 +35,7 @@ public class OCreateIndexStatementExecutionTest extends BaseMemoryInternalDataba
   public void testIfNotExists() {
     String className = "testIfNotExists";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
+    clazz.createProperty(db, "name", OType.STRING);
 
     Assert.assertNull(db.getMetadata().getIndexManagerInternal().getIndex(db, className + ".name"));
     OResultSet result =

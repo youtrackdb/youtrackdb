@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,7 +9,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://www.orientdb.com
+ * <p>*
  */
 package com.orientechnologies.spatial;
 
@@ -34,7 +32,7 @@ import org.junit.Test;
 import org.locationtech.spatial4j.context.jts.JtsSpatialContext;
 
 /**
- * Created by Enrico Risa on 07/08/15.
+ *
  */
 public class LuceneSpatialMultiPolygonTest extends BaseSpatialLuceneTest {
 
@@ -124,9 +122,9 @@ public class LuceneSpatialMultiPolygonTest extends BaseSpatialLuceneTest {
     OSchema schema = db.getMetadata().getSchema();
     OClass v = schema.getClass("V");
     OClass oClass = schema.createClass("Place");
-    oClass.setSuperClass(v);
-    oClass.createProperty("location", OType.EMBEDDED, schema.getClass("OMultiPolygon"));
-    oClass.createProperty("name", OType.STRING);
+    oClass.setSuperClass(db, v);
+    oClass.createProperty(db, "location", OType.EMBEDDED, schema.getClass("OMultiPolygon"));
+    oClass.createProperty(db, "name", OType.STRING);
 
     db.command("CREATE INDEX Place.location ON Place(location) SPATIAL ENGINE LUCENE").close();
   }
@@ -229,7 +227,7 @@ public class LuceneSpatialMultiPolygonTest extends BaseSpatialLuceneTest {
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Place.location");
 
     db.begin();
-    Assert.assertEquals(1, index.getInternal().size());
+    Assert.assertEquals(1, index.getInternal().size(db));
     db.commit();
 
     InputStream systemResourceAsStream = ClassLoader.getSystemResourceAsStream("multipolygon.txt");
@@ -250,7 +248,7 @@ public class LuceneSpatialMultiPolygonTest extends BaseSpatialLuceneTest {
         .close();
     db.commit();
 
-    Assert.assertEquals(3, index.getInternal().size());
+    Assert.assertEquals(3, index.getInternal().size(db));
 
     queryMultiPolygon();
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.orientechnologies.lucene.operator;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.sql.OIndexSearchResult;
 import com.orientechnologies.orient.core.sql.OSQLHelper;
@@ -72,7 +73,9 @@ public class OLuceneOperatorUtil {
         }
         i++;
       }
-      if (lastResult != null && OLuceneOperatorUtil.checkIndexExistence(iSchemaClass, lastResult)) {
+      if (lastResult != null && OLuceneOperatorUtil.checkIndexExistence(context.getDatabase(),
+          iSchemaClass,
+          lastResult)) {
         iIndexSearchResults.add(lastResult);
       }
       return lastResult;
@@ -87,7 +90,7 @@ public class OLuceneOperatorUtil {
         return null;
       }
 
-      if (OLuceneOperatorUtil.checkIndexExistence(iSchemaClass, result)) {
+      if (OLuceneOperatorUtil.checkIndexExistence(context.getDatabase(), iSchemaClass, result)) {
         iIndexSearchResults.add(result);
       }
 
@@ -96,8 +99,9 @@ public class OLuceneOperatorUtil {
   }
 
   public static boolean checkIndexExistence(
-      final OClass iSchemaClass, final OIndexSearchResult result) {
-    if (!iSchemaClass.areIndexed(result.fields())) {
+      ODatabaseSessionInternal session, final OClass iSchemaClass,
+      final OIndexSearchResult result) {
+    if (!iSchemaClass.areIndexed(session, result.fields())) {
       return false;
     }
 
@@ -106,7 +110,7 @@ public class OLuceneOperatorUtil {
       OClass cls = iSchemaClass.getProperty(result.lastField.getItemName(0)).getLinkedClass();
 
       for (int i = 1; i < fieldCount; i++) {
-        if (cls == null || !cls.areIndexed(result.lastField.getItemName(i))) {
+        if (cls == null || !cls.areIndexed(session, result.lastField.getItemName(i))) {
           return false;
         }
 

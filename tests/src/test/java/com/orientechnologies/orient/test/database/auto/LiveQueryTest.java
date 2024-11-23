@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,8 @@ public class LiveQueryTest extends DocumentDBBaseTest implements OCommandOutputL
     }
 
     @Override
-    public void onError(int iLiveToken) {}
+    public void onError(int iLiveToken) {
+    }
 
     @Override
     public void onUnsubscribe(int iLiveToken) {

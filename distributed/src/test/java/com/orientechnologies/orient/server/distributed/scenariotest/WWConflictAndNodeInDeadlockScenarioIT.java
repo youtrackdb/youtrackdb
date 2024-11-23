@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 OrientDB LTD (info--at--orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,6 @@ import org.junit.Test;
  * to delay in the stack) - r1 on server3 has the values set by the client c1 or the values set by
  * the client c2, but not the old one - r1 has version x+1 on all the servers
  *
- * @author Gabriele Ponzi
  * @email <gabriele.ponzi--at--gmail.com>
  */
 public class WWConflictAndNodeInDeadlockScenarioIT extends AbstractScenarioTest {

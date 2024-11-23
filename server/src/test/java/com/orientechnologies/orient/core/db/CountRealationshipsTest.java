@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.db;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.server.OServer;
@@ -13,13 +13,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by tglman on 03/01/17.
+ *
  */
 public class CountRealationshipsTest {
 
   private static final String SERVER_DIRECTORY = "./target/cluster";
   private OServer server;
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
 
   @Before
   public void before() throws Exception {
@@ -28,8 +28,8 @@ public class CountRealationshipsTest {
     server.startup(getClass().getResourceAsStream("orientdb-server-config-tree-ridbag.xml"));
     server.activate();
 
-    orientDB = new OrientDB("remote:localhost", "root", "root", OrientDBConfig.defaultConfig());
-    orientDB.execute(
+    oxygenDB = new OxygenDB("remote:localhost", "root", "root", OxygenDBConfig.defaultConfig());
+    oxygenDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         CountRealationshipsTest.class.getSimpleName());
   }
@@ -37,7 +37,7 @@ public class CountRealationshipsTest {
   @Test
   public void test() throws Exception {
     ODatabaseSession g =
-        orientDB.open(CountRealationshipsTest.class.getSimpleName(), "admin", "admin");
+        oxygenDB.open(CountRealationshipsTest.class.getSimpleName(), "admin", "admin");
     g.begin();
     OVertex vertex1 = g.newVertex("V");
     vertex1.save();
@@ -95,7 +95,7 @@ public class CountRealationshipsTest {
 
     g.close();
 
-    g = orientDB.open(CountRealationshipsTest.class.getSimpleName(), "admin", "admin");
+    g = oxygenDB.open(CountRealationshipsTest.class.getSimpleName(), "admin", "admin");
     vertex1 = g.load(vertex1.getIdentity());
     vertex2 = g.load(vertex2.getIdentity());
 
@@ -121,10 +121,10 @@ public class CountRealationshipsTest {
 
   @After
   public void after() {
-    orientDB.close();
+    oxygenDB.close();
     server.shutdown();
-    Orient.instance().shutdown();
+    Oxygen.instance().shutdown();
     OFileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
-    Orient.instance().startup();
+    Oxygen.instance().startup();
   }
 }

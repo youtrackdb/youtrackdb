@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ public class StringsTest {
     List<String> pieces =
         OStringSerializerHelper.smartSplit(
             "first, orders : ['this is mine', 'that is your']",
-            new char[] {','},
+            new char[]{','},
             0,
             -1,
             true,

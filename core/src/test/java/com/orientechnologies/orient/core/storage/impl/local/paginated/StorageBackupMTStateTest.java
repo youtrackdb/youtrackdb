@@ -5,6 +5,7 @@ import com.orientechnologies.common.concur.lock.OReadersWriterSpinLock;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
@@ -37,7 +38,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com) <lomakin.andrey@gmail.com>.
  * @since 10/6/2015
  */
 public class StorageBackupMTStateTest {
@@ -94,7 +94,7 @@ public class StorageBackupMTStateTest {
     final OSchema schema = databaseDocumentTx.getMetadata().getSchema();
 
     for (int i = 0; i < 3; i++) {
-      createClass(schema);
+      createClass(schema, databaseDocumentTx);
     }
 
     databaseDocumentTx.close();
@@ -200,16 +200,16 @@ public class StorageBackupMTStateTest {
     OFileUtils.deleteRecursively(backupDir);
   }
 
-  private OClass createClass(OSchema schema) {
+  private OClass createClass(OSchema schema, ODatabaseSession db) {
     OClass cls = schema.createClass(CLASS_PREFIX + classCounter.getAndIncrement());
 
-    cls.createProperty("id", OType.LONG);
-    cls.createProperty("intValue", OType.INTEGER);
-    cls.createProperty("stringValue", OType.STRING);
-    cls.createProperty("linkedDocuments", OType.LINKBAG);
+    cls.createProperty(db, "id", OType.LONG);
+    cls.createProperty(db, "intValue", OType.INTEGER);
+    cls.createProperty(db, "stringValue", OType.STRING);
+    cls.createProperty(db, "linkedDocuments", OType.LINKBAG);
 
-    cls.createIndex(cls.getName() + "IdIndex", OClass.INDEX_TYPE.UNIQUE, "id");
-    cls.createIndex(
+    cls.createIndex(db, cls.getName() + "IdIndex", OClass.INDEX_TYPE.UNIQUE, "id");
+    cls.createIndex(db,
         cls.getName() + "IntValueIndex", OClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "intValue");
 
     classInstancesCounters.put(cls.getName(), new AtomicInteger());
@@ -396,7 +396,7 @@ public class StorageBackupMTStateTest {
         flowLock.acquireReadLock();
         try {
           OSchema schema = databaseDocumentTx.getMetadata().getSchema();
-          createClass(schema);
+          createClass(schema, databaseDocumentTx);
         } finally {
           flowLock.releaseReadLock();
         }

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.common.util;
@@ -22,7 +22,6 @@ package com.orientechnologies.common.util;
 /**
  * Structure to handle a triple of values configured as a key and a Pair as value.
  *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @see OPair
  */
 public class OTriple<K extends Comparable<K>, V extends Comparable<V>, SV>
@@ -31,7 +30,8 @@ public class OTriple<K extends Comparable<K>, V extends Comparable<V>, SV>
   public K key;
   public OPair<V, SV> value;
 
-  public OTriple() {}
+  public OTriple() {
+  }
 
   public OTriple(final K iKey, final V iValue, final SV iSubValue) {
     init(iKey, iValue, iSubValue);
@@ -88,7 +88,9 @@ public class OTriple<K extends Comparable<K>, V extends Comparable<V>, SV>
     OTriple<?, ?, ?> other = (OTriple<?, ?, ?>) obj;
     if (key == null) {
       return other.key == null;
-    } else return key.equals(other.key);
+    } else {
+      return key.equals(other.key);
+    }
   }
 
   public int compareTo(final OTriple<K, V, SV> o) {

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -29,7 +29,7 @@ import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.jnr.ONative;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.OrientDBInternal;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.engine.OEngineAbstract;
 import com.orientechnologies.orient.core.engine.OMemoryAndLocalPaginatedEnginesInitializer;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -42,7 +42,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 28.03.13
  */
 public class OEngineLocalPaginated extends OEngineAbstract {
@@ -54,12 +53,13 @@ public class OEngineLocalPaginated extends OEngineAbstract {
   protected final OClosableLinkedContainer<Long, OFile> files =
       new OClosableLinkedContainer<>(getOpenFilesLimit());
 
-  public OEngineLocalPaginated() {}
+  public OEngineLocalPaginated() {
+  }
 
   private static int getOpenFilesLimit() {
     if (OGlobalConfiguration.OPEN_FILES_LIMIT.getValueAsInteger() > 0) {
       final Object[] additionalArgs =
-          new Object[] {OGlobalConfiguration.OPEN_FILES_LIMIT.getValueAsInteger()};
+          new Object[]{OGlobalConfiguration.OPEN_FILES_LIMIT.getValueAsInteger()};
       OLogManager.instance()
           .info(
               OEngineLocalPaginated.class,
@@ -139,7 +139,7 @@ public class OEngineLocalPaginated extends OEngineAbstract {
       long maxWalSegSize,
       long doubleWriteLogMaxSegSize,
       int storageId,
-      OrientDBInternal context) {
+      OxygenDBInternal context) {
     try {
 
       return new OLocalPaginatedStorage(

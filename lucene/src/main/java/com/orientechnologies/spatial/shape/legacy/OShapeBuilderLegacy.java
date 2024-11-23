@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,20 +9,21 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://www.orientdb.com
+ * <p>*
  */
 package com.orientechnologies.spatial.shape.legacy;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OCompositeKey;
 import org.locationtech.spatial4j.context.SpatialContext;
 import org.locationtech.spatial4j.shape.Shape;
 
 /**
- * Created by Enrico Risa on 23/10/15.
+ *
  */
 public interface OShapeBuilderLegacy<T extends Shape> {
 
-  T makeShape(OCompositeKey key, SpatialContext ctx);
+  T makeShape(ODatabaseSessionInternal session, OCompositeKey key, SpatialContext ctx);
 
   boolean canHandle(OCompositeKey key);
 }

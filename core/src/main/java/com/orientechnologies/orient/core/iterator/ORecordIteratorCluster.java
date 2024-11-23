@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.iterator;
@@ -29,18 +29,18 @@ import java.util.Iterator;
 /**
  * Iterator class to browse forward and backward the records of a cluster. Once browsed in a
  * direction, the iterator cannot change it.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIterator<REC> {
 
   private ORecord currentRecord;
+  private boolean initialized;
 
   public ORecordIteratorCluster(final ODatabaseSessionInternal iDatabase, final int iClusterId) {
     this(iDatabase, iClusterId, ORID.CLUSTER_POS_INVALID, ORID.CLUSTER_POS_INVALID);
   }
 
   protected ORecordIteratorCluster(final ODatabaseSessionInternal database) {
+    //noinspection deprecation
     super(database);
   }
 
@@ -56,7 +56,7 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
       throw new IllegalArgumentException("The clusterId is invalid");
     }
 
-    checkForSystemClusters(iDatabase, new int[] {iClusterId});
+    checkForSystemClusters(iDatabase, new int[]{iClusterId});
 
     current.setClusterId(iClusterId);
     final long[] range = database.getClusterDataRange(current.getClusterId());
@@ -64,18 +64,18 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
     if (firstClusterEntry == ORID.CLUSTER_POS_INVALID) {
       this.firstClusterEntry = range[0];
     } else {
-      this.firstClusterEntry = firstClusterEntry > range[0] ? firstClusterEntry : range[0];
+      this.firstClusterEntry = Math.max(firstClusterEntry, range[0]);
     }
 
     if (lastClusterEntry == ORID.CLUSTER_POS_INVALID) {
       this.lastClusterEntry = range[1];
     } else {
-      this.lastClusterEntry = lastClusterEntry < range[1] ? lastClusterEntry : range[1];
+      this.lastClusterEntry = Math.min(lastClusterEntry, range[1]);
     }
 
     totalAvailableRecords = database.countClusterElements(current.getClusterId());
 
-    txEntries = iDatabase.getTransaction().getNewRecordEntriesByClusterIds(new int[] {iClusterId});
+    txEntries = iDatabase.getTransaction().getNewRecordEntriesByClusterIds(new int[]{iClusterId});
 
     if (txEntries != null)
     // ADJUST TOTAL ELEMENT BASED ON CURRENT TRANSACTION'S ENTRIES
@@ -92,12 +92,11 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
         }
       }
     }
-
-    begin();
   }
 
   @Override
   public boolean hasPrevious() {
+    initialize();
     checkDirection(false);
 
     updateRangesOnLiveUpdate();
@@ -122,6 +121,7 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
   }
 
   public boolean hasNext() {
+    initialize();
     checkDirection(true);
 
     if (Thread.interrupted())
@@ -178,6 +178,7 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
   @SuppressWarnings("unchecked")
   @Override
   public REC previous() {
+    initialize();
     checkDirection(false);
 
     if (currentRecord != null) {
@@ -187,8 +188,8 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
         currentRecord = null;
       }
     }
-    // ITERATE UNTIL THE PREVIOUS GOOD RECORD
-    while (hasPrevious()) {
+
+    if (hasPrevious()) {
       try {
         return (REC) currentRecord;
       } finally {
@@ -208,6 +209,7 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
    */
   @SuppressWarnings("unchecked")
   public REC next() {
+    initialize();
     checkDirection(true);
 
     ORecord record;
@@ -240,6 +242,10 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
    */
   @Override
   public ORecordIteratorCluster<REC> begin() {
+    return doBegin();
+  }
+
+  private ORecordIteratorCluster<REC> doBegin() {
     browsedRecords = 0;
 
     updateRangesOnLiveUpdate();
@@ -258,6 +264,7 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
    */
   @Override
   public ORecordIteratorCluster<REC> last() {
+    initialize();
     browsedRecords = 0;
 
     updateRangesOnLiveUpdate();
@@ -269,8 +276,9 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
   }
 
   public Iterator<REC> reversed() {
+    initialize();
     this.last();
-    return new Iterator<REC>() {
+    return new Iterator<>() {
       @Override
       public boolean hasNext() {
         return ORecordIteratorCluster.this.hasPrevious();
@@ -293,6 +301,7 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
    */
   @Override
   public ORecordIteratorCluster<REC> setLiveUpdated(boolean iLiveUpdated) {
+    initialize();
     super.setLiveUpdated(iLiveUpdated);
 
     // SET THE RANGE LIMITS
@@ -316,6 +325,13 @@ public class ORecordIteratorCluster<REC extends ORecord> extends OIdentifiableIt
 
       firstClusterEntry = range[0];
       lastClusterEntry = range[1];
+    }
+  }
+
+  private void initialize() {
+    if (!initialized) {
+      initialized = true;
+      doBegin();
     }
   }
 }

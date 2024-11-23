@@ -9,7 +9,7 @@ import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 
 /**
- * Created by tglman on 28/05/17.
+ *
  */
 public class OLiveQueryClientListener {
 

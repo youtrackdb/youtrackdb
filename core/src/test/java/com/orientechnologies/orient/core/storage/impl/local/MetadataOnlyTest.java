@@ -6,9 +6,9 @@ import static org.junit.Assert.assertTrue;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.OrientDBInternal;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import java.util.Optional;
 import org.junit.After;
 import org.junit.Before;
@@ -16,31 +16,31 @@ import org.junit.Test;
 
 public class MetadataOnlyTest {
 
-  private OrientDB orientDb;
+  private OxygenDB oxygenDb;
 
   @Before
   public void before() {
-    orientDb =
-        new OrientDB(
+    oxygenDb =
+        new OxygenDB(
             "embedded:./target/",
-            OrientDBConfig.builder()
+            OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CLASS_MINIMUM_CLUSTERS, 1)
                 .build());
-    orientDb.execute(
+    oxygenDb.execute(
         "create database testMetadataOnly plocal users (admin identified by 'admin' role admin)");
   }
 
   @Test
   public void test() {
-    ODatabaseSession db = orientDb.open("testMetadataOnly", "admin", "admin");
+    ODatabaseSession db = oxygenDb.open("testMetadataOnly", "admin", "admin");
     byte[] blob =
-        new byte[] {
-          1, 2, 3, 4, 5, 6,
+        new byte[]{
+            1, 2, 3, 4, 5, 6,
         };
     ((OAbstractPaginatedStorage) ((ODatabaseSessionInternal) db).getStorage()).metadataOnly(blob);
     db.close();
-    OrientDBInternal.extract(orientDb).forceDatabaseClose("testMetadataOnly");
-    db = orientDb.open("testMetadataOnly", "admin", "admin");
+    OxygenDBInternal.extract(oxygenDb).forceDatabaseClose("testMetadataOnly");
+    db = oxygenDb.open("testMetadataOnly", "admin", "admin");
     Optional<byte[]> loaded =
         ((OAbstractPaginatedStorage) ((ODatabaseSessionInternal) db).getStorage())
             .getLastMetadata();
@@ -52,7 +52,7 @@ public class MetadataOnlyTest {
   @After
   public void after() {
 
-    orientDb.drop("testMetadataOnly");
-    orientDb.close();
+    oxygenDb.drop("testMetadataOnly");
+    oxygenDb.close();
   }
 }

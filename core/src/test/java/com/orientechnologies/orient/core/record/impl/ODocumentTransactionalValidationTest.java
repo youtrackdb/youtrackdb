@@ -17,7 +17,7 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
   @Test(expected = OValidationException.class)
   public void simpleConstraintShouldBeCheckedOnCommitFalseTest() {
     OClass clazz = db.createVertexClass("Validation");
-    clazz.createProperty("int", OType.INTEGER).setMandatory(true);
+    clazz.createProperty(db, "int", OType.INTEGER).setMandatory(db, true);
     db.begin();
     var vertex = db.newVertex(clazz.getName());
     vertex.save();
@@ -27,7 +27,7 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
   @Test()
   public void simpleConstraintShouldBeCheckedOnCommitTrueTest() {
     OClass clazz = db.createVertexClass("Validation");
-    clazz.createProperty("int", OType.INTEGER).setMandatory(true);
+    clazz.createProperty(db, "int", OType.INTEGER).setMandatory(db, true);
     db.begin();
     var vertex = db.newVertex(clazz.getName());
     vertex.setProperty("int", 11);
@@ -42,7 +42,7 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
   @Test()
   public void simpleConstraintShouldBeCheckedOnCommitWithTypeConvert() {
     OClass clazz = db.createVertexClass("Validation");
-    clazz.createProperty("int", OType.INTEGER).setMandatory(true);
+    clazz.createProperty(db, "int", OType.INTEGER).setMandatory(db, true);
     db.begin();
     var vertex = db.newVertex(clazz.getName());
     vertex.setProperty("int", "11");
@@ -56,7 +56,7 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
   @Test
   public void stringRegexpPatternValidationCheck() {
     OClass clazz = db.createVertexClass("Validation");
-    clazz.createProperty("str", OType.STRING).setMandatory(true).setRegexp("aba.*");
+    clazz.createProperty(db, "str", OType.STRING).setMandatory(db, true).setRegexp("aba.*");
     OVertex vertex;
     db.begin();
     vertex = db.newVertex(clazz.getName());
@@ -71,7 +71,7 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
   @Test(expected = OValidationException.class)
   public void stringRegexpPatternValidationCheckFails() {
     OClass clazz = db.createVertexClass("Validation");
-    clazz.createProperty("str", OType.STRING).setMandatory(true).setRegexp("aba.*");
+    clazz.createProperty(db, "str", OType.STRING).setMandatory(db, true).setRegexp("aba.*");
     OVertex vertex;
     db.begin();
     vertex = db.newVertex(clazz.getName());
@@ -86,7 +86,7 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
     OClass clazz = db.createVertexClass("Validation");
     OClass linkClass = db.createVertexClass("links");
     String edgePropertyName = OVertex.getEdgeLinkFieldName(ODirection.OUT, edgeClass.getName());
-    clazz.createProperty(edgePropertyName, OType.LINKBAG, linkClass).setMandatory(true);
+    clazz.createProperty(db, edgePropertyName, OType.LINKBAG, linkClass).setMandatory(db, true);
     db.begin();
     db.newVertex(clazz.getName()).save();
     db.commit();
@@ -98,7 +98,7 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
     OClass clazz = db.createVertexClass("Validation");
     OClass linkClass = db.createVertexClass("links");
     String edgePropertyName = OVertex.getEdgeLinkFieldName(ODirection.OUT, edgeClass.getName());
-    clazz.createProperty(edgePropertyName, OType.LINKBAG, linkClass).setMandatory(true);
+    clazz.createProperty(db, edgePropertyName, OType.LINKBAG, linkClass).setMandatory(db, true);
     db.begin();
     OVertex vrt = db.newVertex(clazz.getName());
     OVertex link = db.newVertex(linkClass.getName());
@@ -113,7 +113,8 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
     OClass clazz = db.createVertexClass("Validation");
     OClass linkClass = db.createVertexClass("links");
     String edgePropertyName = OVertex.getEdgeLinkFieldName(ODirection.OUT, edgeClass.getName());
-    clazz.createProperty(edgePropertyName, OType.LINKBAG, linkClass).setMandatory(true).setMin("1");
+    clazz.createProperty(db, edgePropertyName, OType.LINKBAG, linkClass).setMandatory(db, true)
+        .setMin("1");
     db.begin();
     OVertex vrt = db.newVertex(clazz.getName());
     OVertex link = db.newVertex(linkClass.getName());
@@ -130,7 +131,7 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
   @Test(expected = OValidationException.class)
   public void requiredArrayFailsIfBecomesEmpty() {
     OClass clazz = db.createVertexClass("Validation");
-    clazz.createProperty("arr", OType.EMBEDDEDLIST).setMandatory(true).setMin("1");
+    clazz.createProperty(db, "arr", OType.EMBEDDEDLIST).setMandatory(db, true).setMin("1");
     db.begin();
     OVertex vrt = db.newVertex(clazz.getName());
     vrt.setProperty("arr", Arrays.asList(1, 2, 3));
@@ -150,7 +151,7 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
     OClass clazz = db.createVertexClass("Validation");
     OClass linkClass = db.createVertexClass("links");
     String edgePropertyName = OVertex.getEdgeLinkFieldName(ODirection.OUT, edgeClass.getName());
-    clazz.createProperty(edgePropertyName, OType.LINKBAG, linkClass).setMandatory(true);
+    clazz.createProperty(db, edgePropertyName, OType.LINKBAG, linkClass).setMandatory(db, true);
     db.begin();
     OVertex vrt = db.newVertex(clazz.getName());
     OVertex link = db.newVertex(linkClass.getName());
@@ -178,7 +179,7 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
   @Test
   public void maxConstraintOnFloatPropertyDuringTransaction() {
     OClass clazz = db.createVertexClass("Validation");
-    clazz.createProperty("dbl", OType.FLOAT).setMandatory(true).setMin("-10");
+    clazz.createProperty(db, "dbl", OType.FLOAT).setMandatory(db, true).setMin("-10");
     db.begin();
     var vertex = db.newVertex(clazz.getName());
     vertex.setProperty("dbl", -100.0);
@@ -196,7 +197,7 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
   @Test(expected = OValidationException.class)
   public void maxConstraintOnFloatPropertyOnTransaction() {
     OClass clazz = db.createVertexClass("Validation");
-    clazz.createProperty("dbl", OType.FLOAT).setMandatory(true).setMin("-10");
+    clazz.createProperty(db, "dbl", OType.FLOAT).setMandatory(db, true).setMin("-10");
     db.begin();
     var vertex = db.newVertex(clazz.getName());
     vertex.setProperty("dbl", -100.0);

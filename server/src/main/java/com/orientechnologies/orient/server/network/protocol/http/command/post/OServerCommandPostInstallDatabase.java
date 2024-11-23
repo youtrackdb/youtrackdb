@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public class OServerCommandPostInstallDatabase extends OServerCommandAuthenticat
         } else {
           final URL uri = new URL(url);
           final URLConnection conn = uri.openConnection();
-          conn.setRequestProperty("User-Agent", "OrientDB-Studio");
+          conn.setRequestProperty("User-Agent", "OxygenDB-Studio");
           conn.setDefaultUseCaches(false);
           server
               .getDatabases()
@@ -57,7 +57,8 @@ public class OServerCommandPostInstallDatabase extends OServerCommandAuthenticat
                   () -> {
                     return null;
                   });
-          try (ODatabaseSession session = server.getDatabases().openNoAuthorization(name)) {}
+          try (ODatabaseSession session = server.getDatabases().openNoAuthorization(name)) {
+          }
 
           iResponse.send(
               OHttpUtils.STATUS_OK_CODE,

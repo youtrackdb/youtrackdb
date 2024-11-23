@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,15 +21,13 @@ import com.orientechnologies.orient.core.exception.OFetchException;
 import com.orientechnologies.orient.core.fetch.OFetchContext;
 import com.orientechnologies.orient.core.fetch.OFetchListener;
 import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 
 /**
  * Fetch listener for {@class ONetworkBinaryProtocol} class
  *
  * <p>Whenever a record has to be fetched it will be added to the list of records to send
- *
- * @author Luca Molino (molino.luca--at--gmail.com)
  */
 public abstract class ORemoteFetchListener implements OFetchListener {
 
@@ -37,9 +35,10 @@ public abstract class ORemoteFetchListener implements OFetchListener {
     return false;
   }
 
-  public ORemoteFetchListener() {}
+  public ORemoteFetchListener() {
+  }
 
-  protected abstract void sendRecord(ORecord iLinked);
+  protected abstract void sendRecord(ORecordAbstract iLinked);
 
   public void processStandardField(
       ODocument iRecord,
@@ -49,7 +48,8 @@ public abstract class ORemoteFetchListener implements OFetchListener {
       final Object iusObject,
       final String iFormat,
       OType filedType)
-      throws OFetchException {}
+      throws OFetchException {
+  }
 
   public void parseLinked(
       ODocument iRootRecord,
@@ -57,7 +57,8 @@ public abstract class ORemoteFetchListener implements OFetchListener {
       Object iUserObject,
       String iFieldName,
       OFetchContext iContext)
-      throws OFetchException {}
+      throws OFetchException {
+  }
 
   public void parseLinkedCollectionValue(
       ODocument iRootRecord,
@@ -65,7 +66,8 @@ public abstract class ORemoteFetchListener implements OFetchListener {
       Object iUserObject,
       String iFieldName,
       OFetchContext iContext)
-      throws OFetchException {}
+      throws OFetchException {
+  }
 
   public Object fetchLinkedMapEntry(
       ODocument iRoot,
@@ -114,5 +116,6 @@ public abstract class ORemoteFetchListener implements OFetchListener {
       OFetchContext iContext,
       Object iUserObject,
       String iFormat)
-      throws OFetchException {}
+      throws OFetchException {
+  }
 }

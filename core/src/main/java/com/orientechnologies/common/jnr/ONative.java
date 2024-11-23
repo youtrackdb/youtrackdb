@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2018 OrientDB LTD (http://orientdb.com)
+ *  *  Copyright 2010-2018 OxygenDB LTD (http://orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.common.jnr;
@@ -85,7 +85,8 @@ public class ONative {
   /**
    * Prevent initialization outside singleton
    */
-  private ONative() {}
+  private ONative() {
+  }
 
   /**
    * Detects limit of limit of open files.
@@ -101,7 +102,7 @@ public class ONative {
         if (rLimit.rlimCur() > 0) {
           if (verbose) {
             final Object[] additionalArgs =
-                new Object[] {rLimit.rlimCur(), rLimit.rlimCur() / 2 - 512};
+                new Object[]{rLimit.rlimCur(), rLimit.rlimCur() / 2 - 512};
             OLogManager.instance()
                 .info(
                     this,
@@ -126,7 +127,7 @@ public class ONative {
       } catch (final Exception e) {
         if (verbose) {
           OLogManager.instance()
-              .info(this, "Can not detect value of limit of open files.", new Object[] {e});
+              .info(this, "Can not detect value of limit of open files.", new Object[]{e});
         }
       }
     } else if (OIOUtils.isOsWindows()) {
@@ -150,7 +151,7 @@ public class ONative {
    * @param printSteps Print all steps of discovering of memory limit in the log with {@code INFO}
    *                   level.
    * @return Amount of memory which are allowed to be consumed by application, and detects whether
-   * OrientDB instance is running inside container. If <code>null</code> is returned then it was
+   * OxygenDB instance is running inside container. If <code>null</code> is returned then it was
    * impossible to detect amount of memory on machine.
    */
   public MemoryLimitResult getMemoryLimit(final boolean printSteps) {
@@ -179,8 +180,8 @@ public class ONative {
         final RLimit rLimit = posix.getrlimit(ONative.RLIMIT_AS);
         if (printSteps) {
           final Object[] additionalArgs =
-              new Object[] {
-                rLimit.rlimCur(), convertToMB(rLimit.rlimCur()), convertToGB(rLimit.rlimCur())
+              new Object[]{
+                  rLimit.rlimCur(), convertToMB(rLimit.rlimCur()), convertToGB(rLimit.rlimCur())
               };
           OLogManager.instance()
               .info(
@@ -192,8 +193,8 @@ public class ONative {
 
         if (printSteps) {
           final Object[] additionalArgs =
-              new Object[] {
-                rLimit.rlimMax(), convertToMB(rLimit.rlimMax()), convertToGB(rLimit.rlimMax())
+              new Object[]{
+                  rLimit.rlimMax(), convertToMB(rLimit.rlimMax()), convertToGB(rLimit.rlimMax())
               };
           OLogManager.instance()
               .info(
@@ -204,7 +205,7 @@ public class ONative {
         memoryLimit = updateMemoryLimit(memoryLimit, rLimit.rlimMax());
       } catch (final Exception e) {
         if (printSteps) {
-          OLogManager.instance().info(this, "Can not detect memory limit value.", new Object[] {e});
+          OLogManager.instance().info(this, "Can not detect memory limit value.", new Object[]{e});
         }
       }
 
@@ -528,10 +529,10 @@ public class ONative {
         }
       }
     } catch (MalformedObjectNameException
-        | AttributeNotFoundException
-        | InstanceNotFoundException
-        | MBeanException
-        | ReflectionException e) {
+             | AttributeNotFoundException
+             | InstanceNotFoundException
+             | MBeanException
+             | ReflectionException e) {
       if (!OLogManager.instance().isDebugEnabled()) {
         OLogManager.instance()
             .warn(OMemory.class, "Unable to determine the amount of installed RAM.");
@@ -542,7 +543,7 @@ public class ONative {
     } catch (final RuntimeException e) {
       OLogManager.instance()
           .warn(
-              OMemory.class, "Unable to determine the amount of installed RAM.", new Object[] {e});
+              OMemory.class, "Unable to determine the amount of installed RAM.", new Object[]{e});
     }
 
     return osMemory;

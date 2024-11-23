@@ -3,7 +3,11 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.*;
+import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.OLiveQueryBatchResultListener;
+import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -21,7 +25,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 /**
- * Created by luigidellaquila on 15/06/17.
+ *
  */
 public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
 

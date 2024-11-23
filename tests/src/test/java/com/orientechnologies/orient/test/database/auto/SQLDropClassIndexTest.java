@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,8 +40,8 @@ public class SQLDropClassIndexTest extends DocumentDBBaseTest {
 
     final OSchema schema = database.getMetadata().getSchema();
     final OClass oClass = schema.createClass("SQLDropClassTestClass");
-    oClass.createProperty("prop1", EXPECTED_PROP1_TYPE);
-    oClass.createProperty("prop2", EXPECTED_PROP2_TYPE);
+    oClass.createProperty(database, "prop1", EXPECTED_PROP1_TYPE);
+    oClass.createProperty(database, "prop2", EXPECTED_PROP2_TYPE);
   }
 
   @Test
@@ -51,7 +51,6 @@ public class SQLDropClassIndexTest extends DocumentDBBaseTest {
             "CREATE INDEX SQLDropClassCompositeIndex ON SQLDropClassTestClass (prop1, prop2)"
                 + " UNIQUE")
         .close();
-    database.getMetadata().getIndexManagerInternal().reload();
 
     Assert.assertNotNull(
         database

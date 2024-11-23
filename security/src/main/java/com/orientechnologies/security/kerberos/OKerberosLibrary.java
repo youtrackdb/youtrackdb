@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,7 +9,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://www.orientdb.com
+ * <p>*
  */
 package com.orientechnologies.security.kerberos;
 
@@ -27,8 +25,6 @@ import org.ietf.jgss.Oid;
 
 /**
  * Kerberos Authentication Library
- *
- * @author S. Colin Leister
  */
 public class OKerberosLibrary {
   /*
@@ -73,7 +69,7 @@ public class OKerberosLibrary {
 
     //						Oid spnegoOidX = new Oid("1.3.6.1.5.5.2");
 
-    						GSSName serviceName = managerX.createName("OrientDB@AD.SDICLOUD.COM", GSSName.NT_USER_NAME);
+    						GSSName serviceName = managerX.createName("OxygenDB@AD.SDICLOUD.COM", GSSName.NT_USER_NAME);
 
     						GSSCredential serverCredsX = managerX.createCredential(null, GSSCredential.DEFAULT_LIFETIME, (Oid)null, GSSCredential.INITIATE_ONLY);
 

@@ -24,16 +24,16 @@ public class IndexClusterTest extends DocumentDBBaseTest {
     String className = "IndexClusterTest";
 
     OClass oclass = schema.createClass(className);
-    oclass.createProperty("key", OType.STRING);
-    oclass.createProperty("value", OType.INTEGER);
-    oclass.createIndex(className + "index1", OClass.INDEX_TYPE.NOTUNIQUE, "key");
+    oclass.createProperty(database, "key", OType.STRING);
+    oclass.createProperty(database, "value", OType.INTEGER);
+    oclass.createIndex(database, className + "index1", OClass.INDEX_TYPE.NOTUNIQUE, "key");
 
     database.begin();
     database.<ODocument>newInstance(className).field("key", "a").field("value", 1).save();
     database.commit();
 
     int clId = database.addCluster(className + "secondCluster");
-    oclass.addClusterId(clId);
+    oclass.addClusterId(database, clId);
 
     database.begin();
     database

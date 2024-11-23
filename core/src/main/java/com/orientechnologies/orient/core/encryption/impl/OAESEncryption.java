@@ -13,9 +13,9 @@ import javax.crypto.spec.SecretKeySpec;
  * * Stateful compression implementation that encrypt the content using AES
  * (https://docs.oracle.com/javase/7/docs/technotes/guides/security/SunProviders.html). Issue
  * https://github.com/orientechnologies/orientdb/issues/89.
- *
- * @author giastfader
- * @author Luca Garulli (l.garulli--(at)--orientdb.com) This implementation uses AES in ECB mode and
+ * <p>
+ * <p>
+ * <p>
  * is thus not secure. See https://github.com/orientechnologies/orientdb/issues/8207.
  */
 public class OAESEncryption extends OAbstractEncryption {
@@ -37,7 +37,8 @@ public class OAESEncryption extends OAbstractEncryption {
     return NAME;
   }
 
-  public OAESEncryption() {}
+  public OAESEncryption() {
+  }
 
   public OEncryption configure(final String iOptions) {
     initialized = false;

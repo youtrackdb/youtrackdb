@@ -16,7 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by frank on 15/12/2016.
+ *
  */
 public class LuceneSpatialDropTest {
 
@@ -35,9 +35,9 @@ public class LuceneSpatialDropTest {
 
     db.create();
     OClass test = db.getMetadata().getSchema().createClass("test");
-    test.createProperty("name", OType.STRING);
-    test.createProperty("latitude", OType.DOUBLE).setMandatory(false);
-    test.createProperty("longitude", OType.DOUBLE).setMandatory(false);
+    test.createProperty(db, "name", OType.STRING);
+    test.createProperty(db, "latitude", OType.DOUBLE).setMandatory(db, false);
+    test.createProperty(db, "longitude", OType.DOUBLE).setMandatory(db, false);
     db.command("create index test.name on test (name) FULLTEXT ENGINE LUCENE").close();
     db.command("create index test.ll on test (latitude,longitude) SPATIAL ENGINE LUCENE").close();
     db.close();
@@ -57,7 +57,7 @@ public class LuceneSpatialDropTest {
     OSQLSynchQuery<ODocument> query =
         new OSQLSynchQuery<ODocument>(
             "select from test where [latitude,longitude] WITHIN [[50.0,8.0],[51.0,9.0]]");
-    List<ODocument> result = db.command(query).execute();
+    List<ODocument> result = db.command(query).execute(db);
     Assert.assertEquals(insertcount, result.size());
     db.close();
     dbPool.close();

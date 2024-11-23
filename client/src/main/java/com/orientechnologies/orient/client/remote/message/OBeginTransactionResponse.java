@@ -2,6 +2,7 @@ package com.orientechnologies.orient.client.remote.message;
 
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
@@ -11,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by tglman on 28/12/16.
+ *
  */
 public class OBeginTransactionResponse implements OBinaryResponse {
 
@@ -23,10 +24,12 @@ public class OBeginTransactionResponse implements OBinaryResponse {
     this.updatedIds = updatedIds;
   }
 
-  public OBeginTransactionResponse() {}
+  public OBeginTransactionResponse() {
+  }
 
   @Override
-  public void write(OChannelDataOutput channel, int protocolVersion, ORecordSerializer serializer)
+  public void write(ODatabaseSessionInternal session, OChannelDataOutput channel,
+      int protocolVersion, ORecordSerializer serializer)
       throws IOException {
     channel.writeInt(txId);
     channel.writeInt(updatedIds.size());

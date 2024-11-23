@@ -8,7 +8,7 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Created by luigidellaquila on 18/02/15.
+ *
  */
 public class OJsonItem {
 

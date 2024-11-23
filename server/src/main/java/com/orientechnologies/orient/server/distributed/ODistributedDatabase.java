@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.distributed;
@@ -30,8 +30,6 @@ import java.util.Optional;
 
 /**
  * Generic Distributed Database interface.
- *
- * @author Luca Garulli (l.garulli--at--orientdb.com)
  */
 public interface ODistributedDatabase {
 

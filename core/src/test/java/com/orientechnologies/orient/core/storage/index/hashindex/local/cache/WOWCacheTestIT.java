@@ -46,7 +46,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 26.07.13
  */
 public class WOWCacheTestIT {
@@ -232,7 +231,7 @@ public class WOWCacheTestIT {
 
     final String aesKeyEncoded = "T1JJRU5UREJfSVNfQ09PTA==";
     final byte[] aesKey = Base64.getDecoder().decode(aesKeyEncoded);
-    final byte[] iv = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    final byte[] iv = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 
     Files.createDirectories(storagePath);
 
@@ -459,7 +458,7 @@ public class WOWCacheTestIT {
 
     final String aesKeyEncoded = "T1JJRU5UREJfSVNfQ09PTA==";
     final byte[] aesKey = Base64.getDecoder().decode(aesKeyEncoded);
-    final byte[] iv = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+    final byte[] iv = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 
     Files.createDirectories(storagePath);
 
@@ -703,7 +702,7 @@ public class WOWCacheTestIT {
     file.open();
     file.write(
         ODurablePage.NEXT_FREE_POSITION,
-        ByteBuffer.wrap(new byte[] {1}).order(ByteOrder.nativeOrder()));
+        ByteBuffer.wrap(new byte[]{1}).order(ByteOrder.nativeOrder()));
     file.close();
 
     try {
@@ -740,7 +739,7 @@ public class WOWCacheTestIT {
     final Path path = storagePath.resolve(fileName);
     final OFile file = new AsyncFile(path, pageSize, false, Executors.newCachedThreadPool());
     file.open();
-    file.write(0, ByteBuffer.wrap(new byte[] {1}).order(ByteOrder.nativeOrder()));
+    file.write(0, ByteBuffer.wrap(new byte[]{1}).order(ByteOrder.nativeOrder()));
     file.close();
 
     try {
@@ -779,7 +778,7 @@ public class WOWCacheTestIT {
     file.open();
     file.write(
         ODurablePage.NEXT_FREE_POSITION,
-        ByteBuffer.wrap(new byte[] {1}).order(ByteOrder.nativeOrder()));
+        ByteBuffer.wrap(new byte[]{1}).order(ByteOrder.nativeOrder()));
     file.close();
 
     wowCache.load(fileId, 0, new OModifiableBoolean(), false).decrementReadersReferrer();
@@ -813,7 +812,7 @@ public class WOWCacheTestIT {
     file.open();
     file.write(
         ODurablePage.NEXT_FREE_POSITION,
-        ByteBuffer.wrap(new byte[] {1}).order(ByteOrder.nativeOrder()));
+        ByteBuffer.wrap(new byte[]{1}).order(ByteOrder.nativeOrder()));
     file.close();
 
     wowCache.load(fileId, 0, new OModifiableBoolean(), true).decrementReadersReferrer();
@@ -847,7 +846,7 @@ public class WOWCacheTestIT {
     file.open();
     file.write(
         ODurablePage.NEXT_FREE_POSITION,
-        ByteBuffer.wrap(new byte[] {1}).order(ByteOrder.nativeOrder()));
+        ByteBuffer.wrap(new byte[]{1}).order(ByteOrder.nativeOrder()));
     file.close();
 
     wowCache.load(fileId, 0, new OModifiableBoolean(), true).decrementReadersReferrer();
@@ -881,7 +880,7 @@ public class WOWCacheTestIT {
     file.open();
     file.write(
         ODurablePage.NEXT_FREE_POSITION,
-        ByteBuffer.wrap(new byte[] {1}).order(ByteOrder.nativeOrder()));
+        ByteBuffer.wrap(new byte[]{1}).order(ByteOrder.nativeOrder()));
     file.close();
 
     wowCache.setChecksumMode(OChecksumMode.StoreAndThrow);
@@ -992,7 +991,8 @@ public class WOWCacheTestIT {
     private byte[] data;
 
     @SuppressWarnings("unused")
-    public TestRecord() {}
+    public TestRecord() {
+    }
 
     @SuppressWarnings("unused")
     public TestRecord(byte[] data) {

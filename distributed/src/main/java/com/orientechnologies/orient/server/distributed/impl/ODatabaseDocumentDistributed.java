@@ -112,7 +112,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 
 /**
- * Created by tglman on 30/03/17.
+ *
  */
 public class ODatabaseDocumentDistributed extends ODatabaseDocumentEmbedded {
 

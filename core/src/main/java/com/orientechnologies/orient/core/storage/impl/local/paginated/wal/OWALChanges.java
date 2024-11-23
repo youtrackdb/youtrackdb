@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
  * <p>use get* to access to the original content decorated with the changes. use set* to add a
  * change.
  *
- * <p>Created by tglman on 24/12/15.
+ * <p>
  */
 public interface OWALChanges {
 

@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
@@ -18,16 +18,16 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ *
  */
 public class ORevokeStatementExecutionTest {
 
-  static OrientDB orient;
+  static OxygenDB orient;
   private ODatabaseSession db;
 
   @BeforeClass
   public static void beforeClass() {
-    orient = new OrientDB("plocal:.", OrientDBConfig.defaultConfig());
+    orient = new OxygenDB("plocal:.", OxygenDBConfig.defaultConfig());
   }
 
   @AfterClass

@@ -74,26 +74,27 @@ public class OCreatePropertyAttributeStatement extends SimpleNode {
 
   public Object setOnProperty(OPropertyImpl internalProp, OCommandContext ctx) {
     String attrName = settingName.getStringValue();
+    var db = ctx.getDatabase();
     Object attrValue =
         this.settingValue == null ? true : this.settingValue.execute((OIdentifiable) null, ctx);
     try {
       if (attrName.equalsIgnoreCase("readonly")) {
-        internalProp.setReadonly((boolean) attrValue);
+        internalProp.setReadonly(db, (boolean) attrValue);
       } else if (attrName.equalsIgnoreCase("mandatory")) {
-        internalProp.setMandatory((boolean) attrValue);
+        internalProp.setMandatory(db, (boolean) attrValue);
       } else if (attrName.equalsIgnoreCase("notnull")) {
-        internalProp.setNotNull((boolean) attrValue);
+        internalProp.setNotNull(db, (boolean) attrValue);
       } else if (attrName.equalsIgnoreCase("max")) {
-        internalProp.setMax("" + attrValue);
+        internalProp.setMax(db, "" + attrValue);
       } else if (attrName.equalsIgnoreCase("min")) {
         internalProp.setMin("" + attrValue);
       } else if (attrName.equalsIgnoreCase("default")) {
         if (this.settingValue == null) {
           throw new OCommandExecutionException("");
         }
-        internalProp.setDefaultValue("" + attrValue);
+        internalProp.setDefaultValue(db, "" + attrValue);
       } else if (attrName.equalsIgnoreCase("collate")) {
-        internalProp.setCollate("" + attrValue);
+        internalProp.setCollate(db, "" + attrValue);
       } else if (attrName.equalsIgnoreCase("regexp")) {
         internalProp.setRegexp("" + attrValue);
       } else {

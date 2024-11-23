@@ -8,8 +8,6 @@ import org.junit.Test;
 
 /**
  * Test HTTP "gephi" command.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com) (l.garulli--at-orientdb.com)
  */
 public class HttpGephiTest extends BaseHttpDatabaseTest {
 

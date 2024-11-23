@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.db;
@@ -27,8 +27,6 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 
 /**
  * Listener Interface for all the events of the Database instances.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface ODatabaseListener {
 
@@ -60,17 +58,23 @@ public interface ODatabaseListener {
   void onAfterCommand(
       final OCommandRequestText iCommand, final OCommandExecutor executor, Object result);
 
-  default void onCreateClass(ODatabaseSession iDatabase, OClass iClass) {}
+  default void onCreateClass(ODatabaseSession iDatabase, OClass iClass) {
+  }
 
-  default void onDropClass(ODatabaseSession iDatabase, OClass iClass) {}
+  default void onDropClass(ODatabaseSession iDatabase, OClass iClass) {
+  }
 
-  default void onCreateView(ODatabaseSession database, OView view) {}
+  default void onCreateView(ODatabaseSession database, OView view) {
+  }
 
-  default void onDropView(ODatabaseSession database, OView view) {}
+  default void onDropView(ODatabaseSession database, OView view) {
+  }
 
-  default void onCommandStart(ODatabaseSession database, OResultSet resultSet) {}
+  default void onCommandStart(ODatabaseSession database, OResultSet resultSet) {
+  }
 
-  default void onCommandEnd(ODatabaseSession database, OResultSet resultSet) {}
+  default void onCommandEnd(ODatabaseSession database, OResultSet resultSet) {
+  }
 
   /**
    * Callback to decide if repair the database upon corruption.

@@ -25,8 +25,6 @@ import java.util.List;
  * returned by next call of <code>syncPull()</code>. The returned result set can have less than
  * nResults records ONLY if current step cannot produce any more records (eg. the upstream does not
  * have any more records)
- *
- * @author Luigi Dell'Aquila l.dellaquila - at - orientdb.com
  */
 public interface OExecutionStepInternal extends OExecutionStep {
 

@@ -18,7 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Created by luigidellaquila on 20/03/17.
+ *
  */
 public class InsertIntoIndexStep extends AbstractExecutionStep {
 
@@ -128,22 +128,22 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
     Object key = keyExp.execute((OResult) null, ctx);
     Object value = valueExp.execute((OResult) null, ctx);
     if (value instanceof OIdentifiable) {
-      insertIntoIndex(index, key, (OIdentifiable) value);
+      insertIntoIndex(ctx.getDatabase(), index, key, (OIdentifiable) value);
       count++;
     } else if (value instanceof OResult && ((OResult) value).isElement()) {
-      insertIntoIndex(index, key, ((OResult) value).toElement());
+      insertIntoIndex(ctx.getDatabase(), index, key, ((OResult) value).toElement());
       count++;
     } else if (value instanceof OResultSet) {
-      ((OResultSet) value).elementStream().forEach(x -> index.put(key, x));
+      ((OResultSet) value).elementStream().forEach(x -> index.put(ctx.getDatabase(), key, x));
     } else if (OMultiValue.isMultiValue(value)) {
       Iterator<?> iterator = OMultiValue.getMultiValueIterator(value);
       while (iterator.hasNext()) {
         Object item = iterator.next();
         if (item instanceof OIdentifiable) {
-          insertIntoIndex(index, key, (OIdentifiable) item);
+          insertIntoIndex(ctx.getDatabase(), index, key, (OIdentifiable) item);
           count++;
         } else if (item instanceof OResult && ((OResult) item).isElement()) {
-          insertIntoIndex(index, key, ((OResult) item).toElement());
+          insertIntoIndex(ctx.getDatabase(), index, key, ((OResult) item).toElement());
           count++;
         } else {
           throw new OCommandExecutionException("Cannot insert into index " + item);
@@ -153,7 +153,8 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
     return count;
   }
 
-  private void insertIntoIndex(final OIndex index, final Object key, final OIdentifiable value) {
-    index.put(key, value);
+  private void insertIntoIndex(ODatabaseSessionInternal session, final OIndex index,
+      final Object key, final OIdentifiable value) {
+    index.put(session, key, value);
   }
 }

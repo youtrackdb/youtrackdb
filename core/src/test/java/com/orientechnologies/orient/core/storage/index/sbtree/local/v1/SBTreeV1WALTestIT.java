@@ -5,8 +5,8 @@ import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OLinkSerializer;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.cache.OReadCache;
@@ -16,7 +16,14 @@ import com.orientechnologies.orient.core.storage.disk.OLocalPaginatedStorage;
 import com.orientechnologies.orient.core.storage.fs.OFile;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurablePage;
-import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.*;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OAtomicUnitEndRecord;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OAtomicUnitStartRecord;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OFileCreatedWALRecord;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OLogSequenceNumber;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.ONonTxOperationPerformedWALRecord;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OOperationUnitBodyRecord;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OUpdatePageRecord;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWALRecord;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.cas.CASDiskWriteAheadLog;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.common.WriteableWALRecord;
 import java.io.IOException;
@@ -27,10 +34,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import org.assertj.core.api.Assertions;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 8/27/13
  */
 @Ignore
@@ -63,7 +73,7 @@ public class SBTreeV1WALTestIT extends SBTreeV1TestIT {
     final java.io.File buildDir = new java.io.File(buildDirectory);
     OFileUtils.deleteRecursively(buildDir);
 
-    orientDB = new OrientDB("plocal:" + buildDir, OrientDBConfig.defaultConfig());
+    oxygenDB = new OxygenDB("plocal:" + buildDir, OxygenDBConfig.defaultConfig());
     storage =
         (OAbstractPaginatedStorage) ((ODatabaseSessionInternal) databaseDocumentTx).getStorage();
     createExpectedSBTree();
@@ -73,18 +83,18 @@ public class SBTreeV1WALTestIT extends SBTreeV1TestIT {
   @After
   @Override
   public void afterMethod() throws Exception {
-    orientDB.drop(ACTUAL_DB_NAME);
-    orientDB.drop(EXPECTED_DB_NAME);
-    orientDB.close();
+    oxygenDB.drop(ACTUAL_DB_NAME);
+    oxygenDB.drop(EXPECTED_DB_NAME);
+    oxygenDB.close();
   }
 
   private void createActualSBTree() throws Exception {
-    orientDB.execute(
+    oxygenDB.execute(
         "create database "
             + ACTUAL_DB_NAME
             + " plocal users ( admin identified by 'admin' role admin)");
 
-    databaseDocumentTx = orientDB.open(ACTUAL_DB_NAME, "admin", "admin");
+    databaseDocumentTx = oxygenDB.open(ACTUAL_DB_NAME, "admin", "admin");
     actualStorage =
         (OLocalPaginatedStorage) ((ODatabaseSessionInternal) databaseDocumentTx).getStorage();
     actualStorageDir = actualStorage.getStoragePath().toString();
@@ -111,12 +121,12 @@ public class SBTreeV1WALTestIT extends SBTreeV1TestIT {
   }
 
   private void createExpectedSBTree() {
-    orientDB.execute(
+    oxygenDB.execute(
         "create database "
             + EXPECTED_DB_NAME
             + " plocal users ( admin identified by 'admin' role admin)");
 
-    expectedDatabaseDocumentTx = orientDB.open(EXPECTED_DB_NAME, "admin", "admin");
+    expectedDatabaseDocumentTx = oxygenDB.open(EXPECTED_DB_NAME, "admin", "admin");
     expectedStorage =
         (OLocalPaginatedStorage)
             ((ODatabaseSessionInternal) expectedDatabaseDocumentTx).getStorage();

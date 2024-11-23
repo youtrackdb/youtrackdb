@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql;
@@ -51,8 +51,6 @@ import java.util.Set;
 
 /**
  * SQL DELETE EDGE command.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
     implements OCommandDistributedReplicateRequest, OCommandResultListener {
@@ -219,7 +217,7 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
   /**
    * Execute the command and return the ODocument object created.
    */
-  public Object execute(final Map<Object, Object> iArgs) {
+  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
     if (fromExpr == null
         && toExpr == null
         && rids == null
@@ -349,7 +347,7 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
         db.begin();
         // TARGET IS A CLASS + OPTIONAL CONDITION
         query.setContext(getContext());
-        query.execute(iArgs);
+        query.execute(querySession, iArgs);
         db.commit();
         return removed;
       }
@@ -367,7 +365,7 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
   /**
    * Delete the current edge.
    */
-  public boolean result(final Object iRecord) {
+  public boolean result(ODatabaseSessionInternal querySession, final Object iRecord) {
     final OIdentifiable id = (OIdentifiable) iRecord;
 
     if (compiledFilter != null) {
@@ -443,7 +441,8 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
   }
 
   @Override
-  public void end() {}
+  public void end() {
+  }
 
   @Override
   public int getSecurityOperationType() {

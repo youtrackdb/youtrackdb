@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql;
@@ -23,6 +23,7 @@ import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
@@ -32,9 +33,6 @@ import java.util.Map;
 
 /**
  * SQL CREATE FUNCTION command.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
- * @author Claudio Tesoriero
  */
 public class OCommandExecutorSQLCreateFunction extends OCommandExecutorSQLAbstract {
 
@@ -103,7 +101,7 @@ public class OCommandExecutorSQLCreateFunction extends OCommandExecutorSQLAbstra
   /**
    * Execute the command and return the ODocument object created.
    */
-  public Object execute(final Map<Object, Object> iArgs) {
+  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
     if (name == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
@@ -119,16 +117,17 @@ public class OCommandExecutorSQLCreateFunction extends OCommandExecutorSQLAbstra
 
     var database = getDatabase();
     final OFunction f = database.getMetadata().getFunctionLibrary().createFunction(name);
-    f.setCode(code);
-    f.setIdempotent(idempotent);
+    f.setCode(database, code);
+    f.setIdempotent(database, idempotent);
     if (parameters != null) {
-      f.setParameters(parameters);
+      f.setParameters(database, parameters);
     }
     if (language != null) {
-      f.setLanguage(language);
+      f.setLanguage(database, language);
     }
-    f.save();
-    return f.getId();
+
+    f.save(database);
+    return f.getId(database);
   }
 
   @Override

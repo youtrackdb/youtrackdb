@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.command;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.HashMap;
 import java.util.List;
@@ -11,13 +11,13 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by luigidellaquila on 10/02/17.
+ *
  */
 public class OSqlScriptExecutorTest {
 
   @Test
   public void testPlain() {
-    final OrientDB factory =
+    final OxygenDB factory =
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
     final String dbName = getClass().getSimpleName() + "test";
     OCreateDatabaseUtil.createDatabase(dbName, factory, OCreateDatabaseUtil.TYPE_MEMORY);
@@ -49,7 +49,7 @@ public class OSqlScriptExecutorTest {
 
   @Test
   public void testWithPositionalParams() {
-    final OrientDB factory =
+    final OxygenDB factory =
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
     final String dbName = getClass().getSimpleName() + "test";
     OCreateDatabaseUtil.createDatabase(dbName, factory, OCreateDatabaseUtil.TYPE_MEMORY);
@@ -79,7 +79,7 @@ public class OSqlScriptExecutorTest {
 
   @Test
   public void testWithNamedParams() {
-    final OrientDB factory =
+    final OxygenDB factory =
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
     final String dbName = getClass().getSimpleName() + "test";
     OCreateDatabaseUtil.createDatabase(dbName, factory, OCreateDatabaseUtil.TYPE_MEMORY);
@@ -113,7 +113,7 @@ public class OSqlScriptExecutorTest {
   @Test
   public void testMultipleCreateEdgeOnTheSameLet() {
     // issue #7635
-    final OrientDB factory =
+    final OxygenDB factory =
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
     final String dbName = getClass().getSimpleName() + "test";
     OCreateDatabaseUtil.createDatabase(dbName, factory, OCreateDatabaseUtil.TYPE_MEMORY);

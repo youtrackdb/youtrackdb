@@ -17,7 +17,8 @@ public class ORecordOperationRequest {
   private int version;
   private boolean contentChanged;
 
-  public ORecordOperationRequest() {}
+  public ORecordOperationRequest() {
+  }
 
   public ORecordOperationRequest(
       byte type,

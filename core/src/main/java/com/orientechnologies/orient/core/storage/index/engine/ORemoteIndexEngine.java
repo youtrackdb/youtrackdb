@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,13 +14,14 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.storage.index.engine;
 
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.config.IndexEngineData;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndexKeyUpdater;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
@@ -32,7 +33,6 @@ import java.io.IOException;
 import java.util.stream.Stream;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 18.07.13
  */
 public class ORemoteIndexEngine implements OIndexEngine {
@@ -71,18 +71,23 @@ public class ORemoteIndexEngine implements OIndexEngine {
   }
 
   @Override
-  public void init(OIndexMetadata metadata) {}
+  public void init(OIndexMetadata metadata) {
+  }
 
   @Override
-  public void flush() {}
+  public void flush() {
+  }
 
-  public void create(OAtomicOperation atomicOperation, IndexEngineData data) throws IOException {}
+  public void create(OAtomicOperation atomicOperation, IndexEngineData data) throws IOException {
+  }
 
   @Override
-  public void delete(OAtomicOperation atomicOperation) {}
+  public void delete(OAtomicOperation atomicOperation) {
+  }
 
   @Override
-  public void load(IndexEngineData data) {}
+  public void load(IndexEngineData data) {
+  }
 
   @Override
   public boolean remove(OAtomicOperation atomicOperation, Object key) {
@@ -90,22 +95,28 @@ public class ORemoteIndexEngine implements OIndexEngine {
   }
 
   @Override
-  public void clear(OAtomicOperation atomicOperation) {}
+  public void clear(OAtomicOperation atomicOperation) {
+  }
 
   @Override
-  public void close() {}
+  public void close() {
+  }
 
   @Override
-  public Object get(Object key) {
+  public Object get(ODatabaseSessionInternal session, Object key) {
     return null;
   }
 
   @Override
-  public void put(OAtomicOperation atomicOperation, Object key, Object value) {}
+  public void put(ODatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
+      Object value) {
+  }
 
   @Override
   public void update(
-      OAtomicOperation atomicOperation, Object key, OIndexKeyUpdater<Object> updater) {}
+      ODatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
+      OIndexKeyUpdater<Object> updater) {
+  }
 
   @Override
   public boolean validatedPut(
@@ -118,7 +129,7 @@ public class ORemoteIndexEngine implements OIndexEngine {
 
   @Override
   public Stream<ORawPair<Object, ORID>> iterateEntriesBetween(
-      Object rangeFrom,
+      ODatabaseSessionInternal session, Object rangeFrom,
       boolean fromInclusive,
       Object rangeTo,
       boolean toInclusive,

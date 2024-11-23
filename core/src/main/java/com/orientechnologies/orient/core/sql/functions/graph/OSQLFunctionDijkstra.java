@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.functions.graph;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.record.OVertex;
 import java.util.HashMap;
@@ -34,8 +35,6 @@ import java.util.Map;
  * parameter is a name of property that represents 'weight'.
  *
  * <p>If property is not defined in edge or is null, distance between vertexes are 0.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionDijkstra extends OSQLFunctionPathFinder {
 
@@ -75,7 +74,7 @@ public class OSQLFunctionDijkstra extends OSQLFunctionPathFinder {
     return super.execute(iContext);
   }
 
-  public String getSyntax() {
+  public String getSyntax(ODatabaseSession session) {
     return "dijkstra(<sourceVertex>, <destinationVertex>, <weightEdgeFieldName>, [<direction>])";
   }
 

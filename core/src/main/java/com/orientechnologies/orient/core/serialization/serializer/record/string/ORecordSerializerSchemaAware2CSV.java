@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.serialization.serializer.record.string;
@@ -33,6 +33,7 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
@@ -87,7 +88,8 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
   }
 
   @Override
-  public ORecord fromString(String iContent, final ORecord iRecord, final String[] iFields) {
+  public ORecordAbstract fromString(
+      String iContent, final ORecordAbstract iRecord, final String[] iFields) {
     iContent = iContent.trim();
 
     if (iContent.length() == 0) {
@@ -196,11 +198,11 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
               } else if (fieldValue.startsWith(OStringSerializerHelper.LINKSET_PREFIX)) {
                 type = OType.LINKSET;
               } else if (fieldValue.charAt(0) == OStringSerializerHelper.LIST_BEGIN
-                      && fieldValue.charAt(fieldValue.length() - 1)
-                          == OStringSerializerHelper.LIST_END
+                  && fieldValue.charAt(fieldValue.length() - 1)
+                  == OStringSerializerHelper.LIST_END
                   || fieldValue.charAt(0) == OStringSerializerHelper.SET_BEGIN
-                      && fieldValue.charAt(fieldValue.length() - 1)
-                          == OStringSerializerHelper.SET_END) {
+                  && fieldValue.charAt(fieldValue.length() - 1)
+                  == OStringSerializerHelper.SET_END) {
                 // EMBEDDED LIST/SET
                 type =
                     fieldValue.charAt(0) == OStringSerializerHelper.LIST_BEGIN
@@ -254,7 +256,7 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
 
               } else if (fieldValue.charAt(0) == OStringSerializerHelper.MAP_BEGIN
                   && fieldValue.charAt(fieldValue.length() - 1)
-                      == OStringSerializerHelper.MAP_END) {
+                  == OStringSerializerHelper.MAP_END) {
                 type = OType.EMBEDDEDMAP;
               } else if (fieldValue.charAt(0) == OStringSerializerHelper.LINK) {
                 type = OType.LINK;
@@ -303,8 +305,8 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
   }
 
   @Override
-  public byte[] toStream(ORecord iRecord) {
-    final byte[] result = super.toStream(iRecord);
+  public byte[] toStream(ODatabaseSessionInternal session, ORecordAbstract iRecord) {
+    final byte[] result = super.toStream(session, iRecord);
     if (result == null || result.length > 0) {
       return result;
     }
@@ -478,9 +480,9 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
                     // EMBEDDED COLLECTION
                     if (firstValue instanceof ODocument
                         && ((((ODocument) firstValue).hasOwners())
-                            || type == OType.EMBEDDEDSET
-                            || type == OType.EMBEDDEDLIST
-                            || type == OType.EMBEDDEDMAP)) {
+                        || type == OType.EMBEDDEDSET
+                        || type == OType.EMBEDDEDLIST
+                        || type == OType.EMBEDDEDMAP)) {
                       linkedType = OType.EMBEDDED;
                     } else if (firstValue instanceof Enum<?>) {
                       linkedType = OType.STRING;

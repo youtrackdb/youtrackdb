@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by enricorisa on 28/06/14.
+ *
  */
 public class OLuceneInsertUpdateSingleDocumentTransactionTest extends OLuceneBaseTest {
 
@@ -42,10 +42,11 @@ public class OLuceneInsertUpdateSingleDocumentTransactionTest extends OLuceneBas
     OSchema schema = db.getMetadata().getSchema();
 
     OClass oClass = schema.createClass("City");
-    oClass.createProperty("name", OType.STRING);
+    oClass.createProperty(db, "name", OType.STRING);
     //noinspection EmptyTryBlock
     try (OResultSet command =
-        db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE")) {}
+        db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE")) {
+    }
   }
 
   @Test
@@ -68,15 +69,15 @@ public class OLuceneInsertUpdateSingleDocumentTransactionTest extends OLuceneBas
     db.save(doc);
     db.save(doc1);
     db.commit();
-    OIndex idx = schema.getClass("City").getClassIndex("City.name");
+    OIndex idx = schema.getClass("City").getClassIndex(db, "City.name");
     Collection<?> coll;
-    try (Stream<ORID> stream = idx.getInternal().getRids("Rome")) {
+    try (Stream<ORID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
 
     db.begin();
     Assert.assertEquals(2, coll.size());
-    Assert.assertEquals(2, idx.getInternal().size());
+    Assert.assertEquals(2, idx.getInternal().size(db));
     db.commit();
   }
 }

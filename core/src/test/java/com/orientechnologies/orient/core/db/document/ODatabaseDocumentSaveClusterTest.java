@@ -9,7 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by tglman on 04/11/15.
+ *
  */
 public class ODatabaseDocumentSaveClusterTest extends BaseMemoryDatabase {
 
@@ -25,16 +25,16 @@ public class ODatabaseDocumentSaveClusterTest extends BaseMemoryDatabase {
   public void testUsedClusterTest() {
     OClass clazz = db.getMetadata().getSchema().createClass("test");
     db.addCluster("test_one");
-    clazz.addCluster("test_one");
+    clazz.addCluster(db, "test_one");
     OClass clazz2 = db.getMetadata().getSchema().createClass("test2");
-    clazz2.addCluster("test_one");
+    clazz2.addCluster(db, "test_one");
   }
 
   @Test
   public void testSaveCluster() {
     OClass clazz = db.getMetadata().getSchema().createClass("test");
     int res = db.addCluster("test_one");
-    clazz.addCluster("test_one");
+    clazz.addCluster(db, "test_one");
 
     ORecord saved = db.computeInTx(() -> db.save(new ODocument("test"), "test_one"));
     Assert.assertEquals(saved.getIdentity().getClusterId(), res);
@@ -44,7 +44,7 @@ public class ODatabaseDocumentSaveClusterTest extends BaseMemoryDatabase {
   public void testDeleteClassAndClusters() {
     OClass clazz = db.getMetadata().getSchema().createClass("test");
     int res = db.addCluster("test_one");
-    clazz.addCluster("test_one");
+    clazz.addCluster(db, "test_one");
 
     ORecord saved = db.computeInTx(() -> db.save(new ODocument("test"), "test_one"));
     Assert.assertEquals(saved.getIdentity().getClusterId(), res);

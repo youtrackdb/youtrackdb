@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.distributed;
@@ -38,8 +38,6 @@ import java.util.Set;
  * Immutable Distributed configuration. It uses an ODocument object to store the configuration.
  * Every changes must be done by obtaining a modifiable verson of the object through the method
  * `modify()`.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ODistributedConfiguration {
 

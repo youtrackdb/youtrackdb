@@ -30,7 +30,7 @@ public class OLtOperator extends SimpleNode implements OBinaryCompareOperator {
       iRight = couple[1];
     } else {
       try {
-        iRight = OType.convert(iRight, iLeft.getClass());
+        iRight = OType.convert(null, iRight, iLeft.getClass());
       } catch (RuntimeException e) {
         iRight = null;
         // Can't convert to the target value do nothing will return false

@@ -33,14 +33,12 @@ import org.junit.Test;
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientechnologies.com
+ *
  *
  */
 
 /**
  * In 3.1 we do not support this anymore, we may remove the test case as well
- *
- * @author Enrico Risa
  */
 @Ignore
 public class HaSyncClusterIT extends AbstractServerClusterTest {

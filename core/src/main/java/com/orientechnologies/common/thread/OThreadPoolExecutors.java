@@ -1,10 +1,16 @@
 package com.orientechnologies.common.thread;
 
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.TimeUnit;
 
 public class OThreadPoolExecutors {
 
-  private OThreadPoolExecutors() {}
+  private OThreadPoolExecutors() {
+  }
 
   public static ExecutorService newScalingThreadPool(
       String threadName,

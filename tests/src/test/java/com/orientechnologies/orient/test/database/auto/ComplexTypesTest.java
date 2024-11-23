@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,10 +104,12 @@ public class ComplexTypesTest extends DocumentDBBaseTest {
     final ArrayList<ODocument> list = new ArrayList<ODocument>();
     newDoc.field("linkedList", list, OType.LINKLIST);
     database.begin();
-    list.add(
-        new ODocument()
-            .field("name", "Luca")
-            .save(database.getClusterNameById(database.getDefaultClusterId())));
+
+    var doc = new ODocument();
+    doc.field("name", "Luca")
+        .save(database.getClusterNameById(database.getDefaultClusterId()));
+    list.add(doc);
+
     list.add(new ODocument("Account").field("name", "Marcus"));
 
     database.save(newDoc, database.getClusterNameById(database.getDefaultClusterId()));
@@ -179,10 +181,11 @@ public class ComplexTypesTest extends DocumentDBBaseTest {
     final Set<ODocument> set = new HashSet<ODocument>();
     newDoc.field("linkedSet", set, OType.LINKSET);
     database.begin();
-    set.add(
-        new ODocument()
-            .field("name", "Luca")
-            .save(database.getClusterNameById(database.getDefaultClusterId())));
+    var doc = new ODocument();
+    doc.field("name", "Luca")
+        .save(database.getClusterNameById(database.getDefaultClusterId()));
+    set.add(doc);
+
     set.add(new ODocument("Account").field("name", "Marcus"));
 
     database.save(newDoc, database.getClusterNameById(database.getDefaultClusterId()));
@@ -283,17 +286,19 @@ public class ComplexTypesTest extends DocumentDBBaseTest {
     final Map<String, ODocument> map = new HashMap<String, ODocument>();
     newDoc.field("linkedMap", map, OType.LINKMAP);
     database.begin();
-    map.put(
-        "Luca",
-        new ODocument()
-            .field("name", "Luca")
-            .save(database.getClusterNameById(database.getDefaultClusterId())));
-    map.put(
-        "Marcus",
-        new ODocument()
-            .field("name", "Marcus")
-            .save(database.getClusterNameById(database.getDefaultClusterId())));
-    map.put("Cesare", new ODocument("Account").field("name", "Cesare"));
+    var doc1 = new ODocument();
+    doc1.field("name", "Luca")
+        .save(database.getClusterNameById(database.getDefaultClusterId()));
+    map.put("Luca", doc1);
+    var doc2 = new ODocument();
+    doc2.field("name", "Marcus")
+        .save(database.getClusterNameById(database.getDefaultClusterId()));
+    map.put("Marcus", doc2);
+
+    var doc3 = new ODocument("Account");
+    doc3.field("name", "Cesare")
+        .save(database.getClusterNameById(database.getDefaultClusterId()));
+    map.put("Cesare", doc3);
 
     database.save(newDoc, database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();

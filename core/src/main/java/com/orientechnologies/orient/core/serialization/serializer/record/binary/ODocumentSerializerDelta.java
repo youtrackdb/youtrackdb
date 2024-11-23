@@ -82,7 +82,8 @@ public class ODocumentSerializerDelta {
     return INSTANCE;
   }
 
-  protected ODocumentSerializerDelta() {}
+  protected ODocumentSerializerDelta() {
+  }
 
   public byte[] serialize(ODocument document) {
     BytesContainer bytes = new BytesContainer();
@@ -254,32 +255,29 @@ public class ODocumentSerializerDelta {
     while (rootChanges-- > 0) {
       byte change = deserializeByte(bytes);
       switch (change) {
-        case CREATED:
-          {
-            String key = readString(bytes);
-            ORecordId link = readOptimizedLink(bytes);
-            if (toUpdate != null) {
-              toUpdate.put(key, link);
-            }
-            break;
+        case CREATED: {
+          String key = readString(bytes);
+          ORecordId link = readOptimizedLink(bytes);
+          if (toUpdate != null) {
+            toUpdate.put(key, link);
           }
-        case REPLACED:
-          {
-            String key = readString(bytes);
-            ORecordId link = readOptimizedLink(bytes);
-            if (toUpdate != null) {
-              toUpdate.put(key, link);
-            }
-            break;
+          break;
+        }
+        case REPLACED: {
+          String key = readString(bytes);
+          ORecordId link = readOptimizedLink(bytes);
+          if (toUpdate != null) {
+            toUpdate.put(key, link);
           }
-        case REMOVED:
-          {
-            String key = readString(bytes);
-            if (toUpdate != null) {
-              toUpdate.remove(key);
-            }
-            break;
+          break;
+        }
+        case REMOVED: {
+          String key = readString(bytes);
+          if (toUpdate != null) {
+            toUpdate.remove(key);
           }
+          break;
+        }
       }
     }
   }
@@ -294,26 +292,23 @@ public class ODocumentSerializerDelta {
     while (rootChanges-- > 0) {
       byte change = deserializeByte(bytes);
       switch (change) {
-        case CREATED:
-          {
-            ORecordId link = readOptimizedLink(bytes);
-            if (toUpdate != null) {
-              toUpdate.add(link);
-            }
-            break;
+        case CREATED: {
+          ORecordId link = readOptimizedLink(bytes);
+          if (toUpdate != null) {
+            toUpdate.add(link);
           }
-        case REPLACED:
-          {
-            break;
+          break;
+        }
+        case REPLACED: {
+          break;
+        }
+        case REMOVED: {
+          ORecordId link = readOptimizedLink(bytes);
+          if (toUpdate != null) {
+            toUpdate.remove(link);
           }
-        case REMOVED:
-          {
-            ORecordId link = readOptimizedLink(bytes);
-            if (toUpdate != null) {
-              toUpdate.remove(link);
-            }
-            break;
-          }
+          break;
+        }
       }
     }
   }
@@ -323,31 +318,28 @@ public class ODocumentSerializerDelta {
     while (rootChanges-- > 0) {
       byte change = deserializeByte(bytes);
       switch (change) {
-        case CREATED:
-          {
-            ORecordId link = readOptimizedLink(bytes);
-            if (toUpdate != null) {
-              toUpdate.add(link);
-            }
-            break;
+        case CREATED: {
+          ORecordId link = readOptimizedLink(bytes);
+          if (toUpdate != null) {
+            toUpdate.add(link);
           }
-        case REPLACED:
-          {
-            long position = OVarIntSerializer.readAsLong(bytes);
-            ORecordId link = readOptimizedLink(bytes);
-            if (toUpdate != null) {
-              toUpdate.set((int) position, link);
-            }
-            break;
+          break;
+        }
+        case REPLACED: {
+          long position = OVarIntSerializer.readAsLong(bytes);
+          ORecordId link = readOptimizedLink(bytes);
+          if (toUpdate != null) {
+            toUpdate.set((int) position, link);
           }
-        case REMOVED:
-          {
-            ORecordId link = readOptimizedLink(bytes);
-            if (toUpdate != null) {
-              toUpdate.remove(link);
-            }
-            break;
+          break;
+        }
+        case REMOVED: {
+          ORecordId link = readOptimizedLink(bytes);
+          if (toUpdate != null) {
+            toUpdate.remove(link);
           }
+          break;
+        }
       }
     }
   }
@@ -357,26 +349,23 @@ public class ODocumentSerializerDelta {
     while (rootChanges-- > 0) {
       byte change = deserializeByte(bytes);
       switch (change) {
-        case CREATED:
-          {
-            ORecordId link = readOptimizedLink(bytes);
-            if (toUpdate != null) {
-              toUpdate.add(link);
-            }
-            break;
+        case CREATED: {
+          ORecordId link = readOptimizedLink(bytes);
+          if (toUpdate != null) {
+            toUpdate.add(link);
           }
-        case REPLACED:
-          {
-            break;
+          break;
+        }
+        case REPLACED: {
+          break;
+        }
+        case REMOVED: {
+          ORecordId link = readOptimizedLink(bytes);
+          if (toUpdate != null) {
+            toUpdate.remove(link);
           }
-        case REMOVED:
-          {
-            ORecordId link = readOptimizedLink(bytes);
-            if (toUpdate != null) {
-              toUpdate.remove(link);
-            }
-            break;
-          }
+          break;
+        }
       }
     }
   }
@@ -386,36 +375,34 @@ public class ODocumentSerializerDelta {
     while (rootChanges-- > 0) {
       byte change = deserializeByte(bytes);
       switch (change) {
-        case CREATED:
-          {
-            String key = readString(bytes);
-            OType type = readNullableType(bytes);
-            Object value;
-            if (type != null) {
-              value = deserializeValue(bytes, type, toUpdate);
-            } else {
-              value = null;
-            }
-            if (toUpdate != null) {
-              toUpdate.put(key, value);
-            }
-            break;
+        case CREATED: {
+          String key = readString(bytes);
+          OType type = readNullableType(bytes);
+          Object value;
+          if (type != null) {
+            value = deserializeValue(bytes, type, toUpdate);
+          } else {
+            value = null;
           }
-        case REPLACED:
-          {
-            String key = readString(bytes);
-            OType type = readNullableType(bytes);
-            Object value;
-            if (type != null) {
-              value = deserializeValue(bytes, type, toUpdate);
-            } else {
-              value = null;
-            }
-            if (toUpdate != null) {
-              toUpdate.put(key, value);
-            }
-            break;
+          if (toUpdate != null) {
+            toUpdate.put(key, value);
           }
+          break;
+        }
+        case REPLACED: {
+          String key = readString(bytes);
+          OType type = readNullableType(bytes);
+          Object value;
+          if (type != null) {
+            value = deserializeValue(bytes, type, toUpdate);
+          } else {
+            value = null;
+          }
+          if (toUpdate != null) {
+            toUpdate.put(key, value);
+          }
+          break;
+        }
         case REMOVED:
           String key = readString(bytes);
           if (toUpdate != null) {
@@ -445,20 +432,19 @@ public class ODocumentSerializerDelta {
     while (rootChanges-- > 0) {
       byte change = deserializeByte(bytes);
       switch (change) {
-        case CREATED:
-          {
-            OType type = readNullableType(bytes);
-            Object value;
-            if (type != null) {
-              value = deserializeValue(bytes, type, toUpdate);
-            } else {
-              value = null;
-            }
-            if (toUpdate != null) {
-              toUpdate.add(value);
-            }
-            break;
+        case CREATED: {
+          OType type = readNullableType(bytes);
+          Object value;
+          if (type != null) {
+            value = deserializeValue(bytes, type, toUpdate);
+          } else {
+            value = null;
           }
+          if (toUpdate != null) {
+            toUpdate.add(value);
+          }
+          break;
+        }
         case REPLACED:
           assert false : "this can't ever happen";
         case REMOVED:
@@ -501,43 +487,40 @@ public class ODocumentSerializerDelta {
     while (rootChanges-- > 0) {
       byte change = deserializeByte(bytes);
       switch (change) {
-        case CREATED:
-          {
-            OType type = readNullableType(bytes);
-            Object value;
-            if (type != null) {
-              value = deserializeValue(bytes, type, toUpdate);
-            } else {
-              value = null;
-            }
-            if (toUpdate != null) {
-              toUpdate.add(value);
-            }
-            break;
+        case CREATED: {
+          OType type = readNullableType(bytes);
+          Object value;
+          if (type != null) {
+            value = deserializeValue(bytes, type, toUpdate);
+          } else {
+            value = null;
           }
-        case REPLACED:
-          {
-            long pos = OVarIntSerializer.readAsLong(bytes);
-            OType type = readNullableType(bytes);
-            Object value;
-            if (type != null) {
-              value = deserializeValue(bytes, type, toUpdate);
-            } else {
-              value = null;
-            }
-            if (toUpdate != null) {
-              toUpdate.set((int) pos, value);
-            }
-            break;
+          if (toUpdate != null) {
+            toUpdate.add(value);
           }
-        case REMOVED:
-          {
-            long pos = OVarIntSerializer.readAsLong(bytes);
-            if (toUpdate != null) {
-              toUpdate.remove((int) pos);
-            }
-            break;
+          break;
+        }
+        case REPLACED: {
+          long pos = OVarIntSerializer.readAsLong(bytes);
+          OType type = readNullableType(bytes);
+          Object value;
+          if (type != null) {
+            value = deserializeValue(bytes, type, toUpdate);
+          } else {
+            value = null;
           }
+          if (toUpdate != null) {
+            toUpdate.set((int) pos, value);
+          }
+          break;
+        }
+        case REMOVED: {
+          long pos = OVarIntSerializer.readAsLong(bytes);
+          if (toUpdate != null) {
+            toUpdate.remove((int) pos);
+          }
+          break;
+        }
       }
     }
     long nestedChanges = OVarIntSerializer.readAsLong(bytes);
@@ -771,32 +754,30 @@ public class ODocumentSerializerDelta {
       OVarIntSerializer.write(bytes, timeline.getMultiValueChangeEvents().size());
       for (OMultiValueChangeEvent<Object, Object> event : timeline.getMultiValueChangeEvents()) {
         switch (event.getChangeType()) {
-          case ADD:
-            {
-              serializeByte(bytes, CREATED);
-              writeString(bytes, event.getKey().toString());
-              if (event.getValue() != null) {
-                OType type = OType.getTypeByValue(event.getValue());
-                writeNullableType(bytes, type);
-                serializeValue(bytes, event.getValue(), type, null);
-              } else {
-                writeNullableType(bytes, null);
-              }
-              break;
+          case ADD: {
+            serializeByte(bytes, CREATED);
+            writeString(bytes, event.getKey().toString());
+            if (event.getValue() != null) {
+              OType type = OType.getTypeByValue(event.getValue());
+              writeNullableType(bytes, type);
+              serializeValue(bytes, event.getValue(), type, null);
+            } else {
+              writeNullableType(bytes, null);
             }
-          case UPDATE:
-            {
-              serializeByte(bytes, REPLACED);
-              writeString(bytes, event.getKey().toString());
-              if (event.getValue() != null) {
-                OType type = OType.getTypeByValue(event.getValue());
-                writeNullableType(bytes, type);
-                serializeValue(bytes, event.getValue(), type, null);
-              } else {
-                writeNullableType(bytes, null);
-              }
-              break;
+            break;
+          }
+          case UPDATE: {
+            serializeByte(bytes, REPLACED);
+            writeString(bytes, event.getKey().toString());
+            if (event.getValue() != null) {
+              OType type = OType.getTypeByValue(event.getValue());
+              writeNullableType(bytes, type);
+              serializeValue(bytes, event.getValue(), type, null);
+            } else {
+              writeNullableType(bytes, null);
             }
+            break;
+          }
           case REMOVE:
             serializeByte(bytes, REMOVED);
             writeString(bytes, event.getKey().toString());
@@ -812,8 +793,8 @@ public class ODocumentSerializerDelta {
                 (v) -> {
                   return v instanceof OTrackedMultiValue && ((OTrackedMultiValue) v).isModified()
                       || v instanceof ODocument
-                          && ((ODocument) v).isEmbedded()
-                          && ((ODocument) v).isDirty();
+                      && ((ODocument) v).isEmbedded()
+                      && ((ODocument) v).isDirty();
                 })
             .count();
     OVarIntSerializer.write(bytes, count);
@@ -846,37 +827,34 @@ public class ODocumentSerializerDelta {
       OVarIntSerializer.write(bytes, timeline.getMultiValueChangeEvents().size());
       for (OMultiValueChangeEvent<Integer, Object> event : timeline.getMultiValueChangeEvents()) {
         switch (event.getChangeType()) {
-          case ADD:
-            {
-              serializeByte(bytes, CREATED);
-              if (event.getValue() != null) {
-                OType type = OType.getTypeByValue(event.getValue());
-                writeNullableType(bytes, type);
-                serializeValue(bytes, event.getValue(), type, null);
-              } else {
-                writeNullableType(bytes, null);
-              }
-              break;
+          case ADD: {
+            serializeByte(bytes, CREATED);
+            if (event.getValue() != null) {
+              OType type = OType.getTypeByValue(event.getValue());
+              writeNullableType(bytes, type);
+              serializeValue(bytes, event.getValue(), type, null);
+            } else {
+              writeNullableType(bytes, null);
             }
-          case UPDATE:
-            {
-              serializeByte(bytes, REPLACED);
-              OVarIntSerializer.write(bytes, event.getKey().longValue());
-              if (event.getValue() != null) {
-                OType type = OType.getTypeByValue(event.getValue());
-                writeNullableType(bytes, type);
-                serializeValue(bytes, event.getValue(), type, null);
-              } else {
-                writeNullableType(bytes, null);
-              }
-              break;
+            break;
+          }
+          case UPDATE: {
+            serializeByte(bytes, REPLACED);
+            OVarIntSerializer.write(bytes, event.getKey().longValue());
+            if (event.getValue() != null) {
+              OType type = OType.getTypeByValue(event.getValue());
+              writeNullableType(bytes, type);
+              serializeValue(bytes, event.getValue(), type, null);
+            } else {
+              writeNullableType(bytes, null);
             }
-          case REMOVE:
-            {
-              serializeByte(bytes, REMOVED);
-              OVarIntSerializer.write(bytes, event.getKey().longValue());
-              break;
-            }
+            break;
+          }
+          case REMOVE: {
+            serializeByte(bytes, REMOVED);
+            OVarIntSerializer.write(bytes, event.getKey().longValue());
+            break;
+          }
         }
       }
     } else {
@@ -888,8 +866,8 @@ public class ODocumentSerializerDelta {
                 (v) -> {
                   return v instanceof OTrackedMultiValue && ((OTrackedMultiValue) v).isModified()
                       || v instanceof ODocument
-                          && ((ODocument) v).isEmbedded()
-                          && ((ODocument) v).isDirty();
+                      && ((ODocument) v).isEmbedded()
+                      && ((ODocument) v).isDirty();
                 })
             .count();
     OVarIntSerializer.write(bytes, count);
@@ -920,33 +898,31 @@ public class ODocumentSerializerDelta {
       OVarIntSerializer.write(bytes, timeline.getMultiValueChangeEvents().size());
       for (OMultiValueChangeEvent<Object, Object> event : timeline.getMultiValueChangeEvents()) {
         switch (event.getChangeType()) {
-          case ADD:
-            {
-              serializeByte(bytes, CREATED);
-              if (event.getValue() != null) {
-                OType type = OType.getTypeByValue(event.getValue());
-                writeNullableType(bytes, type);
-                serializeValue(bytes, event.getValue(), type, null);
-              } else {
-                writeNullableType(bytes, null);
-              }
-              break;
+          case ADD: {
+            serializeByte(bytes, CREATED);
+            if (event.getValue() != null) {
+              OType type = OType.getTypeByValue(event.getValue());
+              writeNullableType(bytes, type);
+              serializeValue(bytes, event.getValue(), type, null);
+            } else {
+              writeNullableType(bytes, null);
             }
+            break;
+          }
           case UPDATE:
             throw new UnsupportedOperationException(
                 "update do not happen in sets, it will be like and add");
-          case REMOVE:
-            {
-              serializeByte(bytes, REMOVED);
-              if (event.getOldValue() != null) {
-                OType type = OType.getTypeByValue(event.getOldValue());
-                writeNullableType(bytes, type);
-                serializeValue(bytes, event.getOldValue(), type, null);
-              } else {
-                writeNullableType(bytes, null);
-              }
-              break;
+          case REMOVE: {
+            serializeByte(bytes, REMOVED);
+            if (event.getOldValue() != null) {
+              OType type = OType.getTypeByValue(event.getOldValue());
+              writeNullableType(bytes, type);
+              serializeValue(bytes, event.getOldValue(), type, null);
+            } else {
+              writeNullableType(bytes, null);
             }
+            break;
+          }
         }
       }
     } else {
@@ -958,8 +934,8 @@ public class ODocumentSerializerDelta {
                 (v) -> {
                   return v instanceof OTrackedMultiValue && ((OTrackedMultiValue) v).isModified()
                       || v instanceof ODocument
-                          && ((ODocument) v).isEmbedded()
-                          && ((ODocument) v).isDirty();
+                      && ((ODocument) v).isEmbedded()
+                      && ((ODocument) v).isDirty();
                 })
             .count();
     OVarIntSerializer.write(bytes, count);

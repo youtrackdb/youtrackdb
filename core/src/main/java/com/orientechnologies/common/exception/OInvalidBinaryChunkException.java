@@ -4,7 +4,8 @@ import java.io.IOException;
 
 public class OInvalidBinaryChunkException extends IOException {
 
-  public OInvalidBinaryChunkException() {}
+  public OInvalidBinaryChunkException() {
+  }
 
   public OInvalidBinaryChunkException(String message) {
     super(message);

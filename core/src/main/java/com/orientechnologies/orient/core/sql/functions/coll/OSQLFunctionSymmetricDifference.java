@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.functions.coll;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,8 +34,6 @@ import java.util.Set;
  * This operator can work as aggregate or inline. If only one argument is passed than aggregates,
  * otherwise executes, and returns, the SYMMETRIC DIFFERENCE between the collections received as
  * parameters. Works also with no collection values.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionSymmetricDifference extends OSQLFunctionMultiValueAbstract<Set<Object>> {
 
@@ -117,7 +116,7 @@ public class OSQLFunctionSymmetricDifference extends OSQLFunctionMultiValueAbstr
     }
   }
 
-  public String getSyntax() {
+  public String getSyntax(ODatabaseSession session) {
     return "difference(<field>*)";
   }
 

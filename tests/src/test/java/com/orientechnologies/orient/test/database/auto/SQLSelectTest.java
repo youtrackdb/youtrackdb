@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1047,10 +1047,10 @@ public class SQLSelectTest extends AbstractSelectTest {
       Assert.assertEquals(
           Objects.requireNonNull(
                   ((ODocument)
-                          ((Collection<OIdentifiable>) d.field("addresses"))
-                              .iterator()
-                              .next()
-                              .getRecord())
+                      ((Collection<OIdentifiable>) d.field("addresses"))
+                          .iterator()
+                          .next()
+                          .getRecord())
                       .getSchemaClass())
               .getName(),
           "Address");
@@ -1068,14 +1068,14 @@ public class SQLSelectTest extends AbstractSelectTest {
           d.field("addresses") == null
               || ((Collection<OIdentifiable>) d.field("addresses")).isEmpty()
               || !Objects.requireNonNull(
-                      ((ODocument)
-                              ((Collection<OIdentifiable>) d.field("addresses"))
-                                  .iterator()
-                                  .next()
-                                  .getRecord())
-                          .getSchemaClass())
-                  .getName()
-                  .equals("Address"));
+                  ((ODocument)
+                      ((Collection<OIdentifiable>) d.field("addresses"))
+                          .iterator()
+                          .next()
+                          .getRecord())
+                      .getSchemaClass())
+              .getName()
+              .equals("Address"));
     }
   }
 
@@ -1083,8 +1083,8 @@ public class SQLSelectTest extends AbstractSelectTest {
     OClass test = database.getMetadata().getSchema().getClass("test");
     if (test == null) {
       test = database.getMetadata().getSchema().createClass("test");
-      test.createProperty("f1", OType.STRING);
-      test.createProperty("f2", OType.STRING);
+      test.createProperty(database, "f1", OType.STRING);
+      test.createProperty(database, "f2", OType.STRING);
     }
     ODocument document = new ODocument(test);
     document.field("f1", "a").field("f2", "a");
@@ -1155,7 +1155,7 @@ public class SQLSelectTest extends AbstractSelectTest {
       facClass = schema.createClass("FicheAppelCDI");
     }
     if (!facClass.existsProperty("date")) {
-      facClass.createProperty("date", OType.DATE);
+      facClass.createProperty(database, "date", OType.DATE);
     }
 
     final Calendar currentYear = Calendar.getInstance();
@@ -1230,9 +1230,9 @@ public class SQLSelectTest extends AbstractSelectTest {
   @Test
   public void testSelectFromListParameter() {
     OClass placeClass = database.getMetadata().getSchema().createClass("Place", 1);
-    placeClass.createProperty("id", OType.STRING);
-    placeClass.createProperty("descr", OType.STRING);
-    placeClass.createIndex("place_id_index", INDEX_TYPE.UNIQUE, "id");
+    placeClass.createProperty(database, "id", OType.STRING);
+    placeClass.createProperty(database, "descr", OType.STRING);
+    placeClass.createIndex(database, "place_id_index", INDEX_TYPE.UNIQUE, "id");
 
     ODocument odoc = new ODocument("Place");
     odoc.field("id", "adda");
@@ -1265,9 +1265,9 @@ public class SQLSelectTest extends AbstractSelectTest {
   @Test
   public void testSelectRidFromListParameter() {
     OClass placeClass = database.getMetadata().getSchema().createClass("Place", 1);
-    placeClass.createProperty("id", OType.STRING);
-    placeClass.createProperty("descr", OType.STRING);
-    placeClass.createIndex("place_id_index", INDEX_TYPE.UNIQUE, "id");
+    placeClass.createProperty(database, "id", OType.STRING);
+    placeClass.createProperty(database, "descr", OType.STRING);
+    placeClass.createIndex(database, "place_id_index", INDEX_TYPE.UNIQUE, "id");
 
     List<ORID> inputValues = new ArrayList<>();
 
@@ -1394,10 +1394,10 @@ public class SQLSelectTest extends AbstractSelectTest {
   @Test
   public void testMultipleClustersWithPagination() {
     final OClass cls = database.getMetadata().getSchema().createClass("PersonMultipleClusters");
-    cls.addCluster("PersonMultipleClusters_1");
-    cls.addCluster("PersonMultipleClusters_2");
-    cls.addCluster("PersonMultipleClusters_3");
-    cls.addCluster("PersonMultipleClusters_4");
+    cls.addCluster(database, "PersonMultipleClusters_1");
+    cls.addCluster(database, "PersonMultipleClusters_2");
+    cls.addCluster(database, "PersonMultipleClusters_3");
+    cls.addCluster(database, "PersonMultipleClusters_4");
 
     try {
       Set<String> names =
@@ -1479,7 +1479,7 @@ public class SQLSelectTest extends AbstractSelectTest {
   public void testBinaryClusterSelect() {
     database.command("create blob cluster binarycluster").close();
     database.reload();
-    OBlob bytes = new ORecordBytes(new byte[] {1, 2, 3});
+    OBlob bytes = new ORecordBytes(new byte[]{1, 2, 3});
 
     database.begin();
     database.save(bytes, "binarycluster");
@@ -1503,8 +1503,8 @@ public class SQLSelectTest extends AbstractSelectTest {
     OSchema schema = database.getMetadata().getSchema();
     OClass v = schema.getClass("V");
     final OClass cls = schema.createClass("TestExpandSkip", v);
-    cls.createProperty("name", OType.STRING);
-    cls.createIndex("TestExpandSkip.name", INDEX_TYPE.UNIQUE, "name");
+    cls.createProperty(database, "name", OType.STRING);
+    cls.createIndex(database, "TestExpandSkip.name", INDEX_TYPE.UNIQUE, "name");
 
     database.begin();
     database.command("CREATE VERTEX TestExpandSkip set name = '1'").close();
@@ -1680,7 +1680,7 @@ public class SQLSelectTest extends AbstractSelectTest {
 
     Map<String, Object> params = new HashMap<>();
     params.put("key", 10);
-    params.put("permissions", new String[] {"USER"});
+    params.put("permissions", new String[]{"USER"});
     params.put("limit", 1);
     List<ODocument> results =
         executeQuery(

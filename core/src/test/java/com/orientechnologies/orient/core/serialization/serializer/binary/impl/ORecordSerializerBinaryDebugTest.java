@@ -5,7 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.BaseMemoryDatabase;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentAbstract;
+import com.orientechnologies.orient.core.db.document.ODatabaseSessionAbstract;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -23,13 +23,13 @@ public class ORecordSerializerBinaryDebugTest extends BaseMemoryDatabase {
 
   @Before
   public void before() {
-    previous = ODatabaseDocumentAbstract.getDefaultSerializer();
-    ODatabaseDocumentAbstract.setDefaultSerializer(new ORecordSerializerBinary());
+    previous = ODatabaseSessionAbstract.getDefaultSerializer();
+    ODatabaseSessionAbstract.setDefaultSerializer(new ORecordSerializerBinary());
   }
 
   @After
   public void after() {
-    ODatabaseDocumentAbstract.setDefaultSerializer(previous);
+    ODatabaseSessionAbstract.setDefaultSerializer(previous);
   }
 
   @Test
@@ -62,8 +62,8 @@ public class ORecordSerializerBinaryDebugTest extends BaseMemoryDatabase {
   @Test
   public void testSchemaFullDocumentDebug() {
     OClass clazz = db.getMetadata().getSchema().createClass("some");
-    clazz.createProperty("testP", OType.STRING);
-    clazz.createProperty("theInt", OType.INTEGER);
+    clazz.createProperty(db, "testP", OType.STRING);
+    clazz.createProperty(db, "theInt", OType.INTEGER);
     ODocument doc = new ODocument("some");
     doc.field("testP", "test");
     doc.field("theInt", 2);
@@ -122,8 +122,8 @@ public class ORecordSerializerBinaryDebugTest extends BaseMemoryDatabase {
   @Test
   public void testBrokenSchemaFullDocumentDebug() {
     OClass clazz = db.getMetadata().getSchema().createClass("some");
-    clazz.createProperty("testP", OType.STRING);
-    clazz.createProperty("theInt", OType.INTEGER);
+    clazz.createProperty(db, "testP", OType.STRING);
+    clazz.createProperty(db, "theInt", OType.INTEGER);
     ODocument doc = new ODocument("some");
     doc.field("testP", "test");
     doc.field("theInt", 2);

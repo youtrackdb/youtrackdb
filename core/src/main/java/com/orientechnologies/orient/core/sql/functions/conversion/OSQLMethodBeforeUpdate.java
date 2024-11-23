@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  * Copyright 2013 Geomatys.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,8 +27,6 @@ import com.orientechnologies.orient.core.sql.method.misc.OAbstractSQLMethod;
  * Null if the record is new <br> eg. on update, get only records whose "name" attribute was update
  * <code> db.live("select from Person where @this.beforeUpdate().name != name
  * </code>
- *
- * @author Luigi Dell'Aquila (l.dellaquila--(at)--orientdb.com)
  */
 public class OSQLMethodBeforeUpdate extends OAbstractSQLMethod {
 

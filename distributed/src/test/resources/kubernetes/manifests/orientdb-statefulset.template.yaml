@@ -21,7 +21,7 @@ spec:
       terminationGracePeriodSeconds: 30
       containers:
         - name: orientdb
-          command: ["sh", "-c", "rm /dev/random; mknod /dev/random c 1 9; dserver.sh -DkubernetesNamespace=${testNamespace}"]
+          command: [ "sh", "-c", "rm /dev/random; mknod /dev/random c 1 9; dserver.sh -DkubernetesNamespace=${testNamespace}" ]
           image: ${orientdbDockerImage}
           imagePullPolicy: Always
           env:
@@ -61,7 +61,7 @@ spec:
       initContainers:
         - name: copy-configs
           image: busybox:1.31
-          command: ['sh', '-c']
+          command: [ 'sh', '-c' ]
           args:
             - cp -v /orientdb-config/* /orientdb/config/
           volumeMounts:
@@ -77,7 +77,7 @@ spec:
     - metadata:
         name: databases
       spec:
-        accessModes: ["ReadWriteOnce"]
+        accessModes: [ "ReadWriteOnce" ]
         storageClassName: ${databaseVolumeStorageClass}
         resources:
           requests:
@@ -85,7 +85,7 @@ spec:
     - metadata:
         name: config
       spec:
-        accessModes: ["ReadWriteOnce"]
+        accessModes: [ "ReadWriteOnce" ]
         storageClassName: ${configVolumeStorageClass}
         resources:
           requests:

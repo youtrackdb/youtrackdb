@@ -7,6 +7,7 @@ import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
 import com.orientechnologies.common.listener.OProgressListener;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OCompositeIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
@@ -51,36 +52,36 @@ public class ClassIndexTest extends DocumentDBBaseTest {
     oClass = schema.createClass("ClassIndexTestClass");
     oSuperClass = schema.createClass("ClassIndexTestSuperClass");
 
-    oClass.createProperty("fOne", OType.INTEGER);
-    oClass.createProperty("fTwo", OType.STRING);
-    oClass.createProperty("fThree", OType.BOOLEAN);
-    oClass.createProperty("fFour", OType.INTEGER);
+    oClass.createProperty(database, "fOne", OType.INTEGER);
+    oClass.createProperty(database, "fTwo", OType.STRING);
+    oClass.createProperty(database, "fThree", OType.BOOLEAN);
+    oClass.createProperty(database, "fFour", OType.INTEGER);
 
-    oClass.createProperty("fSix", OType.STRING);
-    oClass.createProperty("fSeven", OType.STRING);
+    oClass.createProperty(database, "fSix", OType.STRING);
+    oClass.createProperty(database, "fSeven", OType.STRING);
 
-    oClass.createProperty("fEight", OType.INTEGER);
-    oClass.createProperty("fTen", OType.INTEGER);
-    oClass.createProperty("fEleven", OType.INTEGER);
-    oClass.createProperty("fTwelve", OType.INTEGER);
-    oClass.createProperty("fThirteen", OType.INTEGER);
-    oClass.createProperty("fFourteen", OType.INTEGER);
-    oClass.createProperty("fFifteen", OType.INTEGER);
+    oClass.createProperty(database, "fEight", OType.INTEGER);
+    oClass.createProperty(database, "fTen", OType.INTEGER);
+    oClass.createProperty(database, "fEleven", OType.INTEGER);
+    oClass.createProperty(database, "fTwelve", OType.INTEGER);
+    oClass.createProperty(database, "fThirteen", OType.INTEGER);
+    oClass.createProperty(database, "fFourteen", OType.INTEGER);
+    oClass.createProperty(database, "fFifteen", OType.INTEGER);
 
-    oClass.createProperty("fEmbeddedMap", OType.EMBEDDEDMAP, OType.INTEGER);
-    oClass.createProperty("fEmbeddedMapWithoutLinkedType", OType.EMBEDDEDMAP);
-    oClass.createProperty("fLinkMap", OType.LINKMAP);
+    oClass.createProperty(database, "fEmbeddedMap", OType.EMBEDDEDMAP, OType.INTEGER);
+    oClass.createProperty(database, "fEmbeddedMapWithoutLinkedType", OType.EMBEDDEDMAP);
+    oClass.createProperty(database, "fLinkMap", OType.LINKMAP);
 
-    oClass.createProperty("fLinkList", OType.LINKLIST);
-    oClass.createProperty("fEmbeddedList", OType.EMBEDDEDLIST, OType.INTEGER);
+    oClass.createProperty(database, "fLinkList", OType.LINKLIST);
+    oClass.createProperty(database, "fEmbeddedList", OType.EMBEDDEDLIST, OType.INTEGER);
 
-    oClass.createProperty("fEmbeddedSet", OType.EMBEDDEDSET, OType.INTEGER);
-    oClass.createProperty("fLinkSet", OType.LINKSET);
+    oClass.createProperty(database, "fEmbeddedSet", OType.EMBEDDEDSET, OType.INTEGER);
+    oClass.createProperty(database, "fLinkSet", OType.LINKSET);
 
-    oClass.createProperty("fRidBag", OType.LINKBAG);
+    oClass.createProperty(database, "fRidBag", OType.LINKBAG);
 
-    oSuperClass.createProperty("fNine", OType.INTEGER);
-    oClass.setSuperClass(oSuperClass);
+    oSuperClass.createProperty(database, "fNine", OType.INTEGER);
+    oClass.setSuperClass(database, oSuperClass);
 
     database.close();
   }
@@ -88,15 +89,15 @@ public class ClassIndexTest extends DocumentDBBaseTest {
   @Test
   public void testCreateOnePropertyIndexTest() {
     final OIndex result =
-        oClass.createIndex(
+        oClass.createIndex(database,
             "ClassIndexTestPropertyOne",
             OClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new ODocument().fields("ignoreNullValues", true),
-            new String[] {"fOne"});
+            new ODocument().fields("ignoreNullValues", true), new String[]{"fOne"});
 
     assertEquals(result.getName(), "ClassIndexTestPropertyOne");
-    assertEquals(oClass.getClassIndex("ClassIndexTestPropertyOne").getName(), result.getName());
+    assertEquals(oClass.getClassIndex(database, "ClassIndexTestPropertyOne").getName(),
+        result.getName());
     assertEquals(
         database
             .getMetadata()
@@ -109,12 +110,11 @@ public class ClassIndexTest extends DocumentDBBaseTest {
   @Test
   public void testCreateOnePropertyIndexInvalidName() {
     try {
-      oClass.createIndex(
+      oClass.createIndex(database,
           "ClassIndex:TestPropertyOne",
           OClass.INDEX_TYPE.UNIQUE.toString(),
           null,
-          new ODocument().fields("ignoreNullValues", true),
-          new String[] {"fOne"});
+          new ODocument().fields("ignoreNullValues", true), new String[]{"fOne"});
       fail();
     } catch (Exception e) {
 
@@ -132,15 +132,15 @@ public class ClassIndexTest extends DocumentDBBaseTest {
   @Test
   public void createCompositeIndexTestWithoutListener() {
     final OIndex result =
-        oClass.createIndex(
+        oClass.createIndex(database,
             "ClassIndexTestCompositeOne",
             OClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new ODocument().fields("ignoreNullValues", true),
-            new String[] {"fOne", "fTwo"});
+            new ODocument().fields("ignoreNullValues", true), new String[]{"fOne", "fTwo"});
 
     assertEquals(result.getName(), "ClassIndexTestCompositeOne");
-    assertEquals(oClass.getClassIndex("ClassIndexTestCompositeOne").getName(), result.getName());
+    assertEquals(oClass.getClassIndex(database, "ClassIndexTestCompositeOne").getName(),
+        result.getName());
     assertEquals(
         database
             .getMetadata()
@@ -166,21 +166,23 @@ public class ClassIndexTest extends DocumentDBBaseTest {
           }
 
           @Override
-          public void onCompletition(final Object iTask, final boolean iSucceed) {
+          public void onCompletition(ODatabaseSessionInternal session, final Object iTask,
+              final boolean iSucceed) {
             atomicInteger.incrementAndGet();
           }
         };
 
     final OIndex result =
-        oClass.createIndex(
+        oClass.createIndex(database,
             "ClassIndexTestCompositeTwo",
             OClass.INDEX_TYPE.UNIQUE.toString(),
             progressListener,
             new ODocument().fields("ignoreNullValues", true),
-            new String[] {"fOne", "fTwo", "fThree"});
+            new String[]{"fOne", "fTwo", "fThree"});
 
     assertEquals(result.getName(), "ClassIndexTestCompositeTwo");
-    assertEquals(oClass.getClassIndex("ClassIndexTestCompositeTwo").getName(), result.getName());
+    assertEquals(oClass.getClassIndex(database, "ClassIndexTestCompositeTwo").getName(),
+        result.getName());
     assertEquals(
         database
             .getMetadata()
@@ -194,16 +196,16 @@ public class ClassIndexTest extends DocumentDBBaseTest {
   @Test
   public void testCreateOnePropertyEmbeddedMapIndex() {
     final OIndex result =
-        oClass.createIndex(
+        oClass.createIndex(database,
             "ClassIndexTestPropertyEmbeddedMap",
             OClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new ODocument().fields("ignoreNullValues", true),
-            new String[] {"fEmbeddedMap"});
+            new ODocument().fields("ignoreNullValues", true), new String[]{"fEmbeddedMap"});
 
     assertEquals(result.getName(), "ClassIndexTestPropertyEmbeddedMap");
     assertEquals(
-        oClass.getClassIndex("ClassIndexTestPropertyEmbeddedMap").getName(), result.getName());
+        oClass.getClassIndex(database, "ClassIndexTestPropertyEmbeddedMap").getName(),
+        result.getName());
     assertEquals(
         database
             .getMetadata()
@@ -225,16 +227,17 @@ public class ClassIndexTest extends DocumentDBBaseTest {
   @Test
   public void testCreateCompositeEmbeddedMapIndex() {
     final OIndex result =
-        oClass.createIndex(
+        oClass.createIndex(database,
             "ClassIndexTestCompositeEmbeddedMap",
             OClass.INDEX_TYPE.UNIQUE.toString(),
             null,
             new ODocument().fields("ignoreNullValues", true),
-            new String[] {"fFifteen", "fEmbeddedMap"});
+            new String[]{"fFifteen", "fEmbeddedMap"});
 
     assertEquals(result.getName(), "ClassIndexTestCompositeEmbeddedMap");
     assertEquals(
-        oClass.getClassIndex("ClassIndexTestCompositeEmbeddedMap").getName(), result.getName());
+        oClass.getClassIndex(database, "ClassIndexTestCompositeEmbeddedMap").getName(),
+        result.getName());
     assertEquals(
         database
             .getMetadata()
@@ -246,25 +249,25 @@ public class ClassIndexTest extends DocumentDBBaseTest {
     final OIndexDefinition indexDefinition = result.getDefinition();
 
     assertTrue(indexDefinition instanceof OCompositeIndexDefinition);
-    assertEquals(indexDefinition.getFields().toArray(), new String[] {"fFifteen", "fEmbeddedMap"});
+    assertEquals(indexDefinition.getFields().toArray(), new String[]{"fFifteen", "fEmbeddedMap"});
 
-    assertEquals(indexDefinition.getTypes(), new OType[] {OType.INTEGER, OType.STRING});
+    assertEquals(indexDefinition.getTypes(), new OType[]{OType.INTEGER, OType.STRING});
     assertEquals(indexDefinition.getParamCount(), 2);
   }
 
   @Test
   public void testCreateCompositeEmbeddedMapByKeyIndex() {
     final OIndex result =
-        oClass.createIndex(
+        oClass.createIndex(database,
             "ClassIndexTestCompositeEmbeddedMapByKey",
             OClass.INDEX_TYPE.UNIQUE.toString(),
             null,
             new ODocument().fields("ignoreNullValues", true),
-            new String[] {"fEight", "fEmbeddedMap"});
+            new String[]{"fEight", "fEmbeddedMap"});
 
     assertEquals(result.getName(), "ClassIndexTestCompositeEmbeddedMapByKey");
     assertEquals(
-        oClass.getClassIndex("ClassIndexTestCompositeEmbeddedMapByKey").getName(),
+        oClass.getClassIndex(database, "ClassIndexTestCompositeEmbeddedMapByKey").getName(),
         result.getName());
     assertEquals(
         database
@@ -278,25 +281,25 @@ public class ClassIndexTest extends DocumentDBBaseTest {
     final OIndexDefinition indexDefinition = result.getDefinition();
 
     assertTrue(indexDefinition instanceof OCompositeIndexDefinition);
-    assertEquals(indexDefinition.getFields().toArray(), new String[] {"fEight", "fEmbeddedMap"});
+    assertEquals(indexDefinition.getFields().toArray(), new String[]{"fEight", "fEmbeddedMap"});
 
-    assertEquals(indexDefinition.getTypes(), new OType[] {OType.INTEGER, OType.STRING});
+    assertEquals(indexDefinition.getTypes(), new OType[]{OType.INTEGER, OType.STRING});
     assertEquals(indexDefinition.getParamCount(), 2);
   }
 
   @Test
   public void testCreateCompositeEmbeddedMapByValueIndex() {
     final OIndex result =
-        oClass.createIndex(
+        oClass.createIndex(database,
             "ClassIndexTestCompositeEmbeddedMapByValue",
             OClass.INDEX_TYPE.UNIQUE.toString(),
             null,
             new ODocument().fields("ignoreNullValues", true),
-            new String[] {"fTen", "fEmbeddedMap by value"});
+            new String[]{"fTen", "fEmbeddedMap by value"});
 
     assertEquals(result.getName(), "ClassIndexTestCompositeEmbeddedMapByValue");
     assertEquals(
-        oClass.getClassIndex("ClassIndexTestCompositeEmbeddedMapByValue").getName(),
+        oClass.getClassIndex(database, "ClassIndexTestCompositeEmbeddedMapByValue").getName(),
         result.getName());
     assertEquals(
         database
@@ -310,25 +313,26 @@ public class ClassIndexTest extends DocumentDBBaseTest {
     final OIndexDefinition indexDefinition = result.getDefinition();
 
     assertTrue(indexDefinition instanceof OCompositeIndexDefinition);
-    assertEquals(indexDefinition.getFields().toArray(), new String[] {"fTen", "fEmbeddedMap"});
+    assertEquals(indexDefinition.getFields().toArray(), new String[]{"fTen", "fEmbeddedMap"});
 
-    assertEquals(indexDefinition.getTypes(), new OType[] {OType.INTEGER, OType.INTEGER});
+    assertEquals(indexDefinition.getTypes(), new OType[]{OType.INTEGER, OType.INTEGER});
     assertEquals(indexDefinition.getParamCount(), 2);
   }
 
   @Test
   public void testCreateCompositeLinkMapByValueIndex() {
     final OIndex result =
-        oClass.createIndex(
+        oClass.createIndex(database,
             "ClassIndexTestCompositeLinkMapByValue",
             OClass.INDEX_TYPE.UNIQUE.toString(),
             null,
             new ODocument().fields("ignoreNullValues", true),
-            new String[] {"fEleven", "fLinkMap by value"});
+            new String[]{"fEleven", "fLinkMap by value"});
 
     assertEquals(result.getName(), "ClassIndexTestCompositeLinkMapByValue");
     assertEquals(
-        oClass.getClassIndex("ClassIndexTestCompositeLinkMapByValue").getName(), result.getName());
+        oClass.getClassIndex(database, "ClassIndexTestCompositeLinkMapByValue").getName(),
+        result.getName());
     assertEquals(
         database
             .getMetadata()
@@ -340,25 +344,26 @@ public class ClassIndexTest extends DocumentDBBaseTest {
     final OIndexDefinition indexDefinition = result.getDefinition();
 
     assertTrue(indexDefinition instanceof OCompositeIndexDefinition);
-    assertEquals(indexDefinition.getFields().toArray(), new String[] {"fEleven", "fLinkMap"});
+    assertEquals(indexDefinition.getFields().toArray(), new String[]{"fEleven", "fLinkMap"});
 
-    assertEquals(indexDefinition.getTypes(), new OType[] {OType.INTEGER, OType.LINK});
+    assertEquals(indexDefinition.getTypes(), new OType[]{OType.INTEGER, OType.LINK});
     assertEquals(indexDefinition.getParamCount(), 2);
   }
 
   @Test
   public void testCreateCompositeEmbeddedSetIndex() {
     final OIndex result =
-        oClass.createIndex(
+        oClass.createIndex(database,
             "ClassIndexTestCompositeEmbeddedSet",
             OClass.INDEX_TYPE.UNIQUE.toString(),
             null,
             new ODocument().fields("ignoreNullValues", true),
-            new String[] {"fTwelve", "fEmbeddedSet"});
+            new String[]{"fTwelve", "fEmbeddedSet"});
 
     assertEquals(result.getName(), "ClassIndexTestCompositeEmbeddedSet");
     assertEquals(
-        oClass.getClassIndex("ClassIndexTestCompositeEmbeddedSet").getName(), result.getName());
+        oClass.getClassIndex(database, "ClassIndexTestCompositeEmbeddedSet").getName(),
+        result.getName());
     assertEquals(
         database
             .getMetadata()
@@ -370,25 +375,25 @@ public class ClassIndexTest extends DocumentDBBaseTest {
     final OIndexDefinition indexDefinition = result.getDefinition();
 
     assertTrue(indexDefinition instanceof OCompositeIndexDefinition);
-    assertEquals(indexDefinition.getFields().toArray(), new String[] {"fTwelve", "fEmbeddedSet"});
+    assertEquals(indexDefinition.getFields().toArray(), new String[]{"fTwelve", "fEmbeddedSet"});
 
-    assertEquals(indexDefinition.getTypes(), new OType[] {OType.INTEGER, OType.INTEGER});
+    assertEquals(indexDefinition.getTypes(), new OType[]{OType.INTEGER, OType.INTEGER});
     assertEquals(indexDefinition.getParamCount(), 2);
   }
 
   @Test(dependsOnMethods = "testGetIndexes")
   public void testCreateCompositeLinkSetIndex() {
     final OIndex result =
-        oClass.createIndex(
+        oClass.createIndex(database,
             "ClassIndexTestCompositeLinkSet",
             OClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new ODocument().fields("ignoreNullValues", true),
-            new String[] {"fTwelve", "fLinkSet"});
+            new ODocument().fields("ignoreNullValues", true), new String[]{"fTwelve", "fLinkSet"});
 
     assertEquals(result.getName(), "ClassIndexTestCompositeLinkSet");
     assertEquals(
-        oClass.getClassIndex("ClassIndexTestCompositeLinkSet").getName(), result.getName());
+        oClass.getClassIndex(database, "ClassIndexTestCompositeLinkSet").getName(),
+        result.getName());
     assertEquals(
         database
             .getMetadata()
@@ -400,25 +405,26 @@ public class ClassIndexTest extends DocumentDBBaseTest {
     final OIndexDefinition indexDefinition = result.getDefinition();
 
     assertTrue(indexDefinition instanceof OCompositeIndexDefinition);
-    assertEquals(indexDefinition.getFields().toArray(), new String[] {"fTwelve", "fLinkSet"});
+    assertEquals(indexDefinition.getFields().toArray(), new String[]{"fTwelve", "fLinkSet"});
 
-    assertEquals(indexDefinition.getTypes(), new OType[] {OType.INTEGER, OType.LINK});
+    assertEquals(indexDefinition.getTypes(), new OType[]{OType.INTEGER, OType.LINK});
     assertEquals(indexDefinition.getParamCount(), 2);
   }
 
   @Test
   public void testCreateCompositeEmbeddedListIndex() {
     final OIndex result =
-        oClass.createIndex(
+        oClass.createIndex(database,
             "ClassIndexTestCompositeEmbeddedList",
             OClass.INDEX_TYPE.UNIQUE.toString(),
             null,
             new ODocument().fields("ignoreNullValues", true),
-            new String[] {"fThirteen", "fEmbeddedList"});
+            new String[]{"fThirteen", "fEmbeddedList"});
 
     assertEquals(result.getName(), "ClassIndexTestCompositeEmbeddedList");
     assertEquals(
-        oClass.getClassIndex("ClassIndexTestCompositeEmbeddedList").getName(), result.getName());
+        oClass.getClassIndex(database, "ClassIndexTestCompositeEmbeddedList").getName(),
+        result.getName());
     assertEquals(
         database
             .getMetadata()
@@ -431,24 +437,25 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
     assertTrue(indexDefinition instanceof OCompositeIndexDefinition);
     assertEquals(
-        indexDefinition.getFields().toArray(), new String[] {"fThirteen", "fEmbeddedList"});
+        indexDefinition.getFields().toArray(), new String[]{"fThirteen", "fEmbeddedList"});
 
-    assertEquals(indexDefinition.getTypes(), new OType[] {OType.INTEGER, OType.INTEGER});
+    assertEquals(indexDefinition.getTypes(), new OType[]{OType.INTEGER, OType.INTEGER});
     assertEquals(indexDefinition.getParamCount(), 2);
   }
 
   public void testCreateCompositeLinkListIndex() {
     final OIndex result =
-        oClass.createIndex(
+        oClass.createIndex(database,
             "ClassIndexTestCompositeLinkList",
             OClass.INDEX_TYPE.UNIQUE.toString(),
             null,
             new ODocument().fields("ignoreNullValues", true),
-            new String[] {"fFourteen", "fLinkList"});
+            new String[]{"fFourteen", "fLinkList"});
 
     assertEquals(result.getName(), "ClassIndexTestCompositeLinkList");
     assertEquals(
-        oClass.getClassIndex("ClassIndexTestCompositeLinkList").getName(), result.getName());
+        oClass.getClassIndex(database, "ClassIndexTestCompositeLinkList").getName(),
+        result.getName());
     assertEquals(
         database
             .getMetadata()
@@ -460,23 +467,23 @@ public class ClassIndexTest extends DocumentDBBaseTest {
     final OIndexDefinition indexDefinition = result.getDefinition();
 
     assertTrue(indexDefinition instanceof OCompositeIndexDefinition);
-    assertEquals(indexDefinition.getFields().toArray(), new String[] {"fFourteen", "fLinkList"});
+    assertEquals(indexDefinition.getFields().toArray(), new String[]{"fFourteen", "fLinkList"});
 
-    assertEquals(indexDefinition.getTypes(), new OType[] {OType.INTEGER, OType.LINK});
+    assertEquals(indexDefinition.getTypes(), new OType[]{OType.INTEGER, OType.LINK});
     assertEquals(indexDefinition.getParamCount(), 2);
   }
 
   public void testCreateCompositeRidBagIndex() {
     final OIndex result =
-        oClass.createIndex(
+        oClass.createIndex(database,
             "ClassIndexTestCompositeRidBag",
             OClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new ODocument().fields("ignoreNullValues", true),
-            new String[] {"fFourteen", "fRidBag"});
+            new ODocument().fields("ignoreNullValues", true), new String[]{"fFourteen", "fRidBag"});
 
     assertEquals(result.getName(), "ClassIndexTestCompositeRidBag");
-    assertEquals(oClass.getClassIndex("ClassIndexTestCompositeRidBag").getName(), result.getName());
+    assertEquals(oClass.getClassIndex(database, "ClassIndexTestCompositeRidBag").getName(),
+        result.getName());
     assertEquals(
         database
             .getMetadata()
@@ -488,25 +495,25 @@ public class ClassIndexTest extends DocumentDBBaseTest {
     final OIndexDefinition indexDefinition = result.getDefinition();
 
     assertTrue(indexDefinition instanceof OCompositeIndexDefinition);
-    assertEquals(indexDefinition.getFields().toArray(), new String[] {"fFourteen", "fRidBag"});
+    assertEquals(indexDefinition.getFields().toArray(), new String[]{"fFourteen", "fRidBag"});
 
-    assertEquals(indexDefinition.getTypes(), new OType[] {OType.INTEGER, OType.LINK});
+    assertEquals(indexDefinition.getTypes(), new OType[]{OType.INTEGER, OType.LINK});
     assertEquals(indexDefinition.getParamCount(), 2);
   }
 
   @Test
   public void testCreateOnePropertyLinkedMapIndex() {
     final OIndex result =
-        oClass.createIndex(
+        oClass.createIndex(database,
             "ClassIndexTestPropertyLinkedMap",
             OClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new ODocument().fields("ignoreNullValues", true),
-            new String[] {"fLinkMap"});
+            new ODocument().fields("ignoreNullValues", true), new String[]{"fLinkMap"});
 
     assertEquals(result.getName(), "ClassIndexTestPropertyLinkedMap");
     assertEquals(
-        oClass.getClassIndex("ClassIndexTestPropertyLinkedMap").getName(), result.getName());
+        oClass.getClassIndex(database, "ClassIndexTestPropertyLinkedMap").getName(),
+        result.getName());
     assertEquals(
         database
             .getMetadata()
@@ -528,16 +535,16 @@ public class ClassIndexTest extends DocumentDBBaseTest {
   @Test
   public void testCreateOnePropertyLinkMapByKeyIndex() {
     final OIndex result =
-        oClass.createIndex(
+        oClass.createIndex(database,
             "ClassIndexTestPropertyLinkedMapByKey",
             OClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new ODocument().fields("ignoreNullValues", true),
-            new String[] {"fLinkMap by key"});
+            new ODocument().fields("ignoreNullValues", true), new String[]{"fLinkMap by key"});
 
     assertEquals(result.getName(), "ClassIndexTestPropertyLinkedMapByKey");
     assertEquals(
-        oClass.getClassIndex("ClassIndexTestPropertyLinkedMapByKey").getName(), result.getName());
+        oClass.getClassIndex(database, "ClassIndexTestPropertyLinkedMapByKey").getName(),
+        result.getName());
     assertEquals(
         database
             .getMetadata()
@@ -559,16 +566,16 @@ public class ClassIndexTest extends DocumentDBBaseTest {
   @Test
   public void testCreateOnePropertyLinkMapByValueIndex() {
     final OIndex result =
-        oClass.createIndex(
+        oClass.createIndex(database,
             "ClassIndexTestPropertyLinkedMapByValue",
             OClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new ODocument().fields("ignoreNullValues", true),
-            new String[] {"fLinkMap by value"});
+            new ODocument().fields("ignoreNullValues", true), new String[]{"fLinkMap by value"});
 
     assertEquals(result.getName(), "ClassIndexTestPropertyLinkedMapByValue");
     assertEquals(
-        oClass.getClassIndex("ClassIndexTestPropertyLinkedMapByValue").getName(), result.getName());
+        oClass.getClassIndex(database, "ClassIndexTestPropertyLinkedMapByValue").getName(),
+        result.getName());
     assertEquals(
         database
             .getMetadata()
@@ -591,16 +598,16 @@ public class ClassIndexTest extends DocumentDBBaseTest {
   @Test
   public void testCreateOnePropertyByKeyEmbeddedMapIndex() {
     final OIndex result =
-        oClass.createIndex(
+        oClass.createIndex(database,
             "ClassIndexTestPropertyByKeyEmbeddedMap",
             OClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new ODocument().fields("ignoreNullValues", true),
-            new String[] {"fEmbeddedMap by key"});
+            new ODocument().fields("ignoreNullValues", true), new String[]{"fEmbeddedMap by key"});
 
     assertEquals(result.getName(), "ClassIndexTestPropertyByKeyEmbeddedMap");
     assertEquals(
-        oClass.getClassIndex("ClassIndexTestPropertyByKeyEmbeddedMap").getName(), result.getName());
+        oClass.getClassIndex(database, "ClassIndexTestPropertyByKeyEmbeddedMap").getName(),
+        result.getName());
     assertEquals(
         database
             .getMetadata()
@@ -623,16 +630,16 @@ public class ClassIndexTest extends DocumentDBBaseTest {
   @Test
   public void testCreateOnePropertyByValueEmbeddedMapIndex() {
     final OIndex result =
-        oClass.createIndex(
+        oClass.createIndex(database,
             "ClassIndexTestPropertyByValueEmbeddedMap",
             OClass.INDEX_TYPE.UNIQUE.toString(),
             null,
             new ODocument().fields("ignoreNullValues", true),
-            new String[] {"fEmbeddedMap by value"});
+            new String[]{"fEmbeddedMap by value"});
 
     assertEquals(result.getName(), "ClassIndexTestPropertyByValueEmbeddedMap");
     assertEquals(
-        oClass.getClassIndex("ClassIndexTestPropertyByValueEmbeddedMap").getName(),
+        oClass.getClassIndex(database, "ClassIndexTestPropertyByValueEmbeddedMap").getName(),
         result.getName());
     assertEquals(
         database
@@ -657,12 +664,11 @@ public class ClassIndexTest extends DocumentDBBaseTest {
   public void testCreateOnePropertyWrongSpecifierEmbeddedMapIndexOne() {
     boolean exceptionIsThrown = false;
     try {
-      oClass.createIndex(
+      oClass.createIndex(database,
           "ClassIndexTestPropertyWrongSpecifierEmbeddedMap",
           OClass.INDEX_TYPE.UNIQUE.toString(),
           null,
-          new ODocument().fields("ignoreNullValues", true),
-          new String[] {"fEmbeddedMap by ttt"});
+          new ODocument().fields("ignoreNullValues", true), new String[]{"fEmbeddedMap by ttt"});
     } catch (Exception e) {
       Assert.assertTrue(e instanceof IllegalArgumentException);
       exceptionIsThrown = true;
@@ -673,499 +679,499 @@ public class ClassIndexTest extends DocumentDBBaseTest {
     }
 
     assertTrue(exceptionIsThrown);
-    assertNull(oClass.getClassIndex("ClassIndexTestPropertyWrongSpecifierEmbeddedMap"));
+    assertNull(oClass.getClassIndex(database, "ClassIndexTestPropertyWrongSpecifierEmbeddedMap"));
   }
 
   @Test
   public void testCreateOnePropertyWrongSpecifierEmbeddedMapIndexTwo() {
     boolean exceptionIsThrown = false;
     try {
-      oClass.createIndex(
+      oClass.createIndex(database,
           "ClassIndexTestPropertyWrongSpecifierEmbeddedMap",
           OClass.INDEX_TYPE.UNIQUE.toString(),
           null,
-          new ODocument().fields("ignoreNullValues", true),
-          new String[] {"fEmbeddedMap b value"});
+          new ODocument().fields("ignoreNullValues", true), new String[]{"fEmbeddedMap b value"});
     } catch (OIndexException e) {
       exceptionIsThrown = true;
     }
 
     assertTrue(exceptionIsThrown);
-    assertNull(oClass.getClassIndex("ClassIndexTestPropertyWrongSpecifierEmbeddedMap"));
+    assertNull(oClass.getClassIndex(database, "ClassIndexTestPropertyWrongSpecifierEmbeddedMap"));
   }
 
   @Test
   public void testCreateOnePropertyWrongSpecifierEmbeddedMapIndexThree() {
     boolean exceptionIsThrown = false;
     try {
-      oClass.createIndex(
+      oClass.createIndex(database,
           "ClassIndexTestPropertyWrongSpecifierEmbeddedMap",
           OClass.INDEX_TYPE.UNIQUE.toString(),
           null,
           new ODocument().fields("ignoreNullValues", true),
-          new String[] {"fEmbeddedMap by value t"});
+          new String[]{"fEmbeddedMap by value t"});
     } catch (OIndexException e) {
       exceptionIsThrown = true;
     }
 
     assertTrue(exceptionIsThrown);
-    assertNull(oClass.getClassIndex("ClassIndexTestPropertyWrongSpecifierEmbeddedMap"));
+    assertNull(oClass.getClassIndex(database, "ClassIndexTestPropertyWrongSpecifierEmbeddedMap"));
   }
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testAreIndexedOneProperty() {
-    final boolean result = oClass.areIndexed(List.of("fOne"));
+    final boolean result = oClass.areIndexed(database, List.of("fOne"));
 
     assertTrue(result);
   }
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testAreIndexedEightProperty() {
-    final boolean result = oClass.areIndexed(List.of("fEight"));
+    final boolean result = oClass.areIndexed(database, List.of("fEight"));
     assertTrue(result);
   }
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testAreIndexedEightPropertyEmbeddedMap() {
-    final boolean result = oClass.areIndexed(Arrays.asList("fEmbeddedMap", "fEight"));
+    final boolean result = oClass.areIndexed(database, Arrays.asList("fEmbeddedMap", "fEight"));
     assertTrue(result);
   }
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testAreIndexedDoesNotContainProperty() {
-    final boolean result = oClass.areIndexed(List.of("fSix"));
+    final boolean result = oClass.areIndexed(database, List.of("fSix"));
 
     assertFalse(result);
   }
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testAreIndexedTwoProperties() {
-    final boolean result = oClass.areIndexed(Arrays.asList("fTwo", "fOne"));
+    final boolean result = oClass.areIndexed(database, Arrays.asList("fTwo", "fOne"));
 
     assertTrue(result);
   }
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testAreIndexedThreeProperties() {
-    final boolean result = oClass.areIndexed(Arrays.asList("fTwo", "fOne", "fThree"));
+    final boolean result = oClass.areIndexed(database, Arrays.asList("fTwo", "fOne", "fThree"));
 
     assertTrue(result);
   }
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testAreIndexedPropertiesNotFirst() {
-    final boolean result = oClass.areIndexed(Arrays.asList("fTwo", "fTree"));
+    final boolean result = oClass.areIndexed(database, Arrays.asList("fTwo", "fTree"));
 
     assertFalse(result);
   }
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testAreIndexedPropertiesMoreThanNeeded() {
-    final boolean result = oClass.areIndexed(Arrays.asList("fTwo", "fOne", "fThee", "fFour"));
+    final boolean result = oClass.areIndexed(database,
+        Arrays.asList("fTwo", "fOne", "fThee", "fFour"));
 
     assertFalse(result);
   }
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "createParentPropertyIndex",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "createParentPropertyIndex",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testAreIndexedParentProperty() {
-    final boolean result = oClass.areIndexed(List.of("fNine"));
+    final boolean result = oClass.areIndexed(database, List.of("fNine"));
 
     assertTrue(result);
   }
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testAreIndexedParentChildProperty() {
-    final boolean result = oClass.areIndexed(List.of("fOne, fNine"));
+    final boolean result = oClass.areIndexed(database, List.of("fOne, fNine"));
 
     assertFalse(result);
   }
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testAreIndexedOnePropertyArrayParams() {
-    final boolean result = oClass.areIndexed("fOne");
+    final boolean result = oClass.areIndexed(database, "fOne");
 
     assertTrue(result);
   }
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testAreIndexedDoesNotContainPropertyArrayParams() {
-    final boolean result = oClass.areIndexed("fSix");
+    final boolean result = oClass.areIndexed(database, "fSix");
 
     assertFalse(result);
   }
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testAreIndexedTwoPropertiesArrayParams() {
-    final boolean result = oClass.areIndexed("fTwo", "fOne");
+    final boolean result = oClass.areIndexed(database, "fTwo", "fOne");
 
     assertTrue(result);
   }
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testAreIndexedThreePropertiesArrayParams() {
-    final boolean result = oClass.areIndexed("fTwo", "fOne", "fThree");
+    final boolean result = oClass.areIndexed(database, "fTwo", "fOne", "fThree");
 
     assertTrue(result);
   }
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testAreIndexedPropertiesNotFirstArrayParams() {
-    final boolean result = oClass.areIndexed("fTwo", "fTree");
+    final boolean result = oClass.areIndexed(database, "fTwo", "fTree");
 
     assertFalse(result);
   }
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testAreIndexedPropertiesMoreThanNeededArrayParams() {
-    final boolean result = oClass.areIndexed("fTwo", "fOne", "fThee", "fFour");
+    final boolean result = oClass.areIndexed(database, "fTwo", "fOne", "fThee", "fFour");
 
     assertFalse(result);
   }
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "createParentPropertyIndex",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "createParentPropertyIndex",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testAreIndexedParentPropertyArrayParams() {
-    final boolean result = oClass.areIndexed("fNine");
+    final boolean result = oClass.areIndexed(database, "fNine");
 
     assertTrue(result);
   }
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testAreIndexedParentChildPropertyArrayParams() {
-    final boolean result = oClass.areIndexed("fOne, fNine");
+    final boolean result = oClass.areIndexed(database, "fOne, fNine");
 
     assertFalse(result);
   }
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetClassInvolvedIndexesOnePropertyArrayParams() {
-    final Set<OIndex> result = oClass.getClassInvolvedIndexes("fOne");
+    final Set<OIndex> result = oClass.getClassInvolvedIndexes(database, "fOne");
 
     assertEquals(result.size(), 1);
 
@@ -1174,24 +1180,24 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetClassInvolvedIndexesTwoPropertiesArrayParams() {
-    final Set<OIndex> result = oClass.getClassInvolvedIndexes("fTwo", "fOne");
+    final Set<OIndex> result = oClass.getClassInvolvedIndexes(database, "fTwo", "fOne");
     assertEquals(result.size(), 1);
 
     assertTrue(containsIndex(result, "ClassIndexTestCompositeOne"));
@@ -1199,24 +1205,24 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetClassInvolvedIndexesThreePropertiesArrayParams() {
-    final Set<OIndex> result = oClass.getClassInvolvedIndexes("fTwo", "fOne", "fThree");
+    final Set<OIndex> result = oClass.getClassInvolvedIndexes(database, "fTwo", "fOne", "fThree");
 
     assertEquals(result.size(), 1);
     assertEquals(result.iterator().next().getName(), "ClassIndexTestCompositeTwo");
@@ -1224,97 +1230,98 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetClassInvolvedIndexesNotInvolvedPropertiesArrayParams() {
-    final Set<OIndex> result = oClass.getClassInvolvedIndexes("fTwo", "fFour");
+    final Set<OIndex> result = oClass.getClassInvolvedIndexes(database, "fTwo", "fFour");
 
     assertEquals(result.size(), 0);
   }
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetClassInvolvedIndexesPropertiesMorThanNeededArrayParams() {
-    final Set<OIndex> result = oClass.getClassInvolvedIndexes("fTwo", "fOne", "fThee", "fFour");
+    final Set<OIndex> result = oClass.getClassInvolvedIndexes(database, "fTwo", "fOne", "fThee",
+        "fFour");
 
     assertEquals(result.size(), 0);
   }
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetInvolvedIndexesPropertiesMorThanNeeded() {
     final Set<OIndex> result =
-        oClass.getClassInvolvedIndexes(Arrays.asList("fTwo", "fOne", "fThee", "fFour"));
+        oClass.getClassInvolvedIndexes(database, Arrays.asList("fTwo", "fOne", "fThee", "fFour"));
 
     assertEquals(result.size(), 0);
   }
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetClassInvolvedIndexesOneProperty() {
-    final Set<OIndex> result = oClass.getClassInvolvedIndexes(List.of("fOne"));
+    final Set<OIndex> result = oClass.getClassInvolvedIndexes(database, List.of("fOne"));
 
     assertEquals(result.size(), 1);
 
@@ -1323,24 +1330,25 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetClassInvolvedIndexesTwoProperties() {
-    final Set<OIndex> result = oClass.getClassInvolvedIndexes(Arrays.asList("fTwo", "fOne"));
+    final Set<OIndex> result = oClass.getClassInvolvedIndexes(database,
+        Arrays.asList("fTwo", "fOne"));
     assertEquals(result.size(), 1);
 
     assertTrue(containsIndex(result, "ClassIndexTestCompositeOne"));
@@ -1348,25 +1356,25 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetClassInvolvedIndexesThreeProperties() {
     final Set<OIndex> result =
-        oClass.getClassInvolvedIndexes(Arrays.asList("fTwo", "fOne", "fThree"));
+        oClass.getClassInvolvedIndexes(database, Arrays.asList("fTwo", "fOne", "fThree"));
 
     assertEquals(result.size(), 1);
     assertEquals(result.iterator().next().getName(), "ClassIndexTestCompositeTwo");
@@ -1374,73 +1382,74 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetClassInvolvedIndexesNotInvolvedProperties() {
-    final Set<OIndex> result = oClass.getClassInvolvedIndexes(Arrays.asList("fTwo", "fFour"));
+    final Set<OIndex> result = oClass.getClassInvolvedIndexes(database,
+        Arrays.asList("fTwo", "fFour"));
 
     assertEquals(result.size(), 0);
   }
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetClassInvolvedIndexesPropertiesMorThanNeeded() {
     final Set<OIndex> result =
-        oClass.getClassInvolvedIndexes(Arrays.asList("fTwo", "fOne", "fThee", "fFour"));
+        oClass.getClassInvolvedIndexes(database, Arrays.asList("fTwo", "fOne", "fThee", "fFour"));
 
     assertEquals(result.size(), 0);
   }
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetInvolvedIndexesOnePropertyArrayParams() {
-    final Set<OIndex> result = oClass.getInvolvedIndexes("fOne");
+    final Set<OIndex> result = oClass.getInvolvedIndexes(database, "fOne");
 
     assertEquals(result.size(), 1);
 
@@ -1449,24 +1458,24 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetInvolvedIndexesTwoPropertiesArrayParams() {
-    final Set<OIndex> result = oClass.getInvolvedIndexes("fTwo", "fOne");
+    final Set<OIndex> result = oClass.getInvolvedIndexes(database, "fTwo", "fOne");
     assertEquals(result.size(), 1);
 
     assertTrue(containsIndex(result, "ClassIndexTestCompositeOne"));
@@ -1474,24 +1483,24 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetInvolvedIndexesThreePropertiesArrayParams() {
-    final Set<OIndex> result = oClass.getInvolvedIndexes("fTwo", "fOne", "fThree");
+    final Set<OIndex> result = oClass.getInvolvedIndexes(database, "fTwo", "fOne", "fThree");
 
     assertEquals(result.size(), 1);
     assertEquals(result.iterator().next().getName(), "ClassIndexTestCompositeTwo");
@@ -1499,48 +1508,48 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetInvolvedIndexesNotInvolvedPropertiesArrayParams() {
-    final Set<OIndex> result = oClass.getInvolvedIndexes("fTwo", "fFour");
+    final Set<OIndex> result = oClass.getInvolvedIndexes(database, "fTwo", "fFour");
 
     assertEquals(result.size(), 0);
   }
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetParentInvolvedIndexesArrayParams() {
-    final Set<OIndex> result = oClass.getInvolvedIndexes("fNine");
+    final Set<OIndex> result = oClass.getInvolvedIndexes(database, "fNine");
 
     assertEquals(result.size(), 1);
     assertEquals(result.iterator().next().getName(), "ClassIndexTestParentPropertyNine");
@@ -1548,48 +1557,48 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetParentChildInvolvedIndexesArrayParams() {
-    final Set<OIndex> result = oClass.getInvolvedIndexes("fOne", "fNine");
+    final Set<OIndex> result = oClass.getInvolvedIndexes(database, "fOne", "fNine");
 
     assertEquals(result.size(), 0);
   }
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetInvolvedIndexesOneProperty() {
-    final Set<OIndex> result = oClass.getInvolvedIndexes(List.of("fOne"));
+    final Set<OIndex> result = oClass.getInvolvedIndexes(database, List.of("fOne"));
 
     assertEquals(result.size(), 1);
 
@@ -1598,24 +1607,24 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetInvolvedIndexesTwoProperties() {
-    final Set<OIndex> result = oClass.getInvolvedIndexes(Arrays.asList("fTwo", "fOne"));
+    final Set<OIndex> result = oClass.getInvolvedIndexes(database, Arrays.asList("fTwo", "fOne"));
     assertEquals(result.size(), 1);
 
     assertTrue(containsIndex(result, "ClassIndexTestCompositeOne"));
@@ -1623,24 +1632,25 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetInvolvedIndexesThreeProperties() {
-    final Set<OIndex> result = oClass.getInvolvedIndexes(Arrays.asList("fTwo", "fOne", "fThree"));
+    final Set<OIndex> result = oClass.getInvolvedIndexes(database,
+        Arrays.asList("fTwo", "fOne", "fThree"));
 
     assertEquals(result.size(), 1);
     assertEquals(result.iterator().next().getName(), "ClassIndexTestCompositeTwo");
@@ -1648,48 +1658,48 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetInvolvedIndexesNotInvolvedProperties() {
-    final Set<OIndex> result = oClass.getInvolvedIndexes(Arrays.asList("fTwo", "fFour"));
+    final Set<OIndex> result = oClass.getInvolvedIndexes(database, Arrays.asList("fTwo", "fFour"));
 
     assertEquals(result.size(), 0);
   }
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetParentInvolvedIndexes() {
-    final Set<OIndex> result = oClass.getInvolvedIndexes(List.of("fNine"));
+    final Set<OIndex> result = oClass.getInvolvedIndexes(database, List.of("fNine"));
 
     assertEquals(result.size(), 1);
     assertEquals(result.iterator().next().getName(), "ClassIndexTestParentPropertyNine");
@@ -1697,51 +1707,51 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex"
       })
   public void testGetParentChildInvolvedIndexes() {
-    final Set<OIndex> result = oClass.getInvolvedIndexes(Arrays.asList("fOne", "fNine"));
+    final Set<OIndex> result = oClass.getInvolvedIndexes(database, Arrays.asList("fOne", "fNine"));
 
     assertEquals(result.size(), 0);
   }
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex",
-        "testCreateCompositeLinkListIndex",
-        "testCreateCompositeRidBagIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex",
+          "testCreateCompositeLinkListIndex",
+          "testCreateCompositeRidBagIndex"
       })
   public void testGetClassIndexes() {
-    final Set<OIndex> indexes = oClass.getClassIndexes();
-    final Set<OIndexDefinition> expectedIndexDefinitions = new HashSet<OIndexDefinition>();
+    final Set<OIndex> indexes = oClass.getClassIndexes(database);
+    final Set<OIndexDefinition> expectedIndexDefinitions = new HashSet<>();
 
     final OCompositeIndexDefinition compositeIndexOne =
         new OCompositeIndexDefinition("ClassIndexTestClass");
@@ -1896,28 +1906,28 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest",
-        "createParentPropertyIndex",
-        "testCreateOnePropertyEmbeddedMapIndex",
-        "testCreateOnePropertyByKeyEmbeddedMapIndex",
-        "testCreateOnePropertyByValueEmbeddedMapIndex",
-        "testCreateOnePropertyLinkedMapIndex",
-        "testCreateOnePropertyLinkMapByKeyIndex",
-        "testCreateOnePropertyLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedMapIndex",
-        "testCreateCompositeEmbeddedMapByKeyIndex",
-        "testCreateCompositeEmbeddedMapByValueIndex",
-        "testCreateCompositeLinkMapByValueIndex",
-        "testCreateCompositeEmbeddedSetIndex",
-        "testCreateCompositeEmbeddedListIndex",
-        "testCreateCompositeLinkListIndex",
-        "testCreateCompositeRidBagIndex"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest",
+          "createParentPropertyIndex",
+          "testCreateOnePropertyEmbeddedMapIndex",
+          "testCreateOnePropertyByKeyEmbeddedMapIndex",
+          "testCreateOnePropertyByValueEmbeddedMapIndex",
+          "testCreateOnePropertyLinkedMapIndex",
+          "testCreateOnePropertyLinkMapByKeyIndex",
+          "testCreateOnePropertyLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedMapIndex",
+          "testCreateCompositeEmbeddedMapByKeyIndex",
+          "testCreateCompositeEmbeddedMapByValueIndex",
+          "testCreateCompositeLinkMapByValueIndex",
+          "testCreateCompositeEmbeddedSetIndex",
+          "testCreateCompositeEmbeddedListIndex",
+          "testCreateCompositeLinkListIndex",
+          "testCreateCompositeRidBagIndex"
       })
   public void testGetIndexes() {
-    final Set<OIndex> indexes = oClass.getIndexes();
-    final Set<OIndexDefinition> expectedIndexDefinitions = new HashSet<OIndexDefinition>();
+    final Set<OIndex> indexes = oClass.getIndexes(database);
+    final Set<OIndexDefinition> expectedIndexDefinitions = new HashSet<>();
 
     final OCompositeIndexDefinition compositeIndexOne =
         new OCompositeIndexDefinition("ClassIndexTestClass");
@@ -2077,20 +2087,20 @@ public class ClassIndexTest extends DocumentDBBaseTest {
   @Test
   public void testGetIndexesWithoutParent() {
     final OClass inClass = database.getMetadata().getSchema().createClass("ClassIndexInTest");
-    inClass.createProperty("fOne", OType.INTEGER);
+    inClass.createProperty(database, "fOne", OType.INTEGER);
 
     final OIndex result =
-        inClass.createIndex(
+        inClass.createIndex(database,
             "ClassIndexInTestPropertyOne",
             OClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new ODocument().fields("ignoreNullValues", true),
-            new String[] {"fOne"});
+            new ODocument().fields("ignoreNullValues", true), new String[]{"fOne"});
 
     assertEquals(result.getName(), "ClassIndexInTestPropertyOne");
-    assertEquals(inClass.getClassIndex("ClassIndexInTestPropertyOne").getName(), result.getName());
+    assertEquals(inClass.getClassIndex(database, "ClassIndexInTestPropertyOne").getName(),
+        result.getName());
 
-    final Set<OIndex> indexes = inClass.getIndexes();
+    final Set<OIndex> indexes = inClass.getIndexes(database);
     final OPropertyIndexDefinition propertyIndexDefinition =
         new OPropertyIndexDefinition("ClassIndexInTest", "fOne", OType.INTEGER);
 
@@ -2101,23 +2111,22 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test(expectedExceptions = OIndexException.class)
   public void testCreateIndexEmptyFields() {
-    oClass.createIndex("ClassIndexTestCompositeEmpty", OClass.INDEX_TYPE.UNIQUE);
+    oClass.createIndex(database, "ClassIndexTestCompositeEmpty", OClass.INDEX_TYPE.UNIQUE);
   }
 
   @Test(expectedExceptions = OIndexException.class)
   public void testCreateIndexAbsentFields() {
-    oClass.createIndex(
+    oClass.createIndex(database,
         "ClassIndexTestCompositeFieldAbsent",
         OClass.INDEX_TYPE.UNIQUE.toString(),
         null,
-        new ODocument().fields("ignoreNullValues", true),
-        new String[] {"fFive"});
+        new ODocument().fields("ignoreNullValues", true), new String[]{"fFive"});
   }
 
   @Test
   public void testCreateProxyIndex() {
     try {
-      oClass.createIndex("ClassIndexTestProxyIndex", OClass.INDEX_TYPE.PROXY, "fOne");
+      oClass.createIndex(database, "ClassIndexTestProxyIndex", OClass.INDEX_TYPE.PROXY, "fOne");
       Assert.fail();
     } catch (OIndexException e) {
       Assert.assertTrue(true);
@@ -2127,30 +2136,33 @@ public class ClassIndexTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "testGetInvolvedIndexesOnePropertyArrayParams")
   public void testCreateDictionaryIndex() {
     final OIndex result =
-        oClass.createIndex("ClassIndexTestDictionaryIndex", OClass.INDEX_TYPE.DICTIONARY, "fOne");
+        oClass.createIndex(database, "ClassIndexTestDictionaryIndex", OClass.INDEX_TYPE.DICTIONARY,
+            "fOne");
 
     assertEquals(result.getName(), "ClassIndexTestDictionaryIndex");
-    assertEquals(oClass.getClassIndex("ClassIndexTestDictionaryIndex").getName(), result.getName());
+    assertEquals(oClass.getClassIndex(database, "ClassIndexTestDictionaryIndex").getName(),
+        result.getName());
     assertEquals(result.getType(), OClass.INDEX_TYPE.DICTIONARY.toString());
   }
 
   @Test(dependsOnMethods = "testGetInvolvedIndexesOnePropertyArrayParams")
   public void testCreateNotUniqueIndex() {
     final OIndex result =
-        oClass.createIndex("ClassIndexTestNotUniqueIndex", OClass.INDEX_TYPE.NOTUNIQUE, "fOne");
+        oClass.createIndex(database, "ClassIndexTestNotUniqueIndex", OClass.INDEX_TYPE.NOTUNIQUE,
+            "fOne");
 
     assertEquals(result.getName(), "ClassIndexTestNotUniqueIndex");
-    assertEquals(oClass.getClassIndex("ClassIndexTestNotUniqueIndex").getName(), result.getName());
+    assertEquals(oClass.getClassIndex(database, "ClassIndexTestNotUniqueIndex").getName(),
+        result.getName());
     assertEquals(result.getType(), OClass.INDEX_TYPE.NOTUNIQUE.toString());
   }
 
   @Test
   public void testCreateMapWithoutLinkedType() {
     try {
-      oClass.createIndex(
+      oClass.createIndex(database,
           "ClassIndexMapWithoutLinkedTypeIndex",
-          OClass.INDEX_TYPE.NOTUNIQUE,
-          "fEmbeddedMapWithoutLinkedType by value");
+          OClass.INDEX_TYPE.NOTUNIQUE, "fEmbeddedMapWithoutLinkedType by value");
       fail();
     } catch (OIndexException e) {
       assertTrue(
@@ -2163,16 +2175,16 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   public void createParentPropertyIndex() {
     final OIndex result =
-        oSuperClass.createIndex(
+        oSuperClass.createIndex(database,
             "ClassIndexTestParentPropertyNine",
             OClass.INDEX_TYPE.UNIQUE.toString(),
             null,
-            new ODocument().fields("ignoreNullValues", true),
-            new String[] {"fNine"});
+            new ODocument().fields("ignoreNullValues", true), new String[]{"fNine"});
 
     assertEquals(result.getName(), "ClassIndexTestParentPropertyNine");
     assertEquals(
-        oSuperClass.getClassIndex("ClassIndexTestParentPropertyNine").getName(), result.getName());
+        oSuperClass.getClassIndex(database, "ClassIndexTestParentPropertyNine").getName(),
+        result.getName());
   }
 
   private boolean containsIndex(
@@ -2187,9 +2199,9 @@ public class ClassIndexTest extends DocumentDBBaseTest {
 
   @Test
   public void testDropProperty() throws Exception {
-    oClass.createProperty("fFive", OType.INTEGER);
+    oClass.createProperty(database, "fFive", OType.INTEGER);
 
-    oClass.dropProperty("fFive");
+    oClass.dropProperty(database, "fFive");
 
     assertNull(oClass.getProperty("fFive"));
   }

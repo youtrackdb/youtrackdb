@@ -5,7 +5,7 @@ import com.orientechnologies.orient.server.distributed.ODistributedServerManager
 import java.io.IOException;
 
 /**
- * Created by tglman on 14/08/17.
+ *
  */
 public interface OServerAware {
 

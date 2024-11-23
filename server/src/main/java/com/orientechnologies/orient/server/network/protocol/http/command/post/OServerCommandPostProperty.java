@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
@@ -83,41 +83,40 @@ public class OServerCommandPostProperty extends OServerCommandAuthenticatedDbAbs
       case LINKLIST:
       case LINKMAP:
       case LINKSET:
-      case LINK:
-        {
-          /* try link as OType */
-          OType linkType = null;
-          OClass linkClass = null;
-          if (urlParts.length >= 6) {
-            try {
-              linkType = OType.valueOf(urlParts[5]);
-            } catch (IllegalArgumentException ex) {
-            }
-
-            if (linkType == null) {
-              linkClass = db.getMetadata().getSchema().getClass(urlParts[5]);
-              if (linkClass == null) {
-                throw new IllegalArgumentException(
-                    "linked type declared as "
-                        + urlParts[5]
-                        + " can be either a Type or a Class, use the JSON document usage instead."
-                        + " See 'http://code.google.com/p/orient/w/edit/OrientDB_REST'");
-              }
-            }
+      case LINK: {
+        /* try link as OType */
+        OType linkType = null;
+        OClass linkClass = null;
+        if (urlParts.length >= 6) {
+          try {
+            linkType = OType.valueOf(urlParts[5]);
+          } catch (IllegalArgumentException ex) {
           }
 
-          if (linkType != null) {
-            final OProperty prop = cls.createProperty(propertyName, propertyType, linkType);
-          } else if (linkClass != null) {
-            final OProperty prop = cls.createProperty(propertyName, propertyType, linkClass);
-          } else {
-            final OProperty prop = cls.createProperty(propertyName, propertyType);
+          if (linkType == null) {
+            linkClass = db.getMetadata().getSchema().getClass(urlParts[5]);
+            if (linkClass == null) {
+              throw new IllegalArgumentException(
+                  "linked type declared as "
+                      + urlParts[5]
+                      + " can be either a Type or a Class, use the JSON document usage instead."
+                      + " See 'http://code.google.com/p/orient/w/edit/OrientDB_REST'");
+            }
           }
-          break;
         }
 
+        if (linkType != null) {
+          final OProperty prop = cls.createProperty(db, propertyName, propertyType, linkType);
+        } else if (linkClass != null) {
+          final OProperty prop = cls.createProperty(db, propertyName, propertyType, linkClass);
+        } else {
+          final OProperty prop = cls.createProperty(db, propertyName, propertyType);
+        }
+        break;
+      }
+
       default:
-        final OProperty prop = cls.createProperty(propertyName, propertyType);
+        final OProperty prop = cls.createProperty(db, propertyName, propertyType);
         break;
     }
 
@@ -125,7 +124,7 @@ public class OServerCommandPostProperty extends OServerCommandAuthenticatedDbAbs
         OHttpUtils.STATUS_CREATED_CODE,
         OHttpUtils.STATUS_CREATED_DESCRIPTION,
         OHttpUtils.CONTENT_TEXT_PLAIN,
-        cls.properties().size(),
+        cls.properties(db).size(),
         null);
 
     return false;
@@ -147,7 +146,8 @@ public class OServerCommandPostProperty extends OServerCommandAuthenticatedDbAbs
 
     final OClass cls = db.getMetadata().getSchema().getClass(urlParts[2]);
 
-    final ODocument propertiesDoc = new ODocument().fromJSON(iRequest.getContent());
+    final ODocument propertiesDoc = new ODocument();
+    propertiesDoc.fromJSON(iRequest.getContent());
 
     for (String propertyName : propertiesDoc.fieldNames()) {
       final Map<String, String> doc = propertiesDoc.field(propertyName);
@@ -155,47 +155,45 @@ public class OServerCommandPostProperty extends OServerCommandAuthenticatedDbAbs
       switch (propertyType) {
         case LINKLIST:
         case LINKMAP:
-        case LINKSET:
-          {
-            final String linkType = doc.get(LINKED_TYPE_JSON_FIELD);
-            final String linkClass = doc.get(LINKED_CLASS_JSON_FIELD);
-            if (linkType != null) {
-              final OProperty prop =
-                  cls.createProperty(propertyName, propertyType, OType.valueOf(linkType));
-            } else if (linkClass != null) {
-              final OProperty prop =
-                  cls.createProperty(
-                      propertyName, propertyType, db.getMetadata().getSchema().getClass(linkClass));
-            } else {
-              throw new IllegalArgumentException(
-                  "property named "
-                      + propertyName
-                      + " is declared as "
-                      + propertyType
-                      + " but linked type is not declared");
-            }
-            break;
+        case LINKSET: {
+          final String linkType = doc.get(LINKED_TYPE_JSON_FIELD);
+          final String linkClass = doc.get(LINKED_CLASS_JSON_FIELD);
+          if (linkType != null) {
+            final OProperty prop =
+                cls.createProperty(db, propertyName, propertyType, OType.valueOf(linkType));
+          } else if (linkClass != null) {
+            final OProperty prop =
+                cls.createProperty(db,
+                    propertyName, propertyType, db.getMetadata().getSchema().getClass(linkClass));
+          } else {
+            throw new IllegalArgumentException(
+                "property named "
+                    + propertyName
+                    + " is declared as "
+                    + propertyType
+                    + " but linked type is not declared");
           }
-        case LINK:
-          {
-            final String linkClass = doc.get(LINKED_CLASS_JSON_FIELD);
-            if (linkClass != null) {
-              final OProperty prop =
-                  cls.createProperty(
-                      propertyName, propertyType, db.getMetadata().getSchema().getClass(linkClass));
-            } else {
-              throw new IllegalArgumentException(
-                  "property named "
-                      + propertyName
-                      + " is declared as "
-                      + propertyType
-                      + " but linked Class is not declared");
-            }
-            break;
+          break;
+        }
+        case LINK: {
+          final String linkClass = doc.get(LINKED_CLASS_JSON_FIELD);
+          if (linkClass != null) {
+            final OProperty prop =
+                cls.createProperty(db,
+                    propertyName, propertyType, db.getMetadata().getSchema().getClass(linkClass));
+          } else {
+            throw new IllegalArgumentException(
+                "property named "
+                    + propertyName
+                    + " is declared as "
+                    + propertyType
+                    + " but linked Class is not declared");
           }
+          break;
+        }
 
         default:
-          final OProperty prop = cls.createProperty(propertyName, propertyType);
+          final OProperty prop = cls.createProperty(db, propertyName, propertyType);
           break;
       }
     }
@@ -204,7 +202,7 @@ public class OServerCommandPostProperty extends OServerCommandAuthenticatedDbAbs
         OHttpUtils.STATUS_CREATED_CODE,
         OHttpUtils.STATUS_CREATED_DESCRIPTION,
         OHttpUtils.CONTENT_TEXT_PLAIN,
-        cls.properties().size(),
+        cls.properties(db).size(),
         null);
 
     return false;

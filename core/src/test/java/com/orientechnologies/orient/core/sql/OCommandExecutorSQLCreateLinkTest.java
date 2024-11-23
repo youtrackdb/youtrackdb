@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2015 OrientDB LTD (info(at)orientdb.com)
+ *  *  Copyright 2015 OxygenDB LTD (info(at)orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql;
@@ -32,10 +32,10 @@ public class OCommandExecutorSQLCreateLinkTest extends BaseMemoryDatabase {
   @Test
   public void testBasic() {
     var basic1 = db.getMetadata().getSchema().createClass("Basic1");
-    basic1.createProperty("theLink", OType.LINK);
+    basic1.createProperty(db, "theLink", OType.LINK);
 
     var basic2 = db.getMetadata().getSchema().createClass("Basic2");
-    basic2.createProperty("theLink", OType.LINK);
+    basic2.createProperty(db, "theLink", OType.LINK);
 
     db.begin();
     db.command("insert into Basic1 set pk = 'pkb1_1', fk = 'pkb2_1'").close();
@@ -61,10 +61,10 @@ public class OCommandExecutorSQLCreateLinkTest extends BaseMemoryDatabase {
   @Test
   public void testInverse() {
     var inverse1 = db.getMetadata().getSchema().createClass("Inverse1");
-    inverse1.createProperty("theLink", OType.LINK);
+    inverse1.createProperty(db, "theLink", OType.LINK);
 
     var inverse2 = db.getMetadata().getSchema().createClass("Inverse2");
-    inverse2.createProperty("theLink", OType.LINKSET);
+    inverse2.createProperty(db, "theLink", OType.LINKSET);
 
     db.begin();
     db.command("insert into Inverse1 set pk = 'pkb1_1', fk = 'pkb2_1'").close();

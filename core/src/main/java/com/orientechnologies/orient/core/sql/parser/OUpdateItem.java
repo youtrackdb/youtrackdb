@@ -289,14 +289,14 @@ public class OUpdateItem extends SimpleNode {
         if (type == OType.EMBEDDEDLIST && linkedClass != null) {
           return ((Collection) value)
               .stream()
-                  .map(item -> convertToType(item, linkedClass, ctx))
-                  .collect(Collectors.toList());
+              .map(item -> convertToType(item, linkedClass, ctx))
+              .collect(Collectors.toList());
 
         } else if (type == OType.EMBEDDEDSET && linkedClass != null) {
           return ((Collection) value)
               .stream()
-                  .map(item -> convertToType(item, linkedClass, ctx))
-                  .collect(Collectors.toSet());
+              .map(item -> convertToType(item, linkedClass, ctx))
+              .collect(Collectors.toSet());
         }
       }
     }

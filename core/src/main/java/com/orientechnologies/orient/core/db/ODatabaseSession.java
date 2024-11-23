@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.db;
@@ -44,8 +44,11 @@ import com.orientechnologies.orient.core.record.impl.OEdgeInternal;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -78,18 +81,6 @@ public interface ODatabaseSession extends AutoCloseable {
   }
 
   /**
-   * Returns the active session for the current thread.
-   *
-   * @return the active session for the current thread
-   * @see #activateOnCurrentThread()
-   * @see #isActiveOnCurrentThread()
-   */
-  static ODatabaseSession getActiveSession() {
-    final ODatabaseRecordThreadLocal tl = ODatabaseRecordThreadLocal.instance();
-    return tl.get();
-  }
-
-  /**
    * Executes the passed in code in a transaction. Starts a transaction if not already started, in
    * this case the transaction is committed after the code is executed or rolled back if an
    * exception is thrown.
@@ -97,6 +88,81 @@ public interface ODatabaseSession extends AutoCloseable {
    * @param runnable Code to execute in transaction
    */
   void executeInTx(Runnable runnable);
+
+  /**
+   * Splits data provided by iterator in batches and execute every batch in separate transaction.
+   * Currently, OxygenDB accumulates all changes in single batch in memory and then commits them to
+   * the storage, that causes OutOfMemoryError in case of large data sets. This method allows to
+   * avoid described problems.
+   *
+   * @param <T>       Type of data
+   * @param iterator  Data to process
+   * @param batchSize Size of batch
+   * @param consumer  Consumer to process data
+   */
+  <T> void executeInTxBatches(
+      Iterator<T> iterator, int batchSize, BiConsumer<ODatabaseSession, T> consumer);
+
+  /**
+   * Splits data by batches, size of each batch is specified by parameter
+   * {@link com.orientechnologies.orient.core.config.OGlobalConfiguration#TX_BATCH_SIZE}.
+   *
+   * @param iterator Data to process
+   * @param consumer Consumer to process data
+   * @param <T>      Type of data
+   * @see #executeInTxBatches(Iterator, int, BiConsumer)
+   */
+  <T> void executeInTxBatches(Iterator<T> iterator, BiConsumer<ODatabaseSession, T> consumer);
+
+  /**
+   * Splits data provided by iterator in batches and execute every batch in separate transaction.
+   * Currently, OxygenDB accumulates all changes in single batch in memory and then commits them to
+   * the storage, that causes OutOfMemoryError in case of large data sets. This method allows to
+   * avoid described problems.
+   *
+   * @param <T>       Type of data
+   * @param iterable  Data to process
+   * @param batchSize Size of batch
+   * @param consumer  Consumer to process data
+   */
+  <T> void executeInTxBatches(
+      Iterable<T> iterable, int batchSize, BiConsumer<ODatabaseSession, T> consumer);
+
+  /**
+   * Splits data by batches, size of each batch is specified by parameter
+   * {@link com.orientechnologies.orient.core.config.OGlobalConfiguration#TX_BATCH_SIZE}.
+   *
+   * @param iterable Data to process
+   * @param consumer Consumer to process data
+   * @param <T>      Type of data
+   * @see #executeInTxBatches(Iterable, BiConsumer)
+   */
+  <T> void executeInTxBatches(Iterable<T> iterable, BiConsumer<ODatabaseSession, T> consumer);
+
+  /**
+   * Splits data provided by stream in batches and execute every batch in separate transaction.
+   * Currently, OxygenDB accumulates all changes in single batch in memory and then commits them to
+   * the storage, that causes OutOfMemoryError in case of large data sets. This method allows to
+   * avoid described problems.
+   *
+   * @param <T>       Type of data
+   * @param stream    Data to process
+   * @param batchSize Size of batch
+   * @param consumer  Consumer to process data
+   */
+  <T> void executeInTxBatches(
+      Stream<T> stream, int batchSize, BiConsumer<ODatabaseSession, T> consumer);
+
+  /**
+   * Splits data by batches, size of each batch is specified by parameter
+   * {@link com.orientechnologies.orient.core.config.OGlobalConfiguration#TX_BATCH_SIZE}.
+   *
+   * @param stream   Data to process
+   * @param consumer Consumer to process data
+   * @param <T>      Type of data
+   * @see #executeInTxBatches(Stream, int, BiConsumer)
+   */
+  <T> void executeInTxBatches(Stream<T> stream, BiConsumer<ODatabaseSession, T> consumer);
 
   /**
    * Executes the given code in a transaction. Starts a transaction if not already started, in this
@@ -113,11 +179,26 @@ public interface ODatabaseSession extends AutoCloseable {
    * Binds current record to the session. It is mandatory to call this method in case you use
    * records that are not created or loaded by the session. Method returns bounded instance of given
    * record, usage of passed in instance is prohibited.
+   * <p>
+   * Method throws {@link ORecordNotFoundException} if record does not exist in database or if
+   * record rid is temporary. To avoid the last exception use {@link OIdentifiable#getIdentity()}
+   * and {@link ORID#isPersistent()} checks before calling this method.
+   * <p/>
+   * You can verify if record already bound to the session by calling
+   * {@link ORecord#isNotBound(ODatabaseSession)} method.
+   * <p/>
+   * Records with temporary RIDs are not allowed to be bound to the session and can be accepted from
+   * the outside of the transaction boundaries.
    *
-   * @param identifiable Record to bind to the session, passed in instance is <b>prohibited</b> for
-   *                     further usage.
+   * @param identifiable Record or rid to bind to the session, passed in instance is
+   *                     <b>prohibited</b> for further usage.
    * @param <T>          Type of record.
    * @return Bounded instance of given record.
+   * @throws ORecordNotFoundException if record does not exist in database
+   * @throws ODatabaseException       if the record rid is temporary
+   * @see ORecord#isNotBound(ODatabaseSession)
+   * @see OIdentifiable#getIdentity()
+   * @see ORID#isPersistent()
    */
   <T extends OIdentifiable> T bindToSession(T identifiable);
 
@@ -324,8 +405,8 @@ public interface ODatabaseSession extends AutoCloseable {
   default OClass createEdgeClass(String className) {
     var edgeClass = createClass(className, "E");
 
-    edgeClass.createProperty(OEdge.DIRECTION_IN, OType.LINK);
-    edgeClass.createProperty(OEdge.DIRECTION_OUT, OType.LINK);
+    edgeClass.createProperty(this, OEdge.DIRECTION_IN, OType.LINK);
+    edgeClass.createProperty(this, OEdge.DIRECTION_OUT, OType.LINK);
 
     return edgeClass;
   }
@@ -717,7 +798,7 @@ public interface ODatabaseSession extends AutoCloseable {
    *
    * @param query the query string
    * @param args  query parameters (named)
-   * @return
+   * @return the query result set
    */
   default OResultSet query(String query, Map args)
       throws OCommandSQLParsingException, OCommandExecutionException {
@@ -735,7 +816,7 @@ public interface ODatabaseSession extends AutoCloseable {
    *
    * @param query
    * @param args  query arguments
-   * @return
+   * @return the query result set
    */
   default OResultSet command(String query, Object... args)
       throws OCommandSQLParsingException, OCommandExecutionException {

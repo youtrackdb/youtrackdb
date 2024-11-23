@@ -16,8 +16,6 @@ import java.util.Map;
 /**
  * This class is an LRU cache for already prepared SQL execution plans. It stores itself in the
  * storage as a resource. It also acts an an entry point for the SQL executor.
- *
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class OExecutionPlanCache implements OMetadataUpdateListener {
 
@@ -33,7 +31,7 @@ public class OExecutionPlanCache implements OMetadataUpdateListener {
   public OExecutionPlanCache(int size) {
     this.mapSize = size;
     map =
-        new LinkedHashMap<String, OInternalExecutionPlan>(size) {
+        new LinkedHashMap<>(size) {
           protected boolean removeEldestEntry(
               final Map.Entry<String, OInternalExecutionPlan> eldest) {
             return super.size() > mapSize;
@@ -169,22 +167,24 @@ public class OExecutionPlanCache implements OMetadataUpdateListener {
   }
 
   @Override
-  public void onSchemaUpdate(String database, OSchemaShared schema) {
+  public void onSchemaUpdate(ODatabaseSessionInternal session, String database,
+      OSchemaShared schema) {
     invalidate();
   }
 
   @Override
-  public void onIndexManagerUpdate(String database, OIndexManagerAbstract indexManager) {
+  public void onIndexManagerUpdate(ODatabaseSessionInternal session, String database,
+      OIndexManagerAbstract indexManager) {
     invalidate();
   }
 
   @Override
-  public void onFunctionLibraryUpdate(String database) {
+  public void onFunctionLibraryUpdate(ODatabaseSessionInternal session, String database) {
     invalidate();
   }
 
   @Override
-  public void onSequenceLibraryUpdate(String database) {
+  public void onSequenceLibraryUpdate(ODatabaseSessionInternal session, String database) {
     invalidate();
   }
 

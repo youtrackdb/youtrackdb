@@ -13,7 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Created by luigidellaquila on 21/07/16.
+ *
  */
 public class FetchFromClustersExecutionStep extends AbstractExecutionStep {
 
@@ -90,7 +90,8 @@ public class FetchFromClustersExecutionStep extends AbstractExecutionStep {
           }
 
           @Override
-          public void close(OCommandContext ctx) {}
+          public void close(OCommandContext ctx) {
+          }
         };
 
     return new OMultipleExecutionStream(res);

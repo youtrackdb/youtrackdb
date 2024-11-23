@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.highlight.TextFragment;
 
 /**
- * Created by Enrico Risa on 08/01/15.
+ *
  */
 public class OLuceneQueryContext {
 
@@ -65,7 +65,7 @@ public class OLuceneQueryContext {
     if (sortFields.isEmpty()) {
       sort = null;
     } else {
-      sort = new Sort(sortFields.toArray(new SortField[] {}));
+      sort = new Sort(sortFields.toArray(new SortField[]{}));
     }
     changes = Optional.empty();
     fragments = new HashMap<>();

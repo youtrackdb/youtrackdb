@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.metadata.schema;
@@ -41,7 +41,6 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 10/21/14
  */
 public class OImmutableSchema implements OSchema {
@@ -67,7 +66,7 @@ public class OImmutableSchema implements OSchema {
     classes = new HashMap<>(schemaShared.getClasses(database).size());
 
     for (OClass oClass : schemaShared.getClasses(database)) {
-      final OImmutableClass immutableClass = new OImmutableClass(oClass, this);
+      final OImmutableClass immutableClass = new OImmutableClass(database, oClass, this);
 
       classes.put(immutableClass.getName().toLowerCase(Locale.ENGLISH), immutableClass);
       if (immutableClass.getShortName() != null) {
@@ -93,7 +92,7 @@ public class OImmutableSchema implements OSchema {
     views = new HashMap<String, OView>(schemaShared.getViews(database).size());
 
     for (OView oClass : schemaShared.getViews(database)) {
-      final OImmutableView immutableClass = new OImmutableView(oClass, this);
+      final OImmutableView immutableClass = new OImmutableView(database, oClass, this);
 
       views.put(immutableClass.getName().toLowerCase(Locale.ENGLISH), immutableClass);
       if (immutableClass.getShortName() != null) {

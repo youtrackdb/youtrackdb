@@ -69,8 +69,6 @@ import java.util.Set;
 
 /**
  * Default method factory.
- *
- * @author Johann Sorel (Geomatys)
  */
 public class ODefaultSQLMethodFactory implements OSQLMethodFactory {
 

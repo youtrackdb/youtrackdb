@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.List;
 
 /**
- * Created by luigidellaquila on 28/06/17.
+ *
  */
 public class DistributedQueryContext {
 

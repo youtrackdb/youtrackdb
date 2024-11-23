@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.functions.coll;
@@ -22,6 +22,7 @@ package com.orientechnologies.orient.core.sql.functions.coll;
 import com.orientechnologies.common.collection.OMultiCollectionIterator;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemVariable;
 import java.util.ArrayList;
@@ -33,8 +34,6 @@ import java.util.List;
  * This operator can work as aggregate or inline. If only one argument is passed than aggregates,
  * otherwise executes, and returns, a UNION of the collections received as parameters. Works also
  * with no collection values. Does not remove duplication from the result.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionUnionAll extends OSQLFunctionMultiValueAbstract<Collection<Object>> {
 
@@ -87,7 +86,7 @@ public class OSQLFunctionUnionAll extends OSQLFunctionMultiValueAbstract<Collect
     }
   }
 
-  public String getSyntax() {
+  public String getSyntax(ODatabaseSession session) {
     return "unionAll(<field>*)";
   }
 
@@ -95,8 +94,7 @@ public class OSQLFunctionUnionAll extends OSQLFunctionMultiValueAbstract<Collect
   public Object mergeDistributedResult(List<Object> resultsToMerge) {
     final Collection<Object> result = new HashSet<Object>();
     for (Object iParameter : resultsToMerge) {
-      @SuppressWarnings("unchecked")
-      final Collection<Object> items = (Collection<Object>) iParameter;
+      @SuppressWarnings("unchecked") final Collection<Object> items = (Collection<Object>) iParameter;
       if (items != null) {
         result.addAll(items);
       }

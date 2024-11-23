@@ -5,8 +5,8 @@ import static org.junit.Assert.fail;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -18,30 +18,30 @@ public class TestImmutableIndexLoad {
 
   @Test
   public void testLoadAndUseIndexOnOpen() {
-    OrientDB orientDB =
+    OxygenDB oxygenDB =
         OCreateDatabaseUtil.createDatabase(
             TestImmutableIndexLoad.class.getSimpleName(),
             "embedded:./target/",
             OCreateDatabaseUtil.TYPE_PLOCAL);
     ODatabaseSession db =
-        orientDB.open(
+        oxygenDB.open(
             TestImmutableIndexLoad.class.getSimpleName(),
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     OClass one = db.createClass("One");
-    OProperty property = one.createProperty("one", OType.STRING);
-    property.createIndex(OClass.INDEX_TYPE.UNIQUE);
+    OProperty property = one.createProperty(db, "one", OType.STRING);
+    property.createIndex(db, OClass.INDEX_TYPE.UNIQUE);
     db.close();
-    orientDB.close();
+    oxygenDB.close();
 
-    orientDB =
-        new OrientDB(
+    oxygenDB =
+        new OxygenDB(
             "embedded:./target/",
-            OrientDBConfig.builder()
+            OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     db =
-        orientDB.open(
+        oxygenDB.open(
             TestImmutableIndexLoad.class.getSimpleName(),
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -61,7 +61,7 @@ public class TestImmutableIndexLoad {
       // EXPEXTED
     }
     db.close();
-    orientDB.drop(TestImmutableIndexLoad.class.getSimpleName());
-    orientDB.close();
+    oxygenDB.drop(TestImmutableIndexLoad.class.getSimpleName());
+    oxygenDB.close();
   }
 }

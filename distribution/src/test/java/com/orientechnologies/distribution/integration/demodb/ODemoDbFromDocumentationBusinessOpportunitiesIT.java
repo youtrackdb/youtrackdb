@@ -11,7 +11,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 /**
- * Created by santo-it on 2017-08-28.
+ *
  */
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class ODemoDbFromDocumentationBusinessOpportunitiesIT extends OIntegrationTestTemplate {
@@ -42,7 +42,7 @@ public class ODemoDbFromDocumentationBusinessOpportunitiesIT extends OIntegratio
     final OResult result = results.iterator().next();
 
     Assert.assertEquals(result.getProperty("Friend_Name"), "Emanuele");
-    Assert.assertEquals(result.getProperty("Friend_Surname"), "OrientDB");
+    Assert.assertEquals(result.getProperty("Friend_Surname"), "OxygenDB");
 
     resultSet.close();
   }

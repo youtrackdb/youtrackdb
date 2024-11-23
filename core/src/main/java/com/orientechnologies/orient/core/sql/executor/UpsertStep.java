@@ -14,7 +14,7 @@ import com.orientechnologies.orient.core.sql.parser.OWhereClause;
 import java.util.List;
 
 /**
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ *
  */
 public class UpsertStep extends AbstractExecutionStep {
 

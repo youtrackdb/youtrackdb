@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,24 +14,24 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.listener.OProgressListener;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 
 /**
  * Progress listener with no output.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ONullOutputListener implements OProgressListener {
 
   public static final ONullOutputListener INSTANCE = new ONullOutputListener();
 
   @Override
-  public void onBegin(Object iTask, long iTotal, Object metadata) {}
+  public void onBegin(Object iTask, long iTotal, Object metadata) {
+  }
 
   @Override
   public boolean onProgress(Object iTask, long iCounter, float iPercent) {
@@ -39,5 +39,6 @@ public class ONullOutputListener implements OProgressListener {
   }
 
   @Override
-  public void onCompletition(Object iTask, boolean iSucceed) {}
+  public void onCompletition(ODatabaseSessionInternal session, Object iTask, boolean iSucceed) {
+  }
 }

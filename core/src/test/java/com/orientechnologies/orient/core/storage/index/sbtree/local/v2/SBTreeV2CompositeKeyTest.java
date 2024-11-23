@@ -23,7 +23,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 15.08.13
  */
 public class SBTreeV2CompositeKeyTest extends BaseMemoryDatabase {

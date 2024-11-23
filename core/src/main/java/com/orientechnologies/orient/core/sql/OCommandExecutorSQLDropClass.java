@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql;
@@ -24,6 +24,7 @@ import com.orientechnologies.orient.core.command.OCommandDistributedReplicateReq
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.sql.parser.ODropClassStatement;
@@ -32,8 +33,6 @@ import java.util.Map;
 /**
  * SQL DROP CLASS command: Drops a class from the database. Cluster associated are removed too if
  * are used exclusively by the deleting class.
- *
- * @author Luca Garulli
  */
 @SuppressWarnings("unchecked")
 public class OCommandExecutorSQLDropClass extends OCommandExecutorSQLAbstract
@@ -112,9 +111,9 @@ public class OCommandExecutorSQLDropClass extends OCommandExecutorSQLAbstract
     final OClass cls = getDatabase().getMetadata().getSchema().getClass(className);
     if (className != null && cls != null) {
       return getDatabase()
-              .getConfiguration()
-              .getValueAsLong(OGlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT)
-          + (2 * cls.count());
+          .getConfiguration()
+          .getValueAsLong(OGlobalConfiguration.DISTRIBUTED_COMMAND_QUICK_TASK_SYNCH_TIMEOUT)
+          + (2 * cls.count(getDatabase()));
     }
 
     return getDatabase()
@@ -125,7 +124,7 @@ public class OCommandExecutorSQLDropClass extends OCommandExecutorSQLAbstract
   /**
    * Execute the DROP CLASS.
    */
-  public Object execute(final Map<Object, Object> iArgs) {
+  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
     if (className == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
@@ -140,7 +139,7 @@ public class OCommandExecutorSQLDropClass extends OCommandExecutorSQLAbstract
       return null;
     }
 
-    final long records = cls.count(true);
+    final long records = cls.count(database, true);
 
     if (records > 0 && !unsafe) {
       // NOT EMPTY, CHECK IF CLASS IS OF VERTEX OR EDGES

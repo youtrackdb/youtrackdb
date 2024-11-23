@@ -14,8 +14,6 @@ import org.junit.Test;
 
 /**
  * Tests HTTP "database" command.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com) (l.garulli--at-orientdb.com)
  */
 public class HttpDatabaseTest extends BaseHttpTest {
 

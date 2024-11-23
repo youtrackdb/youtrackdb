@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.operator;
@@ -22,6 +22,7 @@ package com.orientechnologies.orient.core.sql.operator;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OCompositeIndexDefinition;
@@ -41,8 +42,6 @@ import java.util.stream.Stream;
 
 /**
  * BETWEEN operator.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OQueryOperatorBetween extends OQueryOperatorEqualityNotNulls {
 
@@ -81,15 +80,16 @@ public class OQueryOperatorBetween extends OQueryOperatorEqualityNotNulls {
 
     final Iterator<?> valueIterator = OMultiValue.getMultiValueIterator(right);
 
+    var database = iContext.getDatabase();
     Object right1 = valueIterator.next();
     valueIterator.next();
     Object right2 = valueIterator.next();
-    final Object right1c = OType.convert(right1, left.getClass());
+    final Object right1c = OType.convert(database, right1, left.getClass());
     if (right1c == null) {
       return false;
     }
 
-    final Object right2c = OType.convert(right2, left.getClass());
+    final Object right2c = OType.convert(database, right2, left.getClass());
     if (right2c == null) {
       return false;
     }
@@ -164,7 +164,8 @@ public class OQueryOperatorBetween extends OQueryOperatorEqualityNotNulls {
       stream =
           index
               .getInternal()
-              .streamEntriesBetween(keyOne, leftInclusive, keyTwo, rightInclusive, ascSortOrder);
+              .streamEntriesBetween(database, keyOne, leftInclusive, keyTwo, rightInclusive,
+                  ascSortOrder);
     } else {
       final OCompositeIndexDefinition compositeIndexDefinition =
           (OCompositeIndexDefinition) indexDefinition;
@@ -208,7 +209,8 @@ public class OQueryOperatorBetween extends OQueryOperatorEqualityNotNulls {
       stream =
           index
               .getInternal()
-              .streamEntriesBetween(keyOne, leftInclusive, keyTwo, rightInclusive, ascSortOrder);
+              .streamEntriesBetween(database, keyOne, leftInclusive, keyTwo, rightInclusive,
+                  ascSortOrder);
     }
 
     updateProfiler(iContext, index, keyParams, indexDefinition);
@@ -216,11 +218,11 @@ public class OQueryOperatorBetween extends OQueryOperatorEqualityNotNulls {
   }
 
   @Override
-  public ORID getBeginRidRange(final Object iLeft, final Object iRight) {
+  public ORID getBeginRidRange(ODatabaseSession session, final Object iLeft, final Object iRight) {
     validate(iRight);
 
     if (iLeft instanceof OSQLFilterItemField
-        && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iLeft).getRoot())) {
+        && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iLeft).getRoot(session))) {
       final Iterator<?> valueIterator = OMultiValue.getMultiValueIterator(iRight);
 
       final Object right1 = valueIterator.next();
@@ -237,13 +239,13 @@ public class OQueryOperatorBetween extends OQueryOperatorEqualityNotNulls {
   }
 
   @Override
-  public ORID getEndRidRange(final Object iLeft, final Object iRight) {
+  public ORID getEndRidRange(ODatabaseSession session, final Object iLeft, final Object iRight) {
     validate(iRight);
 
     validate(iRight);
 
     if (iLeft instanceof OSQLFilterItemField
-        && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iLeft).getRoot())) {
+        && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iLeft).getRoot(session))) {
       final Iterator<?> valueIterator = OMultiValue.getMultiValueIterator(iRight);
 
       final Object right1 = valueIterator.next();

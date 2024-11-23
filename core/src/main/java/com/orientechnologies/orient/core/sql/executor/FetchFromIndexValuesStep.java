@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.orient.core.command.OCommandContext;
 
 /**
- * Created by luigidellaquila on 02/08/16.
+ *
  */
 public class FetchFromIndexValuesStep extends FetchFromIndexStep {
 

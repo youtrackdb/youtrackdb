@@ -9,7 +9,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.junit.Test;
 
 /**
- * Created by tglman on 01/06/16.
+ *
  */
 public class HookSaveTest extends BaseMemoryDatabase {
 
@@ -18,7 +18,8 @@ public class HookSaveTest extends BaseMemoryDatabase {
     db.registerHook(
         new ORecordHook() {
           @Override
-          public void onUnregister() {}
+          public void onUnregister() {
+          }
 
           @Override
           public RESULT onTrigger(TYPE iType, ORecord iRecord) {
@@ -56,7 +57,8 @@ public class HookSaveTest extends BaseMemoryDatabase {
     db.registerHook(
         new ORecordHook() {
           @Override
-          public void onUnregister() {}
+          public void onUnregister() {
+          }
 
           @Override
           public RESULT onTrigger(TYPE iType, ORecord iRecord) {

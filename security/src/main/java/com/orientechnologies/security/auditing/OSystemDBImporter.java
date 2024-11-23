@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,14 +9,14 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://www.orientdb.com
+ * <p>*
  */
 package com.orientechnologies.security.auditing;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDBInternal;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -33,15 +31,15 @@ public class OSystemDBImporter extends Thread {
   private final String auditingClass = "AuditingLog";
   private int limit = 1000; // How many records to import during each iteration.
   private int sleepPeriod = 1000; // How long to sleep (in ms) after importing 'limit' records.
-  private final OrientDBInternal context;
+  private final OxygenDBInternal context;
   private boolean isRunning = true;
 
   public boolean isEnabled() {
     return enabled;
   }
 
-  public OSystemDBImporter(final OrientDBInternal context, final ODocument jsonConfig) {
-    super(Orient.instance().getThreadGroup(), "OrientDB Auditing Log Importer Thread");
+  public OSystemDBImporter(final OxygenDBInternal context, final ODocument jsonConfig) {
+    super(Oxygen.instance().getThreadGroup(), "OxygenDB Auditing Log Importer Thread");
 
     this.context = context;
 

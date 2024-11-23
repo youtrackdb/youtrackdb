@@ -6,6 +6,7 @@ import com.orientechnologies.lucene.exception.OLuceneIndexException;
 import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.OEmptyRecordId;
 import com.orientechnologies.orient.core.id.ORID;
@@ -43,7 +44,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 
 /**
- * Created by frank on 15/01/2017.
+ *
  */
 public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
     implements OIndexableSQLFunction {
@@ -55,7 +56,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
   }
 
   @Override
-  public String getName() {
+  public String getName(ODatabaseSession session) {
     return OLuceneSearchMoreLikeThisFunction.NAME;
   }
 
@@ -71,7 +72,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
   }
 
   @Override
-  public String getSyntax() {
+  public String getSyntax(ODatabaseSession session) {
     return "SEARCH_MORE( [rids], [ metdatada {} ] )";
   }
 
@@ -124,7 +125,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
     try (Stream<ORID> rids =
         index
             .getInternal()
-            .getRids(
+            .getRids(ctx.getDatabase(),
                 new OLuceneKeyAndMetadata(
                     new OLuceneCompositeKey(Collections.singletonList(mltQuery.toString()))
                         .setContext(ctx),
@@ -193,7 +194,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
     mlt.setFieldNames(
         Optional.ofNullable(metadata.<List<String>>getProperty("fieldNames"))
             .orElse(index.getDefinition().getFields())
-            .toArray(new String[] {}));
+            .toArray(new String[]{}));
 
     mlt.setMaxQueryTerms(
         Optional.ofNullable(metadata.<Integer>getProperty("maxQueryTerms"))
@@ -239,7 +240,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
 
   private void addLikeQueries(List<ORecord> others, MoreLikeThis mlt, Builder queryBuilder) {
     others.stream()
-        .map(or -> ((ORecordAbstract) or).getDatabase().<OElement>load(or.getIdentity()))
+        .map(or -> ((ORecordAbstract) or).getSession().<OElement>load(or.getIdentity()))
         .forEach(
             element ->
                 Arrays.stream(mlt.getFieldNames())
@@ -281,16 +282,16 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
     OMetadataInternal dbMetadata = db.getMetadata();
 
     List<OLuceneFullTextIndex> indices =
-        dbMetadata.getImmutableSchemaSnapshot().getClass(className).getIndexes().stream()
+        dbMetadata.getImmutableSchemaSnapshot().getClass(className).getIndexes(db).stream()
             .filter(idx -> idx instanceof OLuceneFullTextIndex)
             .map(idx -> (OLuceneFullTextIndex) idx)
-            .collect(Collectors.toList());
+            .toList();
 
     if (indices.size() > 1) {
       throw new IllegalArgumentException("too many full-text indices on given class: " + className);
     }
 
-    return indices.size() == 0 ? null : indices.get(0);
+    return indices.isEmpty() ? null : indices.get(0);
   }
 
   @Override
@@ -301,9 +302,8 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
       OCommandContext ctx,
       OExpression... args) {
     OLuceneFullTextIndex index = this.searchForIndex(target, ctx);
-
     if (index != null) {
-      return index.size();
+      return index.size(ctx.getDatabase());
     }
     return 0;
   }

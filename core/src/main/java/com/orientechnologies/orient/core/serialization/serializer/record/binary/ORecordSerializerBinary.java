@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -22,8 +22,9 @@ package com.orientechnologies.orient.core.serialization.serializer.record.binary
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ORecordFlat;
@@ -84,7 +85,8 @@ public class ORecordSerializerBinary implements ORecordSerializer {
   }
 
   @Override
-  public ORecord fromStream(final byte[] iSource, ORecord iRecord, final String[] iFields) {
+  public ORecordAbstract fromStream(
+      final byte[] iSource, ORecordAbstract iRecord, final String[] iFields) {
     if (iSource == null || iSource.length == 0) {
       return iRecord;
     }
@@ -119,7 +121,7 @@ public class ORecordSerializerBinary implements ORecordSerializer {
   }
 
   @Override
-  public byte[] toStream(ORecord record) {
+  public byte[] toStream(ODatabaseSessionInternal session, ORecordAbstract record) {
     if (record instanceof OBlob) {
       return record.toStream();
     } else if (record instanceof ORecordFlat) {
@@ -133,7 +135,8 @@ public class ORecordSerializerBinary implements ORecordSerializer {
       int pos = container.alloc(1);
       container.bytes[pos] = currentSerializerVersion;
       // SERIALIZE RECORD
-      serializerByVersion[currentSerializerVersion].serialize(documentToSerialize, container);
+      serializerByVersion[currentSerializerVersion].serialize(session, documentToSerialize,
+          container);
 
       return container.fitBytes();
     }

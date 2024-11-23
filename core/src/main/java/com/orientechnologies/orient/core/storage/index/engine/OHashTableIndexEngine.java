@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.storage.index.engine;
@@ -24,6 +24,7 @@ import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.config.IndexEngineData;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.encryption.OEncryption;
 import com.orientechnologies.orient.core.id.ORID;
@@ -55,7 +56,6 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 15.07.13
  */
 public final class OHashTableIndexEngine implements OIndexEngine {
@@ -117,7 +117,8 @@ public final class OHashTableIndexEngine implements OIndexEngine {
   }
 
   @Override
-  public void init(OIndexMetadata metadata) {}
+  public void init(OIndexMetadata metadata) {
+  }
 
   @Override
   public String getName() {
@@ -152,7 +153,8 @@ public final class OHashTableIndexEngine implements OIndexEngine {
   }
 
   @Override
-  public void flush() {}
+  public void flush() {
+  }
 
   @Override
   public String getIndexNameByKey(final Object key) {
@@ -250,28 +252,30 @@ public final class OHashTableIndexEngine implements OIndexEngine {
   }
 
   @Override
-  public Object get(Object key) {
+  public Object get(ODatabaseSessionInternal session, Object key) {
     return hashTable.get(key);
   }
 
   @Override
-  public void put(OAtomicOperation atomicOperation, Object key, Object value) throws IOException {
+  public void put(ODatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
+      Object value) throws IOException {
     hashTable.put(atomicOperation, key, value);
   }
 
   @Override
-  public void update(OAtomicOperation atomicOperation, Object key, OIndexKeyUpdater<Object> updater)
+  public void update(ODatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
+      OIndexKeyUpdater<Object> updater)
       throws IOException {
-    Object value = get(key);
+    Object value = get(session, key);
     OIndexUpdateAction<Object> updated = updater.update(value, bonsayFileId);
     if (updated.isChange()) {
-      put(atomicOperation, key, updated.getValue());
+      put(session, atomicOperation, key, updated.getValue());
     } else if (updated.isRemove()) {
       remove(atomicOperation, key);
     } else //noinspection StatementWithEmptyBody
-    if (updated.isNothing()) {
-      // Do nothing
-    }
+      if (updated.isNothing()) {
+        // Do nothing
+      }
   }
 
   @SuppressWarnings("unchecked")
@@ -325,7 +329,7 @@ public final class OHashTableIndexEngine implements OIndexEngine {
 
   @Override
   public Stream<ORawPair<Object, ORID>> iterateEntriesBetween(
-      Object rangeFrom,
+      ODatabaseSessionInternal session, Object rangeFrom,
       boolean fromInclusive,
       Object rangeTo,
       boolean toInclusive,

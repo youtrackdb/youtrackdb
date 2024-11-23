@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.BytesContainer;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -22,7 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by luigidellaquila on 09/12/16.
+ *
  */
 public class OResultSerializationTest {
 
@@ -34,11 +34,12 @@ public class OResultSerializationTest {
   }
 
   @After
-  public void after() {}
+  public void after() {
+  }
 
   @Test
   public void testSimpleSerialization() {
-    try (var orientDB = new OrientDB("memory", OrientDBConfig.defaultConfig())) {
+    try (var orientDB = new OxygenDB("memory", OxygenDBConfig.defaultConfig())) {
       orientDB.createIfNotExists("test", ODatabaseType.MEMORY, "admin", "admin", "admin");
       try (var ignore = orientDB.open("test", "admin", "admin")) {
         OResultInternal document = new OResultInternal();

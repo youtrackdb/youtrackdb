@@ -23,7 +23,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 13.03.13
  */
 public class LocalHashTableV2IterationTestIT {

@@ -13,7 +13,7 @@ import java.util.Date;
 import org.junit.Test;
 
 /**
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
+ *
  */
 public class OSQLFunctionConvertTest extends BaseMemoryDatabase {
 

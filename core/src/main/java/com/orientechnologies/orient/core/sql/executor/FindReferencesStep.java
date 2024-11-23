@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 /**
- * Created by luigidellaquila on 07/09/16.
+ *
  */
 public class FindReferencesStep extends AbstractExecutionStep {
 

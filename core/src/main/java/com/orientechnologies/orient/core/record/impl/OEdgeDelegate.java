@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2016 OrientDB LTD (info(at)orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,15 +14,14 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.record.impl;
 
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
@@ -30,16 +29,16 @@ import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * @author Luigi Dell'Aquila
+ *
  */
 public class OEdgeDelegate implements OEdgeInternal {
 
@@ -105,7 +104,7 @@ public class OEdgeDelegate implements OEdgeInternal {
     assert result != null;
 
     var id = result.getIdentity();
-    var db = doc.getDatabase();
+    var db = doc.getSession();
     var schema = db.getMetadata().getSchema();
 
     if (schema.getClassByClusterId(id.getClusterId()).isVertexType()) {
@@ -118,6 +117,15 @@ public class OEdgeDelegate implements OEdgeInternal {
   @Override
   public boolean isEmbedded() {
     return false;
+  }
+
+  @Override
+  public void undo() {
+    if (element != null) {
+      element.undo();
+    } else {
+      throw new UnsupportedOperationException("undo is not supported for lightweight edges");
+    }
   }
 
   @Override
@@ -165,7 +173,7 @@ public class OEdgeDelegate implements OEdgeInternal {
     assert result != null;
 
     var id = result.getIdentity();
-    var schema = doc.getDatabase().getMetadata().getSchema();
+    var schema = doc.getSession().getMetadata().getSchema();
 
     if (schema.getClassByClusterId(id.getClusterId()).isVertexType()) {
       return id;
@@ -195,7 +203,7 @@ public class OEdgeDelegate implements OEdgeInternal {
     OVertexInternal.removeOutgoingEdge(from, this);
     OVertexInternal.removeIncomingEdge(to, this);
 
-    var db = element.getDatabase();
+    var db = element.getSession();
     this.element =
         db.newRegularEdge(
                 lightweightEdgeType == null ? "E" : lightweightEdgeType.getName(), from, to)
@@ -347,89 +355,9 @@ public class OEdgeDelegate implements OEdgeInternal {
   }
 
   @Override
-  public STATUS getInternalStatus() {
-    if (element == null) {
-      return STATUS.LOADED;
-    }
-    return element.getInternalStatus();
-  }
-
-  @Override
-  public void setInternalStatus(STATUS iStatus) {
-    if (element != null) {
-      element.setInternalStatus(iStatus);
-    }
-  }
-
-  @Override
-  public <RET> RET setDirty() {
-    if (element != null) {
-      element.setDirty();
-    }
-    return (RET) this;
-  }
-
-  @Override
-  public void setDirtyNoChanged() {
-    if (element != null) {
-      element.setDirtyNoChanged();
-    }
-  }
-
-  @Override
-  public ORecordElement getOwner() {
-    if (element != null) {
-      return element.getOwner();
-    }
-    return null;
-  }
-
-  @Override
-  public byte[] toStream() throws OSerializationException {
-    if (element != null) {
-      return element.toStream();
-    }
-    return null;
-  }
-
-  @Override
-  public OSerializableStream fromStream(byte[] iStream) throws OSerializationException {
-    if (element != null) {
-      return element.fromStream(iStream);
-    }
-    return null;
-  }
-
-  @Override
-  public boolean detach() {
-    if (element != null) {
-      return element.detach();
-    }
-    return true;
-  }
-
-  @Override
-  public OEdge unload() {
-    if (element != null) {
-      element.unload();
-    }
-    return this;
-  }
-
-  @Override
-  public OEdge clear() {
+  public void clear() {
     if (element != null) {
       element.clear();
-    }
-    return this;
-  }
-
-  @Override
-  public OEdge copy() {
-    if (element != null) {
-      return new OEdgeDelegate(element.copy());
-    } else {
-      return new OEdgeDelegate(vOut, vIn, lightweightEdgeType, lightwightEdgeLabel);
     }
   }
 
@@ -450,32 +378,20 @@ public class OEdgeDelegate implements OEdgeInternal {
   }
 
   @Override
-  public <RET extends ORecord> RET save() {
+  public void save() {
     if (element != null) {
       element.save();
     } else {
       vIn.save();
     }
-    return (RET) this;
   }
 
   @Override
-  public <RET extends ORecord> RET save(String iCluster) {
-    if (element != null) {
-      element.save(iCluster);
-    } else {
-      vIn.save();
-    }
-    return (RET) this;
-  }
-
-  @Override
-  public <RET extends ORecord> RET fromJSON(String iJson) {
+  public void fromJSON(String iJson) {
     if (element == null) {
       promoteToRegularEdge();
     }
     element.fromJSON(iJson);
-    return (RET) this;
   }
 
   @Override
@@ -509,11 +425,26 @@ public class OEdgeDelegate implements OEdgeInternal {
   }
 
   @Override
-  public int getSize() {
+  public void fromMap(Map<String, ?> map) {
     if (element != null) {
-      return element.getSize();
+      element.fromMap(map);
     }
-    return 0;
+
+    throw new UnsupportedOperationException("fromMap is not supported for lightweight edges");
+  }
+
+  @Override
+  public Map<String, Object> toMap() {
+    return Map.of(DIRECTION_OUT, getToIdentifiable(), DIRECTION_IN, getFromIdentifiable());
+  }
+
+  @Override
+  public boolean isNotBound(ODatabaseSession session) {
+    if (element != null) {
+      return element.isNotBound(session);
+    }
+
+    return false;
   }
 
   @Override

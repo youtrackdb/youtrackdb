@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.command;
@@ -22,6 +22,7 @@ package com.orientechnologies.orient.core.command;
 import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.orient.core.command.OCommandContext.TIMEOUT_STRATEGY;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.replication.OAsyncReplicationError;
 import com.orientechnologies.orient.core.replication.OAsyncReplicationOk;
@@ -33,8 +34,6 @@ import java.util.Set;
 
 /**
  * Text based Command Request abstract class.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 @SuppressWarnings("serial")
 public abstract class OCommandRequestAbstract
@@ -56,7 +55,8 @@ public abstract class OCommandRequestAbstract
   private final Set<String> nodesToExclude = new HashSet<String>();
   private boolean recordResultSet = true;
 
-  protected OCommandRequestAbstract() {}
+  protected OCommandRequestAbstract() {
+  }
 
   public OCommandResultListener getResultListener() {
     return resultListener;
@@ -129,7 +129,7 @@ public abstract class OCommandRequestAbstract
             public ACTION onAsyncReplicationError(Throwable iException, final int iRetry) {
               switch (iCallback.onAsyncReplicationError(iException, ++retry)) {
                 case RETRY:
-                  execute();
+                  execute(ODatabaseRecordThreadLocal.instance().getIfDefined());
                   break;
 
                 case IGNORE:
@@ -153,7 +153,8 @@ public abstract class OCommandRequestAbstract
     return this;
   }
 
-  public void reset() {}
+  public void reset() {
+  }
 
   public int getLimit() {
     return limit;

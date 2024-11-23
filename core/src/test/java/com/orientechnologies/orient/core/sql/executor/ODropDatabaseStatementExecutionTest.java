@@ -3,28 +3,28 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ *
  */
 public class ODropDatabaseStatementExecutionTest {
 
   @Test
   public void testPlain() {
     String dbName = "ODropDatabaseStatementExecutionTest_testPlain";
-    OrientDB orientDb =
-        new OrientDB(
+    OxygenDB oxygenDb =
+        new OxygenDB(
             "embedded:./target/",
-            OrientDBConfig.builder()
+            OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     try {
       try (OResultSet result =
-          orientDb.execute(
+          oxygenDb.execute(
               "create database "
                   + dbName
                   + " plocal"
@@ -35,31 +35,31 @@ public class ODropDatabaseStatementExecutionTest {
         OResult item = result.next();
         Assert.assertEquals(true, item.getProperty("created"));
       }
-      Assert.assertTrue(orientDb.exists(dbName));
+      Assert.assertTrue(oxygenDb.exists(dbName));
 
       ODatabaseSession session =
-          orientDb.open(dbName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+          oxygenDb.open(dbName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       session.close();
 
-      orientDb.execute("drop database " + dbName);
-      Assert.assertFalse(orientDb.exists(dbName));
+      oxygenDb.execute("drop database " + dbName);
+      Assert.assertFalse(oxygenDb.exists(dbName));
     } finally {
-      orientDb.close();
+      oxygenDb.close();
     }
   }
 
   @Test
   public void testIfExists1() {
     String dbName = "ODropDatabaseStatementExecutionTest_testIfExists1";
-    final OrientDB orientDb =
-        new OrientDB(
+    final OxygenDB oxygenDb =
+        new OxygenDB(
             "embedded:./target/",
-            OrientDBConfig.builder()
+            OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     try {
       try (OResultSet result =
-          orientDb.execute(
+          oxygenDb.execute(
               "create database "
                   + dbName
                   + " plocal"
@@ -70,33 +70,33 @@ public class ODropDatabaseStatementExecutionTest {
         OResult item = result.next();
         Assert.assertEquals(true, item.getProperty("created"));
       }
-      Assert.assertTrue(orientDb.exists(dbName));
+      Assert.assertTrue(oxygenDb.exists(dbName));
 
       ODatabaseSession session =
-          orientDb.open(dbName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+          oxygenDb.open(dbName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       session.close();
 
-      orientDb.execute("drop database " + dbName + " if exists");
-      Assert.assertFalse(orientDb.exists(dbName));
+      oxygenDb.execute("drop database " + dbName + " if exists");
+      Assert.assertFalse(oxygenDb.exists(dbName));
     } finally {
-      orientDb.close();
+      oxygenDb.close();
     }
   }
 
   @Test
   public void testIfExists2() {
     String dbName = "ODropDatabaseStatementExecutionTest_testIfExists2";
-    OrientDB orientDb =
-        new OrientDB(
+    OxygenDB oxygenDb =
+        new OxygenDB(
             "embedded:./target/",
-            OrientDBConfig.builder()
+            OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     try {
-      orientDb.execute("drop database " + dbName + " if exists");
-      Assert.assertFalse(orientDb.exists(dbName));
+      oxygenDb.execute("drop database " + dbName + " if exists");
+      Assert.assertFalse(oxygenDb.exists(dbName));
     } finally {
-      orientDb.close();
+      oxygenDb.close();
     }
   }
 }

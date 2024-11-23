@@ -5,6 +5,7 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.client.remote.message.OLiveQueryPushRequest;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryBatchResultListener;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.exception.OCoreException;
@@ -17,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Created by tglman on 19/06/17.
+ *
  */
 class OServerLiveQueryResultListener implements OLiveQueryBatchResultListener {
 
@@ -65,7 +66,7 @@ class OServerLiveQueryResultListener implements OLiveQueryBatchResultListener {
       if (exception instanceof OCoreException) {
         code = ((OCoreException) exception).getErrorCode();
       }
-      protocol.push(
+      protocol.push((ODatabaseSessionInternal) database,
           new OLiveQueryPushRequest(monitorId, errorIdentifier, code, exception.getMessage()));
     } catch (IOException e) {
       throw OException.wrapException(
@@ -76,7 +77,7 @@ class OServerLiveQueryResultListener implements OLiveQueryBatchResultListener {
   @Override
   public void onEnd(ODatabaseSession database) {
     try {
-      protocol.push(
+      protocol.push((ODatabaseSessionInternal) database,
           new OLiveQueryPushRequest(monitorId, OLiveQueryPushRequest.END, Collections.emptyList()));
     } catch (IOException e) {
       throw OException.wrapException(
@@ -97,7 +98,8 @@ class OServerLiveQueryResultListener implements OLiveQueryBatchResultListener {
     toSend = new ArrayList<>();
 
     try {
-      protocol.push(new OLiveQueryPushRequest(monitorId, OLiveQueryPushRequest.HAS_MORE, events));
+      protocol.push((ODatabaseSessionInternal) database,
+          new OLiveQueryPushRequest(monitorId, OLiveQueryPushRequest.HAS_MORE, events));
     } catch (IOException e) {
       sharedContext.getLiveQueryOpsV2().getSubscribers().remove(monitorId);
       throw OException.wrapException(

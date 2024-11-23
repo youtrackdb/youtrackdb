@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import java.io.IOException;
 import java.io.InputStream;
 import org.junit.After;
@@ -32,14 +32,15 @@ import org.junit.Rule;
 import org.junit.rules.TestName;
 
 /**
- * Created by enricorisa on 19/09/14.
+ *
  */
 public abstract class BaseLuceneTest {
 
-  @Rule public TestName name = new TestName();
+  @Rule
+  public TestName name = new TestName();
 
   protected ODatabaseSessionInternal db;
-  protected OrientDB context;
+  protected OxygenDB context;
 
   protected ODatabaseType type;
   protected String dbName;
@@ -57,7 +58,7 @@ public abstract class BaseLuceneTest {
       type = ODatabaseType.MEMORY;
       path = "embedded:.";
     }
-    context = new OrientDB(path, OrientDBConfig.defaultConfig());
+    context = new OxygenDB(path, OxygenDBConfig.defaultConfig());
     dbName = getClass().getSimpleName() + "_" + name.getMethodName();
 
     if (context.exists(dbName)) {

@@ -7,6 +7,7 @@ import com.orientechnologies.lucene.collections.OLuceneCompositeKey;
 import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
@@ -27,7 +28,7 @@ import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.memory.MemoryIndex;
 
 /**
- * Created by frank on 15/01/2017.
+ *
  */
 public class OLuceneSearchOnClassFunction extends OLuceneSearchFunctionTemplate {
 
@@ -38,7 +39,7 @@ public class OLuceneSearchOnClassFunction extends OLuceneSearchFunctionTemplate 
   }
 
   @Override
-  public String getName() {
+  public String getName(ODatabaseSession session) {
     return NAME;
   }
 
@@ -86,7 +87,7 @@ public class OLuceneSearchOnClassFunction extends OLuceneSearchFunctionTemplate 
             .map(s -> element.getProperty(s))
             .collect(Collectors.toList());
 
-    for (IndexableField field : index.buildDocument(key).getFields()) {
+    for (IndexableField field : index.buildDocument(ctx.getDatabase(), key).getFields()) {
       memoryIndex.addField(field, index.indexAnalyzer());
     }
 
@@ -101,14 +102,17 @@ public class OLuceneSearchOnClassFunction extends OLuceneSearchFunctionTemplate 
   private ODocument getMetadata(Object[] params) {
 
     if (params.length == 2) {
-      return new ODocument().fromMap((Map<String, ?>) params[1]);
+      var doc = new ODocument();
+      //noinspection unchecked
+      doc.fromMap((Map<String, ?>) params[1]);
+      return doc;
     }
 
     return OLuceneQueryBuilder.EMPTY_METADATA;
   }
 
   @Override
-  public String getSyntax() {
+  public String getSyntax(ODatabaseSession session) {
     return "SEARCH_INDEX( indexName, [ metdatada {} ] )";
   }
 
@@ -138,7 +142,7 @@ public class OLuceneSearchOnClassFunction extends OLuceneSearchFunctionTemplate 
       try (Stream<ORID> rids =
           index
               .getInternal()
-              .getRids(
+              .getRids(ctx.getDatabase(),
                   new OLuceneKeyAndMetadata(
                       new OLuceneCompositeKey(Collections.singletonList(query)).setContext(ctx),
                       metadata))) {
@@ -167,21 +171,21 @@ public class OLuceneSearchOnClassFunction extends OLuceneSearchFunctionTemplate 
     return searchForIndex(ctx, className);
   }
 
-  private OLuceneFullTextIndex searchForIndex(OCommandContext ctx, String className) {
+  private static OLuceneFullTextIndex searchForIndex(OCommandContext ctx, String className) {
     var db = ctx.getDatabase();
     db.activateOnCurrentThread();
     OMetadataInternal dbMetadata = db.getMetadata();
 
     List<OLuceneFullTextIndex> indices =
-        dbMetadata.getImmutableSchemaSnapshot().getClass(className).getIndexes().stream()
+        dbMetadata.getImmutableSchemaSnapshot().getClass(className).getIndexes(db).stream()
             .filter(idx -> idx instanceof OLuceneFullTextIndex)
             .map(idx -> (OLuceneFullTextIndex) idx)
-            .collect(Collectors.toList());
+            .toList();
 
     if (indices.size() > 1) {
       throw new IllegalArgumentException("too many full-text indices on given class: " + className);
     }
 
-    return indices.size() == 0 ? null : indices.get(0);
+    return indices.isEmpty() ? null : indices.get(0);
   }
 }

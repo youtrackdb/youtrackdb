@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,15 +9,15 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://orientdb.com
+ * <p>*
  */
 package com.orientechnologies.orient.jdbc;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.util.OURLConnection;
 import com.orientechnologies.orient.core.util.OURLHelper;
 import java.io.PrintWriter;
@@ -36,7 +34,7 @@ public class OrientDataSource implements DataSource {
     try {
       Class.forName(OrientJdbcDriver.class.getCanonicalName());
     } catch (ClassNotFoundException e) {
-      System.err.println("OrientDB DataSource unable to load OrientDB JDBC Driver");
+      System.err.println("OxygenDB DataSource unable to load OxygenDB JDBC Driver");
     }
   }
 
@@ -47,7 +45,7 @@ public class OrientDataSource implements DataSource {
   private String password;
   private Properties info;
 
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
   private String dbName;
 
   private ODatabasePool pool;
@@ -75,12 +73,12 @@ public class OrientDataSource implements DataSource {
   }
 
   @Deprecated
-  public OrientDataSource(OrientDB orientDB) {
-    this.orientDB = orientDB;
+  public OrientDataSource(OxygenDB oxygenDB) {
+    this.oxygenDB = oxygenDB;
   }
 
-  public OrientDataSource(OrientDB orientDB, String dbName) {
-    this.orientDB = orientDB;
+  public OrientDataSource(OxygenDB oxygenDB, String dbName) {
+    this.oxygenDB = oxygenDB;
     this.dbName = dbName;
   }
 
@@ -112,7 +110,7 @@ public class OrientDataSource implements DataSource {
   @Override
   public Connection getConnection(String username, String password) throws SQLException {
 
-    if (orientDB == null) {
+    if (oxygenDB == null) {
 
       Properties info = new Properties(this.info);
       info.put("user", username);
@@ -124,8 +122,8 @@ public class OrientDataSource implements DataSource {
       String orientDbUrl = dbUrl.replace("jdbc:orient:", "");
 
       OURLConnection connUrl = OURLHelper.parseNew(orientDbUrl);
-      OrientDBConfig settings =
-          OrientDBConfig.builder()
+      OxygenDBConfig settings =
+          OxygenDBConfig.builder()
               .addConfig(
                   OGlobalConfiguration.DB_POOL_MIN,
                   Integer.valueOf(info.getProperty("db.pool.min", "1")))
@@ -134,15 +132,15 @@ public class OrientDataSource implements DataSource {
                   Integer.valueOf(info.getProperty("db.pool.max", "10")))
               .build();
 
-      orientDB =
-          new OrientDB(
+      oxygenDB =
+          new OxygenDB(
               connUrl.getType() + ":" + connUrl.getPath(),
               serverUsername,
               serverPassword,
               settings);
 
       if (!serverUsername.isEmpty() && !serverPassword.isEmpty()) {
-        orientDB.createIfNotExists(
+        oxygenDB.createIfNotExists(
             connUrl.getDbName(),
             connUrl.getDbType().orElse(ODatabaseType.MEMORY),
             username,
@@ -150,13 +148,13 @@ public class OrientDataSource implements DataSource {
             "admin");
       }
 
-      pool = new ODatabasePool(orientDB, connUrl.getDbName(), username, password);
+      pool = new ODatabasePool(oxygenDB, connUrl.getDbName(), username, password);
     } else if (pool == null) {
-      pool = new ODatabasePool(orientDB, this.dbName, username, password);
+      pool = new ODatabasePool(oxygenDB, this.dbName, username, password);
     }
 
     return new OrientJdbcConnection(
-        pool.acquire(), orientDB, info == null ? new Properties() : info);
+        pool.acquire(), oxygenDB, info == null ? new Properties() : info);
   }
 
   public void setDbUrl(String dbUrl) {
@@ -192,6 +190,6 @@ public class OrientDataSource implements DataSource {
   }
 
   public void close() {
-    orientDB.close();
+    oxygenDB.close();
   }
 }

@@ -11,7 +11,7 @@ import org.junit.Test;
 
 public class CountRelationshipGraphTest extends AbstractRemoteTest {
 
-  private OrientDB orientdb;
+  private OxygenDB orientdb;
   private int old;
 
   public void setup() throws Exception {
@@ -19,11 +19,11 @@ public class CountRelationshipGraphTest extends AbstractRemoteTest {
     OGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(-1);
     super.setup();
     orientdb =
-        new OrientDB(
+        new OxygenDB(
             "remote:localhost",
             "root",
             "root",
-            OrientDBConfig.builder()
+            OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, -1)
                 .build());
   }

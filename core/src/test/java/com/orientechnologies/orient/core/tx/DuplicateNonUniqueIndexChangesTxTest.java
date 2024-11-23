@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2016 OrientDB LTD (info(at)orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  */
 
 package com.orientechnologies.orient.core.tx;
@@ -35,7 +35,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author Sergey Sitnikov
+ *
  */
 public class DuplicateNonUniqueIndexChangesTxTest extends BaseMemoryDatabase {
 
@@ -46,8 +46,8 @@ public class DuplicateNonUniqueIndexChangesTxTest extends BaseMemoryDatabase {
     final OClass class_ = db.getMetadata().getSchema().createClass("Person");
     index =
         class_
-            .createProperty("name", OType.STRING)
-            .createIndex(OClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX);
+            .createProperty(db, "name", OType.STRING)
+            .createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX);
   }
 
   @Test
@@ -312,7 +312,7 @@ public class DuplicateNonUniqueIndexChangesTxTest extends BaseMemoryDatabase {
     db.commit();
 
     // verify index state
-    try (Stream<ORID> stream = index.getInternal().getRids("Name")) {
+    try (Stream<ORID> stream = index.getInternal().getRids(db, "Name")) {
       stream.forEach(
           (rid) -> {
             final ODocument document = db.load(rid);
@@ -325,7 +325,7 @@ public class DuplicateNonUniqueIndexChangesTxTest extends BaseMemoryDatabase {
   @SuppressWarnings("unchecked")
   private void assertRids(String indexKey, OIdentifiable... rids) {
     final Set<ORID> actualRids;
-    try (Stream<ORID> stream = index.getInternal().getRids(indexKey)) {
+    try (Stream<ORID> stream = index.getInternal().getRids(db, indexKey)) {
       actualRids = stream.collect(Collectors.toSet());
     }
     Assert.assertEquals(actualRids, new HashSet<Object>(Arrays.asList(rids)));

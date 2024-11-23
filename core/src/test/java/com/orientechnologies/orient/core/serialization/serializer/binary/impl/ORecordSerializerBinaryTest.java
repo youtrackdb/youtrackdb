@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 OrientDB.
+ * Copyright 2018 OxygenDB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,9 @@ package com.orientechnologies.orient.core.serialization.serializer.binary.impl;
 
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -42,7 +43,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 /**
- * @author mdjurovi
+ *
  */
 @RunWith(Parameterized.class)
 public class ORecordSerializerBinaryTest {
@@ -50,7 +51,7 @@ public class ORecordSerializerBinaryTest {
   private static ODatabaseSession db = null;
   private static ORecordSerializerBinary serializer;
   private final int serializerVersion;
-  private OrientDB odb;
+  private OxygenDB odb;
 
   @Parameterized.Parameters
   public static Collection<Object[]> generateParams() {
@@ -59,7 +60,7 @@ public class ORecordSerializerBinaryTest {
     // serializers
     // testig for each serializer type has its own index
     for (byte i = 0; i < ORecordSerializerBinary.INSTANCE.getNumberOfSupportedVersions(); i++) {
-      params.add(new Object[] {i});
+      params.add(new Object[]{i});
     }
     return params;
   }
@@ -70,7 +71,7 @@ public class ORecordSerializerBinaryTest {
 
   @Before
   public void before() {
-    odb = new OrientDB("memory:", OrientDBConfig.defaultConfig());
+    odb = new OxygenDB("memory:", OxygenDBConfig.defaultConfig());
     odb.execute("create database test memory users ( admin identified by 'admin' role admin)");
     db = odb.open("test", "admin", "admin");
     db.createClass("TestClass");
@@ -96,7 +97,7 @@ public class ORecordSerializerBinaryTest {
     db.commit();
 
     doc = db.bindToSession(doc);
-    byte[] serializedDoc = serializer.toStream(doc);
+    byte[] serializedDoc = serializer.toStream((ODatabaseSessionInternal) db, doc);
     OResultBinary docBinary =
         (OResultBinary) serializer.getBinaryResult(db, serializedDoc, new ORecordId(-1, -1));
     Integer value = docBinary.getProperty("TestPropAny");
@@ -108,7 +109,7 @@ public class ORecordSerializerBinaryTest {
     ODocument doc = new ODocument();
     Integer setValue = 16;
     doc.setProperty("TestField", setValue);
-    byte[] serializedDoc = serializer.toStream(doc);
+    byte[] serializedDoc = serializer.toStream((ODatabaseSessionInternal) db, doc);
     OResultBinary docBinary =
         (OResultBinary) serializer.getBinaryResult(db, serializedDoc, new ORecordId(-1, -1));
     Integer value = docBinary.getProperty("TestField");
@@ -148,7 +149,7 @@ public class ORecordSerializerBinaryTest {
     db.commit();
 
     root = db.bindToSession(root);
-    byte[] rootBytes = serializer.toStream(root);
+    byte[] rootBytes = serializer.toStream((ODatabaseSessionInternal) db, root);
     OResultBinary docBinary =
         (OResultBinary) serializer.getBinaryResult(db, rootBytes, new ORecordId(-1, -1));
     OResultBinary embeddedBytesViaGet = docBinary.getProperty("TestEmbedded");
@@ -175,9 +176,9 @@ public class ORecordSerializerBinaryTest {
     db.commit();
 
     root = db.bindToSession(root);
-    byte[] rootBytes = serializer.toStream(root);
+    byte[] rootBytes = serializer.toStream((ODatabaseSessionInternal) db, root);
     embedded = root.field("TestEmbedded");
-    byte[] embeddedNativeBytes = serializer.toStream(embedded);
+    byte[] embeddedNativeBytes = serializer.toStream((ODatabaseSessionInternal) db, embedded);
     // want to update data pointers because first byte will be removed
     decreasePositionsBy(embeddedNativeBytes, 1, false);
     // skip serializer version
@@ -219,7 +220,7 @@ public class ORecordSerializerBinaryTest {
     db.commit();
 
     root = db.bindToSession(root);
-    byte[] rootBytes = serializer.toStream(root);
+    byte[] rootBytes = serializer.toStream((ODatabaseSessionInternal) db, root);
 
     OResultBinary docBinary =
         (OResultBinary) serializer.getBinaryResult(db, rootBytes, new ORecordId(-1, -1));
@@ -246,7 +247,7 @@ public class ORecordSerializerBinaryTest {
     db.commit();
 
     root = db.bindToSession(root);
-    byte[] rootBytes = serializer.toStream(root);
+    byte[] rootBytes = serializer.toStream((ODatabaseSessionInternal) db, root);
     OResultBinary docBinary =
         (OResultBinary) serializer.getBinaryResult(db, rootBytes, new ORecordId(-1, -1));
     OResultBinary embeddedBytesViaGet = docBinary.getProperty("TestEmbedded");
@@ -263,7 +264,8 @@ public class ORecordSerializerBinaryTest {
     Integer setValue2 = 21;
     embeddedListElement.field("InnerTestFields", setValue);
 
-    byte[] rawElementBytes = serializer.toStream(embeddedListElement);
+    byte[] rawElementBytes = serializer.toStream((ODatabaseSessionInternal) db,
+        embeddedListElement);
 
     List embeddedList = new ArrayList();
     embeddedList.add(embeddedListElement);
@@ -271,7 +273,7 @@ public class ORecordSerializerBinaryTest {
 
     root.field("TestEmbeddedList", embeddedList, OType.EMBEDDEDLIST);
 
-    byte[] rootBytes = serializer.toStream(root);
+    byte[] rootBytes = serializer.toStream((ODatabaseSessionInternal) db, root);
     OResultBinary docBinary =
         (OResultBinary) serializer.getBinaryResult(db, rootBytes, new ORecordId(-1, -1));
     List<Object> embeddedListFieldValue = docBinary.getProperty("TestEmbeddedList");
@@ -299,7 +301,7 @@ public class ORecordSerializerBinaryTest {
     map.put("nullValue", null);
 
     root.field("TestEmbeddedMap", map, OType.EMBEDDEDMAP);
-    byte[] rootBytes = serializer.toStream(root);
+    byte[] rootBytes = serializer.toStream((ODatabaseSessionInternal) db, root);
 
     OResultBinary docBinary =
         (OResultBinary) serializer.getBinaryResult(db, rootBytes, new ORecordId(-1, -1));

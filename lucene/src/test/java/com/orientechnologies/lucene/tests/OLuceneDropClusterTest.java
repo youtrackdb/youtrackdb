@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 /**
- * Created by enricorisa on 26/09/14.
+ *
  */
 public class OLuceneDropClusterTest extends OLuceneBaseTest {
 
@@ -51,7 +51,7 @@ public class OLuceneDropClusterTest extends OLuceneBaseTest {
 
     db.begin();
     long initialIndexSize =
-        metadata.getIndexManagerInternal().getIndex(db, "Song.title").getInternal().size();
+        metadata.getIndexManagerInternal().getIndex(db, "Song.title").getInternal().size(db);
     db.commit();
 
     int[] clusterIds = metadata.getSchema().getClass("Song").getClusterIds();
@@ -59,7 +59,7 @@ public class OLuceneDropClusterTest extends OLuceneBaseTest {
     db.dropCluster(clusterIds[1]);
 
     long afterDropIndexSize =
-        metadata.getIndexManagerInternal().getIndex(db, "Song.title").getInternal().size();
+        metadata.getIndexManagerInternal().getIndex(db, "Song.title").getInternal().size(db);
 
     Assertions.assertThat(afterDropIndexSize).isLessThan(initialIndexSize);
   }

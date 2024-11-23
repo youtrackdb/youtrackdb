@@ -12,8 +12,8 @@ import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com) <a
  * href="mailto:lomakin.andrey@gmail.com">Andrey Lomakin</a>
+ *
  * @since 04/12/14
  */
 public class SQLDeleteEdgeTest extends DocumentDBBaseTest {

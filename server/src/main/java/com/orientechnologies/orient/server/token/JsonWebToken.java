@@ -12,9 +12,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 
 /**
- * Created by emrul on 28/09/2014.
  *
- * @author Emrul Islam <emrul@emrul.com> Copyright 2014 Emrul Islam
  */
 public class JsonWebToken implements OJsonWebToken, OToken {
 
@@ -97,7 +95,7 @@ public class JsonWebToken implements OJsonWebToken, OToken {
     if (!ODocumentInternal.getImmutableSchemaClass(result).isOuser()) {
       result = null;
     }
-    return new OUser(result);
+    return new OUser(db, result);
   }
 
   @Override

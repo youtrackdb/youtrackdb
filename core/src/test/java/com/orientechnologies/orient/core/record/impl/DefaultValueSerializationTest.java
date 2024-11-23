@@ -17,8 +17,8 @@ public class DefaultValueSerializationTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     OClass classA = schema.createClass("ClassC");
 
-    OProperty prop = classA.createProperty("name", OType.STRING);
-    prop.setDefaultValue("uuid()");
+    OProperty prop = classA.createProperty(db, "name", OType.STRING);
+    prop.setDefaultValue(db, "uuid()");
 
     ODocument doc = new ODocument("ClassC");
 

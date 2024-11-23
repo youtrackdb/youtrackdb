@@ -8,8 +8,6 @@ import java.util.Collection;
 
 /**
  * unwinds a result-set.
- *
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public abstract class AbstractUnrollStep extends AbstractExecutionStep {
 

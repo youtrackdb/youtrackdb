@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -10,11 +10,12 @@
  * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  * <p>
- * For more information: http://www.orientdb.com
+ * *
  */
 package com.orientechnologies.spatial.index;
 
 import com.orientechnologies.lucene.index.OLuceneIndexNotUnique;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OInvalidIndexEngineIdException;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
@@ -40,11 +41,12 @@ public class OLuceneSpatialIndex extends OLuceneIndexNotUnique {
   }
 
   @Override
-  public OLuceneIndexNotUnique put(Object key, OIdentifiable value) {
+  public OLuceneIndexNotUnique put(ODatabaseSessionInternal session, Object key,
+      OIdentifiable value) {
     if (key == null) {
       return this;
     }
-    return super.put(key, value);
+    return super.put(session, key, value);
   }
 
   @Override

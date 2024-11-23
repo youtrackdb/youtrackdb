@@ -7,10 +7,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentAbstract;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.document.ODatabaseSessionAbstract;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -25,9 +27,9 @@ import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 /**
- * @author Artem Orobets (enisher-at-gmail.com)
+ *
  */
-public class ODocumentTest {
+public class ODocumentTest extends BaseMemoryDatabase {
 
   private static final String dbName = ODocumentTest.class.getSimpleName();
   private static final String defaultDbAdminCredentials = "admin";
@@ -39,7 +41,7 @@ public class ODocumentTest {
     ODocument doc2 =
         new ODocument()
             .field("integer2", 123)
-            .field("string", "OrientDB")
+            .field("string", "OxygenDB")
             .field("a", 123.3)
             .setFieldType("integer", OType.INTEGER)
             .setFieldType("string", OType.STRING)
@@ -48,7 +50,7 @@ public class ODocumentTest {
     ODocumentInternal.addOwner(doc2, owner);
 
     assertEquals(doc2.<Object>field("integer2"), 123);
-    assertEquals(doc2.field("string"), "OrientDB");
+    assertEquals(doc2.field("string"), "OxygenDB");
 
     Assertions.assertThat(doc2.<Double>field("a")).isEqualTo(123.3d);
     assertEquals(doc2.fieldType("integer"), OType.INTEGER);
@@ -60,9 +62,9 @@ public class ODocumentTest {
     ORecordInternal.unsetDirty(doc2);
     doc1.copyTo(doc2);
 
-    assertNull(doc2.<Object>field("integer2"));
-    assertNull(doc2.<Object>field("string"));
-    assertNull(doc2.<Object>field("a"));
+    assertNull(doc2.field("integer2"));
+    assertNull(doc2.field("string"));
+    assertNull(doc2.field("a"));
 
     assertNull(doc2.fieldType("integer"));
     assertNull(doc2.fieldType("string"));
@@ -118,7 +120,7 @@ public class ODocumentTest {
     ODocument doc = new ODocument();
     doc.field("integer", 10, OType.INTEGER);
     doc.field("string", 20, OType.STRING);
-    doc.field("binary", new byte[] {30}, OType.BINARY);
+    doc.field("binary", new byte[]{30}, OType.BINARY);
 
     assertEquals(doc.fieldType("integer"), OType.INTEGER);
     assertEquals(doc.fieldType("string"), OType.STRING);
@@ -131,14 +133,14 @@ public class ODocumentTest {
     doc.field("integer", 10, OType.INTEGER);
     doc.field("link", new ORecordId(1, 2), OType.LINK);
     doc.field("string", 20, OType.STRING);
-    doc.field("binary", new byte[] {30}, OType.BINARY);
+    doc.field("binary", new byte[]{30}, OType.BINARY);
 
     assertEquals(doc.fieldType("integer"), OType.INTEGER);
     assertEquals(doc.fieldType("link"), OType.LINK);
     assertEquals(doc.fieldType("string"), OType.STRING);
     assertEquals(doc.fieldType("binary"), OType.BINARY);
-    ORecordSerializer ser = ODatabaseDocumentAbstract.getDefaultSerializer();
-    byte[] bytes = ser.toStream(doc);
+    ORecordSerializer ser = ODatabaseSessionAbstract.getDefaultSerializer();
+    byte[] bytes = ser.toStream(db, doc);
     doc = new ODocument();
     ser.fromStream(bytes, doc, null);
     assertEquals(doc.fieldType("integer"), OType.INTEGER);
@@ -153,15 +155,15 @@ public class ODocumentTest {
     doc.field("integer", 10);
     doc.field("link", new ORecordId(1, 2));
     doc.field("string", "string");
-    doc.field("binary", new byte[] {30});
+    doc.field("binary", new byte[]{30});
 
     // this is null because is not set on value set.
     assertNull(doc.fieldType("integer"));
     assertNull(doc.fieldType("link"));
     assertNull(doc.fieldType("string"));
     assertNull(doc.fieldType("binary"));
-    ORecordSerializer ser = ODatabaseDocumentAbstract.getDefaultSerializer();
-    byte[] bytes = ser.toStream(doc);
+    ORecordSerializer ser = ODatabaseSessionAbstract.getDefaultSerializer();
+    byte[] bytes = ser.toStream(db, doc);
     doc = new ODocument();
     ser.fromStream(bytes, doc, null);
     assertEquals(doc.fieldType("integer"), OType.INTEGER);
@@ -172,30 +174,31 @@ public class ODocumentTest {
 
   @Test
   public void testKeepSchemafullFieldTypeSerialization() throws Exception {
-    ODatabaseSession db = null;
-    OrientDB odb = null;
+    ODatabaseSessionInternal db = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+      db = (ODatabaseSessionInternal) odb.open(dbName, defaultDbAdminCredentials,
+          OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
       OClass clazz = db.getMetadata().getSchema().createClass("Test");
-      clazz.createProperty("integer", OType.INTEGER);
-      clazz.createProperty("link", OType.LINK);
-      clazz.createProperty("string", OType.STRING);
-      clazz.createProperty("binary", OType.BINARY);
+      clazz.createProperty(db, "integer", OType.INTEGER);
+      clazz.createProperty(db, "link", OType.LINK);
+      clazz.createProperty(db, "string", OType.STRING);
+      clazz.createProperty(db, "binary", OType.BINARY);
       ODocument doc = new ODocument(clazz);
       doc.field("integer", 10);
       doc.field("link", new ORecordId(1, 2));
       doc.field("string", "string");
-      doc.field("binary", new byte[] {30});
+      doc.field("binary", new byte[]{30});
 
       // the types are from the schema.
       assertEquals(doc.fieldType("integer"), OType.INTEGER);
       assertEquals(doc.fieldType("link"), OType.LINK);
       assertEquals(doc.fieldType("string"), OType.STRING);
       assertEquals(doc.fieldType("binary"), OType.BINARY);
-      ORecordSerializer ser = ODatabaseDocumentAbstract.getDefaultSerializer();
-      byte[] bytes = ser.toStream(doc);
+      ORecordSerializer ser = ODatabaseSessionAbstract.getDefaultSerializer();
+      byte[] bytes = ser.toStream(db, doc);
       doc = new ODocument();
       ser.fromStream(bytes, doc, null);
       assertEquals(doc.fieldType("integer"), OType.INTEGER);
@@ -217,8 +220,8 @@ public class ODocumentTest {
   public void testChangeTypeOnValueSet() throws Exception {
     ODocument doc = new ODocument();
     doc.field("link", new ORecordId(1, 2));
-    ORecordSerializer ser = ODatabaseDocumentAbstract.getDefaultSerializer();
-    byte[] bytes = ser.toStream(doc);
+    ORecordSerializer ser = ODatabaseSessionAbstract.getDefaultSerializer();
+    byte[] bytes = ser.toStream(db, doc);
     doc = new ODocument();
     ser.fromStream(bytes, doc, null);
     assertEquals(doc.fieldType("link"), OType.LINK);
@@ -229,16 +232,16 @@ public class ODocumentTest {
   @Test
   public void testRemovingReadonlyField() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
       OSchema schema = db.getMetadata().getSchema();
       OClass classA = schema.createClass("TestRemovingField2");
-      classA.createProperty("name", OType.STRING);
-      OProperty property = classA.createProperty("property", OType.STRING);
-      property.setReadonly(true);
+      classA.createProperty(db, "name", OType.STRING);
+      OProperty property = classA.createProperty(db, "property", OType.STRING);
+      property.setReadonly(db, true);
       db.begin();
       ODocument doc = new ODocument(classA);
       doc.field("name", "My Name");
@@ -269,15 +272,15 @@ public class ODocumentTest {
   @Test
   public void testUndo() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
       OSchema schema = db.getMetadata().getSchema();
       OClass classA = schema.createClass("TestUndo");
-      classA.createProperty("name", OType.STRING);
-      classA.createProperty("property", OType.STRING);
+      classA.createProperty(db, "name", OType.STRING);
+      classA.createProperty(db, "property", OType.STRING);
 
       db.begin();
       ODocument doc = new ODocument(classA);
@@ -388,7 +391,7 @@ public class ODocumentTest {
   @Test
   public void testNoDirtySameBytes() {
     ODocument doc = new ODocument();
-    byte[] bytes = new byte[] {0, 1, 2, 3, 4, 5};
+    byte[] bytes = new byte[]{0, 1, 2, 3, 4, 5};
     doc.field("bytes", bytes);
     ODocumentInternal.clearTrackData(doc);
     ORecordInternal.unsetDirty(doc);

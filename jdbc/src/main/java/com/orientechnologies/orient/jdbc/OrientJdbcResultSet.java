@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,7 +9,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://orientdb.com
+ * <p>*
  */
 package com.orientechnologies.orient.jdbc;
 
@@ -22,6 +20,7 @@ import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -61,8 +60,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * @author Roberto Franchini (CELI srl - franchin--at--celi.it)
- * @author Salvatore Piccione (TXT e-solutions SpA - salvo.picci--at--gmail.com)
+ *
  */
 public class OrientJdbcResultSet implements ResultSet {
 
@@ -501,7 +499,7 @@ public class OrientJdbcResultSet implements ResultSet {
       } else {
         if (value instanceof OBlob) {
           lastReadWasNull = false;
-          return ((OBlob) value).toStream();
+          return ((ORecordAbstract) value).toStream();
         }
         byte[] r = result.getProperty(columnLabel);
         lastReadWasNull = r == null;
@@ -617,13 +615,15 @@ public class OrientJdbcResultSet implements ResultSet {
     return 0;
   }
 
-  public void setFetchDirection(int direction) throws SQLException {}
+  public void setFetchDirection(int direction) throws SQLException {
+  }
 
   public int getFetchSize() throws SQLException {
     return rowCount;
   }
 
-  public void setFetchSize(int rows) throws SQLException {}
+  public void setFetchSize(int rows) throws SQLException {
+  }
 
   public float getFloat(int columnIndex) throws SQLException {
 
@@ -950,13 +950,17 @@ public class OrientJdbcResultSet implements ResultSet {
     return null;
   }
 
-  public void insertRow() throws SQLException {}
+  public void insertRow() throws SQLException {
+  }
 
-  public void moveToCurrentRow() throws SQLException {}
+  public void moveToCurrentRow() throws SQLException {
+  }
 
-  public void moveToInsertRow() throws SQLException {}
+  public void moveToInsertRow() throws SQLException {
+  }
 
-  public void refreshRow() throws SQLException {}
+  public void refreshRow() throws SQLException {
+  }
 
   public boolean rowDeleted() throws SQLException {
 
@@ -973,180 +977,263 @@ public class OrientJdbcResultSet implements ResultSet {
     return false;
   }
 
-  public void updateArray(int columnIndex, Array x) throws SQLException {}
+  public void updateArray(int columnIndex, Array x) throws SQLException {
+  }
 
-  public void updateArray(String columnLabel, Array x) throws SQLException {}
+  public void updateArray(String columnLabel, Array x) throws SQLException {
+  }
 
-  public void updateAsciiStream(int columnIndex, InputStream x) throws SQLException {}
+  public void updateAsciiStream(int columnIndex, InputStream x) throws SQLException {
+  }
 
-  public void updateAsciiStream(String columnLabel, InputStream x) throws SQLException {}
+  public void updateAsciiStream(String columnLabel, InputStream x) throws SQLException {
+  }
 
-  public void updateAsciiStream(int columnIndex, InputStream x, int length) throws SQLException {}
+  public void updateAsciiStream(int columnIndex, InputStream x, int length) throws SQLException {
+  }
 
   public void updateAsciiStream(String columnLabel, InputStream x, int length)
-      throws SQLException {}
+      throws SQLException {
+  }
 
-  public void updateAsciiStream(int columnIndex, InputStream x, long length) throws SQLException {}
+  public void updateAsciiStream(int columnIndex, InputStream x, long length) throws SQLException {
+  }
 
   public void updateAsciiStream(String columnLabel, InputStream x, long length)
-      throws SQLException {}
+      throws SQLException {
+  }
 
-  public void updateBigDecimal(int columnIndex, BigDecimal x) throws SQLException {}
+  public void updateBigDecimal(int columnIndex, BigDecimal x) throws SQLException {
+  }
 
-  public void updateBigDecimal(String columnLabel, BigDecimal x) throws SQLException {}
+  public void updateBigDecimal(String columnLabel, BigDecimal x) throws SQLException {
+  }
 
-  public void updateBinaryStream(int columnIndex, InputStream x) throws SQLException {}
+  public void updateBinaryStream(int columnIndex, InputStream x) throws SQLException {
+  }
 
-  public void updateBinaryStream(String columnLabel, InputStream x) throws SQLException {}
+  public void updateBinaryStream(String columnLabel, InputStream x) throws SQLException {
+  }
 
-  public void updateBinaryStream(int columnIndex, InputStream x, int length) throws SQLException {}
+  public void updateBinaryStream(int columnIndex, InputStream x, int length) throws SQLException {
+  }
 
   public void updateBinaryStream(String columnLabel, InputStream x, int length)
-      throws SQLException {}
+      throws SQLException {
+  }
 
-  public void updateBinaryStream(int columnIndex, InputStream x, long length) throws SQLException {}
+  public void updateBinaryStream(int columnIndex, InputStream x, long length) throws SQLException {
+  }
 
   public void updateBinaryStream(String columnLabel, InputStream x, long length)
-      throws SQLException {}
+      throws SQLException {
+  }
 
-  public void updateBlob(int columnIndex, Blob x) throws SQLException {}
+  public void updateBlob(int columnIndex, Blob x) throws SQLException {
+  }
 
-  public void updateBlob(String columnLabel, Blob x) throws SQLException {}
+  public void updateBlob(String columnLabel, Blob x) throws SQLException {
+  }
 
-  public void updateBlob(int columnIndex, InputStream inputStream) throws SQLException {}
+  public void updateBlob(int columnIndex, InputStream inputStream) throws SQLException {
+  }
 
-  public void updateBlob(String columnLabel, InputStream inputStream) throws SQLException {}
+  public void updateBlob(String columnLabel, InputStream inputStream) throws SQLException {
+  }
 
   public void updateBlob(int columnIndex, InputStream inputStream, long length)
-      throws SQLException {}
+      throws SQLException {
+  }
 
   public void updateBlob(String columnLabel, InputStream inputStream, long length)
-      throws SQLException {}
+      throws SQLException {
+  }
 
-  public void updateBoolean(int columnIndex, boolean x) throws SQLException {}
+  public void updateBoolean(int columnIndex, boolean x) throws SQLException {
+  }
 
-  public void updateBoolean(String columnLabel, boolean x) throws SQLException {}
+  public void updateBoolean(String columnLabel, boolean x) throws SQLException {
+  }
 
-  public void updateByte(int columnIndex, byte x) throws SQLException {}
+  public void updateByte(int columnIndex, byte x) throws SQLException {
+  }
 
-  public void updateByte(String columnLabel, byte x) throws SQLException {}
+  public void updateByte(String columnLabel, byte x) throws SQLException {
+  }
 
-  public void updateBytes(int columnIndex, byte[] x) throws SQLException {}
+  public void updateBytes(int columnIndex, byte[] x) throws SQLException {
+  }
 
-  public void updateBytes(String columnLabel, byte[] x) throws SQLException {}
+  public void updateBytes(String columnLabel, byte[] x) throws SQLException {
+  }
 
-  public void updateCharacterStream(int columnIndex, Reader x) throws SQLException {}
+  public void updateCharacterStream(int columnIndex, Reader x) throws SQLException {
+  }
 
-  public void updateCharacterStream(String columnLabel, Reader reader) throws SQLException {}
+  public void updateCharacterStream(String columnLabel, Reader reader) throws SQLException {
+  }
 
-  public void updateCharacterStream(int columnIndex, Reader x, int length) throws SQLException {}
+  public void updateCharacterStream(int columnIndex, Reader x, int length) throws SQLException {
+  }
 
   public void updateCharacterStream(String columnLabel, Reader reader, int length)
-      throws SQLException {}
+      throws SQLException {
+  }
 
-  public void updateCharacterStream(int columnIndex, Reader x, long length) throws SQLException {}
+  public void updateCharacterStream(int columnIndex, Reader x, long length) throws SQLException {
+  }
 
   public void updateCharacterStream(String columnLabel, Reader reader, long length)
-      throws SQLException {}
+      throws SQLException {
+  }
 
-  public void updateClob(int columnIndex, Clob x) throws SQLException {}
+  public void updateClob(int columnIndex, Clob x) throws SQLException {
+  }
 
-  public void updateClob(String columnLabel, Clob x) throws SQLException {}
+  public void updateClob(String columnLabel, Clob x) throws SQLException {
+  }
 
-  public void updateClob(int columnIndex, Reader reader) throws SQLException {}
+  public void updateClob(int columnIndex, Reader reader) throws SQLException {
+  }
 
-  public void updateClob(String columnLabel, Reader reader) throws SQLException {}
+  public void updateClob(String columnLabel, Reader reader) throws SQLException {
+  }
 
-  public void updateClob(int columnIndex, Reader reader, long length) throws SQLException {}
+  public void updateClob(int columnIndex, Reader reader, long length) throws SQLException {
+  }
 
-  public void updateClob(String columnLabel, Reader reader, long length) throws SQLException {}
+  public void updateClob(String columnLabel, Reader reader, long length) throws SQLException {
+  }
 
-  public void updateDate(int columnIndex, Date x) throws SQLException {}
+  public void updateDate(int columnIndex, Date x) throws SQLException {
+  }
 
-  public void updateDate(String columnLabel, Date x) throws SQLException {}
+  public void updateDate(String columnLabel, Date x) throws SQLException {
+  }
 
-  public void updateDouble(int columnIndex, double x) throws SQLException {}
+  public void updateDouble(int columnIndex, double x) throws SQLException {
+  }
 
-  public void updateDouble(String columnLabel, double x) throws SQLException {}
+  public void updateDouble(String columnLabel, double x) throws SQLException {
+  }
 
-  public void updateFloat(int columnIndex, float x) throws SQLException {}
+  public void updateFloat(int columnIndex, float x) throws SQLException {
+  }
 
-  public void updateFloat(String columnLabel, float x) throws SQLException {}
+  public void updateFloat(String columnLabel, float x) throws SQLException {
+  }
 
-  public void updateInt(int columnIndex, int x) throws SQLException {}
+  public void updateInt(int columnIndex, int x) throws SQLException {
+  }
 
-  public void updateInt(String columnLabel, int x) throws SQLException {}
+  public void updateInt(String columnLabel, int x) throws SQLException {
+  }
 
-  public void updateLong(int columnIndex, long x) throws SQLException {}
+  public void updateLong(int columnIndex, long x) throws SQLException {
+  }
 
-  public void updateLong(String columnLabel, long x) throws SQLException {}
+  public void updateLong(String columnLabel, long x) throws SQLException {
+  }
 
-  public void updateNCharacterStream(int columnIndex, Reader x) throws SQLException {}
+  public void updateNCharacterStream(int columnIndex, Reader x) throws SQLException {
+  }
 
-  public void updateNCharacterStream(String columnLabel, Reader reader) throws SQLException {}
+  public void updateNCharacterStream(String columnLabel, Reader reader) throws SQLException {
+  }
 
-  public void updateNCharacterStream(int columnIndex, Reader x, long length) throws SQLException {}
+  public void updateNCharacterStream(int columnIndex, Reader x, long length) throws SQLException {
+  }
 
   public void updateNCharacterStream(String columnLabel, Reader reader, long length)
-      throws SQLException {}
+      throws SQLException {
+  }
 
-  public void updateNClob(int columnIndex, NClob nClob) throws SQLException {}
+  public void updateNClob(int columnIndex, NClob nClob) throws SQLException {
+  }
 
-  public void updateNClob(String columnLabel, NClob nClob) throws SQLException {}
+  public void updateNClob(String columnLabel, NClob nClob) throws SQLException {
+  }
 
-  public void updateNClob(int columnIndex, Reader reader) throws SQLException {}
+  public void updateNClob(int columnIndex, Reader reader) throws SQLException {
+  }
 
-  public void updateNClob(String columnLabel, Reader reader) throws SQLException {}
+  public void updateNClob(String columnLabel, Reader reader) throws SQLException {
+  }
 
-  public void updateNClob(int columnIndex, Reader reader, long length) throws SQLException {}
+  public void updateNClob(int columnIndex, Reader reader, long length) throws SQLException {
+  }
 
-  public void updateNClob(String columnLabel, Reader reader, long length) throws SQLException {}
+  public void updateNClob(String columnLabel, Reader reader, long length) throws SQLException {
+  }
 
-  public void updateNString(int columnIndex, String nString) throws SQLException {}
+  public void updateNString(int columnIndex, String nString) throws SQLException {
+  }
 
-  public void updateNString(String columnLabel, String nString) throws SQLException {}
+  public void updateNString(String columnLabel, String nString) throws SQLException {
+  }
 
-  public void updateNull(int columnIndex) throws SQLException {}
+  public void updateNull(int columnIndex) throws SQLException {
+  }
 
-  public void updateNull(String columnLabel) throws SQLException {}
+  public void updateNull(String columnLabel) throws SQLException {
+  }
 
-  public void updateObject(int columnIndex, Object x) throws SQLException {}
+  public void updateObject(int columnIndex, Object x) throws SQLException {
+  }
 
-  public void updateObject(String columnLabel, Object x) throws SQLException {}
+  public void updateObject(String columnLabel, Object x) throws SQLException {
+  }
 
-  public void updateObject(int columnIndex, Object x, int scaleOrLength) throws SQLException {}
+  public void updateObject(int columnIndex, Object x, int scaleOrLength) throws SQLException {
+  }
 
-  public void updateObject(String columnLabel, Object x, int scaleOrLength) throws SQLException {}
+  public void updateObject(String columnLabel, Object x, int scaleOrLength) throws SQLException {
+  }
 
-  public void updateRef(int columnIndex, Ref x) throws SQLException {}
+  public void updateRef(int columnIndex, Ref x) throws SQLException {
+  }
 
-  public void updateRef(String columnLabel, Ref x) throws SQLException {}
+  public void updateRef(String columnLabel, Ref x) throws SQLException {
+  }
 
-  public void updateRow() throws SQLException {}
+  public void updateRow() throws SQLException {
+  }
 
-  public void updateRowId(int columnIndex, RowId x) throws SQLException {}
+  public void updateRowId(int columnIndex, RowId x) throws SQLException {
+  }
 
-  public void updateRowId(String columnLabel, RowId x) throws SQLException {}
+  public void updateRowId(String columnLabel, RowId x) throws SQLException {
+  }
 
-  public void updateSQLXML(int columnIndex, SQLXML xmlObject) throws SQLException {}
+  public void updateSQLXML(int columnIndex, SQLXML xmlObject) throws SQLException {
+  }
 
-  public void updateSQLXML(String columnLabel, SQLXML xmlObject) throws SQLException {}
+  public void updateSQLXML(String columnLabel, SQLXML xmlObject) throws SQLException {
+  }
 
-  public void updateShort(int columnIndex, short x) throws SQLException {}
+  public void updateShort(int columnIndex, short x) throws SQLException {
+  }
 
-  public void updateShort(String columnLabel, short x) throws SQLException {}
+  public void updateShort(String columnLabel, short x) throws SQLException {
+  }
 
-  public void updateString(int columnIndex, String x) throws SQLException {}
+  public void updateString(int columnIndex, String x) throws SQLException {
+  }
 
-  public void updateString(String columnLabel, String x) throws SQLException {}
+  public void updateString(String columnLabel, String x) throws SQLException {
+  }
 
-  public void updateTime(int columnIndex, Time x) throws SQLException {}
+  public void updateTime(int columnIndex, Time x) throws SQLException {
+  }
 
-  public void updateTime(String columnLabel, Time x) throws SQLException {}
+  public void updateTime(String columnLabel, Time x) throws SQLException {
+  }
 
-  public void updateTimestamp(int columnIndex, Timestamp x) throws SQLException {}
+  public void updateTimestamp(int columnIndex, Timestamp x) throws SQLException {
+  }
 
-  public void updateTimestamp(String columnLabel, Timestamp x) throws SQLException {}
+  public void updateTimestamp(String columnLabel, Timestamp x) throws SQLException {
+  }
 
   public boolean wasNull() throws SQLException {
     return lastReadWasNull;
@@ -1164,9 +1251,11 @@ public class OrientJdbcResultSet implements ResultSet {
     }
   }
 
-  public void cancelRowUpdates() throws SQLException {}
+  public void cancelRowUpdates() throws SQLException {
+  }
 
-  public void clearWarnings() throws SQLException {}
+  public void clearWarnings() throws SQLException {
+  }
 
   public <T> T getObject(int arg0, Class<T> arg1) throws SQLException {
     return null;

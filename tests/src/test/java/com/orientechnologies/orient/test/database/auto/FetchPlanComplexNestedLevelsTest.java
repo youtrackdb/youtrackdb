@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public class FetchPlanComplexNestedLevelsTest extends DocumentDBBaseTest {
           .getSchema()
           .createClass("PersonTest", database.getMetadata().getSchema().getClass("V"));
     } else if (personTest.getSuperClass() == null) {
-      personTest.setSuperClass(database.getMetadata().getSchema().getClass("V"));
+      personTest.setSuperClass(database, database.getMetadata().getSchema().getClass("V"));
     }
 
     final OClass followTest = database.getMetadata().getSchema().getClass("FollowTest");
@@ -53,7 +53,7 @@ public class FetchPlanComplexNestedLevelsTest extends DocumentDBBaseTest {
           .getSchema()
           .createClass("FollowTest", database.getMetadata().getSchema().getClass("E"));
     } else if (followTest.getSuperClass() == null) {
-      followTest.setSuperClass(database.getMetadata().getSchema().getClass("E"));
+      followTest.setSuperClass(database, database.getMetadata().getSchema().getClass("E"));
     }
 
     database.begin();
@@ -87,7 +87,8 @@ public class FetchPlanComplexNestedLevelsTest extends DocumentDBBaseTest {
 
     Assert.assertNotNull(json);
 
-    final ODocument parsed = new ODocument().fromJSON(json);
+    final ODocument parsed = new ODocument();
+    parsed.fromJSON(json);
 
     Assert.assertNotNull(parsed.rawField("out_FollowTest.in.out_FollowTest"));
   }
@@ -105,7 +106,8 @@ public class FetchPlanComplexNestedLevelsTest extends DocumentDBBaseTest {
 
     Assert.assertNotNull(json);
 
-    final ODocument parsed = new ODocument().fromJSON(json);
+    final ODocument parsed = new ODocument();
+    parsed.fromJSON(json);
 
     Assert.assertNotNull(parsed.rawField("out_FollowTest.in.out_FollowTest"));
   }

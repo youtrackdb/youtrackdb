@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.client.remote.db.document;
 
-import com.orientechnologies.orient.client.remote.OrientDBRemote;
+import com.orientechnologies.orient.client.remote.OxygenDBRemote;
 import com.orientechnologies.orient.client.remote.metadata.schema.OSchemaRemote;
 import com.orientechnologies.orient.client.remote.metadata.security.OSecurityRemote;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
@@ -14,11 +14,11 @@ import com.orientechnologies.orient.core.schedule.OSchedulerImpl;
 import com.orientechnologies.orient.core.storage.OStorageInfo;
 
 /**
- * Created by tglman on 13/06/17.
+ *
  */
 public class OSharedContextRemote extends OSharedContext {
 
-  public OSharedContextRemote(OStorageInfo storage, OrientDBRemote orientDBRemote) {
+  public OSharedContextRemote(OStorageInfo storage, OxygenDBRemote orientDBRemote) {
     stringCache =
         new OStringCache(
             orientDBRemote
@@ -46,7 +46,7 @@ public class OSharedContextRemote extends OSharedContext {
         schema.forceSnapshot(database);
         security.load(database);
         sequenceLibrary.load(database);
-        schema.onPostIndexManagement();
+        schema.onPostIndexManagement(database);
         loaded = true;
       }
     } finally {
@@ -70,7 +70,7 @@ public class OSharedContextRemote extends OSharedContext {
 
   public synchronized void reload(ODatabaseSessionInternal database) {
     schema.reload(database);
-    indexManager.reload();
+    indexManager.reload(database);
     // The Immutable snapshot should be after index and schema that require and before everything
     // else that use it
     schema.forceSnapshot(database);

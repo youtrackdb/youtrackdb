@@ -4,7 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by luigidellaquila on 26/04/16.
+ *
  */
 public class OIdentifierTest {
 

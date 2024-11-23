@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,7 +9,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://www.orientdb.com
+ * <p>*
  */
 package com.orientechnologies.spatial.shape;
 
@@ -45,7 +43,8 @@ public class ORectangleShapeBuilder extends OShapeBuilder<Rectangle> {
 
     OSchema schema = db.getMetadata().getSchema();
     OClass rectangle = schema.createAbstractClass(NAME, superClass(db));
-    OProperty coordinates = rectangle.createProperty(COORDINATES, OType.EMBEDDEDLIST, OType.DOUBLE);
+    OProperty coordinates = rectangle.createProperty(db, COORDINATES, OType.EMBEDDEDLIST,
+        OType.DOUBLE);
     coordinates.setMin("4");
     coordinates.setMin("4");
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.orientechnologies.lucene.index;
 
 import com.orientechnologies.lucene.engine.OLuceneIndexEngine;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OInvalidIndexEngineIdException;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
 import com.orientechnologies.orient.core.storage.OStorage;
@@ -30,7 +31,7 @@ public class OLuceneFullTextIndex extends OLuceneIndexNotUnique {
     super(im, storage);
   }
 
-  public Document buildDocument(final Object key) {
+  public Document buildDocument(ODatabaseSessionInternal session, final Object key) {
 
     while (true) {
       try {
@@ -39,7 +40,7 @@ public class OLuceneFullTextIndex extends OLuceneIndexNotUnique {
             indexId,
             engine -> {
               OLuceneIndexEngine indexEngine = (OLuceneIndexEngine) engine;
-              return indexEngine.buildDocument(key, null);
+              return indexEngine.buildDocument(session, key, null);
             });
       } catch (OInvalidIndexEngineIdException e) {
         doReloadIndexEngine();

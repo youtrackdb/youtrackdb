@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2016 OrientDB LTD (info(at)orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.record.impl;
@@ -36,7 +36,7 @@ import com.orientechnologies.orient.core.record.OVertex;
 import java.util.Iterator;
 
 /**
- * @author Luigi Dell'Aquila
+ *
  */
 public class OEdgeIterator extends OLazyWrapperIterator<OEdge> {
 
@@ -101,7 +101,7 @@ public class OEdgeIterator extends OLazyWrapperIterator<OEdge> {
               rec,
               sourceVertex != null ? sourceVertex.getIdentity() : null,
               targetVertex != null ? targetVertex.getIdentity() : null,
-              ((ORecordAbstract) record).getDatabase().getURL());
+              ((ORecordAbstract) record).getSession().getURL());
       return null;
     }
 

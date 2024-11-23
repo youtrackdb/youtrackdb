@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.db;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.server.OServer;
@@ -32,19 +32,19 @@ public class ODatabasePoolRemoteTest {
 
   @Test
   public void testPoolCloseTx() {
-    OrientDB orientDb =
-        new OrientDB(
+    OxygenDB oxygenDb =
+        new OxygenDB(
             "remote:localhost:",
             "root",
             "root",
-            OrientDBConfig.builder().addConfig(OGlobalConfiguration.DB_POOL_MAX, 1).build());
+            OxygenDBConfig.builder().addConfig(OGlobalConfiguration.DB_POOL_MAX, 1).build());
 
-    if (!orientDb.exists("test")) {
-      orientDb.execute(
+    if (!oxygenDb.exists("test")) {
+      oxygenDb.execute(
           "create database test memory users (admin identified by 'admin' role admin)");
     }
 
-    ODatabasePool pool = new ODatabasePool(orientDb, "test", "admin", "admin");
+    ODatabasePool pool = new ODatabasePool(oxygenDb, "test", "admin", "admin");
     ODatabaseSessionInternal db = (ODatabaseSessionInternal) pool.acquire();
     db.createClass("Test");
     db.begin();
@@ -54,34 +54,34 @@ public class ODatabasePoolRemoteTest {
     assertEquals(db.countClass("Test"), 0);
 
     pool.close();
-    orientDb.close();
+    oxygenDb.close();
   }
 
   @Test
   public void testPoolDoubleClose() {
-    OrientDB orientDb =
-        new OrientDB(
+    OxygenDB oxygenDb =
+        new OxygenDB(
             "embedded:",
-            OrientDBConfig.builder().addConfig(OGlobalConfiguration.DB_POOL_MAX, 1).build());
+            OxygenDBConfig.builder().addConfig(OGlobalConfiguration.DB_POOL_MAX, 1).build());
 
-    if (!orientDb.exists("test")) {
-      orientDb.execute(
+    if (!oxygenDb.exists("test")) {
+      oxygenDb.execute(
           "create database test memory users (admin identified by 'admin' role admin)");
     }
 
-    ODatabasePool pool = new ODatabasePool(orientDb, "test", "admin", "admin");
+    ODatabasePool pool = new ODatabasePool(oxygenDb, "test", "admin", "admin");
     var db = pool.acquire();
     db.close();
     pool.close();
-    orientDb.close();
+    oxygenDb.close();
   }
 
   @After
   public void after() {
 
     server.shutdown();
-    Orient.instance().shutdown();
+    Oxygen.instance().shutdown();
     OFileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
-    Orient.instance().startup();
+    Oxygen.instance().startup();
   }
 }

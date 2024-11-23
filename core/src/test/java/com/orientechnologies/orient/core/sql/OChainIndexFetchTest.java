@@ -16,14 +16,14 @@ public class OChainIndexFetchTest extends BaseMemoryDatabase {
   @Test
   public void testFetchChaninedIndex() {
     OClass baseClass = db.getMetadata().getSchema().createClass("BaseClass");
-    OProperty propr = baseClass.createProperty("ref", OType.LINK);
+    OProperty propr = baseClass.createProperty(db, "ref", OType.LINK);
 
     OClass linkedClass = db.getMetadata().getSchema().createClass("LinkedClass");
-    OProperty id = linkedClass.createProperty("id", OType.STRING);
-    id.createIndex(INDEX_TYPE.UNIQUE);
+    OProperty id = linkedClass.createProperty(db, "id", OType.STRING);
+    id.createIndex(db, INDEX_TYPE.UNIQUE);
 
-    propr.setLinkedClass(linkedClass);
-    propr.createIndex(INDEX_TYPE.NOTUNIQUE);
+    propr.setLinkedClass(db, linkedClass);
+    propr.createIndex(db, INDEX_TYPE.NOTUNIQUE);
 
     db.begin();
     ODocument doc = new ODocument(linkedClass);

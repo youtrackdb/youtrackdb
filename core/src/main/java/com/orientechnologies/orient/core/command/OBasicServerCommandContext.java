@@ -1,23 +1,24 @@
 package com.orientechnologies.orient.core.command;
 
-import com.orientechnologies.orient.core.db.OrientDBInternal;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 
 public class OBasicServerCommandContext extends OBasicCommandContext
     implements OServerCommandContext {
 
-  private OrientDBInternal server;
+  private OxygenDBInternal server;
 
-  public OBasicServerCommandContext() {}
+  public OBasicServerCommandContext() {
+  }
 
-  public OBasicServerCommandContext(OrientDBInternal server) {
+  public OBasicServerCommandContext(OxygenDBInternal server) {
     this.server = server;
   }
 
-  public OrientDBInternal getServer() {
+  public OxygenDBInternal getServer() {
     return server;
   }
 
-  public void setServer(OrientDBInternal server) {
+  public void setServer(OxygenDBInternal server) {
     this.server = server;
   }
 }

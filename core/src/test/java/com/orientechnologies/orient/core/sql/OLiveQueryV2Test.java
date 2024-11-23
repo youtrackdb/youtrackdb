@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2015 OrientDB LTD (info(at)orientdb.com)
+ *  *  Copyright 2015 OxygenDB LTD (info(at)orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql;
@@ -25,7 +25,7 @@ import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
-import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
@@ -48,7 +48,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author Luigi Dell'Aquila (l.dellaquila - at - orientdb.com)
+ *
  */
 public class OLiveQueryV2Test {
 
@@ -81,10 +81,12 @@ public class OLiveQueryV2Test {
     }
 
     @Override
-    public void onError(ODatabaseSession database, OException exception) {}
+    public void onError(ODatabaseSession database, OException exception) {
+    }
 
     @Override
-    public void onEnd(ODatabaseSession database) {}
+    public void onEnd(ODatabaseSession database) {
+    }
   }
 
   @Test
@@ -130,7 +132,7 @@ public class OLiveQueryV2Test {
 
   @Test
   public void testLiveInsertOnCluster() {
-    final OrientDB context =
+    final OxygenDB context =
         OCreateDatabaseUtil.createDatabase(
             "testLiveInsertOnCluster", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
     try (ODatabaseSessionInternal db =
@@ -169,7 +171,7 @@ public class OLiveQueryV2Test {
 
   @Test
   public void testLiveWithWhereCondition() {
-    final OrientDB context =
+    final OxygenDB context =
         OCreateDatabaseUtil.createDatabase(
             "testLiveWithWhereCondition", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
     try (ODatabaseSessionInternal db =
@@ -218,7 +220,7 @@ public class OLiveQueryV2Test {
           db.query(new OSQLSynchQuery("select from OUSer where name = 'reader'"));
 
       final OIdentifiable reader = query.iterator().next().getIdentity();
-      final OIdentifiable current = db.getUser().getIdentity();
+      final OIdentifiable current = db.getUser().getIdentity(db);
 
       ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -257,10 +259,12 @@ public class OLiveQueryV2Test {
                         }
 
                         @Override
-                        public void onError(ODatabaseSession database, OException exception) {}
+                        public void onError(ODatabaseSession database, OException exception) {
+                        }
 
                         @Override
-                        public void onEnd(ODatabaseSession database) {}
+                        public void onEnd(ODatabaseSession database) {
+                        }
                       });
 
                   latch.countDown();

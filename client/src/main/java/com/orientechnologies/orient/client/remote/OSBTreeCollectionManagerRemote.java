@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -24,7 +24,7 @@ import com.orientechnologies.common.concur.resource.OCloseable;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.OOrientShutdownListener;
 import com.orientechnologies.orient.core.OOrientStartupListener;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
@@ -38,21 +38,21 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * @author Artem Orobets (enisher-at-gmail.com)
+ *
  */
 public class OSBTreeCollectionManagerRemote
     implements OCloseable,
-        OSBTreeCollectionManager,
-        OOrientStartupListener,
-        OOrientShutdownListener {
+    OSBTreeCollectionManager,
+    OOrientStartupListener,
+    OOrientShutdownListener {
 
   private volatile ThreadLocal<Map<UUID, WeakReference<ORidBag>>> pendingCollections =
       new PendingCollectionsThreadLocal();
 
   public OSBTreeCollectionManagerRemote() {
 
-    Orient.instance().registerWeakOrientStartupListener(this);
-    Orient.instance().registerWeakOrientShutdownListener(this);
+    Oxygen.instance().registerWeakOrientStartupListener(this);
+    Oxygen.instance().registerWeakOrientShutdownListener(this);
   }
 
   @Override
@@ -154,19 +154,23 @@ public class OSBTreeCollectionManagerRemote
   }
 
   @Override
-  public void releaseSBTree(OBonsaiCollectionPointer collectionPointer) {}
+  public void releaseSBTree(OBonsaiCollectionPointer collectionPointer) {
+  }
 
   @Override
-  public void delete(OBonsaiCollectionPointer collectionPointer) {}
+  public void delete(OBonsaiCollectionPointer collectionPointer) {
+  }
 
   @Override
   public void close() {
     clear();
   }
 
-  public void clear() {}
+  public void clear() {
+  }
 
-  void clearClusterCache(final long fileId, String fileName) {}
+  void clearClusterCache(final long fileId, String fileName) {
+  }
 
   int size() {
     return 0;

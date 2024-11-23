@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2014 OrientDB LTD (info--at--orientdb.com)
+ * Copyright OxygenDB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,9 @@
 package com.orientechnologies.orient.core.metadata.schema;
 
 import com.orientechnologies.common.listener.OProgressListener;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYPE;
 import com.orientechnologies.orient.core.metadata.schema.clusterselection.OClusterSelectionStrategy;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.io.IOException;
@@ -29,8 +30,6 @@ import java.util.Set;
 
 /**
  * Abstract Delegate for OClass interface.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com) (http://orientdb.com)
  */
 public abstract class OClassAbstractDelegate implements OClass {
 
@@ -45,8 +44,8 @@ public abstract class OClassAbstractDelegate implements OClass {
   }
 
   @Override
-  public OIndex getAutoShardingIndex() {
-    return delegate.getAutoShardingIndex();
+  public OIndex getAutoShardingIndex(ODatabaseSession session) {
+    return delegate.getAutoShardingIndex(session);
   }
 
   @Override
@@ -60,14 +59,14 @@ public abstract class OClassAbstractDelegate implements OClass {
   }
 
   @Override
-  public OClass setAbstract(final boolean iAbstract) {
-    delegate.setAbstract(iAbstract);
+  public OClass setAbstract(ODatabaseSession session, final boolean iAbstract) {
+    delegate.setAbstract(session, iAbstract);
     return this;
   }
 
   @Override
-  public OClass setStrictMode(final boolean iMode) {
-    delegate.setStrictMode(iMode);
+  public OClass setStrictMode(ODatabaseSession session, final boolean iMode) {
+    delegate.setStrictMode(session, iMode);
     return this;
   }
 
@@ -79,8 +78,8 @@ public abstract class OClassAbstractDelegate implements OClass {
 
   @Override
   @Deprecated
-  public OClass setSuperClass(final OClass iSuperClass) {
-    delegate.setSuperClass(iSuperClass);
+  public OClass setSuperClass(ODatabaseSession session, final OClass iSuperClass) {
+    delegate.setSuperClass(session, iSuperClass);
     return this;
   }
 
@@ -100,8 +99,8 @@ public abstract class OClassAbstractDelegate implements OClass {
   }
 
   @Override
-  public OClass setSuperClasses(final List<? extends OClass> classes) {
-    delegate.setSuperClasses(classes);
+  public OClass setSuperClasses(ODatabaseSession session, final List<? extends OClass> classes) {
+    delegate.setSuperClasses(session, classes);
     return this;
   }
 
@@ -111,25 +110,25 @@ public abstract class OClassAbstractDelegate implements OClass {
   }
 
   @Override
-  public void getIndexes(final Collection<OIndex> indexes) {
-    delegate.getIndexes(indexes);
+  public void getIndexes(ODatabaseSession session, final Collection<OIndex> indexes) {
+    delegate.getIndexes(session, indexes);
   }
 
   @Override
-  public OClass addSuperClass(final OClass superClass) {
-    delegate.addSuperClass(superClass);
+  public OClass addSuperClass(ODatabaseSession session, final OClass superClass) {
+    delegate.addSuperClass(session, superClass);
     return this;
   }
 
   @Override
-  public OClass removeSuperClass(final OClass superClass) {
-    delegate.removeSuperClass(superClass);
+  public OClass removeSuperClass(ODatabaseSession session, final OClass superClass) {
+    delegate.removeSuperClass(session, superClass);
     return this;
   }
 
   @Override
-  public OClass setName(final String iName) {
-    delegate.setName(iName);
+  public OClass setName(ODatabaseSession session, final String iName) {
+    delegate.setName(session, iName);
     return this;
   }
 
@@ -144,18 +143,18 @@ public abstract class OClassAbstractDelegate implements OClass {
   }
 
   @Override
-  public Collection<OProperty> properties() {
-    return delegate.properties();
+  public Collection<OProperty> properties(ODatabaseSession session) {
+    return delegate.properties(session);
   }
 
   @Override
-  public Map<String, OProperty> propertiesMap() {
-    return delegate.propertiesMap();
+  public Map<String, OProperty> propertiesMap(ODatabaseSession session) {
+    return delegate.propertiesMap(session);
   }
 
   @Override
-  public Collection<OProperty> getIndexedProperties() {
-    return delegate.getIndexedProperties();
+  public Collection<OProperty> getIndexedProperties(ODatabaseSession session) {
+    return delegate.getIndexedProperties(session);
   }
 
   @Override
@@ -164,37 +163,42 @@ public abstract class OClassAbstractDelegate implements OClass {
   }
 
   @Override
-  public OProperty createProperty(final String iPropertyName, final OType iType) {
-    return delegate.createProperty(iPropertyName, iType);
+  public OProperty createProperty(ODatabaseSession session, final String iPropertyName,
+      final OType iType) {
+    return delegate.createProperty(session, iPropertyName, iType);
   }
 
   @Override
   public OProperty createProperty(
-      final String iPropertyName, final OType iType, final OClass iLinkedClass) {
-    return delegate.createProperty(iPropertyName, iType, iLinkedClass);
+      ODatabaseSession session, final String iPropertyName, final OType iType,
+      final OClass iLinkedClass) {
+    return delegate.createProperty(session, iPropertyName, iType, iLinkedClass);
   }
 
   @Override
   public OProperty createProperty(
-      String iPropertyName, OType iType, OClass iLinkedClass, boolean unsafe) {
-    return delegate.createProperty(iPropertyName, iType, iLinkedClass, unsafe);
+      ODatabaseSession session, String iPropertyName, OType iType, OClass iLinkedClass,
+      boolean unsafe) {
+    return delegate.createProperty(session, iPropertyName, iType, iLinkedClass, unsafe);
   }
 
   @Override
   public OProperty createProperty(
-      final String iPropertyName, final OType iType, final OType iLinkedType) {
-    return delegate.createProperty(iPropertyName, iType, iLinkedType);
+      ODatabaseSession session, final String iPropertyName, final OType iType,
+      final OType iLinkedType) {
+    return delegate.createProperty(session, iPropertyName, iType, iLinkedType);
   }
 
   @Override
   public OProperty createProperty(
-      String iPropertyName, OType iType, OType iLinkedType, boolean unsafe) {
-    return delegate.createProperty(iPropertyName, iType, iLinkedType, unsafe);
+      ODatabaseSession session, String iPropertyName, OType iType, OType iLinkedType,
+      boolean unsafe) {
+    return delegate.createProperty(session, iPropertyName, iType, iLinkedType, unsafe);
   }
 
   @Override
-  public void dropProperty(final String iPropertyName) {
-    delegate.dropProperty(iPropertyName);
+  public void dropProperty(ODatabaseSession session, final String iPropertyName) {
+    delegate.dropProperty(session, iPropertyName);
   }
 
   @Override
@@ -213,8 +217,8 @@ public abstract class OClassAbstractDelegate implements OClass {
   }
 
   @Override
-  public void setDefaultClusterId(final int iDefaultClusterId) {
-    delegate.setDefaultClusterId(iDefaultClusterId);
+  public void setDefaultClusterId(ODatabaseSession session, final int iDefaultClusterId) {
+    delegate.setDefaultClusterId(session, iDefaultClusterId);
   }
 
   @Override
@@ -223,8 +227,8 @@ public abstract class OClassAbstractDelegate implements OClass {
   }
 
   @Override
-  public OClass addClusterId(final int iId) {
-    delegate.addClusterId(iId);
+  public OClass addClusterId(ODatabaseSession session, final int iId) {
+    delegate.addClusterId(session, iId);
     return this;
   }
 
@@ -234,20 +238,21 @@ public abstract class OClassAbstractDelegate implements OClass {
   }
 
   @Override
-  public OClass setClusterSelection(final OClusterSelectionStrategy clusterSelection) {
-    delegate.setClusterSelection(clusterSelection);
+  public OClass setClusterSelection(ODatabaseSession session,
+      final OClusterSelectionStrategy clusterSelection) {
+    delegate.setClusterSelection(session, clusterSelection);
     return this;
   }
 
   @Override
-  public OClass setClusterSelection(final String iStrategyName) {
-    delegate.setClusterSelection(iStrategyName);
+  public OClass setClusterSelection(ODatabaseSession session, final String iStrategyName) {
+    delegate.setClusterSelection(session, iStrategyName);
     return this;
   }
 
   @Override
-  public OClass addCluster(final String iClusterName) {
-    delegate.addCluster(iClusterName);
+  public OClass addCluster(ODatabaseSession session, final String iClusterName) {
+    delegate.addCluster(session, iClusterName);
     return this;
   }
 
@@ -255,15 +260,15 @@ public abstract class OClassAbstractDelegate implements OClass {
    * {@inheritDoc}
    */
   @Override
-  public OClass truncateCluster(String clusterName) {
-    delegate.truncateCluster(clusterName);
+  public OClass truncateCluster(ODatabaseSession session, String clusterName) {
+    delegate.truncateCluster(session, clusterName);
 
     return this;
   }
 
   @Override
-  public OClass removeClusterId(final int iId) {
-    delegate.removeClusterId(iId);
+  public OClass removeClusterId(ODatabaseSession session, final int iId) {
+    delegate.removeClusterId(session, iId);
     return this;
   }
 
@@ -300,8 +305,8 @@ public abstract class OClassAbstractDelegate implements OClass {
   }
 
   @Override
-  public long getSize() {
-    return delegate.getSize();
+  public long getSize(ODatabaseSessionInternal session) {
+    return delegate.getSize(session);
   }
 
   @Override
@@ -310,24 +315,24 @@ public abstract class OClassAbstractDelegate implements OClass {
   }
 
   @Override
-  public OClass setOverSize(final float overSize) {
-    delegate.setOverSize(overSize);
+  public OClass setOverSize(ODatabaseSession session, final float overSize) {
+    delegate.setOverSize(session, overSize);
     return this;
   }
 
   @Override
-  public long count() {
-    return delegate.count();
+  public long count(ODatabaseSession session) {
+    return delegate.count(session);
   }
 
   @Override
-  public long count(final boolean iPolymorphic) {
-    return delegate.count(iPolymorphic);
+  public long count(ODatabaseSession session, final boolean iPolymorphic) {
+    return delegate.count(session, iPolymorphic);
   }
 
   @Override
-  public void truncate() throws IOException {
-    delegate.truncate();
+  public void truncate(ODatabaseSession session) throws IOException {
+    delegate.truncate(session);
   }
 
   @Override
@@ -351,8 +356,8 @@ public abstract class OClassAbstractDelegate implements OClass {
   }
 
   @Override
-  public OClass setShortName(final String shortName) {
-    delegate.setShortName(shortName);
+  public OClass setShortName(ODatabaseSession session, final String shortName) {
+    delegate.setShortName(session, shortName);
     return this;
   }
 
@@ -362,8 +367,8 @@ public abstract class OClassAbstractDelegate implements OClass {
   }
 
   @Override
-  public OClass setDescription(String iDescription) {
-    delegate.setDescription(iDescription);
+  public OClass setDescription(ODatabaseSession session, String iDescription) {
+    delegate.setDescription(session, iDescription);
     return this;
   }
 
@@ -373,99 +378,103 @@ public abstract class OClassAbstractDelegate implements OClass {
   }
 
   @Override
-  public OClass set(ATTRIBUTES attribute, Object iValue) {
-    delegate.set(attribute, iValue);
+  public OClass set(ODatabaseSession session, ATTRIBUTES attribute, Object iValue) {
+    delegate.set(session, attribute, iValue);
     return this;
   }
 
   @Override
-  public OIndex createIndex(final String iName, final INDEX_TYPE iType, final String... fields) {
-    return delegate.createIndex(iName, iType, fields);
+  public OIndex createIndex(ODatabaseSession session, final String iName, final INDEX_TYPE iType,
+      final String... fields) {
+    return delegate.createIndex(session, iName, iType, fields);
   }
 
   @Override
-  public OIndex createIndex(final String iName, final String iType, final String... fields) {
-    return delegate.createIndex(iName, iType, fields);
+  public OIndex createIndex(ODatabaseSession session, final String iName, final String iType,
+      final String... fields) {
+    return delegate.createIndex(session, iName, iType, fields);
   }
 
   @Override
   public OIndex createIndex(
-      final String iName,
+      ODatabaseSession session, final String iName,
       final INDEX_TYPE iType,
       final OProgressListener iProgressListener,
       final String... fields) {
-    return delegate.createIndex(iName, iType, iProgressListener, fields);
+    return delegate.createIndex(session, iName, iType, iProgressListener, fields);
   }
 
   @Override
   public OIndex createIndex(
-      final String iName,
+      ODatabaseSession session, final String iName,
       final String iType,
       final OProgressListener iProgressListener,
       final ODocument metadata,
       String algorithm,
       String... fields) {
-    return delegate.createIndex(iName, iType, iProgressListener, metadata, algorithm, fields);
+    return delegate.createIndex(session, iName, iType, iProgressListener, metadata, algorithm,
+        fields);
   }
 
   @Override
   public OIndex createIndex(
-      final String iName,
+      ODatabaseSession session, final String iName,
       final String iType,
       final OProgressListener iProgressListener,
       final ODocument metadata,
       String... fields) {
-    return delegate.createIndex(iName, iType, iProgressListener, metadata, fields);
+    return delegate.createIndex(session, iName, iType, iProgressListener, metadata, fields);
   }
 
   @Override
-  public Set<OIndex> getInvolvedIndexes(final Collection<String> fields) {
-    return delegate.getInvolvedIndexes(fields);
+  public Set<OIndex> getInvolvedIndexes(ODatabaseSession session, final Collection<String> fields) {
+    return delegate.getInvolvedIndexes(session, fields);
   }
 
   @Override
-  public Set<OIndex> getInvolvedIndexes(final String... fields) {
-    return delegate.getInvolvedIndexes(fields);
+  public Set<OIndex> getInvolvedIndexes(ODatabaseSession session, final String... fields) {
+    return delegate.getInvolvedIndexes(session, fields);
   }
 
   @Override
-  public Set<OIndex> getClassInvolvedIndexes(final Collection<String> fields) {
-    return delegate.getClassInvolvedIndexes(fields);
+  public Set<OIndex> getClassInvolvedIndexes(ODatabaseSession session,
+      final Collection<String> fields) {
+    return delegate.getClassInvolvedIndexes(session, fields);
   }
 
   @Override
-  public Set<OIndex> getClassInvolvedIndexes(final String... fields) {
-    return delegate.getClassInvolvedIndexes(fields);
+  public Set<OIndex> getClassInvolvedIndexes(ODatabaseSession session, final String... fields) {
+    return delegate.getClassInvolvedIndexes(session, fields);
   }
 
   @Override
-  public boolean areIndexed(final Collection<String> fields) {
-    return delegate.areIndexed(fields);
+  public boolean areIndexed(ODatabaseSession session, final Collection<String> fields) {
+    return delegate.areIndexed(session, fields);
   }
 
   @Override
-  public boolean areIndexed(final String... fields) {
-    return delegate.areIndexed(fields);
+  public boolean areIndexed(ODatabaseSession session, final String... fields) {
+    return delegate.areIndexed(session, fields);
   }
 
   @Override
-  public OIndex getClassIndex(final String iName) {
-    return delegate.getClassIndex(iName);
+  public OIndex getClassIndex(ODatabaseSession session, final String iName) {
+    return delegate.getClassIndex(session, iName);
   }
 
   @Override
-  public Set<OIndex> getClassIndexes() {
-    return delegate.getClassIndexes();
+  public Set<OIndex> getClassIndexes(ODatabaseSession session) {
+    return delegate.getClassIndexes(session);
   }
 
   @Override
-  public void getClassIndexes(final Collection<OIndex> indexes) {
-    delegate.getClassIndexes(indexes);
+  public void getClassIndexes(ODatabaseSession session, final Collection<OIndex> indexes) {
+    delegate.getClassIndexes(session, indexes);
   }
 
   @Override
-  public Set<OIndex> getIndexes() {
-    return delegate.getIndexes();
+  public Set<OIndex> getIndexes(ODatabaseSession session) {
+    return delegate.getIndexes(session);
   }
 
   @Override
@@ -474,19 +483,19 @@ public abstract class OClassAbstractDelegate implements OClass {
   }
 
   @Override
-  public OClass setCustom(final String iName, String iValue) {
-    delegate.setCustom(iName, iValue);
+  public OClass setCustom(ODatabaseSession session, final String iName, String iValue) {
+    delegate.setCustom(session, iName, iValue);
     return this;
   }
 
   @Override
-  public void removeCustom(final String iName) {
-    delegate.removeCustom(iName);
+  public void removeCustom(ODatabaseSession session, final String iName) {
+    delegate.removeCustom(session, iName);
   }
 
   @Override
-  public void clearCustom() {
-    delegate.clearCustom();
+  public void clearCustom(ODatabaseSession session) {
+    delegate.clearCustom(session);
   }
 
   @Override

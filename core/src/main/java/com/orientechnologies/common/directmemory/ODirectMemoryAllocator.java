@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2018 OrientDB LTD (http://orientdb.com)
+ *  *  Copyright 2010-2018 OxygenDB LTD (http://orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -24,12 +24,17 @@ import com.kenai.jffi.MemoryIO;
 import com.orientechnologies.common.exception.ODirectMemoryAllocationFailedException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.types.OModifiableLong;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.LongAdder;
@@ -85,7 +90,7 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
    * WeakReference to the allocated pointer. We use those references to track stack traces where
    * those pointers were allocated. Even if reference to the pointer will be collected we still will
    * have information where it was allocated and also presence of this pointers into the queue
-   * during OrientDB engine shutdown indicates that direct memory was not released back and there
+   * during OxygenDB engine shutdown indicates that direct memory was not released back and there
    * are memory leaks in application.
    */
   private final Set<TrackedPointerReference> trackedReferences;
@@ -137,7 +142,7 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
 
     if (PROFILE_MEMORY) {
       final long printInterval = (long) MEMORY_STATISTICS_PRINTING_INTERVAL * 60 * 1_000;
-      Orient.instance()
+      Oxygen.instance()
           .scheduleTask(new MemoryStatPrinter(consumptionMaps), printInterval, printInterval);
     }
   }
@@ -270,7 +275,7 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
     final StringBuilder stringBuilder = new StringBuilder();
     stringBuilder.append(
         "\r\n-----------------------------------------------------------------------------\r\n");
-    stringBuilder.append("Memory profiling results for OrientDB direct memory allocation\r\n");
+    stringBuilder.append("Memory profiling results for OxygenDB direct memory allocation\r\n");
     stringBuilder.append("Amount of memory consumed by category in bytes/Kb/Mb/Gb\r\n");
     stringBuilder.append("\r\n");
 
@@ -404,7 +409,7 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
 
         final TrackedPointerReference reference = trackedBuffers.remove(trackedBufferKey);
         if (reference == null) {
-          final Object[] iAdditionalArgs = new Object[] {id(pointer)};
+          final Object[] iAdditionalArgs = new Object[]{id(pointer)};
           OLogManager.instance()
               .error(
                   this,

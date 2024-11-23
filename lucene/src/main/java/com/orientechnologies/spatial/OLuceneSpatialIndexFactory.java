@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,7 +9,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://www.orientdb.com
+ * <p>*
  */
 package com.orientechnologies.spatial;
 
@@ -19,7 +17,7 @@ import static com.orientechnologies.lucene.OLuceneIndexFactory.LUCENE_ALGORITHM;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.config.IndexEngineData;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
@@ -66,7 +64,7 @@ public class OLuceneSpatialIndexFactory implements OIndexFactory, ODatabaseLifec
 
   public OLuceneSpatialIndexFactory(boolean manual) {
     if (!manual) {
-      Orient.instance().addDbLifecycleListener(this);
+      Oxygen.instance().addDbLifecycleListener(this);
     }
 
     spatialManager = new OLuceneSpatialManager(OShapeFactory.INSTANCE);
@@ -134,10 +132,12 @@ public class OLuceneSpatialIndexFactory implements OIndexFactory, ODatabaseLifec
   }
 
   @Override
-  public void onOpen(ODatabaseSessionInternal iDatabase) {}
+  public void onOpen(ODatabaseSessionInternal iDatabase) {
+  }
 
   @Override
-  public void onClose(ODatabaseSessionInternal iDatabase) {}
+  public void onClose(ODatabaseSessionInternal iDatabase) {
+  }
 
   @Override
   public void onDrop(final ODatabaseSessionInternal db) {
@@ -161,11 +161,14 @@ public class OLuceneSpatialIndexFactory implements OIndexFactory, ODatabaseLifec
   }
 
   @Override
-  public void onCreateClass(ODatabaseSessionInternal iDatabase, OClass iClass) {}
+  public void onCreateClass(ODatabaseSessionInternal iDatabase, OClass iClass) {
+  }
 
   @Override
-  public void onDropClass(ODatabaseSessionInternal iDatabase, OClass iClass) {}
+  public void onDropClass(ODatabaseSessionInternal iDatabase, OClass iClass) {
+  }
 
   @Override
-  public void onLocalNodeConfigurationRequest(ODocument iConfiguration) {}
+  public void onLocalNodeConfigurationRequest(ODocument iConfiguration) {
+  }
 }

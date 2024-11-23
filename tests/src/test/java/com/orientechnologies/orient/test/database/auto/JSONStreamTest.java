@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -139,7 +139,8 @@ public class JSONStreamTest extends DocumentDBBaseTest {
             + " 03:17:04\"}";
     doc.fromJSON(new ByteArrayInputStream(docString.getBytes(StandardCharsets.UTF_8)));
     final String json = doc.toJSON();
-    final ODocument loadedDoc = new ODocument().fromJSON(json);
+    final ODocument loadedDoc = new ODocument();
+    loadedDoc.fromJSON(json);
     Assert.assertTrue(doc.hasSameContentOf(loadedDoc));
   }
 
@@ -373,7 +374,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
             .command(
                 new OSQLSynchQuery<ODocument>(
                     "select * from Profile where name = 'Barack' and surname = 'Obama'"))
-            .execute();
+            .execute(database);
 
     for (final ODocument doc : result) {
       final String jsonFull =
@@ -455,7 +456,8 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     final ODocument doc1 =
         new ODocument()
             .fromJSON(new ByteArrayInputStream(doc1Json.getBytes(StandardCharsets.UTF_8)));
-    final String doc1String = new String(ORecordSerializerSchemaAware2CSV.INSTANCE.toStream(doc1));
+    final String doc1String = new String(
+        ORecordSerializerSchemaAware2CSV.INSTANCE.toStream(database, doc1));
     Assert.assertEquals(doc1Json, "{" + doc1String + "}");
 
     final String doc2Json =
@@ -463,7 +465,8 @@ public class JSONStreamTest extends DocumentDBBaseTest {
     final ODocument doc2 =
         new ODocument()
             .fromJSON(new ByteArrayInputStream(doc2Json.getBytes(StandardCharsets.UTF_8)));
-    final String doc2String = new String(ORecordSerializerSchemaAware2CSV.INSTANCE.toStream(doc2));
+    final String doc2String = new String(
+        ORecordSerializerSchemaAware2CSV.INSTANCE.toStream(database, doc2));
     Assert.assertEquals(doc2Json, "{" + doc2String + "}");
   }
 

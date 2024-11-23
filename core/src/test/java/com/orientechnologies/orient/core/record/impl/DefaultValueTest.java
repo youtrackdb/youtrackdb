@@ -23,8 +23,8 @@ public class DefaultValueTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     OClass classA = schema.createClass("ClassC");
 
-    OProperty prop = classA.createProperty("name", OType.STRING);
-    prop.setDefaultValue("uuid()");
+    OProperty prop = classA.createProperty(db, "name", OType.STRING);
+    prop.setDefaultValue(db, "uuid()");
 
     ODocument doc = new ODocument("ClassC");
 
@@ -41,10 +41,10 @@ public class DefaultValueTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     OClass classA = schema.createClass("ClassA");
 
-    OProperty prop = classA.createProperty("date", OType.DATE);
-    prop.setDefaultValue(ODateHelper.getDateTimeFormatInstance().format(new Date()));
-    OProperty some = classA.createProperty("id", OType.STRING);
-    some.setDefaultValue("uuid()");
+    OProperty prop = classA.createProperty(db, "date", OType.DATE);
+    prop.setDefaultValue(db, ODateHelper.getDateTimeFormatInstance().format(new Date()));
+    OProperty some = classA.createProperty(db, "id", OType.STRING);
+    some.setDefaultValue(db, "uuid()");
 
     db.begin();
     ODocument doc = new ODocument(classA);
@@ -71,10 +71,10 @@ public class DefaultValueTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     OClass classA = schema.createClass("ClassA");
 
-    OProperty prop = classA.createProperty("date", OType.DATE);
-    prop.setDefaultValue(ODateHelper.getDateTimeFormatInstance().format(new Date()));
-    OProperty some = classA.createProperty("id", OType.STRING);
-    some.setDefaultValue("uuid()");
+    OProperty prop = classA.createProperty(db, "date", OType.DATE);
+    prop.setDefaultValue(db, ODateHelper.getDateTimeFormatInstance().format(new Date()));
+    OProperty some = classA.createProperty(db, "id", OType.STRING);
+    some.setDefaultValue(db, "uuid()");
 
     String value = "2000-01-01 00:00:00";
 
@@ -104,11 +104,12 @@ public class DefaultValueTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     OClass classA = schema.createClass("ClassA");
 
-    OProperty prop = classA.createProperty("date", OType.DATE);
-    prop.setDefaultValue(ODateHelper.getDateTimeFormatInstance().format(new Date()));
+    OProperty prop = classA.createProperty(db, "date", OType.DATE);
+    prop.setDefaultValue(db, ODateHelper.getDateTimeFormatInstance().format(new Date()));
 
     db.begin();
-    ODocument doc = new ODocument().fromJSON("{'@class':'ClassA','other':'other'}");
+    ODocument doc = new ODocument();
+    doc.fromJSON("{'@class':'ClassA','other':'other'}");
     ODocument saved = db.save(doc);
     db.commit();
 
@@ -123,13 +124,13 @@ public class DefaultValueTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     OClass classA = schema.createClass("ClassA");
 
-    OProperty prop = classA.createProperty("date", OType.DATETIME);
-    prop.setDefaultValue(ODateHelper.getDateTimeFormatInstance().format(new Date()));
+    OProperty prop = classA.createProperty(db, "date", OType.DATETIME);
+    prop.setDefaultValue(db, ODateHelper.getDateTimeFormatInstance().format(new Date()));
 
     String value1 = ODateHelper.getDateTimeFormatInstance().format(new Date());
     db.begin();
-    ODocument doc =
-        new ODocument().fromJSON("{'@class':'ClassA','date':'" + value1 + "','other':'other'}");
+    ODocument doc = new ODocument();
+    doc.fromJSON("{'@class':'ClassA','date':'" + value1 + "','other':'other'}");
     ODocument saved = db.save(doc);
     db.commit();
 
@@ -144,13 +145,14 @@ public class DefaultValueTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     OClass classA = schema.createClass("ClassA");
 
-    OProperty prop = classA.createProperty("date", OType.DATE);
-    prop.setMandatory(true);
-    prop.setReadonly(true);
-    prop.setDefaultValue(ODateHelper.getDateTimeFormatInstance().format(new Date()));
+    OProperty prop = classA.createProperty(db, "date", OType.DATE);
+    prop.setMandatory(db, true);
+    prop.setReadonly(db, true);
+    prop.setDefaultValue(db, ODateHelper.getDateTimeFormatInstance().format(new Date()));
 
     db.begin();
-    ODocument doc = new ODocument().fromJSON("{'@class':'ClassA','other':'other'}");
+    ODocument doc = new ODocument();
+    doc.fromJSON("{'@class':'ClassA','other':'other'}");
     ODocument saved = db.save(doc);
     db.commit();
 
@@ -165,14 +167,14 @@ public class DefaultValueTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     OClass classA = schema.createClass("ClassA");
 
-    OProperty prop = classA.createProperty("date", OType.DATETIME);
-    prop.setMandatory(true);
-    prop.setReadonly(true);
-    prop.setDefaultValue(ODateHelper.getDateTimeFormatInstance().format(new Date()));
+    OProperty prop = classA.createProperty(db, "date", OType.DATETIME);
+    prop.setMandatory(db, true);
+    prop.setReadonly(db, true);
+    prop.setDefaultValue(db, ODateHelper.getDateTimeFormatInstance().format(new Date()));
 
     String value1 = ODateHelper.getDateTimeFormatInstance().format(new Date());
-    ODocument doc =
-        new ODocument().fromJSON("{'@class':'ClassA','date':'" + value1 + "','other':'other'}");
+    ODocument doc = new ODocument();
+    doc.fromJSON("{'@class':'ClassA','date':'" + value1 + "','other':'other'}");
     db.begin();
     ODocument saved = db.save(doc);
     db.commit();
@@ -187,16 +189,18 @@ public class DefaultValueTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     OClass classA = schema.createClass("ClassA");
 
-    OProperty prop = classA.createProperty("date", OType.DATETIME);
-    prop.setMandatory(true);
-    prop.setReadonly(true);
-    prop.setDefaultValue(ODateHelper.getDateTimeFormatInstance().format(new Date()));
+    OProperty prop = classA.createProperty(db, "date", OType.DATETIME);
+    prop.setMandatory(db, true);
+    prop.setReadonly(db, true);
+    prop.setDefaultValue(db, ODateHelper.getDateTimeFormatInstance().format(new Date()));
 
     db.begin();
-    ODocument doc = new ODocument().fromJSON("{'@class':'ClassA','other':'other'}");
+    ODocument doc = new ODocument();
+    doc.fromJSON("{'@class':'ClassA','other':'other'}");
     ODocument saved = db.save(doc);
     db.commit();
 
+    db.begin();
     saved = db.bindToSession(saved);
     doc = db.bindToSession(doc);
 
@@ -204,11 +208,10 @@ public class DefaultValueTest extends BaseMemoryDatabase {
     assertTrue(saved.field("date") instanceof Date);
     assertNotNull(saved.field("other"));
     String val = ODateHelper.getDateTimeFormatInstance().format(doc.field("date"));
-    ODocument doc1 =
-        new ODocument().fromJSON("{'@class':'ClassA','date':'" + val + "','other':'other1'}");
+    ODocument doc1 = new ODocument();
+    doc1.fromJSON("{'@class':'ClassA','date':'" + val + "','other':'other1'}");
     saved.merge(doc1, true, true);
 
-    db.begin();
     saved = db.save(saved);
     db.commit();
 

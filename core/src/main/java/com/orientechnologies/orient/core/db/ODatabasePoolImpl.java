@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.db;
@@ -29,21 +29,21 @@ import com.orientechnologies.orient.core.exception.OAcquireTimeoutException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 
 /**
- * Created by tglman on 07/07/16.
+ *
  */
 public class ODatabasePoolImpl implements ODatabasePoolInternal {
 
   private volatile OResourcePool<Void, ODatabaseSessionInternal> pool;
-  private final OrientDBInternal factory;
-  private final OrientDBConfig config;
+  private final OxygenDBInternal factory;
+  private final OxygenDBConfig config;
   private volatile long lastCloseTime = System.currentTimeMillis();
 
   public ODatabasePoolImpl(
-      OrientDBInternal factory,
+      OxygenDBInternal factory,
       String database,
       String user,
       String password,
-      OrientDBConfig config) {
+      OxygenDBConfig config) {
     int max = config.getConfigurations().getValueAsInteger(DB_POOL_MAX);
     int min = config.getConfigurations().getValueAsInteger(DB_POOL_MIN);
     this.factory = factory;
@@ -128,7 +128,7 @@ public class ODatabasePoolImpl implements ODatabasePoolInternal {
     return lastCloseTime;
   }
 
-  public OrientDBConfig getConfig() {
+  public OxygenDBConfig getConfig() {
     return config;
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 OrientDB LTD (info--at--orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,6 @@ import org.junit.Test;
  * server1: - quorum reached - check consistency: r1 is not present on server1 and server2, and r1*
  * is not present on server3.
  *
- * @author Gabriele Ponzi
  * @email <gabriele.ponzi--at--gmail.com>
  */
 public class DeleteAndLazarusScenarioIT extends AbstractScenarioTest {

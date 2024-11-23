@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.index;
@@ -37,8 +37,6 @@ import java.util.Set;
 
 /**
  * Fast index for full-text searches.
- *
- * @author Luca Garulli
  */
 @Deprecated
 public class OIndexFullText extends OIndexMultiValues {
@@ -78,7 +76,8 @@ public class OIndexFullText extends OIndexMultiValues {
    * of the index is responsibility of the caller.
    */
   @Override
-  public OIndexFullText put(Object key, final OIdentifiable value) {
+  public OIndexFullText put(ODatabaseSessionInternal session, Object key,
+      final OIdentifiable value) {
     if (key == null) {
       return this;
     }
@@ -98,21 +97,10 @@ public class OIndexFullText extends OIndexMultiValues {
 
     final Set<String> words = splitIntoWords(key.toString());
 
-    ODatabaseSessionInternal database = getDatabase();
-    if (database.getTransaction().isActive()) {
-      OTransaction singleTx = database.getTransaction();
-      for (String word : words) {
-        singleTx.addIndexEntry(
-            this, super.getName(), OTransactionIndexChanges.OPERATION.PUT, word, value);
-      }
-    } else {
-      database.begin();
-      OTransaction singleTx = database.getTransaction();
-      for (String word : words) {
-        singleTx.addIndexEntry(
-            this, super.getName(), OTransactionIndexChanges.OPERATION.PUT, word, value);
-      }
-      database.commit();
+    OTransaction singleTx = session.getTransaction();
+    for (String word : words) {
+      singleTx.addIndexEntry(
+          this, super.getName(), OTransactionIndexChanges.OPERATION.PUT, word, value);
     }
 
     return this;
@@ -122,29 +110,21 @@ public class OIndexFullText extends OIndexMultiValues {
    * Splits passed in key on several words and remove records with keys equals to any item of split
    * result and values equals to passed in value.
    *
-   * @param key Key to remove.
-   * @param rid Value to remove.
+   * @param session
+   * @param key     Key to remove.
+   * @param rid     Value to remove.
    * @return <code>true</code> if at least one record is removed.
    */
   @Override
-  public boolean remove(Object key, final OIdentifiable rid) {
+  public boolean remove(ODatabaseSessionInternal session, Object key, final OIdentifiable rid) {
     if (key == null) {
       return false;
     }
     key = getCollatingValue(key);
 
     final Set<String> words = splitIntoWords(key.toString());
-    ODatabaseSessionInternal database = getDatabase();
-    if (database.getTransaction().isActive()) {
-      for (final String word : words) {
-        database.getTransaction().addIndexEntry(this, super.getName(), OPERATION.REMOVE, word, rid);
-      }
-    } else {
-      database.begin();
-      for (final String word : words) {
-        database.getTransaction().addIndexEntry(this, super.getName(), OPERATION.REMOVE, word, rid);
-      }
-      database.commit();
+    for (final String word : words) {
+      session.getTransaction().addIndexEntry(this, super.getName(), OPERATION.REMOVE, word, rid);
     }
 
     return true;
@@ -152,11 +132,12 @@ public class OIndexFullText extends OIndexMultiValues {
 
   @Override
   public OIndexMultiValues create(
-      OIndexMetadata metadata, boolean rebuild, OProgressListener progressListener) {
+      ODatabaseSessionInternal session, OIndexMetadata metadata, boolean rebuild,
+      OProgressListener progressListener) {
     if (metadata.getIndexDefinition().getFields().size() > 1) {
       throw new OIndexException(getType() + " indexes cannot be used as composite ones.");
     }
-    super.create(metadata, rebuild, progressListener);
+    super.create(session, metadata, rebuild, progressListener);
     return this;
   }
 

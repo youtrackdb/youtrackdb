@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql;
@@ -25,6 +25,7 @@ import com.orientechnologies.common.parser.OBaseParser;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
@@ -52,8 +53,6 @@ import java.util.Map;
 
 /**
  * SQL Helper class
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLHelper {
 
@@ -66,7 +65,8 @@ public class OSQLHelper {
   private static final ClassLoader orientClassLoader =
       OSQLFilterItemAbstract.class.getClassLoader();
 
-  public static Object parseDefaultValue(ODocument iRecord, final String iWord) {
+  public static Object parseDefaultValue(ODatabaseSession session, ODocument iRecord,
+      final String iWord) {
     final Object v = OSQLHelper.parseValue(iWord, null);
 
     if (v != VALUE_NOT_PARSED) {
@@ -74,7 +74,7 @@ public class OSQLHelper {
     }
 
     // TRY TO PARSE AS FUNCTION
-    final OSQLFunctionRuntime func = OSQLHelper.getFunction(null, iWord);
+    final OSQLFunctionRuntime func = OSQLHelper.getFunction(session, null, iWord);
     if (func != null) {
       return func.execute(iRecord, iRecord, null, null);
     }
@@ -146,7 +146,7 @@ public class OSQLHelper {
         Object key = OStringSerializerHelper.decode(parseValue(parts.get(0), iContext).toString());
         Object value = parseValue(parts.get(1), iContext);
         if (VALUE_NOT_PARSED == value) {
-          value = new OSQLPredicate(parts.get(1)).evaluate(iContext);
+          value = new OSQLPredicate(iContext.getDatabase(), parts.get(1)).evaluate(iContext);
         }
         if (value instanceof String) {
           value = OStringSerializerHelper.decode(value.toString());
@@ -158,7 +158,9 @@ public class OSQLHelper {
       // IT'S A DOCUMENT
       // TODO: IMPROVE THIS CASE AVOIDING DOUBLE PARSING
       {
-        fieldValue = new ODocument().fromJSON(iValue);
+        var document = new ODocument();
+        document.fromJSON(iValue);
+        fieldValue = document;
       } else {
         fieldValue = map;
       }
@@ -196,7 +198,8 @@ public class OSQLHelper {
       {
         fieldValue = Boolean.FALSE;
       } else if (iValue.startsWith("date(")) {
-        final OSQLFunctionRuntime func = OSQLHelper.getFunction(null, iValue);
+        final OSQLFunctionRuntime func = OSQLHelper.getFunction(iContext.getDatabase(), null,
+            iValue);
         if (func != null) {
           fieldValue = func.execute(null, null, null, iContext);
         }
@@ -276,7 +279,7 @@ public class OSQLHelper {
 
     if (!iWord.equalsIgnoreCase("any()") && !iWord.equalsIgnoreCase("all()")) {
       // TRY TO PARSE AS FUNCTION
-      final Object func = OSQLHelper.getFunction(iCommand, iWord);
+      final Object func = OSQLHelper.getFunction(iContext.getDatabase(), iCommand, iWord);
       if (func != null) {
         return func;
       }
@@ -285,14 +288,15 @@ public class OSQLHelper {
     if (iWord.startsWith("$"))
     // CONTEXT VARIABLE
     {
-      return new OSQLFilterItemVariable(iCommand, iWord);
+      return new OSQLFilterItemVariable(iContext.getDatabase(), iCommand, iWord);
     }
 
     // PARSE AS FIELD
-    return new OSQLFilterItemField(iCommand, iWord, null);
+    return new OSQLFilterItemField(iContext.getDatabase(), iCommand, iWord, null);
   }
 
-  public static OSQLFunctionRuntime getFunction(final OBaseParser iCommand, final String iWord) {
+  public static OSQLFunctionRuntime getFunction(ODatabaseSession session,
+      final OBaseParser iCommand, final String iWord) {
     final int separator = iWord.indexOf('.');
     final int beginParenthesis = iWord.indexOf(OStringSerializerHelper.EMBEDDED_BEGIN);
     if (beginParenthesis > -1 && (separator == -1 || separator > beginParenthesis)) {
@@ -303,7 +307,7 @@ public class OSQLHelper {
       if (endParenthesis > -1 && (firstChar == '_' || Character.isLetter(firstChar)))
       // FUNCTION: CREATE A RUN-TIME CONTAINER FOR IT TO SAVE THE PARAMETERS
       {
-        return new OSQLFunctionRuntime(iCommand, iWord);
+        return new OSQLFunctionRuntime(session, iCommand, iWord);
       }
     }
 
@@ -337,7 +341,7 @@ public class OSQLHelper {
           && !Character.isDigit(s.charAt(0)))
       // INTERPRETS IT
       {
-        return ODocumentHelper.getFieldValue(iRecord, s, iContext);
+        return ODocumentHelper.getFieldValue(iContext.getDatabase(), iRecord, s, iContext);
       }
     }
 
@@ -345,20 +349,20 @@ public class OSQLHelper {
   }
 
   public static Object resolveFieldValue(
-      final ODocument iDocument,
+      ODatabaseSession session, final ODocument iDocument,
       final String iFieldName,
       final Object iFieldValue,
       final OCommandParameters iArguments,
       final OCommandContext iContext) {
     if (iFieldValue instanceof OSQLFilterItemField f) {
-      if (f.getRoot().equals("?"))
+      if (f.getRoot(session).equals("?"))
       // POSITIONAL PARAMETER
       {
         return iArguments.getNext();
-      } else if (f.getRoot().startsWith(":"))
+      } else if (f.getRoot(session).startsWith(":"))
       // NAMED PARAMETER
       {
-        return iArguments.getByName(f.getRoot().substring(1));
+        return iArguments.getByName(f.getRoot(session).substring(1));
       }
     }
 
@@ -414,7 +418,8 @@ public class OSQLHelper {
       if (fieldValue != null) {
         if (fieldValue instanceof OCommandSQL cmd) {
           cmd.getContext().setParent(iContext);
-          fieldValue = ODatabaseRecordThreadLocal.instance().get().command(cmd).execute();
+          fieldValue = ODatabaseRecordThreadLocal.instance().get().command(cmd)
+              .execute(iContext.getDatabase());
 
           // CHECK FOR CONVERSIONS
           OImmutableClass immutableClass = ODocumentInternal.getImmutableSchemaClass(iDocument);
@@ -476,7 +481,9 @@ public class OSQLHelper {
       }
 
       iDocument.field(
-          fieldName, resolveFieldValue(iDocument, fieldName, fieldValue, iArguments, iContext));
+          fieldName,
+          resolveFieldValue(iContext.getDatabase(), iDocument, fieldName, fieldValue, iArguments,
+              iContext));
     }
     return iDocument;
   }

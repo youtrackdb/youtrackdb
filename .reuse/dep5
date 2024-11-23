@@ -1,7 +1,6 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: OrientDB 
-Upstream-Contact: orientdb_enquiries@sap.com
-Source: https://github.com/orientechnologies/orientdb
+Upstream-Name: OxygenDB 
+Source: https://github.com/oxygendb/oxygendb/
 Disclaimer: The code in this project may include calls to APIs ("API Calls") of
  SAP or third-party products or services developed outside of this project
  ("External Products").
@@ -26,95 +25,72 @@ Disclaimer: The code in this project may include calls to APIs ("API Calls") of
 
 
 Files: */.gitignore
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: */pom.xml
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: */src/*
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: */script/*
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: */config/*
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: */META-INF/MANIFEST.MF
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: */plugins/*
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: distribution/docker/*
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: lucene/README.md
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: */.mvn/jvm.config
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: CONTRIBUTING.md
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: README.md
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: .gitignore
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: _base/*
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: pom.xml
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: Jenkinsfile
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: Jenkinsfile-crash.groovy
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: license.txt
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: history.txt
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: readme.txt
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: .gitattributes 
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: OrientDB_logo.svg 
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: .github/*
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: mvnw
@@ -130,49 +106,37 @@ Copyright: Apache Software Foundation
 License: Apache-2.0
 
 Files: studio/assembly/archive.xml
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: studio/build.sh
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: studio/helpers.js
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: studio/*.conf.js
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: studio/*.json
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: studio/yarn.lock
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: studio/webpack.config.js
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: studio/test/*
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: studio/.jshintrc 
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: studio/.editorconfig
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: studio/README.md
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0
 
 Files: studio/CHANGELOG.md
-Copyright:  2022 SAP SE or an SAP affiliate company and OrientDB enteprise agent contributors
 License: Apache-2.0

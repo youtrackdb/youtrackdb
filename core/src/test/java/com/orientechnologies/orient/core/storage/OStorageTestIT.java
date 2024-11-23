@@ -5,8 +5,8 @@ import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OSharedContext;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.metadata.OMetadata;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -29,7 +29,7 @@ import org.junit.Test;
 
 public class OStorageTestIT {
 
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
 
   private static Path buildPath;
 
@@ -43,22 +43,22 @@ public class OStorageTestIT {
   @Test
   public void testCheckSumFailureReadOnly() throws Exception {
 
-    OrientDBConfig config =
-        OrientDBConfig.builder()
+    OxygenDBConfig config =
+        OxygenDBConfig.builder()
             .addConfig(
                 OGlobalConfiguration.STORAGE_CHECKSUM_MODE,
                 OChecksumMode.StoreAndSwitchReadOnlyMode)
             .addAttribute(ODatabaseSession.ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
 
-    orientDB = new OrientDB("embedded:" + buildPath.toFile().getAbsolutePath(), config);
-    orientDB.execute(
+    oxygenDB = new OxygenDB("embedded:" + buildPath.toFile().getAbsolutePath(), config);
+    oxygenDB.execute(
         "create database "
             + OStorageTestIT.class.getSimpleName()
             + " plocal users ( admin identified by 'admin' role admin)");
 
     ODatabaseSession session =
-        orientDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin", config);
+        oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin", config);
     OMetadata metadata = session.getMetadata();
     OSchema schema = metadata.getSchema();
     schema.createClass("PageBreak");
@@ -94,35 +94,35 @@ public class OStorageTestIT {
     file.write(bt + 1);
     file.close();
 
-    session = orientDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");
+    session = oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");
     try {
       session.query("select from PageBreak").close();
       Assert.fail();
     } catch (OStorageException e) {
-      orientDB.close();
-      orientDB = new OrientDB("embedded:" + buildPath.toFile().getAbsolutePath(), config);
-      orientDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");
+      oxygenDB.close();
+      oxygenDB = new OxygenDB("embedded:" + buildPath.toFile().getAbsolutePath(), config);
+      oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");
     }
   }
 
   @Test
   public void testCheckMagicNumberReadOnly() throws Exception {
-    OrientDBConfig config =
-        OrientDBConfig.builder()
+    OxygenDBConfig config =
+        OxygenDBConfig.builder()
             .addConfig(
                 OGlobalConfiguration.STORAGE_CHECKSUM_MODE,
                 OChecksumMode.StoreAndSwitchReadOnlyMode)
             .addAttribute(ODatabaseSession.ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
 
-    orientDB = new OrientDB("embedded:" + buildPath.toFile().getAbsolutePath(), config);
-    orientDB.execute(
+    oxygenDB = new OxygenDB("embedded:" + buildPath.toFile().getAbsolutePath(), config);
+    oxygenDB.execute(
         "create database "
             + OStorageTestIT.class.getSimpleName()
             + " plocal users ( admin identified by 'admin' role admin)");
 
     ODatabaseSession session =
-        orientDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin", config);
+        oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin", config);
     OMetadata metadata = session.getMetadata();
     OSchema schema = metadata.getSchema();
     schema.createClass("PageBreak");
@@ -155,34 +155,34 @@ public class OStorageTestIT {
     file.write(1);
     file.close();
 
-    session = orientDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");
+    session = oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");
     try {
       session.query("select from PageBreak").close();
       Assert.fail();
     } catch (OStorageException e) {
-      orientDB.close();
-      orientDB = new OrientDB("embedded:" + buildPath.toFile().getAbsolutePath(), config);
-      orientDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");
+      oxygenDB.close();
+      oxygenDB = new OxygenDB("embedded:" + buildPath.toFile().getAbsolutePath(), config);
+      oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");
     }
   }
 
   @Test
   public void testCheckMagicNumberVerify() throws Exception {
 
-    OrientDBConfig config =
-        OrientDBConfig.builder()
+    OxygenDBConfig config =
+        OxygenDBConfig.builder()
             .addConfig(OGlobalConfiguration.STORAGE_CHECKSUM_MODE, OChecksumMode.StoreAndVerify)
             .addAttribute(ODatabaseSession.ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
 
-    orientDB = new OrientDB("embedded:" + buildPath.toFile().getAbsolutePath(), config);
-    orientDB.execute(
+    oxygenDB = new OxygenDB("embedded:" + buildPath.toFile().getAbsolutePath(), config);
+    oxygenDB.execute(
         "create database "
             + OStorageTestIT.class.getSimpleName()
             + " plocal users ( admin identified by 'admin' role admin)");
 
     ODatabaseSession session =
-        orientDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin", config);
+        oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin", config);
     OMetadata metadata = session.getMetadata();
     OSchema schema = metadata.getSchema();
     schema.createClass("PageBreak");
@@ -215,7 +215,7 @@ public class OStorageTestIT {
     file.write(1);
     file.close();
 
-    session = orientDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");
+    session = oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");
     session.query("select from PageBreak").close();
 
     Thread.sleep(100); // lets wait till event will be propagated
@@ -231,20 +231,20 @@ public class OStorageTestIT {
   @Test
   public void testCheckSumFailureVerifyAndLog() throws Exception {
 
-    OrientDBConfig config =
-        OrientDBConfig.builder()
+    OxygenDBConfig config =
+        OxygenDBConfig.builder()
             .addConfig(OGlobalConfiguration.STORAGE_CHECKSUM_MODE, OChecksumMode.StoreAndVerify)
             .addAttribute(ODatabaseSession.ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
 
-    orientDB = new OrientDB("embedded:" + buildPath.toFile().getAbsolutePath(), config);
-    orientDB.execute(
+    oxygenDB = new OxygenDB("embedded:" + buildPath.toFile().getAbsolutePath(), config);
+    oxygenDB.execute(
         "create database "
             + OStorageTestIT.class.getSimpleName()
             + " plocal users ( admin identified by 'admin' role admin)");
 
     ODatabaseSession session =
-        orientDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin", config);
+        oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin", config);
     OMetadata metadata = session.getMetadata();
     OSchema schema = metadata.getSchema();
     schema.createClass("PageBreak");
@@ -280,7 +280,7 @@ public class OStorageTestIT {
     file.write(bt + 1);
     file.close();
 
-    session = orientDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");
+    session = oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");
     session.query("select from PageBreak").close();
 
     Thread.sleep(100); // lets wait till event will be propagated
@@ -295,16 +295,16 @@ public class OStorageTestIT {
 
   @Test
   public void testCreatedVersionIsStored() {
-    orientDB =
-        new OrientDB(
-            "embedded:" + buildPath.toFile().getAbsolutePath(), OrientDBConfig.defaultConfig());
-    orientDB.execute(
+    oxygenDB =
+        new OxygenDB(
+            "embedded:" + buildPath.toFile().getAbsolutePath(), OxygenDBConfig.defaultConfig());
+    oxygenDB.execute(
         "create database "
             + OStorageTestIT.class.getSimpleName()
             + " plocal users ( admin identified by 'admin' role admin)");
 
     final ODatabaseSession session =
-        orientDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");
+        oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");
     try (OResultSet resultSet = session.query("SELECT FROM metadata:storage")) {
       Assert.assertTrue(resultSet.hasNext());
 
@@ -315,6 +315,6 @@ public class OStorageTestIT {
 
   @After
   public void after() {
-    orientDB.drop(OStorageTestIT.class.getSimpleName());
+    oxygenDB.drop(OStorageTestIT.class.getSimpleName());
   }
 }

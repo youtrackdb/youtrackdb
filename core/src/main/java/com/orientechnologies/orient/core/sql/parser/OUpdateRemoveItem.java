@@ -81,13 +81,13 @@ public class OUpdateRemoveItem extends SimpleNode {
       }
       if (rightVal instanceof Collection
           && ((Collection) rightVal)
-              .stream().allMatch(x -> x instanceof OResult && ((OResult) x).isElement())) {
+          .stream().allMatch(x -> x instanceof OResult && ((OResult) x).isElement())) {
         rightVal =
             ((Collection) rightVal)
                 .stream()
-                    .map(o -> o)
-                    .map(x -> ((OResult) x).getElement().get())
-                    .collect(Collectors.toList());
+                .map(o -> o)
+                .map(x -> ((OResult) x).getElement().get())
+                .collect(Collectors.toList());
       }
       if (OMultiValue.isMultiValue(leftVal)) {
         OMultiValue.remove(leftVal, rightVal, false);

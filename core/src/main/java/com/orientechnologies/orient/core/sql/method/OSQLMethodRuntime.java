@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.method;
@@ -24,6 +24,7 @@ import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.parser.OBaseParser;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandExecutorNotFoundException;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
@@ -43,8 +44,6 @@ import java.util.List;
 
 /**
  * Wraps function managing the binding of parameters.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLMethodRuntime extends OSQLFilterItemAbstract
     implements Comparable<OSQLMethodRuntime> {
@@ -53,8 +52,9 @@ public class OSQLMethodRuntime extends OSQLFilterItemAbstract
   public Object[] configuredParameters;
   public Object[] runtimeParameters;
 
-  public OSQLMethodRuntime(final OBaseParser iQueryToParse, final String iText) {
-    super(iQueryToParse, iText);
+  public OSQLMethodRuntime(ODatabaseSession session, final OBaseParser iQueryToParse,
+      final String iText) {
+    super(session, iQueryToParse, iText);
   }
 
   public OSQLMethodRuntime(final OSQLMethod iFunction) {
@@ -117,11 +117,12 @@ public class OSQLMethodRuntime extends OSQLFilterItemAbstract
           } else if (configuredParameters[i] instanceof OCommandSQL) {
             try {
               runtimeParameters[i] =
-                  ((OCommandSQL) configuredParameters[i]).setContext(iContext).execute();
+                  ((OCommandSQL) configuredParameters[i]).setContext(iContext)
+                      .execute(iContext.getDatabase());
             } catch (OCommandExecutorNotFoundException ignore) {
               // TRY WITH SIMPLE CONDITION
               final String text = ((OCommandSQL) configuredParameters[i]).getText();
-              final OSQLPredicate pred = new OSQLPredicate(text);
+              final OSQLPredicate pred = new OSQLPredicate(iContext.getDatabase(), text);
               runtimeParameters[i] =
                   pred.evaluate(
                       iCurrentRecord instanceof ORecord ? iCurrentRecord : null,
@@ -146,14 +147,16 @@ public class OSQLMethodRuntime extends OSQLFilterItemAbstract
         }
       }
 
-      if (method.getMaxParams() == -1 || method.getMaxParams() > 0) {
+      var db = iContext.getDatabase();
+      if (method.getMaxParams(db) == -1 || method.getMaxParams(db) > 0) {
         if (runtimeParameters.length < method.getMinParams()
-            || (method.getMaxParams() > -1 && runtimeParameters.length > method.getMaxParams())) {
+            || (method.getMaxParams(db) > -1 && runtimeParameters.length > method.getMaxParams(
+            db))) {
           String params;
-          if (method.getMinParams() == method.getMaxParams()) {
+          if (method.getMinParams() == method.getMaxParams(db)) {
             params = "" + method.getMinParams();
           } else {
-            params = method.getMinParams() + "-" + method.getMaxParams();
+            params = method.getMinParams() + "-" + method.getMaxParams(db);
           }
           throw new OCommandExecutionException(
               "Syntax error: function '"
@@ -184,7 +187,7 @@ public class OSQLMethodRuntime extends OSQLFilterItemAbstract
   }
 
   @Override
-  public String getRoot() {
+  public String getRoot(ODatabaseSession session) {
     return method.getName();
   }
 
@@ -222,7 +225,7 @@ public class OSQLMethodRuntime extends OSQLFilterItemAbstract
             final Object v = OSQLHelper.parseValue(null, null, iParameters[i].toString(), null);
             if (v == OSQLHelper.VALUE_NOT_PARSED
                 || (OMultiValue.isMultiValue(v)
-                    && OMultiValue.getFirstValue(v) == OSQLHelper.VALUE_NOT_PARSED)) {
+                && OMultiValue.getFirstValue(v) == OSQLHelper.VALUE_NOT_PARSED)) {
               continue;
             }
 

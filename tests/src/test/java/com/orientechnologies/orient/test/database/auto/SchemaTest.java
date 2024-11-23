@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,16 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
+import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.exception.OClusterDoesNotExistException;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import com.orientechnologies.orient.core.exception.OValidationException;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -47,6 +49,12 @@ public class SchemaTest extends DocumentDBBaseTest {
   @Parameters(value = "remote")
   public SchemaTest(@Optional Boolean remote) {
     super(remote != null && remote);
+  }
+
+  @Override
+  protected OxygenDBConfig createConfig(OrientDBConfigBuilder builder) {
+    builder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    return builder.build();
   }
 
   @Test
@@ -120,12 +128,11 @@ public class SchemaTest extends DocumentDBBaseTest {
   @Test
   public void checkTotalRecords() {
 
-    Assert.assertTrue(database.getStorage().countRecords() > 0);
+    Assert.assertTrue(database.getStorage().countRecords(database) > 0);
   }
 
   @Test(expectedExceptions = OValidationException.class)
   public void checkErrorOnUserNoPasswd() {
-
     database.begin();
     database.getMetadata().getSecurity().createUser("error", null, (String) null);
     database.commit();
@@ -205,7 +212,7 @@ public class SchemaTest extends DocumentDBBaseTest {
     Assert.assertEquals(database.getStorage().getClusterIdByName(testClassName), clusterId);
     Assert.assertNotNull(database.getClusterNameById(clusterId));
     database.command("drop class " + testClassName).close();
-    database.reload();
+
     dropTestClass = database.getMetadata().getSchema().getClass(testClassName);
     Assert.assertNull(dropTestClass);
     Assert.assertEquals(database.getStorage().getClusterIdByName(testClassName), -1);
@@ -226,7 +233,7 @@ public class SchemaTest extends DocumentDBBaseTest {
         .getSchema()
         .getClass("Profile")
         .getProperty("nick")
-        .setCustom("stereotype", "icon");
+        .setCustom(database, "stereotype", "icon");
 
     Assert.assertEquals(
         database
@@ -254,7 +261,7 @@ public class SchemaTest extends DocumentDBBaseTest {
         .getSchema()
         .getClass("Profile")
         .getProperty("nick")
-        .setCustom("stereotype", null);
+        .setCustom(database, "stereotype", null);
     Assert.assertNull(
         database
             .getMetadata()
@@ -269,7 +276,7 @@ public class SchemaTest extends DocumentDBBaseTest {
         .getSchema()
         .getClass("Profile")
         .getProperty("nick")
-        .setCustom("stereotype", "polygon");
+        .setCustom(database, "stereotype", "polygon");
     Assert.assertEquals(
         database
             .getMetadata()
@@ -297,7 +304,7 @@ public class SchemaTest extends DocumentDBBaseTest {
         .getSchema()
         .getClass("Profile")
         .getProperty("nick")
-        .setCustom("equal", "this = that");
+        .setCustom(database, "equal", "this = that");
 
     Assert.assertEquals(
         database
@@ -336,7 +343,7 @@ public class SchemaTest extends DocumentDBBaseTest {
     }
     Assert.assertTrue(found);
 
-    company.setSuperClass(null);
+    company.setSuperClass(database, null);
     Assert.assertNull(company.getSuperClass());
     for (OClass c : superClass.getSubclasses()) {
       Assert.assertNotSame(c, company);
@@ -364,7 +371,7 @@ public class SchemaTest extends DocumentDBBaseTest {
   public void invalidClusterWrongClusterId() {
 
     try {
-      database.command(new OCommandSQL("create class Antani cluster 212121")).execute();
+      database.command(new OCommandSQL("create class Antani cluster 212121")).execute(database);
       Assert.fail();
     } catch (Exception e) {
       Assert.assertTrue(e instanceof OClusterDoesNotExistException);
@@ -373,9 +380,8 @@ public class SchemaTest extends DocumentDBBaseTest {
 
   @Test
   public void invalidClusterWrongClusterName() {
-
     try {
-      database.command(new OCommandSQL("create class Antani cluster blaaa")).execute();
+      database.command(new OCommandSQL("create class Antani cluster blaaa")).execute(database);
       Assert.fail();
 
     } catch (Exception e) {
@@ -387,7 +393,8 @@ public class SchemaTest extends DocumentDBBaseTest {
   public void invalidClusterWrongKeywords() {
 
     try {
-      database.command(new OCommandSQL("create class Antani the pen is on the table")).execute();
+      database.command(new OCommandSQL("create class Antani the pen is on the table"))
+          .execute(database);
       Assert.fail();
     } catch (Exception e) {
       Assert.assertTrue(e instanceof OCommandSQLParsingException);
@@ -409,23 +416,25 @@ public class SchemaTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
+    database.begin();
     OResultSet result = database.query("select from RenameClassTest");
     Assert.assertEquals(result.stream().count(), 2);
+    database.commit();
 
-    oClass.set(OClass.ATTRIBUTES.NAME, "RenameClassTest2");
+    oClass.set(database, OClass.ATTRIBUTES.NAME, "RenameClassTest2");
 
+    database.begin();
     result = database.query("select from RenameClassTest2");
     Assert.assertEquals(result.stream().count(), 2);
+    database.commit();
   }
 
   public void testMinimumClustersAndClusterSelection() {
 
-    database.command(new OCommandSQL("alter database minimumclusters 3")).execute();
+    database.command(new OCommandSQL("alter database minimumclusters 3")).execute(database);
 
     try {
       database.command("create class multipleclusters").close();
-
-      database.reload();
 
       Assert.assertTrue(database.existsCluster("multipleclusters"));
 
@@ -450,14 +459,15 @@ public class SchemaTest extends DocumentDBBaseTest {
       database.begin();
       // DELETE ALL THE RECORDS
       int deleted =
-          database.command(new OCommandSQL("delete from cluster:multipleclusters_2")).execute();
+          database.command(new OCommandSQL("delete from cluster:multipleclusters_2"))
+              .execute(database);
       database.commit();
       Assert.assertEquals(deleted, 2);
 
       // CHANGE CLASS STRATEGY to BALANCED
       database
           .command(new OCommandSQL("alter class multipleclusters clusterselection balanced"))
-          .execute();
+          .execute(database);
 
       for (int i = 0; i < 2; ++i) {
         database.begin();
@@ -482,12 +492,12 @@ public class SchemaTest extends DocumentDBBaseTest {
   }
 
   public void testRenameWithSameNameIsNop() {
-    database.getMetadata().getSchema().getClass("V").setName("V");
+    database.getMetadata().getSchema().getClass("V").setName(database, "V");
   }
 
   public void testRenameWithExistentName() {
     try {
-      database.getMetadata().getSchema().getClass("V").setName("OUser");
+      database.getMetadata().getSchema().getClass("V").setName(database, "OUser");
       Assert.fail();
     } catch (OSchemaException e) {
     } catch (OCommandExecutionException e) {
@@ -496,7 +506,7 @@ public class SchemaTest extends DocumentDBBaseTest {
 
   public void testShortNameAlreadyExists() {
     try {
-      database.getMetadata().getSchema().getClass("V").setShortName("OUser");
+      database.getMetadata().getSchema().getClass("V").setShortName(database, "OUser");
       Assert.fail();
     } catch (IllegalArgumentException e) {
     } catch (OCommandExecutionException e) {
@@ -570,6 +580,7 @@ public class SchemaTest extends DocumentDBBaseTest {
             + " = 'bar'");
     database.commit();
 
+    database.begin();
     try (OResultSet rs =
         database.command(
             "select from "
@@ -581,6 +592,7 @@ public class SchemaTest extends DocumentDBBaseTest {
       rs.next();
       Assert.assertFalse(rs.hasNext());
     }
+    database.commit();
 
     try (OResultSet rs =
         database.command(
@@ -592,6 +604,7 @@ public class SchemaTest extends DocumentDBBaseTest {
       Assert.assertFalse(rs.hasNext());
     }
 
+    database.begin();
     try (OResultSet rs =
         database.command(
             "select from "
@@ -603,7 +616,9 @@ public class SchemaTest extends DocumentDBBaseTest {
       rs.next();
       Assert.assertFalse(rs.hasNext());
     }
+    database.commit();
 
+    database.begin();
     try (OResultSet rs =
         database.command(
             "select from "
@@ -613,12 +628,11 @@ public class SchemaTest extends DocumentDBBaseTest {
                 + " = 'foo'")) {
       Assert.assertFalse(rs.hasNext());
     }
+    database.commit();
 
-    OMetadataInternal md = database.getMetadata();
-    md.reload();
-    OSchema schema = md.getSchema();
+    OSchema schema = database.getSchema();
     OClass clazz = schema.getClass(className);
-    Set<OIndex> idx = clazz.getIndexes();
+    Set<OIndex> idx = clazz.getIndexes(database);
     Set<String> indexes = new HashSet<>();
     for (OIndex id : idx) {
       indexes.add(id.getName());
@@ -653,8 +667,9 @@ public class SchemaTest extends DocumentDBBaseTest {
     databaseDocumentTx
         .command(
             new OCommandSQL("ALTER CLUSTER TestRenameClusterNew name TestRenameClusterOriginal"))
-        .execute();
+        .execute(database);
 
+    database.begin();
     List<ODocument> result =
         databaseDocumentTx.query(
             new OSQLSynchQuery<ODocument>("select * from TestRenameClusterOriginal"));
@@ -662,5 +677,6 @@ public class SchemaTest extends DocumentDBBaseTest {
 
     ODocument document = result.get(0);
     Assert.assertEquals(document.<Object>field("iteration"), i);
+    database.commit();
   }
 }

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2017 OrientDB LTD (http://orientdb.com)
+ *  *  Copyright 2010-2017 OxygenDB LTD (http://orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -23,8 +23,6 @@ package com.orientechnologies.orient.core.storage;
 /**
  * Defines per-page checksum modes supported by
  * {@link com.orientechnologies.orient.core.storage.cache.OWriteCache write caches}.
- *
- * @author Sergey Sitnikov
  */
 public enum OChecksumMode {
 

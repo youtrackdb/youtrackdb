@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.test.database.auto.hooks;
 
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Assert;
 import org.junit.Test;
@@ -11,7 +11,7 @@ public class HookOnIndexedMapTest {
 
   @Test
   public void test() {
-    OrientDB orient = new OrientDB("plocal:.", "root", "root", OrientDBConfig.defaultConfig());
+    OxygenDB orient = new OxygenDB("plocal:.", "root", "root", OxygenDBConfig.defaultConfig());
 
     orient.execute(
         "create database " + "test" + " memory users ( admin identified by 'admin' role admin)");

@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import com.orientechnologies.orient.core.sql.parser.OSimpleExecStatement;
 
 /**
- * Created by luigidellaquila on 11/10/16.
+ *
  */
 public class ReturnStep extends AbstractExecutionStep {
 

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.command;
@@ -38,8 +38,6 @@ import java.util.concurrent.atomic.AtomicLong;
  * Basic implementation of OCommandContext interface that stores variables in a map. Supports
  * parent/child context to build a tree of contexts. If a variable is not found on current object
  * the search is applied recursively on child contexts.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OBasicCommandContext implements OCommandContext {
 
@@ -70,7 +68,8 @@ public class OBasicCommandContext implements OCommandContext {
   private final Map<OExecutionStep, OStepStats> stepStats = new IdentityHashMap<>();
   private final LinkedList<OStepStats> currentStepStats = new LinkedList<>();
 
-  public OBasicCommandContext() {}
+  public OBasicCommandContext() {
+  }
 
   public OBasicCommandContext(ODatabaseSessionInternal session) {
     this.database = session;
@@ -106,7 +105,7 @@ public class OBasicCommandContext implements OCommandContext {
         if (lastPart.startsWith("$")) {
           result = parent.getVariable(lastPart.substring(1));
         } else {
-          result = ODocumentHelper.getFieldValue(parent, lastPart);
+          result = ODocumentHelper.getFieldValue(getDatabase(), parent, lastPart);
         }
 
         return result != null ? resolveValue(result) : iDefault;
@@ -120,7 +119,7 @@ public class OBasicCommandContext implements OCommandContext {
         if (lastPart.startsWith("$")) {
           result = p.getVariable(lastPart.substring(1));
         } else {
-          result = ODocumentHelper.getFieldValue(p, lastPart, this);
+          result = ODocumentHelper.getFieldValue(getDatabase(), p, lastPart, this);
         }
 
         return result != null ? resolveValue(result) : iDefault;
@@ -153,7 +152,7 @@ public class OBasicCommandContext implements OCommandContext {
     }
 
     if (pos > -1) {
-      result = ODocumentHelper.getFieldValue(result, lastPart, this);
+      result = ODocumentHelper.getFieldValue(getDatabase(), result, lastPart, this);
     }
 
     return result != null ? resolveValue(result) : iDefault;
@@ -301,14 +300,17 @@ public class OBasicCommandContext implements OCommandContext {
       if (child != null) {
         // REMOVE IT
         child.setParent(null);
+        ((OBasicCommandContext) child).setDatabase(null);
+
         child = null;
       }
-
     } else if (child != iContext) {
       // ADD IT
       child = iContext;
       iContext.setParent(this);
+      ((OBasicCommandContext) child).setDatabase(database);
     }
+
     return this;
   }
 
@@ -386,8 +388,12 @@ public class OBasicCommandContext implements OCommandContext {
     }
 
     copy.recordMetrics = recordMetrics;
-    copy.parent = parent;
-    copy.child = child;
+
+    copy.child = child.copy();
+    copy.child.setParent(copy);
+
+    copy.setDatabase(null);
+
     return copy;
   }
 
@@ -443,14 +449,24 @@ public class OBasicCommandContext implements OCommandContext {
     if (database != null) {
       return database;
     }
+
     if (parent != null) {
-      return parent.getDatabase();
+      database = parent.getDatabase();
     }
-    return null;
+
+    if (database == null) {
+      database = ODatabaseSessionInternal.getActiveSession();
+    }
+
+    return database;
   }
 
   public void setDatabase(ODatabaseSessionInternal database) {
     this.database = database;
+
+    if (child != null) {
+      ((OBasicCommandContext) child).setDatabase(database);
+    }
   }
 
   @Override

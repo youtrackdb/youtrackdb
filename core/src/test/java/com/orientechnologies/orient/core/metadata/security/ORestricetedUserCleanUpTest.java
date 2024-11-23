@@ -23,12 +23,12 @@ public class ORestricetedUserCleanUpTest extends BaseMemoryDatabase {
     OSecurity security = db.getMetadata().getSecurity();
 
     db.begin();
-    OUser auser = security.createUser("auser", "wherever", new String[] {});
+    OUser auser = security.createUser("auser", "wherever", new String[]{});
     OUser reader = security.getUser("admin");
     ODocument doc = new ODocument("TestRecord");
     Set<OIdentifiable> users = new HashSet<OIdentifiable>();
-    users.add(auser.getIdentity());
-    users.add(reader.getIdentity());
+    users.add(auser.getIdentity(db));
+    users.add(reader.getIdentity(db));
 
     doc.field(OSecurityShared.ALLOW_READ_FIELD, users);
     doc.field(OSecurityShared.ALLOW_UPDATE_FIELD, users);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,6 @@ import java.security.NoSuchAlgorithmException;
 
 /**
  * Hash a string supporting multiple algorithm, all those supported by JVM
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLMethodHash extends OAbstractSQLMethod {
 

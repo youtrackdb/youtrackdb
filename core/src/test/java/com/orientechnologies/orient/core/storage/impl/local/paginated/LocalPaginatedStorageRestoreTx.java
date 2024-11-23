@@ -37,7 +37,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 14.06.13
  */
 public class LocalPaginatedStorageRestoreTx {
@@ -252,14 +251,14 @@ public class LocalPaginatedStorageRestoreTx {
     OSchema schema = databaseDocumentTx.getMetadata().getSchema();
     OClass testOneClass = schema.createClass("TestOne");
 
-    testOneClass.createProperty("intProp", OType.INTEGER);
-    testOneClass.createProperty("stringProp", OType.STRING);
-    testOneClass.createProperty("stringSet", OType.EMBEDDEDSET, OType.STRING);
-    testOneClass.createProperty("linkMap", OType.LINKMAP);
+    testOneClass.createProperty(databaseDocumentTx, "intProp", OType.INTEGER);
+    testOneClass.createProperty(databaseDocumentTx, "stringProp", OType.STRING);
+    testOneClass.createProperty(databaseDocumentTx, "stringSet", OType.EMBEDDEDSET, OType.STRING);
+    testOneClass.createProperty(databaseDocumentTx, "linkMap", OType.LINKMAP);
 
     OClass testTwoClass = schema.createClass("TestTwo");
 
-    testTwoClass.createProperty("stringList", OType.EMBEDDEDLIST, OType.STRING);
+    testTwoClass.createProperty(databaseDocumentTx, "stringList", OType.EMBEDDEDLIST, OType.STRING);
   }
 
   public class DataPropagationTask implements Callable<Void> {

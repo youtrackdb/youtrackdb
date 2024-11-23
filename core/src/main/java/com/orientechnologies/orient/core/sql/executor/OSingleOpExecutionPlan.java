@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ *
  */
 public class OSingleOpExecutionPlan implements OInternalExecutionPlan {
 
@@ -30,7 +30,8 @@ public class OSingleOpExecutionPlan implements OInternalExecutionPlan {
   }
 
   @Override
-  public void close() {}
+  public void close() {
+  }
 
   @Override
   public OExecutionStream start() {

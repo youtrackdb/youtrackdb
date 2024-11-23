@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.Iterator;
 
 /**
- * Created by Enrico Risa on 16/09/15.
+ *
  */
 public class OLuceneResultSetEmpty extends OLuceneResultSet {
 

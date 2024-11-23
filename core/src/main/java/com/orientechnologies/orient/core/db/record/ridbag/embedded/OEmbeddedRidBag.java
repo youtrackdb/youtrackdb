@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.db.record.ridbag.embedded;
@@ -318,11 +318,6 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
   }
 
   @Override
-  public boolean detach() {
-    return convertRecords2Links();
-  }
-
-  @Override
   public int size() {
     return size;
   }
@@ -451,7 +446,8 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
   }
 
   @Override
-  public void requestDelete() {}
+  public void requestDelete() {
+  }
 
   @Override
   public Class<?> getGenericClass() {

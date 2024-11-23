@@ -57,314 +57,349 @@ public class BinaryComparatorCompareTest extends AbstractComparatorTest {
     Date now = format.parse(now1);
 
     Assert.assertEquals(
-        comparator.compare(field(OType.DATETIME, now), field(OType.STRING, format.format(now))), 0);
+        0, comparator.compare(field(db, OType.DATETIME, now),
+            field(db, OType.STRING, format.format(now))));
     Assert.assertTrue(
         comparator.compare(
-                field(OType.DATETIME, new Date(now.getTime() + 1)),
-                field(OType.STRING, format.format(now)))
+            field(db, OType.DATETIME, new Date(now.getTime() + 1)),
+            field(db, OType.STRING, format.format(now)))
             > 0);
     Assert.assertTrue(
         comparator.compare(
-                field(OType.DATETIME, new Date(now.getTime() - 1)),
-                field(OType.STRING, format.format(now)))
+            field(db, OType.DATETIME, new Date(now.getTime() - 1)),
+            field(db, OType.STRING, format.format(now)))
             < 0);
   }
 
   @Test
-  public void testBinary() throws ParseException {
-    final byte[] b1 = new byte[] {0, 1, 2, 3};
-    final byte[] b2 = new byte[] {0, 1, 2, 4};
-    final byte[] b3 = new byte[] {1, 1, 2, 4};
+  public void testBinary() {
+    final byte[] b1 = new byte[]{0, 1, 2, 3};
+    final byte[] b2 = new byte[]{0, 1, 2, 4};
+    final byte[] b3 = new byte[]{1, 1, 2, 4};
 
     Assert.assertEquals(
-        "For values " + field(OType.BINARY, b1) + " and " + field(OType.BINARY, b1),
+        "For values " + field(db, OType.BINARY, b1) + " and " + field(db, OType.BINARY, b1),
         0,
-        comparator.compare(field(OType.BINARY, b1), field(OType.BINARY, b1)));
-    Assert.assertFalse(comparator.compare(field(OType.BINARY, b1), field(OType.BINARY, b2)) > 1);
-    Assert.assertFalse(comparator.compare(field(OType.BINARY, b1), field(OType.BINARY, b3)) > 1);
+        comparator.compare(field(db, OType.BINARY, b1), field(db, OType.BINARY, b1)));
+    Assert.assertFalse(
+        comparator.compare(field(db, OType.BINARY, b1), field(db, OType.BINARY, b2)) > 1);
+    Assert.assertFalse(
+        comparator.compare(field(db, OType.BINARY, b1), field(db, OType.BINARY, b3)) > 1);
   }
 
   @Test
-  public void testLinks() throws ParseException {
+  public void testLinks() {
     Assert.assertEquals(
         0,
         comparator.compare(
-            field(OType.LINK, new ORecordId(1, 2)), field(OType.LINK, new ORecordId(1, 2))));
+            field(db, OType.LINK, new ORecordId(1, 2)),
+            field(db, OType.LINK, new ORecordId(1, 2))));
     Assert.assertTrue(
         comparator.compare(
-                field(OType.LINK, new ORecordId(1, 2)), field(OType.LINK, new ORecordId(2, 1)))
+            field(db, OType.LINK, new ORecordId(1, 2)), field(db, OType.LINK, new ORecordId(2, 1)))
             < 0);
     Assert.assertTrue(
         comparator.compare(
-                field(OType.LINK, new ORecordId(1, 2)), field(OType.LINK, new ORecordId(0, 2)))
+            field(db, OType.LINK, new ORecordId(1, 2)), field(db, OType.LINK, new ORecordId(0, 2)))
             > 0);
 
     Assert.assertEquals(
         0,
         comparator.compare(
-            field(OType.LINK, new ORecordId(1, 2)),
-            field(OType.STRING, new ORecordId(1, 2).toString())));
+            field(db, OType.LINK, new ORecordId(1, 2)),
+            field(db, OType.STRING, new ORecordId(1, 2).toString())));
     Assert.assertTrue(
         comparator.compare(
-                field(OType.LINK, new ORecordId(1, 2)),
-                field(OType.STRING, new ORecordId(0, 2).toString()))
+            field(db, OType.LINK, new ORecordId(1, 2)),
+            field(db, OType.STRING, new ORecordId(0, 2).toString()))
             > 0);
   }
 
   @Test
   public void testString() {
     Assert.assertEquals(
-        comparator.compare(field(OType.STRING, "test"), field(OType.STRING, "test")), 0);
+        0, comparator.compare(field(db, OType.STRING, "test"), field(db, OType.STRING, "test")));
     Assert.assertTrue(
-        comparator.compare(field(OType.STRING, "test2"), field(OType.STRING, "test")) > 0);
+        comparator.compare(field(db, OType.STRING, "test2"), field(db, OType.STRING, "test")) > 0);
     Assert.assertTrue(
-        comparator.compare(field(OType.STRING, "test"), field(OType.STRING, "test2")) < 0);
-    Assert.assertTrue(comparator.compare(field(OType.STRING, "t"), field(OType.STRING, "te")) < 0);
+        comparator.compare(field(db, OType.STRING, "test"), field(db, OType.STRING, "test2")) < 0);
+    Assert.assertTrue(
+        comparator.compare(field(db, OType.STRING, "t"), field(db, OType.STRING, "te")) < 0);
 
     // DEF COLLATE
     Assert.assertEquals(
+        0,
         comparator.compare(
-            field(OType.STRING, "test", new ODefaultCollate()), field(OType.STRING, "test")),
-        0);
+            field(db, OType.STRING, "test", new ODefaultCollate()),
+            field(db, OType.STRING, "test")));
     Assert.assertTrue(
         comparator.compare(
-                field(OType.STRING, "test2", new ODefaultCollate()), field(OType.STRING, "test"))
+            field(db, OType.STRING, "test2", new ODefaultCollate()),
+            field(db, OType.STRING, "test"))
             > 0);
     Assert.assertTrue(
         comparator.compare(
-                field(OType.STRING, "test", new ODefaultCollate()), field(OType.STRING, "test2"))
+            field(db, OType.STRING, "test", new ODefaultCollate()),
+            field(db, OType.STRING, "test2"))
             < 0);
     Assert.assertTrue(
         comparator.compare(
-                field(OType.STRING, "t", new ODefaultCollate()), field(OType.STRING, "te"))
+            field(db, OType.STRING, "t", new ODefaultCollate()), field(db, OType.STRING, "te"))
             < 0);
 
     Assert.assertEquals(
+        0,
         comparator.compare(
-            field(OType.STRING, "test", new ODefaultCollate()),
-            field(OType.STRING, "test", new ODefaultCollate())),
-        0);
+            field(db, OType.STRING, "test", new ODefaultCollate()),
+            field(db, OType.STRING, "test", new ODefaultCollate())));
     Assert.assertTrue(
         comparator.compare(
-                field(OType.STRING, "test2", new ODefaultCollate()),
-                field(OType.STRING, "test", new ODefaultCollate()))
+            field(db, OType.STRING, "test2", new ODefaultCollate()),
+            field(db, OType.STRING, "test", new ODefaultCollate()))
             > 0);
     Assert.assertTrue(
         comparator.compare(
-                field(OType.STRING, "test", new ODefaultCollate()),
-                field(OType.STRING, "test2", new ODefaultCollate()))
+            field(db, OType.STRING, "test", new ODefaultCollate()),
+            field(db, OType.STRING, "test2", new ODefaultCollate()))
             < 0);
     Assert.assertTrue(
         comparator.compare(
-                field(OType.STRING, "t", new ODefaultCollate()),
-                field(OType.STRING, "te", new ODefaultCollate()))
+            field(db, OType.STRING, "t", new ODefaultCollate()),
+            field(db, OType.STRING, "te", new ODefaultCollate()))
             < 0);
 
     Assert.assertEquals(
+        0,
         comparator.compare(
-            field(OType.STRING, "test"), field(OType.STRING, "test", new ODefaultCollate())),
-        0);
+            field(db, OType.STRING, "test"),
+            field(db, OType.STRING, "test", new ODefaultCollate())));
     Assert.assertTrue(
         comparator.compare(
-                field(OType.STRING, "test2"), field(OType.STRING, "test", new ODefaultCollate()))
+            field(db, OType.STRING, "test2"),
+            field(db, OType.STRING, "test", new ODefaultCollate()))
             > 0);
     Assert.assertTrue(
         comparator.compare(
-                field(OType.STRING, "test"), field(OType.STRING, "test2", new ODefaultCollate()))
+            field(db, OType.STRING, "test"),
+            field(db, OType.STRING, "test2", new ODefaultCollate()))
             < 0);
     Assert.assertTrue(
         comparator.compare(
-                field(OType.STRING, "t"), field(OType.STRING, "te", new ODefaultCollate()))
+            field(db, OType.STRING, "t"), field(db, OType.STRING, "te", new ODefaultCollate()))
             < 0);
 
     // CASE INSENSITIVE COLLATE
     Assert.assertEquals(
+        0,
         comparator.compare(
-            field(OType.STRING, "test"),
-            field(OType.STRING, "test", new OCaseInsensitiveCollate())),
-        0);
+            field(db, OType.STRING, "test"),
+            field(db, OType.STRING, "test", new OCaseInsensitiveCollate())));
     Assert.assertTrue(
         comparator.compare(
-                field(OType.STRING, "test2"),
-                field(OType.STRING, "test", new OCaseInsensitiveCollate()))
+            field(db, OType.STRING, "test2"),
+            field(db, OType.STRING, "test", new OCaseInsensitiveCollate()))
             > 0);
     Assert.assertTrue(
         comparator.compare(
-                field(OType.STRING, "test"),
-                field(OType.STRING, "test2", new OCaseInsensitiveCollate()))
+            field(db, OType.STRING, "test"),
+            field(db, OType.STRING, "test2", new OCaseInsensitiveCollate()))
             < 0);
     Assert.assertTrue(
         comparator.compare(
-                field(OType.STRING, "t"), field(OType.STRING, "te", new OCaseInsensitiveCollate()))
+            field(db, OType.STRING, "t"),
+            field(db, OType.STRING, "te", new OCaseInsensitiveCollate()))
             < 0);
 
     Assert.assertEquals(
+        0,
         comparator.compare(
-            field(OType.STRING, "test"),
-            field(OType.STRING, "TEST", new OCaseInsensitiveCollate())),
-        0);
+            field(db, OType.STRING, "test"),
+            field(db, OType.STRING, "TEST", new OCaseInsensitiveCollate())));
     Assert.assertEquals(
+        0,
         comparator.compare(
-            field(OType.STRING, "TEST"),
-            field(OType.STRING, "TEST", new OCaseInsensitiveCollate())),
-        0);
+            field(db, OType.STRING, "TEST"),
+            field(db, OType.STRING, "TEST", new OCaseInsensitiveCollate())));
     Assert.assertEquals(
+        0,
         comparator.compare(
-            field(OType.STRING, "TE"), field(OType.STRING, "te", new OCaseInsensitiveCollate())),
-        0);
+            field(db, OType.STRING, "TE"),
+            field(db, OType.STRING, "te", new OCaseInsensitiveCollate())));
 
     Assert.assertTrue(
         comparator.compare(
-                field(OType.STRING, "test2"),
-                field(OType.STRING, "TEST", new OCaseInsensitiveCollate()))
+            field(db, OType.STRING, "test2"),
+            field(db, OType.STRING, "TEST", new OCaseInsensitiveCollate()))
             > 0);
     Assert.assertTrue(
         comparator.compare(
-                field(OType.STRING, "test"),
-                field(OType.STRING, "TEST2", new OCaseInsensitiveCollate()))
+            field(db, OType.STRING, "test"),
+            field(db, OType.STRING, "TEST2", new OCaseInsensitiveCollate()))
             < 0);
     Assert.assertTrue(
         comparator.compare(
-                field(OType.STRING, "t"), field(OType.STRING, "tE", new OCaseInsensitiveCollate()))
+            field(db, OType.STRING, "t"),
+            field(db, OType.STRING, "tE", new OCaseInsensitiveCollate()))
             < 0);
   }
 
   @Test
   public void testDecimal() {
     Assert.assertEquals(
+        0,
         comparator.compare(
-            field(OType.DECIMAL, new BigDecimal(10)), field(OType.DECIMAL, new BigDecimal(10))),
-        0);
+            field(db, OType.DECIMAL, new BigDecimal(10)),
+            field(db, OType.DECIMAL, new BigDecimal(10))));
     Assert.assertEquals(
+        -1,
         comparator.compare(
-            field(OType.DECIMAL, new BigDecimal(10)), field(OType.DECIMAL, new BigDecimal(11))),
-        -1);
+            field(db, OType.DECIMAL, new BigDecimal(10)),
+            field(db, OType.DECIMAL, new BigDecimal(11))));
     Assert.assertEquals(
+        1,
         comparator.compare(
-            field(OType.DECIMAL, new BigDecimal(10)), field(OType.DECIMAL, new BigDecimal(9))),
-        1);
+            field(db, OType.DECIMAL, new BigDecimal(10)),
+            field(db, OType.DECIMAL, new BigDecimal(9))));
 
     Assert.assertEquals(
+        0,
         comparator.compare(
-            field(OType.DECIMAL, new BigDecimal(10)),
-            field(OType.SHORT, Short.valueOf((short) 10))),
-        0);
+            field(db, OType.DECIMAL, new BigDecimal(10)),
+            field(db, OType.SHORT, (short) 10)));
     Assert.assertEquals(
+        -1,
         comparator.compare(
-            field(OType.DECIMAL, new BigDecimal(10)),
-            field(OType.SHORT, Short.valueOf((short) 11))),
-        -1);
+            field(db, OType.DECIMAL, new BigDecimal(10)),
+            field(db, OType.SHORT, (short) 11)));
     Assert.assertEquals(
+        1,
         comparator.compare(
-            field(OType.DECIMAL, new BigDecimal(10)), field(OType.SHORT, Short.valueOf((short) 9))),
-        1);
+            field(db, OType.DECIMAL, new BigDecimal(10)), field(db, OType.SHORT,
+                (short) 9)));
 
     Assert.assertEquals(
+        0,
         comparator.compare(
-            field(OType.DECIMAL, new BigDecimal(10)), field(OType.INTEGER, Integer.valueOf(10))),
-        0);
+            field(db, OType.DECIMAL, new BigDecimal(10)),
+            field(db, OType.INTEGER, 10)));
     Assert.assertEquals(
+        -1,
         comparator.compare(
-            field(OType.DECIMAL, new BigDecimal(10)), field(OType.INTEGER, Integer.valueOf(11))),
-        -1);
+            field(db, OType.DECIMAL, new BigDecimal(10)),
+            field(db, OType.INTEGER, 11)));
     Assert.assertEquals(
+        1,
         comparator.compare(
-            field(OType.DECIMAL, new BigDecimal(10)), field(OType.INTEGER, Integer.valueOf(9))),
-        1);
+            field(db, OType.DECIMAL, new BigDecimal(10)),
+            field(db, OType.INTEGER, 9)));
 
     Assert.assertEquals(
+        0,
         comparator.compare(
-            field(OType.DECIMAL, new BigDecimal(10)), field(OType.LONG, Long.valueOf(10))),
-        0);
+            field(db, OType.DECIMAL, new BigDecimal(10)), field(db, OType.LONG, 10L)));
     Assert.assertEquals(
+        -1,
         comparator.compare(
-            field(OType.DECIMAL, new BigDecimal(10)), field(OType.LONG, Long.valueOf(11))),
-        -1);
+            field(db, OType.DECIMAL, new BigDecimal(10)), field(db, OType.LONG, 11L)));
     Assert.assertEquals(
+        1,
         comparator.compare(
-            field(OType.DECIMAL, new BigDecimal(10)), field(OType.LONG, Long.valueOf(9))),
-        1);
+            field(db, OType.DECIMAL, new BigDecimal(10)), field(db, OType.LONG, 9L)));
 
     Assert.assertEquals(
+        0,
         comparator.compare(
-            field(OType.DECIMAL, new BigDecimal(10)), field(OType.FLOAT, new Float(10))),
-        0);
+            field(db, OType.DECIMAL, new BigDecimal(10)),
+            field(db, OType.FLOAT, 10F)));
     Assert.assertEquals(
+        -1,
         comparator.compare(
-            field(OType.DECIMAL, new BigDecimal(10)), field(OType.FLOAT, new Float(11))),
-        -1);
+            field(db, OType.DECIMAL, new BigDecimal(10)),
+            field(db, OType.FLOAT, 11F)));
     Assert.assertEquals(
+        1,
         comparator.compare(
-            field(OType.DECIMAL, new BigDecimal(10)), field(OType.FLOAT, new Float(9))),
-        1);
+            field(db, OType.DECIMAL, new BigDecimal(10)), field(db, OType.FLOAT, 9F)));
 
     Assert.assertEquals(
+        0,
         comparator.compare(
-            field(OType.DECIMAL, new BigDecimal(10)), field(OType.DOUBLE, new Double(10))),
-        0);
+            field(db, OType.DECIMAL, new BigDecimal(10)),
+            field(db, OType.DOUBLE, 10.0)));
     Assert.assertEquals(
+        -1,
         comparator.compare(
-            field(OType.DECIMAL, new BigDecimal(10)), field(OType.DOUBLE, new Double(11))),
-        -1);
+            field(db, OType.DECIMAL, new BigDecimal(10)),
+            field(db, OType.DOUBLE, 11.0)));
     Assert.assertEquals(
+        1,
         comparator.compare(
-            field(OType.DECIMAL, new BigDecimal(10)), field(OType.DOUBLE, new Double(9))),
-        1);
+            field(db, OType.DECIMAL, new BigDecimal(10)),
+            field(db, OType.DOUBLE, 9.0)));
 
     Assert.assertEquals(
+        0,
         comparator.compare(
-            field(OType.DECIMAL, new BigDecimal(10)), field(OType.BYTE, Byte.valueOf((byte) 10))),
-        0);
+            field(db, OType.DECIMAL, new BigDecimal(10)),
+            field(db, OType.BYTE, (byte) 10)));
     Assert.assertEquals(
+        -1,
         comparator.compare(
-            field(OType.DECIMAL, new BigDecimal(10)), field(OType.BYTE, Byte.valueOf((byte) 11))),
-        -1);
+            field(db, OType.DECIMAL, new BigDecimal(10)),
+            field(db, OType.BYTE, (byte) 11)));
     Assert.assertEquals(
+        1,
         comparator.compare(
-            field(OType.DECIMAL, new BigDecimal(10)), field(OType.BYTE, Byte.valueOf((byte) 9))),
-        1);
+            field(db, OType.DECIMAL, new BigDecimal(10)),
+            field(db, OType.BYTE, (byte) 9)));
 
     Assert.assertEquals(
-        comparator.compare(field(OType.DECIMAL, new BigDecimal(10)), field(OType.STRING, "10")), 0);
+        0,
+        comparator.compare(field(db, OType.DECIMAL, new BigDecimal(10)),
+            field(db, OType.STRING, "10")));
     Assert.assertTrue(
-        comparator.compare(field(OType.DECIMAL, new BigDecimal(10)), field(OType.STRING, "11"))
+        comparator.compare(field(db, OType.DECIMAL, new BigDecimal(10)),
+            field(db, OType.STRING, "11"))
             < 0);
     Assert.assertTrue(
-        comparator.compare(field(OType.DECIMAL, new BigDecimal(10)), field(OType.STRING, "9")) < 0);
+        comparator.compare(field(db, OType.DECIMAL, new BigDecimal(10)),
+            field(db, OType.STRING, "9"))
+            < 0);
     Assert.assertTrue(
-        comparator.compare(field(OType.DECIMAL, new BigDecimal(20)), field(OType.STRING, "11"))
+        comparator.compare(field(db, OType.DECIMAL, new BigDecimal(20)),
+            field(db, OType.STRING, "11"))
             > 0);
   }
 
   @Test
   public void testBoolean() {
     Assert.assertEquals(
-        comparator.compare(field(OType.BOOLEAN, true), field(OType.BOOLEAN, true)), 0);
+        0, comparator.compare(field(db, OType.BOOLEAN, true), field(db, OType.BOOLEAN, true)));
     Assert.assertEquals(
-        comparator.compare(field(OType.BOOLEAN, true), field(OType.BOOLEAN, false)), 1);
+        1, comparator.compare(field(db, OType.BOOLEAN, true), field(db, OType.BOOLEAN, false)));
     Assert.assertEquals(
-        comparator.compare(field(OType.BOOLEAN, false), field(OType.BOOLEAN, true)), -1);
+        -1, comparator.compare(field(db, OType.BOOLEAN, false), field(db, OType.BOOLEAN, true)));
 
     Assert.assertEquals(
-        0, comparator.compare(field(OType.BOOLEAN, true), field(OType.STRING, "true")));
+        0, comparator.compare(field(db, OType.BOOLEAN, true), field(db, OType.STRING, "true")));
     Assert.assertEquals(
-        0, comparator.compare(field(OType.BOOLEAN, false), field(OType.STRING, "false")));
+        0, comparator.compare(field(db, OType.BOOLEAN, false), field(db, OType.STRING, "false")));
     Assert.assertTrue(
-        comparator.compare(field(OType.BOOLEAN, false), field(OType.STRING, "true")) < 0);
+        comparator.compare(field(db, OType.BOOLEAN, false), field(db, OType.STRING, "true")) < 0);
     Assert.assertTrue(
-        comparator.compare(field(OType.BOOLEAN, true), field(OType.STRING, "false")) > 0);
+        comparator.compare(field(db, OType.BOOLEAN, true), field(db, OType.STRING, "false")) > 0);
   }
 
   protected void testCompareNumber(OType sourceType, Number value10AsSourceType) {
     OType[] numberTypes =
-        new OType[] {
-          OType.BYTE,
-          OType.DOUBLE,
-          OType.FLOAT,
-          OType.SHORT,
-          OType.INTEGER,
-          OType.LONG,
-          OType.DATETIME
+        new OType[]{
+            OType.BYTE,
+            OType.DOUBLE,
+            OType.FLOAT,
+            OType.SHORT,
+            OType.INTEGER,
+            OType.LONG,
+            OType.DATETIME
         };
 
     for (OType t : numberTypes) {
@@ -384,39 +419,43 @@ public class BinaryComparatorCompareTest extends AbstractComparatorTest {
     // STRING
     if (sourceType != OType.DATETIME) {
       Assert.assertEquals(
+          0,
           comparator.compare(
-              field(sourceType, value10AsSourceType),
-              field(OType.STRING, value10AsSourceType.toString())),
-          0);
+              field(db, sourceType, value10AsSourceType),
+              field(db, OType.STRING, value10AsSourceType.toString())));
       Assert.assertTrue(
-          comparator.compare(field(sourceType, value10AsSourceType), field(OType.STRING, "9")) < 0);
+          comparator.compare(field(db, sourceType, value10AsSourceType),
+              field(db, OType.STRING, "9"))
+              < 0);
       Assert.assertTrue(
-          comparator.compare(field(sourceType, value10AsSourceType), field(OType.STRING, "11"))
+          comparator.compare(field(db, sourceType, value10AsSourceType),
+              field(db, OType.STRING, "11"))
               < 0);
       Assert.assertTrue(
           comparator.compare(
-                  field(sourceType, value10AsSourceType.intValue() * 2), field(OType.STRING, "11"))
+              field(db, sourceType, value10AsSourceType.intValue() * 2), field(db, OType.STRING,
+                  "11"))
               > 0);
 
       Assert.assertEquals(
+          0,
           comparator.compare(
-              field(OType.STRING, value10AsSourceType.toString()),
-              field(sourceType, value10AsSourceType)),
-          0);
+              field(db, OType.STRING, value10AsSourceType.toString()),
+              field(db, sourceType, value10AsSourceType)));
       Assert.assertTrue(
           comparator.compare(
-                  field(OType.STRING, value10AsSourceType.toString()),
-                  field(sourceType, value10AsSourceType.intValue() - 1))
+              field(db, OType.STRING, value10AsSourceType.toString()),
+              field(db, sourceType, value10AsSourceType.intValue() - 1))
               < 0);
       Assert.assertTrue(
           comparator.compare(
-                  field(OType.STRING, value10AsSourceType.toString()),
-                  field(sourceType, value10AsSourceType.intValue() + 1))
+              field(db, OType.STRING, value10AsSourceType.toString()),
+              field(db, sourceType, value10AsSourceType.intValue() + 1))
               < 0);
       Assert.assertTrue(
           comparator.compare(
-                  field(OType.STRING, "" + value10AsSourceType.intValue() * 2),
-                  field(sourceType, value10AsSourceType.intValue()))
+              field(db, OType.STRING, "" + value10AsSourceType.intValue() * 2),
+              field(db, sourceType, value10AsSourceType.intValue()))
               > 0);
     }
   }
@@ -427,11 +466,17 @@ public class BinaryComparatorCompareTest extends AbstractComparatorTest {
 
   protected void testCompare(OType sourceType, OType destType, final Number value) {
     try {
-      Assert.assertEquals(comparator.compare(field(sourceType, value), field(destType, value)), 0);
       Assert.assertEquals(
-          comparator.compare(field(sourceType, value), field(destType, value.intValue() - 1)), 1);
+          0,
+          comparator.compare(field(db, sourceType, value), field(db, destType, value)));
       Assert.assertEquals(
-          comparator.compare(field(sourceType, value), field(destType, value.intValue() + 1)), -1);
+          1,
+          comparator.compare(field(db, sourceType, value),
+              field(db, destType, value.intValue() - 1)));
+      Assert.assertEquals(
+          -1,
+          comparator.compare(field(db, sourceType, value),
+              field(db, destType, value.intValue() + 1)));
     } catch (AssertionError e) {
       System.out.println("ERROR: testCompare(" + sourceType + "," + destType + "," + value + ")");
       System.out.flush();

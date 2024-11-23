@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.id.ORID;
 import java.util.stream.Stream;
 
 /**
- * Created by frank on 03/05/2017.
+ *
  */
 public final class LuceneIndexTransformer {
 

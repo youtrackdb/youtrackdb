@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2015 OrientDB LTD (info(-at-)orientdb.com)
+ *  *  Copyright 2015 OxygenDB LTD (info(-at-)orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.record.impl;
@@ -23,12 +23,10 @@ import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
 import com.orientechnologies.orient.core.db.record.OTrackedMultiValue;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
-import java.util.*;
 
 /**
  * Document entry. Used by ODocument.
  *
- * @author Emanuele Tagliaferri
  * @since 2.1
  */
 public class ODocumentEntry {
@@ -46,7 +44,8 @@ public class ODocumentEntry {
   private Object onLoadValue;
   private boolean hasOnLoadValue = false;
 
-  public ODocumentEntry() {}
+  public ODocumentEntry() {
+  }
 
   public boolean isChanged() {
     return changed;
@@ -209,7 +208,7 @@ public class ODocumentEntry {
         //noinspection unchecked
         return transactionTimeLine != null
             ? trackedOnLoadValue.returnOriginalState(
-                transactionTimeLine.getMultiValueChangeEvents())
+            transactionTimeLine.getMultiValueChangeEvents())
             : onLoadValue;
       } else {
         return onLoadValue;

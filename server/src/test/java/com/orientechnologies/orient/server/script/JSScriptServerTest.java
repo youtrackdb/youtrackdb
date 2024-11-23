@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.server.script;
 
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.server.OServer;
 import org.junit.After;
@@ -13,7 +13,8 @@ import org.junit.rules.TestName;
 
 public class JSScriptServerTest {
 
-  @Rule public TestName name = new TestName();
+  @Rule
+  public TestName name = new TestName();
 
   private OServer server;
 
@@ -28,12 +29,12 @@ public class JSScriptServerTest {
   @Test
   public void jsPackagesFromConfigTest() {
 
-    OrientDB orientDB =
-        new OrientDB("remote:localhost", "root", "root", OrientDBConfig.defaultConfig());
-    orientDB.execute(
+    OxygenDB oxygenDB =
+        new OxygenDB("remote:localhost", "root", "root", OxygenDBConfig.defaultConfig());
+    oxygenDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         name.getMethodName());
-    try (var db = orientDB.open(name.getMethodName(), "admin", "admin")) {
+    try (var db = oxygenDB.open(name.getMethodName(), "admin", "admin")) {
       try (OResultSet resultSet = db.execute("javascript", "new java.math.BigDecimal(1.0);")) {
         Assert.assertEquals(1, resultSet.stream().count());
       }
@@ -44,8 +45,8 @@ public class JSScriptServerTest {
 
     } finally {
 
-      orientDB.drop(name.getMethodName());
-      orientDB.close();
+      oxygenDB.drop(name.getMethodName());
+      oxygenDB.close();
     }
   }
 

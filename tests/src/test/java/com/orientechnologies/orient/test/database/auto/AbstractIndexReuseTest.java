@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.profiler.OProfiler;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 
@@ -31,6 +31,6 @@ public abstract class AbstractIndexReuseTest extends DocumentDBBaseTest {
   }
 
   private OProfiler getProfilerInstance() throws Exception {
-    return Orient.instance().getProfiler();
+    return Oxygen.instance().getProfiler();
   }
 }

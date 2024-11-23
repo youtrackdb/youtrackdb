@@ -11,8 +11,6 @@ import org.junit.Test;
 
 /**
  * Test HTTP "Graph" .
- *
- * @author Enrico Risa (e.risa--at-orientdb.com)
  */
 public class HttpGraphTest extends BaseHttpDatabaseTest {
 

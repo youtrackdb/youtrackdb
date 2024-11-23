@@ -11,7 +11,7 @@ import com.orientechnologies.orient.core.sql.parser.OStatement;
 import java.util.List;
 
 /**
- * Created by luigidellaquila on 19/09/16.
+ *
  */
 public class RetryStep extends AbstractExecutionStep {
 

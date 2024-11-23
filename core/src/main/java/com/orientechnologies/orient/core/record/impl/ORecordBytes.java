@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.record.impl;
@@ -41,7 +41,7 @@ import java.util.Arrays;
 @SuppressWarnings({"unchecked"})
 public class ORecordBytes extends ORecordAbstract implements OBlob {
 
-  private static final byte[] EMPTY_SOURCE = new byte[] {};
+  private static final byte[] EMPTY_SOURCE = new byte[]{};
 
   public ORecordBytes() {
     setup(ODatabaseRecordThreadLocal.instance().getIfDefined());
@@ -69,7 +69,6 @@ public class ORecordBytes extends ORecordAbstract implements OBlob {
     setup(ODatabaseRecordThreadLocal.instance().getIfDefined());
   }
 
-  @Override
   public ORecordBytes copy() {
     return (ORecordBytes) copyTo(new ORecordBytes());
   }
@@ -89,9 +88,9 @@ public class ORecordBytes extends ORecordAbstract implements OBlob {
   }
 
   @Override
-  public ORecordAbstract clear() {
+  public void clear() {
     clearSource();
-    return super.clear();
+    super.clear();
   }
 
   @Override

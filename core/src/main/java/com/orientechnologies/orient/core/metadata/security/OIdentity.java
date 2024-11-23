@@ -5,13 +5,14 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
 
 /**
- * Created by luigidellaquila on 01/07/15.
+ *
  */
 public abstract class OIdentity extends ODocumentWrapper {
 
   public static final String CLASS_NAME = "OIdentity";
 
-  public OIdentity() {}
+  public OIdentity() {
+  }
 
   public OIdentity(ORID iRID) {
     super(iRID.getRecord());

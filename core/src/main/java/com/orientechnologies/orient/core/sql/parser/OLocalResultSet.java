@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.parser;
 
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Created by luigidellaquila on 07/07/16.
+ *
  */
 public class OLocalResultSet implements OResultSet {
 
@@ -64,12 +64,12 @@ public class OLocalResultSet implements OResultSet {
   }
 
   private void logProfiling() {
-    if (executionPlan.getStatement() != null && Orient.instance().getProfiler().isRecording()) {
+    if (executionPlan.getStatement() != null && Oxygen.instance().getProfiler().isRecording()) {
       final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
       if (db != null) {
         final OSecurityUser user = db.getUser();
         final String userString = user != null ? user.toString() : null;
-        Orient.instance()
+        Oxygen.instance()
             .getProfiler()
             .stopChrono(
                 "db."

@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 /**
- * @author Luca Molino (molino.luca--at--gmail.com)
+ *
  */
 public abstract class OHttpMultipartRequestCommand<B, F>
     extends OServerCommandAuthenticatedDbAbstract {
@@ -57,50 +57,45 @@ public abstract class OHttpMultipartRequestCommand<B, F>
       while (!endRequest && (in = iRequest.getMultipartStream().read()) > 0) {
         currChar = (char) in;
         switch (parseStatus) {
-          case STATUS_EXPECTED_BOUNDARY:
-            {
-              readBoundary(iRequest, iResponse, currChar);
+          case STATUS_EXPECTED_BOUNDARY: {
+            readBoundary(iRequest, iResponse, currChar);
+            parseStatus = STATUS.STATUS_EXPECTED_BOUNDARY_CRLF;
+            break;
+          }
+
+          case STATUS_EXPECTED_BOUNDARY_CRLF: {
+            endRequest = readBoundaryCrLf(iRequest, iResponse, currChar, endRequest);
+            parseStatus = STATUS.STATUS_EXPECTED_PART_HEADERS;
+            break;
+          }
+
+          case STATUS_EXPECTED_PART_HEADERS: {
+            parsePartHeaders(iRequest, iResponse, currChar, endRequest, headers);
+            parseStatus = STATUS.STATUS_EXPECTED_PART_CONTENT;
+            break;
+          }
+
+          case STATUS_EXPECTED_PART_CONTENT: {
+            iRequest.getMultipartStream().setSkipInput(in);
+            contentIn.reset();
+            if (headers.get(OHttpUtils.MULTIPART_CONTENT_FILENAME) != null) {
+              parseFileContent(iRequest, fileContentParser, headers, contentIn, database);
+            } else {
+              parseBaseContent(iRequest, standardContentParser, headers, contentIn, database);
+            }
+            break;
+          }
+
+          case STATUS_EXPECTED_END_REQUEST: {
+            iRequest.getMultipartStream().setSkipInput(in);
+            endRequest = OHttpMultipartHelper.isEndRequest(iRequest);
+            if (!endRequest) {
               parseStatus = STATUS.STATUS_EXPECTED_BOUNDARY_CRLF;
-              break;
+            } else {
+              parseStatus = STATUS.STATUS_EXPECTED_BOUNDARY;
             }
-
-          case STATUS_EXPECTED_BOUNDARY_CRLF:
-            {
-              endRequest = readBoundaryCrLf(iRequest, iResponse, currChar, endRequest);
-              parseStatus = STATUS.STATUS_EXPECTED_PART_HEADERS;
-              break;
-            }
-
-          case STATUS_EXPECTED_PART_HEADERS:
-            {
-              parsePartHeaders(iRequest, iResponse, currChar, endRequest, headers);
-              parseStatus = STATUS.STATUS_EXPECTED_PART_CONTENT;
-              break;
-            }
-
-          case STATUS_EXPECTED_PART_CONTENT:
-            {
-              iRequest.getMultipartStream().setSkipInput(in);
-              contentIn.reset();
-              if (headers.get(OHttpUtils.MULTIPART_CONTENT_FILENAME) != null) {
-                parseFileContent(iRequest, fileContentParser, headers, contentIn, database);
-              } else {
-                parseBaseContent(iRequest, standardContentParser, headers, contentIn, database);
-              }
-              break;
-            }
-
-          case STATUS_EXPECTED_END_REQUEST:
-            {
-              iRequest.getMultipartStream().setSkipInput(in);
-              endRequest = OHttpMultipartHelper.isEndRequest(iRequest);
-              if (!endRequest) {
-                parseStatus = STATUS.STATUS_EXPECTED_BOUNDARY_CRLF;
-              } else {
-                parseStatus = STATUS.STATUS_EXPECTED_BOUNDARY;
-              }
-              break;
-            }
+            break;
+          }
         }
       }
       parseStatus = STATUS.STATUS_EXPECTED_BOUNDARY;

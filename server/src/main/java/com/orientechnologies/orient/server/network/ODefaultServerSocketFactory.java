@@ -7,7 +7,8 @@ import java.net.ServerSocket;
 
 class ODefaultServerSocketFactory extends OServerSocketFactory {
 
-  ODefaultServerSocketFactory() {}
+  ODefaultServerSocketFactory() {
+  }
 
   public ServerSocket createServerSocket() throws IOException {
     return new ServerSocket();

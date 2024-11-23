@@ -3,10 +3,10 @@ package com.orientechnologies.orient.server.network;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +18,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * Created by tglman on 26/04/16.
+ *
  */
 public class BinaryProtocolAnyResultTest {
 
@@ -34,8 +34,8 @@ public class BinaryProtocolAnyResultTest {
   @Test
   @Ignore
   public void scriptReturnValueTest() throws IOException {
-    OrientDB orient =
-        new OrientDB("remote:localhost", "root", "root", OrientDBConfig.defaultConfig());
+    OxygenDB orient =
+        new OxygenDB("remote:localhost", "root", "root", OxygenDBConfig.defaultConfig());
 
     if (orient.exists("test")) {
       orient.drop("test");
@@ -59,8 +59,8 @@ public class BinaryProtocolAnyResultTest {
   public void after() {
     server.shutdown();
 
-    Orient.instance().shutdown();
+    Oxygen.instance().shutdown();
     OFileUtils.deleteRecursively(new File(server.getDatabaseDirectory()));
-    Orient.instance().startup();
+    Oxygen.instance().startup();
   }
 }

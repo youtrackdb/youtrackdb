@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -24,12 +24,10 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWALCh
 import java.nio.ByteBuffer;
 
 /**
- * This interface is used for serializing OrientDB datatypes in binary format. Serialized content is
+ * This interface is used for serializing OxygenDB datatypes in binary format. Serialized content is
  * written into buffer that will contain not only given object presentation but all binary content.
  * Such approach prevents creation of separate byte array for each object and decreased GC
  * overhead.
- *
- * @author Evgeniy Degtiarenko (gmandnepr-at-gmail.com), Andrey Lomakin
  */
 public interface OBinarySerializer<T> {
 

@@ -2,7 +2,9 @@ package com.orientechnologies.orient.core.db.tool;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.db.*;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OVertex;
 import java.io.ByteArrayInputStream;
@@ -27,31 +29,31 @@ public class ODatabaseSuperNodeTest {
       final String databaseName = "superNode_export";
       final String exportDbUrl =
           "embedded:target/export_" + ODatabaseSuperNodeTest.class.getSimpleName();
-      OrientDB orientDB =
+      OxygenDB oxygenDB =
           OCreateDatabaseUtil.createDatabase(
               databaseName, exportDbUrl, OCreateDatabaseUtil.TYPE_MEMORY);
 
       final ByteArrayOutputStream output = new ByteArrayOutputStream();
       try {
-        testExportDatabase(numberEdge, exportStats, databaseName, orientDB, output);
+        testExportDatabase(numberEdge, exportStats, databaseName, oxygenDB, output);
         Thread.sleep(2000);
       } catch (final InterruptedException e) {
         e.printStackTrace();
       } finally {
-        orientDB.drop(databaseName);
-        orientDB.close();
+        oxygenDB.drop(databaseName);
+        oxygenDB.close();
       }
 
       final String importDbUrl =
           "memory:target/import_" + ODatabaseSuperNodeTest.class.getSimpleName();
-      orientDB =
+      oxygenDB =
           OCreateDatabaseUtil.createDatabase(
               databaseName + "_reImport", importDbUrl, OCreateDatabaseUtil.TYPE_PLOCAL);
       try {
-        testImportDatabase(numberEdge, databaseName, orientDB, output, importStats);
+        testImportDatabase(numberEdge, databaseName, oxygenDB, output, importStats);
       } finally {
-        orientDB.drop(databaseName + "_reImport");
-        orientDB.close();
+        oxygenDB.drop(databaseName + "_reImport");
+        oxygenDB.close();
       }
     }
 
@@ -65,11 +67,11 @@ public class ODatabaseSuperNodeTest {
       final int edgeNumber,
       final List<Long> stats,
       final String databaseName,
-      final OrientDB orientDB,
+      final OxygenDB oxygenDB,
       final OutputStream output) {
 
     try (final ODatabaseSession session =
-        orientDB.open(databaseName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
+        oxygenDB.open(databaseName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
       session.createClassIfNotExist("SuperNodeClass", "V");
       session.createClassIfNotExist("NonSuperEdgeClass", "E");
 
@@ -91,7 +93,8 @@ public class ODatabaseSuperNodeTest {
               output,
               new OCommandOutputListener() {
                 @Override
-                public void onMessage(String iText) {}
+                public void onMessage(String iText) {
+                }
               });
       // export.setOptions(" -excludeAll -includeSchema=true");
       // List of export options can be found in `ODatabaseImpExpAbstract`
@@ -109,11 +112,11 @@ public class ODatabaseSuperNodeTest {
   private static void testImportDatabase(
       int numberEdge,
       final String databaseName,
-      final OrientDB orientDB,
+      final OxygenDB oxygenDB,
       final ByteArrayOutputStream output,
       List<Long> stats) {
     try (final ODatabaseSession db =
-        orientDB.open(
+        oxygenDB.open(
             databaseName + "_reImport", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
       final ODatabaseImport importer =
           new ODatabaseImport(
@@ -121,7 +124,8 @@ public class ODatabaseSuperNodeTest {
               new ByteArrayInputStream(output.toByteArray()),
               new OCommandOutputListener() {
                 @Override
-                public void onMessage(String iText) {}
+                public void onMessage(String iText) {
+                }
               });
       final long start = System.nanoTime();
       importer.importDatabase();

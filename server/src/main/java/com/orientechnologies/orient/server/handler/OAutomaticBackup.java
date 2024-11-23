@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -26,7 +26,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.parser.OSystemVariableResolver;
 import com.orientechnologies.common.parser.OVariableParser;
 import com.orientechnologies.common.parser.OVariableParserListener;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExport;
@@ -56,8 +56,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * Automatically creates a backup at configured time. Starting from v2.2, this component is able
  * also to create incremental backup and export of databases. If you need a mix of different modes,
  * configure more instances of the same component.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OAutomaticBackup extends OServerPluginAbstract implements OServerPluginConfigurable {
 
@@ -275,7 +273,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
       if (firstTime == null) {
         serverInstance.getDatabases().schedule(task, delay, delay);
       } else {
-        Orient.instance().scheduleTask(task, firstTime, delay);
+        Oxygen.instance().scheduleTask(task, firstTime, delay);
       }
     } else {
       OLogManager.instance().info(this, "Automatic Backup plugin is disabled");
@@ -288,7 +286,8 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
       // READ THE FILE
       try {
         final String configurationContent = OIOUtils.readFileAsString(f);
-        configuration = new ODocument().fromJSON(configurationContent);
+        configuration = new ODocument();
+        configuration.fromJSON(configurationContent);
       } catch (IOException e) {
         throw OException.wrapException(
             new OConfigurationException(
@@ -442,7 +441,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
                   return dbName.getKey();
                 } else if (iVariable.startsWith(VARIABLES.DATE.toString())) {
                   return new SimpleDateFormat(
-                          iVariable.substring(VARIABLES.DATE.toString().length() + 1))
+                      iVariable.substring(VARIABLES.DATE.toString().length() + 1))
                       .format(new Date());
                 }
 
@@ -464,7 +463,8 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
 
   // TODO change current config and restart the automatic backup plugin
   @Override
-  public void changeConfig(ODocument document) {}
+  public void changeConfig(ODocument document) {
+  }
 
   public void registerListener(OAutomaticBackupListener listener) {
     listeners.add(listener);

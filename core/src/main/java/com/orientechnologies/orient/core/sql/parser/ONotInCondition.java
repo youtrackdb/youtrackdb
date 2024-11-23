@@ -46,7 +46,7 @@ public class ONotInCondition extends OBooleanExpression {
     if (rightVal == null) {
       return true;
     }
-    return !OInCondition.evaluateExpression(leftVal, rightVal);
+    return !OInCondition.evaluateExpression(ctx.getDatabase(), leftVal, rightVal);
   }
 
   @Override
@@ -63,7 +63,7 @@ public class ONotInCondition extends OBooleanExpression {
     if (rightVal == null) {
       return true;
     }
-    return !OInCondition.evaluateExpression(leftVal, rightVal);
+    return !OInCondition.evaluateExpression(ctx.getDatabase(), leftVal, rightVal);
   }
 
   public void toString(Map<Object, Object> params, StringBuilder builder) {

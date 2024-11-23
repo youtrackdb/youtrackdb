@@ -122,10 +122,10 @@ public final class OperationsFreezer {
               freezeParameters.exceptionClass.getConstructor(String.class);
           throw mConstructor.newInstance(freezeParameters.message);
         } catch (InstantiationException
-            | IllegalAccessException
-            | NoSuchMethodException
-            | SecurityException
-            | InvocationTargetException ie) {
+                 | IllegalAccessException
+                 | NoSuchMethodException
+                 | SecurityException
+                 | InvocationTargetException ie) {
           OLogManager.instance()
               .error(
                   this,

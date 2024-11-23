@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.sql;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +12,6 @@ import java.util.Map;
 /**
  * Creates a new user.
  *
- * @author Matan Shukry (matanshukry@gmail.com)
  * @since 4/22/2015
  */
 public class OCommandExecutorSQLCreateUser extends OCommandExecutorSQLAbstract
@@ -83,7 +83,7 @@ public class OCommandExecutorSQLCreateUser extends OCommandExecutorSQLAbstract
   }
 
   @Override
-  public Object execute(Map<Object, Object> iArgs) {
+  public Object execute(Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
     if (this.userName == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
@@ -145,7 +145,8 @@ public class OCommandExecutorSQLCreateUser extends OCommandExecutorSQLAbstract
       }
     }
     sb.append("])");
-    return getDatabase().command(new OCommandSQL(sb.toString())).execute();
+    var db = getDatabase();
+    return db.command(new OCommandSQL(sb.toString())).execute(db);
   }
 
   @Override

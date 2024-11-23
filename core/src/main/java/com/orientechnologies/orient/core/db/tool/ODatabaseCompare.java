@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.db.tool;
@@ -207,7 +207,7 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
           ok = false;
         }
       }
-      if (!clazz.getClassIndexes().equals(clazz2.getClassIndexes())) {
+      if (!clazz.getClassIndexes(databaseOne).equals(clazz2.getClassIndexes(databaseTwo))) {
         listener.onMessage(
             "\n- ERR: Class definition for "
                 + clazz.getName()
@@ -422,14 +422,13 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
       final OIndex indexOne =
           makeDbCall(databaseOne, (ODbRelatedCall<OIndex>) database -> iteratorOne.next());
 
-      @SuppressWarnings("ObjectAllocationInLoop")
-      final String indexName = makeDbCall(databaseOne, database -> indexOne.getName());
+      @SuppressWarnings("ObjectAllocationInLoop") final String indexName = makeDbCall(databaseOne,
+          database -> indexOne.getName());
       if (excludeIndexes.contains(indexName)) {
         continue;
       }
 
-      @SuppressWarnings("ObjectAllocationInLoop")
-      final OIndex indexTwo =
+      @SuppressWarnings("ObjectAllocationInLoop") final OIndex indexTwo =
           makeDbCall(
               databaseTwo, database -> indexManagerTwo.getIndex(database, indexOne.getName()));
 
@@ -491,11 +490,10 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
       }
 
       final long indexOneSize =
-          makeDbCall(databaseOne, database -> ((OIndexInternal) indexOne).size());
+          makeDbCall(databaseOne, database -> ((OIndexInternal) indexOne).size(databaseOne));
 
-      @SuppressWarnings("ObjectAllocationInLoop")
-      final long indexTwoSize =
-          makeDbCall(databaseTwo, database -> ((OIndexInternal) indexTwo).size());
+      @SuppressWarnings("ObjectAllocationInLoop") final long indexTwoSize =
+          makeDbCall(databaseTwo, database -> ((OIndexInternal) indexTwo).size(databaseTwo));
 
       if (indexOneSize != indexTwoSize) {
         ok = false;
@@ -531,7 +529,7 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
           } else {
             if (metadataOne != null
                 && !ODocumentHelper.hasSameContentOf(
-                    metadataOne, databaseOne, metadataTwo, databaseTwo, ridMapper)) {
+                metadataOne, databaseOne, metadataTwo, databaseTwo, ridMapper)) {
               ok = false;
               listener.onMessage(
                   "\n- ERR: Metadata for index "
@@ -567,9 +565,11 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
             final Object indexKey = makeDbCall(databaseOne, database -> indexKeyIteratorOne.next());
 
             try (Stream<ORID> indexOneStream =
-                makeDbCall(databaseOne, database -> indexOne.getInternal().getRids(indexKey))) {
+                makeDbCall(databaseOne,
+                    database -> indexOne.getInternal().getRids(database, indexKey))) {
               try (Stream<ORID> indexTwoValue =
-                  makeDbCall(databaseTwo, database -> indexTwo.getInternal().getRids(indexKey))) {
+                  makeDbCall(databaseTwo,
+                      database -> indexTwo.getInternal().getRids(database, indexKey))) {
                 differences +=
                     compareIndexStreams(
                         indexKey, indexOneStream, indexTwoValue, ridMapper, listener);
@@ -748,8 +748,7 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
       final int clusterId1 =
           makeDbCall(databaseOne, database -> database.getClusterIdByName(clusterName));
 
-      @SuppressWarnings("ObjectAllocationInLoop")
-      final ORecordId rid1 = new ORecordId(clusterId1);
+      @SuppressWarnings("ObjectAllocationInLoop") final ORecordId rid1 = new ORecordId(clusterId1);
 
       ODatabaseSessionInternal selectedDatabase = databaseOne;
 
@@ -759,7 +758,7 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
               database ->
                   database
                       .getStorage()
-                      .ceilingPhysicalPositions(clusterId1, new OPhysicalPosition(0)));
+                      .ceilingPhysicalPositions(databaseOne, clusterId1, new OPhysicalPosition(0)));
 
       OStorageConfiguration configuration1 =
           makeDbCall(databaseOne, database -> database.getStorageInfo().getConfiguration());
@@ -776,12 +775,10 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
             recordsCounter++;
 
             databaseOne.activateOnCurrentThread();
-            @SuppressWarnings("ObjectAllocationInLoop")
-            final ODocument doc1 = new ODocument();
+            @SuppressWarnings("ObjectAllocationInLoop") final ODocument doc1 = new ODocument();
             databaseTwo.activateOnCurrentThread();
 
-            @SuppressWarnings("ObjectAllocationInLoop")
-            final ODocument doc2 = new ODocument();
+            @SuppressWarnings("ObjectAllocationInLoop") final ODocument doc2 = new ODocument();
 
             final long position = physicalPosition.clusterPosition;
             rid1.setClusterPosition(position);
@@ -808,11 +805,13 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
             final ORawBuffer buffer1 =
                 makeDbCall(
                     databaseOne,
-                    database -> database.getStorage().readRecord(rid1, true, false, null));
+                    database -> database.getStorage()
+                        .readRecord(databaseOne, rid1, true, false, null));
             final ORawBuffer buffer2 =
                 makeDbCall(
                     databaseTwo,
-                    database -> database.getStorage().readRecord(rid2, true, false, null));
+                    database -> database.getStorage()
+                        .readRecord(databaseTwo, rid2, true, false, null));
 
             //noinspection StatementWithEmptyBody
             if (buffer1 == null && buffer2 == null) {
@@ -924,10 +923,10 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
                         } else {
                           if (buffer1.buffer.length != buffer2.buffer.length) {
                             // CHECK IF THE TRIMMED SIZE IS THE SAME
-                            @SuppressWarnings("ObjectAllocationInLoop")
-                            final String rec1 = new String(buffer1.buffer).trim();
-                            @SuppressWarnings("ObjectAllocationInLoop")
-                            final String rec2 = new String(buffer2.buffer).trim();
+                            @SuppressWarnings("ObjectAllocationInLoop") final String rec1 = new String(
+                                buffer1.buffer).trim();
+                            @SuppressWarnings("ObjectAllocationInLoop") final String rec2 = new String(
+                                buffer2.buffer).trim();
 
                             if (rec1.length() != rec2.length()) {
                               listener.onMessage(
@@ -993,7 +992,8 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
                 database ->
                     database
                         .getStorage()
-                        .higherPhysicalPositions(clusterId1, curPosition[curPosition.length - 1]));
+                        .higherPhysicalPositions(databaseOne, clusterId1,
+                            curPosition[curPosition.length - 1]));
         if (recordsCounter % 10000 == 0) {
           listener.onMessage(
               "\n"

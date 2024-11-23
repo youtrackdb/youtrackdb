@@ -26,7 +26,7 @@ import com.orientechnologies.orient.distributed.db.OrientDBDistributed;
 import java.util.HashMap;
 
 /**
- * Created by tglman on 22/06/17.
+ *
  */
 public class OSharedContextDistributed extends OSharedContextEmbedded {
 

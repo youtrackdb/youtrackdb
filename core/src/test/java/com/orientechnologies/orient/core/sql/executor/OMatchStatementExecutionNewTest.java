@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.common.profiler.OProfiler;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.OElement;
@@ -35,7 +35,7 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     db.command("CREATE VERTEX Person set name = 'n6'").close();
 
     String[][] friendList =
-        new String[][] {{"n1", "n2"}, {"n1", "n3"}, {"n2", "n4"}, {"n4", "n5"}, {"n4", "n6"}};
+        new String[][]{{"n1", "n2"}, {"n1", "n3"}, {"n2", "n4"}, {"n4", "n5"}, {"n4", "n6"}};
 
     for (String[] pair : friendList) {
       db.command(
@@ -138,30 +138,30 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     db.command("CREATE class ManagerOf extends E").close();
 
     int[][] deptHierarchy = new int[10][];
-    deptHierarchy[0] = new int[] {1, 2};
-    deptHierarchy[1] = new int[] {3, 4};
-    deptHierarchy[2] = new int[] {5, 6};
-    deptHierarchy[3] = new int[] {7, 8};
-    deptHierarchy[4] = new int[] {};
-    deptHierarchy[5] = new int[] {};
-    deptHierarchy[6] = new int[] {};
-    deptHierarchy[7] = new int[] {9};
-    deptHierarchy[8] = new int[] {};
-    deptHierarchy[9] = new int[] {};
+    deptHierarchy[0] = new int[]{1, 2};
+    deptHierarchy[1] = new int[]{3, 4};
+    deptHierarchy[2] = new int[]{5, 6};
+    deptHierarchy[3] = new int[]{7, 8};
+    deptHierarchy[4] = new int[]{};
+    deptHierarchy[5] = new int[]{};
+    deptHierarchy[6] = new int[]{};
+    deptHierarchy[7] = new int[]{9};
+    deptHierarchy[8] = new int[]{};
+    deptHierarchy[9] = new int[]{};
 
     String[] deptManagers = {"a", "b", "d", null, null, null, null, "c", null, null};
 
     String[][] employees = new String[10][];
-    employees[0] = new String[] {"p1"};
-    employees[1] = new String[] {"p2", "p3"};
-    employees[2] = new String[] {"p4", "p5"};
-    employees[3] = new String[] {"p6"};
-    employees[4] = new String[] {"p7"};
-    employees[5] = new String[] {"p8"};
-    employees[6] = new String[] {"p9"};
-    employees[7] = new String[] {"p10"};
-    employees[8] = new String[] {"p11"};
-    employees[9] = new String[] {"p12", "p13"};
+    employees[0] = new String[]{"p1"};
+    employees[1] = new String[]{"p2", "p3"};
+    employees[2] = new String[]{"p4", "p5"};
+    employees[3] = new String[]{"p6"};
+    employees[4] = new String[]{"p7"};
+    employees[5] = new String[]{"p8"};
+    employees[6] = new String[]{"p9"};
+    employees[7] = new String[]{"p10"};
+    employees[8] = new String[]{"p11"};
+    employees[9] = new String[]{"p12", "p13"};
 
     db.begin();
     for (int i = 0; i < deptHierarchy.length; i++) {
@@ -229,8 +229,8 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
       db.commit();
     }
     int[][] edges = {
-      {0, 1}, {0, 2}, {1, 2}, {1, 3}, {2, 4}, {3, 4}, {3, 5}, {4, 0}, {4, 7}, {6, 7}, {7, 8},
-      {7, 9}, {8, 9}, {9, 1}, {8, 3}, {8, 4}
+        {0, 1}, {0, 2}, {1, 2}, {1, 3}, {2, 4}, {3, 4}, {3, 5}, {4, 0}, {4, 7}, {6, 7}, {7, 8},
+        {7, 9}, {8, 9}, {9, 1}, {8, 3}, {8, 4}
     };
     for (int[] edge : edges) {
       db.begin();
@@ -2196,56 +2196,6 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   }
 
   @Test
-  public void testClusterTarget() {
-    String clazz = "testClusterTarget";
-    db.command("CREATE CLASS " + clazz + " EXTENDS V").close();
-    db.command("ALTER CLASS " + clazz + " ADDCLUSTER " + clazz.toLowerCase() + "_one").close();
-    db.command("ALTER CLASS " + clazz + " ADDCLUSTER " + clazz.toLowerCase() + "_two").close();
-    db.command("ALTER CLASS " + clazz + " ADDCLUSTER " + clazz.toLowerCase() + "_three").close();
-
-    db.executeInTx(
-        () -> {
-          OVertex v1 = db.newVertex(clazz);
-          v1.setProperty("name", "one");
-          v1.save(clazz.toLowerCase() + "_one");
-
-          OVertex vx = db.newVertex(clazz);
-          vx.setProperty("name", "onex");
-          vx.save(clazz.toLowerCase() + "_one");
-
-          OVertex v2 = db.newVertex(clazz);
-          v2.setProperty("name", "two");
-          v2.save(clazz.toLowerCase() + "_two");
-
-          OVertex v3 = db.newVertex(clazz);
-          v3.setProperty("name", "three");
-          v3.save(clazz.toLowerCase() + "_three");
-
-          v1.addEdge(v2).save();
-          v2.addEdge(v3).save();
-          v1.addEdge(v3).save();
-        });
-
-    String query =
-        "MATCH { cluster: "
-            + clazz.toLowerCase()
-            + "_one, as:a} --> {as:b, cluster:"
-            + clazz.toLowerCase()
-            + "_two} RETURN a.name as aname, b.name as bname";
-
-    OResultSet result = db.query(query);
-
-    Assert.assertTrue(result.hasNext());
-    OResult item = result.next();
-    Assert.assertEquals("one", item.getProperty("aname"));
-    Assert.assertEquals("two", item.getProperty("bname"));
-
-    Assert.assertFalse(result.hasNext());
-
-    result.close();
-  }
-
-  @Test
   public void testNegativePattern() {
     String clazz = "testNegativePattern";
     db.command("CREATE CLASS " + clazz + " EXTENDS V").close();
@@ -2434,7 +2384,7 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
   }
 
   private OProfiler getProfilerInstance() {
-    return Orient.instance().getProfiler();
+    return Oxygen.instance().getProfiler();
   }
 
   private void printExecutionPlan(OResultSet result) {

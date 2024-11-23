@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import java.io.IOException;
 import org.apache.lucene.search.IndexSearcher;
 
 /**
- * Created by enricorisa on 19/03/14.
+ *
  */
 public interface OLuceneIndex {
 

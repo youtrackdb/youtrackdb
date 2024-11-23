@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,7 +32,7 @@ import java.io.IOException;
 import java.util.Date;
 
 /**
- * @author Luca Molino (molino.luca--at--gmail.com)
+ *
  */
 public class OServerCommandGetFileDownload extends OServerCommandAuthenticatedDbAbstract {
 
@@ -75,7 +75,7 @@ public class OServerCommandGetFileDownload extends OServerCommandAuthenticatedDb
               fileName);
         } else if (response instanceof ODocument) {
           for (OProperty prop :
-              ODocumentInternal.getImmutableSchemaClass(((ODocument) response)).properties()) {
+              ODocumentInternal.getImmutableSchemaClass(((ODocument) response)).properties(db)) {
             if (prop.getType().equals(OType.BINARY)) {
               sendBinaryFieldFileContent(
                   iRequest,
@@ -124,7 +124,7 @@ public class OServerCommandGetFileDownload extends OServerCommandAuthenticatedDb
     iResponse.writeHeaders(iContentType);
     iResponse.writeLine("Content-Disposition: attachment; filename=" + iFileName);
     iResponse.writeLine("Date: " + new Date());
-    iResponse.writeLine(OHttpUtils.HEADER_CONTENT_LENGTH + (record.getSize()));
+    iResponse.writeLine(OHttpUtils.HEADER_CONTENT_LENGTH + (((ORecordAbstract) record).getSize()));
     iResponse.writeLine(null);
 
     record.toOutputStream(iResponse.getOutputStream());

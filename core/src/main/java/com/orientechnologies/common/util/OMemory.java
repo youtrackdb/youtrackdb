@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2016 OrientDB LTD (info(at)orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  */
 
 package com.orientechnologies.common.util;
@@ -25,8 +25,6 @@ import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 
 /**
  * Provides various utilities related to memory management and configuration.
- *
- * @author Sergey Sitnikov
  */
 public class OMemory {
 
@@ -41,16 +39,16 @@ public class OMemory {
   }
 
   /**
-   * Calculates the total configured maximum size of all OrientDB caches.
+   * Calculates the total configured maximum size of all OxygenDB caches.
    *
-   * @return the total maximum size of all OrientDB caches in bytes.
+   * @return the total maximum size of all OxygenDB caches in bytes.
    */
   private static long getMaxCacheMemorySize() {
     return OGlobalConfiguration.DISK_CACHE_SIZE.getValueAsLong() * 1024 * 1024;
   }
 
   /**
-   * Checks the OrientDB cache memory configuration and emits a warning if configuration is
+   * Checks the OxygenDB cache memory configuration and emits a warning if configuration is
    * invalid.
    */
   public static void checkCacheMemoryConfiguration() {
@@ -67,14 +65,14 @@ public class OMemory {
               "The sum of the configured JVM maximum heap size ("
                   + maxHeapSize
                   + " bytes) "
-                  + "and the OrientDB maximum cache size ("
+                  + "and the OxygenDB maximum cache size ("
                   + maxCacheSize
                   + " bytes) is larger than the available physical memory size "
                   + "("
                   + physicalMemory.memoryLimit
                   + " bytes). That may cause out of memory errors, please tune the configuration"
                   + " up. Use the -Xmx JVM option to lower the JVM maximum heap memory size or"
-                  + " storage.diskCache.bufferSize OrientDB option to lower memory requirements of"
+                  + " storage.diskCache.bufferSize OxygenDB option to lower memory requirements of"
                   + " the cache.");
     }
   }
@@ -115,5 +113,6 @@ public class OMemory {
     return size;
   }
 
-  private OMemory() {}
+  private OMemory() {
+  }
 }

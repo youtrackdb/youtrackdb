@@ -8,7 +8,7 @@
     ~ * distributed under the License is distributed on an "AS IS" BASIS, ~ * 
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
     ~ * See the License for the specific language governing permissions and ~ 
-    * limitations under the License. ~ * ~ * For more information: http://www.orientechnologies.com 
+    * limitations under the License. ~ * ~ * *
     ~ */ -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"

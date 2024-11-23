@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -65,7 +65,8 @@ public class OResultSerializerNetwork {
   private static final ORecordId NULL_RECORD_ID = new ORecordId(-2, ORID.CLUSTER_POS_INVALID);
   private static final long MILLISEC_PER_DAY = 86400000;
 
-  public OResultSerializerNetwork() {}
+  public OResultSerializerNetwork() {
+  }
 
   public OResultInternal deserialize(final BytesContainer bytes) {
     final OResultInternal document = new OResultInternal();

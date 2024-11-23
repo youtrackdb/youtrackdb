@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.iterator;
@@ -46,8 +46,6 @@ import java.util.Set;
 /**
  * Iterator class to browse forward and backward the records of a cluster. Once browsed in a
  * direction, the iterator cannot change it.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OIdentifiableIterator<REC extends OIdentifiable>
     implements Iterator<REC>, Iterable<REC> {
@@ -196,7 +194,7 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
       if (currentTxEntryPosition >= txEntries.size()) {
         throw new NoSuchElementException();
       } else {
-        return txEntries.get(currentTxEntryPosition).getRecord();
+        return txEntries.get(currentTxEntryPosition).record;
       }
     }
     return null;
@@ -278,7 +276,7 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
   protected boolean nextPosition() {
     if (positionsToProcess == null) {
       positionsToProcess =
-          dbStorage.ceilingPhysicalPositions(
+          dbStorage.ceilingPhysicalPositions(database,
               current.getClusterId(), new OPhysicalPosition(firstClusterEntry));
       if (positionsToProcess == null) {
         return false;
@@ -292,7 +290,7 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
     incrementEntreePosition();
     while (positionsToProcess.length > 0 && currentEntryPosition >= positionsToProcess.length) {
       positionsToProcess =
-          dbStorage.higherPhysicalPositions(
+          dbStorage.higherPhysicalPositions(database,
               current.getClusterId(), positionsToProcess[positionsToProcess.length - 1]);
 
       currentEntryPosition = -1;
@@ -327,7 +325,7 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
   protected boolean prevPosition() {
     if (positionsToProcess == null) {
       positionsToProcess =
-          dbStorage.floorPhysicalPositions(
+          dbStorage.floorPhysicalPositions(database,
               current.getClusterId(), new OPhysicalPosition(lastClusterEntry));
       if (positionsToProcess == null) {
         return false;
@@ -348,7 +346,7 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
 
     while (positionsToProcess.length > 0 && currentEntryPosition < 0) {
       positionsToProcess =
-          dbStorage.lowerPhysicalPositions(current.getClusterId(), positionsToProcess[0]);
+          dbStorage.lowerPhysicalPositions(database, current.getClusterId(), positionsToProcess[0]);
       currentEntryPosition = positionsToProcess.length;
 
       decrementEntreePosition();
@@ -388,8 +386,9 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
       if (iDatabase.getStorage().isSystemCluster(clId)) {
         final OSecurityUser dbUser = iDatabase.getUser();
         if (dbUser == null
-            || dbUser.allow(ORule.ResourceGeneric.SYSTEM_CLUSTERS, null, ORole.PERMISSION_READ)
-                != null)
+            || dbUser.allow(iDatabase, ORule.ResourceGeneric.SYSTEM_CLUSTERS, null,
+            ORole.PERMISSION_READ)
+            != null)
         // AUTHORIZED
         {
           break;

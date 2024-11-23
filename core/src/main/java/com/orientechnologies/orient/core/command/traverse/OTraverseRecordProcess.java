@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,13 +14,12 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.command.traverse;
 
 import com.orientechnologies.common.collection.OMultiValue;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.ORecord;
@@ -81,8 +80,9 @@ public class OTraverseRecordProcess extends OTraverseAbstractProcess<OIdentifiab
         return pop();
       }
 
-      if (targetDoc.isUnloaded()) {
-        targetDoc = ODatabaseSession.getActiveSession().bindToSession(targetDoc);
+      var database = command.getContext().getDatabase();
+      if (targetDoc.isNotBound(database)) {
+        targetDoc = database.bindToSession(targetDoc);
       }
 
       // MATCH!
@@ -104,16 +104,16 @@ public class OTraverseRecordProcess extends OTraverseAbstractProcess<OIdentifiab
           // SINGLE FIELD
           final int pos =
               OStringSerializerHelper.parse(
-                      cfgField,
-                      new StringBuilder(),
-                      0,
-                      -1,
-                      new char[] {'.'},
-                      true,
-                      true,
-                      true,
-                      0,
-                      true)
+                  cfgField,
+                  new StringBuilder(),
+                  0,
+                  -1,
+                  new char[]{'.'},
+                  true,
+                  true,
+                  true,
+                  0,
+                  true)
                   - 1;
           if (pos > -1) {
             // FOUND <CLASS>.<FIELD>
@@ -158,8 +158,9 @@ public class OTraverseRecordProcess extends OTraverseAbstractProcess<OIdentifiab
 
   private void processFields(Iterator<Object> target) {
     ODocument doc = this.target.getRecord();
-    if (doc.isUnloaded()) {
-      doc = ODatabaseSession.getActiveSession().bindToSession(doc);
+    var database = command.getContext().getDatabase();
+    if (doc.isNotBound(database)) {
+      doc = database.bindToSession(doc);
     }
 
     while (target.hasNext()) {

@@ -17,9 +17,7 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Created by emrul on 14/09/14.
  *
- * @author Emrul Islam <emrul@emrul.com> Copyright 2014 Emrul Islam
  */
 public class OServerCommandPostAuthToken extends OServerCommandAbstract {
 
@@ -36,8 +34,8 @@ public class OServerCommandPostAuthToken extends OServerCommandAbstract {
 
     if (tokenHandler == null
         && server
-            .getContextConfiguration()
-            .getValueAsBoolean(OGlobalConfiguration.NETWORK_HTTP_USE_TOKEN)) {
+        .getContextConfiguration()
+        .getValueAsBoolean(OGlobalConfiguration.NETWORK_HTTP_USE_TOKEN)) {
       tokenHandler = server.getTokenHandler();
     }
   }
@@ -122,7 +120,7 @@ public class OServerCommandPostAuthToken extends OServerCommandAbstract {
     try {
       db = server.openDatabase(iDatabaseName, username, password);
 
-      userRid = (db.getUser() == null ? "<server user>" : db.getUser().getIdentity().toString());
+      userRid = (db.getUser() == null ? "<server user>" : db.getUser().getIdentity(db).toString());
     } catch (OSecurityAccessException e) {
       // WRONG USER/PASSWD
     } catch (OLockException e) {

@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -30,19 +30,20 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by enricorisa on 23/09/14.
+ *
  */
 public class LuceneMassiveInsertDeleteTest extends BaseLuceneTest {
 
-  public LuceneMassiveInsertDeleteTest() {}
+  public LuceneMassiveInsertDeleteTest() {
+  }
 
   @Before
   public void init() {
     OSchema schema = db.getMetadata().getSchema();
     OClass v = schema.getClass("V");
     OClass song = schema.createClass("City");
-    song.addSuperClass(v);
-    song.createProperty("name", OType.STRING);
+    song.addSuperClass(db, v);
+    song.createProperty(db, "name", OType.STRING);
 
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
   }
@@ -84,8 +85,8 @@ public class LuceneMassiveInsertDeleteTest extends BaseLuceneTest {
     db.getMetadata().reload();
 
     db.begin();
-    OIndex idx = db.getMetadata().getSchema().getClass("City").getClassIndex("City.name");
-    Assert.assertEquals(idx.getInternal().size(), 0);
+    OIndex idx = db.getMetadata().getSchema().getClass("City").getClassIndex(db, "City.name");
+    Assert.assertEquals(idx.getInternal().size(db), 0);
     db.commit();
   }
 }

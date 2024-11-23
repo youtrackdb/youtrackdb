@@ -45,7 +45,7 @@ public class OEdgeDocument extends ODocument implements OEdgeInternal {
   @Override
   @Nullable
   public OIdentifiable getFromIdentifiable() {
-    var db = getDatabase();
+    var db = getSession();
     var schema = db.getMetadata().getImmutableSchemaSnapshot();
 
     var result = getLinkPropertyInternal(DIRECTION_OUT);
@@ -77,7 +77,7 @@ public class OEdgeDocument extends ODocument implements OEdgeInternal {
 
   @Override
   public OIdentifiable getToIdentifiable() {
-    var db = getDatabase();
+    var db = getSession();
     var schema = db.getMetadata().getImmutableSchemaSnapshot();
 
     var result = getLinkPropertyInternal(DIRECTION_IN);

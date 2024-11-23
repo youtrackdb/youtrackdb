@@ -2,43 +2,44 @@ package com.orientechnologies.orient.core.db;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.Test;
 
 public class OSharedContextEmbeddedTests {
 
   @Test
   public void testSimpleConfigStore() {
-    try (OrientDB orientDb = new OrientDB("embedded:", OrientDBConfig.defaultConfig())) {
-      orientDb.execute("create database test memory users(admin identified by 'admin' role admin)");
-      try (var session = (ODatabaseSessionInternal) orientDb.open("test", "admin", "admin")) {
+    try (OxygenDB oxygenDb = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig())) {
+      oxygenDb.execute("create database test memory users(admin identified by 'admin' role admin)");
+      try (var session = (ODatabaseSessionInternal) oxygenDb.open("test", "admin", "admin")) {
         OSharedContextEmbedded shared = (OSharedContextEmbedded) session.getSharedContext();
-        ODocument config = new ODocument();
-        config.setProperty("one", "two");
+        Map<String, Object> config = new HashMap<>();
+        config.put("one", "two");
         shared.saveConfig(session, "simple", config);
-        ODocument loadConfig = shared.loadConfig(session, "simple");
-        assertEquals((String) config.getProperty("one"), loadConfig.getProperty("one"));
+        var loadConfig = shared.loadConfig(session, "simple");
+        assertEquals(config.get("one"), loadConfig.get("one"));
       }
     }
   }
 
   @Test
   public void testConfigStoreDouble() {
-    try (OrientDB orientDb = new OrientDB("embedded:", OrientDBConfig.defaultConfig())) {
-      orientDb.execute("create database test memory users(admin identified by 'admin' role admin)");
-      try (var session = (ODatabaseSessionInternal) orientDb.open("test", "admin", "admin")) {
+    try (OxygenDB oxygenDb = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig())) {
+      oxygenDb.execute("create database test memory users(admin identified by 'admin' role admin)");
+      try (var session = (ODatabaseSessionInternal) oxygenDb.open("test", "admin", "admin")) {
         OSharedContextEmbedded shared = (OSharedContextEmbedded) session.getSharedContext();
-        ODocument config = new ODocument();
-        config.setProperty("one", "two");
+        Map<String, Object> config = new HashMap<>();
+        config.put("one", "two");
         shared.saveConfig(session, "simple", config);
-        ODocument loadConfig = shared.loadConfig(session, "simple");
-        assertEquals((String) config.getProperty("one"), loadConfig.getProperty("one"));
+        var loadConfig = shared.loadConfig(session, "simple");
+        assertEquals(config.get("one"), loadConfig.get("one"));
 
-        ODocument other = new ODocument();
-        other.setProperty("one", "three");
+        Map<String, Object> other = new HashMap<>();
+        other.put("one", "three");
         shared.saveConfig(session, "simple", other);
-        ODocument reLoadConfig = shared.loadConfig(session, "simple");
-        assertEquals((String) other.getProperty("one"), reLoadConfig.getProperty("one"));
+        var reLoadConfig = shared.loadConfig(session, "simple");
+        assertEquals(other.get("one"), reLoadConfig.get("one"));
       }
     }
   }

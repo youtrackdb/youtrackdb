@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.operator;
@@ -22,6 +22,7 @@ package com.orientechnologies.orient.core.sql.operator;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OCompositeIndexDefinition;
@@ -47,8 +48,6 @@ import java.util.stream.Stream;
 
 /**
  * IN operator.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
 
@@ -88,7 +87,7 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
       if (inParams instanceof OLegacyResultSet) { // manage IN (subquery)
         Set newInParams = new HashSet();
         for (Object o : inParams) {
-          if (o instanceof ODocument doc && ((ODocument) o).getIdentity().getClusterId() < -1) {
+          if (o instanceof ODocument doc && doc.getIdentity().getClusterId() < -1) {
             String[] fieldNames = doc.fieldNames();
             if (fieldNames.length == 1) {
               newInParams.add(doc.field(fieldNames[0]));
@@ -125,7 +124,7 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
         return null;
       }
 
-      stream = index.getInternal().streamEntries(inKeys, ascSortOrder);
+      stream = index.getInternal().streamEntries(iContext.getDatabase(), inKeys, ascSortOrder);
     } else {
       final List<Object> partialKey = new ArrayList<Object>();
       partialKey.addAll(keyParams);
@@ -166,12 +165,8 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
         return null;
       }
 
-      if (inKeys == null) {
-        return null;
-      }
-
       if (indexDefinition.getParamCount() == keyParams.size()) {
-        stream = index.getInternal().streamEntries(inKeys, ascSortOrder);
+        stream = index.getInternal().streamEntries(iContext.getDatabase(), inKeys, ascSortOrder);
       } else {
         return null;
       }
@@ -182,11 +177,11 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
   }
 
   @Override
-  public ORID getBeginRidRange(Object iLeft, Object iRight) {
+  public ORID getBeginRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
     final Iterable<?> ridCollection;
     final int ridSize;
     if (iRight instanceof OSQLFilterItemField
-        && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iRight).getRoot())) {
+        && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iRight).getRoot(session))) {
       if (iLeft instanceof OSQLFilterItem) {
         iLeft = ((OSQLFilterItem) iLeft).getValue(null, null, null);
       }
@@ -194,7 +189,7 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
       ridCollection = OMultiValue.getMultiValueIterable(iLeft);
       ridSize = OMultiValue.getSize(iLeft);
     } else if (iLeft instanceof OSQLFilterItemField
-        && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iLeft).getRoot())) {
+        && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iLeft).getRoot(session))) {
       if (iRight instanceof OSQLFilterItem) {
         iRight = ((OSQLFilterItem) iRight).getValue(null, null, null);
       }
@@ -210,11 +205,11 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
   }
 
   @Override
-  public ORID getEndRidRange(Object iLeft, Object iRight) {
+  public ORID getEndRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
     final Iterable<?> ridCollection;
     final int ridSize;
     if (iRight instanceof OSQLFilterItemField
-        && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iRight).getRoot())) {
+        && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iRight).getRoot(session))) {
       if (iLeft instanceof OSQLFilterItem) {
         iLeft = ((OSQLFilterItem) iLeft).getValue(null, null, null);
       }
@@ -222,7 +217,7 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
       ridCollection = OMultiValue.getMultiValueIterable(iLeft);
       ridSize = OMultiValue.getSize(iLeft);
     } else if (iLeft instanceof OSQLFilterItemField
-        && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iLeft).getRoot())) {
+        && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iLeft).getRoot(session))) {
       if (iRight instanceof OSQLFilterItem) {
         iRight = ((OSQLFilterItem) iRight).getValue(null, null, null);
       }
@@ -246,6 +241,7 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
       final Object iLeft,
       final Object iRight,
       OCommandContext iContext) {
+    var database = iContext.getDatabase();
     if (OMultiValue.isMultiValue(iLeft)) {
       if (iRight instanceof Collection<?>) {
         // AGAINST COLLECTION OF ITEMS
@@ -254,7 +250,7 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
         boolean found = false;
         for (final Object o1 : OMultiValue.getMultiValueIterable(iLeft)) {
           for (final Object o2 : collectionToMatch) {
-            if (OQueryOperatorEquals.equals(o1, o2)) {
+            if (OQueryOperatorEquals.equals(database, o1, o2)) {
               found = true;
               break;
             }
@@ -268,7 +264,7 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
         }
 
         for (final Object o : OMultiValue.getMultiValueIterable(iLeft)) {
-          if (OQueryOperatorEquals.equals(iRight, o)) {
+          if (OQueryOperatorEquals.equals(database, iRight, o)) {
             return true;
           }
         }
@@ -280,21 +276,21 @@ public class OQueryOperatorIn extends OQueryOperatorEqualityNotNulls {
       }
 
       for (final Object o : OMultiValue.getMultiValueIterable(iRight)) {
-        if (OQueryOperatorEquals.equals(iLeft, o)) {
+        if (OQueryOperatorEquals.equals(database, iLeft, o)) {
           return true;
         }
       }
     } else if (iLeft.getClass().isArray()) {
 
       for (final Object o : (Object[]) iLeft) {
-        if (OQueryOperatorEquals.equals(iRight, o)) {
+        if (OQueryOperatorEquals.equals(database, iRight, o)) {
           return true;
         }
       }
     } else if (iRight.getClass().isArray()) {
 
       for (final Object o : (Object[]) iRight) {
-        if (OQueryOperatorEquals.equals(iLeft, o)) {
+        if (OQueryOperatorEquals.equals(database, iLeft, o)) {
           return true;
         }
       }

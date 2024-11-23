@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by enricorisa on 28/06/14.
+ *
  */
 public class LuceneInsertReadMultithreadTest extends BaseLuceneTest {
 
@@ -46,7 +46,7 @@ public class LuceneInsertReadMultithreadTest extends BaseLuceneTest {
     OSchema schema = db.getMetadata().getSchema();
     OClass oClass = schema.createClass("City");
 
-    oClass.createProperty("name", OType.STRING);
+    oClass.createProperty(db, "name", OType.STRING);
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE").close();
   }
 
@@ -80,10 +80,10 @@ public class LuceneInsertReadMultithreadTest extends BaseLuceneTest {
 
     System.out.println("LuceneInsertReadMultithreadBaseTest all threads completed");
 
-    OIndex idx = schema.getClass("City").getClassIndex("City.name");
+    OIndex idx = schema.getClass("City").getClassIndex(db, "City.name");
 
     db.begin();
-    Assert.assertEquals(idx.getInternal().size(), THREADS * CYCLE);
+    Assert.assertEquals(idx.getInternal().size(db), THREADS * CYCLE);
     db.commit();
   }
 
@@ -135,7 +135,7 @@ public class LuceneInsertReadMultithreadTest extends BaseLuceneTest {
       databaseDocumentTx = openDatabase();
 
       OSchema schema = databaseDocumentTx.getMetadata().getSchema();
-      OIndex idx = schema.getClass("City").getClassIndex("City.name");
+      OIndex idx = schema.getClass("City").getClassIndex(db, "City.name");
 
       for (int i = 0; i < cycle; i++) {
 

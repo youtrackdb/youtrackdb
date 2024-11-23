@@ -53,7 +53,8 @@ public class OServerSSLSocketFactory extends OServerSocketFactory {
   private String trustStoreType = KeyStore.getDefaultType();
   private boolean clientAuth = false;
 
-  public OServerSSLSocketFactory() {}
+  public OServerSSLSocketFactory() {
+  }
 
   @Override
   public void config(String name, final OServerParameterConfiguration[] iParameters) {

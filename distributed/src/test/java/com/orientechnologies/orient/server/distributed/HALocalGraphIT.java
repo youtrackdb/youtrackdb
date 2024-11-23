@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,8 +48,6 @@ import org.junit.Test;
  *
  * <p>3 nodes, the test is started after the 1st node is up & running. The test is composed by
  * multiple (8) parallel threads that update the same records 20,000 times.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class HALocalGraphIT extends AbstractServerClusterTxTest {
 

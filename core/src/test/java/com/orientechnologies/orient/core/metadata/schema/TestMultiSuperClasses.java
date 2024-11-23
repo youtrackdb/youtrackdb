@@ -19,8 +19,8 @@ public class TestMultiSuperClasses extends BaseMemoryInternalDatabase {
 
     OClass aClass = oSchema.createAbstractClass("javaA");
     OClass bClass = oSchema.createAbstractClass("javaB");
-    aClass.createProperty("propertyInt", OType.INTEGER);
-    bClass.createProperty("propertyDouble", OType.DOUBLE);
+    aClass.createProperty(db, "propertyInt", OType.INTEGER);
+    bClass.createProperty(db, "propertyDouble", OType.DOUBLE);
     OClass cClass = oSchema.createClass("javaC", aClass, bClass);
     testClassCreationBranch(aClass, bClass, cClass);
     testClassCreationBranch(aClass, bClass, cClass);
@@ -49,12 +49,12 @@ public class TestMultiSuperClasses extends BaseMemoryInternalDatabase {
 
     OProperty property = cClass.getProperty("propertyInt");
     assertEquals(OType.INTEGER, property.getType());
-    property = cClass.propertiesMap().get("propertyInt");
+    property = cClass.propertiesMap(db).get("propertyInt");
     assertEquals(OType.INTEGER, property.getType());
 
     property = cClass.getProperty("propertyDouble");
     assertEquals(OType.DOUBLE, property.getType());
-    property = cClass.propertiesMap().get("propertyDouble");
+    property = cClass.propertiesMap(db).get("propertyDouble");
     assertEquals(OType.DOUBLE, property.getType());
   }
 
@@ -106,16 +106,16 @@ public class TestMultiSuperClasses extends BaseMemoryInternalDatabase {
     OClass bClass = oSchema.createAbstractClass("cycleB", aClass);
     OClass cClass = oSchema.createAbstractClass("cycleC", bClass);
 
-    aClass.setSuperClasses(Collections.singletonList(cClass));
+    aClass.setSuperClasses(db, Collections.singletonList(cClass));
   }
 
   @Test
   public void testParametersImpactGoodScenario() {
     final OSchema oSchema = db.getMetadata().getSchema();
     OClass aClass = oSchema.createAbstractClass("impactGoodA");
-    aClass.createProperty("property", OType.STRING);
+    aClass.createProperty(db, "property", OType.STRING);
     OClass bClass = oSchema.createAbstractClass("impactGoodB");
-    bClass.createProperty("property", OType.STRING);
+    bClass.createProperty(db, "property", OType.STRING);
     OClass cClass = oSchema.createAbstractClass("impactGoodC", aClass, bClass);
     assertTrue(cClass.existsProperty("property"));
   }
@@ -125,9 +125,9 @@ public class TestMultiSuperClasses extends BaseMemoryInternalDatabase {
   public void testParametersImpactBadScenario() {
     final OSchema oSchema = db.getMetadata().getSchema();
     OClass aClass = oSchema.createAbstractClass("impactBadA");
-    aClass.createProperty("property", OType.STRING);
+    aClass.createProperty(db, "property", OType.STRING);
     OClass bClass = oSchema.createAbstractClass("impactBadB");
-    bClass.createProperty("property", OType.INTEGER);
+    bClass.createProperty(db, "property", OType.INTEGER);
     oSchema.createAbstractClass("impactBadC", aClass, bClass);
   }
 
@@ -136,7 +136,7 @@ public class TestMultiSuperClasses extends BaseMemoryInternalDatabase {
     final OSchema oSchema = db.getMetadata().getSchema();
     OClass oRestrictedClass = oSchema.getClass("ORestricted");
     OClass vClass = oSchema.getClass("V");
-    vClass.setSuperClasses(Collections.singletonList(oRestrictedClass));
+    vClass.setSuperClasses(db, Collections.singletonList(oRestrictedClass));
     OClass dummy1Class = oSchema.createClass("Dummy1", oRestrictedClass, vClass);
     OClass dummy2Class = oSchema.createClass("Dummy2");
     OClass dummy3Class = oSchema.createClass("Dummy3", dummy1Class, dummy2Class);

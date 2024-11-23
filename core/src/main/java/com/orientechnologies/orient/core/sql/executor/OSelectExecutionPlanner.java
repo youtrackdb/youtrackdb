@@ -73,7 +73,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ *
  */
 public class OSelectExecutionPlanner {
 
@@ -109,7 +109,7 @@ public class OSelectExecutionPlanner {
     info.timeout = this.statement.getTimeout() == null ? null : this.statement.getTimeout().copy();
     if (info.timeout == null
         && ctx.getDatabase().getConfiguration().getValueAsLong(OGlobalConfiguration.COMMAND_TIMEOUT)
-            > 0) {
+        > 0) {
       info.timeout = new OTimeout(-1);
       info.timeout.setVal(
           ctx.getDatabase()
@@ -366,8 +366,8 @@ public class OSelectExecutionPlanner {
                 + "] are not present on any node"
                 + "\n ["
                 + clusterMap.entrySet().stream()
-                    .map(x -> x.getKey() + ":(" + String.join(",", x.getValue()) + ")")
-                    .collect(Collectors.joining(", "))
+                .map(x -> x.getKey() + ":(" + String.join(",", x.getValue()) + ")")
+                .collect(Collectors.joining(", "))
                 + "]");
       }
       result.put(nextNode, nextNodeClusters);
@@ -688,7 +688,7 @@ public class OSelectExecutionPlanner {
       return false;
     }
 
-    for (OIndex classIndex : clazz.getClassIndexes()) {
+    for (OIndex classIndex : clazz.getClassIndexes(ctx.getDatabase())) {
       List<String> fields = classIndex.getDefinition().getFields();
       if (fields.size() == 1
           && fields.get(0).equals(binaryCondition.getLeft().getDefaultAlias().getStringValue())) {
@@ -768,9 +768,9 @@ public class OSelectExecutionPlanner {
         || info.projection == null
         || info.aggregateProjection.getItems().size() != 1
         || info.projection.getItems().stream()
-                .filter(x -> !x.getProjectionAliasAsString().startsWith("_$$$ORDER_BY_ALIAS$$$_"))
-                .count()
-            != 1) {
+        .filter(x -> !x.getProjectionAliasAsString().startsWith("_$$$ORDER_BY_ALIAS$$$_"))
+        .count()
+        != 1) {
       return false;
     }
     OProjectionItem item = info.aggregateProjection.getItems().get(0);
@@ -897,7 +897,7 @@ public class OSelectExecutionPlanner {
         OLetItem item = iterator.next();
         if (item.getExpression() != null
             && (item.getExpression().isEarlyCalculated(ctx)
-                || isUnionAllOfQueries(info, item.getVarName(), item.getExpression()))) {
+            || isUnionAllOfQueries(info, item.getVarName(), item.getExpression()))) {
           iterator.remove();
           addGlobalLet(info, item.getVarName(), item.getExpression());
         } else if (item.getQuery() != null && !item.getQuery().refersToParent()) {
@@ -1276,9 +1276,9 @@ public class OSelectExecutionPlanner {
         String className = target.getIdentifier().getStringValue();
         if (className.startsWith("$")
             && !ctx.getDatabase()
-                .getMetadata()
-                .getImmutableSchemaSnapshot()
-                .existsClass(className)) {
+            .getMetadata()
+            .getImmutableSchemaSnapshot()
+            .existsClass(className)) {
           handleVariableAsTarget(shardedPlan.getValue(), info, ctx, profilingEnabled);
         } else {
           Set<String> filterClusters = info.serverToClusters.get(shardedPlan.getKey());
@@ -1948,7 +1948,7 @@ public class OSelectExecutionPlanner {
 
     if (info.orderBy != null
         && handleClassWithIndexForSortOnly(
-            plan, identifier, filterClusters, info, ctx, profilingEnabled)) {
+        plan, identifier, filterClusters, info, ctx, profilingEnabled)) {
       plan.chain(new FilterByClassStep(identifier, ctx, profilingEnabled));
       return;
     }
@@ -2027,7 +2027,8 @@ public class OSelectExecutionPlanner {
           filterIndexedFunctionsWithoutIndex(indexedFunctionConditions, info.target, ctx);
 
       if (indexedFunctionConditions == null || indexedFunctionConditions.size() == 0) {
-        IndexSearchDescriptor bestIndex = findBestIndexFor(ctx, clazz.getIndexes(), block, clazz);
+        IndexSearchDescriptor bestIndex = findBestIndexFor(ctx, clazz.getIndexes(ctx.getDatabase()),
+            block, clazz);
         if (bestIndex != null) {
 
           FetchFromIndexStep step = new FetchFromIndexStep(bestIndex, true, ctx, profilingEnabled);
@@ -2229,7 +2230,7 @@ public class OSelectExecutionPlanner {
     }
 
     for (OIndex idx :
-        clazz.getIndexes().stream()
+        clazz.getIndexes(ctx.getDatabase()).stream()
             .filter(i -> i.supportsOrderedIterations())
             .filter(i -> i.getDefinition() != null)
             .collect(Collectors.toList())) {
@@ -2303,6 +2304,7 @@ public class OSelectExecutionPlanner {
       OCommandContext ctx,
       boolean profilingEnabled) {
 
+    var database = ctx.getDatabase();
     List<OExecutionStepInternal> result =
         handleClassAsTargetWithIndex(
             targetClass.getStringValue(), filterClusters, info, ctx, profilingEnabled);
@@ -2320,7 +2322,8 @@ public class OSelectExecutionPlanner {
         throw new OCommandExecutionException("Class not found: " + targetClass);
       }
     }
-    if (clazz.count(false) != 0 || clazz.getSubclasses().size() == 0 || isDiamondHierarchy(clazz)) {
+    if (clazz.count(ctx.getDatabase(), false) != 0 || clazz.getSubclasses().size() == 0
+        || isDiamondHierarchy(clazz)) {
       return false;
     }
     // try subclasses
@@ -2387,8 +2390,8 @@ public class OSelectExecutionPlanner {
       if (clazz == null) {
         throw new OCommandExecutionException("Cannot find class " + targetClass);
       }
-      if (clazz.count(false) != 0
-          || clazz.getSubclasses().size() == 0
+      if (clazz.count(ctx.getDatabase(), false) != 0
+          || clazz.getSubclasses().isEmpty()
           || isDiamondHierarchy(clazz)) {
         return null;
       }
@@ -2432,7 +2435,7 @@ public class OSelectExecutionPlanner {
       throw new OCommandExecutionException("Cannot find class " + targetClass);
     }
 
-    Set<OIndex> indexes = clazz.getIndexes();
+    Set<OIndex> indexes = clazz.getIndexes(ctx.getDatabase());
 
     final OClass c = clazz;
     List<IndexSearchDescriptor> indexSearchDescriptors =
@@ -2976,7 +2979,7 @@ public class OSelectExecutionPlanner {
 
       if (info.orderBy != null
           && handleClassWithIndexForSortOnly(
-              plan, clazz, clusterNames, info, ctx, profilingEnabled)) {
+          plan, clazz, clusterNames, info, ctx, profilingEnabled)) {
         return;
       }
     }

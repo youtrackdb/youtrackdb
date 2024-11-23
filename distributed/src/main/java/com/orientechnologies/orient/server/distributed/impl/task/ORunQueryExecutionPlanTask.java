@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * Created by luigidellaquila on 23/06/17.
+ *
  */
 public class ORunQueryExecutionPlanTask extends OAbstractRemoteTask {
 

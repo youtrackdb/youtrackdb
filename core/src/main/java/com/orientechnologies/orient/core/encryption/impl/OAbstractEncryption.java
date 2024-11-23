@@ -8,8 +8,6 @@ import javax.crypto.Cipher;
 /**
  * * (https://docs.oracle.com/javase/7/docs/technotes/guides/security/SunProviders.html). Issue
  * https://github.com/orientechnologies/orientdb/issues/89.
- *
- * @author giastfader
  */
 public abstract class OAbstractEncryption implements OEncryption {
 

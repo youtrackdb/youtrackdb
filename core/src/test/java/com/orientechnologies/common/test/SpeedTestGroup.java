@@ -15,7 +15,8 @@ public abstract class SpeedTestGroup {
   protected HashMap<String, TreeMap<Long, String>> results =
       new HashMap<String, TreeMap<Long, String>>();
 
-  protected SpeedTestGroup() {}
+  protected SpeedTestGroup() {
+  }
 
   public void go() {
     for (SpeedTestAbstract test : tests) {

@@ -8,8 +8,6 @@ import org.junit.Before;
 
 /**
  * Test HTTP "query" command.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com) (l.garulli--at-orientdb.com)
  */
 public abstract class BaseHttpDatabaseTest extends BaseHttpTest {
 
@@ -50,7 +48,9 @@ public abstract class BaseHttpDatabaseTest extends BaseHttpTest {
     onAfterDatabaseDropped();
   }
 
-  protected void onAfterDatabaseCreated() throws Exception {}
+  protected void onAfterDatabaseCreated() throws Exception {
+  }
 
-  protected void onAfterDatabaseDropped() throws Exception {}
+  protected void onAfterDatabaseDropped() throws Exception {
+  }
 }

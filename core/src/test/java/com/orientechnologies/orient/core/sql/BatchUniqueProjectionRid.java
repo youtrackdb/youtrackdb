@@ -17,7 +17,7 @@ public class BatchUniqueProjectionRid extends BaseMemoryDatabase {
                 new OCommandScript(
                     "begin;let $a = select \"a\" as a ; let $b = select \"a\" as b; return"
                         + " [$a,$b] "))
-            .execute();
+            .execute(db);
 
     assertNotEquals(
         res.get(0).get(0).getIdentity().getClusterPosition(),

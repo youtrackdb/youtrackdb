@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.fetch;
@@ -46,10 +46,6 @@ import java.util.Set;
 
 /**
  * Helper class for fetching.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
- * @author Luca Molino
- * @author Claudio Tesoriero (giastfader @ github)
  */
 public class OFetchHelper {
 
@@ -158,20 +154,20 @@ public class OFetchHelper {
       fieldValue = ODocumentInternal.getRawProperty(record, fieldName);
       if (fieldValue == null
           || !(fieldValue instanceof OIdentifiable)
-              && (!(fieldValue instanceof Iterable<?>)
-                  || !((Iterable<?>) fieldValue).iterator().hasNext()
-                  || ((Iterable<?>) fieldValue).iterator().next() == null)
-              && (!(fieldValue instanceof Collection<?>)
-                  || ((Collection<?>) fieldValue).isEmpty()
-                  || !(((Collection<?>) fieldValue).iterator().next() instanceof OIdentifiable))
-              && (!(fieldValue.getClass().isArray())
-                  || Array.getLength(fieldValue) == 0
-                  || !(Array.get(fieldValue, 0) instanceof OIdentifiable))
-              && (!(fieldValue instanceof OMultiCollectionIterator<?>))
-              && (!(fieldValue instanceof Map<?, ?>)
-                  || ((Map<?, ?>) fieldValue).isEmpty()
-                  || !(((Map<?, ?>) fieldValue).values().iterator().next()
-                      instanceof OIdentifiable))) {
+          && (!(fieldValue instanceof Iterable<?>)
+          || !((Iterable<?>) fieldValue).iterator().hasNext()
+          || ((Iterable<?>) fieldValue).iterator().next() == null)
+          && (!(fieldValue instanceof Collection<?>)
+          || ((Collection<?>) fieldValue).isEmpty()
+          || !(((Collection<?>) fieldValue).iterator().next() instanceof OIdentifiable))
+          && (!(fieldValue.getClass().isArray())
+          || Array.getLength(fieldValue) == 0
+          || !(Array.get(fieldValue, 0) instanceof OIdentifiable))
+          && (!(fieldValue instanceof OMultiCollectionIterator<?>))
+          && (!(fieldValue instanceof Map<?, ?>)
+          || ((Map<?, ?>) fieldValue).isEmpty()
+          || !(((Map<?, ?>) fieldValue).values().iterator().next()
+          instanceof OIdentifiable))) {
         //noinspection UnnecessaryContinue
         continue;
       } else {
@@ -500,9 +496,9 @@ public class OFetchHelper {
     boolean fetch =
         !format.contains("shallow")
             && (!(fieldValue instanceof OIdentifiable)
-                || depthLevel == -1
-                || currentLevel <= depthLevel
-                || (fetchPlan != null && fetchPlan.has(fieldPath, currentLevel)));
+            || depthLevel == -1
+            || currentLevel <= depthLevel
+            || (fetchPlan != null && fetchPlan.has(fieldPath, currentLevel)));
     final boolean isEmbedded = isEmbedded(fieldValue);
 
     if (!fetch && isEmbedded && fetchContext.fetchEmbeddedDocuments()) {
@@ -514,10 +510,10 @@ public class OFetchHelper {
         || fieldValue == null
         || (!fetch && fieldValue instanceof OIdentifiable)
         || !(fieldValue instanceof OIdentifiable)
-            && (!(fieldValue.getClass().isArray())
-                || Array.getLength(fieldValue) == 0
-                || !(Array.get(fieldValue, 0) instanceof OIdentifiable))
-            && !containsIdentifiers(fieldValue)) {
+        && (!(fieldValue.getClass().isArray())
+        || Array.getLength(fieldValue) == 0
+        || !(Array.get(fieldValue, 0) instanceof OIdentifiable))
+        && !containsIdentifiers(fieldValue)) {
       fetchContext.onBeforeStandardField(fieldValue, fieldName, userObject, fieldType);
     }
   }
@@ -557,9 +553,9 @@ public class OFetchHelper {
     boolean fetch =
         !format.contains("shallow")
             && (!(fieldValue instanceof OIdentifiable)
-                || depthLevel == -1
-                || currentLevel <= depthLevel
-                || (fetchPlan != null && fetchPlan.has(fieldPath, currentLevel)));
+            || depthLevel == -1
+            || currentLevel <= depthLevel
+            || (fetchPlan != null && fetchPlan.has(fieldPath, currentLevel)));
     final boolean isEmbedded = isEmbedded(fieldValue);
 
     if (!fetch && isEmbedded && fetchContext.fetchEmbeddedDocuments()) {
@@ -571,13 +567,13 @@ public class OFetchHelper {
         || fieldValue == null
         || (!fetch && fieldValue instanceof OIdentifiable)
         || !(fieldValue instanceof OIdentifiable)
-            && (!(fieldValue instanceof Iterable<?>)
-                || !((Iterable<?>) fieldValue).iterator().hasNext()
-                || !(((Iterable<?>) fieldValue).iterator().next() instanceof OIdentifiable))
-            && (!(fieldValue.getClass().isArray())
-                || Array.getLength(fieldValue) == 0
-                || !(Array.get(fieldValue, 0) instanceof OIdentifiable))
-            && !containsIdentifiers(fieldValue)) {
+        && (!(fieldValue instanceof Iterable<?>)
+        || !((Iterable<?>) fieldValue).iterator().hasNext()
+        || !(((Iterable<?>) fieldValue).iterator().next() instanceof OIdentifiable))
+        && (!(fieldValue.getClass().isArray())
+        || Array.getLength(fieldValue) == 0
+        || !(Array.get(fieldValue, 0) instanceof OIdentifiable))
+        && !containsIdentifiers(fieldValue)) {
       fetchContext.onBeforeStandardField(fieldValue, fieldName, userObject, fieldType);
       fetchListener.processStandardField(
           record, fieldValue, fieldName, fetchContext, userObject, format, fieldType);
@@ -627,7 +623,7 @@ public class OFetchHelper {
     boolean isEmbedded =
         fieldValue instanceof ODocument
             && (((ODocument) fieldValue).isEmbedded()
-                || !((ODocument) fieldValue).getIdentity().isPersistent());
+            || !((ODocument) fieldValue).getIdentity().isPersistent());
 
     // ridbag can contain only edges no embedded documents are allowed.
     if (fieldValue instanceof ORidBag) {
@@ -639,8 +635,8 @@ public class OFetchHelper {
         isEmbedded =
             f != null
                 && (f instanceof ODocument
-                    && (((ODocument) f).isEmbedded()
-                        || !((ODocument) f).getIdentity().isPersistent()));
+                && (((ODocument) f).isEmbedded()
+                || !((ODocument) f).getIdentity().isPersistent()));
       } catch (Exception e) {
         OLogManager.instance().error(OFetchHelper.class, "", e);
         // IGNORE IT
@@ -966,8 +962,8 @@ public class OFetchHelper {
               context,
               settings);
         } else if ((recordLazyMultiValue instanceof String
-                || recordLazyMultiValue instanceof Number
-                || recordLazyMultiValue instanceof Boolean)
+            || recordLazyMultiValue instanceof Number
+            || recordLazyMultiValue instanceof Boolean)
             && context instanceof OJSONFetchContext) {
           ((OJSONFetchContext) context).getJsonWriter().writeValue(0, false, recordLazyMultiValue);
         }

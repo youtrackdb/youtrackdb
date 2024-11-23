@@ -3,13 +3,13 @@ package com.orientechnologies.orient.core.sql;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import java.util.Map;
 
 /**
  * Drops a use.
  *
- * @author Matan Shukry (matanshukry@gmail.com)
  * @since 4/22/2015
  */
 public class OCommandExecutorSQLDropUser extends OCommandExecutorSQLAbstract
@@ -36,7 +36,7 @@ public class OCommandExecutorSQLDropUser extends OCommandExecutorSQLAbstract
   }
 
   @Override
-  public Object execute(Map<Object, Object> iArgs) {
+  public Object execute(Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
     if (this.userName == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
@@ -50,7 +50,8 @@ public class OCommandExecutorSQLDropUser extends OCommandExecutorSQLAbstract
         "DELETE FROM " + USER_CLASS + " WHERE " + USER_FIELD_NAME + "='" + this.userName + "'";
 
     //
-    return getDatabase().command(new OCommandSQL(sb)).execute();
+    var db = getDatabase();
+    return db.command(new OCommandSQL(sb)).execute(db);
   }
 
   @Override

@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.sql.parser.OCluster;
 import com.orientechnologies.orient.core.sql.parser.OIdentifier;
 
 /**
- * Created by luigidellaquila on 14/02/17.
+ *
  */
 public class MoveVertexStep extends AbstractExecutionStep {
 

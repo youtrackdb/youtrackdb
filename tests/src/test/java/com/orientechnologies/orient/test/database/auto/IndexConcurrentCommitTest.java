@@ -18,8 +18,10 @@ public class IndexConcurrentCommitTest extends DocumentDBBaseTest {
 
   public void testConcurrentUpdate() {
     OClass personClass = database.getMetadata().getSchema().createClass("Person");
-    personClass.createProperty("ssn", OType.STRING).createIndex(OClass.INDEX_TYPE.UNIQUE);
-    personClass.createProperty("name", OType.STRING).createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
+    personClass.createProperty(database, "ssn", OType.STRING)
+        .createIndex(database, OClass.INDEX_TYPE.UNIQUE);
+    personClass.createProperty(database, "name", OType.STRING)
+        .createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
 
     try {
       // Transaction 1

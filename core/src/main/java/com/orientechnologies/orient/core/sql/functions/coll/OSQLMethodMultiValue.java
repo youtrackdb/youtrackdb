@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  * Copyright 2013 Geomatys.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,8 +26,6 @@ import java.util.List;
 
 /**
  * Works against multi value objects like collections, maps and arrays.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLMethodMultiValue extends OAbstractSQLMethod {
 
@@ -54,18 +52,20 @@ public class OSQLMethodMultiValue extends OAbstractSQLMethod {
     }
 
     if (iParams.length == 1 && !OMultiValue.isMultiValue(iParams[0])) {
-      return ODocumentHelper.getFieldValue(iThis, iParams[0].toString(), iContext);
+      return ODocumentHelper.getFieldValue(iContext.getDatabase(), iThis, iParams[0].toString(),
+          iContext);
     }
 
+    var database = iContext.getDatabase();
     // MULTI VALUES
     final List<Object> list = new ArrayList<Object>();
-    for (int i = 0; i < iParams.length; ++i) {
-      if (OMultiValue.isMultiValue(iParams[i])) {
-        for (Object o : OMultiValue.getMultiValueIterable(iParams[i])) {
-          list.add(ODocumentHelper.getFieldValue(iThis, o.toString(), iContext));
+    for (Object iParam : iParams) {
+      if (OMultiValue.isMultiValue(iParam)) {
+        for (Object o : OMultiValue.getMultiValueIterable(iParam)) {
+          list.add(ODocumentHelper.getFieldValue(database, iThis, o.toString(), iContext));
         }
       } else {
-        list.add(ODocumentHelper.getFieldValue(iThis, iParams[i].toString(), iContext));
+        list.add(ODocumentHelper.getFieldValue(database, iThis, iParam.toString(), iContext));
       }
     }
 

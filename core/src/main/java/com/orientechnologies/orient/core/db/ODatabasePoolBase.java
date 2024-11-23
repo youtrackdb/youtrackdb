@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.db;
@@ -27,8 +27,6 @@ import java.util.Map;
 
 /**
  * Database pool base class.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class ODatabasePoolBase extends Thread {
 
@@ -108,7 +106,8 @@ public abstract class ODatabasePoolBase extends Thread {
                               (String) iAdditionalArgs[0],
                               (String) iAdditionalArgs[1],
                               new OContextConfiguration());
-                    } else if (!iValue.getUser().checkPassword((String) iAdditionalArgs[1])) {
+                    } else if (!iValue.getUser()
+                        .checkPassword(iValue, (String) iAdditionalArgs[1])) {
                       throw new OSecurityAccessException(
                           iValue.getName(),
                           "User or password not valid for database: '" + iValue.getName() + "'");

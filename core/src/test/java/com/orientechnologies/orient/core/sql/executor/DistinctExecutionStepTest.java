@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
+import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
@@ -10,9 +11,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by luigidellaquila on 26/07/16.
+ *
  */
-public class DistinctExecutionStepTest {
+public class DistinctExecutionStepTest extends BaseMemoryDatabase {
 
   @Test
   public void test() {

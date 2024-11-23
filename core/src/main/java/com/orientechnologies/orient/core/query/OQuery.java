@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.query;
 
 import com.orientechnologies.orient.core.command.OCommandRequest;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import java.util.List;
 
 public interface OQuery<T extends Object> extends OCommandRequest {
@@ -37,7 +38,7 @@ public interface OQuery<T extends Object> extends OCommandRequest {
    *
    * @return Record if found, otherwise null
    */
-  T runFirst(Object... iArgs);
+  T runFirst(ODatabaseSessionInternal database, Object... iArgs);
 
   void reset();
 }

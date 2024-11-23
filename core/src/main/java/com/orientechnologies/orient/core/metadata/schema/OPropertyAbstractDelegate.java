@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2014 OrientDB LTD (info--at--orientdb.com)
+ * Copyright OxygenDB
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,17 @@
 package com.orientechnologies.orient.core.metadata.schema;
 
 import com.orientechnologies.orient.core.collate.OCollate;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndex;
+import com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYPE;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.Collection;
 import java.util.Set;
+import javax.annotation.Nonnull;
 
 /**
  * Abstract Delegate for OProperty interface.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com) (http://orientdb.com)
  */
 public class OPropertyAbstractDelegate implements OProperty {
 
@@ -51,8 +53,8 @@ public class OPropertyAbstractDelegate implements OProperty {
   }
 
   @Override
-  public OProperty setName(final String iName) {
-    delegate.setName(iName);
+  public OProperty setName(ODatabaseSession session, final String iName) {
+    delegate.setName(session, iName);
     return this;
   }
 
@@ -62,14 +64,14 @@ public class OPropertyAbstractDelegate implements OProperty {
   }
 
   @Override
-  public OProperty setDescription(String iDescription) {
-    delegate.setDescription(iDescription);
+  public OProperty setDescription(ODatabaseSession session, String iDescription) {
+    delegate.setDescription(session, iDescription);
     return this;
   }
 
   @Override
-  public void set(final ATTRIBUTES attribute, final Object iValue) {
-    delegate.set(attribute, iValue);
+  public void set(ODatabaseSession session, final ATTRIBUTES attribute, final Object iValue) {
+    delegate.set(session, attribute, iValue);
   }
 
   @Override
@@ -93,8 +95,8 @@ public class OPropertyAbstractDelegate implements OProperty {
   }
 
   @Override
-  public OProperty setNotNull(final boolean iNotNull) {
-    delegate.setNotNull(iNotNull);
+  public OProperty setNotNull(ODatabaseSession session, final boolean iNotNull) {
+    delegate.setNotNull(session, iNotNull);
     return this;
   }
 
@@ -104,8 +106,8 @@ public class OPropertyAbstractDelegate implements OProperty {
   }
 
   @Override
-  public OProperty setCollate(final String iCollateName) {
-    delegate.setCollate(iCollateName);
+  public OProperty setCollate(ODatabaseSession session, final String iCollateName) {
+    delegate.setCollate(session, iCollateName);
     return this;
   }
 
@@ -115,8 +117,8 @@ public class OPropertyAbstractDelegate implements OProperty {
   }
 
   @Override
-  public OProperty setMandatory(final boolean mandatory) {
-    delegate.setMandatory(mandatory);
+  public OProperty setMandatory(ODatabaseSession session, final boolean mandatory) {
+    delegate.setMandatory(session, mandatory);
     return this;
   }
 
@@ -126,8 +128,8 @@ public class OPropertyAbstractDelegate implements OProperty {
   }
 
   @Override
-  public OProperty setReadonly(final boolean iReadonly) {
-    delegate.setReadonly(iReadonly);
+  public OProperty setReadonly(ODatabaseSession session, final boolean iReadonly) {
+    delegate.setReadonly(session, iReadonly);
     return this;
   }
 
@@ -137,7 +139,7 @@ public class OPropertyAbstractDelegate implements OProperty {
   }
 
   @Override
-  public OProperty setMin(final String min) {
+  public OProperty setMin(ODatabaseSession session, final String min) {
     delegate.setMin(min);
     return this;
   }
@@ -148,8 +150,8 @@ public class OPropertyAbstractDelegate implements OProperty {
   }
 
   @Override
-  public OProperty setMax(final String max) {
-    delegate.setMax(max);
+  public OProperty setMax(ODatabaseSession session, final String max) {
+    delegate.setMax(session, max);
     return this;
   }
 
@@ -159,23 +161,23 @@ public class OPropertyAbstractDelegate implements OProperty {
   }
 
   @Override
-  public OProperty setDefaultValue(final String defaultValue) {
-    delegate.setDefaultValue(defaultValue);
+  public OProperty setDefaultValue(ODatabaseSession session, final String defaultValue) {
+    delegate.setDefaultValue(session, defaultValue);
     return this;
   }
 
   @Override
-  public OIndex createIndex(final OClass.INDEX_TYPE iType) {
-    return delegate.createIndex(iType);
+  public OIndex createIndex(ODatabaseSession session, final INDEX_TYPE iType) {
+    return delegate.createIndex(session, iType);
   }
 
   @Override
-  public OIndex createIndex(final String iType) {
-    return delegate.createIndex(iType);
+  public OIndex createIndex(ODatabaseSession session, final String iType) {
+    return delegate.createIndex(session, iType);
   }
 
   @Override
-  public OIndex createIndex(String iType, ODocument metadata) {
+  public OIndex createIndex(ODatabaseSession session, String iType, ODocument metadata) {
     return delegate.createIndex(iType, metadata);
   }
 
@@ -185,51 +187,51 @@ public class OPropertyAbstractDelegate implements OProperty {
   }
 
   @Override
-  public OProperty setLinkedClass(OClass oClass) {
-    delegate.setLinkedClass(oClass);
+  public OProperty setLinkedClass(ODatabaseSession session, OClass oClass) {
+    delegate.setLinkedClass(session, oClass);
     return this;
   }
 
   @Override
-  public OProperty setLinkedType(OType type) {
-    delegate.setLinkedType(type);
+  public OProperty setLinkedType(ODatabaseSession session, OType type) {
+    delegate.setLinkedType(session, type);
     return this;
   }
 
   @Override
-  public OProperty setCollate(OCollate collate) {
-    delegate.setCollate(collate);
-    return this;
-  }
-
-  @Override
-  @Deprecated
-  public OProperty dropIndexes() {
-    delegate.dropIndexes();
+  public OProperty setCollate(ODatabaseSession session, OCollate collate) {
+    delegate.setCollate(session, collate);
     return this;
   }
 
   @Override
   @Deprecated
-  public Set<OIndex> getIndexes() {
-    return delegate.getIndexes();
+  public OProperty dropIndexes(ODatabaseSessionInternal session) {
+    delegate.dropIndexes(session);
+    return this;
   }
 
   @Override
   @Deprecated
-  public OIndex getIndex() {
-    return delegate.getIndex();
-  }
-
-  @Override
-  public Collection<OIndex> getAllIndexes() {
-    return delegate.getAllIndexes();
+  public Set<OIndex> getIndexes(ODatabaseSession session) {
+    return delegate.getIndexes(session);
   }
 
   @Override
   @Deprecated
-  public boolean isIndexed() {
-    return delegate.isIndexed();
+  public OIndex getIndex(ODatabaseSession session) {
+    return delegate.getIndex(session);
+  }
+
+  @Override
+  public Collection<OIndex> getAllIndexes(ODatabaseSession session) {
+    return delegate.getAllIndexes(session);
+  }
+
+  @Override
+  @Deprecated
+  public boolean isIndexed(ODatabaseSession session) {
+    return delegate.isIndexed(session);
   }
 
   @Override
@@ -238,14 +240,14 @@ public class OPropertyAbstractDelegate implements OProperty {
   }
 
   @Override
-  public OProperty setRegexp(final String regexp) {
+  public OProperty setRegexp(ODatabaseSession session, final String regexp) {
     delegate.setRegexp(regexp);
     return this;
   }
 
   @Override
-  public OProperty setType(final OType iType) {
-    delegate.setType(iType);
+  public OProperty setType(ODatabaseSession session, final OType iType) {
+    delegate.setType(session, iType);
     return this;
   }
 
@@ -255,19 +257,19 @@ public class OPropertyAbstractDelegate implements OProperty {
   }
 
   @Override
-  public OProperty setCustom(final String iName, final String iValue) {
-    delegate.setCustom(iName, iValue);
+  public OProperty setCustom(ODatabaseSession session, final String iName, final String iValue) {
+    delegate.setCustom(session, iName, iValue);
     return this;
   }
 
   @Override
-  public void removeCustom(final String iName) {
-    delegate.removeCustom(iName);
+  public void removeCustom(ODatabaseSession session, final String iName) {
+    delegate.removeCustom(session, iName);
   }
 
   @Override
-  public void clearCustom() {
-    delegate.clearCustom();
+  public void clearCustom(ODatabaseSession session) {
+    delegate.clearCustom(session);
   }
 
   @Override
@@ -286,7 +288,7 @@ public class OPropertyAbstractDelegate implements OProperty {
   }
 
   @Override
-  public int compareTo(final OProperty o) {
+  public int compareTo(@Nonnull final OProperty o) {
     return delegate.compareTo(o);
   }
 }

@@ -6,7 +6,8 @@ import java.nio.ByteBuffer;
 
 public final class EmptyWALRecord extends OAbstractWALRecord {
 
-  public EmptyWALRecord() {}
+  public EmptyWALRecord() {
+  }
 
   @Override
   public int toStream(final byte[] content, final int offset) {
@@ -14,7 +15,8 @@ public final class EmptyWALRecord extends OAbstractWALRecord {
   }
 
   @Override
-  public void toStream(final ByteBuffer buffer) {}
+  public void toStream(final ByteBuffer buffer) {
+  }
 
   @Override
   public int fromStream(final byte[] content, final int offset) {

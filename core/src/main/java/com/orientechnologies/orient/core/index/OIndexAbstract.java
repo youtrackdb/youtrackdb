@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.index;
@@ -26,7 +26,6 @@ import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
@@ -60,7 +59,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Stream;
@@ -70,8 +68,6 @@ import java.util.stream.Stream;
  * {@link OPartitionedLockManager}, the default one, or the {@link OOneEntryPerKeyLockManager} in
  * case of distributed. This is to avoid deadlock situation between nodes where keys have the same
  * hash code.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OIndexAbstract implements OIndexInternal {
 
@@ -124,10 +120,10 @@ public abstract class OIndexAbstract implements OIndexInternal {
         loadedIndexDefinition.fromStream(indexDefinitionDoc);
 
       } catch (final ClassNotFoundException
-          | IllegalAccessException
-          | InstantiationException
-          | InvocationTargetException
-          | NoSuchMethodException e) {
+                     | IllegalAccessException
+                     | InstantiationException
+                     | InvocationTargetException
+                     | NoSuchMethodException e) {
         throw OException.wrapException(
             new OIndexException("Error during deserialization of index definition"), e);
       }
@@ -205,7 +201,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
    * Creates the index.
    */
   public OIndexInternal create(
-      final OIndexMetadata indexMetadata,
+      ODatabaseSessionInternal session, final OIndexMetadata indexMetadata,
       boolean rebuild,
       final OProgressListener progressListener) {
     acquireExclusiveLock();
@@ -243,7 +239,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
       onIndexEngineChange(indexId);
 
       if (rebuild) {
-        fillIndex(progressListener, false);
+        fillIndex(session, progressListener, false);
       }
 
       updateConfiguration();
@@ -251,7 +247,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
       OLogManager.instance().error(this, "Exception during index '%s' creation", e, im.getName());
       // index is created inside of storage
       if (indexId >= 0) {
-        doDelete();
+        doDelete(session);
       }
       throw OException.wrapException(
           new OIndexException("Cannot create the index '" + im.getName() + "'"), e);
@@ -271,7 +267,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
     }
   }
 
-  public boolean loadFromConfiguration(final ODocument config) {
+  public boolean loadFromConfiguration(ODatabaseSessionInternal session, final ODocument config) {
     acquireExclusiveLock();
     try {
       clustersToIndex.clear();
@@ -308,14 +304,14 @@ public abstract class OIndexAbstract implements OIndexInternal {
                 this,
                 "Error during load of index '%s'",
                 e,
-                Optional.ofNullable(im.getName()).orElse("null"));
+                im.getName());
 
         if (isAutomatic()) {
           // AUTOMATIC REBUILD IT
           OLogManager.instance()
               .warn(this, "Cannot load index '%s' rebuilt it from scratch", im.getName());
           try {
-            rebuild();
+            rebuild(session);
           } catch (Exception t) {
             OLogManager.instance()
                 .error(
@@ -346,28 +342,29 @@ public abstract class OIndexAbstract implements OIndexInternal {
   /**
    * {@inheritDoc}
    */
-  public long rebuild() {
-    return rebuild(new OIndexRebuildOutputListener(this));
+  public long rebuild(ODatabaseSessionInternal session) {
+    return rebuild(session, new OIndexRebuildOutputListener(this));
   }
 
   @Override
-  public void close() {}
+  public void close() {
+  }
 
   /**
    * @return number of entries in the index.
    */
   @Deprecated
-  public long getSize() {
-    return size();
+  public long getSize(ODatabaseSessionInternal session) {
+    return size(session);
   }
 
   /**
    * Counts the entries for the key.
    */
   @Deprecated
-  public long count(Object iKey) {
+  public long count(ODatabaseSessionInternal session, Object iKey) {
     try (Stream<ORawPair<Object, ORID>> stream =
-        streamEntriesBetween(iKey, true, iKey, true, true)) {
+        streamEntriesBetween(session, iKey, true, iKey, true, true)) {
       return stream.count();
     }
   }
@@ -417,8 +414,8 @@ public abstract class OIndexAbstract implements OIndexInternal {
   }
 
   @Deprecated
-  public Object getLastKey() {
-    try (final Stream<ORawPair<Object, ORID>> stream = descStream()) {
+  public Object getLastKey(ODatabaseSessionInternal session) {
+    try (final Stream<ORawPair<Object, ORID>> stream = descStream(session)) {
       final Iterator<ORawPair<Object, ORID>> iterator = stream.iterator();
       if (iterator.hasNext()) {
         return iterator.next().first;
@@ -429,14 +426,14 @@ public abstract class OIndexAbstract implements OIndexInternal {
   }
 
   @Deprecated
-  public OIndexCursor cursor() {
-    return new OIndexCursorStream(stream());
+  public OIndexCursor cursor(ODatabaseSessionInternal session) {
+    return new OIndexCursorStream(stream(session));
   }
 
   @Deprecated
   @Override
-  public OIndexCursor descCursor() {
-    return new OIndexCursorStream(descStream());
+  public OIndexCursor descCursor(ODatabaseSessionInternal session) {
+    return new OIndexCursorStream(descStream(session));
   }
 
   @Deprecated
@@ -458,41 +455,45 @@ public abstract class OIndexAbstract implements OIndexInternal {
 
   @Deprecated
   @Override
-  public OIndexCursor iterateEntries(Collection<?> keys, boolean ascSortOrder) {
-    return new OIndexCursorStream(streamEntries(keys, ascSortOrder));
+  public OIndexCursor iterateEntries(ODatabaseSessionInternal session, Collection<?> keys,
+      boolean ascSortOrder) {
+    return new OIndexCursorStream(streamEntries(session, keys, ascSortOrder));
   }
 
   @Deprecated
   @Override
   public OIndexCursor iterateEntriesBetween(
-      Object fromKey, boolean fromInclusive, Object toKey, boolean toInclusive, boolean ascOrder) {
+      ODatabaseSessionInternal session, Object fromKey, boolean fromInclusive, Object toKey,
+      boolean toInclusive, boolean ascOrder) {
     return new OIndexCursorStream(
-        streamEntriesBetween(fromKey, fromInclusive, toKey, toInclusive, ascOrder));
+        streamEntriesBetween(session, fromKey, fromInclusive, toKey, toInclusive, ascOrder));
   }
 
   @Deprecated
   @Override
-  public OIndexCursor iterateEntriesMajor(Object fromKey, boolean fromInclusive, boolean ascOrder) {
-    return new OIndexCursorStream(streamEntriesMajor(fromKey, fromInclusive, ascOrder));
+  public OIndexCursor iterateEntriesMajor(ODatabaseSessionInternal session, Object fromKey,
+      boolean fromInclusive, boolean ascOrder) {
+    return new OIndexCursorStream(streamEntriesMajor(session, fromKey, fromInclusive, ascOrder));
   }
 
   @Deprecated
   @Override
-  public OIndexCursor iterateEntriesMinor(Object toKey, boolean toInclusive, boolean ascOrder) {
-    return new OIndexCursorStream(streamEntriesMajor(toKey, toInclusive, ascOrder));
+  public OIndexCursor iterateEntriesMinor(ODatabaseSessionInternal session, Object toKey,
+      boolean toInclusive, boolean ascOrder) {
+    return new OIndexCursorStream(streamEntriesMajor(session, toKey, toInclusive, ascOrder));
   }
 
   /**
    * {@inheritDoc}
    */
-  public long rebuild(final OProgressListener iProgressListener) {
+  public long rebuild(ODatabaseSessionInternal session, final OProgressListener iProgressListener) {
     long documentIndexed;
 
     acquireExclusiveLock();
     try {
       try {
         if (indexId >= 0) {
-          doDelete();
+          doDelete(session);
         }
       } catch (Exception e) {
         OLogManager.instance().error(this, "Error during index '%s' delete", e, im.getName());
@@ -529,7 +530,7 @@ public abstract class OIndexAbstract implements OIndexInternal {
 
     acquireSharedLock();
     try {
-      documentIndexed = fillIndex(iProgressListener, true);
+      documentIndexed = fillIndex(session, iProgressListener, true);
     } catch (final Exception e) {
       OLogManager.instance().error(this, "Error during index rebuild", e);
       try {
@@ -551,14 +552,15 @@ public abstract class OIndexAbstract implements OIndexInternal {
     return documentIndexed;
   }
 
-  private long fillIndex(final OProgressListener iProgressListener, final boolean rebuild) {
+  private long fillIndex(ODatabaseSessionInternal session,
+      final OProgressListener iProgressListener, final boolean rebuild) {
     long documentIndexed = 0;
     try {
       long documentNum = 0;
       long documentTotal = 0;
 
       for (final String cluster : clustersToIndex) {
-        documentTotal += storage.count(storage.getClusterIdByName(cluster));
+        documentTotal += storage.count(session, storage.getClusterIdByName(cluster));
       }
 
       if (iProgressListener != null) {
@@ -568,19 +570,18 @@ public abstract class OIndexAbstract implements OIndexInternal {
       // INDEX ALL CLUSTERS
       for (final String clusterName : clustersToIndex) {
         final long[] metrics =
-            indexCluster(
-                clusterName, iProgressListener, documentNum, documentIndexed, documentTotal);
+            indexCluster(session, clusterName, iProgressListener, documentNum,
+                documentIndexed, documentTotal);
         documentNum = metrics[0];
         documentIndexed = metrics[1];
       }
 
       if (iProgressListener != null) {
-        var db = getDatabase();
-        db.executeInTx(() -> iProgressListener.onCompletition(this, true));
+        iProgressListener.onCompletition(session, this, true);
       }
     } catch (final RuntimeException e) {
       if (iProgressListener != null) {
-        iProgressListener.onCompletition(this, false);
+        iProgressListener.onCompletition(session, this, false);
       }
       throw e;
     }
@@ -588,36 +589,22 @@ public abstract class OIndexAbstract implements OIndexInternal {
   }
 
   @Override
-  public boolean doRemove(OAbstractPaginatedStorage storage, Object key, ORID rid)
+  public boolean doRemove(ODatabaseSessionInternal session, OAbstractPaginatedStorage storage,
+      Object key, ORID rid)
       throws OInvalidIndexEngineIdException {
     return doRemove(storage, key);
   }
 
-  public boolean remove(Object key, final OIdentifiable rid) {
+  public boolean remove(ODatabaseSessionInternal session, Object key, final OIdentifiable rid) {
     key = getCollatingValue(key);
-
-    ODatabaseSessionInternal database = getDatabase();
-    if (database.getTransaction().isActive()) {
-      database.getTransaction().addIndexEntry(this, getName(), OPERATION.REMOVE, key, rid);
-    } else {
-      database.begin();
-      database.getTransaction().addIndexEntry(this, getName(), OPERATION.REMOVE, key, rid);
-      database.commit();
-    }
+    session.getTransaction().addIndexEntry(this, getName(), OPERATION.REMOVE, key, rid);
     return true;
   }
 
-  public boolean remove(Object key) {
+  public boolean remove(ODatabaseSessionInternal session, Object key) {
     key = getCollatingValue(key);
 
-    ODatabaseSessionInternal database = getDatabase();
-    if (database.getTransaction().isActive()) {
-      database.getTransaction().addIndexEntry(this, getName(), OPERATION.REMOVE, key, null);
-    } else {
-      database.begin();
-      database.getTransaction().addIndexEntry(this, getName(), OPERATION.REMOVE, key, null);
-      database.commit();
-    }
+    session.getTransaction().addIndexEntry(this, getName(), OPERATION.REMOVE, key, null);
     return true;
   }
 
@@ -634,26 +621,20 @@ public abstract class OIndexAbstract implements OIndexInternal {
    */
   @Override
   @Deprecated
-  public OIndex clear() {
-    ODatabaseSessionInternal database = getDatabase();
-    if (database.getTransaction().isActive()) {
-      database.getTransaction().addIndexEntry(this, this.getName(), OPERATION.CLEAR, null, null);
-    } else {
-      database.begin();
-      database.getTransaction().addIndexEntry(this, this.getName(), OPERATION.CLEAR, null, null);
-      database.commit();
-    }
+  public OIndex clear(ODatabaseSessionInternal session) {
+    session.getTransaction().addIndexEntry(this, this.getName(), OPERATION.CLEAR, null, null);
     return this;
   }
 
-  public OIndexInternal delete() {
+  public OIndexInternal delete(ODatabaseSessionInternal session) {
     acquireExclusiveLock();
 
     try {
-      doDelete();
+      doDelete(session);
       // REMOVE THE INDEX ALSO FROM CLASS MAP
-      if (getDatabase().getMetadata() != null) {
-        getDatabase().getMetadata().getIndexManagerInternal().removeClassPropertyIndex(this);
+      if (session.getMetadata() != null) {
+        session.getMetadata().getIndexManagerInternal()
+            .removeClassPropertyIndex(session, this);
       }
 
       return this;
@@ -662,29 +643,15 @@ public abstract class OIndexAbstract implements OIndexInternal {
     }
   }
 
-  protected void doDelete() {
+  protected void doDelete(ODatabaseSessionInternal session) {
     while (true) {
       try {
         //noinspection ObjectAllocationInLoop
         try {
-          try (final Stream<ORawPair<Object, ORID>> stream = stream()) {
-            ODatabaseSessionInternal database = getDatabase();
-            Iterator<ORawPair<Object, ORID>> iterator = stream.iterator();
-            long count = 0;
-            database.begin();
-            try {
-              while (iterator.hasNext()) {
-                ORawPair<Object, ORID> pair = iterator.next();
-                remove(pair.first, pair.second);
-                count++;
-                if (count % 1000 == 0) {
-                  database.commit();
-                  database.begin();
-                }
-              }
-            } finally {
-              database.commit();
-            }
+          try (final Stream<ORawPair<Object, ORID>> stream = stream(session)) {
+            session.executeInTxBatches(stream, (db, entry) -> {
+              remove(session, entry.first, entry.second);
+            });
           }
         } catch (OIndexEngineException e) {
           throw e;
@@ -694,8 +661,8 @@ public abstract class OIndexAbstract implements OIndexInternal {
         }
 
         try {
-          try (Stream<ORID> stream = getRids(null)) {
-            stream.forEach((rid) -> remove(null, rid));
+          try (Stream<ORID> stream = getRids(session, null)) {
+            stream.forEach((rid) -> remove(session, null, rid));
           }
         } catch (OIndexEngineException e) {
           throw e;
@@ -755,14 +722,14 @@ public abstract class OIndexAbstract implements OIndexInternal {
     }
   }
 
-  public OIndexAbstract addCluster(final String clusterName) {
+  public OIndexAbstract addCluster(ODatabaseSessionInternal session, final String clusterName) {
     acquireExclusiveLock();
     try {
       if (clustersToIndex.add(clusterName)) {
         updateConfiguration();
 
         // INDEX SINGLE CLUSTER
-        indexCluster(clusterName, null, 0, 0, 0);
+        indexCluster(session, clusterName, null, 0, 0, 0);
       }
 
       return this;
@@ -771,12 +738,12 @@ public abstract class OIndexAbstract implements OIndexInternal {
     }
   }
 
-  public void removeCluster(String iClusterName) {
+  public void removeCluster(ODatabaseSessionInternal session, String iClusterName) {
     acquireExclusiveLock();
     try {
       if (clustersToIndex.remove(iClusterName)) {
         updateConfiguration();
-        rebuild();
+        rebuild(session);
       }
 
     } finally {
@@ -979,12 +946,8 @@ public abstract class OIndexAbstract implements OIndexInternal {
     return engine.acquireAtomicExclusiveLock(key);
   }
 
-  protected static ODatabaseSessionInternal getDatabase() {
-    return ODatabaseRecordThreadLocal.instance().get();
-  }
-
   private long[] indexCluster(
-      final String clusterName,
+      ODatabaseSessionInternal session, final String clusterName,
       final OProgressListener iProgressListener,
       long documentNum,
       long documentIndexed,
@@ -997,37 +960,29 @@ public abstract class OIndexAbstract implements OIndexInternal {
               + im.getIndexDefinition()
               + ")");
     }
-    ODatabaseSessionInternal database = getDatabase();
 
-    database.begin();
-    try {
-      for (final ORecord record : database.browseCluster(clusterName)) {
-        if (Thread.interrupted()) {
-          throw new OCommandExecutionException("The index rebuild has been interrupted");
-        }
+    var stat = new long[]{documentNum, documentIndexed};
 
-        if (record instanceof ODocument doc) {
-          OClassIndexManager.reIndex(database, doc, this);
-          ++documentIndexed;
-        }
-
-        if (documentIndexed > 0 && documentIndexed % 1000 == 0) {
-          database.commit();
-          database.begin();
-        }
-
-        documentNum++;
-
-        if (iProgressListener != null) {
-          iProgressListener.onProgress(
-              this, documentNum, (float) (documentNum * 100.0 / documentTotal));
-        }
+    var clusterIterator = session.browseCluster(clusterName);
+    session.executeInTxBatches((Iterator<ORecord>) clusterIterator, (db, record) -> {
+      if (Thread.interrupted()) {
+        throw new OCommandExecutionException("The index rebuild has been interrupted");
       }
-    } finally {
-      database.commit();
-    }
 
-    return new long[] {documentNum, documentIndexed};
+      if (record instanceof ODocument doc) {
+        OClassIndexManager.reIndex(session, doc, this);
+        ++stat[1];
+      }
+
+      stat[0]++;
+
+      if (iProgressListener != null) {
+        iProgressListener.onProgress(
+            this, documentNum, (float) (documentNum * 100.0 / documentTotal));
+      }
+    });
+
+    return stat;
   }
 
   protected void releaseExclusiveLock() {

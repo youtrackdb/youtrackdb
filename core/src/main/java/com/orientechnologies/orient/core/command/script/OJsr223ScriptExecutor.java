@@ -5,7 +5,6 @@ import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.script.transformer.OScriptTransformer;
 import com.orientechnologies.orient.core.command.traverse.OAbstractScriptExecutor;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
@@ -24,7 +23,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 
 /**
- * Created by tglman on 25/01/17.
+ *
  */
 public class OJsr223ScriptExecutor extends OAbstractScriptExecutor {
 
@@ -103,17 +102,14 @@ public class OJsr223ScriptExecutor extends OAbstractScriptExecutor {
       OCommandContext context, final String functionName, final Map<Object, Object> iArgs) {
 
     ODatabaseSessionInternal db = context.getDatabase();
-    if (db == null) {
-      db = ODatabaseRecordThreadLocal.instance().get();
-    }
     final OFunction f = db.getMetadata().getFunctionLibrary().getFunction(functionName);
 
-    db.checkSecurity(ORule.ResourceGeneric.FUNCTION, ORole.PERMISSION_READ, f.getName());
+    db.checkSecurity(ORule.ResourceGeneric.FUNCTION, ORole.PERMISSION_READ, f.getName(db));
 
     final OScriptManager scriptManager = db.getSharedContext().getOrientDB().getScriptManager();
 
     final ScriptEngine scriptEngine =
-        scriptManager.acquireDatabaseEngine(db.getName(), f.getLanguage());
+        scriptManager.acquireDatabaseEngine(db.getName(), f.getLanguage(db));
     try {
       final Bindings binding =
           scriptManager.bind(
@@ -143,10 +139,10 @@ public class OJsr223ScriptExecutor extends OAbstractScriptExecutor {
         } else {
           // INVOKE THE CODE SNIPPET
           final Object[] args = iArgs == null ? null : iArgs.values().toArray();
-          result = scriptEngine.eval(scriptManager.getFunctionInvoke(f, args), binding);
+          result = scriptEngine.eval(scriptManager.getFunctionInvoke(db, f, args), binding);
         }
         return OCommandExecutorUtility.transformResult(
-            scriptManager.handleResult(f.getLanguage(), result, scriptEngine, binding, db));
+            scriptManager.handleResult(f.getLanguage(db), result, scriptEngine, binding, db));
 
       } catch (ScriptException e) {
         throw OException.wrapException(
@@ -164,7 +160,7 @@ public class OJsr223ScriptExecutor extends OAbstractScriptExecutor {
         scriptManager.unbind(scriptEngine, binding, context, iArgs);
       }
     } finally {
-      scriptManager.releaseDatabaseEngine(f.getLanguage(), db.getName(), scriptEngine);
+      scriptManager.releaseDatabaseEngine(f.getLanguage(db), db.getName(), scriptEngine);
     }
   }
 }

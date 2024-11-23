@@ -3,7 +3,7 @@ package com.orientechnologies.orient.client.remote.message.live;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 
 /**
- * Created by tglman on 17/05/17.
+ *
  */
 public class OLiveQueryResult {
 

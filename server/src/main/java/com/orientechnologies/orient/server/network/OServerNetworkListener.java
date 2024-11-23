@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.network;
@@ -70,7 +70,7 @@ public class OServerNetworkListener extends Thread {
       final OServerCommandConfiguration[] iCommands) {
     super(
         iServer.getThreadGroup(),
-        "OrientDB " + iProtocol.getSimpleName() + " listen at " + iHostName + ":" + iHostPortRange);
+        "OxygenDB " + iProtocol.getSimpleName() + " listen at " + iHostName + ":" + iHostPortRange);
     server = iServer;
 
     socketFactory = iSocketFactory == null ? OServerSocketFactory.getDefault() : iSocketFactory;
@@ -132,7 +132,7 @@ public class OServerNetworkListener extends Thread {
     } else
     // SINGLE PORT SPECIFIED
     {
-      ports = new int[] {Integer.parseInt(iHostPortRange)};
+      ports = new int[]{Integer.parseInt(iHostPortRange)};
     }
     return ports;
   }

@@ -7,7 +7,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 /**
- * Created by tglman on 12/04/16.
+ *
  */
 public class OStorageRemoteNodeSession {
 

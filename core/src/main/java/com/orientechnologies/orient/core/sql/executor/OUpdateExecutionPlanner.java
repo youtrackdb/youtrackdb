@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Created by luigidellaquila on 08/08/16.
+ *
  */
 public class OUpdateExecutionPlanner {
 

@@ -7,7 +7,7 @@ import com.orientechnologies.orient.server.AbstractRemoteTest;
 import org.junit.Test;
 
 /**
- * Created by Enrico Risa on 19/05/2017.
+ *
  */
 public class OSequenceRemoteTest extends AbstractRemoteTest {
 
@@ -16,8 +16,8 @@ public class OSequenceRemoteTest extends AbstractRemoteTest {
   @Override
   public void setup() throws Exception {
     super.setup();
-    OrientDB factory =
-        new OrientDB("remote:localhost", "root", "root", OrientDBConfig.defaultConfig());
+    OxygenDB factory =
+        new OxygenDB("remote:localhost", "root", "root", OxygenDBConfig.defaultConfig());
     db = (ODatabaseSessionInternal) factory.open(name.getMethodName(), "admin", "admin");
   }
 

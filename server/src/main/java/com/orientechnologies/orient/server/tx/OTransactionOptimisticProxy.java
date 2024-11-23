@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,18 +14,17 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.tx;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.exception.OTransactionException;
 import com.orientechnologies.orient.core.id.ORID;
@@ -41,7 +40,12 @@ import com.orientechnologies.orient.core.tx.OTransactionAbstract;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChanges;
 import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import com.orientechnologies.orient.core.tx.OTransactionRecordIndexOperation;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 public class OTransactionOptimisticProxy extends OTransactionOptimistic {
@@ -50,7 +54,8 @@ public class OTransactionOptimisticProxy extends OTransactionOptimistic {
       new LinkedHashMap<ORID, ORecordOperation>();
   private final Map<ORID, ORecordAbstract> createdRecords = new HashMap<>();
   private final Map<ORecordId, ORecord> updatedRecords = new HashMap<ORecordId, ORecord>();
-  @Deprecated private final int clientTxId;
+  @Deprecated
+  private final int clientTxId;
   private final short protocolVersion;
   private List<ORecordOperationRequest> operations;
   private final ODocument indexChanges;
@@ -84,8 +89,8 @@ public class OTransactionOptimisticProxy extends OTransactionOptimistic {
 
         switch (recordStatus) {
           case ORecordOperation.CREATED:
-            ORecord record =
-                Orient.instance()
+            ORecordAbstract record =
+                Oxygen.instance()
                     .getRecordFactoryManager()
                     .newInstance(operation.getRecordType(), rid, getDatabase());
             serializer.fromStream(operation.getRecord(), record, null);
@@ -94,28 +99,28 @@ public class OTransactionOptimisticProxy extends OTransactionOptimistic {
             record.setDirty();
 
             // SAVE THE RECORD TO RETRIEVE THEM FOR THE NEW RID TO SEND BACK TO THE REQUESTER
-            createdRecords.put(rid.copy(), entry.getRecord());
+            createdRecords.put(rid.copy(), entry.record);
             break;
 
           case ORecordOperation.UPDATED:
             int version = operation.getVersion();
-            ORecord updated =
-                Orient.instance()
+            ORecordAbstract updated =
+                Oxygen.instance()
                     .getRecordFactoryManager()
                     .newInstance(operation.getRecordType(), rid, getDatabase());
             ORecordInternal.setVersion(updated, version);
             entry = new ORecordOperation(updated, ORecordOperation.UPDATED);
             updated.setDirty();
-            ORecordInternal.setContentChanged(entry.getRecord(), operation.isContentChanged());
+            ORecordInternal.setContentChanged(entry.record, operation.isContentChanged());
             break;
 
           case ORecordOperation.DELETED:
             // LOAD RECORD TO BE SURE IT HASN'T BEEN DELETED BEFORE + PROVIDE CONTENT FOR ANY HOOK
-            final ORecord rec = rid.getRecord();
+            final ORecordAbstract rec = rid.getRecord();
             entry = new ORecordOperation(rec, ORecordOperation.DELETED);
             int deleteVersion = operation.getVersion();
             ORecordInternal.setVersion(rec, deleteVersion);
-            entry.setRecord(rec);
+            entry.record = rec;
             break;
 
           default:
@@ -123,7 +128,7 @@ public class OTransactionOptimisticProxy extends OTransactionOptimistic {
         }
 
         // PUT IN TEMPORARY LIST TO GET FETCHED AFTER ALL FOR CACHE
-        tempEntries.put(entry.getRecord().getIdentity(), entry);
+        tempEntries.put(entry.record.getIdentity(), entry);
       }
       this.operations = null;
 
@@ -139,14 +144,10 @@ public class OTransactionOptimisticProxy extends OTransactionOptimistic {
           final ORecord record = entry.getValue().record.getRecord();
           final boolean contentChanged = ORecordInternal.isContentChanged(record);
 
-          final ORecord loadedRecord = record.getIdentity().copy().getRecord();
-          if (loadedRecord == null) {
-            throw new ORecordNotFoundException(record.getIdentity());
-          }
-
+          final ORecordAbstract loadedRecord = record.getIdentity().copy().getRecord();
           if (ORecordInternal.getRecordType(loadedRecord) == ODocument.RECORD_TYPE
               && ORecordInternal.getRecordType(loadedRecord)
-                  == ORecordInternal.getRecordType(record)) {
+              == ORecordInternal.getRecordType(record)) {
             ((ODocument) loadedRecord).merge((ODocument) record, false, false);
 
             loadedRecord.setDirty();
@@ -156,11 +157,11 @@ public class OTransactionOptimisticProxy extends OTransactionOptimistic {
             entry.getValue().record = loadedRecord;
 
             // SAVE THE RECORD TO RETRIEVE THEM FOR THE NEW VERSIONS TO SEND BACK TO THE REQUESTER
-            updatedRecords.put((ORecordId) entry.getKey(), entry.getValue().getRecord());
+            updatedRecords.put((ORecordId) entry.getKey(), entry.getValue().record);
           }
         }
 
-        addRecord(entry.getValue().getRecord(), entry.getValue().type, null);
+        addRecord(entry.getValue().record, entry.getValue().type, null);
       }
       tempEntries.clear();
 

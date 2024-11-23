@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,7 +9,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://orientdb.com
+ * <p>*
  */
 package com.orientechnologies.orient.jdbc;
 
@@ -42,9 +40,7 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * @author Roberto Franchini (CELI srl - franchini--at--celi.it)
- * @author Salvatore Piccione (TXT e-solutions SpA - salvo.picci@gmail.com)
- * @author Luca Garulli (l.garulli--(at)--orientdb.com) (OrientDB - l.garulli--at--orientdb.com)
+ *
  */
 public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
 
@@ -73,7 +69,7 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
 
   public String getUserName() throws SQLException {
     database.activateOnCurrentThread();
-    return database.getUser().getName();
+    return database.getUser().getName(database);
   }
 
   public boolean isReadOnly() throws SQLException {
@@ -102,7 +98,7 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
   }
 
   public String getDatabaseProductName() throws SQLException {
-    return "OrientDB";
+    return "OxygenDB";
   }
 
   public String getDatabaseProductVersion() throws SQLException {
@@ -110,7 +106,7 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
   }
 
   public String getDriverName() throws SQLException {
-    return "OrientDB JDBC Driver";
+    return "OxygenDB JDBC Driver";
   }
 
   public String getDriverVersion() throws SQLException {
@@ -671,15 +667,15 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
 
         final OFunction f = functionLibrary.getFunction(procedureNamePattern);
 
-        for (String p : f.getParameters()) {
+        for (String p : f.getParameters(database)) {
           final OResultInternal doc = new OResultInternal();
           doc.setProperty("PROCEDURE_CAT", database.getName());
           doc.setProperty("PROCEDURE_SCHEM", database.getName());
-          doc.setProperty("PROCEDURE_NAME", f.getName());
+          doc.setProperty("PROCEDURE_NAME", f.getName(database));
           doc.setProperty("COLUMN_NAME", p);
           doc.setProperty("COLUMN_TYPE", procedureColumnIn);
           doc.setProperty("DATA_TYPE", java.sql.Types.OTHER);
-          doc.setProperty("SPECIFIC_NAME", f.getName());
+          doc.setProperty("SPECIFIC_NAME", f.getName(database));
 
           resultSet.add(doc);
         }
@@ -688,11 +684,11 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
 
         doc.setProperty("PROCEDURE_CAT", database.getName());
         doc.setProperty("PROCEDURE_SCHEM", database.getName());
-        doc.setProperty("PROCEDURE_NAME", f.getName());
+        doc.setProperty("PROCEDURE_NAME", f.getName(database));
         doc.setProperty("COLUMN_NAME", "return");
         doc.setProperty("COLUMN_TYPE", procedureColumnReturn);
         doc.setProperty("DATA_TYPE", java.sql.Types.OTHER);
-        doc.setProperty("SPECIFIC_NAME", f.getName());
+        doc.setProperty("SPECIFIC_NAME", f.getName(database));
 
         resultSet.add(doc);
       }
@@ -728,8 +724,8 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
 
       if (tableTypes.contains(type)
           && (tableNamePattern == null
-              || tableNamePattern.equals("%")
-              || tableNamePattern.equalsIgnoreCase(className))) {
+          || tableNamePattern.equals("%")
+          || tableNamePattern.equalsIgnoreCase(className))) {
 
         OResultInternal doc = new OResultInternal();
 
@@ -823,7 +819,7 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
 
     for (OClass clazz : schema.getClasses()) {
       if (OrientJdbcUtils.like(clazz.getName(), tableNamePattern)) {
-        for (OProperty prop : clazz.properties()) {
+        for (OProperty prop : clazz.properties(database)) {
           if (columnNamePattern == null) {
             resultSet.add(getPropertyAsDocument(clazz, prop));
           } else {
@@ -1093,7 +1089,7 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
     database.activateOnCurrentThread();
     OMetadataInternal metadata = database.getMetadata();
     if (!approximate) {
-      metadata.getIndexManagerInternal().reload();
+      metadata.getIndexManagerInternal().reload(database);
     }
 
     final Set<OIndex> classIndexes =
@@ -1405,26 +1401,26 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
     final OFunction f =
         database.getMetadata().getFunctionLibrary().getFunction(functionNamePattern);
 
-    for (String p : f.getParameters()) {
+    for (String p : f.getParameters(database)) {
       final OResultInternal res = new OResultInternal();
       res.setProperty("FUNCTION_CAT", null);
       res.setProperty("FUNCTION_SCHEM", null);
-      res.setProperty("FUNCTION_NAME", f.getName());
+      res.setProperty("FUNCTION_NAME", f.getName(database));
       res.setProperty("COLUMN_NAME", p);
       res.setProperty("COLUMN_TYPE", procedureColumnIn);
       res.setProperty("DATA_TYPE", java.sql.Types.OTHER);
-      res.setProperty("SPECIFIC_NAME", f.getName());
+      res.setProperty("SPECIFIC_NAME", f.getName(database));
       resultSet.add(res);
     }
 
     final OResultInternal res = new OResultInternal();
     res.setProperty("FUNCTION_CAT", null);
     res.setProperty("FUNCTION_SCHEM", null);
-    res.setProperty("FUNCTION_NAME", f.getName());
+    res.setProperty("FUNCTION_NAME", f.getName(database));
     res.setProperty("COLUMN_NAME", "return");
     res.setProperty("COLUMN_TYPE", procedureColumnReturn);
     res.setProperty("DATA_TYPE", java.sql.Types.OTHER);
-    res.setProperty("SPECIFIC_NAME", f.getName());
+    res.setProperty("SPECIFIC_NAME", f.getName(database));
 
     resultSet.add(res);
 

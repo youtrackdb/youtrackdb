@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.db.record;
 
 import com.orientechnologies.common.collection.OLazyIterator;
+import com.orientechnologies.common.util.OSizeable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.record.OIdentityChangeListener;
 import com.orientechnologies.orient.core.record.ORecord;
@@ -51,15 +52,13 @@ import java.util.Set;
  * </ul>
  *
  * <p>
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSet extends AbstractCollection<OIdentifiable>
     implements Set<OIdentifiable>,
-        OTrackedMultiValue<OIdentifiable, OIdentifiable>,
-        ORecordElement,
-        OIdentifiableMultiValue,
-        OIdentityChangeListener {
+    OTrackedMultiValue<OIdentifiable, OIdentifiable>,
+    ORecordElement,
+    OSizeable,
+    OIdentityChangeListener {
 
   protected final ORecordElement sourceRecord;
   protected Map<OIdentifiable, Object> map = new HashMap<>();
@@ -278,11 +277,6 @@ public class OSet extends AbstractCollection<OIdentifiable>
   @Override
   public OMultiValueChangeTimeLine<Object, Object> getTimeLine() {
     return tracker.getTimeLine();
-  }
-
-  @Override
-  public boolean detach() {
-    return true;
   }
 
   @Override

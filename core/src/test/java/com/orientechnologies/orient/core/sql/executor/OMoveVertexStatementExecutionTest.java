@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OxygenDB;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -11,28 +11,28 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 
 /**
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ *
  */
 public class OMoveVertexStatementExecutionTest {
 
-  @Rule public TestName name = new TestName();
+  @Rule
+  public TestName name = new TestName();
 
   private ODatabaseSession db;
 
-  private String className;
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
 
   @Before
   public void before() {
-    orientDB =
+    oxygenDB =
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    db = orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    db = oxygenDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
 
   @After
   public void after() {
     db.close();
-    orientDB.close();
+    oxygenDB.close();
   }
 
   @Test

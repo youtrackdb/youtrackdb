@@ -2,13 +2,13 @@ package com.orientechnologies.orient.server.network;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -36,12 +36,12 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * Created by tglman on 16/06/17.
+ *
  */
 public class OLiveQueryRemoteTest {
 
   private OServer server;
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
   private ODatabaseSession db;
 
   @Before
@@ -54,22 +54,22 @@ public class OLiveQueryRemoteTest {
             .getResourceAsStream(
                 "com/orientechnologies/orient/server/network/orientdb-server-config.xml"));
     server.activate();
-    orientDB = new OrientDB("remote:localhost:", "root", "root", OrientDBConfig.defaultConfig());
-    orientDB.execute(
+    oxygenDB = new OxygenDB("remote:localhost:", "root", "root", OxygenDBConfig.defaultConfig());
+    oxygenDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         OLiveQueryRemoteTest.class.getSimpleName());
-    db = orientDB.open(OLiveQueryRemoteTest.class.getSimpleName(), "admin", "admin");
+    db = oxygenDB.open(OLiveQueryRemoteTest.class.getSimpleName(), "admin", "admin");
   }
 
   @After
   public void after() {
     db.close();
-    orientDB.close();
+    oxygenDB.close();
     server.shutdown();
 
-    Orient.instance().shutdown();
+    Oxygen.instance().shutdown();
     OFileUtils.deleteRecursively(new File(server.getDatabaseDirectory()));
-    Orient.instance().startup();
+    Oxygen.instance().startup();
   }
 
   class MyLiveQueryListener implements OLiveQueryResultListener {
@@ -102,7 +102,8 @@ public class OLiveQueryRemoteTest {
     }
 
     @Override
-    public void onError(ODatabaseSession database, OException exception) {}
+    public void onError(ODatabaseSession database, OException exception) {
+    }
 
     @Override
     public void onEnd(ODatabaseSession database) {
@@ -175,7 +176,7 @@ public class OLiveQueryRemoteTest {
     OResultSet query = db.query("select from OUSer where name = 'reader'");
 
     final OIdentifiable reader = query.next().getIdentity().orElse(null);
-    final OIdentifiable current = db.getUser().getIdentity();
+    final OIdentifiable current = db.getUser().getIdentity(db);
 
     ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -187,7 +188,7 @@ public class OLiveQueryRemoteTest {
               @Override
               public Integer call() throws Exception {
                 ODatabaseSession db =
-                    orientDB.open(OLiveQueryRemoteTest.class.getSimpleName(), "reader", "reader");
+                    oxygenDB.open(OLiveQueryRemoteTest.class.getSimpleName(), "reader", "reader");
 
                 final AtomicInteger integer = new AtomicInteger(0);
                 db.live(
@@ -214,10 +215,12 @@ public class OLiveQueryRemoteTest {
                       }
 
                       @Override
-                      public void onError(ODatabaseSession database, OException exception) {}
+                      public void onError(ODatabaseSession database, OException exception) {
+                      }
 
                       @Override
-                      public void onEnd(ODatabaseSession database) {}
+                      public void onEnd(ODatabaseSession database) {
+                      }
                     });
 
                 latch.countDown();

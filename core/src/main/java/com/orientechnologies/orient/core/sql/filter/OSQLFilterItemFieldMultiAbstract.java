@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,13 +14,14 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.filter;
 
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.query.OQueryRuntimeValueMulti;
@@ -31,8 +32,6 @@ import java.util.List;
 
 /**
  * Represents one or more object fields as value in the query condition.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OSQLFilterItemFieldMultiAbstract extends OSQLFilterItemAbstract {
 
@@ -41,11 +40,11 @@ public abstract class OSQLFilterItemFieldMultiAbstract extends OSQLFilterItemAbs
   private final List<OCollate> collates = new ArrayList<OCollate>();
 
   public OSQLFilterItemFieldMultiAbstract(
-      final OSQLPredicate iQueryCompiled,
+      ODatabaseSession session, final OSQLPredicate iQueryCompiled,
       final String iName,
       final OClass iClass,
       final List<String> iNames) {
-    super(iQueryCompiled, iName);
+    super(session, iQueryCompiled, iName);
     names = iNames;
     clazz = iClass;
 

@@ -13,7 +13,7 @@ import com.orientechnologies.orient.core.sql.parser.OFromClause;
 import java.util.Map;
 
 /**
- * Created by frank on 25/05/2017.
+ *
  */
 public abstract class OLuceneSearchFunctionTemplate extends OSQLFunctionAbstract
     implements OIndexableSQLFunction {
@@ -78,11 +78,18 @@ public abstract class OLuceneSearchFunctionTemplate extends OSQLFunctionAbstract
     if (md instanceof ODocument) {
       return (ODocument) md;
     } else if (md instanceof Map) {
-      return new ODocument().fromMap((Map<String, ?>) md);
+      var doc = new ODocument();
+      //noinspection unchecked
+      doc.fromMap((Map<String, ?>) md);
+      return doc;
     } else if (md instanceof String) {
-      return new ODocument().fromJSON((String) md);
+      var doc = new ODocument();
+      doc.fromJSON((String) md);
+      return doc;
     } else {
-      return new ODocument().fromJSON(metadata.toString());
+      var doc = new ODocument();
+      doc.fromJSON(metadata.toString());
+      return doc;
     }
   }
 

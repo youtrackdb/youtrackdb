@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -47,8 +47,8 @@ public class QueryLocalCacheIntegrationTest extends DocumentDBBaseTest {
         .getMetadata()
         .getSchema()
         .createClass("SecondFetchClass")
-        .createProperty("surname", OType.STRING)
-        .setMandatory(true);
+        .createProperty(database, "surname", OType.STRING)
+        .setMandatory(database, true);
     database.getMetadata().getSchema().createClass("OutInFetchClass");
 
     database.begin();
@@ -115,11 +115,11 @@ public class QueryLocalCacheIntegrationTest extends DocumentDBBaseTest {
 
   @Test
   public void queryTest() {
-    final long times = Orient.instance().getProfiler().getCounter("Cache.reused");
+    final long times = Oxygen.instance().getProfiler().getCounter("Cache.reused");
 
     List<ODocument> resultset =
         database.query(new OSQLSynchQuery<ODocument>("select * from FetchClass"));
-    Assert.assertEquals(Orient.instance().getProfiler().getCounter("Cache.reused"), times);
+    Assert.assertEquals(Oxygen.instance().getProfiler().getCounter("Cache.reused"), times);
 
     ORID linked;
     for (ODocument d : resultset) {

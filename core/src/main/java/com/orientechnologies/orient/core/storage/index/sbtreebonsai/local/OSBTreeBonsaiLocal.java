@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -59,8 +59,6 @@ import javax.annotation.Nonnull;
  * that is more efficient for small data structures. Oriented for usage of several instances inside
  * of one file. Creation of several instances that represent the same collection is not allowed.
  *
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
- * @author Artem Orobets
  * @see OSBTreeV1
  * @since 1.6.0
  */
@@ -1637,8 +1635,8 @@ public class OSBTreeBonsaiLocal<K, V> extends ODurableComponent implements OSBTr
       // find it yet
       if (blockedPointers.contains(freeListItem)
           && !(requestedPageIndex == -1
-              || (freeListItem.getPageIndex() == requestedPageIndex
-                  && freeListItem.getPageOffset() == requestedPageOffset))) {
+          || (freeListItem.getPageIndex() == requestedPageIndex
+          && freeListItem.getPageOffset() == requestedPageOffset))) {
         freeListItem = bucket.getFreeListPointer();
         cacheEntry.close();
 

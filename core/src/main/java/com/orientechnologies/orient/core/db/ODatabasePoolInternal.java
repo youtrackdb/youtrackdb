@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.db;
 
 /**
- * Created by tglman on 27/06/16.
+ *
  */
 public interface ODatabasePoolInternal extends AutoCloseable {
 
@@ -11,7 +11,7 @@ public interface ODatabasePoolInternal extends AutoCloseable {
 
   void release(ODatabaseSessionInternal database);
 
-  OrientDBConfig getConfig();
+  OxygenDBConfig getConfig();
 
   /**
    * Check if database pool is closed

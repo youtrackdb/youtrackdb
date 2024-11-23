@@ -14,8 +14,8 @@ public class OSqlUpdateContentValidationTest extends BaseMemoryDatabase {
   @Test
   public void testReadOnlyValidation() {
     OClass clazz = db.getMetadata().getSchema().createClass("Test");
-    clazz.createProperty("testNormal", OType.STRING);
-    clazz.createProperty("test", OType.STRING).setReadonly(true);
+    clazz.createProperty(db, "testNormal", OType.STRING);
+    clazz.createProperty(db, "test", OType.STRING).setReadonly(db, true);
 
     db.begin();
     OResultSet res =

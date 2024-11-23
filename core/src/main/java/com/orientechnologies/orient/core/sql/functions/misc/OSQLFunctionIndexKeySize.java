@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,13 +14,14 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.functions.misc;
 
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
@@ -30,8 +31,6 @@ import java.util.stream.Stream;
 
 /**
  * returns the number of keys for an index
- *
- * @author Luigi Dell'Aquila (l.dellaquila--(at)--orientdb.com)
  */
 public class OSQLFunctionIndexKeySize extends OSQLFunctionAbstract {
 
@@ -55,14 +54,15 @@ public class OSQLFunctionIndexKeySize extends OSQLFunctionAbstract {
     if (index == null) {
       return null;
     }
-    try (Stream<ORawPair<Object, ORID>> stream = index.getInternal().stream()) {
-      try (Stream<ORID> rids = index.getInternal().getRids(null)) {
+    try (Stream<ORawPair<Object, ORID>> stream = index.getInternal()
+        .stream(context.getDatabase())) {
+      try (Stream<ORID> rids = index.getInternal().getRids(context.getDatabase(), null)) {
         return stream.map((pair) -> pair.first).distinct().count() + rids.count();
       }
     }
   }
 
-  public String getSyntax() {
+  public String getSyntax(ODatabaseSession session) {
     return "indexKeySize(<indexName-string>)";
   }
 }

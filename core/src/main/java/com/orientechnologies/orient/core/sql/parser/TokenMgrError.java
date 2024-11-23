@@ -111,8 +111,8 @@ public class TokenMgrError extends Error {
         + errorColumn
         + ".  Encountered: "
         + (EOFSeen
-            ? "<EOF> "
-            : ("\"" + addEscapes(String.valueOf(curChar)) + "\"") + " (" + (int) curChar + "), ")
+        ? "<EOF> "
+        : ("\"" + addEscapes(String.valueOf(curChar)) + "\"") + " (" + (int) curChar + "), ")
         + "after : \""
         + addEscapes(errorAfter)
         + "\"");
@@ -138,7 +138,8 @@ public class TokenMgrError extends Error {
   /**
    * No arg constructor.
    */
-  public TokenMgrError() {}
+  public TokenMgrError() {
+  }
 
   /**
    * Constructor with message and reason.

@@ -2,19 +2,26 @@ package com.orientechnologies.orient.core.storage.index.versionmap;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.db.*;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
 import java.io.File;
 import java.util.Random;
-import org.junit.*;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class VersionPositionMapTestIT {
 
   public static final String DIR_NAME = "/versionPositionMapTest";
   public static final String DB_NAME = "versionPositionMapTest";
-  private static OrientDB orientDB;
+  private static OxygenDB oxygenDB;
   private static OAtomicOperationsManager atomicOperationsManager;
   private static OAbstractPaginatedStorage storage;
   private static String buildDirectory;
@@ -31,16 +38,16 @@ public class VersionPositionMapTestIT {
     }
     OFileUtils.deleteRecursively(new File(buildDirectory));
 
-    orientDB =
+    oxygenDB =
         OCreateDatabaseUtil.createDatabase(
             DB_NAME, "embedded:" + buildDirectory, OCreateDatabaseUtil.TYPE_PLOCAL);
-    if (orientDB.exists(DB_NAME)) {
-      orientDB.drop(DB_NAME);
+    if (oxygenDB.exists(DB_NAME)) {
+      oxygenDB.drop(DB_NAME);
     }
-    OCreateDatabaseUtil.createDatabase(DB_NAME, orientDB, OCreateDatabaseUtil.TYPE_PLOCAL);
+    OCreateDatabaseUtil.createDatabase(DB_NAME, oxygenDB, OCreateDatabaseUtil.TYPE_PLOCAL);
 
     ODatabaseSession databaseSession =
-        orientDB.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        oxygenDB.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     storage = (OAbstractPaginatedStorage) ((ODatabaseSessionInternal) databaseSession).getStorage();
     atomicOperationsManager = storage.getAtomicOperationsManager();
     databaseSession.close();
@@ -48,8 +55,8 @@ public class VersionPositionMapTestIT {
 
   @AfterClass
   public static void afterClass() {
-    orientDB.drop(DB_NAME);
-    orientDB.close();
+    oxygenDB.drop(DB_NAME);
+    oxygenDB.close();
     OFileUtils.deleteRecursively(new File(buildDirectory));
   }
 
@@ -110,7 +117,7 @@ public class VersionPositionMapTestIT {
   @Test
   public void testGetKeyHash() {
     Assert.assertEquals(0, versionPositionMap.getKeyHash(null));
-    Assert.assertEquals(4659, versionPositionMap.getKeyHash("OrientDB"));
+    Assert.assertEquals(4659, versionPositionMap.getKeyHash("OxygenDB"));
     Assert.assertEquals(
         3988,
         versionPositionMap.getKeyHash("07d_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"));

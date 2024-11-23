@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by tglman on 28/07/17.
+ *
  */
 public final class OListConverter extends OAbstractCollectionConverter<List> {
 

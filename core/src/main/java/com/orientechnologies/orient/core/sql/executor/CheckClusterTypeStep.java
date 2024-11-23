@@ -14,8 +14,6 @@ import com.orientechnologies.orient.core.sql.parser.OCluster;
  * <p>It accepts two values: a target cluster (name or OCluster) and a class. If the cluster
  * belongs to the class, then the syncPool() returns an empty result set, otherwise it throws an
  * OCommandExecutionException
- *
- * @author Luigi Dell'Aquila (luigi.dellaquila - at - orientdb.com)
  */
 public class CheckClusterTypeStep extends AbstractExecutionStep {
 

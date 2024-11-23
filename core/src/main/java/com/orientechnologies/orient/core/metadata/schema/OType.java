@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.metadata.schema;
@@ -25,6 +25,7 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.OMap;
@@ -60,81 +61,80 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 /**
  * Generic representation of a type.<br> allowAssignmentFrom accepts any class, but Array.class
  * means that the type accepts generic Arrays.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public enum OType {
-  BOOLEAN("Boolean", 0, Boolean.class, new Class<?>[] {Number.class}),
+  BOOLEAN("Boolean", 0, Boolean.class, new Class<?>[]{Number.class}),
 
-  INTEGER("Integer", 1, Integer.class, new Class<?>[] {Number.class}),
+  INTEGER("Integer", 1, Integer.class, new Class<?>[]{Number.class}),
 
-  SHORT("Short", 2, Short.class, new Class<?>[] {Number.class}),
+  SHORT("Short", 2, Short.class, new Class<?>[]{Number.class}),
 
   LONG(
       "Long",
       3,
       Long.class,
-      new Class<?>[] {
-        Number.class,
+      new Class<?>[]{
+          Number.class,
       }),
 
-  FLOAT("Float", 4, Float.class, new Class<?>[] {Number.class}),
+  FLOAT("Float", 4, Float.class, new Class<?>[]{Number.class}),
 
-  DOUBLE("Double", 5, Double.class, new Class<?>[] {Number.class}),
+  DOUBLE("Double", 5, Double.class, new Class<?>[]{Number.class}),
 
-  DATETIME("Datetime", 6, Date.class, new Class<?>[] {Date.class, Number.class}),
+  DATETIME("Datetime", 6, Date.class, new Class<?>[]{Date.class, Number.class}),
 
-  STRING("String", 7, String.class, new Class<?>[] {Enum.class}),
+  STRING("String", 7, String.class, new Class<?>[]{Enum.class}),
 
-  BINARY("Binary", 8, byte[].class, new Class<?>[] {byte[].class}),
+  BINARY("Binary", 8, byte[].class, new Class<?>[]{byte[].class}),
 
   EMBEDDED(
       "Embedded",
       9,
       Object.class,
-      new Class<?>[] {ODocumentSerializable.class, OSerializableStream.class}),
+      new Class<?>[]{ODocumentSerializable.class, OSerializableStream.class}),
 
   EMBEDDEDLIST(
-      "EmbeddedList", 10, List.class, new Class<?>[] {List.class, OMultiCollectionIterator.class}),
+      "EmbeddedList", 10, List.class, new Class<?>[]{List.class, OMultiCollectionIterator.class}),
 
-  EMBEDDEDSET("EmbeddedSet", 11, Set.class, new Class<?>[] {Set.class}),
+  EMBEDDEDSET("EmbeddedSet", 11, Set.class, new Class<?>[]{Set.class}),
 
-  EMBEDDEDMAP("EmbeddedMap", 12, Map.class, new Class<?>[] {Map.class}),
+  EMBEDDEDMAP("EmbeddedMap", 12, Map.class, new Class<?>[]{Map.class}),
 
-  LINK("Link", 13, OIdentifiable.class, new Class<?>[] {OIdentifiable.class, ORID.class}),
+  LINK("Link", 13, OIdentifiable.class, new Class<?>[]{OIdentifiable.class, ORID.class}),
 
-  LINKLIST("LinkList", 14, List.class, new Class<?>[] {List.class}),
+  LINKLIST("LinkList", 14, List.class, new Class<?>[]{List.class}),
 
-  LINKSET("LinkSet", 15, Set.class, new Class<?>[] {Set.class}),
+  LINKSET("LinkSet", 15, Set.class, new Class<?>[]{Set.class}),
 
-  LINKMAP("LinkMap", 16, Map.class, new Class<?>[] {Map.class}),
+  LINKMAP("LinkMap", 16, Map.class, new Class<?>[]{Map.class}),
 
-  BYTE("Byte", 17, Byte.class, new Class<?>[] {Number.class}),
+  BYTE("Byte", 17, Byte.class, new Class<?>[]{Number.class}),
 
-  TRANSIENT("Transient", 18, null, new Class<?>[] {}),
+  TRANSIENT("Transient", 18, null, new Class<?>[]{}),
 
-  DATE("Date", 19, Date.class, new Class<?>[] {Number.class}),
+  DATE("Date", 19, Date.class, new Class<?>[]{Number.class}),
 
   CUSTOM(
       "Custom",
       20,
       OSerializableStream.class,
-      new Class<?>[] {OSerializableStream.class, Serializable.class}),
+      new Class<?>[]{OSerializableStream.class, Serializable.class}),
 
-  DECIMAL("Decimal", 21, BigDecimal.class, new Class<?>[] {BigDecimal.class, Number.class}),
+  DECIMAL("Decimal", 21, BigDecimal.class, new Class<?>[]{BigDecimal.class, Number.class}),
 
-  LINKBAG("LinkBag", 22, ORidBag.class, new Class<?>[] {ORidBag.class}),
+  LINKBAG("LinkBag", 22, ORidBag.class, new Class<?>[]{ORidBag.class}),
 
-  ANY("Any", 23, null, new Class<?>[] {});
+  ANY("Any", 23, null, new Class<?>[]{});
 
   // Don't change the order, the type discover get broken if you change the order.
   private static final OType[] TYPES =
-      new OType[] {
-        EMBEDDEDLIST, EMBEDDEDSET, EMBEDDEDMAP, LINK, CUSTOM, EMBEDDED, STRING, DATETIME
+      new OType[]{
+          EMBEDDEDLIST, EMBEDDEDSET, EMBEDDEDMAP, LINK, CUSTOM, EMBEDDED, STRING, DATETIME
       };
 
   private static final OType[] TYPES_BY_ID = new OType[24];
@@ -310,7 +310,7 @@ public enum OType {
     for (Object object : toCheck) {
       if (object != null
           && (!(object instanceof OIdentifiable)
-              || (object instanceof ODocument && ((ODocument) object).isEmbedded()))) {
+          || (object instanceof ODocument && ((ODocument) object).isEmbedded()))) {
         return false;
       } else if (object != null) {
         empty = false;
@@ -332,29 +332,31 @@ public enum OType {
         || Boolean.class.isAssignableFrom(iType)
         || Date.class.isAssignableFrom(iType)
         || (iType.isArray()
-            && (iType.equals(byte[].class)
-                || iType.equals(char[].class)
-                || iType.equals(int[].class)
-                || iType.equals(long[].class)
-                || iType.equals(double[].class)
-                || iType.equals(float[].class)
-                || iType.equals(short[].class)
-                || iType.equals(Integer[].class)
-                || iType.equals(String[].class)
-                || iType.equals(Long[].class)
-                || iType.equals(Short[].class)
-                || iType.equals(Double[].class)));
+        && (iType.equals(byte[].class)
+        || iType.equals(char[].class)
+        || iType.equals(int[].class)
+        || iType.equals(long[].class)
+        || iType.equals(double[].class)
+        || iType.equals(float[].class)
+        || iType.equals(short[].class)
+        || iType.equals(Integer[].class)
+        || iType.equals(String[].class)
+        || iType.equals(Long[].class)
+        || iType.equals(Short[].class)
+        || iType.equals(Double[].class)));
   }
 
   /**
    * Convert types based on the iTargetClass parameter.
    *
+   * @param session
    * @param value       Value to convert
    * @param targetClass Expected class
    * @return The converted value or the original if no conversion was applied
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public static Object convert(final Object value, final Class<?> targetClass) {
+  public static Object convert(@Nullable ODatabaseSession session, final Object value,
+      final Class<?> targetClass) {
     if (value == null) {
       return null;
     }
@@ -574,9 +576,12 @@ public enum OType {
       }
 
       if (targetClass.equals(OIdentifiable.class) && value instanceof ODocumentWrapper wrapper) {
-        return wrapper.getDocument();
+        if (session == null) {
+          throw new ODatabaseException(
+              "Cannot convert ODocumentWrapper to OIdentifiable without a session");
+        }
+        return wrapper.getDocument(session);
       }
-
     } catch (IllegalArgumentException e) {
       // PASS THROUGH
       throw OException.wrapException(
@@ -588,19 +593,19 @@ public enum OType {
           && ((Collection) value).size() == 1
           && !Collection.class.isAssignableFrom(targetClass)) {
         // this must be a comparison with the result of a subquery, try to unbox the collection
-        return convert(((Collection) value).iterator().next(), targetClass);
+        return convert(session, ((Collection) value).iterator().next(), targetClass);
       } else if (value instanceof OResult
           && ((OResult) value).getPropertyNames().size() == 1
           && !OResult.class.isAssignableFrom(targetClass)) {
         // try to unbox OResult with a single property, for subqueries
-        return convert(
+        return convert(session,
             ((OResult) value).getProperty(((OResult) value).getPropertyNames().iterator().next()),
             targetClass);
       } else if (value instanceof OElement
           && ((OElementInternal) value).getPropertyNamesInternal().size() == 1
           && !OElement.class.isAssignableFrom(targetClass)) {
         // try to unbox OResult with a single property, for subqueries
-        return convert(
+        return convert(session,
             ((OElement) value)
                 .getProperty(
                     ((OElementInternal) value).getPropertyNamesInternal().iterator().next()),
@@ -871,7 +876,7 @@ public enum OType {
       }
     }
 
-    return new Number[] {context, max};
+    return new Number[]{context, max};
   }
 
   /**

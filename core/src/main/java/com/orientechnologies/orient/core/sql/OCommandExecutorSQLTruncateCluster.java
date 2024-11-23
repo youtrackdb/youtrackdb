@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql;
@@ -36,8 +36,6 @@ import java.util.Map;
 
 /**
  * SQL TRUNCATE CLUSTER command: Truncates an entire record cluster.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OCommandExecutorSQLTruncateCluster extends OCommandExecutorSQLAbstract
     implements OCommandDistributedReplicateRequest {
@@ -109,7 +107,7 @@ public class OCommandExecutorSQLTruncateCluster extends OCommandExecutorSQLAbstr
   /**
    * Execute the command.
    */
-  public Object execute(final Map<Object, Object> iArgs) {
+  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
     if (clusterName == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
@@ -136,7 +134,7 @@ public class OCommandExecutorSQLTruncateCluster extends OCommandExecutorSQLAbstr
         record.delete();
       }
     } else {
-      clazz.truncateCluster(clusterName);
+      clazz.truncateCluster(database, clusterName);
     }
     return true;
   }

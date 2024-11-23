@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -33,9 +33,9 @@ public class OLiveQueryShotdownTest {
 
   public void shutdownServer() {
     server.shutdown();
-    Orient.instance().shutdown();
+    Oxygen.instance().shutdown();
     OFileUtils.deleteRecursively(new File(server.getDatabaseDirectory()));
-    Orient.instance().startup();
+    Oxygen.instance().startup();
   }
 
   @Test
@@ -52,18 +52,20 @@ public class OLiveQueryShotdownTest {
                 new OLiveResultListener() {
 
                   @Override
-                  public void onUnsubscribe(int iLiveToken) {}
+                  public void onUnsubscribe(int iLiveToken) {
+                  }
 
                   @Override
                   public void onLiveResult(int iLiveToken, ORecordOperation iOp)
-                      throws OException {}
+                      throws OException {
+                  }
 
                   @Override
                   public void onError(int iLiveToken) {
                     error.countDown();
                   }
                 }))
-        .execute();
+        .execute(db);
 
     shutdownServer();
 

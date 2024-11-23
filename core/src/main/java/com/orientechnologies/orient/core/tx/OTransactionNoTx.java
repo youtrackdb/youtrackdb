@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.tx;
@@ -42,8 +42,6 @@ import javax.annotation.Nonnull;
 
 /**
  * No operation transaction.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OTransactionNoTx extends OTransactionAbstract {
 
@@ -196,7 +194,8 @@ public class OTransactionNoTx extends OTransactionAbstract {
   }
 
   @Override
-  public void close() {}
+  public void close() {
+  }
 
   public OTransactionIndexChanges getIndexChanges(final String iName) {
     return null;
@@ -230,7 +229,8 @@ public class OTransactionNoTx extends OTransactionAbstract {
   }
 
   @Override
-  public void internalRollback() {}
+  public void internalRollback() {
+  }
 
   public enum NonTxReadMode {
     WARN,

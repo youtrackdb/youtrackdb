@@ -381,7 +381,7 @@ public class OBaseIdentifier extends SimpleNode {
       if (prop == null) {
         return false;
       }
-      Collection<OIndex> allIndexes = prop.getAllIndexes();
+      Collection<OIndex> allIndexes = prop.getAllIndexes(ctx.getDatabase());
 
       return allIndexes != null
           && allIndexes.stream().anyMatch(idx -> idx.getDefinition().getFields().size() == 1);

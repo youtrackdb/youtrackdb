@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -46,7 +46,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 6/24/14
  */
 public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
@@ -141,13 +140,16 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   }
 
   @Override
-  public void addBackgroundExceptionListener(final OBackgroundExceptionListener listener) {}
+  public void addBackgroundExceptionListener(final OBackgroundExceptionListener listener) {
+  }
 
   @Override
-  public void removeBackgroundExceptionListener(final OBackgroundExceptionListener listener) {}
+  public void removeBackgroundExceptionListener(final OBackgroundExceptionListener listener) {
+  }
 
   @Override
-  public void checkCacheOverflow() {}
+  public void checkCacheOverflow() {
+  }
 
   @Override
   public long addFile(final String fileName, final long fileId, final OWriteCache writeCache) {
@@ -294,10 +296,12 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   }
 
   @Override
-  public void flush(final long fileId) {}
+  public void flush(final long fileId) {
+  }
 
   @Override
-  public void close(final long fileId, final boolean flush) {}
+  public void close(final long fileId, final boolean flush) {
+  }
 
   @Override
   public void deleteFile(final long fileId) {
@@ -348,7 +352,8 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   }
 
   @Override
-  public void flush() {}
+  public void flush() {
+  }
 
   @Override
   public long[] close() {
@@ -398,7 +403,8 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   }
 
   @Override
-  public void changeMaximumAmountOfMemory(final long calculateReadCacheMaxMemory) {}
+  public void changeMaximumAmountOfMemory(final long calculateReadCacheMaxMemory) {
+  }
 
   @Override
   public OPageDataVerificationError[] checkStoredPages(
@@ -436,10 +442,12 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   }
 
   @Override
-  public void restoreModeOn() {}
+  public void restoreModeOn() {
+  }
 
   @Override
-  public void restoreModeOff() {}
+  public void restoreModeOff() {
+  }
 
   @Override
   public String fileNameById(final long fileId) {
@@ -477,13 +485,15 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
    * Not implemented because has no sense
    */
   @Override
-  public void addPageIsBrokenListener(final OPageIsBrokenListener listener) {}
+  public void addPageIsBrokenListener(final OPageIsBrokenListener listener) {
+  }
 
   /**
    * Not implemented because has no sense
    */
   @Override
-  public void removePageIsBrokenListener(final OPageIsBrokenListener listener) {}
+  public void removePageIsBrokenListener(final OPageIsBrokenListener listener) {
+  }
 
   @Override
   public long loadFile(final String fileName) {
@@ -517,10 +527,12 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
   }
 
   @Override
-  public void syncDataFiles(final long segmentId, byte[] lastMetadata) {}
+  public void syncDataFiles(final long segmentId, byte[] lastMetadata) {
+  }
 
   @Override
-  public void flushTillSegment(final long segmentId) {}
+  public void flushTillSegment(final long segmentId) {
+  }
 
   @Override
   public Long getMinimalNotFlushedSegment() {
@@ -529,13 +541,16 @@ public final class ODirectMemoryOnlyDiskCache extends OAbstractWriteCache
 
   @Override
   public void updateDirtyPagesTable(
-      final OCachePointer pointer, final OLogSequenceNumber startLSN) {}
+      final OCachePointer pointer, final OLogSequenceNumber startLSN) {
+  }
 
   @Override
-  public void create() {}
+  public void create() {
+  }
 
   @Override
-  public void open() {}
+  public void open() {
+  }
 
   @Override
   public OCachePointer load(

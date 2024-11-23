@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.sql.parser.ORid;
 import com.orientechnologies.orient.core.sql.parser.OWhereClause;
 
 /**
- * Created by luigidellaquila on 15/10/16.
+ *
  */
 public class MatchReverseEdgeTraverser extends MatchEdgeTraverser {
 

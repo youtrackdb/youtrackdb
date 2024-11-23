@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,13 +14,14 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.functions.stat;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -32,8 +33,6 @@ import java.util.Map.Entry;
 /**
  * Compute the mode (or multimodal) value for a field. The scores in the field's distribution that
  * occurs more frequently. Nulls are ignored in the calculation.
- *
- * @author Fabrizio Fortino
  */
 public class OSQLFunctionMode extends OSQLFunctionAbstract {
 
@@ -76,7 +75,7 @@ public class OSQLFunctionMode extends OSQLFunctionAbstract {
   }
 
   @Override
-  public String getSyntax() {
+  public String getSyntax(ODatabaseSession session) {
     return NAME + "(<field>)";
   }
 

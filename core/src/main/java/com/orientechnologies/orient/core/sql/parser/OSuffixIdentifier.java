@@ -89,7 +89,7 @@ public class OSuffixIdentifier extends SimpleNode {
         try {
           OElement rec = iCurrentRecord.getRecord();
           if (rec.isUnloaded()) {
-            rec = getDatabase().bindToSession(rec);
+            rec = ctx.getDatabase().bindToSession(rec);
           }
 
           Object result = rec.getProperty(varName);
@@ -338,7 +338,8 @@ public class OSuffixIdentifier extends SimpleNode {
     return result;
   }
 
-  public void extractSubQueries(SubQueryCollector collector) {}
+  public void extractSubQueries(SubQueryCollector collector) {
+  }
 
   public boolean refersToParent() {
     return identifier != null && identifier.getStringValue().equalsIgnoreCase("$parent");

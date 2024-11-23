@@ -7,9 +7,9 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.OrientDBInternal;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.tx.OTransactionId;
@@ -24,23 +24,23 @@ import org.junit.Test;
 
 public class TransactionMetadataTest {
 
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
   private ODatabaseSessionInternal db;
   private static final String DB_NAME = TransactionMetadataTest.class.getSimpleName();
 
   @Before
   public void before() {
 
-    orientDB = new OrientDB("embedded:./target/", OrientDBConfig.defaultConfig());
-    orientDB.execute(
+    oxygenDB = new OxygenDB("embedded:./target/", OxygenDBConfig.defaultConfig());
+    oxygenDB.execute(
         "create database `" + DB_NAME + "` plocal users(admin identified by 'admin' role admin)");
-    db = (ODatabaseSessionInternal) orientDB.open(DB_NAME, "admin", "admin");
+    db = (ODatabaseSessionInternal) oxygenDB.open(DB_NAME, "admin", "admin");
   }
 
   @Test
   public void testBackupRestore() {
     db.begin();
-    byte[] metadata = new byte[] {1, 2, 4};
+    byte[] metadata = new byte[]{1, 2, 4};
     ((OTransactionInternal) db.getTransaction())
         .setMetadataHolder(new TestMetadataHolder(metadata));
     OVertex v = db.newVertex("V");
@@ -49,15 +49,15 @@ public class TransactionMetadataTest {
     db.commit();
     db.incrementalBackup("target/backup_metadata");
     db.close();
-    OrientDBInternal.extract(orientDB)
+    OxygenDBInternal.extract(oxygenDB)
         .restore(
             DB_NAME + "_re",
             null,
             null,
             ODatabaseType.PLOCAL,
             "target/backup_metadata",
-            OrientDBConfig.defaultConfig());
-    ODatabaseSession db1 = orientDB.open(DB_NAME + "_re", "admin", "admin");
+            OxygenDBConfig.defaultConfig());
+    ODatabaseSession db1 = oxygenDB.open(DB_NAME + "_re", "admin", "admin");
     Optional<byte[]> fromStorage =
         ((OAbstractPaginatedStorage) ((ODatabaseSessionInternal) db1).getStorage())
             .getLastMetadata();
@@ -69,11 +69,11 @@ public class TransactionMetadataTest {
   public void after() {
     OFileUtils.deleteRecursively(new File("target/backup_metadata"));
     db.close();
-    orientDB.drop(DB_NAME);
-    if (orientDB.exists(DB_NAME + "_re")) {
-      orientDB.drop(DB_NAME + "_re");
+    oxygenDB.drop(DB_NAME);
+    if (oxygenDB.exists(DB_NAME + "_re")) {
+      oxygenDB.drop(DB_NAME + "_re");
     }
-    orientDB.close();
+    oxygenDB.close();
   }
 
   private static class TestMetadataHolder implements OTxMetadataHolder {
@@ -90,7 +90,8 @@ public class TransactionMetadataTest {
     }
 
     @Override
-    public void notifyMetadataRead() {}
+    public void notifyMetadataRead() {
+    }
 
     @Override
     public OTransactionId getId() {

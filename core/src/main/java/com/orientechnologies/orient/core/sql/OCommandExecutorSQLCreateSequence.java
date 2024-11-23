@@ -5,6 +5,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.metadata.sequence.OSequence;
@@ -14,7 +15,6 @@ import java.util.Arrays;
 import java.util.Map;
 
 /**
- * @author Matan Shukry (matanshukry@gmail.com)
  * @since 2/28/2015
  */
 public class OCommandExecutorSQLCreateSequence extends OCommandExecutorSQLAbstract
@@ -89,7 +89,7 @@ public class OCommandExecutorSQLCreateSequence extends OCommandExecutorSQLAbstra
   }
 
   @Override
-  public Object execute(Map<Object, Object> iArgs) {
+  public Object execute(Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
     if (this.sequenceName == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");

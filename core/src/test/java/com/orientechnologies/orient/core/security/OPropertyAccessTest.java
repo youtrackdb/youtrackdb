@@ -63,9 +63,9 @@ public class OPropertyAccessTest {
   public void testNotAccessiblePropertyListing() {
     ODocument doc = new ODocument();
     doc.setProperty("name", "one value");
-    assertArrayEquals(new String[] {"name"}, doc.getPropertyNames().toArray());
+    assertArrayEquals(new String[]{"name"}, doc.getPropertyNames().toArray());
     assertArrayEquals(
-        new String[] {"one value"},
+        new String[]{"one value"},
         doc.getPropertyNames().stream().map(doc::getProperty).toArray());
     assertEquals(new HashSet<String>(List.of("name")), doc.getPropertyNames());
     for (Map.Entry<String, Object> e : doc) {
@@ -75,8 +75,8 @@ public class OPropertyAccessTest {
     Set<String> toHide = new HashSet<>();
     toHide.add("name");
     ODocumentInternal.setPropertyAccess(doc, new OPropertyAccess(toHide));
-    assertArrayEquals(new String[] {}, doc.fieldNames());
-    assertArrayEquals(new String[] {}, doc.fieldValues());
+    assertArrayEquals(new String[]{}, doc.fieldNames());
+    assertArrayEquals(new String[]{}, doc.fieldValues());
     assertEquals(new HashSet<String>(), doc.getPropertyNames());
     for (Map.Entry<String, Object> e : doc) {
       assertNotEquals("name", e.getKey());
@@ -87,9 +87,9 @@ public class OPropertyAccessTest {
   public void testNotAccessiblePropertyListingSer() {
     ODocument docPre = new ODocument();
     docPre.setProperty("name", "one value");
-    assertArrayEquals(new String[] {"name"}, docPre.getPropertyNames().toArray());
+    assertArrayEquals(new String[]{"name"}, docPre.getPropertyNames().toArray());
     assertArrayEquals(
-        new String[] {"one value"},
+        new String[]{"one value"},
         docPre.getPropertyNames().stream().map(docPre::getProperty).toArray());
     assertEquals(new HashSet<String>(List.of("name")), docPre.getPropertyNames());
     for (Map.Entry<String, Object> e : docPre) {
@@ -102,9 +102,9 @@ public class OPropertyAccessTest {
     ORecordInternal.unsetDirty(doc);
     doc.fromStream(docPre.toStream());
     ODocumentInternal.setPropertyAccess(doc, new OPropertyAccess(toHide));
-    assertArrayEquals(new String[] {}, doc.getPropertyNames().toArray());
+    assertArrayEquals(new String[]{}, doc.getPropertyNames().toArray());
     assertArrayEquals(
-        new String[] {}, doc.getPropertyNames().stream().map(doc::getProperty).toArray());
+        new String[]{}, doc.getPropertyNames().stream().map(doc::getProperty).toArray());
     assertEquals(new HashSet<String>(), doc.getPropertyNames());
     for (Map.Entry<String, Object> e : doc) {
       assertNotEquals("name", e.getKey());

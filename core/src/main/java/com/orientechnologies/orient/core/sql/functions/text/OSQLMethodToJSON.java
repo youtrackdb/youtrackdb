@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  * Copyright 2013 Geomatys.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,7 +18,7 @@ package com.orientechnologies.orient.core.sql.functions.text;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -28,9 +28,6 @@ import java.util.Map;
 
 /**
  * Converts a document in JSON string.
- *
- * @author Johann Sorel (Geomatys)
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLMethodToJSON extends OAbstractSQLMethod {
 
@@ -64,17 +61,17 @@ public class OSQLMethodToJSON extends OAbstractSQLMethod {
     if (iThis instanceof ORecord record) {
 
       if (record.isUnloaded()) {
-        record = ODatabaseSession.getActiveSession().bindToSession(record);
+        record = ODatabaseSessionInternal.getActiveSession().bindToSession(record);
       }
 
       return iParams.length == 1 ? record.toJSON(format) : record.toJSON();
     } else if (iThis instanceof Map) {
 
-      final ODocument doc = new ODocument().fromMap((Map<String, Object>) iThis);
+      final ODocument doc = new ODocument();
+      //noinspection unchecked
+      doc.fromMap((Map<String, Object>) iThis);
       return iParams.length == 1 ? doc.toJSON(format) : doc.toJSON();
-
     } else if (OMultiValue.isMultiValue(iThis)) {
-
       StringBuilder builder = new StringBuilder();
       builder.append("[");
       boolean first = true;

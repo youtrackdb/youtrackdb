@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.functions.math;
@@ -24,8 +24,6 @@ import java.math.BigDecimal;
 
 /**
  * Abstract class for math function.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OSQLFunctionMathAbstract extends OSQLFunctionConfigurableAbstract {
 
@@ -58,9 +56,9 @@ public abstract class OSQLFunctionMathAbstract extends OSQLFunctionConfigurableA
 
     if (iClass1 == Integer.class
         && (iClass2 == Long.class
-            || iClass2 == Float.class
-            || iClass2 == Double.class
-            || iClass2 == BigDecimal.class)) {
+        || iClass2 == Float.class
+        || iClass2 == Double.class
+        || iClass2 == BigDecimal.class)) {
       return iClass2;
     } else if (iClass1 == Long.class
         && (iClass2 == Float.class || iClass2 == Double.class || iClass2 == BigDecimal.class)) {

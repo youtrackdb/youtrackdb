@@ -7,8 +7,6 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 
 /**
  * for UPDATE, unwraps the current result set to return the previous value
- *
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class UnwrapPreviousValueStep extends AbstractExecutionStep {
 

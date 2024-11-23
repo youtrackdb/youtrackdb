@@ -1,6 +1,4 @@
 /*
- *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,34 +12,32 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
- *
  */
+
 package com.orientechnologies.orient.client.remote;
 
-import com.orientechnologies.orient.core.db.OrientDBInternal;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.engine.OEngineAbstract;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.storage.OStorage;
 
 /**
  * Remote engine implementation.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OEngineRemote extends OEngineAbstract {
 
   public static final String NAME = "remote";
   public static final String PREFIX = NAME + ":";
 
-  public OEngineRemote() {}
+  public OEngineRemote() {
+  }
 
   public OStorage createStorage(
       final String iURL,
       long maxWalSegSize,
       long doubleWriteLogMaxSegSize,
       int storageId,
-      OrientDBInternal context) {
+      OxygenDBInternal context) {
     throw new OStorageException("deprecated");
   }
 

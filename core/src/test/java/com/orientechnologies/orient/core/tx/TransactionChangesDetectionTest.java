@@ -7,18 +7,18 @@ import static org.junit.Assert.fail;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by tglman on 02/01/17.
+ *
  */
 public class TransactionChangesDetectionTest {
 
-  private OrientDB factory;
+  private OxygenDB factory;
   private ODatabaseSessionInternal database;
 
   @Before

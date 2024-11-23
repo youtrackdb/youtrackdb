@@ -9,7 +9,6 @@ import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import java.nio.ByteBuffer;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com) <lomakin.andrey@gmail.com>.
  * @since 8/17/2015
  */
 public final class OWALPageChangesPortion implements OWALChanges {
@@ -63,7 +62,7 @@ public final class OWALPageChangesPortion implements OWALChanges {
 
   @Override
   public void setByteValue(ByteBuffer pointer, byte value, int offset) {
-    byte[] data = new byte[] {value};
+    byte[] data = new byte[]{value};
 
     updateData(pointer, offset, data);
   }

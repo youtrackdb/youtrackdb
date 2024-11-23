@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 OrientDB.
+ * Copyright 2018 OxygenDB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,12 @@
 package com.orientechnologies.orient.core.sql.functions.misc;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 
 /**
- * @author mdjurovi
+ *
  */
 public class OSQLFunctionStrcmpci extends OSQLFunctionAbstract {
 
@@ -69,7 +70,7 @@ public class OSQLFunctionStrcmpci extends OSQLFunctionAbstract {
   }
 
   @Override
-  public String getSyntax() {
+  public String getSyntax(ODatabaseSession session) {
     return "strcmpci(<arg1>, <arg2>)";
   }
 }

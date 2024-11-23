@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * Created by luigidellaquila on 02/07/16.
+ *
  */
 public class OEdgeToVertexIterable implements Iterable<OVertex>, OSizeable {
 

@@ -11,7 +11,7 @@ import com.orientechnologies.orient.core.sql.parser.OUpdateItem;
 import java.util.List;
 
 /**
- * Created by luigidellaquila on 11/08/16.
+ *
  */
 public class InsertValuesStep extends AbstractExecutionStep {
 

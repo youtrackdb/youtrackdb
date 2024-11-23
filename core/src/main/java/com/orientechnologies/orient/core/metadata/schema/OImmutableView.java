@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.metadata.schema;
 
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
@@ -21,8 +22,8 @@ public class OImmutableView extends OImmutableClass implements OView {
   private final Set<String> activeIndexNames;
   private final long lastRefreshTime;
 
-  public OImmutableView(OView view, OImmutableSchema schema) {
-    super(view, schema);
+  public OImmutableView(ODatabaseSessionInternal session, OView view, OImmutableSchema schema) {
+    super(session, view, schema);
     this.query = view.getQuery();
     this.updateIntervalSeconds = view.getUpdateIntervalSeconds();
     this.watchClasses =
@@ -87,7 +88,7 @@ public class OImmutableView extends OImmutableClass implements OView {
   }
 
   @Override
-  public long count(boolean isPolymorphic) {
+  public long count(ODatabaseSession session, boolean isPolymorphic) {
     return getDatabase().countView(getName());
   }
 

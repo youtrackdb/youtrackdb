@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 6/25/14
  */
 public class OMemoryWriteAheadLog extends OAbstractWriteAheadLog {
@@ -49,7 +48,8 @@ public class OMemoryWriteAheadLog extends OAbstractWriteAheadLog {
   }
 
   @Override
-  public void flush() {}
+  public void flush() {
+  }
 
   @Override
   public OLogSequenceNumber logAtomicOperationStartRecord(
@@ -82,13 +82,16 @@ public class OMemoryWriteAheadLog extends OAbstractWriteAheadLog {
   }
 
   @Override
-  public void close() throws IOException {}
+  public void close() throws IOException {
+  }
 
   @Override
-  public void close(boolean flush) throws IOException {}
+  public void close(boolean flush) throws IOException {
+  }
 
   @Override
-  public void delete() throws IOException {}
+  public void delete() throws IOException {
+  }
 
   @Override
   public List<WriteableWALRecord> read(OLogSequenceNumber lsn, int limit) throws IOException {
@@ -111,19 +114,24 @@ public class OMemoryWriteAheadLog extends OAbstractWriteAheadLog {
   }
 
   @Override
-  public void addCheckpointListener(OCheckpointRequestListener listener) {}
+  public void addCheckpointListener(OCheckpointRequestListener listener) {
+  }
 
   @Override
-  public void removeCheckpointListener(OCheckpointRequestListener listener) {}
+  public void removeCheckpointListener(OCheckpointRequestListener listener) {
+  }
 
   @Override
-  public void moveLsnAfter(OLogSequenceNumber lsn) {}
+  public void moveLsnAfter(OLogSequenceNumber lsn) {
+  }
 
   @Override
-  public void addCutTillLimit(OLogSequenceNumber lsn) {}
+  public void addCutTillLimit(OLogSequenceNumber lsn) {
+  }
 
   @Override
-  public void removeCutTillLimit(OLogSequenceNumber lsn) {}
+  public void removeCutTillLimit(OLogSequenceNumber lsn) {
+  }
 
   @Override
   public File[] nonActiveSegments(long fromSegment) {

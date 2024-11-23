@@ -6,7 +6,7 @@ import static org.junit.Assert.assertTrue;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
@@ -34,15 +34,15 @@ public class OServerDatabaseOperationsTest {
   @Before
   public void before()
       throws ClassNotFoundException,
-          MalformedObjectNameException,
-          InstanceAlreadyExistsException,
-          NotCompliantMBeanException,
-          MBeanRegistrationException,
-          NoSuchMethodException,
-          IOException,
-          InvocationTargetException,
-          IllegalAccessException,
-          InstantiationException {
+      MalformedObjectNameException,
+      InstanceAlreadyExistsException,
+      NotCompliantMBeanException,
+      MBeanRegistrationException,
+      NoSuchMethodException,
+      IOException,
+      InvocationTargetException,
+      IllegalAccessException,
+      InstantiationException {
     OLogManager.instance().setConsoleLevel(Level.OFF.getName());
     OServerConfiguration conf = new OServerConfiguration();
 
@@ -51,7 +51,7 @@ public class OServerDatabaseOperationsTest {
     rootUser.name = "root";
     rootUser.password = "root";
     rootUser.resources = "server.listDatabases";
-    conf.users = new OServerUserConfiguration[] {rootUser};
+    conf.users = new OServerUserConfiguration[]{rootUser};
     server = new OServer(false);
     server.setServerRootDirectory(SERVER_DIRECTORY);
     server.startup(conf);
@@ -61,16 +61,16 @@ public class OServerDatabaseOperationsTest {
         OIOUtils.readStreamAsString(
             this.getClass().getClassLoader().getResourceAsStream("security.json")),
         "noMap");
-    server.getSecurity().reload(securityConfig);
+    server.getSecurity().reload(null, securityConfig);
   }
 
   @After
   public void after() {
     server.shutdown();
 
-    Orient.instance().shutdown();
+    Oxygen.instance().shutdown();
     OFileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
-    Orient.instance().startup();
+    Oxygen.instance().startup();
   }
 
   @Test

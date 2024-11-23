@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by luigidellaquila on 08/08/16.
+ *
  */
 public class OInsertExecutionPlanner {
 
@@ -31,7 +31,8 @@ public class OInsertExecutionPlanner {
   protected OProjection returnStatement;
   protected OSelectStatement selectStatement;
 
-  public OInsertExecutionPlanner() {}
+  public OInsertExecutionPlanner() {
+  }
 
   public OInsertExecutionPlanner(OInsertStatement statement) {
     this.targetClass =

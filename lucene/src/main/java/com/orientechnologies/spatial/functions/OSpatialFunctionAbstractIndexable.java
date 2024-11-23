@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,7 +9,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://www.orientdb.com
+ * <p>*
  */
 package com.orientechnologies.spatial.functions;
 
@@ -47,7 +45,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Created by Enrico Risa on 31/08/15.
+ *
  */
 public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunctionAbstract
     implements OIndexableSQLFunction {
@@ -56,7 +54,8 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
     super(iName, iMinParams, iMaxParams);
   }
 
-  protected OLuceneSpatialIndex searchForIndex(OFromClause target, OExpression[] args) {
+  protected OLuceneSpatialIndex searchForIndex(ODatabaseSessionInternal session, OFromClause target,
+      OExpression[] args) {
     OMetadataInternal dbMetadata = getDb().getMetadata();
 
     OFromItem item = target.getItem();
@@ -65,21 +64,21 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
 
     String className = identifier.getStringValue();
     List<OLuceneSpatialIndex> indices =
-        dbMetadata.getImmutableSchemaSnapshot().getClass(className).getIndexes().stream()
+        dbMetadata.getImmutableSchemaSnapshot().getClass(className).getIndexes(session).stream()
             .filter(idx -> idx instanceof OLuceneSpatialIndex)
             .map(idx -> (OLuceneSpatialIndex) idx)
             .filter(
                 idx ->
                     intersect(
                         idx.getDefinition().getFields(), Collections.singletonList(fieldName)))
-            .collect(Collectors.toList());
+            .toList();
 
     if (indices.size() > 1) {
       throw new IllegalArgumentException(
           "too many indices matching given field name: " + String.join(",", fieldName));
     }
 
-    return indices.size() == 0 ? null : indices.get(0);
+    return indices.isEmpty() ? null : indices.get(0);
   }
 
   protected ODatabaseSessionInternal getDb() {
@@ -88,7 +87,7 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
 
   protected Iterable<OIdentifiable> results(
       OFromClause target, OExpression[] args, OCommandContext ctx, Object rightValue) {
-    OIndex oIndex = searchForIndex(target, args);
+    OIndex oIndex = searchForIndex(ctx.getDatabase(), target, args);
 
     if (oIndex == null) {
       return null;
@@ -98,7 +97,8 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
     queryParams.put(SpatialQueryBuilderAbstract.GEO_FILTER, operator());
     Object shape;
     if (args[1].getValue() instanceof OJson json) {
-      ODocument doc = new ODocument().fromJSON(json.toString());
+      ODocument doc = new ODocument();
+      doc.fromJSON(json.toString());
       shape = doc.toMap();
     } else {
       shape = args[1].execute((OIdentifiable) null, ctx);
@@ -143,11 +143,12 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
       ctx.setVariable("involvedIndexes", indexes);
     }
     indexes.add(oIndex.getName());
-    return oIndex.getInternal().getRids(queryParams).collect(Collectors.toSet());
+    return oIndex.getInternal().getRids(ctx.getDatabase(), queryParams).collect(Collectors.toSet());
   }
 
   protected void onAfterParsing(
-      Map<String, Object> params, OExpression[] args, OCommandContext ctx, Object rightValue) {}
+      Map<String, Object> params, OExpression[] args, OCommandContext ctx, Object rightValue) {
+  }
 
   protected abstract String operator();
 
@@ -173,7 +174,7 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
     if (!isValidBinaryOperator(operator)) {
       return false;
     }
-    OLuceneSpatialIndex index = searchForIndex(target, args);
+    OLuceneSpatialIndex index = searchForIndex(ctx.getDatabase(), target, args);
 
     return index != null;
   }
@@ -196,13 +197,11 @@ public abstract class OSpatialFunctionAbstractIndexable extends OSpatialFunction
       OCommandContext ctx,
       OExpression... args) {
 
-    OLuceneSpatialIndex index = searchForIndex(target, args);
-
-    return index == null ? -1 : index.size();
+    OLuceneSpatialIndex index = searchForIndex(ctx.getDatabase(), target, args);
+    return index == null ? -1 : index.size(ctx.getDatabase());
   }
 
-  public <T> boolean intersect(List<T> list1, List<T> list2) {
-
+  public static <T> boolean intersect(List<T> list1, List<T> list2) {
     for (T t : list1) {
       if (list2.contains(t)) {
         return true;

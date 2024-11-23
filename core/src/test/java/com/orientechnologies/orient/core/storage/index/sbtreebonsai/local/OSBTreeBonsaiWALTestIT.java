@@ -27,7 +27,7 @@
 // import java.util.List;
 //
 /// **
-// * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
+// *
 // * @since 8/27/13
 // */
 // public class OSBTreeBonsaiWALTestIT extends OSBTreeBonsaiLocalTestIT {

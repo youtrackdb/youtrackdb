@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -912,7 +912,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
         Assert.assertTrue(
             d.getIdentity().getClusterId() < 0
                 || (d.getIdentity().getClusterId() >= last.getClusterId())
-                    && d.getIdentity().getClusterPosition() > last.getClusterPosition());
+                && d.getIdentity().getClusterPosition() > last.getClusterPosition());
       }
 
       last = resultset.get(resultset.size() - 1).getIdentity();
@@ -955,7 +955,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
   public void queryWithAutomaticPaginationAndRidInWhere() {
     int clusterId = database.getClusterIdByName("profile");
 
-    long[] range = database.getStorage().getClusterDataRange(clusterId);
+    long[] range = database.getStorage().getClusterDataRange(database, clusterId);
 
     final OSQLSynchQuery<ODocument> query =
         new OSQLSynchQuery<ODocument>(
@@ -1287,7 +1287,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
       Assert.assertNotNull(d.field("addresses"));
       Assert.assertEquals(
           ((ODocument)
-                  ((Collection<OIdentifiable>) d.field("addresses")).iterator().next().getRecord())
+              ((Collection<OIdentifiable>) d.field("addresses")).iterator().next().getRecord())
               .getSchemaClass()
               .getName(),
           "Address");
@@ -1306,13 +1306,13 @@ public class SQLSelectTestNew extends AbstractSelectTest {
           d.field("addresses") == null
               || ((Collection<OIdentifiable>) d.field("addresses")).isEmpty()
               || !((ODocument)
-                      ((Collection<OIdentifiable>) d.field("addresses"))
-                          .iterator()
-                          .next()
-                          .getRecord())
-                  .getSchemaClass()
-                  .getName()
-                  .equals("Address"));
+              ((Collection<OIdentifiable>) d.field("addresses"))
+                  .iterator()
+                  .next()
+                  .getRecord())
+              .getSchemaClass()
+              .getName()
+              .equals("Address"));
     }
   }
 
@@ -1328,7 +1328,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
       Assert.assertNotNull(d.field("addresses"));
       Assert.assertEquals(
           ((ODocument)
-                  ((Collection<OIdentifiable>) d.field("addresses")).iterator().next().getRecord())
+              ((Collection<OIdentifiable>) d.field("addresses")).iterator().next().getRecord())
               .getSchemaClass()
               .getName(),
           "Address");
@@ -1339,8 +1339,8 @@ public class SQLSelectTestNew extends AbstractSelectTest {
     OClass test = database.getMetadata().getSchema().getClass("test");
     if (test == null) {
       test = database.getMetadata().getSchema().createClass("test");
-      test.createProperty("f1", OType.STRING);
-      test.createProperty("f2", OType.STRING);
+      test.createProperty(database, "f1", OType.STRING);
+      test.createProperty(database, "f2", OType.STRING);
     }
     ODocument document = new ODocument(test);
     document.field("f1", "a").field("f2", "a");
@@ -1415,7 +1415,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
       facClass = schema.createClass("FicheAppelCDI");
     }
     if (!facClass.existsProperty("date")) {
-      facClass.createProperty("date", OType.DATE);
+      facClass.createProperty(database, "date", OType.DATE);
     }
 
     final Calendar currentYear = Calendar.getInstance();
@@ -1495,9 +1495,9 @@ public class SQLSelectTestNew extends AbstractSelectTest {
   @Test
   public void testSelectFromListParameter() {
     OClass placeClass = database.getMetadata().getSchema().createClass("Place", 1);
-    placeClass.createProperty("id", OType.STRING);
-    placeClass.createProperty("descr", OType.STRING);
-    placeClass.createIndex("place_id_index", INDEX_TYPE.UNIQUE, "id");
+    placeClass.createProperty(database, "id", OType.STRING);
+    placeClass.createProperty(database, "descr", OType.STRING);
+    placeClass.createIndex(database, "place_id_index", INDEX_TYPE.UNIQUE, "id");
 
     ODocument odoc = new ODocument("Place");
     odoc.field("id", "adda");
@@ -1530,9 +1530,9 @@ public class SQLSelectTestNew extends AbstractSelectTest {
   @Test
   public void testSelectRidFromListParameter() {
     OClass placeClass = database.getMetadata().getSchema().createClass("Place", 1);
-    placeClass.createProperty("id", OType.STRING);
-    placeClass.createProperty("descr", OType.STRING);
-    placeClass.createIndex("place_id_index", INDEX_TYPE.UNIQUE, "id");
+    placeClass.createProperty(database, "id", OType.STRING);
+    placeClass.createProperty(database, "descr", OType.STRING);
+    placeClass.createIndex(database, "place_id_index", INDEX_TYPE.UNIQUE, "id");
 
     List<ORID> inputValues = new ArrayList<ORID>();
 
@@ -1615,9 +1615,9 @@ public class SQLSelectTestNew extends AbstractSelectTest {
             + " addresses.size() > 0 )";
 
     final List<ODocument> synchResultOne =
-        database.command(new OSQLSynchQuery<ODocument>(sqlOne)).execute();
+        database.command(new OSQLSynchQuery<ODocument>(sqlOne)).execute(database);
     final List<ODocument> synchResultTwo =
-        database.command(new OSQLSynchQuery<ODocument>(sqlTwo)).execute();
+        database.command(new OSQLSynchQuery<ODocument>(sqlTwo)).execute(database);
 
     Assert.assertTrue(synchResultOne.size() > 0);
     Assert.assertTrue(synchResultTwo.size() > 0);
@@ -1633,7 +1633,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
                 sqlOne,
                 new OCommandResultListener() {
                   @Override
-                  public boolean result(Object iRecord) {
+                  public boolean result(ODatabaseSessionInternal querySession, Object iRecord) {
                     asynchResultOne.add((ODocument) iRecord);
                     return true;
                   }
@@ -1648,7 +1648,8 @@ public class SQLSelectTestNew extends AbstractSelectTest {
                                 sqlTwo,
                                 new OCommandResultListener() {
                                   @Override
-                                  public boolean result(Object iRecord) {
+                                  public boolean result(ODatabaseSessionInternal querySession,
+                                      Object iRecord) {
                                     asynchResultTwo.add((ODocument) iRecord);
                                     return true;
                                   }
@@ -1663,7 +1664,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
                                     return null;
                                   }
                                 }))
-                        .execute();
+                        .execute(database);
                   }
 
                   @Override
@@ -1671,7 +1672,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
                     return null;
                   }
                 }))
-        .execute();
+        .execute(database);
 
     Assert.assertTrue(endOneCalled.get());
     Assert.assertTrue(endTwoCalled.get());
@@ -1694,9 +1695,9 @@ public class SQLSelectTestNew extends AbstractSelectTest {
             + " addresses.size() > 0 )";
 
     final List<ODocument> synchResultOne =
-        database.command(new OSQLSynchQuery<ODocument>(sqlOne)).execute();
+        database.command(new OSQLSynchQuery<ODocument>(sqlOne)).execute(database);
     final List<ODocument> synchResultTwo =
-        database.command(new OSQLSynchQuery<ODocument>(sqlTwo)).execute();
+        database.command(new OSQLSynchQuery<ODocument>(sqlTwo)).execute(database);
 
     Assert.assertTrue(synchResultOne.size() > 0);
     Assert.assertTrue(synchResultTwo.size() > 0);
@@ -1712,7 +1713,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
                 sqlOne,
                 new OCommandResultListener() {
                   @Override
-                  public boolean result(Object iRecord) {
+                  public boolean result(ODatabaseSessionInternal querySession, Object iRecord) {
                     asynchResultOne.add((ODocument) iRecord);
                     return asynchResultOne.size() < synchResultOne.size() / 2;
                   }
@@ -1727,7 +1728,8 @@ public class SQLSelectTestNew extends AbstractSelectTest {
                                 sqlTwo,
                                 new OCommandResultListener() {
                                   @Override
-                                  public boolean result(Object iRecord) {
+                                  public boolean result(ODatabaseSessionInternal querySession,
+                                      Object iRecord) {
                                     asynchResultTwo.add((ODocument) iRecord);
                                     return true;
                                   }
@@ -1742,7 +1744,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
                                     return null;
                                   }
                                 }))
-                        .execute();
+                        .execute(database);
                   }
 
                   @Override
@@ -1750,7 +1752,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
                     return null;
                   }
                 }))
-        .execute();
+        .execute(database);
 
     Assert.assertTrue(endOneCalled.get());
     Assert.assertTrue(endTwoCalled.get());
@@ -1784,7 +1786,8 @@ public class SQLSelectTestNew extends AbstractSelectTest {
     }
 
     ODocument res =
-        database.command(new OCommandSQL("explain select from OUser order by @rid desc")).execute();
+        database.command(new OCommandSQL("explain select from OUser order by @rid desc"))
+            .execute(database);
     Assert.assertNull(res.field("orderByElapsed"));
   }
 
@@ -1918,10 +1921,10 @@ public class SQLSelectTestNew extends AbstractSelectTest {
   @Test
   public void testMultipleClustersWithPagination() throws Exception {
     final OClass cls = database.getMetadata().getSchema().createClass("PersonMultipleClusters");
-    cls.addCluster("PersonMultipleClusters_1");
-    cls.addCluster("PersonMultipleClusters_2");
-    cls.addCluster("PersonMultipleClusters_3");
-    cls.addCluster("PersonMultipleClusters_4");
+    cls.addCluster(database, "PersonMultipleClusters_1");
+    cls.addCluster(database, "PersonMultipleClusters_2");
+    cls.addCluster(database, "PersonMultipleClusters_3");
+    cls.addCluster(database, "PersonMultipleClusters_4");
 
     try {
       Set<String> names =
@@ -2003,7 +2006,7 @@ public class SQLSelectTestNew extends AbstractSelectTest {
   public void testBinaryClusterSelect() {
     database.command("create blob cluster binarycluster").close();
     database.reload();
-    OBlob bytes = new ORecordBytes(new byte[] {1, 2, 3});
+    OBlob bytes = new ORecordBytes(new byte[]{1, 2, 3});
 
     database.begin();
     database.save(bytes, "binarycluster");
@@ -2026,8 +2029,8 @@ public class SQLSelectTestNew extends AbstractSelectTest {
     OSchema schema = database.getMetadata().getSchema();
     OClass v = schema.getClass("V");
     final OClass cls = schema.createClass("TestExpandSkip", v);
-    cls.createProperty("name", OType.STRING);
-    cls.createIndex("TestExpandSkip.name", INDEX_TYPE.UNIQUE, "name");
+    cls.createProperty(database, "name", OType.STRING);
+    cls.createIndex(database, "TestExpandSkip.name", INDEX_TYPE.UNIQUE, "name");
     database.command("CREATE VERTEX TestExpandSkip set name = '1'").close();
     database.command("CREATE VERTEX TestExpandSkip set name = '2'").close();
     database.command("CREATE VERTEX TestExpandSkip set name = '3'").close();

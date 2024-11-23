@@ -8,7 +8,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by tglman on 09/06/17.
+ *
  */
 public class OSelectStatementExecutionTestIT extends BaseMemoryDatabase {
 

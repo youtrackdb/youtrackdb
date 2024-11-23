@@ -20,8 +20,9 @@ public class ODatabaseUserAuthenticator extends OSecurityAuthenticatorAbstract {
   private OTokenSign tokenSign;
 
   @Override
-  public void config(ODocument jsonConfig, OSecuritySystem security) {
-    super.config(jsonConfig, security);
+  public void config(ODatabaseSessionInternal session, ODocument jsonConfig,
+      OSecuritySystem security) {
+    super.config(session, jsonConfig, security);
     tokenSign = security.getTokenSign();
   }
 
@@ -46,7 +47,7 @@ public class ODatabaseUserAuthenticator extends OSecurityAuthenticatorAbstract {
       if (user == null && token.getToken().getUserName() != null) {
         OSecurityShared databaseSecurity =
             (OSecurityShared) ((ODatabaseSessionInternal) session).getSharedContext().getSecurity();
-        user = databaseSecurity.getUserInternal(session, token.getToken().getUserName());
+        user = OSecurityShared.getUserInternal(session, token.getToken().getUserName());
       }
       return user;
     }
@@ -62,16 +63,16 @@ public class ODatabaseUserAuthenticator extends OSecurityAuthenticatorAbstract {
     String dbName = session.getName();
     OSecurityShared databaseSecurity =
         (OSecurityShared) ((ODatabaseSessionInternal) session).getSharedContext().getSecurity();
-    OUser user = databaseSecurity.getUserInternal(session, username);
+    OUser user = OSecurityShared.getUserInternal(session, username);
     if (user == null) {
       return null;
     }
-    if (user.getAccountStatus() != OSecurityUser.STATUSES.ACTIVE) {
+    if (user.getAccountStatus(session) != OSecurityUser.STATUSES.ACTIVE) {
       throw new OSecurityAccessException(dbName, "User '" + username + "' is not active");
     }
 
     // CHECK USER & PASSWORD
-    if (!user.checkPassword(password)) {
+    if (!user.checkPassword(session, password)) {
       // WAIT A BIT TO AVOID BRUTE FORCE
       try {
         Thread.sleep(200);
@@ -86,12 +87,12 @@ public class ODatabaseUserAuthenticator extends OSecurityAuthenticatorAbstract {
   }
 
   @Override
-  public OSecurityUser getUser(String username) {
+  public OSecurityUser getUser(String username, ODatabaseSessionInternal session) {
     return null;
   }
 
   @Override
-  public boolean isAuthorized(String username, String resource) {
+  public boolean isAuthorized(ODatabaseSession session, String username, String resource) {
     return false;
   }
 

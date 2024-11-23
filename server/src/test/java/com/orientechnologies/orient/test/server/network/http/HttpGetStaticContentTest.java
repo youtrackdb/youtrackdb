@@ -14,8 +14,6 @@ import org.junit.Test;
 
 /**
  * Tests HTTP "static content" command.
- *
- * @author Enrico Risa
  */
 public class HttpGetStaticContentTest extends BaseHttpTest {
 

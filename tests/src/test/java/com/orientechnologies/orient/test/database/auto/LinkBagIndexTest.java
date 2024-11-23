@@ -22,7 +22,6 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 1/30/14
  */
 @Test
@@ -38,9 +37,10 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     final OClass ridBagIndexTestClass =
         database.getMetadata().getSchema().createClass("RidBagIndexTestClass");
 
-    ridBagIndexTestClass.createProperty("ridBag", OType.LINKBAG);
+    ridBagIndexTestClass.createProperty(database, "ridBag", OType.LINKBAG);
 
-    ridBagIndexTestClass.createIndex("ridBagIndex", OClass.INDEX_TYPE.NOTUNIQUE, "ridBag");
+    ridBagIndexTestClass.createIndex(database, "ridBagIndex", OClass.INDEX_TYPE.NOTUNIQUE,
+        "ridBag");
 
     database.close();
   }
@@ -66,7 +66,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
 
     if (!database.getStorage().isRemote()) {
       final OIndex index = getIndex("ridBagIndex");
-      Assert.assertEquals(index.getInternal().size(), 0);
+      Assert.assertEquals(index.getInternal().size(database), 0);
     }
   }
 
@@ -91,7 +91,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     final OIndex index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(database), 2);
 
     final Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -131,7 +131,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     }
 
     final OIndex index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(database), 2);
 
     final Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -182,7 +182,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     final OIndex index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(database), 2);
 
     final Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -238,7 +238,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     }
 
     final OIndex index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(database), 2);
 
     final Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -287,7 +287,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     database.rollback();
 
     final OIndex index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(database), 2);
 
     final Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -336,7 +336,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     final OIndex index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(), 3);
+    Assert.assertEquals(index.getInternal().size(database), 3);
 
     final Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -389,7 +389,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     }
 
     final OIndex index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(), 3);
+    Assert.assertEquals(index.getInternal().size(database), 3);
 
     final Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -438,7 +438,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
 
     final OIndex index = getIndex("ridBagIndex");
 
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(database), 2);
     final Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
       keyIterator = keyStream.iterator();
@@ -485,7 +485,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
 
     final OIndex index = getIndex("ridBagIndex");
 
-    Assert.assertEquals(index.getInternal().size(), 1);
+    Assert.assertEquals(index.getInternal().size(database), 1);
     final Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
       keyIterator = keyStream.iterator();
@@ -524,7 +524,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     database.rollback();
 
     final OIndex index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(database), 2);
 
     final Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -567,7 +567,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     final OIndex index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(), 1);
+    Assert.assertEquals(index.getInternal().size(database), 1);
 
     final Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -604,7 +604,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     final OIndex index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(), 0);
+    Assert.assertEquals(index.getInternal().size(database), 0);
   }
 
   public void testIndexRidBagRemoveInTx() {
@@ -637,7 +637,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     }
 
     final OIndex index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(), 0);
+    Assert.assertEquals(index.getInternal().size(database), 0);
   }
 
   public void testIndexRidBagRemoveInTxRollback() {
@@ -664,7 +664,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     database.rollback();
 
     final OIndex index = getIndex("ridBagIndex");
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(database), 2);
 
     final Iterator<Object> keyIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {

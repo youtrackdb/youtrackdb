@@ -4,7 +4,7 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.exception.OHighLevelException;
 import com.orientechnologies.common.types.OModifiableInteger;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.storage.OPhysicalPosition;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -31,7 +31,7 @@ public abstract class LocalPaginatedClusterAbstract {
   protected static String buildDirectory;
   protected static OPaginatedCluster paginatedCluster;
   protected static ODatabaseSessionInternal databaseDocumentTx;
-  protected static OrientDB orientDB;
+  protected static OxygenDB oxygenDB;
   protected static String dbName;
   protected static OAbstractPaginatedStorage storage;
   private static OAtomicOperationsManager atomicOperationsManager;
@@ -53,8 +53,8 @@ public abstract class LocalPaginatedClusterAbstract {
     atomicOperationsManager.executeInsideAtomicOperation(
         null, atomicOperation -> paginatedCluster.delete(atomicOperation));
 
-    orientDB.drop(dbName);
-    orientDB.close();
+    oxygenDB.drop(dbName);
+    oxygenDB.close();
   }
 
   @Before
@@ -77,7 +77,7 @@ public abstract class LocalPaginatedClusterAbstract {
 
   @Test
   public void testDeleteRecordAndAddNewOnItsPlace() throws IOException {
-    byte[] smallRecord = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+    byte[] smallRecord = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
     final int recordVersion = 2;
 
     OAtomicOperationsManager atomicOperationsManager = storage.getAtomicOperationsManager();
@@ -120,7 +120,7 @@ public abstract class LocalPaginatedClusterAbstract {
 
   @Test
   public void testAddOneSmallRecord() throws IOException {
-    byte[] smallRecord = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+    byte[] smallRecord = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
     final int recordVersion = 2;
 
     final OPhysicalPosition[] physicalPosition = new OPhysicalPosition[1];
@@ -902,7 +902,7 @@ public abstract class LocalPaginatedClusterAbstract {
 
   @Test
   public void testUpdateOneSmallRecord() throws IOException {
-    final byte[] smallRecord = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+    final byte[] smallRecord = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
     final int recordVersion = 2;
 
     OPhysicalPosition physicalPosition =
@@ -913,7 +913,7 @@ public abstract class LocalPaginatedClusterAbstract {
                     smallRecord, recordVersion, (byte) 1, null, atomicOperation));
 
     final int updatedRecordVersion = 3;
-    final byte[] updatedRecord = new byte[] {2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3};
+    final byte[] updatedRecord = new byte[]{2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3};
 
     try {
       atomicOperationsManager.executeInsideAtomicOperation(
@@ -934,7 +934,7 @@ public abstract class LocalPaginatedClusterAbstract {
     Assert.assertNotNull(rawBuffer);
 
     Assert.assertEquals(recordVersion, rawBuffer.version);
-    Assertions.assertThat(rawBuffer.buffer).isEqualTo(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+    Assertions.assertThat(rawBuffer.buffer).isEqualTo(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
     Assert.assertEquals(rawBuffer.recordType, 1);
 
     atomicOperationsManager.executeInsideAtomicOperation(
@@ -956,7 +956,7 @@ public abstract class LocalPaginatedClusterAbstract {
 
   @Test
   public void testUpdateOneSmallRecordVersionIsLowerCurrentOne() throws IOException {
-    final byte[] smallRecord = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+    final byte[] smallRecord = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
     final int recordVersion = 2;
 
     OPhysicalPosition physicalPosition =
@@ -968,7 +968,7 @@ public abstract class LocalPaginatedClusterAbstract {
 
     final int updateRecordVersion = 1;
 
-    final byte[] updatedRecord = new byte[] {2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3};
+    final byte[] updatedRecord = new byte[]{2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3};
 
     try {
       atomicOperationsManager.executeInsideAtomicOperation(
@@ -988,7 +988,7 @@ public abstract class LocalPaginatedClusterAbstract {
     ORawBuffer rawBuffer = paginatedCluster.readRecord(physicalPosition.clusterPosition, false);
     Assert.assertNotNull(rawBuffer);
     Assert.assertEquals(rawBuffer.version, recordVersion);
-    Assertions.assertThat(rawBuffer.buffer).isEqualTo(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+    Assertions.assertThat(rawBuffer.buffer).isEqualTo(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
     Assert.assertEquals(rawBuffer.recordType, 1);
 
     atomicOperationsManager.executeInsideAtomicOperation(
@@ -1010,7 +1010,7 @@ public abstract class LocalPaginatedClusterAbstract {
 
   @Test
   public void testUpdateOneSmallRecordVersionIsMinusTwo() throws IOException {
-    final byte[] smallRecord = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+    final byte[] smallRecord = new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
     final int recordVersion = 2;
 
     OPhysicalPosition physicalPosition =
@@ -1023,7 +1023,7 @@ public abstract class LocalPaginatedClusterAbstract {
     final int updateRecordVersion;
     updateRecordVersion = -2;
 
-    final byte[] updatedRecord = new byte[] {2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3};
+    final byte[] updatedRecord = new byte[]{2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3};
 
     try {
       atomicOperationsManager.executeInsideAtomicOperation(
@@ -1044,7 +1044,7 @@ public abstract class LocalPaginatedClusterAbstract {
     Assert.assertNotNull(rawBuffer);
 
     Assert.assertEquals(rawBuffer.version, recordVersion);
-    Assertions.assertThat(rawBuffer.buffer).isEqualTo(new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+    Assertions.assertThat(rawBuffer.buffer).isEqualTo(new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
     Assert.assertEquals(rawBuffer.recordType, 1);
 
     atomicOperationsManager.executeInsideAtomicOperation(

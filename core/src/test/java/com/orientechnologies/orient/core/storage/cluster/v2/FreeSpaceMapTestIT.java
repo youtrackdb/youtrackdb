@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.storage.cluster.v2;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.storage.cache.OWriteCache;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
@@ -24,7 +24,7 @@ public class FreeSpaceMapTestIT {
 
   protected FreeSpaceMap freeSpaceMap;
 
-  protected static OrientDB orientDB;
+  protected static OxygenDB oxygenDB;
   protected static String dbName;
   protected static OAbstractPaginatedStorage storage;
   private static OAtomicOperationsManager atomicOperationsManager;
@@ -41,12 +41,12 @@ public class FreeSpaceMapTestIT {
 
     dbName = "freeSpaceMapTest";
 
-    orientDB = new OrientDB("plocal:" + buildDirectory, OrientDBConfig.defaultConfig());
-    orientDB.execute(
+    oxygenDB = new OxygenDB("plocal:" + buildDirectory, OxygenDBConfig.defaultConfig());
+    oxygenDB.execute(
         "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
 
     final ODatabaseSessionInternal databaseDocumentTx =
-        (ODatabaseSessionInternal) orientDB.open(dbName, "admin", "admin");
+        (ODatabaseSessionInternal) oxygenDB.open(dbName, "admin", "admin");
 
     storage = (OAbstractPaginatedStorage) databaseDocumentTx.getStorage();
     atomicOperationsManager = storage.getAtomicOperationsManager();
@@ -55,8 +55,8 @@ public class FreeSpaceMapTestIT {
 
   @AfterClass
   public static void afterClass() {
-    orientDB.drop(dbName);
-    orientDB.close();
+    oxygenDB.drop(dbName);
+    oxygenDB.close();
   }
 
   @Before
@@ -126,7 +126,7 @@ public class FreeSpaceMapTestIT {
     System.out.println("randomPages seed - " + seed);
     final Random random = new Random(seed);
 
-    int[] maxFreeSpaceIndex = new int[] {-1};
+    int[] maxFreeSpaceIndex = new int[]{-1};
     for (int i = 0; i < pages; i++) {
       final int pageIndex = i;
 

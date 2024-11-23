@@ -17,7 +17,7 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 /**
- * @author Artem Orobets (enisher-at-gmail.com)
+ *
  */
 public class IndexTxTest extends DocumentDBBaseTest {
 
@@ -32,8 +32,8 @@ public class IndexTxTest extends DocumentDBBaseTest {
 
     final OSchema schema = database.getMetadata().getSchema();
     final OClass cls = schema.createClass("IndexTxTestClass");
-    cls.createProperty("name", OType.STRING);
-    cls.createIndex("IndexTxTestIndex", OClass.INDEX_TYPE.UNIQUE, "name");
+    cls.createProperty(database, "name", OType.STRING);
+    cls.createIndex(database, "IndexTxTestIndex", OClass.INDEX_TYPE.UNIQUE, "name");
   }
 
   @BeforeMethod
@@ -43,7 +43,7 @@ public class IndexTxTest extends DocumentDBBaseTest {
     final OSchema schema = database.getMetadata().getSchema();
     final OClass cls = schema.getClass("IndexTxTestClass");
     if (cls != null) {
-      cls.truncate();
+      cls.truncate(database);
     }
   }
 
@@ -83,7 +83,7 @@ public class IndexTxTest extends DocumentDBBaseTest {
 
         final ORID expectedValue = expectedResult.get(key);
         final ORID value;
-        try (Stream<ORID> stream = index.getInternal().getRids(key)) {
+        try (Stream<ORID> stream = index.getInternal().getRids(database, key)) {
           value = stream.findAny().orElse(null);
         }
 

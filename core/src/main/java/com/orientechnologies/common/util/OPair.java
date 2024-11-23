@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.common.util;
@@ -32,7 +32,6 @@ import java.util.Map.Entry;
  *
  * @param <K> Key
  * @param <V> Value
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @see OTriple
  */
 public class OPair<K extends Comparable, V>
@@ -41,7 +40,8 @@ public class OPair<K extends Comparable, V>
   public K key;
   public V value;
 
-  public OPair() {}
+  public OPair() {
+  }
 
   public OPair(final K iKey, final V iValue) {
     key = iKey;
@@ -109,7 +109,9 @@ public class OPair<K extends Comparable, V>
     OPair<?, ?> other = (OPair<?, ?>) obj;
     if (key == null) {
       return other.key == null;
-    } else return key.equals(other.key);
+    } else {
+      return key.equals(other.key);
+    }
   }
 
   public int compareTo(final OPair<K, V> o) {

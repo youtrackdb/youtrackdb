@@ -12,7 +12,6 @@ import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 3/27/14
  */
 public class EmbeddedEntitySerializationTest extends DocumentDBBaseTest {

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.index;
@@ -95,7 +95,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     }
   }
 
-  public void reload() {
+  public void reload(ODatabaseSessionInternal session) {
     acquireExclusiveLock();
     try {
       ODatabaseSessionInternal database = getDatabase();
@@ -112,15 +112,17 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     }
   }
 
-  public void save() {
+  public void save(ODatabaseSessionInternal session) {
     throw new UnsupportedOperationException();
   }
 
-  public void addClusterToIndex(final String clusterName, final String indexName) {
+  public void addClusterToIndex(ODatabaseSessionInternal session, final String clusterName,
+      final String indexName) {
     throw new UnsupportedOperationException();
   }
 
-  public void removeClusterFromIndex(final String clusterName, final String indexName) {
+  public void removeClusterFromIndex(ODatabaseSessionInternal session, final String clusterName,
+      final String indexName) {
     throw new UnsupportedOperationException();
   }
 
@@ -182,11 +184,11 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     return new ODictionary<>(idx);
   }
 
-  public ODocument getConfiguration() {
+  public ODocument getConfiguration(ODatabaseSessionInternal session) {
     acquireSharedLock();
 
     try {
-      return getDocument();
+      return getDocument(session);
     } finally {
       releaseSharedLock();
     }
@@ -460,10 +462,10 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
       database.command(createIndexDDL).close();
 
       if (progressListener != null) {
-        progressListener.onCompletition(this, true);
+        progressListener.onCompletition(database, this, true);
       }
 
-      reload();
+      reload(database);
 
       return indexes.get(iName);
     } catch (OCommandExecutionException x) {
@@ -501,14 +503,14 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
 
       // REMOVE THE INDEX LOCALLY
       indexes.remove(iIndexName);
-      reload();
+      reload(database);
 
     } finally {
       releaseExclusiveLock();
     }
   }
 
-  public ODocument toStream() {
+  public ODocument toStream(ODatabaseSessionInternal session) {
     throw new UnsupportedOperationException("Remote index cannot be streamed");
   }
 
@@ -521,7 +523,8 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     throw new UnsupportedOperationException("recreateIndexes(ODatabaseSessionInternal)");
   }
 
-  public void waitTillIndexRestore() {}
+  public void waitTillIndexRestore() {
+  }
 
   @Override
   public boolean autoRecreateIndexesAfterCrash(ODatabaseSessionInternal database) {
@@ -532,7 +535,8 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     return false;
   }
 
-  public void removeClassPropertyIndex(OIndex idx) {}
+  public void removeClassPropertyIndex(ODatabaseSessionInternal session, OIndex idx) {
+  }
 
   protected OIndex getRemoteIndexInstance(
       boolean isMultiValueIndex,
@@ -627,7 +631,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     internalReleaseExclusiveLock();
     if (val == 0 && database != null) {
       for (OMetadataUpdateListener listener : database.getSharedContext().browseListeners()) {
-        listener.onIndexManagerUpdate(database.getName(), this);
+        listener.onIndexManagerUpdate(database, database.getName(), this);
       }
     }
   }
@@ -647,7 +651,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
     return storage;
   }
 
-  public ODocument getDocument() {
+  public ODocument getDocument(ODatabaseSessionInternal session) {
     return null;
   }
 

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql;
@@ -24,6 +24,8 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.traverse.OTraverse;
+import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
@@ -50,8 +52,6 @@ import java.util.Set;
  * <p><code>
  * SELECT FROM (TRAVERSE children FROM #5:23 WHERE $depth BETWEEN 1 AND 3) WHERE city.name = 'Rome'
  * </code>
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 @SuppressWarnings("unchecked")
 public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbstract {
@@ -116,7 +116,7 @@ public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbs
                       KEYWORD_WHILE);
 
           traverse.predicate(compiledFilter);
-          optimize();
+          optimize(getDatabase());
           int position;
           if (compiledFilter.parserIsEnded()) {
             position = endPosition;
@@ -199,7 +199,7 @@ public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbs
     return true;
   }
 
-  public Object execute(final Map<Object, Object> iArgs) {
+  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
     context.beginExecution(timeoutMs, timeoutStrategy);
 
     if (!assignTarget(iArgs)) {
@@ -218,7 +218,7 @@ public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbs
         }
       }
 
-      return getResult();
+      return getResult(querySession);
     } finally {
       request.getResultListener().end();
     }
@@ -230,10 +230,11 @@ public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbs
   }
 
   public Iterator<OIdentifiable> iterator() {
-    return iterator(null);
+    return iterator(ODatabaseRecordThreadLocal.instance().get(), null);
   }
 
-  public Iterator<OIdentifiable> iterator(final Map<Object, Object> iArgs) {
+  public Iterator<OIdentifiable> iterator(ODatabaseSessionInternal querySession,
+      final Map<Object, Object> iArgs) {
     assignTarget(iArgs);
     return traverse;
   }

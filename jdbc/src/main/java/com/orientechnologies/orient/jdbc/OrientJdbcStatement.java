@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,7 +9,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://orientdb.com
+ * <p>*
  */
 package com.orientechnologies.orient.jdbc;
 
@@ -36,8 +34,7 @@ import java.util.Optional;
 import java.util.Properties;
 
 /**
- * @author Roberto Franchini (CELI Srl - franchini@celi.it)
- * @author Salvatore Piccione (TXT e-solutions SpA - salvo.picci@gmail.com)
+ *
  */
 public class OrientJdbcStatement implements Statement {
 
@@ -213,13 +210,15 @@ public class OrientJdbcStatement implements Statement {
     batches.add(sql);
   }
 
-  public void cancel() throws SQLException {}
+  public void cancel() throws SQLException {
+  }
 
   public void clearBatch() throws SQLException {
     batches.clear();
   }
 
-  public void clearWarnings() throws SQLException {}
+  public void clearWarnings() throws SQLException {
+  }
 
   public int[] executeBatch() throws SQLException {
     int[] results = new int[batches.size()];
@@ -235,14 +234,16 @@ public class OrientJdbcStatement implements Statement {
     return 0;
   }
 
-  public void setFetchDirection(final int direction) throws SQLException {}
+  public void setFetchDirection(final int direction) throws SQLException {
+  }
 
   public int getFetchSize() throws SQLException {
 
     return 0;
   }
 
-  public void setFetchSize(final int rows) throws SQLException {}
+  public void setFetchSize(final int rows) throws SQLException {
+  }
 
   public ResultSet getGeneratedKeys() throws SQLException {
 
@@ -254,14 +255,16 @@ public class OrientJdbcStatement implements Statement {
     return 0;
   }
 
-  public void setMaxFieldSize(final int max) throws SQLException {}
+  public void setMaxFieldSize(final int max) throws SQLException {
+  }
 
   public int getMaxRows() throws SQLException {
 
     return 0;
   }
 
-  public void setMaxRows(final int max) throws SQLException {}
+  public void setMaxRows(final int max) throws SQLException {
+  }
 
   public boolean getMoreResults() throws SQLException {
 
@@ -278,7 +281,8 @@ public class OrientJdbcStatement implements Statement {
     return 0;
   }
 
-  public void setQueryTimeout(final int seconds) throws SQLException {}
+  public void setQueryTimeout(final int seconds) throws SQLException {
+  }
 
   public ResultSet getResultSet() throws SQLException {
 
@@ -323,11 +327,14 @@ public class OrientJdbcStatement implements Statement {
     return false;
   }
 
-  public void setPoolable(final boolean poolable) throws SQLException {}
+  public void setPoolable(final boolean poolable) throws SQLException {
+  }
 
-  public void setCursorName(final String name) throws SQLException {}
+  public void setCursorName(final String name) throws SQLException {
+  }
 
-  public void setEscapeProcessing(final boolean enable) throws SQLException {}
+  public void setEscapeProcessing(final boolean enable) throws SQLException {
+  }
 
   public boolean isWrapperFor(Class<?> iface) throws SQLException {
     try {
@@ -352,7 +359,8 @@ public class OrientJdbcStatement implements Statement {
     }
   }
 
-  public void closeOnCompletion() throws SQLException {}
+  public void closeOnCompletion() throws SQLException {
+  }
 
   public boolean isCloseOnCompletion() throws SQLException {
     return false;

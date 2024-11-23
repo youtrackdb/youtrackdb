@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSecurityException;
@@ -53,7 +53,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
   }
 
   @Override
-  protected OrientDBConfig createConfig(OrientDBConfigBuilder builder) {
+  protected OxygenDBConfig createConfig(OrientDBConfigBuilder builder) {
     builder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
     return builder.build();
   }
@@ -67,7 +67,8 @@ public class RestrictedTest extends DocumentDBBaseTest {
         .createClass("CMSDocument", database.getMetadata().getSchema().getClass("ORestricted"));
 
     database.begin();
-    var adminRecord = new ODocument("CMSDocument").field("user", "admin").save();
+    var adminRecord = new ODocument("CMSDocument").field("user", "admin");
+    adminRecord.save();
     this.adminRecordId = adminRecord.getIdentity();
     database.commit();
 
@@ -91,7 +92,8 @@ public class RestrictedTest extends DocumentDBBaseTest {
   public void testCreateAsWriter() throws IOException {
     database = createSessionInstance("writer", "writer");
     database.begin();
-    var writerRecord = new ODocument("CMSDocument").field("user", "writer").save();
+    var writerRecord = new ODocument("CMSDocument").field("user", "writer");
+    writerRecord.save();
     this.writerRecordId = writerRecord.getIdentity();
     database.commit();
   }
@@ -189,7 +191,8 @@ public class RestrictedTest extends DocumentDBBaseTest {
       ODocument adminRecord = database.load(this.adminRecordId);
       Set<OIdentifiable> allows = adminRecord.field(OSecurityShared.ALLOW_ALL_FIELD);
       allows.add(
-          database.getMetadata().getSecurity().getUser(database.getUser().getName()).getIdentity());
+          database.getMetadata().getSecurity().getUser(database.getUser().getName(database))
+              .getIdentity(database));
       adminRecord.save();
       database.commit();
     } catch (OSecurityException | ORecordNotFoundException e) {
@@ -206,7 +209,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
     database.begin();
     var writerRecord = database.<ODocument>load(this.writerRecordId);
     Set<OIdentifiable> allows = writerRecord.field(OSecurityShared.ALLOW_ALL_FIELD);
-    allows.add(readerRole.getIdentity());
+    allows.add(readerRole.getIdentity(database));
 
     writerRecord.save();
     database.commit();
@@ -307,9 +310,9 @@ public class RestrictedTest extends DocumentDBBaseTest {
     database = createSessionInstance();
     database.begin();
     ORole reader = database.getMetadata().getSecurity().getRole("reader");
-    reader.setParentRole(database.getMetadata().getSecurity().getRole("writer"));
+    reader.setParentRole(database, database.getMetadata().getSecurity().getRole("writer"));
 
-    reader.save();
+    reader.save(database);
     database.commit();
   }
 
@@ -340,8 +343,8 @@ public class RestrictedTest extends DocumentDBBaseTest {
     database = createSessionInstance();
     database.begin();
     ORole reader = database.getMetadata().getSecurity().getRole("reader");
-    reader.setParentRole(null);
-    reader.save();
+    reader.setParentRole(database, null);
+    reader.save(database);
     database.commit();
   }
 
@@ -379,7 +382,8 @@ public class RestrictedTest extends DocumentDBBaseTest {
             "TestUpdateRestricted", database.getMetadata().getSchema().getClass("ORestricted"));
 
     database.begin();
-    var adminRecord = new ODocument("TestUpdateRestricted").field("user", "admin").save();
+    var adminRecord = new ODocument("TestUpdateRestricted").field("user", "admin");
+    adminRecord.save();
     this.adminRecordId = adminRecord.getIdentity();
     database.commit();
 
@@ -397,7 +401,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
     database.begin();
     database
         .command(new OCommandSQL("update TestUpdateRestricted content {\"data\":\"My Test\"}"))
-        .execute();
+        .execute(database);
     database.commit();
 
     database.begin();

@@ -3,14 +3,14 @@ package com.orientechnologies.orient.client.remote.db.document;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 
 /**
- * Created by tglman on 16/05/17.
+ *
  */
 public class OLiveQueryMonitorRemote implements OLiveQueryMonitor {
 
-  private final ODatabaseDocumentRemote database;
+  private final ODatabaseSessionRemote database;
   private final int monitorId;
 
-  public OLiveQueryMonitorRemote(ODatabaseDocumentRemote database, int monitorId) {
+  public OLiveQueryMonitorRemote(ODatabaseSessionRemote database, int monitorId) {
     this.database = database;
     this.monitorId = monitorId;
   }

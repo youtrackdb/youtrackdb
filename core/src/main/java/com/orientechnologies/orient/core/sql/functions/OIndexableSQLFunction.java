@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2015 OrientDB LTD (info(at)orientdb.com)
+ *  *  Copyright 2015 OxygenDB LTD (info(at)orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.functions;
@@ -29,8 +29,6 @@ import com.orientechnologies.orient.core.sql.parser.OFromClause;
  * This interface represents SQL functions whose implementation can rely on an index. If used in a
  * WHERE condition, this kind of function can be invoked to retrieve target records from an
  * underlying structure, like an index
- *
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public interface OIndexableSQLFunction extends OSQLFunction {
 

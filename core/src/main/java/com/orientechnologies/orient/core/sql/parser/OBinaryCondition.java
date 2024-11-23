@@ -536,7 +536,9 @@ public class OBinaryCondition extends OBooleanExpression {
               && info.isMap()
               && info.isIndexByKey()) {
             return true;
-          } else return info.allowsRange() && operator.isRangeOperator();
+          } else {
+            return info.allowsRange() && operator.isRangeOperator();
+          }
         }
       }
     }

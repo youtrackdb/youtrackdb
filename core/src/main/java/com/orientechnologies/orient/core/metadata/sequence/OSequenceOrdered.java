@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2014 OrientDB LTD (info(at)orientdb.com)
+ *  *  Copyright 2014 OxygenDB LTD (info(at)orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.metadata.sequence;
@@ -23,7 +23,6 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 
 /**
- * @author Matan Shukry (matanshukry@gmail.com)
  * @see OSequenceCached
  * @since 2/28/2015
  * <p>A sequence with sequential guarantees. Even when a transaction is rolled back, there will

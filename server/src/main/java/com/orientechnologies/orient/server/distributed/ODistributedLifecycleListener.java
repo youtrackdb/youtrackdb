@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,17 +14,16 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.distributed;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import java.util.Set;
 
 /**
  * Distributed lifecycle interface to catch event from the distributed cluster.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface ODistributedLifecycleListener {
 
@@ -39,16 +38,18 @@ public interface ODistributedLifecycleListener {
   /**
    * Called right after a node joined the cluster.
    *
-   * @param iNode Node name that is joining
+   * @param session
+   * @param iNode   Node name that is joining
    */
-  void onNodeJoined(String iNode);
+  void onNodeJoined(ODatabaseSessionInternal session, String iNode);
 
   /**
    * Called right after a node left the cluster.
    *
-   * @param iNode Node name that left
+   * @param session
+   * @param iNode   Node name that left
    */
-  void onNodeLeft(String iNode);
+  void onNodeLeft(ODatabaseSessionInternal session, String iNode);
 
   /**
    * Called upon change of database status on a node. Available statuses are defined in
@@ -62,18 +63,25 @@ public interface ODistributedLifecycleListener {
   void onDatabaseChangeStatus(
       String iNode, String iDatabaseName, ODistributedServerManager.DB_STATUS iNewStatus);
 
-  default void onMessageReceived(ODistributedRequest request) {}
+  default void onMessageReceived(ODistributedRequest request) {
+  }
 
   default void onMessagePartitionCalculated(
-      ODistributedRequest request, Set<Integer> involvedWorkerQueues) {}
+      ODistributedRequest request, Set<Integer> involvedWorkerQueues) {
+  }
 
-  default void onMessageBeforeOp(String op, ODistributedRequestId requestId) {}
+  default void onMessageBeforeOp(String op, ODistributedRequestId requestId) {
+  }
 
-  default void onMessageAfterOp(String op, ODistributedRequestId requestId) {}
+  default void onMessageAfterOp(String op, ODistributedRequestId requestId) {
+  }
 
-  default void onMessageProcessStart(ODistributedRequest message) {}
+  default void onMessageProcessStart(ODistributedRequest message) {
+  }
 
-  default void onMessageCurrentPayload(ODistributedRequestId requestId, Object responsePayload) {}
+  default void onMessageCurrentPayload(ODistributedRequestId requestId, Object responsePayload) {
+  }
 
-  default void onMessageProcessEnd(ODistributedRequest iRequest, Object responsePayload) {}
+  default void onMessageProcessEnd(ODistributedRequest iRequest, Object responsePayload) {
+  }
 }

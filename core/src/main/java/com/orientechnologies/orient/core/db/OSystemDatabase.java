@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.db;
@@ -26,8 +26,11 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.security.ODefaultSecuritySystem;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.UUID;
+import java.util.function.BiFunction;
+import javax.annotation.Nonnull;
 
 public class OSystemDatabase {
 
@@ -36,10 +39,10 @@ public class OSystemDatabase {
   public static final String SERVER_INFO_CLASS = "ServerInfo";
   public static final String SERVER_ID_PROPERTY = "serverId";
 
-  private final OrientDBInternal context;
+  private final OxygenDBInternal context;
   private String serverId;
 
-  public OSystemDatabase(final OrientDBInternal context) {
+  public OSystemDatabase(final OxygenDBInternal context) {
     this.context = context;
   }
 
@@ -61,7 +64,7 @@ public class OSystemDatabase {
           OClass cls = schema.getClass(className);
 
           if (cls != null) {
-            cls.addCluster(clusterName);
+            cls.addCluster(sysdb, clusterName);
           } else {
             OLogManager.instance()
                 .error(this, "createCluster() Class name %s does not exist", null, className);
@@ -93,21 +96,17 @@ public class OSystemDatabase {
     return context.openNoAuthorization(SYSTEM_DB_NAME);
   }
 
-  public Object execute(
-      final OCallable<Object, OResultSet> callback, final String sql, final Object... args) {
+  public <R> R execute(
+      @Nonnull final BiFunction<OResultSet, ODatabaseSession, R> callback, final String sql,
+      final Object... args) {
     final ODatabaseSessionInternal currentDB = ODatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       // BYPASS SECURITY
-      final ODatabaseSession db = openSystemDatabase();
-      try (OResultSet result = db.command(sql, args)) {
-
-        if (callback != null) {
-          return callback.call(result);
-        } else {
-          return result;
+      try (final ODatabaseSession db = openSystemDatabase()) {
+        try (OResultSet result = db.command(sql, args)) {
+          return callback.apply(result, db);
         }
       }
-
     } finally {
       if (currentDB != null) {
         ODatabaseRecordThreadLocal.instance().set(currentDB);
@@ -153,8 +152,8 @@ public class OSystemDatabase {
         OLogManager.instance()
             .info(this, "Creating the system database '%s' for current server", SYSTEM_DB_NAME);
 
-        OrientDBConfig config =
-            OrientDBConfig.builder()
+        OxygenDBConfig config =
+            OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .addConfig(OGlobalConfiguration.CLASS_MINIMUM_CLUSTERS, 1)
                 .build();
@@ -164,7 +163,7 @@ public class OSystemDatabase {
         }
         context.create(SYSTEM_DB_NAME, null, null, type, config);
         try (var session = context.openNoAuthorization(SYSTEM_DB_NAME)) {
-          ((OrientDBEmbedded) context).getSecuritySystem().createSystemRoles(session);
+          ODefaultSecuritySystem.createSystemRoles(session);
         }
       }
       checkServerId();
@@ -179,29 +178,27 @@ public class OSystemDatabase {
   }
 
   private synchronized void checkServerId() {
-    ODatabaseSessionInternal db = openSystemDatabase();
-    try {
+    try (ODatabaseSessionInternal db = openSystemDatabase()) {
       OClass clazz = db.getClass(SERVER_INFO_CLASS);
       if (clazz == null) {
         clazz = db.createClass(SERVER_INFO_CLASS);
       }
-      OElement info;
-      if (clazz.count() == 0) {
-        info = db.newElement(SERVER_INFO_CLASS);
-      } else {
-        info = db.browseClass(clazz.getName()).next();
-      }
-      this.serverId = info.getProperty(SERVER_ID_PROPERTY);
-      if (this.serverId == null) {
-        this.serverId = UUID.randomUUID().toString();
-        db.executeInTx(
-            () -> {
+      var clz = clazz;
+      db.executeInTx(
+          () -> {
+            OElement info;
+            if (clz.count(db) == 0) {
+              info = db.newElement(SERVER_INFO_CLASS);
+            } else {
+              info = db.browseClass(clz.getName()).next();
+            }
+            this.serverId = info.getProperty(SERVER_ID_PROPERTY);
+            if (this.serverId == null) {
+              this.serverId = UUID.randomUUID().toString();
               info.setProperty(SERVER_ID_PROPERTY, serverId);
               info.save();
-            });
-      }
-    } finally {
-      db.close();
+            }
+          });
     }
   }
 

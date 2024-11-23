@@ -8,7 +8,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ *
  */
 public class OAlterClassStatementExecutionTest extends BaseMemoryDatabase {
 
@@ -223,7 +223,7 @@ public class OAlterClassStatementExecutionTest extends BaseMemoryDatabase {
     OClass clazz = schema.createClass(className);
     int[] clusterIds = clazz.getClusterIds();
     if (clusterIds.length < 2) {
-      clazz.addCluster(className + "_1");
+      clazz.addCluster(db, className + "_1");
       clusterIds = clazz.getClusterIds();
     }
     int currentDefault = clazz.getDefaultClusterId();

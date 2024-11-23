@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,11 +14,13 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql;
 
+import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import java.util.Iterator;
 import java.util.List;
@@ -27,8 +29,6 @@ import java.util.Map;
 /**
  * Abstract class that early executes the command and provide the iterator interface on top of the
  * resultset.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 @SuppressWarnings("unchecked")
 public abstract class OCommandExecutorSQLEarlyResultsetAbstract
@@ -37,14 +37,15 @@ public abstract class OCommandExecutorSQLEarlyResultsetAbstract
   private Iterator<OIdentifiable> iterator;
 
   public Iterator<OIdentifiable> iterator() {
-    return iterator(null);
+    return iterator(ODatabaseRecordThreadLocal.instance().get(), null);
   }
 
   @Override
-  public Iterator<OIdentifiable> iterator(Map<Object, Object> iArgs) {
+  public Iterator<OIdentifiable> iterator(ODatabaseSessionInternal querySession,
+      Map<Object, Object> iArgs) {
     if (iterator == null) {
       if (tempResult == null) {
-        tempResult = (List<OIdentifiable>) execute(iArgs);
+        tempResult = (List<OIdentifiable>) execute(iArgs, querySession);
       }
       iterator = tempResult.iterator();
     }

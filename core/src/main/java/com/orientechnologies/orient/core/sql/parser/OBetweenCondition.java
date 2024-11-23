@@ -3,6 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -39,13 +40,14 @@ public class OBetweenCondition extends OBooleanExpression {
       return false;
     }
 
-    secondValue = OType.convert(secondValue, firstValue.getClass());
+    var db = ctx.getDatabase();
+    secondValue = OType.convert(db, secondValue, firstValue.getClass());
 
     Object thirdValue = third.execute(currentRecord, ctx);
     if (thirdValue == null) {
       return false;
     }
-    thirdValue = OType.convert(thirdValue, firstValue.getClass());
+    thirdValue = OType.convert(db, thirdValue, firstValue.getClass());
 
     final int leftResult = ((Comparable<Object>) firstValue).compareTo(secondValue);
     final int rightResult = ((Comparable<Object>) firstValue).compareTo(thirdValue);
@@ -56,8 +58,9 @@ public class OBetweenCondition extends OBooleanExpression {
   @Override
   public boolean evaluate(OResult currentRecord, OCommandContext ctx) {
 
+    var db = ctx.getDatabase();
     if (first.isFunctionAny()) {
-      return evaluateAny(currentRecord, ctx);
+      return evaluateAny(db, currentRecord, ctx);
     }
 
     if (first.isFunctionAll()) {
@@ -68,10 +71,11 @@ public class OBetweenCondition extends OBooleanExpression {
     Object secondValue = second.execute(currentRecord, ctx);
     Object thirdValue = third.execute(currentRecord, ctx);
 
-    return evaluate(firstValue, secondValue, thirdValue);
+    return evaluate(db, firstValue, secondValue, thirdValue);
   }
 
-  private boolean evaluate(Object firstValue, Object secondValue, Object thirdValue) {
+  private static boolean evaluate(ODatabaseSession session, Object firstValue, Object secondValue,
+      Object thirdValue) {
     if (firstValue == null) {
       return false;
     }
@@ -80,12 +84,12 @@ public class OBetweenCondition extends OBooleanExpression {
       return false;
     }
 
-    secondValue = OType.convert(secondValue, firstValue.getClass());
+    secondValue = OType.convert(session, secondValue, firstValue.getClass());
 
     if (thirdValue == null) {
       return false;
     }
-    thirdValue = OType.convert(thirdValue, firstValue.getClass());
+    thirdValue = OType.convert(session, thirdValue, firstValue.getClass());
 
     final int leftResult = ((Comparable<Object>) firstValue).compareTo(secondValue);
     final int rightResult = ((Comparable<Object>) firstValue).compareTo(thirdValue);
@@ -93,13 +97,14 @@ public class OBetweenCondition extends OBooleanExpression {
     return leftResult >= 0 && rightResult <= 0;
   }
 
-  private boolean evaluateAny(OResult currentRecord, OCommandContext ctx) {
+  private boolean evaluateAny(ODatabaseSession session, OResult currentRecord,
+      OCommandContext ctx) {
     Object secondValue = second.execute(currentRecord, ctx);
     Object thirdValue = third.execute(currentRecord, ctx);
 
     for (String s : currentRecord.getPropertyNames()) {
       Object firstValue = currentRecord.getProperty(s);
-      if (evaluate(firstValue, secondValue, thirdValue)) {
+      if (evaluate(session, firstValue, secondValue, thirdValue)) {
         return true;
       }
     }
@@ -110,9 +115,10 @@ public class OBetweenCondition extends OBooleanExpression {
     Object secondValue = second.execute(currentRecord, ctx);
     Object thirdValue = third.execute(currentRecord, ctx);
 
+    var database = ctx.getDatabase();
     for (String s : currentRecord.getPropertyNames()) {
       Object firstValue = currentRecord.getProperty(s);
-      if (!evaluate(firstValue, secondValue, thirdValue)) {
+      if (!evaluate(database, firstValue, secondValue, thirdValue)) {
         return false;
       }
     }
@@ -257,7 +263,8 @@ public class OBetweenCondition extends OBooleanExpression {
   }
 
   @Override
-  public void translateLuceneOperator() {}
+  public void translateLuceneOperator() {
+  }
 
   @Override
   public boolean isCacheable() {

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.storage.cache.local;
@@ -99,7 +99,18 @@ import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.concurrent.*;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.zip.CRC32;
@@ -140,7 +151,6 @@ import net.jpountz.xxhash.XXHashFactory;
  * across all storages opened inside of single JVM. Write cache accepts external ids as file ids and
  * converts them to internal ids inside of its methods.
  *
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 7/23/13
  */
 public final class OWOWCache extends OAbstractWriteCache
@@ -244,7 +254,7 @@ public final class OWOWCache extends OAbstractWriteCache
   static {
     commitExecutor =
         OThreadPoolExecutors.newSingleThreadScheduledPool(
-            "OrientDB Write Cache Flush Task", OAbstractPaginatedStorage.storageThreadGroup);
+            "OxygenDB Write Cache Flush Task", OAbstractPaginatedStorage.storageThreadGroup);
   }
 
   /**
@@ -849,10 +859,12 @@ public final class OWOWCache extends OAbstractWriteCache
   }
 
   @Override
-  public void create() {}
+  public void create() {
+  }
 
   @Override
-  public void open() {}
+  public void open() {
+  }
 
   @Override
   public long addFile(final String fileName, long fileId) throws IOException {
@@ -2396,8 +2408,8 @@ public final class OWOWCache extends OAbstractWriteCache
 
           if (verifyChecksums
               && (checksumMode == OChecksumMode.StoreAndVerify
-                  || checksumMode == OChecksumMode.StoreAndThrow
-                  || checksumMode == OChecksumMode.StoreAndSwitchReadOnlyMode)) {
+              || checksumMode == OChecksumMode.StoreAndThrow
+              || checksumMode == OChecksumMode.StoreAndSwitchReadOnlyMode)) {
             // if page is broken inside of data file we check double write log
             if (!verifyMagicChecksumAndDecryptPage(buffer, internalFileId, pageIndex)) {
               final OPointer doubleWritePointer =
@@ -2430,8 +2442,8 @@ public final class OWOWCache extends OAbstractWriteCache
 
             if (verifyChecksums
                 && (checksumMode == OChecksumMode.StoreAndVerify
-                    || checksumMode == OChecksumMode.StoreAndThrow
-                    || checksumMode == OChecksumMode.StoreAndSwitchReadOnlyMode)) {
+                || checksumMode == OChecksumMode.StoreAndThrow
+                || checksumMode == OChecksumMode.StoreAndSwitchReadOnlyMode)) {
               if (!verifyMagicChecksumAndDecryptPage(buffer, internalFileId, pageIndex)) {
                 assertPageIsBroken(pageIndex, fileId, pointer);
               }
@@ -2562,10 +2574,10 @@ public final class OWOWCache extends OAbstractWriteCache
 
     if ((aesKey == null && magicNumber != MAGIC_NUMBER_WITH_CHECKSUM)
         || (magicNumber != MAGIC_NUMBER_WITH_CHECKSUM
-            && (magicNumber & 0xFF) != MAGIC_NUMBER_WITH_CHECKSUM_ENCRYPTED)) {
+        && (magicNumber & 0xFF) != MAGIC_NUMBER_WITH_CHECKSUM_ENCRYPTED)) {
       if ((aesKey == null && magicNumber != MAGIC_NUMBER_WITHOUT_CHECKSUM)
           || (magicNumber != MAGIC_NUMBER_WITHOUT_CHECKSUM
-              && (magicNumber & 0xFF) != MAGIC_NUMBER_WITHOUT_CHECKSUM_ENCRYPTED)) {
+          && (magicNumber & 0xFF) != MAGIC_NUMBER_WITHOUT_CHECKSUM_ENCRYPTED)) {
         return false;
       }
 
@@ -2672,7 +2684,7 @@ public final class OWOWCache extends OAbstractWriteCache
 
   public Long executeFindDirtySegment() {
     if (flushError != null) {
-      final Object[] iAdditionalArgs = new Object[] {flushError.getMessage()};
+      final Object[] iAdditionalArgs = new Object[]{flushError.getMessage()};
       OLogManager.instance()
           .error(
               this,
@@ -3408,7 +3420,7 @@ public final class OWOWCache extends OAbstractWriteCache
 
   public Void executeFileFlush(IntOpenHashSet fileIdSet) throws InterruptedException, IOException {
     if (flushError != null) {
-      final Object[] iAdditionalArgs = new Object[] {flushError.getMessage()};
+      final Object[] iAdditionalArgs = new Object[]{flushError.getMessage()};
       OLogManager.instance()
           .error(
               this,
@@ -3542,7 +3554,7 @@ public final class OWOWCache extends OAbstractWriteCache
 
     try {
       if (flushError != null) {
-        final Object[] iAdditionalArgs = new Object[] {flushError.getMessage()};
+        final Object[] iAdditionalArgs = new Object[]{flushError.getMessage()};
         OLogManager.instance()
             .error(
                 this,
@@ -3605,7 +3617,7 @@ public final class OWOWCache extends OAbstractWriteCache
 
     try {
       if (flushError != null) {
-        final Object[] iAdditionalArgs = new Object[] {flushError.getMessage()};
+        final Object[] iAdditionalArgs = new Object[]{flushError.getMessage()};
         OLogManager.instance()
             .error(
                 this,
@@ -3648,7 +3660,7 @@ public final class OWOWCache extends OAbstractWriteCache
 
   public Void executeFlushTillSegment(long segmentId) throws InterruptedException, IOException {
     if (flushError != null) {
-      final Object[] iAdditionalArgs = new Object[] {flushError.getMessage()};
+      final Object[] iAdditionalArgs = new Object[]{flushError.getMessage()};
       OLogManager.instance()
           .error(
               this,

@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.sql.parser.OMatchPathItem;
 import com.orientechnologies.orient.core.sql.parser.OMatchStatement;
 
 /**
- * Created by luigidellaquila on 28/07/15.
+ *
  */
 public class PatternEdge {
 

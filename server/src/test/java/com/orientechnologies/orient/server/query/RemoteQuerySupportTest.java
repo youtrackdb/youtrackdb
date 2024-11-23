@@ -25,7 +25,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by tglman on 03/01/17.
+ *
  */
 public class RemoteQuerySupportTest extends BaseServerMemoryDatabase {
 

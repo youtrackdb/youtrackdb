@@ -10,7 +10,7 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWALPa
 import java.io.IOException;
 
 /**
- * Created by tglman on 23/06/16.
+ *
  */
 public class OCacheEntryChanges implements OCacheEntry {
 

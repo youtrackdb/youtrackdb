@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2016 OrientDB LTD (info(at)orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  */
 
 package com.orientechnologies.orient.core.tx;
@@ -31,7 +31,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author Sergey Sitnikov
+ *
  */
 public class DuplicateUniqueIndexChangesTxTest extends BaseMemoryDatabase {
 
@@ -42,8 +42,8 @@ public class DuplicateUniqueIndexChangesTxTest extends BaseMemoryDatabase {
     final OClass class_ = db.getMetadata().getSchema().createClass("Person");
     index =
         class_
-            .createProperty("name", OType.STRING)
-            .createIndex(OClass.INDEX_TYPE.UNIQUE_HASH_INDEX);
+            .createProperty(db, "name", OType.STRING)
+            .createIndex(db, OClass.INDEX_TYPE.UNIQUE_HASH_INDEX);
   }
 
   @Test
@@ -74,7 +74,7 @@ public class DuplicateUniqueIndexChangesTxTest extends BaseMemoryDatabase {
   }
 
   private ODocument fetchDocumentFromIndex(String o) {
-    try (Stream<ORID> stream = index.getInternal().getRids(o)) {
+    try (Stream<ORID> stream = index.getInternal().getRids(db, o)) {
       return (ODocument) stream.findFirst().map(ORID::getRecord).orElse(null);
     }
   }

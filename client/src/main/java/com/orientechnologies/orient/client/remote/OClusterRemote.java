@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.client.remote;
@@ -32,8 +32,6 @@ import javax.annotation.Nonnull;
 
 /**
  * Remote cluster implementation
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OClusterRemote implements OCluster {
 
@@ -67,19 +65,23 @@ public class OClusterRemote implements OCluster {
    *
    * @see com.orientechnologies.orient.core.storage.OCluster#create(int)
    */
-  public void create(OAtomicOperation atomicOperation) {}
+  public void create(OAtomicOperation atomicOperation) {
+  }
 
   /*
    * (non-Javadoc)
    *
    * @see com.orientechnologies.orient.core.storage.OCluster#open()
    */
-  public void open(OAtomicOperation atomicOperation) {}
+  public void open(OAtomicOperation atomicOperation) {
+  }
 
-  public void close() {}
+  public void close() {
+  }
 
   @Override
-  public void close(boolean flush) {}
+  public void close(boolean flush) {
+  }
 
   @Override
   public OPhysicalPosition allocatePosition(byte recordType, OAtomicOperation atomicOperation) {
@@ -136,7 +138,8 @@ public class OClusterRemote implements OCluster {
     throw new UnsupportedOperationException("exists");
   }
 
-  public void delete(OAtomicOperation atomicOperation) {}
+  public void delete(OAtomicOperation atomicOperation) {
+  }
 
   public Object set(ATTRIBUTES iAttribute, Object iValue) {
     return null;
@@ -184,7 +187,8 @@ public class OClusterRemote implements OCluster {
     return id;
   }
 
-  public void synch() {}
+  public void synch() {
+  }
 
   public String getName() {
     return name;

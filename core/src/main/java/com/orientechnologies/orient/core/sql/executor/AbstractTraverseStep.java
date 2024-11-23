@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Created by luigidellaquila on 26/10/16.
+ *
  */
 public abstract class AbstractTraverseStep extends AbstractExecutionStep {
 
@@ -68,7 +68,8 @@ public abstract class AbstractTraverseStep extends AbstractExecutionStep {
       }
 
       @Override
-      public void close(OCommandContext ctx) {}
+      public void close(OCommandContext ctx) {
+      }
     };
   }
 

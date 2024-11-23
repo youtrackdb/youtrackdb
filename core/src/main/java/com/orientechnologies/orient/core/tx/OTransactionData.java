@@ -1,13 +1,13 @@
 package com.orientechnologies.orient.core.tx;
 
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
@@ -76,58 +76,55 @@ public class OTransactionData {
         changes.stream()
             .map(
                 (x) -> {
-                  ORecordOperation operation = new ORecordOperation(x.getId(), x.getType());
+                  ORecordOperation operation = new ORecordOperation(null, x.getType());
                   // TODO: Handle dirty no changed
-                  ORecord record = null;
+                  ORecordAbstract record = null;
                   switch (x.getType()) {
-                    case ORecordOperation.CREATED:
-                      {
+                    case ORecordOperation.CREATED: {
+                      record =
+                          ORecordSerializerNetworkDistributed.INSTANCE.fromStream(
+                              x.getRecord().get(), null);
+                      ORecordInternal.setRecordSerializer(record, database.getSerializer());
+                      break;
+                    }
+                    case ORecordOperation.UPDATED: {
+                      if (x.getRecordType() == ODocument.RECORD_TYPE) {
+                        try {
+                          record = database.load(x.getId());
+                        } catch (ORecordNotFoundException rnf) {
+                          record = new ODocument();
+                        }
+
+                        ((ODocument) record).deserializeFields();
+                        ODocumentInternal.clearTransactionTrackData((ODocument) record);
+                        ODocumentSerializerDelta.instance()
+                            .deserializeDelta(x.getRecord().get(), (ODocument) record);
+                        /// Got record with empty deltas, at this level we mark the record dirty
+                        // anyway.
+                        record.setDirty();
+                      } else {
                         record =
                             ORecordSerializerNetworkDistributed.INSTANCE.fromStream(
                                 x.getRecord().get(), null);
                         ORecordInternal.setRecordSerializer(record, database.getSerializer());
-                        break;
                       }
-                    case ORecordOperation.UPDATED:
-                      {
-                        if (x.getRecordType() == ODocument.RECORD_TYPE) {
-                          try {
-                            record = database.load(x.getId());
-                          } catch (ORecordNotFoundException rnf) {
-                            record = new ODocument();
-                          }
-
-                          ((ODocument) record).deserializeFields();
-                          ODocumentInternal.clearTransactionTrackData((ODocument) record);
-                          ODocumentSerializerDelta.instance()
-                              .deserializeDelta(x.getRecord().get(), (ODocument) record);
-                          /// Got record with empty deltas, at this level we mark the record dirty
-                          // anyway.
-                          record.setDirty();
-                        } else {
-                          record =
-                              ORecordSerializerNetworkDistributed.INSTANCE.fromStream(
-                                  x.getRecord().get(), null);
-                          ORecordInternal.setRecordSerializer(record, database.getSerializer());
-                        }
-                        break;
+                      break;
+                    }
+                    case ORecordOperation.DELETED: {
+                      try {
+                        record = database.load(x.getId());
+                      } catch (ORecordNotFoundException rnf) {
+                        record =
+                            Oxygen.instance()
+                                .getRecordFactoryManager()
+                                .newInstance(x.getRecordType(), x.getId(), database);
                       }
-                    case ORecordOperation.DELETED:
-                      {
-                        try {
-                          record = database.load(x.getId());
-                        } catch (ORecordNotFoundException rnf) {
-                          record =
-                              Orient.instance()
-                                  .getRecordFactoryManager()
-                                  .newInstance(x.getRecordType(), x.getId(), database);
-                        }
-                        break;
-                      }
+                      break;
+                    }
                   }
                   ORecordInternal.setIdentity(record, (ORecordId) x.getId());
                   ORecordInternal.setVersion(record, x.getVersion());
-                  operation.setRecord(record);
+                  operation.record = record;
 
                   return operation;
                 })

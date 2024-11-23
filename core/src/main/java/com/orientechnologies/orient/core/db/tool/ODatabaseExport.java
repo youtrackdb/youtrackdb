@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.db.tool;
@@ -63,8 +63,6 @@ import java.util.zip.GZIPOutputStream;
 
 /**
  * Export data from a database to a file.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ODatabaseExport extends ODatabaseImpExpAbstract {
 
@@ -228,7 +226,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
                 .error(
                     this,
                     """
-
+                        
                         Error on exporting record %s. It seems corrupted; size: %d bytes, raw\
                          content (as string):
                         ==========
@@ -391,7 +389,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
     writer.beginCollection(1, true, "indexes");
 
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
-    indexManager.reload();
+    indexManager.reload(database);
 
     final Collection<? extends OIndex> indexes = indexManager.getIndexes(database);
 
@@ -448,7 +446,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
     listener.onMessage("\nExporting manual indexes content...");
 
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
-    indexManager.reload();
+    indexManager.reload(database);
 
     final Collection<? extends OIndex> indexes = indexManager.getIndexes(database);
 
@@ -506,7 +504,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
         writer.endCollection(3, true);
 
         writer.endObject(2, true);
-        listener.onMessage("OK (entries=" + index.getInternal().size() + ")");
+        listener.onMessage("OK (entries=" + index.getInternal().size(database) + ")");
         manualIndexes++;
       }
     }
@@ -555,7 +553,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
         writer.writeAttribute(
             0, false, "cluster-selection", cls.getClusterSelection().getName()); // @SINCE 1.7
 
-        if (!cls.properties().isEmpty()) {
+        if (!cls.properties(database).isEmpty()) {
           writer.beginCollection(4, true, "properties");
 
           final List<OProperty> properties = new ArrayList<>(cls.declaredProperties());
@@ -663,7 +661,7 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
             .error(
                 this,
                 """
-
+                    
                     Error on exporting record %s. It seems corrupted; size: %d bytes, raw\
                      content (as string):
                     ==========

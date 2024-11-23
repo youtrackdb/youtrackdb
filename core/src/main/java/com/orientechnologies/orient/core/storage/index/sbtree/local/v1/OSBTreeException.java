@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -23,7 +23,6 @@ package com.orientechnologies.orient.core.storage.index.sbtree.local.v1;
 import com.orientechnologies.orient.core.exception.ODurableComponentException;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 8/30/13
  */
 public class OSBTreeException extends ODurableComponentException {

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sharding.auto;
@@ -25,6 +25,7 @@ import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.config.IndexEngineData;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.encryption.OEncryption;
 import com.orientechnologies.orient.core.id.ORID;
@@ -59,8 +60,6 @@ import java.util.stream.StreamSupport;
 
 /**
  * Index engine implementation that relies on multiple hash indexes partitioned by key.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public final class OAutoShardingIndexEngine implements OIndexEngine {
 
@@ -249,7 +248,8 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
   }
 
   @Override
-  public void init(OIndexMetadata metadata) {}
+  public void init(OIndexMetadata metadata) {
+  }
 
   private void init() {
     if (partitions != null) {
@@ -303,12 +303,13 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
   }
 
   @Override
-  public Object get(final Object key) {
+  public Object get(ODatabaseSessionInternal session, final Object key) {
     return getPartition(key).get(key);
   }
 
   @Override
-  public void put(OAtomicOperation atomicOperation, final Object key, final Object value) {
+  public void put(ODatabaseSessionInternal session, OAtomicOperation atomicOperation,
+      final Object key, final Object value) {
     try {
       getPartition(key).put(atomicOperation, key, value);
     } catch (IOException e) {
@@ -321,17 +322,18 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
 
   @Override
   public void update(
-      OAtomicOperation atomicOperation, Object key, OIndexKeyUpdater<Object> updater) {
-    Object value = get(key);
+      ODatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
+      OIndexKeyUpdater<Object> updater) {
+    Object value = get(session, key);
     OIndexUpdateAction<Object> updated = updater.update(value, bonsayFileId);
     if (updated.isChange()) {
-      put(atomicOperation, key, updated.getValue());
+      put(session, atomicOperation, key, updated.getValue());
     } else if (updated.isRemove()) {
       remove(atomicOperation, key);
     } else //noinspection StatementWithEmptyBody
-    if (updated.isNothing()) {
-      // Do Nothing
-    }
+      if (updated.isNothing()) {
+        // Do Nothing
+      }
   }
 
   @SuppressWarnings("unchecked")
@@ -480,7 +482,7 @@ public final class OAutoShardingIndexEngine implements OIndexEngine {
 
   @Override
   public Stream<ORawPair<Object, ORID>> iterateEntriesBetween(
-      final Object rangeFrom,
+      ODatabaseSessionInternal session, final Object rangeFrom,
       final boolean fromInclusive,
       final Object rangeTo,
       final boolean toInclusive,

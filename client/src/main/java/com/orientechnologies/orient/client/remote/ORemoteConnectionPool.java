@@ -10,7 +10,7 @@ import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 
 /**
- * Created by tglman on 01/10/15.
+ *
  */
 public class ORemoteConnectionPool
     implements OResourcePoolListener<String, OChannelBinaryAsynchClient> {

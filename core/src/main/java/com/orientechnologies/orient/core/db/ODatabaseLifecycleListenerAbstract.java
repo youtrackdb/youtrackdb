@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientechnologies.com
+ *
  *
  */
 package com.orientechnologies.orient.core.db;
@@ -23,8 +23,6 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 
 /**
  * Abstract Listener Interface to receive callbacks on database usage.
- *
- * @author Luca Garulli (l.garulli--at--orientdb.com)
  */
 public abstract class ODatabaseLifecycleListenerAbstract implements ODatabaseLifecycleListener {
 
@@ -34,17 +32,22 @@ public abstract class ODatabaseLifecycleListenerAbstract implements ODatabaseLif
   }
 
   @Override
-  public void onCreate(ODatabaseSessionInternal iDatabase) {}
+  public void onCreate(ODatabaseSessionInternal iDatabase) {
+  }
 
   @Override
-  public void onOpen(ODatabaseSessionInternal iDatabase) {}
+  public void onOpen(ODatabaseSessionInternal iDatabase) {
+  }
 
   @Override
-  public void onClose(ODatabaseSessionInternal iDatabase) {}
+  public void onClose(ODatabaseSessionInternal iDatabase) {
+  }
 
   @Override
-  public void onDrop(ODatabaseSessionInternal iDatabase) {}
+  public void onDrop(ODatabaseSessionInternal iDatabase) {
+  }
 
   @Override
-  public void onLocalNodeConfigurationRequest(ODocument iConfiguration) {}
+  public void onLocalNodeConfigurationRequest(ODocument iConfiguration) {
+  }
 }

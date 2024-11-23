@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -40,7 +40,8 @@ public class OSignalHandler implements SignalHandler {
     void onSignal(Signal signal);
   }
 
-  public OSignalHandler() {}
+  public OSignalHandler() {
+  }
 
   public void registerListener(final OSignalListener listener) {
     listeners.add(listener);
@@ -63,20 +64,20 @@ public class OSignalHandler implements SignalHandler {
 
     final String s = signal.toString().trim();
 
-    if (Orient.instance().isSelfManagedShutdown()
+    if (Oxygen.instance().isSelfManagedShutdown()
         && (s.equals("SIGKILL")
-            || s.equals("SIGHUP")
-            || s.equals("SIGINT")
-            || s.equals("SIGTERM"))) {
-      Orient.instance().shutdown();
+        || s.equals("SIGHUP")
+        || s.equals("SIGINT")
+        || s.equals("SIGTERM"))) {
+      Oxygen.instance().shutdown();
       System.exit(1);
     } else if (s.equals("SIGTRAP")) {
       System.out.println();
       OGlobalConfiguration.dumpConfiguration(System.out);
       System.out.println();
-      Orient.instance().getProfiler().dump(System.out);
+      Oxygen.instance().getProfiler().dump(System.out);
       System.out.println();
-      System.out.println(Orient.instance().getProfiler().threadDump());
+      System.out.println(Oxygen.instance().getProfiler().threadDump());
     } else {
       SignalHandler redefinedHandler = redefinedHandlers.get(signal);
       if (redefinedHandler != null) {

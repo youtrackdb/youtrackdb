@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -23,7 +23,7 @@ package com.orientechnologies.orient.core.storage.memory;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.OrientDBInternal;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.engine.memory.OEngineMemory;
 import com.orientechnologies.orient.core.storage.cluster.OPaginatedCluster;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -40,7 +40,6 @@ import java.util.concurrent.Callable;
 import java.util.zip.ZipOutputStream;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 7/9/14
  */
 public class ODirectMemoryStorage extends OAbstractPaginatedStorage {
@@ -48,7 +47,7 @@ public class ODirectMemoryStorage extends OAbstractPaginatedStorage {
   private static final int ONE_KB = 1024;
 
   public ODirectMemoryStorage(
-      final String name, final String filePath, final int id, OrientDBInternal context) {
+      final String name, final String filePath, final int id, OxygenDBInternal context) {
     super(name, filePath, id, context);
   }
 
@@ -75,7 +74,8 @@ public class ODirectMemoryStorage extends OAbstractPaginatedStorage {
 
   @Override
   protected void postCloseSteps(
-      final boolean onDelete, final boolean internalError, final long lastTxId) {}
+      final boolean onDelete, final boolean internalError, final long lastTxId) {
+  }
 
   @Override
   public boolean exists() {
@@ -101,10 +101,12 @@ public class ODirectMemoryStorage extends OAbstractPaginatedStorage {
   }
 
   @Override
-  public void flushAllData() {}
+  public void flushAllData() {
+  }
 
   @Override
-  protected void readIv() {}
+  protected void readIv() {
+  }
 
   @Override
   protected byte[] getIv() {
@@ -112,7 +114,8 @@ public class ODirectMemoryStorage extends OAbstractPaginatedStorage {
   }
 
   @Override
-  protected void initIv() {}
+  protected void initIv() {
+  }
 
   @Override
   public List<String> backup(
@@ -189,7 +192,8 @@ public class ODirectMemoryStorage extends OAbstractPaginatedStorage {
   }
 
   @Override
-  protected void checkBackupRunning() {}
+  protected void checkBackupRunning() {
+  }
 
   @Override
   public boolean isMemory() {

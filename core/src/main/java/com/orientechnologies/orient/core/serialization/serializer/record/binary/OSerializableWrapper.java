@@ -16,7 +16,8 @@ public class OSerializableWrapper implements OSerializableStream {
 
   private Serializable serializable;
 
-  public OSerializableWrapper() {}
+  public OSerializableWrapper() {
+  }
 
   public OSerializableWrapper(Serializable ser) {
     this.serializable = ser;

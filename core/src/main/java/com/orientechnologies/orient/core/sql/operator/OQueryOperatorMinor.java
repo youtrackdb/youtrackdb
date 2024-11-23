@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.operator;
@@ -22,6 +22,7 @@ package com.orientechnologies.orient.core.sql.operator;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
@@ -42,8 +43,6 @@ import java.util.stream.Stream;
 
 /**
  * MINOR operator.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OQueryOperatorMinor extends OQueryOperatorEqualityNotNulls {
 
@@ -65,7 +64,7 @@ public class OQueryOperatorMinor extends OQueryOperatorEqualityNotNulls {
       final Object iLeft,
       final Object iRight,
       OCommandContext iContext) {
-    final Object right = OType.convert(iRight, iLeft.getClass());
+    final Object right = OType.convert(iContext.getDatabase(), iRight, iLeft.getClass());
     if (right == null) {
       return false;
     }
@@ -105,7 +104,8 @@ public class OQueryOperatorMinor extends OQueryOperatorEqualityNotNulls {
         return null;
       }
 
-      stream = index.getInternal().streamEntriesMinor(key, false, ascSortOrder);
+      stream = index.getInternal()
+          .streamEntriesMinor(iContext.getDatabase(), key, false, ascSortOrder);
     } else {
       // if we have situation like "field1 = 1 AND field2 < 2"
       // then we fetch collection which left included boundary is the smallest composite key in the
@@ -131,7 +131,8 @@ public class OQueryOperatorMinor extends OQueryOperatorEqualityNotNulls {
         return null;
       }
 
-      stream = index.getInternal().streamEntriesBetween(keyOne, true, keyTwo, false, ascSortOrder);
+      stream = index.getInternal()
+          .streamEntriesBetween(iContext.getDatabase(), keyOne, true, keyTwo, false, ascSortOrder);
     }
 
     updateProfiler(iContext, index, keyParams, indexDefinition);
@@ -139,14 +140,14 @@ public class OQueryOperatorMinor extends OQueryOperatorEqualityNotNulls {
   }
 
   @Override
-  public ORID getBeginRidRange(Object iLeft, Object iRight) {
+  public ORID getBeginRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 
   @Override
-  public ORID getEndRidRange(final Object iLeft, final Object iRight) {
+  public ORID getEndRidRange(ODatabaseSession session, final Object iLeft, final Object iRight) {
     if (iLeft instanceof OSQLFilterItemField
-        && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iLeft).getRoot())) {
+        && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iLeft).getRoot(session))) {
       if (iRight instanceof ORID) {
         return (ORID) iRight;
       } else {

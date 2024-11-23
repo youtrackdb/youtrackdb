@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.record;
@@ -26,12 +26,12 @@ import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.OEmptyRecordId;
 import com.orientechnologies.orient.core.id.OImmutableRecordId;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODirtyManager;
+import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.string.ORecordSerializerJSON;
 import java.io.ByteArrayOutputStream;
@@ -45,7 +45,7 @@ import java.util.WeakHashMap;
 import javax.annotation.Nonnull;
 
 @SuppressWarnings({"unchecked"})
-public abstract class ORecordAbstract implements ORecord {
+public abstract class ORecordAbstract implements ORecord, ORecordElement, OSerializableStream {
 
   public static final String BASE_FORMAT =
       "rid,version,class,type,attribSameRow,keepTypes,alwaysFetchEmbedded";
@@ -67,8 +67,10 @@ public abstract class ORecordAbstract implements ORecord {
   protected ODirtyManager dirtyManager;
 
   private long loadingCounter;
+  private ODatabaseSessionInternal session;
 
-  public ORecordAbstract() {}
+  public ORecordAbstract() {
+  }
 
   public ORecordAbstract(final byte[] iSource) {
     source = iSource;
@@ -95,15 +97,10 @@ public abstract class ORecordAbstract implements ORecord {
     return this;
   }
 
-  public boolean detach() {
-    return true;
-  }
-
-  public ORecordAbstract clear() {
+  public void clear() {
     checkForBinding();
 
     setDirty();
-    return this;
   }
 
   /**
@@ -127,7 +124,7 @@ public abstract class ORecordAbstract implements ORecord {
     checkForBinding();
 
     if (source == null) {
-      source = recordFormat.toStream(this);
+      source = recordFormat.toStream(session, this);
     }
 
     return source;
@@ -162,22 +159,35 @@ public abstract class ORecordAbstract implements ORecord {
   }
 
   public ORecordAbstract setDirty() {
-    checkForBinding();
+    if (!dirty && recordId.isPersistent()) {
+      if (session == null) {
+        throw new ODatabaseException(
+            createNotBoundToSessionMessage());
+      }
+
+      var tx = session.getTransaction();
+      if (!tx.isActive()) {
+        throw new ODatabaseException("Cannot modify persisted record outside of transaction");
+      }
+    }
 
     if (!dirty && status != STATUS.UNMARSHALLING) {
+      checkForBinding();
+
       dirty = true;
       source = null;
     }
 
     contentChanged = true;
+
     return this;
   }
 
   @Override
   public void setDirtyNoChanged() {
-    checkForBinding();
-
     if (!dirty && status != STATUS.UNMARSHALLING) {
+      checkForBinding();
+
       dirty = true;
       source = null;
     }
@@ -203,11 +213,10 @@ public abstract class ORecordAbstract implements ORecord {
     }
   }
 
-  public <RET extends ORecord> RET fromJSON(final String iSource) {
+  public void fromJSON(final String iSource) {
     incrementLoading();
     try {
       ORecordSerializerJSON.INSTANCE.fromString(iSource, this, null);
-      return (RET) this;
     } finally {
       decrementLoading();
     }
@@ -279,14 +288,13 @@ public abstract class ORecordAbstract implements ORecord {
     recordVersion = iVersion;
   }
 
-  public ORecordAbstract unload() {
+  public void unload() {
     if (status != ORecordElement.STATUS.NOT_LOADED) {
       source = null;
       status = ORecordElement.STATUS.NOT_LOADED;
+      session = null;
       unsetDirty();
     }
-
-    return this;
   }
 
   @Override
@@ -294,41 +302,35 @@ public abstract class ORecordAbstract implements ORecord {
     return status == ORecordElement.STATUS.NOT_LOADED;
   }
 
-  public ORecord load() {
-    if (!getIdentity().isValid()) {
-      throw new ORecordNotFoundException(
-          getIdentity(), "The record has no id, probably it's new or transient yet ");
+  @Override
+  public boolean isNotBound(ODatabaseSession session) {
+    return isUnloaded() || this.session != session;
+  }
+
+  @Nonnull
+  public ODatabaseSessionInternal getSession() {
+    assert session != null && session.validateIfActive() : createNotBoundToSessionMessage();
+
+    if (session == null) {
+      throw new ODatabaseException(createNotBoundToSessionMessage());
     }
 
-    return getDatabase().load(recordId);
+    return session;
   }
 
-  @SuppressWarnings("MethodMayBeStatic")
-  public ODatabaseSessionInternal getDatabase() {
-    return ODatabaseRecordThreadLocal.instance().get();
+  public void save() {
+    getSession().save(this);
   }
 
-  public static ODatabaseSessionInternal getDatabaseIfDefined() {
-    return ODatabaseRecordThreadLocal.instance().getIfDefined();
-  }
-
-  public ORecordAbstract save() {
-    getDatabase().save(this);
-    return this;
-  }
-
-  public ORecordAbstract save(final String iClusterName) {
-    getDatabase().save(this, iClusterName);
-    return this;
+  public void save(final String iClusterName) {
+    getSession().save(this, iClusterName);
   }
 
   public void delete() {
-    checkForBinding();
-    getDatabase().delete(this);
+    getSession().delete(this);
   }
 
   public int getSize() {
-    checkForBinding();
     return size;
   }
 
@@ -375,7 +377,7 @@ public abstract class ORecordAbstract implements ORecord {
 
   @Override
   public boolean exists() {
-    return getDatabase().exists(recordId);
+    return getSession().exists(recordId);
   }
 
   public void setInternalStatus(final ORecordElement.STATUS iStatus) {
@@ -398,6 +400,7 @@ public abstract class ORecordAbstract implements ORecord {
     cloned.dirty = false;
     cloned.contentChanged = false;
     cloned.dirtyManager = null;
+    cloned.session = session;
 
     return cloned;
   }
@@ -509,34 +512,38 @@ public abstract class ORecordAbstract implements ORecord {
     }
   }
 
-  protected void setup(ODatabaseSessionInternal db) {
+  public void setup(ODatabaseSessionInternal db) {
     if (recordId == null) {
       recordId = new OEmptyRecordId();
     }
+
+    this.session = db;
   }
 
   protected void checkForBinding() {
     assert loadingCounter >= 0;
-
     if (loadingCounter > 0) {
       return;
     }
 
-    if (status == ORecordElement.STATUS.NOT_LOADED
-        && ODatabaseRecordThreadLocal.instance().isDefined()) {
-
+    if (status == ORecordElement.STATUS.NOT_LOADED) {
       if (!getIdentity().isValid()) {
         return;
       }
 
-      throw new ODatabaseException(
-          "Record "
-              + getIdentity()
-              + " is not bound to the current session. Please bind record to the database session"
-              + " by calling : "
-              + ODatabaseSession.class.getSimpleName()
-              + ".bindToSession(record) before using it.");
+      throw new ODatabaseException(createNotBoundToSessionMessage());
     }
+
+    assert session != null && session.validateIfActive() : createNotBoundToSessionMessage();
+  }
+
+  private String createNotBoundToSessionMessage() {
+    return "Record "
+        + getIdentity()
+        + " is not bound to the current session. Please bind record to the database session"
+        + " by calling : "
+        + ODatabaseSession.class.getSimpleName()
+        + ".bindToSession(record) before using it.";
   }
 
   public void incrementLoading() {
@@ -602,4 +609,6 @@ public abstract class ORecordAbstract implements ORecord {
 
     reset();
   }
+
+  public abstract ORecordAbstract copy();
 }

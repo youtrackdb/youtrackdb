@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,17 +9,17 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://www.orientdb.com
+ * <p>*
  */
 package com.orientechnologies.security.auditing;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OSystemDatabase;
-import com.orientechnologies.orient.core.db.OrientDBInternal;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -33,12 +31,20 @@ import com.orientechnologies.orient.core.security.OSecuritySystem;
 import com.orientechnologies.orient.server.OServerAware;
 import com.orientechnologies.orient.server.distributed.ODistributedLifecycleListener;
 import com.orientechnologies.orient.server.distributed.ODistributedServerManager;
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Created by Enrico Risa on 10/04/15.
+ *
  */
 public class ODefaultAuditing
     implements OAuditingService, ODatabaseLifecycleListener, ODistributedLifecycleListener {
@@ -47,7 +53,7 @@ public class ODefaultAuditing
 
   private boolean enabled = true;
   private Integer globalRetentionDays = -1;
-  private OrientDBInternal context;
+  private OxygenDBInternal context;
 
   private final Timer timer = new Timer();
   private OAuditingHook globalHook;
@@ -295,7 +301,8 @@ public class ODefaultAuditing
   }
 
   @Override
-  public void onLocalNodeConfigurationRequest(ODocument iConfiguration) {}
+  public void onLocalNodeConfigurationRequest(ODocument iConfiguration) {
+  }
 
   protected void updateConfigOnDisk(final String iDatabaseName, final ODocument cfg)
       throws IOException {
@@ -317,24 +324,25 @@ public class ODefaultAuditing
     return true;
   }
 
-  public void onNodeJoined(String iNode) {
+  public void onNodeJoined(ODatabaseSessionInternal session, String iNode) {
     if (distribConfig != null && distribConfig.isEnabled(OAuditingOperation.NODEJOINED)) {
-      log(
+      log(session,
           OAuditingOperation.NODEJOINED,
           distribConfig.formatMessage(OAuditingOperation.NODEJOINED, iNode));
     }
   }
 
-  public void onNodeLeft(String iNode) {
+  public void onNodeLeft(ODatabaseSessionInternal session, String iNode) {
     if (distribConfig != null && distribConfig.isEnabled(OAuditingOperation.NODELEFT)) {
-      log(
+      log(session,
           OAuditingOperation.NODELEFT,
           distribConfig.formatMessage(OAuditingOperation.NODELEFT, iNode));
     }
   }
 
   public void onDatabaseChangeStatus(
-      String iNode, String iDatabaseName, ODistributedServerManager.DB_STATUS iNewStatus) {}
+      String iNode, String iDatabaseName, ODistributedServerManager.DB_STATUS iNewStatus) {
+  }
 
   @Deprecated
   public static String getClusterName(final String dbName) {
@@ -348,7 +356,8 @@ public class ODefaultAuditing
   /// ///
   // OAuditingService
   public void changeConfig(
-      final OSecurityUser user, final String iDatabaseName, final ODocument cfg)
+      ODatabaseSessionInternal session, final OSecurityUser user, final String iDatabaseName,
+      final ODocument cfg)
       throws IOException {
 
     // This should never happen, but just in case...
@@ -361,10 +370,9 @@ public class ODefaultAuditing
 
     updateConfigOnDisk(iDatabaseName, cfg);
 
-    log(
+    log(session,
         OAuditingOperation.CHANGEDCONFIG,
-        user,
-        String.format(
+        user, String.format(
             "The auditing configuration for the database '%s' has been changed", iDatabaseName));
   }
 
@@ -375,22 +383,24 @@ public class ODefaultAuditing
   /**
    * Primarily used for global logging events (e.g., NODEJOINED, NODELEFT).
    */
-  public void log(final OAuditingOperation operation, final String message) {
-    log(operation, null, null, message);
+  public void log(ODatabaseSessionInternal session, final OAuditingOperation operation,
+      final String message) {
+    log(session, operation, null, null, message);
   }
 
   /**
    * Primarily used for global logging events (e.g., NODEJOINED, NODELEFT).
    */
-  public void log(final OAuditingOperation operation, OSecurityUser user, final String message) {
-    log(operation, null, user, message);
+  public void log(ODatabaseSessionInternal session, final OAuditingOperation operation,
+      OSecurityUser user, final String message) {
+    log(session, operation, null, user, message);
   }
 
   /**
    * Primarily used for global logging events (e.g., NODEJOINED, NODELEFT).
    */
   public void log(
-      final OAuditingOperation operation,
+      ODatabaseSessionInternal session, final OAuditingOperation operation,
       final String dbName,
       OSecurityUser user,
       final String message) {
@@ -400,14 +410,14 @@ public class ODefaultAuditing
       final OAuditingHook oAuditingHook = hooks.get(dbName);
 
       if (oAuditingHook != null) {
-        oAuditingHook.log(operation, dbName, user, message);
+        oAuditingHook.log(session, operation, dbName, user, message);
       } else { // Use the global hook.
-        globalHook.log(operation, dbName, user, message);
+        globalHook.log(session, operation, dbName, user, message);
       }
     } else { // Use the global hook.
       String userName = null;
       if (user != null) {
-        userName = user.getName();
+        userName = user.getName(session);
       }
       if (globalHook == null) {
         OLogManager.instance()
@@ -420,7 +430,7 @@ public class ODefaultAuditing
                 userName,
                 message);
       } else {
-        globalHook.log(operation, dbName, user, message);
+        globalHook.log(session, operation, dbName, user, message);
       }
     }
   }
@@ -438,13 +448,13 @@ public class ODefaultAuditing
 
       if (cls == null) {
         cls = sysdb.getMetadata().getSchema().createClass(AUDITING_LOG_CLASSNAME);
-        cls.createProperty("date", OType.DATETIME);
-        cls.createProperty("user", OType.STRING);
-        cls.createProperty("operation", OType.BYTE);
-        cls.createProperty("record", OType.LINK);
-        cls.createProperty("changes", OType.EMBEDDED);
-        cls.createProperty("note", OType.STRING);
-        cls.createProperty("database", OType.STRING);
+        cls.createProperty(currentDB, "date", OType.DATETIME);
+        cls.createProperty(currentDB, "user", OType.STRING);
+        cls.createProperty(currentDB, "operation", OType.BYTE);
+        cls.createProperty(currentDB, "record", OType.LINK);
+        cls.createProperty(currentDB, "changes", OType.EMBEDDED);
+        cls.createProperty(currentDB, "note", OType.STRING);
+        cls.createProperty(currentDB, "database", OType.STRING);
       }
     } catch (Exception e) {
       OLogManager.instance().error(this, "Creating auditing class exception", e);
@@ -482,7 +492,7 @@ public class ODefaultAuditing
 
     timer.scheduleAtFixedRate(retainTask, delay, period);
 
-    Orient.instance().addDbLifecycleListener(this);
+    Oxygen.instance().addDbLifecycleListener(this);
     if (context instanceof OServerAware) {
       if (((OServerAware) context).getDistributedManager() != null) {
         ((OServerAware) context).getDistributedManager().registerLifecycleListener(this);
@@ -515,7 +525,8 @@ public class ODefaultAuditing
             }));
   }
 
-  public void config(final ODocument jsonConfig, OSecuritySystem security) {
+  public void config(ODatabaseSessionInternal session, final ODocument jsonConfig,
+      OSecuritySystem security) {
     context = security.getContext();
     this.security = security;
     try {
@@ -554,7 +565,7 @@ public class ODefaultAuditing
       }
     }
 
-    Orient.instance().removeDbLifecycleListener(this);
+    Oxygen.instance().removeDbLifecycleListener(this);
 
     if (globalHook != null) {
       globalHook.shutdown(false);

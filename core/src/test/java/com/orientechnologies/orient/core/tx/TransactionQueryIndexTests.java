@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -15,27 +15,27 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by tglman on 12/04/17.
+ *
  */
 public class TransactionQueryIndexTests {
 
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
   private ODatabaseSessionInternal database;
 
   @Before
   public void before() {
-    orientDB =
+    oxygenDB =
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
     database =
         (ODatabaseSessionInternal)
-            orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+            oxygenDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
 
   @Test
   public void test() {
     OClass clazz = database.createClass("test");
-    OProperty prop = clazz.createProperty("test", OType.STRING);
-    prop.createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
+    OProperty prop = clazz.createProperty(database, "test", OType.STRING);
+    prop.createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
 
     database.begin();
     ODocument doc = database.newInstance("test");
@@ -54,9 +54,9 @@ public class TransactionQueryIndexTests {
   @Test
   public void test2() {
     OClass clazz = database.createClass("Test2");
-    clazz.createProperty("foo", OType.STRING);
-    clazz.createProperty("bar", OType.STRING);
-    clazz.createIndex("Test2.foo_bar", OClass.INDEX_TYPE.NOTUNIQUE, "foo", "bar");
+    clazz.createProperty(database, "foo", OType.STRING);
+    clazz.createProperty(database, "bar", OType.STRING);
+    clazz.createIndex(database, "Test2.foo_bar", OClass.INDEX_TYPE.NOTUNIQUE, "foo", "bar");
 
     database.begin();
     ODocument doc = database.newInstance("Test2");
@@ -76,6 +76,6 @@ public class TransactionQueryIndexTests {
   @After
   public void after() {
     database.close();
-    orientDB.close();
+    oxygenDB.close();
   }
 }

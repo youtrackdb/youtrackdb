@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -44,8 +44,9 @@ import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.compression.impl.OZIPCompressionUtil;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.OrientDBEmbedded;
-import com.orientechnologies.orient.core.db.OrientDBInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.OxygenDBEmbedded;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.engine.local.OEngineLocalPaginated;
 import com.orientechnologies.orient.core.exception.OBackupInProgressException;
@@ -85,7 +86,18 @@ import com.orientechnologies.orient.core.storage.index.versionmap.OVersionPositi
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OIndexRIDContainer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManagerShared;
 import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
@@ -102,7 +114,16 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Future;
@@ -122,7 +143,6 @@ import net.jpountz.xxhash.XXHash64;
 import net.jpountz.xxhash.XXHashFactory;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 28.03.13
  */
 public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
@@ -154,40 +174,40 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
   protected static final String IV_NAME = "data" + IV_EXT;
 
   private static final String[] ALL_FILE_EXTENSIONS = {
-    ".cm",
-    ".ocf",
-    ".pls",
-    ".pcl",
-    ".oda",
-    ".odh",
-    ".otx",
-    ".ocs",
-    ".oef",
-    ".oem",
-    ".oet",
-    ".fl",
-    ".flb",
-    IV_EXT,
-    CASDiskWriteAheadLog.WAL_SEGMENT_EXTENSION,
-    CASDiskWriteAheadLog.MASTER_RECORD_EXTENSION,
-    OHashTableIndexEngine.BUCKET_FILE_EXTENSION,
-    OHashTableIndexEngine.METADATA_FILE_EXTENSION,
-    OHashTableIndexEngine.TREE_FILE_EXTENSION,
-    OHashTableIndexEngine.NULL_BUCKET_FILE_EXTENSION,
-    OClusterPositionMap.DEF_EXTENSION,
-    OSBTreeIndexEngine.DATA_FILE_EXTENSION,
-    OIndexRIDContainer.INDEX_FILE_EXTENSION,
-    OSBTreeCollectionManagerShared.FILE_EXTENSION,
-    OSBTreeIndexEngine.NULL_BUCKET_FILE_EXTENSION,
-    OClusterBasedStorageConfiguration.MAP_FILE_EXTENSION,
-    OClusterBasedStorageConfiguration.DATA_FILE_EXTENSION,
-    OClusterBasedStorageConfiguration.TREE_DATA_FILE_EXTENSION,
-    OClusterBasedStorageConfiguration.TREE_NULL_FILE_EXTENSION,
-    OCellBTreeMultiValueIndexEngine.DATA_FILE_EXTENSION,
-    OCellBTreeMultiValueIndexEngine.M_CONTAINER_EXTENSION,
-    DoubleWriteLogGL.EXTENSION,
-    FreeSpaceMap.DEF_EXTENSION,
-    OVersionPositionMap.DEF_EXTENSION
+      ".cm",
+      ".ocf",
+      ".pls",
+      ".pcl",
+      ".oda",
+      ".odh",
+      ".otx",
+      ".ocs",
+      ".oef",
+      ".oem",
+      ".oet",
+      ".fl",
+      ".flb",
+      IV_EXT,
+      CASDiskWriteAheadLog.WAL_SEGMENT_EXTENSION,
+      CASDiskWriteAheadLog.MASTER_RECORD_EXTENSION,
+      OHashTableIndexEngine.BUCKET_FILE_EXTENSION,
+      OHashTableIndexEngine.METADATA_FILE_EXTENSION,
+      OHashTableIndexEngine.TREE_FILE_EXTENSION,
+      OHashTableIndexEngine.NULL_BUCKET_FILE_EXTENSION,
+      OClusterPositionMap.DEF_EXTENSION,
+      OSBTreeIndexEngine.DATA_FILE_EXTENSION,
+      OIndexRIDContainer.INDEX_FILE_EXTENSION,
+      OSBTreeCollectionManagerShared.FILE_EXTENSION,
+      OSBTreeIndexEngine.NULL_BUCKET_FILE_EXTENSION,
+      OClusterBasedStorageConfiguration.MAP_FILE_EXTENSION,
+      OClusterBasedStorageConfiguration.DATA_FILE_EXTENSION,
+      OClusterBasedStorageConfiguration.TREE_DATA_FILE_EXTENSION,
+      OClusterBasedStorageConfiguration.TREE_NULL_FILE_EXTENSION,
+      OCellBTreeMultiValueIndexEngine.DATA_FILE_EXTENSION,
+      OCellBTreeMultiValueIndexEngine.M_CONTAINER_EXTENSION,
+      DoubleWriteLogGL.EXTENSION,
+      FreeSpaceMap.DEF_EXTENSION,
+      OVersionPositionMap.DEF_EXTENSION
   };
 
   private static final int ONE_KB = 1024;
@@ -215,7 +235,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
       final OClosableLinkedContainer<Long, OFile> files,
       final long walMaxSegSize,
       long doubleWriteLogMaxSegSize,
-      OrientDBInternal context) {
+      OxygenDBInternal context) {
     super(name, filePath, id, context);
 
     this.walMaxSegSize = walMaxSegSize;
@@ -262,9 +282,9 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
       synch();
     }
 
-    final Object[] additionalArgs = new Object[] {getURL(), OConstants.getVersion()};
+    final Object[] additionalArgs = new Object[]{getURL(), OConstants.getVersion()};
     OLogManager.instance()
-        .info(this, "Storage '%s' is created under OrientDB distribution : %s", additionalArgs);
+        .info(this, "Storage '%s' is created under OxygenDB distribution : %s", additionalArgs);
   }
 
   protected void doCreate(OContextConfiguration contextConfiguration)
@@ -342,14 +362,14 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
           final OutputStream bo = bufferSize > 0 ? new BufferedOutputStream(out, bufferSize) : out;
           try {
             try (final ZipOutputStream zos = new ZipOutputStream(bo)) {
-              zos.setComment("OrientDB Backup executed on " + new Date());
+              zos.setComment("OxygenDB Backup executed on " + new Date());
               zos.setLevel(compressionLevel);
 
               final List<String> names =
                   OZIPCompressionUtil.compressDirectory(
                       storagePath.toString(),
                       zos,
-                      new String[] {".fl", ".lock", DoubleWriteLogGL.EXTENSION},
+                      new String[]{".fl", ".lock", DoubleWriteLogGL.EXTENSION},
                       iOutput);
               startupMetadata.addFileToArchive(zos, "dirty.fl");
               names.add("dirty.fl");
@@ -598,7 +618,8 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
 
   @Override
   protected void initConfiguration(
-      OAtomicOperation atomicOperation, final OContextConfiguration contextConfiguration)
+      final OContextConfiguration contextConfiguration,
+      OAtomicOperation atomicOperation)
       throws IOException {
     if (!OClusterBasedStorageConfiguration.exists(writeCache)
         && Files.exists(storagePath.resolve("database.ocf"))) {
@@ -710,7 +731,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
       OLogManager.instance()
           .debug(
               OLocalPaginatedStorage.class,
-              "Cannot delete database files because they are still locked by the OrientDB process:"
+              "Cannot delete database files because they are still locked by the OxygenDB process:"
                   + " waiting %d ms and retrying %d/%d...",
               waitTime,
               i,
@@ -896,7 +917,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
             iv,
             aesKey,
             contextConfiguration.getValueAsBoolean(OGlobalConfiguration.STORAGE_CALL_FSYNC),
-            ((OrientDBEmbedded) context).getIoExecutor());
+            ((OxygenDBEmbedded) context).getIoExecutor());
 
     wowCache.loadRegisteredFiles();
     wowCache.addBackgroundExceptionListener(this);
@@ -932,7 +953,8 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
   }
 
   @Override
-  public String incrementalBackup(final String backupDirectory, OCallable<Void, Void> started) {
+  public String incrementalBackup(ODatabaseSessionInternal session, final String backupDirectory,
+      OCallable<Void, Void> started) {
     return incrementalBackup(new File(backupDirectory), started);
   }
 
@@ -1007,8 +1029,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
     final Path fileLockPath = backupDirectory.toPath().resolve(INCREMENTAL_BACKUP_LOCK);
     try (final FileChannel lockChannel =
         FileChannel.open(fileLockPath, StandardOpenOption.CREATE, StandardOpenOption.WRITE)) {
-      try (@SuppressWarnings("unused")
-          final FileLock fileLock = lockChannel.lock()) {
+      try (@SuppressWarnings("unused") final FileLock fileLock = lockChannel.lock()) {
         RandomAccessFile rndIBUFile = null;
         try {
           final String[] files = fetchIBUFiles(backupDirectory);
@@ -1546,12 +1567,14 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
     return lastLsn;
   }
 
-  public void restoreFromIncrementalBackup(final String filePath) {
-    restoreFromIncrementalBackup(new File(filePath));
+  public void restoreFromIncrementalBackup(ODatabaseSessionInternal session,
+      final String filePath) {
+    restoreFromIncrementalBackup(session, new File(filePath));
   }
 
   @Override
-  public void restoreFullIncrementalBackup(final InputStream stream)
+  public void restoreFullIncrementalBackup(ODatabaseSessionInternal session,
+      final InputStream stream)
       throws UnsupportedOperationException {
     stateLock.writeLock().lock();
     try {
@@ -1577,7 +1600,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
           stream,
           true);
 
-      postProcessIncrementalRestore(result.contextConfiguration);
+      postProcessIncrementalRestore(session, result.contextConfiguration);
     } catch (IOException e) {
       throw OException.wrapException(
           new OStorageException("Error during restore from incremental backup"), e);
@@ -1607,7 +1630,8 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
         serverLocale, contextConfiguration, charset, locale);
   }
 
-  private void restoreFromIncrementalBackup(final File backupDirectory) {
+  private void restoreFromIncrementalBackup(ODatabaseSessionInternal session,
+      final File backupDirectory) {
     if (!backupDirectory.exists()) {
       throw new OStorageException(
           "Directory which should contain incremental backup files (files with extension '"
@@ -1701,7 +1725,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
                         + "' is not a backup of the same database of previous backups");
           }
 
-          postProcessIncrementalRestore(result.contextConfiguration);
+          postProcessIncrementalRestore(session, result.contextConfiguration);
         }
       } finally {
         stateLock.writeLock().unlock();
@@ -1712,7 +1736,8 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
     }
   }
 
-  private void postProcessIncrementalRestore(OContextConfiguration contextConfiguration)
+  private void postProcessIncrementalRestore(ODatabaseSessionInternal session,
+      OContextConfiguration contextConfiguration)
       throws IOException {
     if (OClusterBasedStorageConfiguration.exists(writeCache)) {
       configuration = new OClusterBasedStorageConfiguration(this);
@@ -1986,13 +2011,13 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
 
   @Override
   public @Nonnull ORawBuffer readRecord(
-      ORecordId iRid,
+      ODatabaseSessionInternal session, ORecordId iRid,
       boolean iIgnoreCache,
       boolean prefetchRecords,
       ORecordCallback<ORawBuffer> iCallback) {
 
     try {
-      return super.readRecord(iRid, iIgnoreCache, prefetchRecords, iCallback);
+      return super.readRecord(session, iRid, iIgnoreCache, prefetchRecords, iCallback);
     } finally {
       listeners.forEach(OEnterpriseStorageOperationListener::onRead);
     }
@@ -2062,5 +2087,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
       Locale serverLocale,
       OContextConfiguration contextConfiguration,
       String charset,
-      Locale locale) {}
+      Locale locale) {
+
+  }
 }

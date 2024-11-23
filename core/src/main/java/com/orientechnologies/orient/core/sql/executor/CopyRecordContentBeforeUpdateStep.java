@@ -14,8 +14,6 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
  *
  * <p>This is mainly used from statements that need to copy of the original data before modifying
  * it, eg. UPDATE ... RETURN BEFORE
- *
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class CopyRecordContentBeforeUpdateStep extends AbstractExecutionStep {
 

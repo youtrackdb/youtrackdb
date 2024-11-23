@@ -29,6 +29,7 @@ public class OClassIndexFinder implements OIndexFinder {
 
   private PrePath findPrePath(OPath path, OCommandContext ctx) {
     List<String> rawPath = path.getPath();
+    var db = ctx.getDatabase();
     String lastP = rawPath.remove(rawPath.size() - 1);
     PrePath cand =
         new PrePath() {
@@ -43,7 +44,7 @@ public class OClassIndexFinder implements OIndexFinder {
       OProperty prop = cand.cl.getProperty(ele);
       if (prop != null) {
         OClass linkedClass = prop.getLinkedClass();
-        Collection<OIndex> indexes = prop.getAllIndexes();
+        Collection<OIndex> indexes = prop.getAllIndexes(db);
         if (prop.getType().isLink() && linkedClass != null) {
           boolean found = false;
           for (OIndex index : indexes) {
@@ -88,7 +89,7 @@ public class OClassIndexFinder implements OIndexFinder {
 
     OProperty prop = cl.getProperty(last);
     if (prop != null) {
-      Collection<OIndex> indexes = prop.getAllIndexes();
+      Collection<OIndex> indexes = prop.getAllIndexes(ctx.getDatabase());
       for (OIndex index : indexes) {
         if (index.getInternal().canBeUsedInEqualityOperators()) {
           if (cand.isPresent()) {
@@ -117,7 +118,7 @@ public class OClassIndexFinder implements OIndexFinder {
     OProperty prop = cl.getProperty(last);
     if (prop != null) {
       if (prop.getType() == OType.EMBEDDEDMAP) {
-        Collection<OIndex> indexes = prop.getAllIndexes();
+        Collection<OIndex> indexes = prop.getAllIndexes(ctx.getDatabase());
         for (OIndex index : indexes) {
           if (index.getInternal().canBeUsedInEqualityOperators()) {
             OIndexDefinition def = index.getDefinition();
@@ -152,7 +153,7 @@ public class OClassIndexFinder implements OIndexFinder {
 
     OProperty prop = cl.getProperty(last);
     if (prop != null) {
-      Collection<OIndex> indexes = prop.getAllIndexes();
+      Collection<OIndex> indexes = prop.getAllIndexes(ctx.getDatabase());
       for (OIndex index : indexes) {
         if (index.getInternal().canBeUsedInEqualityOperators()
             && index.supportsOrderedIterations()) {
@@ -182,7 +183,7 @@ public class OClassIndexFinder implements OIndexFinder {
     OProperty prop = cl.getProperty(last);
     if (prop != null) {
       if (prop.getType() == OType.EMBEDDEDMAP) {
-        Collection<OIndex> indexes = prop.getAllIndexes();
+        Collection<OIndex> indexes = prop.getAllIndexes(ctx.getDatabase());
         for (OIndex index : indexes) {
           OIndexDefinition def = index.getDefinition();
           if (index.getInternal().canBeUsedInEqualityOperators()) {
@@ -217,7 +218,7 @@ public class OClassIndexFinder implements OIndexFinder {
 
     OProperty prop = cl.getProperty(last);
     if (prop != null) {
-      Collection<OIndex> indexes = prop.getAllIndexes();
+      Collection<OIndex> indexes = prop.getAllIndexes(ctx.getDatabase());
       for (OIndex index : indexes) {
         if (OClass.INDEX_TYPE.FULLTEXT.name().equalsIgnoreCase(index.getType())
             && !index.getAlgorithm().equalsIgnoreCase("LUCENE")) {

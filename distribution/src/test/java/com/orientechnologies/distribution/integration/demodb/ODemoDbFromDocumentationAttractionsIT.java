@@ -9,7 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by santo-it on 2017-08-28.
+ *
  */
 public class ODemoDbFromDocumentationAttractionsIT extends OIntegrationTestTemplate {
 

@@ -10,29 +10,22 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Test;
 
-/**
- * Created by tglman on 01/06/16.
- */
 public class HookReadTest extends BaseMemoryDatabase {
-
-  public void beforeTests() {
-    super.beforeTest();
-    db.getMetadata().getSchema().createClass("TestClass");
-  }
 
   @Test
   public void testSelectChangedInHook() {
     db.registerHook(
         new ORecordHook() {
           @Override
-          public void onUnregister() {}
+          public void onUnregister() {
+          }
 
           @Override
           public RESULT onTrigger(TYPE iType, ORecord iRecord) {
             if (iType == TYPE.AFTER_READ
                 && !((ODocument) iRecord)
-                    .getClassName()
-                    .equalsIgnoreCase(OSecurityPolicy.class.getSimpleName())) {
+                .getClassName()
+                .equalsIgnoreCase(OSecurityPolicy.class.getSimpleName())) {
               ((ODocument) iRecord).field("read", "test");
             }
             return RESULT.RECORD_CHANGED;
@@ -49,7 +42,9 @@ public class HookReadTest extends BaseMemoryDatabase {
     db.save(new ODocument("TestClass"));
     db.commit();
 
+    db.begin();
     OResultSet res = db.query("select from TestClass");
     assertEquals(res.next().getProperty("read"), "test");
+    db.commit();
   }
 }

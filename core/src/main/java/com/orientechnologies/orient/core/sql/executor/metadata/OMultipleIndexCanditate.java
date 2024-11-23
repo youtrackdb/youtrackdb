@@ -15,7 +15,8 @@ public class OMultipleIndexCanditate implements OIndexCandidate {
 
   public final List<OIndexCandidate> canditates = new ArrayList<OIndexCandidate>();
 
-  public OMultipleIndexCanditate() {}
+  public OMultipleIndexCanditate() {
+  }
 
   private OMultipleIndexCanditate(Collection<OIndexCandidate> canditates) {
     this.canditates.addAll(canditates);

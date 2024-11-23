@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,18 +14,17 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.common.log.OLogManager;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 
 /**
  * Progress listener for index rebuild.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OIndexRebuildOutputListener implements OProgressListener {
 
@@ -96,8 +95,9 @@ public class OIndexRebuildOutputListener implements OProgressListener {
   }
 
   @Override
-  public void onCompletition(final Object iTask, final boolean iSucceed) {
-    final long idxSize = idx.getInternal().size();
+  public void onCompletition(ODatabaseSessionInternal session, final Object iTask,
+      final boolean iSucceed) {
+    final long idxSize = idx.getInternal().size(session);
 
     if (idxSize > 0) {
       if (rebuild) {

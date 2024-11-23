@@ -13,7 +13,6 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 /**
- * @author Matan Shukry (matanshukry@gmail.com)
  * @since 3/5/2015
  */
 @Test(groups = "SqlSequence")

@@ -17,7 +17,8 @@ public class OServerCommandGetSSO extends OServerCommandAbstract {
     return NAMES;
   }
 
-  public OServerCommandGetSSO() {}
+  public OServerCommandGetSSO() {
+  }
 
   @Override
   public boolean execute(final OHttpRequest iRequest, final OHttpResponse iResponse)

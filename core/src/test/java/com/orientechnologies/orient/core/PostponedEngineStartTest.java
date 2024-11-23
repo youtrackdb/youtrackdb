@@ -1,6 +1,4 @@
 /*
- *
- *  *  Copyright 2016 OrientDB LTD (info(at)orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +12,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  */
 
 package com.orientechnologies.orient.core;
@@ -24,7 +22,8 @@ import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
-import com.orientechnologies.orient.core.db.OrientDBInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -56,11 +55,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * @author Sergey Sitnikov
+ *
  */
 public class PostponedEngineStartTest {
 
-  private static Orient ORIENT;
+  private static Oxygen OXYGEN;
 
   private static OEngine ENGINE1;
   private static OEngine ENGINE2;
@@ -68,31 +67,31 @@ public class PostponedEngineStartTest {
 
   @BeforeClass
   public static void before() {
-    ORIENT =
-        new Orient(false) {
+    OXYGEN =
+        new Oxygen(false) {
           @Override
-          public Orient startup() {
-            ORIENT.registerEngine(ENGINE1 = new NamedEngine("engine1"));
-            ORIENT.registerEngine(ENGINE2 = new NamedEngine("engine2"));
-            ORIENT.registerEngine(FAULTY_ENGINE = new FaultyEngine());
+          public Oxygen startup() {
+            OXYGEN.registerEngine(ENGINE1 = new NamedEngine("engine1"));
+            OXYGEN.registerEngine(ENGINE2 = new NamedEngine("engine2"));
+            OXYGEN.registerEngine(FAULTY_ENGINE = new FaultyEngine());
             return this;
           }
 
           @Override
-          public Orient shutdown() {
+          public Oxygen shutdown() {
             ODatabaseDocumentTx.closeAll();
             return this;
           }
         };
 
-    ORIENT.startup();
+    OXYGEN.startup();
   }
 
   @Test
   public void test() {
     // XXX: There is a known problem in TestNG runner with hardly controllable test methods
     // interleaving from different
-    // test classes. This test case touches internals of OrientDB runtime, interleaving with foreign
+    // test classes. This test case touches internals of OxygenDB runtime, interleaving with foreign
     // methods is not acceptable
     // here. So I just invoke "test" methods manually from a single test method.
     //
@@ -115,42 +114,42 @@ public class PostponedEngineStartTest {
 
   // @Test
   public void testEngineShouldNotStartAtRuntimeStart() {
-    final OEngine engine = ORIENT.getEngine(ENGINE1.getName());
+    final OEngine engine = OXYGEN.getEngine(ENGINE1.getName());
     Assert.assertFalse(engine.isRunning());
   }
 
   // @Test(dependsOnMethods = "testEngineShouldNotStartAtRuntimeStart")
   public void testGetEngineIfRunningShouldReturnNullEngineIfNotRunning() {
-    final OEngine engine = ORIENT.getEngineIfRunning(ENGINE1.getName());
+    final OEngine engine = OXYGEN.getEngineIfRunning(ENGINE1.getName());
     Assert.assertNull(engine);
   }
 
   // @Test(dependsOnMethods = "testGetEngineIfRunningShouldReturnNullEngineIfNotRunning")
   public void testGetRunningEngineShouldStartEngine() {
-    final OEngine engine = ORIENT.getRunningEngine(ENGINE1.getName());
+    final OEngine engine = OXYGEN.getRunningEngine(ENGINE1.getName());
     Assert.assertNotNull(engine);
     Assert.assertTrue(engine.isRunning());
   }
 
   // @Test(dependsOnMethods = "testGetRunningEngineShouldStartEngine")
   public void testEngineRestart() {
-    OEngine engine = ORIENT.getRunningEngine(ENGINE1.getName());
+    OEngine engine = OXYGEN.getRunningEngine(ENGINE1.getName());
     engine.shutdown();
     Assert.assertFalse(engine.isRunning());
 
-    engine = ORIENT.getEngineIfRunning(ENGINE1.getName());
+    engine = OXYGEN.getEngineIfRunning(ENGINE1.getName());
     Assert.assertNull(engine);
 
-    engine = ORIENT.getEngine(ENGINE1.getName());
+    engine = OXYGEN.getEngine(ENGINE1.getName());
     Assert.assertFalse(engine.isRunning());
 
-    engine = ORIENT.getRunningEngine(ENGINE1.getName());
+    engine = OXYGEN.getRunningEngine(ENGINE1.getName());
     Assert.assertTrue(engine.isRunning());
   }
 
   // @Test
   public void testStoppedEngineShouldStartAndCreateStorage() {
-    OEngine engine = ORIENT.getEngineIfRunning(ENGINE2.getName());
+    OEngine engine = OXYGEN.getEngineIfRunning(ENGINE2.getName());
     Assert.assertNull(engine);
 
     final OStorage storage =
@@ -163,7 +162,7 @@ public class PostponedEngineStartTest {
 
     Assert.assertNotNull(storage);
 
-    engine = ORIENT.getRunningEngine(ENGINE2.getName());
+    engine = OXYGEN.getRunningEngine(ENGINE2.getName());
     Assert.assertTrue(engine.isRunning());
   }
 
@@ -176,7 +175,7 @@ public class PostponedEngineStartTest {
     //      }
     //    });
     try {
-      ORIENT.getRunningEngine("unknown engine");
+      OXYGEN.getRunningEngine("unknown engine");
       Assert.fail();
     } catch (Exception e) {
       // exception expected
@@ -185,7 +184,7 @@ public class PostponedEngineStartTest {
 
   // @Test(expected = IllegalStateException.class)
   public void testGetRunningEngineShouldThrowIfEngineIsUnableToStart() {
-    OEngine engine = ORIENT.getEngine(FAULTY_ENGINE.getName());
+    OEngine engine = OXYGEN.getEngine(FAULTY_ENGINE.getName());
     Assert.assertNotNull(engine);
 
     //    Assert.assertThrows(IllegalStateException.class, new Assert.ThrowingRunnable() {
@@ -196,9 +195,9 @@ public class PostponedEngineStartTest {
     //    });
     try {
 
-      ORIENT.getRunningEngine(FAULTY_ENGINE.getName());
+      OXYGEN.getRunningEngine(FAULTY_ENGINE.getName());
 
-      engine = ORIENT.getEngine(FAULTY_ENGINE.getName());
+      engine = OXYGEN.getEngine(FAULTY_ENGINE.getName());
       Assert.assertNull(engine);
       Assert.fail();
     } catch (Exception e) {
@@ -225,7 +224,7 @@ public class PostponedEngineStartTest {
         long maxWalSegSize,
         long doubleWriteLogMaxSegSize,
         int storageId,
-        OrientDBInternal context) {
+        OxygenDBInternal context) {
       return new OStorage() {
 
         @Override
@@ -244,10 +243,11 @@ public class PostponedEngineStartTest {
             InputStream in,
             Map<String, Object> options,
             Callable<Object> callable,
-            OCommandOutputListener iListener) {}
+            OCommandOutputListener iListener) {
+        }
 
         @Override
-        public String getClusterName(int clusterId) {
+        public String getClusterName(ODatabaseSessionInternal database, int clusterId) {
           return null;
         }
 
@@ -263,10 +263,12 @@ public class PostponedEngineStartTest {
 
         @Override
         public void open(
-            String iUserName, String iUserPassword, OContextConfiguration contextConfiguration) {}
+            String iUserName, String iUserPassword, OContextConfiguration contextConfiguration) {
+        }
 
         @Override
-        public void create(OContextConfiguration contextConfiguration) {}
+        public void create(OContextConfiguration contextConfiguration) {
+        }
 
         @Override
         public boolean exists() {
@@ -274,16 +276,20 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public void reload() {}
+        public void reload(ODatabaseSessionInternal database) {
+        }
 
         @Override
-        public void delete() {}
+        public void delete() {
+        }
 
         @Override
-        public void close() {}
+        public void close() {
+        }
 
         @Override
-        public void close(boolean iForce) {}
+        public void close(boolean iForce) {
+        }
 
         @Override
         public boolean isClosed() {
@@ -292,7 +298,7 @@ public class PostponedEngineStartTest {
 
         @Override
         public @Nonnull ORawBuffer readRecord(
-            ORecordId iRid,
+            ODatabaseSessionInternal session, ORecordId iRid,
             boolean iIgnoreCache,
             boolean prefetchRecords,
             ORecordCallback<ORawBuffer> iCallback) {
@@ -300,18 +306,19 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public boolean recordExists(ORID rid) {
+        public boolean recordExists(ODatabaseSessionInternal session, ORID rid) {
           return false;
         }
 
         @Override
-        public ORecordMetadata getRecordMetadata(ORID rid) {
+        public ORecordMetadata getRecordMetadata(ODatabaseSessionInternal session, ORID rid) {
           return null;
         }
 
         @Override
         public boolean cleanOutRecord(
-            ORecordId recordId, int recordVersion, int iMode, ORecordCallback<Boolean> callback) {
+            ODatabaseSessionInternal session, ORecordId recordId, int recordVersion, int iMode,
+            ORecordCallback<Boolean> callback) {
           return false;
         }
 
@@ -341,22 +348,24 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public int addCluster(String iClusterName, Object... iParameters) {
+        public int addCluster(ODatabaseSessionInternal database, String iClusterName,
+            Object... iParameters) {
           return 0;
         }
 
         @Override
-        public int addCluster(String iClusterName, int iRequestedId) {
+        public int addCluster(ODatabaseSessionInternal database, String iClusterName,
+            int iRequestedId) {
           return 0;
         }
 
         @Override
-        public boolean dropCluster(String iClusterName) {
+        public boolean dropCluster(ODatabaseSessionInternal session, String iClusterName) {
           return false;
         }
 
         @Override
-        public boolean dropCluster(int iId) {
+        public boolean dropCluster(ODatabaseSessionInternal database, int iId) {
           return false;
         }
 
@@ -406,32 +415,34 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public long count(int iClusterId) {
+        public long count(ODatabaseSessionInternal session, int iClusterId) {
           return 0;
         }
 
         @Override
-        public long count(int iClusterId, boolean countTombstones) {
+        public long count(ODatabaseSessionInternal session, int iClusterId,
+            boolean countTombstones) {
           return 0;
         }
 
         @Override
-        public long count(int[] iClusterIds) {
+        public long count(ODatabaseSessionInternal session, int[] iClusterIds) {
           return 0;
         }
 
         @Override
-        public long count(int[] iClusterIds, boolean countTombstones) {
+        public long count(ODatabaseSessionInternal session, int[] iClusterIds,
+            boolean countTombstones) {
           return 0;
         }
 
         @Override
-        public long getSize() {
+        public long getSize(ODatabaseSessionInternal session) {
           return 0;
         }
 
         @Override
-        public long countRecords() {
+        public long countRecords(ODatabaseSessionInternal session) {
           return 0;
         }
 
@@ -441,7 +452,8 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public void setDefaultClusterId(int defaultClusterId) {}
+        public void setDefaultClusterId(int defaultClusterId) {
+        }
 
         @Override
         public int getClusterIdByName(String iClusterName) {
@@ -474,39 +486,40 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public void synch() {}
+        public void synch() {
+        }
 
         @Override
-        public Object command(OCommandRequestText iCommand) {
+        public Object command(ODatabaseSessionInternal database, OCommandRequestText iCommand) {
           return null;
         }
 
         @Override
-        public long[] getClusterDataRange(int currentClusterId) {
+        public long[] getClusterDataRange(ODatabaseSessionInternal session, int currentClusterId) {
           return new long[0];
         }
 
         @Override
         public OPhysicalPosition[] higherPhysicalPositions(
-            int clusterId, OPhysicalPosition physicalPosition) {
+            ODatabaseSessionInternal session, int clusterId, OPhysicalPosition physicalPosition) {
           return new OPhysicalPosition[0];
         }
 
         @Override
         public OPhysicalPosition[] lowerPhysicalPositions(
-            int clusterId, OPhysicalPosition physicalPosition) {
+            ODatabaseSessionInternal session, int clusterId, OPhysicalPosition physicalPosition) {
           return new OPhysicalPosition[0];
         }
 
         @Override
         public OPhysicalPosition[] ceilingPhysicalPositions(
-            int clusterId, OPhysicalPosition physicalPosition) {
+            ODatabaseSessionInternal session, int clusterId, OPhysicalPosition physicalPosition) {
           return new OPhysicalPosition[0];
         }
 
         @Override
         public OPhysicalPosition[] floorPhysicalPositions(
-            int clusterId, OPhysicalPosition physicalPosition) {
+            ODatabaseSessionInternal session, int clusterId, OPhysicalPosition physicalPosition) {
           return new OPhysicalPosition[0];
         }
 
@@ -556,10 +569,12 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public void setConflictStrategy(ORecordConflictStrategy iResolver) {}
+        public void setConflictStrategy(ORecordConflictStrategy iResolver) {
+        }
 
         @Override
-        public String incrementalBackup(String backupDirectory, OCallable<Void, Void> started) {
+        public String incrementalBackup(ODatabaseSessionInternal session, String backupDirectory,
+            OCallable<Void, Void> started) {
           return null;
         }
 
@@ -570,62 +585,83 @@ public class PostponedEngineStartTest {
 
         @Override
         public void fullIncrementalBackup(final OutputStream stream)
-            throws UnsupportedOperationException {}
+            throws UnsupportedOperationException {
+        }
 
         @Override
-        public void restoreFromIncrementalBackup(String filePath) {}
+        public void restoreFromIncrementalBackup(ODatabaseSessionInternal session,
+            String filePath) {
+        }
 
         @Override
-        public void restoreFullIncrementalBackup(final InputStream stream)
-            throws UnsupportedOperationException {}
+        public void restoreFullIncrementalBackup(ODatabaseSessionInternal session,
+            final InputStream stream)
+            throws UnsupportedOperationException {
+        }
 
         @Override
-        public void shutdown() {}
+        public void shutdown() {
+        }
 
         @Override
-        public void setSchemaRecordId(String schemaRecordId) {}
+        public void setSchemaRecordId(String schemaRecordId) {
+        }
 
         @Override
-        public void setDateFormat(String dateFormat) {}
+        public void setDateFormat(String dateFormat) {
+        }
 
         @Override
-        public void setTimeZone(TimeZone timeZoneValue) {}
+        public void setTimeZone(TimeZone timeZoneValue) {
+        }
 
         @Override
-        public void setLocaleLanguage(String locale) {}
+        public void setLocaleLanguage(String locale) {
+        }
 
         @Override
-        public void setCharset(String charset) {}
+        public void setCharset(String charset) {
+        }
 
         @Override
-        public void setIndexMgrRecordId(String indexMgrRecordId) {}
+        public void setIndexMgrRecordId(String indexMgrRecordId) {
+        }
 
         @Override
-        public void setDateTimeFormat(String dateTimeFormat) {}
+        public void setDateTimeFormat(String dateTimeFormat) {
+        }
 
         @Override
-        public void setLocaleCountry(String localeCountry) {}
+        public void setLocaleCountry(String localeCountry) {
+        }
 
         @Override
-        public void setClusterSelection(String clusterSelection) {}
+        public void setClusterSelection(String clusterSelection) {
+        }
 
         @Override
-        public void setMinimumClusters(int minimumClusters) {}
+        public void setMinimumClusters(int minimumClusters) {
+        }
 
         @Override
-        public void setValidation(boolean validation) {}
+        public void setValidation(boolean validation) {
+        }
 
         @Override
-        public void removeProperty(String property) {}
+        public void removeProperty(String property) {
+        }
 
         @Override
-        public void setProperty(String property, String value) {}
+        public void setProperty(String property, String value) {
+        }
 
         @Override
-        public void setRecordSerializer(String recordSerializer, int version) {}
+        public void setRecordSerializer(String recordSerializer, int version) {
+        }
 
         @Override
-        public void clearProperties() {}
+        public void clearProperties() {
+        }
 
         @Override
         public int[] getClustersIds(Set<String> filterClusters) {
@@ -633,7 +669,7 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public OrientDBInternal getContext() {
+        public OxygenDBInternal getContext() {
           return null;
         }
       };
@@ -664,7 +700,7 @@ public class PostponedEngineStartTest {
         long maxWalSegSize,
         long doubleWriteLogMaxSegSize,
         int storageId,
-        OrientDBInternal context) {
+        OxygenDBInternal context) {
       throw new UnsupportedOperationException();
     }
 

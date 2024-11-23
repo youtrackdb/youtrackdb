@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.functions.misc;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
 import com.orientechnologies.orient.core.util.ODateHelper;
@@ -30,7 +31,6 @@ import java.util.TimeZone;
 /**
  * Returns the current date time.
  *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @see OSQLFunctionDate
  */
 public class OSQLFunctionSysdate extends OSQLFunctionAbstract {
@@ -74,7 +74,7 @@ public class OSQLFunctionSysdate extends OSQLFunctionAbstract {
     return false;
   }
 
-  public String getSyntax() {
+  public String getSyntax(ODatabaseSession session) {
     return "sysdate([<format>] [,<timezone>])";
   }
 

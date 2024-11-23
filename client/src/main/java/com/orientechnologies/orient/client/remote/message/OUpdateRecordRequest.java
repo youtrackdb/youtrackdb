@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.client.remote.message;
@@ -23,10 +23,12 @@ import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryAsyncRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
@@ -37,7 +39,7 @@ public class OUpdateRecordRequest implements OBinaryAsyncRequest<OUpdateRecordRe
 
   private ORecordId rid;
   private byte[] rawContent;
-  private ORecord content;
+  private ORecordAbstract content;
   private int version;
   private boolean updateContent = true;
   private byte recordType;
@@ -53,7 +55,8 @@ public class OUpdateRecordRequest implements OBinaryAsyncRequest<OUpdateRecordRe
   }
 
   public OUpdateRecordRequest(
-      ORecordId iRid, ORecord iContent, int iVersion, boolean updateContent, byte iRecordType) {
+      ORecordId iRid, ORecordAbstract iContent, int iVersion, boolean updateContent,
+      byte iRecordType) {
     this.rid = iRid;
     this.version = iVersion;
     this.updateContent = updateContent;
@@ -61,7 +64,8 @@ public class OUpdateRecordRequest implements OBinaryAsyncRequest<OUpdateRecordRe
     this.recordType = iRecordType;
   }
 
-  public OUpdateRecordRequest() {}
+  public OUpdateRecordRequest() {
+  }
 
   @Override
   public byte getCommand() {
@@ -85,14 +89,15 @@ public class OUpdateRecordRequest implements OBinaryAsyncRequest<OUpdateRecordRe
     mode = channel.readByte();
 
     content =
-        Orient.instance()
+        Oxygen.instance()
             .getRecordFactoryManager()
             .newInstance(recordType, rid, ODatabaseRecordThreadLocal.instance().getIfDefined());
     serializer.fromStream(bts, content, null);
   }
 
   @Override
-  public void write(final OChannelDataOutput network, final OStorageRemoteSession session)
+  public void write(ODatabaseSessionInternal database, final OChannelDataOutput network,
+      final OStorageRemoteSession session)
       throws IOException {
     network.writeRID(rid);
     network.writeBoolean(updateContent);

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,19 +14,16 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import java.io.IOException;
 
 /**
  * Remote server controller. It handles the communication with remote servers in HA configuration.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ORemoteServerController {
 
@@ -121,15 +118,4 @@ public class ORemoteServerController {
     return protocolVersion;
   }
 
-  public void sendBinaryRequest(OBinaryRequest<?> request) {
-    int idx;
-    synchronized (requestChannels) {
-      requestChannelIndex++;
-      if (requestChannelIndex < 0) {
-        requestChannelIndex = 0;
-      }
-      idx = requestChannelIndex % requestChannels.length;
-    }
-    requestChannels[idx].sendBinaryRequest(request);
-  }
 }

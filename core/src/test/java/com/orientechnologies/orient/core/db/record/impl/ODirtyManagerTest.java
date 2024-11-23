@@ -22,7 +22,8 @@ import org.junit.Test;
 
 public class ODirtyManagerTest {
 
-  public ODirtyManagerTest() {}
+  public ODirtyManagerTest() {
+  }
 
   @Test
   public void testBasic() {
@@ -350,8 +351,8 @@ public class ODirtyManagerTest {
     list.add(link);
     doc.field("list", list, OType.LINKLIST);
     ODocument[] linkeds =
-        new ODocument[] {
-          new ODocument().field("name", "linked2"), new ODocument().field("name", "linked3")
+        new ODocument[]{
+            new ODocument().field("name", "linked2"), new ODocument().field("name", "linked3")
         };
     doc.field("linkeds", linkeds, OType.LINKLIST);
 

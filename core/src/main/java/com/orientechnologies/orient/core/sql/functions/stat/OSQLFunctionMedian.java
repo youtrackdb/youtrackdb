@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,17 +14,17 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.functions.stat;
+
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 
 /**
  * Computes the median for a field. Nulls are ignored in the calculation.
  *
  * <p>Extends and forces the {@link OSQLFunctionPercentile} with the 50th percentile.
- *
- * @author Fabrizio Fortino
  */
 public class OSQLFunctionMedian extends OSQLFunctionPercentile {
 
@@ -36,7 +36,7 @@ public class OSQLFunctionMedian extends OSQLFunctionPercentile {
   }
 
   @Override
-  public String getSyntax() {
+  public String getSyntax(ODatabaseSession session) {
     return NAME + "(<field>)";
   }
 }

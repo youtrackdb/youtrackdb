@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OVertex;
 import java.util.List;
@@ -15,7 +15,7 @@ import org.junit.Test;
 
 public class OSQLFunctionDijkstraTest {
 
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
   private ODatabaseSession graph;
 
   private OVertex v1;
@@ -34,15 +34,15 @@ public class OSQLFunctionDijkstraTest {
   @After
   public void tearDown() throws Exception {
     graph.close();
-    orientDB.close();
+    oxygenDB.close();
   }
 
   private void setUpDatabase() {
-    orientDB =
+    oxygenDB =
         OCreateDatabaseUtil.createDatabase(
             "OSQLFunctionDijkstraTest", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
     graph =
-        orientDB.open("OSQLFunctionDijkstraTest", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        oxygenDB.open("OSQLFunctionDijkstraTest", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     graph.createEdgeClass("weight");
 
@@ -82,7 +82,7 @@ public class OSQLFunctionDijkstraTest {
 
     final List<OVertex> result =
         functionDijkstra.execute(
-            null, null, null, new Object[] {v1, v4, "'weight'"}, new OBasicCommandContext());
+            null, null, null, new Object[]{v1, v4, "'weight'"}, new OBasicCommandContext());
 
     assertEquals(4, result.size());
     assertEquals(v1, result.get(0));

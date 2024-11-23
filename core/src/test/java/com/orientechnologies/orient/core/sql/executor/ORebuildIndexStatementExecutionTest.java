@@ -11,7 +11,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author Luigi Dell'Aquila
+ *
  */
 public class ORebuildIndexStatementExecutionTest extends BaseMemoryDatabase {
 
@@ -22,9 +22,9 @@ public class ORebuildIndexStatementExecutionTest extends BaseMemoryDatabase {
     String className = "IndexClusterTest";
 
     OClass oclass = schema.createClass(className);
-    oclass.createProperty("key", OType.STRING);
-    oclass.createProperty("value", OType.INTEGER);
-    oclass.createIndex(className + "index1", OClass.INDEX_TYPE.NOTUNIQUE, "key");
+    oclass.createProperty(db, "key", OType.STRING);
+    oclass.createProperty(db, "value", OType.INTEGER);
+    oclass.createIndex(db, className + "index1", OClass.INDEX_TYPE.NOTUNIQUE, "key");
 
     db.begin();
     OElement ele = db.newInstance(className);
@@ -34,7 +34,7 @@ public class ORebuildIndexStatementExecutionTest extends BaseMemoryDatabase {
     db.commit();
 
     int clId = db.addCluster(className + "secondCluster");
-    oclass.addClusterId(clId);
+    oclass.addClusterId(db, clId);
 
     db.begin();
     OElement ele1 = db.newInstance(className);

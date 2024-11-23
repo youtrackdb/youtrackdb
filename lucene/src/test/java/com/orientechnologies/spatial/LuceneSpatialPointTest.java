@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,7 +9,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://www.orientdb.com
+ * <p>*
  */
 package com.orientechnologies.spatial;
 
@@ -30,7 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by Enrico Risa on 07/08/15.
+ *
  */
 public class LuceneSpatialPointTest extends BaseSpatialLuceneTest {
 
@@ -42,15 +40,15 @@ public class LuceneSpatialPointTest extends BaseSpatialLuceneTest {
     OSchema schema = db.getMetadata().getSchema();
     OClass v = schema.getClass("V");
     OClass oClass = schema.createClass("City");
-    oClass.setSuperClass(v);
-    oClass.createProperty("location", OType.EMBEDDED, schema.getClass("OPoint"));
-    oClass.createProperty("name", OType.STRING);
+    oClass.setSuperClass(db, v);
+    oClass.createProperty(db, "location", OType.EMBEDDED, schema.getClass("OPoint"));
+    oClass.createProperty(db, "name", OType.STRING);
 
     OClass place = schema.createClass("Place");
-    place.setSuperClass(v);
-    place.createProperty("latitude", OType.DOUBLE);
-    place.createProperty("longitude", OType.DOUBLE);
-    place.createProperty("name", OType.STRING);
+    place.setSuperClass(db, v);
+    place.createProperty(db, "latitude", OType.DOUBLE);
+    place.createProperty(db, "longitude", OType.DOUBLE);
+    place.createProperty(db, "name", OType.STRING);
 
     db.command("CREATE INDEX City.location ON City(location) SPATIAL ENGINE LUCENE").close();
 

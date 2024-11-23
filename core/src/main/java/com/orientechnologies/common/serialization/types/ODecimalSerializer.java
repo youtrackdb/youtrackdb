@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -28,7 +28,6 @@ import java.nio.ByteBuffer;
 /**
  * Serializer for {@link BigDecimal} type.
  *
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 03.04.12
  */
 public class ODecimalSerializer implements OBinarySerializer<BigDecimal> {
@@ -44,7 +43,7 @@ public class ODecimalSerializer implements OBinarySerializer<BigDecimal> {
   public int getObjectSize(byte[] stream, int startPosition) {
     return OIntegerSerializer.INT_SIZE
         + OBinaryTypeSerializer.INSTANCE.getObjectSize(
-            stream, startPosition + OIntegerSerializer.INT_SIZE);
+        stream, startPosition + OIntegerSerializer.INT_SIZE);
   }
 
   public void serialize(BigDecimal object, byte[] stream, int startPosition, Object... hints) {
@@ -70,7 +69,7 @@ public class ODecimalSerializer implements OBinarySerializer<BigDecimal> {
   public int getObjectSizeNative(final byte[] stream, final int startPosition) {
     return OIntegerSerializer.INT_SIZE
         + OBinaryTypeSerializer.INSTANCE.getObjectSizeNative(
-            stream, startPosition + OIntegerSerializer.INT_SIZE);
+        stream, startPosition + OIntegerSerializer.INT_SIZE);
   }
 
   @Override
@@ -177,6 +176,6 @@ public class ODecimalSerializer implements OBinarySerializer<BigDecimal> {
   public int getObjectSizeInByteBuffer(ByteBuffer buffer, OWALChanges walChanges, int offset) {
     return OIntegerSerializer.INT_SIZE
         + OBinaryTypeSerializer.INSTANCE.getObjectSizeInByteBuffer(
-            buffer, walChanges, offset + OIntegerSerializer.INT_SIZE);
+        buffer, walChanges, offset + OIntegerSerializer.INT_SIZE);
   }
 }

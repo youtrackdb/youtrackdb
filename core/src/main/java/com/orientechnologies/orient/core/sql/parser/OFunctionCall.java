@@ -4,6 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
@@ -143,7 +144,7 @@ public class OFunctionCall extends SimpleNode {
     if (function != null) {
       function.config(this.params.toArray());
 
-      validateFunctionParams(function, paramValues);
+      validateFunctionParams(ctx.getDatabase(), function, paramValues);
 
       if (record instanceof OIdentifiable) {
         return function.execute(
@@ -165,19 +166,21 @@ public class OFunctionCall extends SimpleNode {
     }
   }
 
-  private void validateFunctionParams(OSQLFunction function, List<Object> paramValues) {
-    if (function.getMaxParams() == -1 || function.getMaxParams() > 0) {
+  private static void validateFunctionParams(ODatabaseSession session, OSQLFunction function,
+      List<Object> paramValues) {
+    if (function.getMaxParams(session) == -1 || function.getMaxParams(session) > 0) {
       if (paramValues.size() < function.getMinParams()
-          || (function.getMaxParams() > -1 && paramValues.size() > function.getMaxParams())) {
+          || (function.getMaxParams(session) > -1 && paramValues.size() > function.getMaxParams(
+          session))) {
         String params;
-        if (function.getMinParams() == function.getMaxParams()) {
+        if (function.getMinParams() == function.getMaxParams(session)) {
           params = "" + function.getMinParams();
         } else {
-          params = function.getMinParams() + "-" + function.getMaxParams();
+          params = function.getMinParams() + "-" + function.getMaxParams(session);
         }
         throw new OCommandExecutionException(
             "Syntax error: function '"
-                + function.getName()
+                + function.getName(session)
                 + "' needs "
                 + params
                 + " argument(s) while has been received "
@@ -206,7 +209,7 @@ public class OFunctionCall extends SimpleNode {
     if (function instanceof OIndexableSQLFunction) {
       return ((OIndexableSQLFunction) function)
           .searchFromTarget(
-              target, operator, rightValue, ctx, this.params.toArray(new OExpression[] {}));
+              target, operator, rightValue, ctx, this.params.toArray(new OExpression[]{}));
     }
     return null;
   }
@@ -224,7 +227,7 @@ public class OFunctionCall extends SimpleNode {
     OSQLFunction function = OSQLEngine.getInstance().getFunction(name.getStringValue());
     if (function instanceof OIndexableSQLFunction) {
       return ((OIndexableSQLFunction) function)
-          .estimate(target, operator, rightValue, ctx, this.params.toArray(new OExpression[] {}));
+          .estimate(target, operator, rightValue, ctx, this.params.toArray(new OExpression[]{}));
     }
     return -1;
   }
@@ -246,7 +249,7 @@ public class OFunctionCall extends SimpleNode {
     if (function instanceof OIndexableSQLFunction) {
       return ((OIndexableSQLFunction) function)
           .canExecuteInline(
-              target, operator, right, context, this.params.toArray(new OExpression[] {}));
+              target, operator, right, context, this.params.toArray(new OExpression[]{}));
     }
     return false;
   }
@@ -267,7 +270,7 @@ public class OFunctionCall extends SimpleNode {
     if (function instanceof OIndexableSQLFunction) {
       return ((OIndexableSQLFunction) function)
           .allowsIndexedExecution(
-              target, operator, right, context, this.params.toArray(new OExpression[] {}));
+              target, operator, right, context, this.params.toArray(new OExpression[]{}));
     }
     return false;
   }
@@ -289,7 +292,7 @@ public class OFunctionCall extends SimpleNode {
     if (function instanceof OIndexableSQLFunction) {
       return ((OIndexableSQLFunction) function)
           .shouldExecuteAfterSearch(
-              target, operator, right, context, this.params.toArray(new OExpression[] {}));
+              target, operator, right, context, this.params.toArray(new OExpression[]{}));
     }
     return false;
   }

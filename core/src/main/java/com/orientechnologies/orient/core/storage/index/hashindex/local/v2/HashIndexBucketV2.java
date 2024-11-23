@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.storage.index.hashindex.local.v2;
@@ -34,7 +34,6 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 2/17/13
  */
 public final class HashIndexBucketV2<K, V> extends ODurablePage {

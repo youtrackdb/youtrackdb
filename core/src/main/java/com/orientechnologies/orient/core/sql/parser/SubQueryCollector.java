@@ -17,8 +17,6 @@ import java.util.Map;
  * select from foo<br> let $$$SUBQUERY$$_0 = (select name from bar)<br> where name in
  * $$$SUBQUERY$$_0
  * </code> <br>
- *
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class SubQueryCollector {
 

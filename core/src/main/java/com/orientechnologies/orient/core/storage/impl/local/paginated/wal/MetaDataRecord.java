@@ -7,7 +7,8 @@ public final class MetaDataRecord extends OAbstractWALRecord {
 
   private byte[] metadata;
 
-  public MetaDataRecord() {}
+  public MetaDataRecord() {
+  }
 
   public MetaDataRecord(final byte[] metadata) {
     this.metadata = metadata;

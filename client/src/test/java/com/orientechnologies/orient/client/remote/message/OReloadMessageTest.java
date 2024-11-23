@@ -6,8 +6,8 @@ import com.orientechnologies.orient.client.remote.message.push.OStorageConfigura
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import java.io.IOException;
 import org.junit.After;
@@ -16,20 +16,20 @@ import org.junit.Test;
 
 public class OReloadMessageTest {
 
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
   private ODatabaseSession session;
 
   @Before
   public void before() {
-    orientDB = new OrientDB("embedded:", OrientDBConfig.defaultConfig());
-    orientDB.execute("create database test memory users (admin identified by 'admin' role admin)");
-    session = orientDB.open("test", "admin", "admin");
+    oxygenDB = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
+    oxygenDB.execute("create database test memory users (admin identified by 'admin' role admin)");
+    session = oxygenDB.open("test", "admin", "admin");
   }
 
   @After
   public void after() {
     session.close();
-    orientDB.close();
+    oxygenDB.close();
   }
 
   @Test
@@ -38,7 +38,8 @@ public class OReloadMessageTest {
         ((ODatabaseSessionInternal) session).getStorage().getConfiguration();
     OReloadResponse37 responseWrite = new OReloadResponse37(configuration);
     MockChannel channel = new MockChannel();
-    responseWrite.write(channel, OChannelBinaryProtocol.CURRENT_PROTOCOL_VERSION, null);
+    responseWrite.write((ODatabaseSessionInternal) session, channel,
+        OChannelBinaryProtocol.CURRENT_PROTOCOL_VERSION, null);
     channel.close();
     OReloadResponse37 responseRead = new OReloadResponse37();
     responseRead.read(channel, null);

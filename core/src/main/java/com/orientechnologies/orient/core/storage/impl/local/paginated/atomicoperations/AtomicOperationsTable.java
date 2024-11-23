@@ -22,9 +22,9 @@ public class AtomicOperationsTable {
 
   public AtomicOperationsTable(final int tableCompactionInterval, final long idOffset) {
     this.tableCompactionInterval = tableCompactionInterval;
-    this.idOffsets = new long[] {idOffset};
+    this.idOffsets = new long[]{idOffset};
     //noinspection unchecked
-    tables = new CASObjectArray[] {new CASObjectArray<>()};
+    tables = new CASObjectArray[]{new CASObjectArray<>()};
   }
 
   public void startOperation(final long operationId, final long segment) {
@@ -226,9 +226,9 @@ public class AtomicOperationsTable {
 
       if (!tablesToRemove.isEmpty() && tables.length > 1) {
         if (tablesToRemove.size() == tables.length) {
-          this.idOffsets = new long[] {maxId + 1};
+          this.idOffsets = new long[]{maxId + 1};
           //noinspection unchecked
-          this.tables = new CASObjectArray[] {tables[0]};
+          this.tables = new CASObjectArray[]{tables[0]};
         } else {
           //noinspection unchecked
           CASObjectArray<OperationInformation>[] newTables =

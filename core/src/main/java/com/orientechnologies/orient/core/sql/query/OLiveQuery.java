@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2015 OrientDB LTD (info(at)orientdb.com)
+ *  *  Copyright 2015 OxygenDB LTD (info(at)orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.query;
@@ -26,6 +26,7 @@ import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 
@@ -44,12 +45,11 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
  * <br>
  * The callback passed as second parameter will be invoked every time a record is
  * created/updated/deleted and it matches the query conditions.
- *
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class OLiveQuery<T> extends OSQLSynchQuery<T> {
 
-  public OLiveQuery() {}
+  public OLiveQuery() {
+  }
 
   public OLiveQuery(String iText, final OLiveResultListener iResultListener) {
     super(iText);
@@ -57,7 +57,7 @@ public class OLiveQuery<T> extends OSQLSynchQuery<T> {
   }
 
   @Override
-  public <RET> RET execute(Object... iArgs) {
+  public <RET> RET execute(ODatabaseSessionInternal querySession, Object... iArgs) {
     ODatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().get();
     if (database.isRemote()) {
       BackwardOLiveQueryResultListener listener = new BackwardOLiveQueryResultListener();
@@ -69,7 +69,7 @@ public class OLiveQuery<T> extends OSQLSynchQuery<T> {
       result.add(doc);
       return (RET) result;
     }
-    return super.execute(iArgs);
+    return super.execute(querySession, iArgs);
   }
 
   private class BackwardOLiveQueryResultListener implements OLiveQueryResultListener {
@@ -79,19 +79,25 @@ public class OLiveQuery<T> extends OSQLSynchQuery<T> {
     @Override
     public void onCreate(ODatabaseSession database, OResult data) {
       ((OLocalLiveResultListener) getResultListener())
-          .onLiveResult(token, new ORecordOperation(data.toElement(), ORecordOperation.CREATED));
+          .onLiveResult(
+              token,
+              new ORecordOperation((ORecordAbstract) data.toElement(), ORecordOperation.CREATED));
     }
 
     @Override
     public void onUpdate(ODatabaseSession database, OResult before, OResult after) {
       ((OLocalLiveResultListener) getResultListener())
-          .onLiveResult(token, new ORecordOperation(after.toElement(), ORecordOperation.UPDATED));
+          .onLiveResult(
+              token,
+              new ORecordOperation((ORecordAbstract) after.toElement(), ORecordOperation.UPDATED));
     }
 
     @Override
     public void onDelete(ODatabaseSession database, OResult data) {
       ((OLocalLiveResultListener) getResultListener())
-          .onLiveResult(token, new ORecordOperation(data.toElement(), ORecordOperation.DELETED));
+          .onLiveResult(
+              token,
+              new ORecordOperation((ORecordAbstract) data.toElement(), ORecordOperation.DELETED));
     }
 
     @Override

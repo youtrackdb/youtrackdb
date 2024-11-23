@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,66 +14,43 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.record;
 
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import java.io.Serializable;
 
 /**
  * Generic record representation.
  */
-public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OSerializableStream {
-
-  /**
-   * Removes all the dependencies with other records. All the relationships remain in form of
-   * RecordID. If some links contain dirty records, the detach cannot be complete and this method
-   * returns false.
-   *
-   * @return True if the document has been successfully detached, otherwise false.
-   */
-  boolean detach();
-
-  /**
-   * Unloads current record. All information are lost but the record identity. At the next access
-   * the record will be auto-reloaded. Useful to free memory or to avoid to keep an old version of
-   * it.
-   *
-   * @return The Object instance itself giving a "fluent interface". Useful to call multiple methods
-   * in chain.
-   */
-  <RET extends ORecord> RET unload();
+public interface ORecord extends OIdentifiable, Serializable {
 
   /**
    * Returns true if the record is unloaded.
    *
    * @return true if the record is unloaded.
-   * @see #unload()
    */
   boolean isUnloaded();
 
   /**
-   * All the fields are deleted but the record identity is maintained. Use this to remove all the
-   * document's fields.
+   * Returns <code>true</code> if record is bound to the passed in session.
    *
-   * @return The Object instance itself giving a "fluent interface". Useful to call multiple methods
-   * in chain.
+   * @param session The session to check
+   * @return <code>true</code> if record is bound to the passed in session.
+   * @see ODatabaseSession#bindToSession(OIdentifiable)
    */
-  <RET extends ORecord> RET clear();
+  boolean isNotBound(ODatabaseSession session);
 
   /**
-   * Creates a copy of the record. All the record contents are copied.
-   *
-   * @return The Object instance itself giving a "fluent interface". Useful to call multiple methods
-   * in chain.
+   * All the fields are deleted but the record identity is maintained. Use this to remove all the
+   * document's fields.
    */
-  ORecord copy();
+  void clear();
 
   /**
    * Returns the record identity as &lt;cluster-id&gt;:&lt;cluster-position&gt;
@@ -104,25 +81,8 @@ public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OS
    * continue to see the record as modified, while others not. If a Pessimistic transaction is
    * running, then an exclusive lock is acquired against the record. Current transaction will
    * continue to see the record as modified, while others cannot access to it since it's locked.
-   *
-   * @return The Object instance itself giving a "fluent interface". Useful to call multiple methods
-   * in chain.
    */
-  <RET extends ORecord> RET save();
-
-  /**
-   * Saves in-memory changes to the database defining a specific cluster where to save it. Behavior
-   * depends by the current running transaction if any. If no transaction is running then changes
-   * apply immediately. If an Optimistic transaction is running then the record will be changed at
-   * commit time. The current transaction will continue to see the record as modified, while others
-   * not. If a Pessimistic transaction is running, then an exclusive lock is acquired against the
-   * record. Current transaction will continue to see the record as modified, while others cannot
-   * access to it since it's locked.
-   *
-   * @return The Object instance itself giving a "fluent interface". Useful to call multiple methods
-   * in chain.
-   */
-  <RET extends ORecord> RET save(String iCluster);
+  void save();
 
   /**
    * Deletes the record from the database. Behavior depends by the current running transaction if
@@ -138,10 +98,8 @@ public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OS
    * Fills the record parsing the content in JSON format.
    *
    * @param iJson Object content in JSON format
-   * @return The Object instance itself giving a "fluent interface". Useful to call multiple methods
-   * in chain.
    */
-  <RET extends ORecord> RET fromJSON(String iJson);
+  void fromJSON(String iJson);
 
   /**
    * Exports the record in JSON format.
@@ -167,27 +125,6 @@ public interface ORecord extends ORecordElement, OIdentifiable, Serializable, OS
    * @return Object content in JSON format
    */
   String toJSON(String iFormat);
-
-  /**
-   * Returns the size in bytes of the record. The size can be computed only for not new records.
-   *
-   * @return the size in bytes
-   */
-  int getSize();
-
-  /**
-   * Returns the current status of the record.
-   *
-   * @return Current status as value between the defined values in the enum {@link STATUS}
-   */
-  STATUS getInternalStatus();
-
-  /**
-   * Changes the current internal status.
-   *
-   * @param iStatus status between the values defined in the enum {@link STATUS}
-   */
-  void setInternalStatus(STATUS iStatus);
 
   /**
    * Checks if the record exists in the database. It adheres the same rules

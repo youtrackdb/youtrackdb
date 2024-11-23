@@ -1,7 +1,6 @@
 package com.orientechnologies.orient.core.storage.index.hashindex.local.v2;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 5/19/14
  */
 public class LocalHashTableV2WALTestIT {
@@ -23,7 +22,7 @@ public class LocalHashTableV2WALTestIT {
   //  private ODatabaseSession expectedDatabaseDocumentTx;
   //  private OWriteCache      expectedWriteCache;
   //
-  //  private OrientDB orientDB;
+  //  private OxygenDB oxygenDB;
   //
   //  @Before
   //  public void before() throws IOException {
@@ -34,13 +33,13 @@ public class LocalHashTableV2WALTestIT {
   //    final java.io.File buildDir = new java.io.File(buildDirectory);
   //    OFileUtils.deleteRecursively(buildDir);
   //
-  //    orientDB = new OrientDB("plocal:" + buildDirectory, OrientDBConfig.defaultConfig());
+  //    oxygenDB = new OxygenDB("plocal:" + buildDirectory, OxygenDBConfig.defaultConfig());
   //
-  //    orientDB.create(ACTUAL_DB_NAME, ODatabaseType.PLOCAL);
-  //    databaseDocumentTx = orientDB.open(ACTUAL_DB_NAME, "admin", "admin");
+  //    oxygenDB.create(ACTUAL_DB_NAME, ODatabaseType.PLOCAL);
+  //    databaseDocumentTx = oxygenDB.open(ACTUAL_DB_NAME, "admin", "admin");
   //
-  //    orientDB.create(EXPECTED_DB_NAME, ODatabaseType.PLOCAL);
-  //    expectedDatabaseDocumentTx = orientDB.open(EXPECTED_DB_NAME, "admin", "admin");
+  //    oxygenDB.create(EXPECTED_DB_NAME, ODatabaseType.PLOCAL);
+  //    expectedDatabaseDocumentTx = oxygenDB.open(EXPECTED_DB_NAME, "admin", "admin");
   //
   //    expectedStorage = ((OLocalPaginatedStorage) ((ODatabaseInternal)
   // expectedDatabaseDocumentTx).getStorage());
@@ -66,9 +65,9 @@ public class LocalHashTableV2WALTestIT {
   //
   //  @After
   //  public void after() {
-  //    orientDB.drop(ACTUAL_DB_NAME);
-  //    orientDB.drop(EXPECTED_DB_NAME);
-  //    orientDB.close();
+  //    oxygenDB.drop(ACTUAL_DB_NAME);
+  //    oxygenDB.drop(EXPECTED_DB_NAME);
+  //    oxygenDB.close();
   //  }
   //
   //  private void createActualHashTable() throws IOException {

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.index;
@@ -27,7 +27,6 @@ import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
-import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
 import com.orientechnologies.orient.core.dictionary.ODictionary;
 import com.orientechnologies.orient.core.id.ORID;
@@ -67,9 +66,6 @@ import java.util.stream.Stream;
 /**
  * Manages indexes at database level. A single instance is shared among multiple databases.
  * Contentions are managed by r/w locks.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
- * @author Artem Orobets added composite index managemement
  */
 public class OIndexManagerShared implements OIndexManagerAbstract {
 
@@ -105,46 +101,34 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
             new ORecordId(database.getStorageInfo().getConfiguration().getIndexMgrRecordId());
         // RELOAD IT
         ODocument document = database.load(identity, null, false);
-        fromStream(document);
+        fromStream(database, document);
         ORecordInternal.unsetDirty(document);
         document.unload();
       } finally {
-        releaseExclusiveLock();
+        releaseExclusiveLock(database);
       }
     }
   }
 
-  public void reload() {
+  public void reload(ODatabaseSessionInternal session) {
     acquireExclusiveLock();
     try {
-      ODatabaseSessionInternal database = getDatabase();
-      ODocument document = database.load(identity, null, false);
-      fromStream(document);
-      ORecordInternal.unsetDirty(document);
-      document.unload();
+      session.executeInTx(
+          () -> {
+            ODocument document = session.load(identity);
+            fromStream(session, document);
+          });
     } finally {
-      releaseExclusiveLock();
+      releaseExclusiveLock(session);
     }
   }
 
-  public void save() {
-
-    OScenarioThreadLocal.executeAsDistributed(
-        () -> {
-          acquireExclusiveLock();
-
-          try {
-            internalSave();
-
-            return null;
-
-          } finally {
-            releaseExclusiveLock();
-          }
-        });
+  public void save(ODatabaseSessionInternal session) {
+    internalSave(session);
   }
 
-  public void addClusterToIndex(final String clusterName, final String indexName) {
+  public void addClusterToIndex(ODatabaseSessionInternal session, final String clusterName,
+      final String indexName) {
     acquireSharedLock();
     try {
       final OIndex index = indexes.get(indexName);
@@ -166,14 +150,15 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
             "Index with name " + indexName + " has no internal presentation.");
       }
       if (!index.getInternal().getClusters().contains(clusterName)) {
-        index.getInternal().addCluster(clusterName);
+        index.getInternal().addCluster(session, clusterName);
       }
     } finally {
-      releaseExclusiveLock(true);
+      releaseExclusiveLock(session, true);
     }
   }
 
-  public void removeClusterFromIndex(final String clusterName, final String indexName) {
+  public void removeClusterFromIndex(ODatabaseSessionInternal session, final String clusterName,
+      final String indexName) {
     acquireSharedLock();
     try {
       final OIndex index = indexes.get(indexName);
@@ -189,9 +174,9 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
       if (index == null) {
         throw new OIndexException("Index with name " + indexName + " does not exist.");
       }
-      index.getInternal().removeCluster(clusterName);
+      index.getInternal().removeCluster(session, clusterName);
     } finally {
-      releaseExclusiveLock(true);
+      releaseExclusiveLock(session, true);
     }
   }
 
@@ -204,7 +189,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
       identity = document.getIdentity();
       database.getStorage().setIndexMgrRecordId(document.getIdentity().toString());
     } finally {
-      releaseExclusiveLock();
+      releaseExclusiveLock(database);
     }
   }
 
@@ -241,7 +226,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
     try {
       this.defaultClusterName = defaultClusterName;
     } finally {
-      releaseExclusiveLock();
+      releaseExclusiveLock(database);
     }
   }
 
@@ -260,11 +245,11 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
     return new ODictionary<>(idx);
   }
 
-  public ODocument getConfiguration() {
+  public ODocument getConfiguration(ODatabaseSessionInternal session) {
     acquireSharedLock();
 
     try {
-      return getDocument();
+      return getDocument(session);
     } finally {
       releaseSharedLock();
     }
@@ -425,34 +410,29 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
     lock.writeLock().lock();
   }
 
-  protected void releaseExclusiveLock() {
-    releaseExclusiveLock(false);
+  protected void releaseExclusiveLock(ODatabaseSessionInternal session) {
+    releaseExclusiveLock(session, false);
   }
 
-  protected void releaseExclusiveLock(boolean save) {
+  protected void releaseExclusiveLock(ODatabaseSessionInternal session, boolean save) {
     int val = writeLockNesting.decrementAndGet();
-    ODatabaseSessionInternal database = getDatabaseIfDefined();
     try {
-      if (val == 0 && database != null) {
+      if (val == 0) {
         if (save) {
-          OScenarioThreadLocal.executeAsDistributed(
-              () -> {
-                internalSave();
-                return null;
-              });
+          internalSave(session);
         }
       }
     } finally {
       internalReleaseExclusiveLock();
     }
-    if (val == 0 && database != null) {
-      database
+    if (val == 0) {
+      session
           .getSharedContext()
           .getSchema()
           .forceSnapshot(ODatabaseRecordThreadLocal.instance().get());
 
-      for (OMetadataUpdateListener listener : database.getSharedContext().browseListeners()) {
-        listener.onIndexManagerUpdate(database.getName(), this);
+      for (OMetadataUpdateListener listener : session.getSharedContext().browseListeners()) {
+        listener.onIndexManagerUpdate(session, session.getName(), this);
       }
     }
   }
@@ -470,30 +450,26 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
     }
   }
 
-  void clearMetadata() {
+  void clearMetadata(ODatabaseSessionInternal session) {
     acquireExclusiveLock();
     try {
       indexes.clear();
       classPropertyIndex.clear();
     } finally {
-      releaseExclusiveLock();
+      releaseExclusiveLock(session);
     }
-  }
-
-  protected static ODatabaseSessionInternal getDatabase() {
-    return ODatabaseRecordThreadLocal.instance().get();
   }
 
   private static ODatabaseSessionInternal getDatabaseIfDefined() {
     return ODatabaseRecordThreadLocal.instance().getIfDefined();
   }
 
-  void addIndexInternal(final OIndex index) {
+  void addIndexInternal(ODatabaseSessionInternal session, final OIndex index) {
     acquireExclusiveLock();
     try {
       addIndexInternalNoLock(index);
     } finally {
-      releaseExclusiveLock();
+      releaseExclusiveLock(session);
     }
   }
 
@@ -555,7 +531,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
       OIndex idx = getIndex(database, DICTIONARY_NAME);
       return idx != null ? idx : createDictionary(database);
     } finally {
-      releaseExclusiveLock(true);
+      releaseExclusiveLock(database, true);
     }
   }
 
@@ -711,12 +687,12 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
               -1,
               metadata);
 
-      index = createIndexFromMetadata(storage, im, progressListener);
+      index = createIndexFromMetadata(database, storage, im, progressListener);
 
-      addIndexInternal(index);
+      addIndexInternal(database, index);
 
     } finally {
-      releaseExclusiveLock(true);
+      releaseExclusiveLock(database, true);
       notifyInvolvedClasses(database, clusterIdsToIndex);
     }
 
@@ -724,7 +700,8 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
   }
 
   private OIndexInternal createIndexFromMetadata(
-      OStorage storage, OIndexMetadata indexMetadata, OProgressListener progressListener) {
+      ODatabaseSessionInternal session, OStorage storage, OIndexMetadata indexMetadata,
+      OProgressListener progressListener) {
 
     OIndexInternal index = OIndexes.createIndex(storage, indexMetadata);
     if (progressListener == null)
@@ -734,7 +711,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
     }
     indexes.put(index.getName(), index);
     try {
-      index.create(indexMetadata, true, progressListener);
+      index.create(session, indexMetadata, true, progressListener);
     } catch (Throwable e) {
       indexes.remove(index.getName());
       throw e;
@@ -782,8 +759,8 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
                   + indexClass
                   + "["
                   + (stream
-                      .map(OSecurityResourceProperty::getPropertyName)
-                      .collect(Collectors.joining(", ")))
+                  .map(OSecurityResourceProperty::getPropertyName)
+                  .collect(Collectors.joining(", ")))
                   + " because of existing column security rules");
         }
       }
@@ -801,7 +778,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
     for (int clusterId : clusterIdsToIndex) {
       final OClass cls = database.getMetadata().getSchema().getClassByClusterId(clusterId);
       if (cls instanceof OClassImpl && !classes.contains(cls.getName())) {
-        ((OClassImpl) cls).onPostIndexManagement();
+        ((OClassImpl) cls).onPostIndexManagement(database);
         classes.add(cls.getName());
       }
     }
@@ -857,13 +834,13 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
           }
         }
 
-        removeClassPropertyIndex(idx);
+        removeClassPropertyIndex(database, idx);
 
-        idx.delete();
+        idx.delete(database);
         indexes.remove(iIndexName);
       }
     } finally {
-      releaseExclusiveLock(true);
+      releaseExclusiveLock(database, true);
       notifyInvolvedClasses(database, clusterIdsToIndex);
     }
   }
@@ -871,10 +848,10 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
   /**
    * Binds POJO to ODocument.
    */
-  public ODocument toStream() {
+  public ODocument toStream(ODatabaseSessionInternal session) {
     internalAcquireExclusiveLock();
     try {
-      ODocument document = getDatabase().load(identity, null, false);
+      ODocument document = session.load(identity, null, false);
       final OTrackedSet<ODocument> indexes = new OTrackedSet<>(document);
 
       for (final OIndex i : this.indexes.values()) {
@@ -901,11 +878,11 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
       }
 
       Runnable recreateIndexesTask = new ORecreateIndexesTask(this, database.getSharedContext());
-      recreateIndexesThread = new Thread(recreateIndexesTask, "OrientDB rebuild indexes");
+      recreateIndexesThread = new Thread(recreateIndexesTask, "OxygenDB rebuild indexes");
       recreateIndexesThread.setUncaughtExceptionHandler(new OUncaughtExceptionHandler());
       recreateIndexesThread.start();
     } finally {
-      releaseExclusiveLock();
+      releaseExclusiveLock(database);
     }
 
     if (database
@@ -949,12 +926,12 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
     return false;
   }
 
-  protected void fromStream(ODocument document) {
+  protected void fromStream(ODatabaseSessionInternal session, ODocument document) {
     internalAcquireExclusiveLock();
     try {
       final Map<String, OIndex> oldIndexes = new HashMap<>(indexes);
+      clearMetadata(session);
 
-      clearMetadata();
       final Collection<ODocument> indexDocuments = document.field(CONFIG_INDEXES);
 
       if (indexDocuments != null) {
@@ -978,17 +955,17 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
 
               if (!(oldIndexMetadata.equals(newIndexMetadata)
                   || newIndexMetadata.getIndexDefinition() == null)) {
-                oldIndex.delete();
+                oldIndex.delete(session);
               }
 
-              if (index.loadFromConfiguration(d)) {
+              if (index.loadFromConfiguration(session, d)) {
                 addIndexInternalNoLock(index);
               } else {
                 indexConfigurationIterator.remove();
                 configUpdated = true;
               }
             } else {
-              if (index.loadFromConfiguration(d)) {
+              if (index.loadFromConfiguration(session, d)) {
                 addIndexInternalNoLock(index);
               } else {
                 indexConfigurationIterator.remove();
@@ -1010,7 +987,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
                     "Index '%s' was not found after reload and will be removed",
                     oldIndex.getName());
 
-            oldIndex.delete();
+            oldIndex.delete(session);
           } catch (Exception e) {
             OLogManager.instance()
                 .error(this, "Error on deletion of index '%s'", e, oldIndex.getName());
@@ -1019,7 +996,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
 
         if (configUpdated) {
           document.field(CONFIG_INDEXES, indexDocuments);
-          save();
+          save(session);
         }
       }
     } finally {
@@ -1027,7 +1004,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
     }
   }
 
-  public void removeClassPropertyIndex(final OIndex idx) {
+  public void removeClassPropertyIndex(ODatabaseSessionInternal session, final OIndex idx) {
     acquireExclusiveLock();
     try {
       final OIndexDefinition indexDefinition = idx.getDefinition();
@@ -1072,7 +1049,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
       }
 
     } finally {
-      releaseExclusiveLock();
+      releaseExclusiveLock(session);
     }
   }
 
@@ -1103,18 +1080,14 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
     return storage;
   }
 
-  public ODocument getDocument() {
-    return toStream();
+  public ODocument getDocument(ODatabaseSessionInternal session) {
+    return toStream(session);
   }
 
-  private void internalSave() {
-    var db = getDatabaseIfDefined();
-
-    if (db != null) {
-      db.begin();
-      ODocument document = toStream();
-      document.save();
-      db.commit();
-    }
+  private void internalSave(ODatabaseSessionInternal session) {
+    session.begin();
+    ODocument document = toStream(session);
+    document.save();
+    session.commit();
   }
 }

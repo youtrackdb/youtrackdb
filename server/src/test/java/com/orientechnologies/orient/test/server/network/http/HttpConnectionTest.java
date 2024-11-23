@@ -9,8 +9,6 @@ import org.junit.Test;
 
 /**
  * Tests HTTP "connect" command.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com) (l.garulli--at-orientdb.com)
  */
 public class HttpConnectionTest extends BaseHttpDatabaseTest {
 

@@ -7,10 +7,8 @@ import com.orientechnologies.orient.core.exception.OQueryParsingException;
 import java.lang.reflect.InvocationTargetException;
 
 /**
- * Enumeration with the error managed by OrientDB. This class has been introduced in v.2.2 and
- * little by little will contain all the OrientDB managed errors.
- *
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ * Enumeration with the error managed by OxygenDB. This class has been introduced in v.2.2 and
+ * little by little will contain all the OxygenDB managed errors.
  */
 public enum OErrorCode {
 
@@ -85,9 +83,9 @@ public enum OErrorCode {
       return OException.wrapException(
           exceptionClass.getConstructor(String.class).newInstance(fullMessage), parent);
     } catch (InstantiationException
-        | IllegalAccessException
-        | NoSuchMethodException
-        | InvocationTargetException e) {
+             | IllegalAccessException
+             | NoSuchMethodException
+             | InvocationTargetException e) {
       OLogManager.instance().warn(this, "Cannot instantiate exception " + exceptionClass);
     }
     return null;

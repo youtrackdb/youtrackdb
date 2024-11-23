@@ -6,6 +6,7 @@ import static org.mockito.Mockito.atLeastOnce;
 
 import com.orientechnologies.orient.core.command.OCommandResultListener;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHook;
 import com.orientechnologies.orient.core.query.live.OLiveQueryListener;
@@ -23,14 +24,17 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 /**
- * Created by tglman on 07/06/16.
+ *
  */
 public class OLiveCommandResultListenerTest extends BaseMemoryInternalDatabase {
 
-  @Mock private OServer server;
-  @Mock private OChannelBinaryServer channelBinary;
+  @Mock
+  private OServer server;
+  @Mock
+  private OChannelBinaryServer channelBinary;
 
-  @Mock private OLiveQueryListener rawListener;
+  @Mock
+  private OLiveQueryListener rawListener;
 
   private ONetworkProtocolBinary protocol;
   private OClientConnection connection;
@@ -38,12 +42,13 @@ public class OLiveCommandResultListenerTest extends BaseMemoryInternalDatabase {
   private static class TestResultListener implements OCommandResultListener {
 
     @Override
-    public boolean result(Object iRecord) {
+    public boolean result(ODatabaseSessionInternal querySession, Object iRecord) {
       return false;
     }
 
     @Override
-    public void end() {}
+    public void end() {
+    }
 
     @Override
     public Object getResult() {

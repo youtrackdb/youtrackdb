@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2017 OrientDB LTD (info(at)orientdb.com)
+ *  *  Copyright 2017 OxygenDB LTD (info(at)orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.db.tool;
@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * @author Luigi Dell'Aquila (l.dellaquila -at- orientdb.com)
+ *
  */
 public class OCheckIndexTool extends ODatabaseTool {
 
@@ -56,7 +56,8 @@ public class OCheckIndexTool extends ODatabaseTool {
   private long totalErrors = 0;
 
   @Override
-  protected void parseSetting(String option, List<String> items) {}
+  protected void parseSetting(String option, List<String> items) {
+  }
 
   @Override
   public void run() {
@@ -161,7 +162,7 @@ public class OCheckIndexTool extends ODatabaseTool {
     }
 
     for (final Object key : indexKeys) {
-      try (final Stream<ORID> stream = index.getInternal().getRids(key)) {
+      try (final Stream<ORID> stream = index.getInternal().getRids(session, key)) {
         if (stream.noneMatch((rid) -> rid.equals(docId))) {
           totalErrors++;
           message(

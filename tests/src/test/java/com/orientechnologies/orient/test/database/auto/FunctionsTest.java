@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ public class FunctionsTest extends DocumentDBBaseTest {
                 new OCommandSQL(
                     "create function FunctionsTest \"return a + b\" PARAMETERS [a,b] IDEMPOTENT"
                         + " true LANGUAGE Javascript"))
-            .execute();
+            .execute(database);
 
     database.begin();
     final ODocument record = result.getRecord();
@@ -69,7 +69,7 @@ public class FunctionsTest extends DocumentDBBaseTest {
     OIdentifiable f =
         database
             .command(new OCommandSQL("create function testCache \"return 1;\" LANGUAGE Javascript"))
-            .execute();
+            .execute(database);
     Assert.assertNotNull(f);
 
     try (OResultSet res1 = database.command("select testCache() as testCache")) {

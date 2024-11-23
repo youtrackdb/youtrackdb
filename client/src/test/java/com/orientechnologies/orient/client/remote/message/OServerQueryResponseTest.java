@@ -5,12 +5,16 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by luigidellaquila on 14/12/16.
+ *
  */
 public class OServerQueryResponseTest {
 
@@ -29,7 +33,7 @@ public class OServerQueryResponseTest {
             "query", true, resuls, Optional.empty(), false, new HashMap<>(), true);
 
     MockChannel channel = new MockChannel();
-    response.write(
+    response.write(null,
         channel,
         OChannelBinaryProtocol.CURRENT_PROTOCOL_VERSION,
         ORecordSerializerNetworkFactory.INSTANCE.current());

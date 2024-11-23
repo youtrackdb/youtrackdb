@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,7 +65,8 @@ public class LiveQuery30Test extends DocumentDBBaseTest implements OCommandOutpu
     }
 
     @Override
-    public void onError(ODatabaseSession database, OException exception) {}
+    public void onError(ODatabaseSession database, OException exception) {
+    }
 
     @Override
     public void onEnd(ODatabaseSession database) {

@@ -4,7 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Created by tglman on 28/07/17.
+ *
  */
 public final class OMapConverter extends OAbstractCollectionConverter<Map> {
 

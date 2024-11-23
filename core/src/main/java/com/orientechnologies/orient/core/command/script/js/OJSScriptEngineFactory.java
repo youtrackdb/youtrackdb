@@ -14,9 +14,9 @@ public class OJSScriptEngineFactory {
 
     if (WRAPPED_LANGUAGES.contains(engineFactory.getLanguageName().toLowerCase(Locale.ENGLISH))
         && (factoryClassName.equalsIgnoreCase(
-                "jdk.nashorn.api.scripting.NashornScriptEngineFactory")
-            || factoryClassName.equalsIgnoreCase(
-                "com.oracle.truffle.js.scriptengine.GraalJSEngineFactory"))) {
+        "jdk.nashorn.api.scripting.NashornScriptEngineFactory")
+        || factoryClassName.equalsIgnoreCase(
+        "com.oracle.truffle.js.scriptengine.GraalJSEngineFactory"))) {
       return new OSecuredScriptEngineFactory(engineFactory);
     }
     return engineFactory;

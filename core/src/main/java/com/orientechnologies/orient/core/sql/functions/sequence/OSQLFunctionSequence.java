@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.sql.functions.sequence;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.sequence.OSequence;
@@ -10,8 +11,6 @@ import com.orientechnologies.orient.core.sql.functions.OSQLFunctionConfigurableA
 
 /**
  * Returns a sequence by name.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionSequence extends OSQLFunctionConfigurableAbstract {
 
@@ -59,7 +58,7 @@ public class OSQLFunctionSequence extends OSQLFunctionConfigurableAbstract {
   }
 
   @Override
-  public String getSyntax() {
+  public String getSyntax(ODatabaseSession session) {
     return "sequence(<name>)";
   }
 

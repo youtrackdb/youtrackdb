@@ -4,7 +4,7 @@ import com.orientechnologies.orient.core.serialization.serializer.record.ORecord
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
 
 /**
- * Created by tglman on 29/12/16.
+ *
  */
 public class HandshakeInfo {
 

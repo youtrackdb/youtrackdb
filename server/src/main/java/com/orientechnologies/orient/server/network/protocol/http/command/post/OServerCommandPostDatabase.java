@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
@@ -41,7 +41,11 @@ import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandAuthenticatedServerAbstract;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServerAbstract {
 
@@ -68,7 +72,8 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
       // CONTENT REPLACES TEXT
       if (iRequest.getContent().startsWith("{")) {
         // JSON PAYLOAD
-        final ODocument doc = new ODocument().fromJSON(iRequest.getContent());
+        final ODocument doc = new ODocument();
+        doc.fromJSON(iRequest.getContent());
         if (doc.hasProperty("adminPassword")) {
           createAdmin = true;
           adminPwd = doc.getProperty("adminPassword");
@@ -178,15 +183,15 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
     }
 
     if (db.getUser() != null) {
-      json.writeAttribute(1, false, "currentUser", db.getUser().getName());
+      json.writeAttribute(1, false, "currentUser", db.getUser().getName(db));
     }
 
     json.beginCollection(1, false, "users");
     OUser user;
     for (ODocument doc : db.getMetadata().getSecurity().getAllUsers()) {
-      user = new OUser(doc);
+      user = new OUser(db, doc);
       json.beginObject(2, true, null);
-      json.writeAttribute(3, false, "name", user.getName());
+      json.writeAttribute(3, false, "name", user.getName(db));
       json.writeAttribute(
           3,
           false,
@@ -199,9 +204,9 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
     json.beginCollection(1, true, "roles");
     ORole role;
     for (ODocument doc : db.getMetadata().getSecurity().getAllRoles()) {
-      role = new ORole(doc);
+      role = new ORole(db, doc);
       json.beginObject(2, true, null);
-      json.writeAttribute(3, false, "name", role.getName());
+      json.writeAttribute(3, false, "name", role.getName(db));
       json.writeAttribute(3, false, "mode", role.getMode().toString());
 
       json.beginCollection(3, true, "rules");
@@ -227,20 +232,22 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
         3,
         true,
         null,
-        new Object[] {
-          "name", "dateFormat", "value", db.getStorage().getConfiguration().getDateFormat()
+        new Object[]{
+            "name", "dateFormat", "value", db.getStorage().getConfiguration().getDateFormat()
         },
-        new Object[] {
-          "name", "dateTimeFormat", "value", db.getStorage().getConfiguration().getDateTimeFormat()
+        new Object[]{
+            "name", "dateTimeFormat", "value",
+            db.getStorage().getConfiguration().getDateTimeFormat()
         },
-        new Object[] {
-          "name", "localeCountry", "value", db.getStorage().getConfiguration().getLocaleCountry()
+        new Object[]{
+            "name", "localeCountry", "value", db.getStorage().getConfiguration().getLocaleCountry()
         },
-        new Object[] {
-          "name", "localeLanguage", "value", db.getStorage().getConfiguration().getLocaleLanguage()
+        new Object[]{
+            "name", "localeLanguage", "value",
+            db.getStorage().getConfiguration().getLocaleLanguage()
         },
-        new Object[] {
-          "name", "definitionVersion", "value", db.getStorage().getConfiguration().getVersion()
+        new Object[]{
+            "name", "definitionVersion", "value", db.getStorage().getConfiguration().getVersion()
         });
     json.endCollection(2, true);
 
@@ -286,9 +293,9 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
       json.writeAttribute(3, false, "records", "? (Unauthorized)");
     }
 
-    if (cls.properties() != null && cls.properties().size() > 0) {
+    if (cls.properties(db) != null && cls.properties(db).size() > 0) {
       json.beginCollection(3, true, "properties");
-      for (final OProperty prop : cls.properties()) {
+      for (final OProperty prop : cls.properties(db)) {
         json.beginObject(4, true, null);
         json.writeAttribute(4, true, "name", prop.getName());
         if (prop.getLinkedClass() != null) {
@@ -308,7 +315,7 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
       json.endCollection(1, true);
     }
 
-    final Set<OIndex> indexes = cls.getIndexes();
+    final Set<OIndex> indexes = cls.getIndexes(db);
     if (!indexes.isEmpty()) {
       json.beginCollection(3, true, "indexes");
       for (final OIndex index : indexes) {

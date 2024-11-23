@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.db;
@@ -26,7 +26,7 @@ import com.orientechnologies.common.concur.resource.OResourcePoolListener;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.OOrientListener;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.storage.OStorage;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
@@ -139,7 +139,7 @@ public abstract class ODatabasePoolAbstract extends OAdaptiveLock
     maxSize = iMaxSize;
     timeout = iTimeout;
     owner = iOwner;
-    Orient.instance().registerListener(this);
+    Oxygen.instance().registerListener(this);
 
     if (idleTimeoutMillis > 0 && timeBetweenEvictionRunsMillis > 0) {
       this.evictionTask = new Timer();
@@ -244,7 +244,7 @@ public abstract class ODatabasePoolAbstract extends OAdaptiveLock
   }
 
   public void release(final ODatabaseSessionInternal iDatabase) {
-    final String dbPooledName = iDatabase.getUser().getName() + "@" + iDatabase.getURL();
+    final String dbPooledName = iDatabase.getUser().getName(iDatabase) + "@" + iDatabase.getURL();
     final OReentrantResourcePool<String, ODatabaseSession> pool;
     lock();
     try {
@@ -341,7 +341,8 @@ public abstract class ODatabasePoolAbstract extends OAdaptiveLock
     return maxSize;
   }
 
-  public void onStorageRegistered(final OStorage iStorage) {}
+  public void onStorageRegistered(final OStorage iStorage) {
+  }
 
   /**
    * Removes from memory the pool associated to the closed storage. This avoids pool open against

@@ -8,8 +8,6 @@ import org.junit.Test;
 
 /**
  * Test HTTP "command" command.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com) (l.garulli--at-orientdb.com)
  */
 public class HttpCommandTest extends BaseHttpDatabaseTest {
 

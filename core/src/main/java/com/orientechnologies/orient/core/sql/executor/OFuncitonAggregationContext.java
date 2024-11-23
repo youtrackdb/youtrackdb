@@ -8,8 +8,6 @@ import java.util.List;
 
 /**
  * Delegates to an aggregate function for aggregation calculation
- *
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class OFuncitonAggregationContext implements AggregationContext {
 

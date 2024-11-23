@@ -7,20 +7,20 @@ import com.orientechnologies.orient.core.util.OURLHelper;
 /**
  * A Pool of databases.
  *
- * <p>Example of usage with an OrientDB context:
+ * <p>Example of usage with an OxygenDB context:
  *
  * <p>
  *
  * <pre>
  * <code>
- * OrientDB orientDb= new OrientDB("remote:localhost","root","password");
+ * OxygenDB oxygenDb= new OxygenDB("remote:localhost","root","password");
  * //...
- * ODatabasePool pool = new ODatabasePool(orientDb,"myDb","admin","adminpwd");
+ * ODatabasePool pool = new ODatabasePool(oxygenDb,"myDb","admin","adminpwd");
  * ODatabaseDocument session = pool.acquire();
  * //....
  * session.close();
  * pool.close();
- * orientDb.close();
+ * oxygenDb.close();
  *
  * </code>
  * </pre>
@@ -44,11 +44,11 @@ import com.orientechnologies.orient.core.util.OURLHelper;
  *
  * <p>
  *
- * <p>Created by tglman on 08/02/17.
+ * <p>
  */
 public class ODatabasePool implements AutoCloseable {
 
-  private final OrientDB orientDb;
+  private final OxygenDB oxygenDb;
   private final ODatabasePoolInternal internal;
   private final boolean autoclose;
 
@@ -60,8 +60,8 @@ public class ODatabasePool implements AutoCloseable {
    * @param user        the database user for the current pool of databases.
    * @param password    the password relative to the user name
    */
-  public ODatabasePool(OrientDB environment, String database, String user, String password) {
-    this(environment, database, user, password, OrientDBConfig.defaultConfig());
+  public ODatabasePool(OxygenDB environment, String database, String user, String password) {
+    this(environment, database, user, password, OxygenDBConfig.defaultConfig());
   }
 
   /**
@@ -75,14 +75,14 @@ public class ODatabasePool implements AutoCloseable {
    * @param configuration the configuration relative for the current pool.
    */
   public ODatabasePool(
-      OrientDB environment,
+      OxygenDB environment,
       String database,
       String user,
       String password,
-      OrientDBConfig configuration) {
-    orientDb = environment;
+      OxygenDBConfig configuration) {
+    oxygenDb = environment;
     autoclose = false;
-    internal = orientDb.openPool(database, user, password, configuration);
+    internal = oxygenDb.openPool(database, user, password, configuration);
   }
 
   /**
@@ -95,7 +95,7 @@ public class ODatabasePool implements AutoCloseable {
    * @param password the password relative to the user
    */
   public ODatabasePool(String url, String user, String password) {
-    this(url, user, password, OrientDBConfig.defaultConfig());
+    this(url, user, password, OxygenDBConfig.defaultConfig());
   }
 
   /**
@@ -108,11 +108,11 @@ public class ODatabasePool implements AutoCloseable {
    * @param password      the password relative to the user
    * @param configuration the configuration relative to the current pool.
    */
-  public ODatabasePool(String url, String user, String password, OrientDBConfig configuration) {
+  public ODatabasePool(String url, String user, String password, OxygenDBConfig configuration) {
     OURLConnection val = OURLHelper.parseNew(url);
-    orientDb = new OrientDB(val.getType() + ":" + val.getPath(), configuration);
+    oxygenDb = new OxygenDB(val.getType() + ":" + val.getPath(), configuration);
     autoclose = true;
-    internal = orientDb.openPool(val.getDbName(), user, password, configuration);
+    internal = oxygenDb.openPool(val.getDbName(), user, password, configuration);
   }
 
   /**
@@ -126,7 +126,7 @@ public class ODatabasePool implements AutoCloseable {
    * @param password    the password relative to the user
    */
   public ODatabasePool(String environment, String database, String user, String password) {
-    this(environment, database, user, password, OrientDBConfig.defaultConfig());
+    this(environment, database, user, password, OxygenDBConfig.defaultConfig());
   }
 
   /**
@@ -145,14 +145,14 @@ public class ODatabasePool implements AutoCloseable {
       String database,
       String user,
       String password,
-      OrientDBConfig configuration) {
-    orientDb = new OrientDB(environment, configuration);
+      OxygenDBConfig configuration) {
+    oxygenDb = new OxygenDB(environment, configuration);
     autoclose = true;
-    internal = orientDb.openPool(database, user, password, configuration);
+    internal = oxygenDb.openPool(database, user, password, configuration);
   }
 
-  ODatabasePool(OrientDB environment, ODatabasePoolInternal internal) {
-    this.orientDb = environment;
+  ODatabasePool(OxygenDB environment, ODatabasePoolInternal internal) {
+    this.oxygenDb = environment;
     this.internal = internal;
     autoclose = false;
   }
@@ -172,7 +172,7 @@ public class ODatabasePool implements AutoCloseable {
   public void close() {
     internal.close();
     if (autoclose) {
-      orientDb.close();
+      oxygenDb.close();
     }
   }
 

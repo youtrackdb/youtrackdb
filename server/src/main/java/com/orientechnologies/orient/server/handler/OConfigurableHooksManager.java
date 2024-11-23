@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,14 +14,14 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
 package com.orientechnologies.orient.server.handler;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
@@ -52,14 +52,14 @@ public class OConfigurableHooksManager implements ODatabaseLifecycleListener {
   public OConfigurableHooksManager(final OServerConfiguration iCfg) {
     configuredHooks = iCfg.hooks;
     if (configuredHooks != null && !configuredHooks.isEmpty()) {
-      Orient.instance().addDbLifecycleListener(this);
+      Oxygen.instance().addDbLifecycleListener(this);
     }
   }
 
   public void addHook(OServerHookConfiguration configuration) {
     if (this.configuredHooks == null) {
       configuredHooks = new ArrayList<>();
-      Orient.instance().addDbLifecycleListener(this);
+      Oxygen.instance().addDbLifecycleListener(this);
     }
     configuredHooks.add(configuration);
   }
@@ -98,7 +98,7 @@ public class OConfigurableHooksManager implements ODatabaseLifecycleListener {
             try {
               final Method m =
                   h.getClass().getDeclaredMethod("config", OServerParameterConfiguration[].class);
-              m.invoke(h, new Object[] {hook.parameters});
+              m.invoke(h, new Object[]{hook.parameters});
             } catch (Exception e) {
               OLogManager.instance()
                   .warn(
@@ -124,13 +124,16 @@ public class OConfigurableHooksManager implements ODatabaseLifecycleListener {
   }
 
   @Override
-  public void onClose(ODatabaseSessionInternal iDatabase) {}
+  public void onClose(ODatabaseSessionInternal iDatabase) {
+  }
 
   @Override
-  public void onDrop(ODatabaseSessionInternal iDatabase) {}
+  public void onDrop(ODatabaseSessionInternal iDatabase) {
+  }
 
   @Override
-  public void onLocalNodeConfigurationRequest(ODocument iConfiguration) {}
+  public void onLocalNodeConfigurationRequest(ODocument iConfiguration) {
+  }
 
   public String getName() {
     return "HookRegisters";

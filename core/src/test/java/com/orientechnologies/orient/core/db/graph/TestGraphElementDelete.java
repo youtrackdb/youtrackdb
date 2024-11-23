@@ -6,7 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.record.ODirection;
@@ -19,24 +19,24 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by tglman on 20/02/17.
+ *
  */
 public class TestGraphElementDelete {
 
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
   private ODatabaseSession database;
 
   @Before
   public void before() {
-    orientDB =
+    oxygenDB =
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    database = orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    database = oxygenDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
 
   @After
   public void after() {
     database.close();
-    orientDB.close();
+    oxygenDB.close();
   }
 
   @Test
@@ -93,7 +93,7 @@ public class TestGraphElementDelete {
         new Thread(
             () -> {
               try (var database =
-                  orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
+                  oxygenDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
                 database.begin();
                 OElement element = database.load(edge.getIdentity());
                 element.setProperty("one", "two");

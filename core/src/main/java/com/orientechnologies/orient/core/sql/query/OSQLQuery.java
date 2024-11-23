@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.query;
@@ -47,14 +47,14 @@ import java.util.Set;
  * SQL query implementation.
  *
  * @param <T> Record type to return.
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 @SuppressWarnings("serial")
 public abstract class OSQLQuery<T> extends OQueryAbstract<T> implements OCommandRequestText {
 
   protected String text;
 
-  public OSQLQuery() {}
+  public OSQLQuery() {
+  }
 
   public OSQLQuery(final String iText) {
     text = iText.trim();
@@ -73,7 +73,7 @@ public abstract class OSQLQuery<T> extends OQueryAbstract<T> implements OCommand
     database.getMetadata().makeThreadLocalSchemaSnapshot();
     try {
       setParameters(iArgs);
-      Object o = database.getStorage().command(this);
+      Object o = database.getStorage().command(database, this);
       if (o instanceof List) {
         return (List<T>) o;
       } else {
@@ -88,9 +88,9 @@ public abstract class OSQLQuery<T> extends OQueryAbstract<T> implements OCommand
   /**
    * Returns only the first record if any.
    */
-  public T runFirst(final Object... iArgs) {
+  public T runFirst(ODatabaseSessionInternal database, final Object... iArgs) {
     setLimit(1);
-    final List<T> result = execute(iArgs);
+    final List<T> result = execute(database, iArgs);
     return result != null && !result.isEmpty() ? result.get(0) : null;
   }
 

@@ -12,7 +12,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * Created by tglman on 16/03/16.
+ *
  */
 public class HttpImportTest extends BaseHttpDatabaseTest {
 

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2014 OrientDB LTD (info(at)orientdb.com)
+ *  *  Copyright 2014 OxygenDB LTD (info(at)orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.common.concur.lock;
@@ -25,7 +25,6 @@ import java.util.concurrent.locks.Lock;
 /**
  * Lock Manager interface.
  *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @since 2.2.0
  */
 public interface OLockManager<T> {

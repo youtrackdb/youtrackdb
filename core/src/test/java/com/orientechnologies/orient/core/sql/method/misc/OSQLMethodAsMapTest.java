@@ -13,8 +13,6 @@ import org.junit.Test;
  * Tests the "asMap()" method implemented by the OSQLMethodAsMap class. Note that the only input to
  * the execute() method from the OSQLMethod interface that is used is the ioResult argument (the 4th
  * argument).
- *
- * @author Michael MacFadden
  */
 public class OSQLMethodAsMapTest {
 

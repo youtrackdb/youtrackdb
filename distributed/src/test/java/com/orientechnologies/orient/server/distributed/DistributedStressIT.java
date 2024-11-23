@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2015 OrientDB LTD (info(-at-)orientdb.com)
+ *  *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.distributed;
@@ -32,8 +32,6 @@ import org.junit.Test;
  *
  * <p>This test has been created to reproduce a weird problem when the UNDO operation left the RID
  * nagative in Ridbag.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class DistributedStressIT extends AbstractServerClusterTest {
 

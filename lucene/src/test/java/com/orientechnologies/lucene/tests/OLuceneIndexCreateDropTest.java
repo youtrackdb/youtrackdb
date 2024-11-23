@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -27,16 +27,17 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by Enrico Risa on 14/08/15.
+ *
  */
 public class OLuceneIndexCreateDropTest extends OLuceneBaseTest {
 
-  public OLuceneIndexCreateDropTest() {}
+  public OLuceneIndexCreateDropTest() {
+  }
 
   @Before
   public void init() {
     OClass type = db.createVertexClass("City");
-    type.createProperty("name", OType.STRING);
+    type.createProperty(db, "name", OType.STRING);
 
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE");
   }

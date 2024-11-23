@@ -5,14 +5,14 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import org.junit.Test;
 
 /**
- * Created by tglman on 25/01/16.
+ *
  */
 public class OJsonWithCustom {
 
@@ -51,15 +51,15 @@ public class OJsonWithCustom {
   public void testCustomSerialization() {
     boolean old = OGlobalConfiguration.DB_CUSTOM_SUPPORT.getValueAsBoolean();
     OGlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(true);
-    try (final OrientDB orientDB =
+    try (final OxygenDB oxygenDB =
         OCreateDatabaseUtil.createDatabase(
             "testJson", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY)) {
-      // orientDB.create("testJson", ODatabaseType.MEMORY);
+      // oxygenDB.create("testJson", ODatabaseType.MEMORY);
       final ODatabaseSession db =
-          orientDB.open("testJson", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+          oxygenDB.open("testJson", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       try {
         OClass klass = db.getMetadata().getSchema().createClass("TestCustom");
-        klass.createProperty("test", OType.CUSTOM);
+        klass.createProperty(db, "test", OType.CUSTOM);
         ODocument doc = new ODocument("TestCustom");
         doc.field("test", TestCustom.ONE, OType.CUSTOM);
 

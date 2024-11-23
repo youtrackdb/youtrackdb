@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,7 +87,7 @@ public class SQLBatchTest extends DocumentDBBaseTest {
             + " SET foos=[$a,$b,$c];"
             + "COMMIT";
 
-    database.command(new OCommandScript(script)).execute();
+    database.command(new OCommandScript(script)).execute(database);
 
     List<ODocument> result =
         database.query(new OSQLSynchQuery<Object>("select from " + className2));
@@ -124,7 +124,7 @@ public class SQLBatchTest extends DocumentDBBaseTest {
             + " SET foos= $foos;"
             + "COMMIT";
 
-    database.command(new OCommandScript(script)).execute();
+    database.command(new OCommandScript(script)).execute(database);
 
     List<ODocument> result =
         database.query(new OSQLSynchQuery<Object>("select from " + className2));
@@ -137,6 +137,6 @@ public class SQLBatchTest extends DocumentDBBaseTest {
   }
 
   private Object executeBatch(final String batch) {
-    return database.command(new OCommandScript("sql", batch)).execute();
+    return database.command(new OCommandScript("sql", batch)).execute(database);
   }
 }

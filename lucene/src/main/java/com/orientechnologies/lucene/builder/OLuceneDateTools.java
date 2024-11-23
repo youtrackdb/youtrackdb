@@ -13,8 +13,6 @@ import java.util.Locale;
  *
  * <p>It uses the {@link java.util.TimeZone} defined at database level and maintains only methods
  * for string conversion to {@link Date} or long value.
- *
- * @author frank
  */
 public class OLuceneDateTools {
 
@@ -29,7 +27,8 @@ public class OLuceneDateTools {
   }
 
   // cannot create, the class has static methods only
-  private OLuceneDateTools() {}
+  private OLuceneDateTools() {
+  }
 
   /**
    * Converts a string produced by <code>timeToString</code> or <code>dateToString</code> back to a

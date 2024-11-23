@@ -255,8 +255,8 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
     // please, do not look at this... refactor this ASAP with new executor structure
     final InputStream is = new ByteArrayInputStream(queryText.getBytes());
     OrientSql osql = null;
+    ODatabaseSessionInternal db = context.getDatabase();
     try {
-      ODatabaseSessionInternal db = getDatabase();
       if (db == null) {
         osql = new OrientSql(is);
       } else {
@@ -267,9 +267,9 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
           .warn(
               this,
               "Invalid charset for database "
-                  + getDatabase()
+                  + db
                   + " "
-                  + getDatabase().getStorageInfo().getConfiguration().getCharset());
+                  + db.getStorageInfo().getConfiguration().getCharset());
       osql = new OrientSql(is);
     }
 
@@ -357,11 +357,12 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
    * this method works statefully, using request and context variables from current Match statement.
    * This method will be deprecated in next releases
    *
-   * @param iArgs Optional variable arguments to pass to the command.
+   * @param iArgs        Optional variable arguments to pass to the command.
+   * @param querySession
    * @return
    */
   @Override
-  public Object execute(Map<Object, Object> iArgs) {
+  public Object execute(Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
     this.context.setInputParameters(iArgs);
     return execute(this.request, this.context, this.progressListener);
   }
@@ -441,7 +442,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
       Set<PatternEdge> visitedEdges,
       Map<String, Set<String>> remainingDependencies,
       List<EdgeTraversal> resultingSchedule) {
-    // OrientDB requires the schedule to contain all edges present in the query, which is a stronger
+    // OxygenDB requires the schedule to contain all edges present in the query, which is a stronger
     // condition
     // than simply visiting all nodes in the query. Consider the following example query:
     //     MATCH {
@@ -659,6 +660,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
       OSQLAsynchQuery<ODocument> request,
       MatchExecutionPlan executionPlan) {
 
+    var db = iCommandContext.getDatabase();
     boolean rootFound = false;
     // find starting nodes with few entries
     for (Map.Entry<String, Long> entryPoint : estimatedRootEntries.entrySet()) {
@@ -707,7 +709,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
     if (allCandidates == null) {
       OSelectStatement select =
           buildSelectStatement(aliasClasses.get(smallestAlias), aliasFilters.get(smallestAlias));
-      allCandidates = (Iterable) getDatabase().query(new OSQLSynchQuery<Object>(select.toString()));
+      allCandidates = (Iterable) db.query(new OSQLSynchQuery<Object>(select.toString()));
     }
 
     return processContextFromCandidates(
@@ -775,6 +777,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
       OCommandContext iCommandContext,
       OSQLAsynchQuery<ODocument> request) {
 
+    var db = iCommandContext.getDatabase();
     iCommandContext.setVariable("$matched", matchContext.matched);
 
     if (pattern.getNumOfEdges() == matchContext.matchedEdges.size()
@@ -820,7 +823,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
 
         if (outEdge.in.isOptionalNode()
             && (isEmptyResult(rightValues)
-                || !contains(rightValues, matchContext.matched.get(outEdge.in.alias)))) {
+            || !contains(rightValues, matchContext.matched.get(outEdge.in.alias)))) {
           MatchContext childContext = matchContext.copy(outEdge.in.alias, null);
           childContext.matched.put(outEdge.in.alias, null);
           childContext.currentEdgeNumber =
@@ -842,7 +845,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
           rightValues = Collections.singleton(rightValues);
         }
         String rightClassName = aliasClasses.get(outEdge.in.alias);
-        OClass rightClass = getDatabase().getMetadata().getSchema().getClass(rightClassName);
+        OClass rightClass = db.getMetadata().getSchema().getClass(rightClassName);
         for (OIdentifiable rightValue : (Iterable<OIdentifiable>) rightValues) {
           if (rightValue == null) {
             continue; // broken graph?, null reference
@@ -927,7 +930,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
                   matchContext.matched.get(inEdge.in.alias), iCommandContext);
           if (inEdge.out.isOptionalNode()
               && (isEmptyResult(leftValues)
-                  || !contains(leftValues, matchContext.matched.get(inEdge.out.alias)))) {
+              || !contains(leftValues, matchContext.matched.get(inEdge.out.alias)))) {
             MatchContext childContext = matchContext.copy(inEdge.out.alias, null);
             childContext.matched.put(inEdge.out.alias, null);
             childContext.currentEdgeNumber = matchContext.currentEdgeNumber + 1;
@@ -948,7 +951,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
           }
 
           String leftClassName = aliasClasses.get(inEdge.out.alias);
-          OClass leftClass = getDatabase().getMetadata().getSchema().getClass(leftClassName);
+          OClass leftClass = db.getMetadata().getSchema().getClass(leftClassName);
 
           for (OIdentifiable leftValue : (Iterable<OIdentifiable>) leftValues) {
             if (leftValue == null) {
@@ -1008,7 +1011,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
             } else { // searching for neighbors
               OWhereClause where = aliasFilters.get(inEdge.out.alias);
               String className = aliasClasses.get(inEdge.out.alias);
-              OClass oClass = getDatabase().getMetadata().getSchema().getClass(className);
+              OClass oClass = db.getMetadata().getSchema().getClass(className);
               if ((oClass == null || matchesClass(leftValue, oClass))
                   && (where == null || where.matchesFilters(leftValue, iCommandContext))) {
                 MatchContext childContext =
@@ -1156,6 +1159,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
   private boolean addResult(
       MatchContext matchContext, OSQLAsynchQuery<ODocument> request, OCommandContext ctx) {
 
+    var db = ctx.getDatabase();
     ODocument doc = null;
     if (returnsElements()) {
       for (Map.Entry<String, OIdentifiable> entry : matchContext.matched.entrySet()) {
@@ -1188,7 +1192,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
         }
       }
     } else if (returnsPatterns()) {
-      doc = getDatabase().newInstance();
+      doc = db.newInstance();
       doc.setTrackingChanges(false);
       for (Map.Entry<String, OIdentifiable> entry : matchContext.matched.entrySet()) {
         if (isExplicitAlias(entry.getKey())) {
@@ -1196,7 +1200,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
         }
       }
     } else if (returnsPaths()) {
-      doc = getDatabase().newInstance();
+      doc = db.newInstance();
       doc.setTrackingChanges(false);
       for (Map.Entry<String, OIdentifiable> entry : matchContext.matched.entrySet()) {
         doc.field(entry.getKey(), entry.getValue());
@@ -1204,7 +1208,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
     } else if (returnsJson()) {
       doc = jsonToDoc(matchContext, ctx);
     } else {
-      doc = getDatabase().newInstance();
+      doc = db.newInstance();
       doc.setTrackingChanges(false);
       int i = 0;
 
@@ -1248,7 +1252,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
   private boolean addSingleResult(
       OSQLAsynchQuery<ODocument> request, OBasicCommandContext ctx, ORecord record) {
     if (((OBasicCommandContext) context).addToUniqueResult(record)) {
-      request.getResultListener().result(record);
+      request.getResultListener().result(ctx.getDatabase(), record);
       long currentCount = ctx.getResultsProcessed().incrementAndGet();
       long limitValue = limitFromProtocol;
       if (limit != null) {
@@ -1322,7 +1326,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
 
   private Iterator<OIdentifiable> query(
       String className, OWhereClause oWhereClause, OCommandContext ctx) {
-    final var database = getDatabase();
+    final var database = ctx.getDatabase();
     OClass schemaClass = database.getMetadata().getSchema().getClass(className);
     database.checkSecurity(
         ORule.ResourceGeneric.CLASS,
@@ -1428,7 +1432,8 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
     allAliases.addAll(aliasClasses.keySet());
     allAliases.addAll(aliasFilters.keySet());
 
-    OSchema schema = getDatabase().getMetadata().getImmutableSchemaSnapshot();
+    var db = ctx.getDatabase();
+    OSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
 
     Map<String, Long> result = new LinkedHashMap<String, Long>();
     for (String alias : allAliases) {
@@ -1452,7 +1457,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
         }
         upperBound = filter.estimate(oClass, this.threshold, ctx);
       } else {
-        upperBound = oClass.count();
+        upperBound = oClass.count(db);
       }
       result.put(alias, upperBound);
     }
@@ -1477,6 +1482,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
       Map<String, OWhereClause> aliasFilters,
       Map<String, String> aliasClasses,
       OCommandContext context) {
+    var db = context.getDatabase();
     String alias = matchFilter.getAlias();
     OWhereClause filter = matchFilter.getFilter();
     if (alias != null) {
@@ -1499,7 +1505,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
         if (previousClass == null) {
           aliasClasses.put(alias, clazz);
         } else {
-          String lower = getLowerSubclass(clazz, previousClass);
+          String lower = getLowerSubclass(db, clazz, previousClass);
           if (lower == null) {
             throw new OCommandExecutionException(
                 "classes defined for alias "
@@ -1516,8 +1522,9 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
     }
   }
 
-  private String getLowerSubclass(String className1, String className2) {
-    OSchema schema = getDatabase().getMetadata().getSchema();
+  private String getLowerSubclass(ODatabaseSessionInternal db, String className1,
+      String className2) {
+    OSchema schema = db.getMetadata().getSchema();
     OClass class1 = schema.getClass(className1);
     OClass class2 = schema.getClass(className2);
     if (class1 == null) {
@@ -1726,11 +1733,12 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
   }
 
   @Override
-  public Iterator<OIdentifiable> iterator(Map<Object, Object> iArgs) {
+  public Iterator<OIdentifiable> iterator(ODatabaseSessionInternal querySession,
+      Map<Object, Object> iArgs) {
     if (context == null) {
       context = new OBasicCommandContext();
     }
-    Object result = execute(iArgs);
+    Object result = execute(iArgs, querySession);
     return ((Iterable) result).iterator();
   }
 

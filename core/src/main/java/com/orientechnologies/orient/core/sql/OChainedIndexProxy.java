@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql;
@@ -23,7 +23,7 @@ import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.common.profiler.OProfiler;
 import com.orientechnologies.common.profiler.OProfilerStub;
 import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
@@ -63,8 +63,6 @@ import java.util.stream.Stream;
  * was index for traversed property.
  *
  * <p>IMPORTANT: this class is only for internal usage!
- *
- * @author Artem Orobets
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class OChainedIndexProxy<T> implements OIndexInternal {
@@ -95,7 +93,7 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
       ODatabaseSessionInternal session, OClass iSchemaClass, FieldChain longChain) {
     List<OChainedIndexProxy<T>> proxies = new ArrayList<>();
 
-    for (List<OIndex> indexChain : getIndexesForChain(iSchemaClass, longChain)) {
+    for (List<OIndex> indexChain : getIndexesForChain(session, iSchemaClass, longChain)) {
       //noinspection ObjectAllocationInLoop
       proxies.add(new OChainedIndexProxy<>(session, indexChain));
     }
@@ -108,19 +106,19 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
   }
 
   private static Iterable<List<OIndex>> getIndexesForChain(
-      OClass iSchemaClass, OSQLFilterItemField.FieldChain fieldChain) {
-    List<OIndex> baseIndexes = prepareBaseIndexes(iSchemaClass, fieldChain);
+      ODatabaseSessionInternal session, OClass iSchemaClass, FieldChain fieldChain) {
+    List<OIndex> baseIndexes = prepareBaseIndexes(session, iSchemaClass, fieldChain);
 
     if (baseIndexes == null) {
       return Collections.emptyList();
     }
 
-    Collection<OIndex> lastIndexes = prepareLastIndexVariants(iSchemaClass, fieldChain);
+    Collection<OIndex> lastIndexes = prepareLastIndexVariants(session, iSchemaClass, fieldChain);
 
     Collection<List<OIndex>> result = new ArrayList<>();
     for (OIndex lastIndex : lastIndexes) {
-      @SuppressWarnings("ObjectAllocationInLoop")
-      final List<OIndex> indexes = new ArrayList<>(fieldChain.getItemCount());
+      @SuppressWarnings("ObjectAllocationInLoop") final List<OIndex> indexes = new ArrayList<>(
+          fieldChain.getItemCount());
       indexes.addAll(baseIndexes);
       indexes.add(lastIndex);
 
@@ -131,7 +129,7 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
   }
 
   private static Collection<OIndex> prepareLastIndexVariants(
-      OClass iSchemaClass, OSQLFilterItemField.FieldChain fieldChain) {
+      ODatabaseSessionInternal session, OClass iSchemaClass, FieldChain fieldChain) {
     OClass oClass = iSchemaClass;
     final Collection<OIndex> result = new ArrayList<>();
 
@@ -146,7 +144,7 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
         new TreeSet<>(Comparator.comparingInt(o -> o.getDefinition().getParamCount()));
 
     involvedIndexes.addAll(
-        oClass.getInvolvedIndexes(fieldChain.getItemName(fieldChain.getItemCount() - 1)));
+        oClass.getInvolvedIndexes(session, fieldChain.getItemName(fieldChain.getItemCount() - 1)));
     final Collection<Class<? extends OIndex>> indexTypes = new HashSet<>(3);
 
     for (OIndex involvedIndex : involvedIndexes) {
@@ -160,12 +158,13 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
   }
 
   private static List<OIndex> prepareBaseIndexes(
-      OClass iSchemaClass, OSQLFilterItemField.FieldChain fieldChain) {
+      ODatabaseSessionInternal session, OClass iSchemaClass, FieldChain fieldChain) {
     List<OIndex> result = new ArrayList<>(fieldChain.getItemCount() - 1);
 
     OClass oClass = iSchemaClass;
     for (int i = 0; i < fieldChain.getItemCount() - 1; i++) {
-      final Set<OIndex> involvedIndexes = oClass.getInvolvedIndexes(fieldChain.getItemName(i));
+      final Set<OIndex> involvedIndexes = oClass.getInvolvedIndexes(session,
+          fieldChain.getItemName(i));
       final OIndex bestIndex = findBestIndex(involvedIndexes);
 
       if (bestIndex == null) {
@@ -312,35 +311,38 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
    */
   @Override
   @Deprecated
-  public T get(Object key) {
+  public T get(ODatabaseSessionInternal session, Object key) {
     final List<ORID> lastIndexResult;
-    try (Stream<ORID> stream = lastIndex.getInternal().getRids(key)) {
+    try (Stream<ORID> stream = lastIndex.getInternal().getRids(session, key)) {
       lastIndexResult = stream.collect(Collectors.toList());
     }
 
-    final Set<OIdentifiable> result = new HashSet<>(applyTailIndexes(session, lastIndexResult));
+    final Set<OIdentifiable> result = new HashSet<>(
+        applyTailIndexes(this.session, lastIndexResult));
     return (T) result;
   }
 
   @Override
-  public Stream<ORID> getRidsIgnoreTx(Object key) {
+  public Stream<ORID> getRidsIgnoreTx(ODatabaseSessionInternal session, Object key) {
     final List<ORID> lastIndexResult;
-    try (Stream<ORID> stream = lastIndex.getInternal().getRids(key)) {
+    try (Stream<ORID> stream = lastIndex.getInternal().getRids(session, key)) {
       lastIndexResult = stream.collect(Collectors.toList());
     }
 
-    final Set<OIdentifiable> result = new HashSet<>(applyTailIndexes(session, lastIndexResult));
+    final Set<OIdentifiable> result = new HashSet<>(
+        applyTailIndexes(this.session, lastIndexResult));
     return result.stream().map(OIdentifiable::getIdentity);
   }
 
   @Override
-  public Stream<ORID> getRids(Object key) {
+  public Stream<ORID> getRids(ODatabaseSessionInternal session, Object key) {
     final List<ORID> lastIndexResult;
-    try (Stream<ORID> stream = lastIndex.getInternal().getRids(key)) {
+    try (Stream<ORID> stream = lastIndex.getInternal().getRids(session, key)) {
       lastIndexResult = stream.collect(Collectors.toList());
     }
 
-    final Set<OIdentifiable> result = new HashSet<>(applyTailIndexes(session, lastIndexResult));
+    final Set<OIdentifiable> result = new HashSet<>(
+        applyTailIndexes(this.session, lastIndexResult));
     return result.stream().map(OIdentifiable::getIdentity);
   }
 
@@ -373,13 +375,13 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
         //noinspection ObjectAllocationInLoop
         newKeys = new TreeSet<>();
         for (Comparable currentKey : currentKeys) {
-          final List<ORID> currentResult = getFromCompositeIndex(currentKey, currentIndex);
+          final List<ORID> currentResult = getFromCompositeIndex(session, currentKey, currentIndex);
           newKeys.addAll(prepareKeys(session, nextIndex, currentResult));
         }
       } else {
         final List<OIdentifiable> keys;
         try (Stream<ORawPair<Object, ORID>> stream =
-            currentIndex.getInternal().streamEntries(currentKeys, true)) {
+            currentIndex.getInternal().streamEntries(session, currentKeys, true)) {
           keys = stream.map((pair) -> pair.second).collect(Collectors.toList());
         }
         newKeys = prepareKeys(session, nextIndex, keys);
@@ -390,19 +392,20 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
       currentKeys = newKeys;
     }
 
-    return applyFirstIndex(currentKeys);
+    return applyFirstIndex(session, currentKeys);
   }
 
-  private List<ORID> applyFirstIndex(Collection<Comparable> currentKeys) {
+  private List<ORID> applyFirstIndex(ODatabaseSessionInternal session,
+      Collection<Comparable> currentKeys) {
     final List<ORID> result;
     if (isComposite(firstIndex)) {
       result = new ArrayList<>();
       for (Comparable key : currentKeys) {
-        result.addAll(getFromCompositeIndex(key, firstIndex));
+        result.addAll(getFromCompositeIndex(session, key, firstIndex));
       }
     } else {
       try (Stream<ORawPair<Object, ORID>> stream =
-          firstIndex.getInternal().streamEntries(currentKeys, true)) {
+          firstIndex.getInternal().streamEntries(session, currentKeys, true)) {
         result = stream.map((pair) -> pair.second).collect(Collectors.toList());
       }
     }
@@ -412,9 +415,11 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
     return result;
   }
 
-  private static List<ORID> getFromCompositeIndex(Comparable currentKey, OIndex currentIndex) {
+  private static List<ORID> getFromCompositeIndex(ODatabaseSessionInternal session,
+      Comparable currentKey, OIndex currentIndex) {
     try (Stream<ORawPair<Object, ORID>> stream =
-        currentIndex.getInternal().streamEntriesBetween(currentKey, true, currentKey, true, true)) {
+        currentIndex.getInternal()
+            .streamEntriesBetween(session, currentKey, true, currentKey, true, true)) {
       return stream.map((pair) -> pair.second).collect(Collectors.toList());
     }
   }
@@ -448,9 +453,9 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
    */
   private static void updateStatistic(OIndex index) {
 
-    final OProfiler profiler = Orient.instance().getProfiler();
+    final OProfiler profiler = Oxygen.instance().getProfiler();
     if (profiler.isRecording()) {
-      Orient.instance()
+      Oxygen.instance()
           .getProfiler()
           .updateCounter(
               profiler.getDatabaseMetric(index.getDatabaseName(), "query.indexUsed"),
@@ -476,7 +481,8 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
 
   @Override
   public OIndex create(
-      OIndexMetadata indexMetadat, boolean rebuild, OProgressListener progressListener) {
+      ODatabaseSessionInternal session, OIndexMetadata indexMetadat, boolean rebuild,
+      OProgressListener progressListener) {
     throw new UnsupportedOperationException("Not allowed operation");
   }
 
@@ -488,15 +494,15 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
     throw new UnsupportedOperationException("Not allowed operation");
   }
 
-  public OIndex put(Object key, OIdentifiable value) {
+  public OIndex put(ODatabaseSessionInternal session, Object key, OIdentifiable value) {
     throw new UnsupportedOperationException("Not allowed operation");
   }
 
-  public boolean remove(Object key) {
+  public boolean remove(ODatabaseSessionInternal session, Object key) {
     throw new UnsupportedOperationException("Not allowed operation");
   }
 
-  public boolean remove(Object key, OIdentifiable rid) {
+  public boolean remove(ODatabaseSessionInternal session, Object key, OIdentifiable rid) {
     throw new UnsupportedOperationException("Not allowed operation");
   }
 
@@ -507,17 +513,17 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
    */
   @Deprecated
   @Override
-  public OIndex clear() {
+  public OIndex clear(ODatabaseSessionInternal session) {
     throw new UnsupportedOperationException("Not allowed operation");
   }
 
   @Override
-  public long getSize() {
+  public long getSize(ODatabaseSessionInternal session) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public long count(Object iKey) {
+  public long count(ODatabaseSessionInternal session, Object iKey) {
     throw new UnsupportedOperationException();
   }
 
@@ -527,7 +533,8 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
   }
 
   @Override
-  public void flush() {}
+  public void flush() {
+  }
 
   @Override
   public long getRebuildVersion() {
@@ -545,17 +552,17 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
   }
 
   @Override
-  public Object getLastKey() {
+  public Object getLastKey(ODatabaseSessionInternal session) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public OIndexCursor cursor() {
+  public OIndexCursor cursor(ODatabaseSessionInternal session) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public OIndexCursor descCursor() {
+  public OIndexCursor descCursor(ODatabaseSessionInternal session) {
     throw new UnsupportedOperationException();
   }
 
@@ -570,7 +577,7 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
   }
 
   @Override
-  public boolean loadFromConfiguration(ODocument iConfig) {
+  public boolean loadFromConfiguration(ODatabaseSessionInternal session, ODocument iConfig) {
     throw new UnsupportedOperationException();
   }
 
@@ -580,12 +587,12 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
   }
 
   @Override
-  public OIndex addCluster(String iClusterName) {
+  public OIndex addCluster(ODatabaseSessionInternal session, String iClusterName) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void removeCluster(String iClusterName) {
+  public void removeCluster(ODatabaseSessionInternal session, String iClusterName) {
     throw new UnsupportedOperationException();
   }
 
@@ -619,11 +626,11 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
     throw new UnsupportedOperationException();
   }
 
-  public long size() {
+  public long size(ODatabaseSessionInternal session) {
     throw new UnsupportedOperationException("Not allowed operation");
   }
 
-  public OIndex delete() {
+  public OIndex delete(ODatabaseSessionInternal session) {
     throw new UnsupportedOperationException("Not allowed operation");
   }
 
@@ -640,11 +647,11 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
     throw new UnsupportedOperationException("Not allowed operation");
   }
 
-  public long rebuild() {
+  public long rebuild(ODatabaseSessionInternal session) {
     throw new UnsupportedOperationException("Not allowed operation");
   }
 
-  public long rebuild(OProgressListener iProgressListener) {
+  public long rebuild(ODatabaseSessionInternal session, OProgressListener iProgressListener) {
     throw new UnsupportedOperationException("Not allowed operation");
   }
 
@@ -662,23 +669,27 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
   }
 
   @Override
-  public OIndexCursor iterateEntries(Collection<?> keys, boolean ascSortOrder) {
+  public OIndexCursor iterateEntries(ODatabaseSessionInternal session, Collection<?> keys,
+      boolean ascSortOrder) {
     return null;
   }
 
   @Override
   public OIndexCursor iterateEntriesBetween(
-      Object fromKey, boolean fromInclusive, Object toKey, boolean toInclusive, boolean ascOrder) {
+      ODatabaseSessionInternal session, Object fromKey, boolean fromInclusive, Object toKey,
+      boolean toInclusive, boolean ascOrder) {
     return null;
   }
 
   @Override
-  public OIndexCursor iterateEntriesMajor(Object fromKey, boolean fromInclusive, boolean ascOrder) {
+  public OIndexCursor iterateEntriesMajor(ODatabaseSessionInternal session, Object fromKey,
+      boolean fromInclusive, boolean ascOrder) {
     return null;
   }
 
   @Override
-  public OIndexCursor iterateEntriesMinor(Object toKey, boolean toInclusive, boolean ascOrder) {
+  public OIndexCursor iterateEntriesMinor(ODatabaseSessionInternal session, Object toKey,
+      boolean toInclusive, boolean ascOrder) {
     return null;
   }
 
@@ -693,12 +704,12 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> stream() {
+  public Stream<ORawPair<Object, ORID>> stream(ODatabaseSessionInternal session) {
     throw new UnsupportedOperationException("Not allowed operation");
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> descStream() {
+  public Stream<ORawPair<Object, ORID>> descStream(ODatabaseSessionInternal session) {
     throw new UnsupportedOperationException("Not allowed operation");
   }
 
@@ -717,31 +728,33 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> streamEntries(Collection<?> keys, boolean ascSortOrder) {
-    return applyTailIndexes(lastIndex.getInternal().streamEntries(keys, ascSortOrder));
+  public Stream<ORawPair<Object, ORID>> streamEntries(ODatabaseSessionInternal session,
+      Collection<?> keys, boolean ascSortOrder) {
+    return applyTailIndexes(lastIndex.getInternal().streamEntries(session, keys, ascSortOrder));
   }
 
   @Override
   public Stream<ORawPair<Object, ORID>> streamEntriesBetween(
-      Object fromKey, boolean fromInclusive, Object toKey, boolean toInclusive, boolean ascOrder) {
+      ODatabaseSessionInternal session, Object fromKey, boolean fromInclusive, Object toKey,
+      boolean toInclusive, boolean ascOrder) {
     return applyTailIndexes(
         lastIndex
             .getInternal()
-            .streamEntriesBetween(fromKey, fromInclusive, toKey, toInclusive, ascOrder));
+            .streamEntriesBetween(session, fromKey, fromInclusive, toKey, toInclusive, ascOrder));
   }
 
   @Override
   public Stream<ORawPair<Object, ORID>> streamEntriesMajor(
-      Object fromKey, boolean fromInclusive, boolean ascOrder) {
+      ODatabaseSessionInternal session, Object fromKey, boolean fromInclusive, boolean ascOrder) {
     return applyTailIndexes(
-        lastIndex.getInternal().streamEntriesMajor(fromKey, fromInclusive, ascOrder));
+        lastIndex.getInternal().streamEntriesMajor(session, fromKey, fromInclusive, ascOrder));
   }
 
   @Override
   public Stream<ORawPair<Object, ORID>> streamEntriesMinor(
-      Object toKey, boolean toInclusive, boolean ascOrder) {
+      ODatabaseSessionInternal session, Object toKey, boolean toInclusive, boolean ascOrder) {
     return applyTailIndexes(
-        lastIndex.getInternal().streamEntriesMinor(toKey, toInclusive, ascOrder));
+        lastIndex.getInternal().streamEntriesMinor(session, toKey, toInclusive, ascOrder));
   }
 
   @Override
@@ -756,12 +769,14 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
   }
 
   @Override
-  public void doPut(OAbstractPaginatedStorage storage, Object key, ORID rid) {
+  public void doPut(ODatabaseSessionInternal session, OAbstractPaginatedStorage storage, Object key,
+      ORID rid) {
     throw new UnsupportedOperationException("Not allowed operation");
   }
 
   @Override
-  public boolean doRemove(OAbstractPaginatedStorage storage, Object key, ORID rid) {
+  public boolean doRemove(ODatabaseSessionInternal session, OAbstractPaginatedStorage storage,
+      Object key, ORID rid) {
     throw new UnsupportedOperationException("Not allowed operation");
   }
 

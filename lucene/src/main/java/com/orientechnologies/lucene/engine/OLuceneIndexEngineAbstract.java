@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -332,7 +332,8 @@ public abstract class OLuceneIndexEngineAbstract implements OLuceneIndexEngine {
     }
   }
 
-  public void create(OAtomicOperation atomicOperation, IndexEngineData data) throws IOException {}
+  public void create(OAtomicOperation atomicOperation, IndexEngineData data) throws IOException {
+  }
 
   @Override
   public void delete(OAtomicOperation atomicOperation) {
@@ -358,8 +359,7 @@ public abstract class OLuceneIndexEngineAbstract implements OLuceneIndexEngine {
   }
 
   private void deleteIndexFolder(File baseStoragePath) throws IOException {
-    @SuppressWarnings("resource")
-    final String[] files = directory.getDirectory().listAll();
+    @SuppressWarnings("resource") final String[] files = directory.getDirectory().listAll();
     for (String fileName : files) {
       //noinspection resource
       directory.getDirectory().deleteFile(fileName);
@@ -528,7 +528,8 @@ public abstract class OLuceneIndexEngineAbstract implements OLuceneIndexEngine {
   }
 
   @Override
-  public void load(IndexEngineData data) {}
+  public void load(IndexEngineData data) {
+  }
 
   @Override
   public void clear(OAtomicOperation atomicOperation) {

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -35,7 +35,6 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 8/7/13
  */
 public final class OSBTreeBucketV2<K, V> extends ODurablePage {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import static com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYP
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.lucene.engine.OLuceneFullTextIndexEngine;
 import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.config.IndexEngineData;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
@@ -62,7 +62,7 @@ public class OLuceneIndexFactory implements OIndexFactory, ODatabaseLifecycleLis
 
   public OLuceneIndexFactory(boolean manual) {
     if (!manual) {
-      Orient.instance().addDbLifecycleListener(this);
+      Oxygen.instance().addDbLifecycleListener(this);
     }
   }
 
@@ -137,7 +137,7 @@ public class OLuceneIndexFactory implements OIndexFactory, ODatabaseLifecycleLis
       internal.getMetadata().getIndexManagerInternal().getIndexes(internal).stream()
           .filter(idx -> idx.getInternal() instanceof OLuceneFullTextIndex)
           .peek(idx -> OLogManager.instance().debug(this, "deleting index " + idx.getName()))
-          .forEach(idx -> idx.delete());
+          .forEach(idx -> idx.delete(db));
 
     } catch (Exception e) {
       OLogManager.instance().warn(this, "Error on dropping Lucene indexes", e);
@@ -145,5 +145,6 @@ public class OLuceneIndexFactory implements OIndexFactory, ODatabaseLifecycleLis
   }
 
   @Override
-  public void onLocalNodeConfigurationRequest(ODocument iConfiguration) {}
+  public void onLocalNodeConfigurationRequest(ODocument iConfiguration) {
+  }
 }

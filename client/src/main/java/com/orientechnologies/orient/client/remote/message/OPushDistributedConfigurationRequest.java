@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.client.remote.message;
 
 import com.orientechnologies.orient.client.remote.ORemotePushHandler;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
@@ -10,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by tglman on 11/01/17.
+ *
  */
 public class OPushDistributedConfigurationRequest
     implements OBinaryPushRequest<OBinaryPushResponse> {
@@ -22,7 +23,8 @@ public class OPushDistributedConfigurationRequest
     this.hosts = hosts;
   }
 
-  public OPushDistributedConfigurationRequest() {}
+  public OPushDistributedConfigurationRequest() {
+  }
 
   @Override
   public byte getPushCommand() {
@@ -30,7 +32,8 @@ public class OPushDistributedConfigurationRequest
   }
 
   @Override
-  public void write(OChannelDataOutput channel) throws IOException {
+  public void write(ODatabaseSessionInternal session, OChannelDataOutput channel)
+      throws IOException {
     channel.writeInt(hosts.size());
     for (String host : hosts) {
       channel.writeString(host);
@@ -46,7 +49,7 @@ public class OPushDistributedConfigurationRequest
     }
   }
 
-  public OBinaryPushResponse execute(ORemotePushHandler remote) {
+  public OBinaryPushResponse execute(ODatabaseSessionInternal session, ORemotePushHandler remote) {
     return remote.executeUpdateDistributedConfig(this);
   }
 

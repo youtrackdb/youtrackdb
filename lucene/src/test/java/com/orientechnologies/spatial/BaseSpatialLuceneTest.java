@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,7 +9,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://www.orientdb.com
+ * <p>*
  */
 package com.orientechnologies.spatial;
 
@@ -38,7 +36,7 @@ import org.locationtech.spatial4j.shape.Shape;
 import org.locationtech.spatial4j.shape.jts.JtsGeometry;
 
 /**
- * Created by Enrico Risa on 07/08/15.
+ *
  */
 public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
 
@@ -108,7 +106,7 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
             .createLinearRing(hole.toArray(new Coordinate[hole.size()]));
     return JtsSpatialContext.GEO
         .getGeometryFactory()
-        .createPolygon(linearRing, new LinearRing[] {holeRing});
+        .createPolygon(linearRing, new LinearRing[]{holeRing});
   }
 
   protected List<List<List<Double>>> polygonCoordTestHole() {
@@ -163,9 +161,9 @@ public abstract class BaseSpatialLuceneTest extends BaseLuceneTest {
 
     LineString lineString =
         geometryFactory.createLineString(
-            new Coordinate[] {new Coordinate(4, 6), new Coordinate(7, 10)});
+            new Coordinate[]{new Coordinate(4, 6), new Coordinate(7, 10)});
 
-    return geometryFactory.createGeometryCollection(new Geometry[] {point, lineString});
+    return geometryFactory.createGeometryCollection(new Geometry[]{point, lineString});
   }
 
   protected ODocument geometryCollection() {

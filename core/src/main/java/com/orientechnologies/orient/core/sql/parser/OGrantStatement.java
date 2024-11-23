@@ -30,7 +30,7 @@ public class OGrantStatement extends OSimpleExecStatement {
 
   @Override
   public OExecutionStream executeSimple(OCommandContext ctx) {
-    ODatabaseSessionInternal db = getDatabase();
+    ODatabaseSessionInternal db = ctx.getDatabase();
     ORole role = db.getMetadata().getSecurity().getRole(actor.getStringValue());
     if (role == null) {
       throw new OCommandExecutionException("Invalid role: " + actor.getStringValue());
@@ -38,8 +38,8 @@ public class OGrantStatement extends OSimpleExecStatement {
 
     String resourcePath = securityResource.toString();
     if (permission != null) {
-      role.grant(resourcePath, toPrivilege(permission.permission));
-      role.save();
+      role.grant(db, resourcePath, toPrivilege(permission.permission));
+      role.save(db);
     } else {
       OSecurityInternal security = db.getSharedContext().getSecurity();
       OSecurityPolicyImpl policy = security.getSecurityPolicy(db, policyName.getStringValue());

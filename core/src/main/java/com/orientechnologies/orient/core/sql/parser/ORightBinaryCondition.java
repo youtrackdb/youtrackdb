@@ -136,7 +136,7 @@ public class ORightBinaryCondition extends SimpleNode {
       if (rightVal == null) {
         return false;
       }
-      boolean result = OInCondition.evaluateExpression(element, rightVal);
+      boolean result = OInCondition.evaluateExpression(ctx.getDatabase(), element, rightVal);
       if (not) {
         result = !result;
       }
@@ -154,7 +154,7 @@ public class ORightBinaryCondition extends SimpleNode {
       if (rightVal == null) {
         return false;
       }
-      boolean result = OInCondition.evaluateExpression(element, rightVal);
+      boolean result = OInCondition.evaluateExpression(ctx.getDatabase(), element, rightVal);
       if (not) {
         result = !result;
       }

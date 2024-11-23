@@ -7,7 +7,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by luigidellaquila on 02/07/16.
+ *
  */
 public class OElementTest extends BaseMemoryDatabase {
 

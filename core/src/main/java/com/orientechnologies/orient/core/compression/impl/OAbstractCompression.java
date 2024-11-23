@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientechnologies.com
+ *
  *
  */
 
@@ -25,7 +25,6 @@ import com.orientechnologies.orient.core.compression.OCompression;
 /**
  * Base class for the compression implementations.
  *
- * @author Luca Garulli
  * @since 05.06.13
  */
 public abstract class OAbstractCompression implements OCompression {

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.plugin.mail;
@@ -22,7 +22,7 @@ package com.orientechnologies.orient.server.plugin.mail;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.script.OScriptInjection;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDBInternal;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
@@ -48,15 +48,17 @@ public class OMailPlugin extends OServerPluginAbstract
 
   private final String configFile = "${ORIENTDB_HOME}/config/mail.json";
 
-  public OMailPlugin() {}
+  public OMailPlugin() {
+  }
 
   @Override
   public void config(final OServer oServer, final OServerParameterConfiguration[] iParams) {
 
-    OrientDBInternal.extract(oServer.getContext()).getScriptManager().registerInjection(this);
+    OxygenDBInternal.extract(oServer.getContext()).getScriptManager().registerInjection(this);
   }
 
-  public void writeConfiguration() throws IOException {}
+  public void writeConfiguration() throws IOException {
+  }
 
   /**
    * Sends an email. Supports the following configuration: subject, message, to, cc, bcc, date,
@@ -66,7 +68,7 @@ public class OMailPlugin extends OServerPluginAbstract
    * @throws ParseException
    */
   public void send(final Map<String, Object> iMessage) {
-    OLogManager.instance().warn(this, "Mail send is non available in this OrientDB version");
+    OLogManager.instance().warn(this, "Mail send is non available in this OxygenDB version");
   }
 
   @Override
@@ -102,5 +104,6 @@ public class OMailPlugin extends OServerPluginAbstract
   }
 
   @Override
-  public void changeConfig(ODocument document) {}
+  public void changeConfig(ODocument document) {
+  }
 }

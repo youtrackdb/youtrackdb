@@ -31,7 +31,8 @@ public final class OResultSetEdgeTraverser implements OExecutionStream {
   }
 
   @Override
-  public void close(OCommandContext ctx) {}
+  public void close(OCommandContext ctx) {
+  }
 
   private void fetchNext(OCommandContext ctx) {
     if (nextResult == null) {

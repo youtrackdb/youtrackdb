@@ -15,13 +15,18 @@
  */
 package com.orientechnologies.orient.server.config;
 
-import jakarta.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlElementRef;
+import jakarta.xml.bind.annotation.XmlElementWrapper;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "socket")
 @XmlType(propOrder = {"parameters", "implementation", "name"})
 public class OServerSocketFactoryConfiguration {
 
-  public OServerSocketFactoryConfiguration() {}
+  public OServerSocketFactoryConfiguration() {
+  }
 
   public OServerSocketFactoryConfiguration(String name, String implementation) {
     this.name = name;

@@ -296,8 +296,7 @@ public class TrackedMapTest {
 
     final ObjectInputStream input =
         new ObjectInputStream(new ByteArrayInputStream(memoryStream.copy()));
-    @SuppressWarnings("unchecked")
-    final Map<Object, String> afterSerialization = (Map<Object, String>) input.readObject();
+    @SuppressWarnings("unchecked") final Map<Object, String> afterSerialization = (Map<Object, String>) input.readObject();
 
     Assert.assertEquals(afterSerialization.size(), beforeSerialization.size());
     for (int i = 0; i < afterSerialization.size(); i++) {

@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * Created by tglman on 05/01/16.
+ *
  */
 public interface OBlob extends ORecord {
 
@@ -17,4 +17,6 @@ public interface OBlob extends ORecord {
   int fromInputStream(final InputStream in, final int maxSize) throws IOException;
 
   void toOutputStream(final OutputStream out) throws IOException;
+
+  byte[] toStream();
 }

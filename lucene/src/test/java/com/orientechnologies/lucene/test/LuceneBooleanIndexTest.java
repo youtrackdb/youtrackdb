@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by Enrico Risa on 29/04/15.
+ *
  */
 public class LuceneBooleanIndexTest extends BaseLuceneTest {
 
@@ -45,8 +45,8 @@ public class LuceneBooleanIndexTest extends BaseLuceneTest {
     OSchema schema = db.getMetadata().getSchema();
     OClass v = schema.getClass("V");
     OClass song = schema.createClass("Person");
-    song.setSuperClass(v);
-    song.createProperty("isDeleted", OType.BOOLEAN);
+    song.setSuperClass(db, v);
+    song.createProperty(db, "isDeleted", OType.BOOLEAN);
 
     db.command("create index Person.isDeleted on Person (isDeleted) FULLTEXT ENGINE LUCENE")
         .close();

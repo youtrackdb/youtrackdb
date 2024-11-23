@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ORecordBytes;
@@ -61,7 +62,7 @@ public class BinaryTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "testBasicCreateExternal")
   public void testBasicReadExternal() {
-    OBlob record = database.load(rid);
+    ORecordAbstract record = database.load(rid);
 
     Assert.assertEquals("This is a test", new String(record.toStream()));
   }
@@ -82,6 +83,7 @@ public class BinaryTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "testMixedCreateExternal")
   public void testMixedReadExternal() {
     ODocument doc = rid.getRecord();
-    Assert.assertEquals("Binary data", new String(((OBlob) doc.field("binary")).toStream()));
+    Assert.assertEquals("Binary data",
+        new String(((ORecordAbstract) doc.field("binary")).toStream()));
   }
 }

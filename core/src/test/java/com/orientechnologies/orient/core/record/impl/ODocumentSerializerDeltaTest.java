@@ -10,8 +10,8 @@ import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.OSerializationException;
@@ -46,7 +46,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testGetFromOriginalSimpleDelta() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -68,6 +68,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      db.begin();
       doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
@@ -79,6 +80,7 @@ public class ODocumentSerializerDeltaTest {
       delta.deserializeDelta(bytes, originalDoc);
       assertEquals(testValue, originalDoc.field(fieldName));
       assertNull(originalDoc.field(removeField));
+      db.rollback();
     } finally {
       if (db != null) {
         db.close();
@@ -93,7 +95,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testGetFromNestedDelta() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -122,6 +124,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      db.begin();
       doc = db.bindToSession(doc);
       nestedDoc = doc.field(nestedDocField);
       nestedDoc.setProperty(fieldName, testValue);
@@ -136,6 +139,7 @@ public class ODocumentSerializerDeltaTest {
       serializerDelta.deserializeDelta(bytes, originalDoc);
       nestedDoc = originalDoc.field(nestedDocField);
       assertEquals(nestedDoc.field(fieldName), testValue);
+      db.rollback();
     } finally {
       if (db != null) {
         db.close();
@@ -150,7 +154,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testListDelta() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -171,6 +175,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      db.begin();
       doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
@@ -187,6 +192,7 @@ public class ODocumentSerializerDeltaTest {
       List<?> checkList = originalDoc.getProperty(fieldName);
       assertEquals("three", checkList.get(1));
       assertFalse(checkList.contains("toRemove"));
+      db.rollback();
     } finally {
       if (db != null) {
         db.close();
@@ -201,7 +207,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testSetDelta() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -220,6 +226,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      db.begin();
       doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
@@ -236,6 +243,7 @@ public class ODocumentSerializerDeltaTest {
       Set<String> checkSet = originalDoc.field(fieldName);
       assertTrue(checkSet.contains("three"));
       assertFalse(checkSet.contains("toRemove"));
+      db.rollback();
     } finally {
       if (db != null) {
         db.close();
@@ -250,7 +258,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testSetOfSetsDelta() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -273,6 +281,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      db.begin();
       doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
@@ -288,6 +297,7 @@ public class ODocumentSerializerDeltaTest {
 
       Set<Set<String>> checkSet = originalDoc.field(fieldName);
       assertTrue(checkSet.iterator().next().contains("three"));
+      db.rollback();
     } finally {
       if (db != null) {
         db.close();
@@ -302,7 +312,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testListOfListsDelta() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -326,6 +336,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      db.begin();
       doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
@@ -341,6 +352,7 @@ public class ODocumentSerializerDeltaTest {
 
       List<List<String>> checkList = originalDoc.field(fieldName);
       assertEquals("three", checkList.get(0).get(1));
+      db.rollback();
     } finally {
       if (db != null) {
         db.close();
@@ -355,7 +367,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testListOfDocsDelta() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -383,6 +395,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      db.begin();
       doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
@@ -400,6 +413,7 @@ public class ODocumentSerializerDeltaTest {
       ODocument checkDoc = checkList.get(1);
       assertEquals(checkDoc.field(constantField), constValue);
       assertEquals(checkDoc.field(variableField), "two");
+      db.rollback();
     } finally {
       if (db != null) {
         db.close();
@@ -414,7 +428,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testListOfListsOfDocumentDelta() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -446,6 +460,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      db.begin();
       doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
@@ -461,6 +476,7 @@ public class ODocumentSerializerDeltaTest {
 
       List<List<ODocument>> checkList = originalDoc.field(fieldName);
       assertEquals("two", checkList.get(0).get(0).field(variableField));
+      db.rollback();
     } finally {
       if (db != null) {
         db.close();
@@ -475,7 +491,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testListOfListsOfListDelta() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -502,6 +518,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      db.begin();
       doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
@@ -517,6 +534,7 @@ public class ODocumentSerializerDeltaTest {
 
       List<List<List<String>>> checkList = originalDoc.field(fieldName);
       assertEquals("changed", checkList.get(0).get(0).get(0));
+      db.rollback();
     } finally {
       if (db != null) {
         db.close();
@@ -531,7 +549,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testListOfDocsWithList() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -564,6 +582,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      db.begin();
       doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
@@ -581,6 +600,7 @@ public class ODocumentSerializerDeltaTest {
       ODocument checkDoc = checkList.get(1);
       List<String> checkInnerList = checkDoc.field(variableField);
       assertEquals("changed", checkInnerList.get(0));
+      db.rollback();
     } finally {
       if (db != null) {
         db.close();
@@ -595,7 +615,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testListAddDelta() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -614,6 +634,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      db.begin();
       doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
@@ -628,6 +649,7 @@ public class ODocumentSerializerDeltaTest {
 
       List<String> checkList = originalDoc.field(fieldName);
       assertEquals(3, checkList.size());
+      db.rollback();
     } finally {
       if (db != null) {
         db.close();
@@ -642,7 +664,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testListOfListAddDelta() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -671,6 +693,7 @@ public class ODocumentSerializerDeltaTest {
       ODocument originalDoc = new ODocument();
       ORecordInternal.unsetDirty(originalDoc);
 
+      db.begin();
       doc = db.bindToSession(doc);
       originalDoc.fromStream(doc.toStream());
 
@@ -687,6 +710,7 @@ public class ODocumentSerializerDeltaTest {
       List<List<String>> rootList = originalDoc.field(fieldName);
       List<String> checkList = rootList.get(0);
       assertEquals(3, checkList.size());
+      db.rollback();
     } finally {
       if (db != null) {
         db.close();
@@ -701,7 +725,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testListRemoveDelta() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -722,6 +746,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      db.begin();
       doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
@@ -737,6 +762,7 @@ public class ODocumentSerializerDeltaTest {
 
       List<String> checkList = originalDoc.field(fieldName);
       assertEquals("three", checkList.get(0));
+      db.rollback();
     } finally {
       if (db != null) {
         db.close();
@@ -751,7 +777,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testAddDocFieldDelta() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -770,6 +796,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      db.begin();
       doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
@@ -781,6 +808,7 @@ public class ODocumentSerializerDeltaTest {
       byte[] bytes = serializerDelta.serializeDelta(doc);
       serializerDelta.deserializeDelta(bytes, originalDoc);
       assertEquals(testValue, originalDoc.field(fieldName));
+      db.rollback();
     } finally {
       if (db != null) {
         db.close();
@@ -795,7 +823,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testRemoveCreateDocFieldDelta() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -813,6 +841,8 @@ public class ODocumentSerializerDeltaTest {
 
       doc = db.save(doc);
       db.commit();
+
+      db.begin();
       doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
@@ -827,6 +857,7 @@ public class ODocumentSerializerDeltaTest {
 
       assertFalse(originalDoc.hasProperty(fieldName));
       assertEquals(originalDoc.getProperty("other"), "new");
+      db.rollback();
     } finally {
       if (db != null) {
         db.close();
@@ -841,7 +872,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testRemoveNestedDocFieldDelta() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -849,7 +880,7 @@ public class ODocumentSerializerDeltaTest {
       String nestedFieldName = "nested";
 
       OClass claz = db.createClassIfNotExist("TestClass");
-      claz.createProperty(nestedFieldName, OType.EMBEDDED);
+      claz.createProperty(db, nestedFieldName, OType.EMBEDDED);
 
       db.begin();
       ODocument doc = new ODocument(claz);
@@ -866,6 +897,7 @@ public class ODocumentSerializerDeltaTest {
       rootDoc = db.save(rootDoc);
       db.commit();
 
+      db.begin();
       rootDoc = db.bindToSession(rootDoc);
       ODocument originalDoc = rootDoc.copy();
 
@@ -880,6 +912,7 @@ public class ODocumentSerializerDeltaTest {
 
       ODocument nested = originalDoc.field(nestedFieldName);
       assertFalse(nested.hasProperty(fieldName));
+      db.rollback();
     } finally {
       if (db != null) {
         db.close();
@@ -894,7 +927,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testRemoveFieldListOfDocsDelta() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -922,6 +955,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      db.begin();
       doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
@@ -938,6 +972,7 @@ public class ODocumentSerializerDeltaTest {
       ODocument checkDoc = checkList.get(1).getRecord();
       assertEquals(checkDoc.field(constantField), constValue);
       assertFalse(checkDoc.hasProperty(variableField));
+      db.rollback();
     } finally {
       if (db != null) {
         db.close();
@@ -952,7 +987,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testUpdateEmbeddedMapDelta() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -971,6 +1006,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      db.begin();
       doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
@@ -985,6 +1021,7 @@ public class ODocumentSerializerDeltaTest {
 
       containedMap = originalDoc.field(fieldName);
       assertEquals("changed", containedMap.get("first"));
+      db.rollback();
     } finally {
       if (db != null) {
         db.close();
@@ -999,7 +1036,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testUpdateListOfEmbeddedMapDelta() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -1022,6 +1059,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      db.begin();
       doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
@@ -1040,6 +1078,7 @@ public class ODocumentSerializerDeltaTest {
       //noinspection unchecked
       containedMap = ((List<Map<String, String>>) originalDoc.field(fieldName)).get(1);
       assertEquals("one", containedMap.get("first"));
+      db.rollback();
     } finally {
       if (db != null) {
         db.close();
@@ -1054,7 +1093,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testUpdateDocInMapDelta() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -1076,6 +1115,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      db.begin();
       doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
@@ -1091,6 +1131,7 @@ public class ODocumentSerializerDeltaTest {
       containedMap = originalDoc.field(fieldName);
       ODocument containedDoc = containedMap.get("first");
       assertEquals("changed", containedDoc.field("f1"));
+      db.rollback();
     } finally {
       if (db != null) {
         db.close();
@@ -1105,7 +1146,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testListOfMapsUpdateDelta() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -1137,6 +1178,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      db.begin();
       doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
@@ -1150,6 +1192,7 @@ public class ODocumentSerializerDeltaTest {
 
       containedMap = (Map<String, String>) ((List) originalDoc.field(fieldName)).get(0);
       assertEquals("changed", containedMap.get("first"));
+      db.rollback();
     } finally {
       if (db != null) {
         db.close();
@@ -1164,7 +1207,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testRidbagsUpdateDeltaAddWithCopy() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -1186,12 +1229,14 @@ public class ODocumentSerializerDeltaTest {
       doc.field(fieldName, ridBag, OType.LINKBAG);
       doc = db.save(doc);
 
-      ODocument originalDoc = doc.save();
+      ODocument originalDoc = doc;
+      doc.save();
 
       ODocument third = new ODocument(claz);
       third = db.save(third);
       db.commit();
 
+      db.begin();
       first = db.bindToSession(first);
       second = db.bindToSession(second);
       third = db.bindToSession(third);
@@ -1212,6 +1257,7 @@ public class ODocumentSerializerDeltaTest {
 
       ORidBag mergedRidbag = originalDoc.field(fieldName);
       assertEquals(ridBag, mergedRidbag);
+      db.rollback();
     } finally {
       if (db != null) {
         db.close();
@@ -1226,7 +1272,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testRidbagsUpdateDeltaRemoveWithCopy() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -1259,6 +1305,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      db.begin();
       first = db.bindToSession(first);
       second = db.bindToSession(second);
       doc = db.bindToSession(doc);
@@ -1278,6 +1325,7 @@ public class ODocumentSerializerDeltaTest {
 
       ORidBag mergedRidbag = originalDoc.field(fieldName);
       assertEquals(ridBag, mergedRidbag);
+      db.rollback();
     } finally {
       if (db != null) {
         db.close();
@@ -1292,7 +1340,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testRidbagsUpdateDeltaAdd() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -1323,6 +1371,7 @@ public class ODocumentSerializerDeltaTest {
       third = db.save(third);
       db.commit();
 
+      db.begin();
       doc = db.bindToSession(doc);
       third = db.bindToSession(third);
 
@@ -1337,6 +1386,7 @@ public class ODocumentSerializerDeltaTest {
 
       ORidBag mergedRidbag = originalDoc.field(fieldName);
       assertEquals(ridBag, mergedRidbag);
+      db.rollback();
     } finally {
       if (db != null) {
         db.close();
@@ -1351,7 +1401,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testRidbagsUpdateDeltaRemove() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -1377,6 +1427,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      db.begin();
       doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
       ridBag = doc.getProperty(fieldName);
@@ -1390,6 +1441,7 @@ public class ODocumentSerializerDeltaTest {
 
       ORidBag mergedRidbag = originalDoc.field(fieldName);
       assertEquals(ridBag, mergedRidbag);
+      db.rollback();
     } finally {
       if (db != null) {
         db.close();
@@ -1404,7 +1456,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testRidbagsUpdateDeltaChangeWithCopy() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -1430,6 +1482,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      db.begin();
       doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
 
@@ -1446,6 +1499,7 @@ public class ODocumentSerializerDeltaTest {
 
       ORidBag mergedRidbag = originalDoc.field(fieldName);
       assertEquals(ridBag, mergedRidbag);
+      db.rollback();
     } finally {
       if (db != null) {
         db.close();
@@ -1460,7 +1514,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testDeltaNullValues() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -1484,6 +1538,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      db.begin();
       doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
       doc.setProperty("one", null);
@@ -1504,6 +1559,7 @@ public class ODocumentSerializerDeltaTest {
       assertTrue(((List) originalDoc.getProperty("linkList")).contains(null));
       assertTrue(((Set) originalDoc.getProperty("linkSet")).contains(null));
       assertTrue(((Map) originalDoc.getProperty("linkMap")).containsKey("nullValue"));
+      db.rollback();
     } finally {
       if (db != null) {
         db.close();
@@ -1518,7 +1574,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testDeltaLinkAllCases() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -1541,6 +1597,7 @@ public class ODocumentSerializerDeltaTest {
       ODocument link2 = db.save(new ODocument("testClass"));
       db.commit();
 
+      db.begin();
       doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
       link2 = db.bindToSession(link2);
@@ -1568,6 +1625,7 @@ public class ODocumentSerializerDeltaTest {
       assertEquals(((Map) originalDoc.getProperty("linkMap")).get("three"), link2);
       assertTrue(((Map) originalDoc.getProperty("linkMap")).containsKey("one"));
       assertFalse(((Map) originalDoc.getProperty("linkMap")).containsKey("two"));
+      db.rollback();
     } finally {
       if (db != null) {
         db.close();
@@ -1582,7 +1640,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testDeltaAllCasesMap() {
     ODatabaseSession db = null;
-    OrientDB odb = null;
+    OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -1611,6 +1669,7 @@ public class ODocumentSerializerDeltaTest {
       doc = db.save(doc);
       db.commit();
 
+      db.begin();
       doc = db.bindToSession(doc);
       ODocument originalDoc = doc.copy();
       OElement embedded1 = db.newElement();
@@ -1643,6 +1702,7 @@ public class ODocumentSerializerDeltaTest {
               .get("nest")
               .get("other"),
           "value");
+      db.rollback();
     } finally {
       if (db != null) {
         db.close();
@@ -2014,7 +2074,7 @@ public class ODocumentSerializerDeltaTest {
 
   @Test
   public void testLinkCollections() {
-    try (OrientDB ctx = new OrientDB("embedded:", OrientDBConfig.defaultConfig())) {
+    try (OxygenDB ctx = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig())) {
       ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
       try (var db = ctx.open("test", "admin", "adminpwd")) {
         ODocument document = new ODocument();
@@ -2228,7 +2288,7 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testMapOfLink() {
     // needs a database because of the lazy loading
-    try (OrientDB ctx = new OrientDB("embedded:", OrientDBConfig.defaultConfig())) {
+    try (OxygenDB ctx = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig())) {
       ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
       try (var db = ctx.open("test", "admin", "adminpwd")) {
         ODocument document = new ODocument();
@@ -2251,7 +2311,7 @@ public class ODocumentSerializerDeltaTest {
 
   @Test
   public void testDocumentSimple() {
-    try (OrientDB ctx = new OrientDB("embedded:", OrientDBConfig.defaultConfig())) {
+    try (OxygenDB ctx = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig())) {
       ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
       try (var db = ctx.open("test", "admin", "adminpwd")) {
         ODocument document = new ODocument("TestClass");
@@ -2612,5 +2672,7 @@ public class ODocumentSerializerDeltaTest {
     }
   }
 
-  private class WrongData {}
+  private class WrongData {
+
+  }
 }

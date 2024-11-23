@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,18 +14,19 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.metadata.function;
 
 import com.orientechnologies.common.concur.ONeedRetryException;
 import com.orientechnologies.common.util.OCallable;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OScriptExecutor;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.ORetryQueryException;
 import com.orientechnologies.orient.core.id.ORID;
@@ -39,8 +40,6 @@ import java.util.Map;
 /**
  * Stored function. It contains language and code to execute as a function. The execute() takes
  * parameters. The function is state-less, so can be used by different threads.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OFunction extends ODocumentWrapper {
 
@@ -50,9 +49,9 @@ public class OFunction extends ODocumentWrapper {
   /**
    * Creates a new function.
    */
-  public OFunction() {
+  public OFunction(ODatabaseSessionInternal session) {
     super(CLASS_NAME);
-    setLanguage("SQL");
+    setLanguage(session, "SQL");
   }
 
   /**
@@ -73,49 +72,47 @@ public class OFunction extends ODocumentWrapper {
     super(iRid.getRecord());
   }
 
-  public String getName() {
-    return getDocument().field("name");
+  public String getName(ODatabaseSession session) {
+    return getDocument(session).field("name");
   }
 
-  public OFunction setName(final String iName) {
-    getDocument().field("name", iName);
+  public OFunction setName(ODatabaseSession session, final String iName) {
+    getDocument(session).field("name", iName);
     return this;
   }
 
-  public String getCode() {
-    return getDocument().field("code");
+  public String getCode(ODatabaseSession session) {
+    return getDocument(session).field("code");
   }
 
-  public OFunction setCode(final String iCode) {
-    getDocument().field("code", iCode);
+  public void setCode(ODatabaseSession session, final String iCode) {
+    getDocument(session).field("code", iCode);
+  }
+
+  public String getLanguage(ODatabaseSession session) {
+    return getDocument(session).field("language");
+  }
+
+  public void setLanguage(ODatabaseSession session, final String iLanguage) {
+    getDocument(session).field("language", iLanguage);
+  }
+
+  public List<String> getParameters(ODatabaseSession session) {
+    return getDocument(session).field("parameters");
+  }
+
+  public OFunction setParameters(ODatabaseSession session, final List<String> iParameters) {
+    getDocument(session).field("parameters", iParameters);
     return this;
   }
 
-  public String getLanguage() {
-    return getDocument().field("language");
-  }
-
-  public OFunction setLanguage(final String iLanguage) {
-    getDocument().field("language", iLanguage);
-    return this;
-  }
-
-  public List<String> getParameters() {
-    return getDocument().field("parameters");
-  }
-
-  public OFunction setParameters(final List<String> iParameters) {
-    getDocument().field("parameters", iParameters);
-    return this;
-  }
-
-  public boolean isIdempotent() {
-    final Boolean idempotent = getDocument().field("idempotent");
+  public boolean isIdempotent(ODatabaseSession session) {
+    final Boolean idempotent = getDocument(session).field("idempotent");
     return idempotent != null && idempotent;
   }
 
-  public OFunction setIdempotent(final boolean iIdempotent) {
-    getDocument().field("idempotent", iIdempotent);
+  public OFunction setIdempotent(ODatabaseSession session, final boolean iIdempotent) {
+    getDocument(session).field("idempotent", iIdempotent);
     return this;
   }
 
@@ -138,7 +135,8 @@ public class OFunction extends ODocumentWrapper {
     if (iContext == null) {
       iContext = new OBasicCommandContext();
     }
-    final List<String> params = getParameters();
+    var database = iContext.getDatabase();
+    final List<String> params = getParameters(database);
 
     // CONVERT PARAMETERS IN A MAP
     Map<Object, Object> args = null;
@@ -163,20 +161,15 @@ public class OFunction extends ODocumentWrapper {
       return callback.call(args);
     }
 
-    ODatabaseSessionInternal database = iContext.getDatabase();
-    if (database == null) {
-      database = ODatabaseRecordThreadLocal.instance().get();
-    }
-
     OScriptExecutor executor =
         database
             .getSharedContext()
             .getOrientDB()
             .getScriptManager()
             .getCommandManager()
-            .getScriptExecutor(getLanguage());
+            .getScriptExecutor(getLanguage(database));
 
-    return executor.executeFunction(iContext, getName(), args);
+    return executor.executeFunction(iContext, getName(database), args);
   }
 
   @Deprecated
@@ -184,12 +177,14 @@ public class OFunction extends ODocumentWrapper {
     if (iContext == null) {
       iContext = new OBasicCommandContext();
     }
+
+    ODatabaseSessionInternal database = iContext.getDatabase();
     // CONVERT PARAMETERS IN A MAP
     final Map<Object, Object> args = new LinkedHashMap<Object, Object>();
 
     if (iArgs.size() > 0) {
       // PRESERVE THE ORDER FOR PARAMETERS (ARE USED AS POSITIONAL)
-      final List<String> params = getParameters();
+      final List<String> params = getParameters(database);
       for (String p : params) {
         args.put(p, iArgs.get(p));
       }
@@ -200,26 +195,21 @@ public class OFunction extends ODocumentWrapper {
       return callback.call(args);
     }
 
-    ODatabaseSessionInternal database = iContext.getDatabase();
-    if (database == null) {
-      database = ODatabaseRecordThreadLocal.instance().get();
-    }
-
     OScriptExecutor executor =
         database
             .getSharedContext()
             .getOrientDB()
             .getScriptManager()
             .getCommandManager()
-            .getScriptExecutor(getLanguage());
+            .getScriptExecutor(getLanguage(database));
 
-    return executor.executeFunction(iContext, getName(), args);
+    return executor.executeFunction(iContext, getName(database), args);
   }
 
   @Deprecated
-  public Object execute(final Map<Object, Object> iArgs) {
-    final long start = Orient.instance().getProfiler().startChrono();
-    ODatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().get();
+  public Object execute(ODatabaseSessionInternal session, final Map<Object, Object> iArgs) {
+    final long start = Oxygen.instance().getProfiler().startChrono();
+
     Object result;
     while (true) {
       try {
@@ -228,14 +218,14 @@ public class OFunction extends ODocumentWrapper {
         }
 
         OScriptExecutor executor =
-            database
+            session
                 .getSharedContext()
                 .getOrientDB()
                 .getScriptManager()
                 .getCommandManager()
-                .getScriptExecutor(getLanguage());
+                .getScriptExecutor(getLanguage(session));
 
-        result = database.computeInTx(() -> executor.execute(database, getCode(), iArgs));
+        result = session.computeInTx(() -> executor.execute(session, getCode(session), iArgs));
 
         break;
 
@@ -243,8 +233,8 @@ public class OFunction extends ODocumentWrapper {
       }
     }
 
-    if (Orient.instance().getProfiler().isRecording()) {
-      Orient.instance()
+    if (Oxygen.instance().getProfiler().isRecording()) {
+      Oxygen.instance()
           .getProfiler()
           .stopChrono(
               "db." + ODatabaseRecordThreadLocal.instance().get().getName() + ".function.execute",
@@ -256,12 +246,17 @@ public class OFunction extends ODocumentWrapper {
     return result;
   }
 
-  public ORID getId() {
-    return getDocument().getIdentity();
+  public ORID getId(ODatabaseSession session) {
+    return getDocument(session).getIdentity();
   }
 
   @Override
   public String toString() {
-    return getName();
+    var database = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    if (database != null) {
+      return getName(database);
+    }
+
+    return super.toString();
   }
 }

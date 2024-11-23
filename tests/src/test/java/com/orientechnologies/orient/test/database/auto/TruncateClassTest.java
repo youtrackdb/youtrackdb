@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,10 +78,10 @@ public class TruncateClassTest extends DocumentDBBaseTest {
     }
     Assert.assertTrue(set.containsAll(Arrays.asList(5, 6, 7, 8, 9, -1)));
 
-    Assert.assertEquals(index.getInternal().size(), 6);
+    Assert.assertEquals(index.getInternal().size(database), 6);
 
     Iterator<ORawPair<Object, ORID>> indexIterator;
-    try (Stream<ORawPair<Object, ORID>> stream = index.getInternal().stream()) {
+    try (Stream<ORawPair<Object, ORID>> stream = index.getInternal().stream(database)) {
       indexIterator = stream.iterator();
 
       while (indexIterator.hasNext()) {
@@ -170,23 +170,24 @@ public class TruncateClassTest extends DocumentDBBaseTest {
     database.commit();
 
     final OIndex index = getIndex("TestTruncateVertexClassSuperclassWithIndex_index");
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(database), 2);
 
     database.command("truncate class TestTruncateVertexClassSubclassWithIndex").close();
-    Assert.assertEquals(index.getInternal().size(), 1);
+    Assert.assertEquals(index.getInternal().size(database), 1);
 
     database
         .command("truncate class TestTruncateVertexClassSuperclassWithIndex polymorphic")
         .close();
-    Assert.assertEquals(index.getInternal().size(), 0);
+    Assert.assertEquals(index.getInternal().size(database), 0);
   }
 
   private OIndex getOrCreateIndex(OClass testClass) {
     OIndex index =
         database.getMetadata().getIndexManagerInternal().getIndex(database, "test_class_by_data");
     if (index == null) {
-      testClass.createProperty("data", OType.EMBEDDEDLIST, OType.INTEGER);
-      index = testClass.createIndex("test_class_by_data", OClass.INDEX_TYPE.UNIQUE, "data");
+      testClass.createProperty(database, "data", OType.EMBEDDEDLIST, OType.INTEGER);
+      index = testClass.createIndex(database, "test_class_by_data", OClass.INDEX_TYPE.UNIQUE,
+          "data");
     }
     return index;
   }

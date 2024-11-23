@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.index;
@@ -42,8 +42,6 @@ import java.util.stream.Collectors;
 
 /**
  * Proxied abstract index.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 @SuppressWarnings("unchecked")
 public abstract class OIndexRemote implements OIndex {
@@ -113,7 +111,7 @@ public abstract class OIndexRemote implements OIndex {
     return this;
   }
 
-  public OIndexRemote delete() {
+  public OIndexRemote delete(ODatabaseSessionInternal session) {
     getDatabase().indexQuery(name, String.format(QUERY_DROP, name)).close();
     return this;
   }
@@ -137,7 +135,7 @@ public abstract class OIndexRemote implements OIndex {
     }
   }
 
-  public long count(final Object iKey) {
+  public long count(ODatabaseSessionInternal session, final Object iKey) {
     try (OResultSet result =
         getDatabase().indexQuery(name, String.format(QUERY_COUNT, name), iKey)) {
       if (!result.hasNext()) {
@@ -178,7 +176,8 @@ public abstract class OIndexRemote implements OIndex {
     }
   }
 
-  public OIndexRemote put(final Object key, final OIdentifiable value) {
+  public OIndexRemote put(ODatabaseSessionInternal session, final Object key,
+      final OIdentifiable value) {
     final ORID rid = value.getIdentity();
 
     if (!rid.isValid()) {
@@ -204,7 +203,7 @@ public abstract class OIndexRemote implements OIndex {
     return this;
   }
 
-  public boolean remove(final Object key) {
+  public boolean remove(ODatabaseSessionInternal session, final Object key) {
     ODatabaseSessionInternal database = getDatabase();
     if (database.getTransaction().isActive()) {
       database.getTransaction().addIndexEntry(this, name, OPERATION.REMOVE, key, null);
@@ -216,7 +215,8 @@ public abstract class OIndexRemote implements OIndex {
     return true;
   }
 
-  public boolean remove(final Object key, final OIdentifiable rid) {
+  public boolean remove(ODatabaseSessionInternal session, final Object key,
+      final OIdentifiable rid) {
 
     ODatabaseSessionInternal database = getDatabase();
     if (database.getTransaction().isActive()) {
@@ -247,18 +247,18 @@ public abstract class OIndexRemote implements OIndex {
     throw new UnsupportedOperationException("autoRebuild()");
   }
 
-  public long rebuild() {
+  public long rebuild(ODatabaseSessionInternal session) {
     try (OResultSet rs = getDatabase().command(String.format(QUERY_REBUILD, name))) {
       return rs.next().getProperty("totalIndexed");
     }
   }
 
-  public OIndexRemote clear() {
+  public OIndexRemote clear(ODatabaseSessionInternal session) {
     getDatabase().command(String.format(QUERY_CLEAR, name)).close();
     return this;
   }
 
-  public long getSize() {
+  public long getSize(ODatabaseSessionInternal session) {
     try (OResultSet result = getDatabase().indexQuery(name, String.format(QUERY_SIZE, name))) {
       if (result.hasNext()) {
         return result.next().getProperty("size");
@@ -290,7 +290,8 @@ public abstract class OIndexRemote implements OIndex {
   }
 
   @Override
-  public void flush() {}
+  public void flush() {
+  }
 
   public String getType() {
     return wrappedType;
@@ -317,8 +318,8 @@ public abstract class OIndexRemote implements OIndex {
     return null;
   }
 
-  public long rebuild(final OProgressListener iProgressListener) {
-    return rebuild();
+  public long rebuild(ODatabaseSessionInternal session, final OProgressListener iProgressListener) {
+    return rebuild(session);
   }
 
   public OType[] getKeyTypes() {
@@ -382,28 +383,32 @@ public abstract class OIndexRemote implements OIndex {
   }
 
   @Override
-  public Object getLastKey() {
+  public Object getLastKey(ODatabaseSessionInternal session) {
     throw new UnsupportedOperationException("getLastKey");
   }
 
   @Override
   public OIndexCursor iterateEntriesBetween(
-      Object fromKey, boolean fromInclusive, Object toKey, boolean toInclusive, boolean ascOrder) {
+      ODatabaseSessionInternal session, Object fromKey, boolean fromInclusive, Object toKey,
+      boolean toInclusive, boolean ascOrder) {
     throw new UnsupportedOperationException("iterateEntriesBetween");
   }
 
   @Override
-  public OIndexCursor iterateEntriesMajor(Object fromKey, boolean fromInclusive, boolean ascOrder) {
+  public OIndexCursor iterateEntriesMajor(ODatabaseSessionInternal session, Object fromKey,
+      boolean fromInclusive, boolean ascOrder) {
     throw new UnsupportedOperationException("iterateEntriesMajor");
   }
 
   @Override
-  public OIndexCursor iterateEntriesMinor(Object toKey, boolean toInclusive, boolean ascOrder) {
+  public OIndexCursor iterateEntriesMinor(ODatabaseSessionInternal session, Object toKey,
+      boolean toInclusive, boolean ascOrder) {
     throw new UnsupportedOperationException("iterateEntriesMinor");
   }
 
   @Override
-  public OIndexCursor iterateEntries(Collection<?> keys, boolean ascSortOrder) {
+  public OIndexCursor iterateEntries(ODatabaseSessionInternal session, Collection<?> keys,
+      boolean ascSortOrder) {
 
     final StringBuilder params = new StringBuilder(128);
     if (!keys.isEmpty()) {
@@ -453,7 +458,7 @@ public abstract class OIndexRemote implements OIndex {
   }
 
   @Override
-  public OIndexCursor cursor() {
+  public OIndexCursor cursor(ODatabaseSessionInternal session) {
     final OInternalResultSet copy = new OInternalResultSet(); // TODO a raw array instead...?
     try (OResultSet result = getDatabase().indexQuery(name, String.format(QUERY_ENTRIES, name))) {
       result.forEachRemaining(x -> copy.add(x));
@@ -490,7 +495,7 @@ public abstract class OIndexRemote implements OIndex {
   }
 
   @Override
-  public OIndexCursor descCursor() {
+  public OIndexCursor descCursor(ODatabaseSessionInternal session) {
     final OInternalResultSet copy = new OInternalResultSet(); // TODO a raw array instead...?
     try (OResultSet result =
         getDatabase().indexQuery(name, String.format(QUERY_ENTRIES_DESC, name))) {

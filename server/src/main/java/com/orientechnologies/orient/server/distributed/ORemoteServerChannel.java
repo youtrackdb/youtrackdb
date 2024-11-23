@@ -14,14 +14,13 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.distributed;
 
 import com.orientechnologies.common.thread.OThreadPoolExecutors;
 import com.orientechnologies.orient.client.binary.OChannelBinarySynchClient;
-import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.message.ODistributedConnectRequest;
 import com.orientechnologies.orient.client.remote.message.ODistributedConnectResponse;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
@@ -39,8 +38,6 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Remote server channel.
- *
- * @author Luca Garulli
  */
 public class ORemoteServerChannel {
 
@@ -58,7 +55,7 @@ public class ORemoteServerChannel {
   private final String localNodeName;
 
   private static final int MAX_RETRY = 3;
-  private static final String CLIENT_TYPE = "OrientDB Server";
+  private static final String CLIENT_TYPE = "OxygenDB Server";
   private static final boolean COLLECT_STATS = false;
   private int sessionId = -1;
   private byte[] sessionToken;
@@ -113,22 +110,6 @@ public class ORemoteServerChannel {
 
   public int getDistributedProtocolVersion() {
     return protocolVersion;
-  }
-
-  public void sendBinaryRequest(OBinaryRequest request) {
-    executor.execute(
-        () -> {
-          networkOperation(
-              request.getCommand(),
-              () -> {
-                request.write(channel, null);
-                channel.flush();
-                return null;
-              },
-              "Cannot send distributed request " + request.getClass(),
-              MAX_RETRY,
-              true);
-        });
   }
 
   public interface OStorageRemoteOperation<T> {
@@ -222,7 +203,7 @@ public class ORemoteServerChannel {
         () -> {
           ODistributedConnectRequest request =
               new ODistributedConnectRequest(protocolVersion, userName, userPassword);
-          request.write(channel, null);
+          request.write(null, channel, null);
           channel.flush();
 
           channel.beginResponse(true);

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -26,7 +26,6 @@ import com.orientechnologies.orient.core.storage.cluster.v2.OPaginatedClusterV2;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 10/8/13
  */
 public final class OPaginatedClusterFactory {
@@ -43,12 +42,10 @@ public final class OPaginatedClusterFactory {
     }
 
     return switch (binaryVersion) {
-      case 0 ->
-          throw new IllegalStateException(
-              "Version 0 of cluster is not supported with given configuration");
-      case 1 ->
-          throw new IllegalStateException(
-              "Version 1 of cluster is not supported with given configuration");
+      case 0 -> throw new IllegalStateException(
+          "Version 0 of cluster is not supported with given configuration");
+      case 1 -> throw new IllegalStateException(
+          "Version 1 of cluster is not supported with given configuration");
       case 2 -> new OPaginatedClusterV2(name, storage);
       default ->
           throw new IllegalStateException("Invalid binary version of cluster " + binaryVersion);
@@ -63,12 +60,10 @@ public final class OPaginatedClusterFactory {
       final String cpmExtension,
       final String fsmExtension) {
     return switch (binaryVersion) {
-      case 0 ->
-          throw new IllegalStateException(
-              "Version 0 of cluster is not supported with given configuration");
-      case 1 ->
-          throw new IllegalStateException(
-              "Version 1 of cluster is not supported with given configuration");
+      case 0 -> throw new IllegalStateException(
+          "Version 0 of cluster is not supported with given configuration");
+      case 1 -> throw new IllegalStateException(
+          "Version 1 of cluster is not supported with given configuration");
       case 2 -> new OPaginatedClusterV2(name, dataExtension, cpmExtension, fsmExtension, storage);
       default ->
           throw new IllegalStateException("Invalid binary version of cluster " + binaryVersion);

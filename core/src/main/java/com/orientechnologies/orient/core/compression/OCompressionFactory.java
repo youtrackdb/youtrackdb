@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientechnologies.com
+ *
  *
  */
 
@@ -34,7 +34,6 @@ import java.util.Set;
 /**
  * Factory of compression algorithms.
  *
- * @author Andrey Lomakin
  * @since 05.06.13
  */
 public class OCompressionFactory {

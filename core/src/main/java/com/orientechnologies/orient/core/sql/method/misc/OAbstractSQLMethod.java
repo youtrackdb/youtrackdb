@@ -15,13 +15,14 @@
  */
 package com.orientechnologies.orient.core.sql.method.misc;
 
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.method.OSQLMethod;
 
 /**
- * @author Johann Sorel (Geomatys)
+ *
  */
 public abstract class OAbstractSQLMethod implements OSQLMethod {
 
@@ -82,7 +83,7 @@ public abstract class OAbstractSQLMethod implements OSQLMethod {
   }
 
   @Override
-  public int getMaxParams() {
+  public int getMaxParams(ODatabaseSession session) {
     return maxparams;
   }
 

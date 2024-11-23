@@ -1,6 +1,5 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
@@ -34,14 +33,15 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 
 /**
- * Created by luigidellaquila on 06/07/16.
+ *
  */
 public class OResultInternal implements OResult {
 
   protected Map<String, Object> content;
   protected Map<String, Object> temporaryContent;
   protected Map<String, Object> metadata;
-  @Nullable protected OIdentifiable identifiable;
+  @Nullable
+  protected OIdentifiable identifiable;
 
   public OResultInternal() {
     content = new LinkedHashMap<>();
@@ -500,7 +500,7 @@ public class OResultInternal implements OResult {
         var id = elem.getIdentity();
         if (id != null && id.isValid()) {
           try {
-            identifiable = ODatabaseSession.getActiveSession().bindToSession(elem);
+            identifiable = ODatabaseSessionInternal.getActiveSession().bindToSession(elem);
           } catch (ORecordNotFoundException rnf) {
             identifiable = null;
           }
@@ -533,8 +533,8 @@ public class OResultInternal implements OResult {
     }
     return "{\n"
         + content.entrySet().stream()
-            .map(x -> x.getKey() + ": " + x.getValue())
-            .reduce("", (a, b) -> a + b + "\n")
+        .map(x -> x.getKey() + ": " + x.getValue())
+        .reduce("", (a, b) -> a + b + "\n")
         + "}\n";
   }
 

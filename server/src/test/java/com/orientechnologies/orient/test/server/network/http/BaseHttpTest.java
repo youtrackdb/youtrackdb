@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.test.server.network.http;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import java.io.IOException;
@@ -26,8 +26,6 @@ import org.apache.hc.core5.http.io.entity.StringEntity;
 
 /**
  * Base test class for HTTP protocol.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com) (l.garulli--at-orientdb.com)
  */
 public abstract class BaseHttpTest {
 
@@ -40,7 +38,7 @@ public abstract class BaseHttpTest {
   private final String protocol = "http";
   private final String host = "localhost";
   private final int port = 2499;
-  private String realm = "OrientDB-";
+  private String realm = "OxygenDB-";
   private String userName = "admin";
   private String userPassword = "admin";
   private String databaseName;
@@ -86,11 +84,11 @@ public abstract class BaseHttpTest {
       server.shutdown();
       server = null;
 
-      Orient.instance().shutdown();
+      Oxygen.instance().shutdown();
       if (serverDirectory != null) {
         OFileUtils.deleteRecursively(new File(serverDirectory));
       }
-      Orient.instance().startup();
+      Oxygen.instance().startup();
     }
   }
 

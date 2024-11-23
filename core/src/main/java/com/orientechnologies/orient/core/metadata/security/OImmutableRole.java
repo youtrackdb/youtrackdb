@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.metadata.security;
 
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -10,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 03/11/14
  */
 public class OImmutableRole implements OSecurityRole {
@@ -25,21 +25,21 @@ public class OImmutableRole implements OSecurityRole {
   private final ORID rid;
   private final Map<String, OSecurityPolicy> policies;
 
-  public OImmutableRole(OSecurityRole role) {
+  public OImmutableRole(ODatabaseSession session, OSecurityRole role) {
     if (role.getParentRole() == null) {
       this.parentRole = null;
     } else {
-      this.parentRole = new OImmutableRole(role.getParentRole());
+      this.parentRole = new OImmutableRole(session, role.getParentRole());
     }
 
     this.mode = role.getMode();
-    this.name = role.getName();
-    this.rid = role.getIdentity().getIdentity();
+    this.name = role.getName(session);
+    this.rid = role.getIdentity(session).getIdentity();
 
     for (ORule rule : role.getRuleSet()) {
       rules.put(rule.getResourceGeneric(), rule);
     }
-    Map<String, OSecurityPolicy> policies = role.getPolicies();
+    Map<String, OSecurityPolicy> policies = role.getPolicies(session);
     if (policies != null) {
       Map<String, OSecurityPolicy> result = new HashMap<String, OSecurityPolicy>();
       policies
@@ -101,17 +101,20 @@ public class OImmutableRole implements OSecurityRole {
   }
 
   public OSecurityRole addRule(
-      final ORule.ResourceGeneric resourceGeneric, String resourceSpecific, final int iOperation) {
+      ODatabaseSession session, final ResourceGeneric resourceGeneric, String resourceSpecific,
+      final int iOperation) {
     throw new UnsupportedOperationException();
   }
 
   public OSecurityRole grant(
-      final ORule.ResourceGeneric resourceGeneric, String resourceSpecific, final int iOperation) {
+      ODatabaseSession session, final ResourceGeneric resourceGeneric, String resourceSpecific,
+      final int iOperation) {
     throw new UnsupportedOperationException();
   }
 
   public ORole revoke(
-      final ORule.ResourceGeneric resourceGeneric, String resourceSpecific, final int iOperation) {
+      ODatabaseSession session, final ResourceGeneric resourceGeneric, String resourceSpecific,
+      final int iOperation) {
     throw new UnsupportedOperationException();
   }
 
@@ -144,21 +147,21 @@ public class OImmutableRole implements OSecurityRole {
   }
 
   @Override
-  public OSecurityRole addRule(String iResource, int iOperation) {
+  public OSecurityRole addRule(ODatabaseSession session, String iResource, int iOperation) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public OSecurityRole grant(String iResource, int iOperation) {
+  public OSecurityRole grant(ODatabaseSession session, String iResource, int iOperation) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public OSecurityRole revoke(String iResource, int iOperation) {
+  public OSecurityRole revoke(ODatabaseSession session, String iResource, int iOperation) {
     throw new UnsupportedOperationException();
   }
 
-  public String getName() {
+  public String getName(ODatabaseSession session) {
     return name;
   }
 
@@ -174,7 +177,7 @@ public class OImmutableRole implements OSecurityRole {
     return parentRole;
   }
 
-  public ORole setParentRole(final OSecurityRole iParent) {
+  public ORole setParentRole(ODatabaseSession session, final OSecurityRole iParent) {
     throw new UnsupportedOperationException();
   }
 
@@ -188,17 +191,17 @@ public class OImmutableRole implements OSecurityRole {
   }
 
   @Override
-  public OIdentifiable getIdentity() {
+  public OIdentifiable getIdentity(ODatabaseSession session) {
     return rid;
   }
 
   @Override
-  public Map<String, OSecurityPolicy> getPolicies() {
+  public Map<String, OSecurityPolicy> getPolicies(ODatabaseSession session) {
     return policies;
   }
 
   @Override
-  public OSecurityPolicy getPolicy(String resource) {
+  public OSecurityPolicy getPolicy(ODatabaseSession session, String resource) {
     if (policies == null) {
       return null;
     }

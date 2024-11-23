@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.operator;
@@ -23,6 +23,7 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
@@ -45,11 +46,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 
 /**
  * EQUALS operator.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
 
@@ -63,16 +63,17 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
     }
   }
 
-  public static boolean equals(final Object iLeft, final Object iRight, OType type) {
+  public static boolean equals(ODatabaseSession session, final Object iLeft, final Object iRight,
+      OType type) {
     if (type == null) {
-      return equals(iLeft, iRight);
+      return equals(session, iLeft, iRight);
     }
-    Object left = OType.convert(iLeft, type.getDefaultJavaType());
-    Object right = OType.convert(iRight, type.getDefaultJavaType());
-    return equals(left, right);
+    Object left = OType.convert(session, iLeft, type.getDefaultJavaType());
+    Object right = OType.convert(session, iRight, type.getDefaultJavaType());
+    return equals(session, left, right);
   }
 
-  public static boolean equals(Object iLeft, Object iRight) {
+  public static boolean equals(@Nullable ODatabaseSession session, Object iLeft, Object iRight) {
     if (iLeft == null || iRight == null) {
       return false;
     }
@@ -103,7 +104,7 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
 
     // ALL OTHER CASES
     try {
-      final Object right = OType.convert(iRight, iLeft.getClass());
+      final Object right = OType.convert(session, iRight, iLeft.getClass());
 
       if (right == null) {
         return false;
@@ -207,7 +208,8 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
         return null;
       }
 
-      stream = index.getInternal().getRids(key).map((rid) -> new ORawPair<>(key, rid));
+      stream = index.getInternal().getRids(iContext.getDatabase(), key)
+          .map((rid) -> new ORawPair<>(key, rid));
     } else {
       // in case of composite keys several items can be returned in case of we perform search
       // using part of composite key stored in index.
@@ -226,10 +228,13 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
           compositeIndexDefinition.createSingleValue(iContext.getDatabase(), keyParams);
 
       if (internalIndex.hasRangeQuerySupport()) {
-        stream = index.getInternal().streamEntriesBetween(keyOne, true, keyTwo, true, ascSortOrder);
+        stream = index.getInternal()
+            .streamEntriesBetween(iContext.getDatabase(), keyOne, true, keyTwo, true,
+                ascSortOrder);
       } else {
         if (indexDefinition.getParamCount() == keyParams.size()) {
-          stream = index.getInternal().getRids(keyOne).map((rid) -> new ORawPair<>(keyOne, rid));
+          stream = index.getInternal().getRids(iContext.getDatabase(), keyOne)
+              .map((rid) -> new ORawPair<>(keyOne, rid));
         } else {
           return null;
         }
@@ -241,9 +246,9 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
   }
 
   @Override
-  public ORID getBeginRidRange(final Object iLeft, final Object iRight) {
+  public ORID getBeginRidRange(ODatabaseSession session, final Object iLeft, final Object iRight) {
     if (iLeft instanceof OSQLFilterItemField
-        && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iLeft).getRoot())) {
+        && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iLeft).getRoot(session))) {
       if (iRight instanceof ORID) {
         return (ORID) iRight;
       } else {
@@ -255,7 +260,7 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
     }
 
     if (iRight instanceof OSQLFilterItemField
-        && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iRight).getRoot())) {
+        && ODocumentHelper.ATTRIBUTE_RID.equals(((OSQLFilterItemField) iRight).getRoot(session))) {
       if (iLeft instanceof ORID) {
         return (ORID) iLeft;
       } else {
@@ -270,8 +275,8 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
   }
 
   @Override
-  public ORID getEndRidRange(final Object iLeft, final Object iRight) {
-    return getBeginRidRange(iLeft, iRight);
+  public ORID getEndRidRange(ODatabaseSession session, final Object iLeft, final Object iRight) {
+    return getBeginRidRange(session, iLeft, iRight);
   }
 
   @Override
@@ -281,7 +286,7 @@ public class OQueryOperatorEquals extends OQueryOperatorEqualityNotNulls {
       final Object iLeft,
       final Object iRight,
       OCommandContext iContext) {
-    return equals(iLeft, iRight);
+    return equals(iContext.getDatabase(), iLeft, iRight);
   }
 
   @Override

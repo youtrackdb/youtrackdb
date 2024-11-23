@@ -2,7 +2,15 @@ package com.orientechnologies.orient.core.tx;
 
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.ConcurrentModificationException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Optional;
 
 public class OTxIndexChangesList
     implements List<OTransactionIndexChangesPerKey.OTransactionIndexEntry> {

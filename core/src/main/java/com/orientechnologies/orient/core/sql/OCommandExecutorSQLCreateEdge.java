@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql;
@@ -30,9 +30,9 @@ import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
-import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.OVertex;
+import com.orientechnologies.orient.core.record.impl.OEdgeInternal;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItem;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionRuntime;
 import java.util.ArrayList;
@@ -44,8 +44,6 @@ import java.util.Set;
 
 /**
  * SQL CREATE EDGE command.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OCommandExecutorSQLCreateEdge extends OCommandExecutorSQLSetAware
     implements OCommandDistributedReplicateRequest {
@@ -167,7 +165,7 @@ public class OCommandExecutorSQLCreateEdge extends OCommandExecutorSQLSetAware
   /**
    * Execute the command and return the ODocument object created.
    */
-  public Object execute(final Map<Object, Object> iArgs) {
+  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
     if (clazz == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
@@ -212,7 +210,7 @@ public class OCommandExecutorSQLCreateEdge extends OCommandExecutorSQLSetAware
             }
           }
 
-          OEdge edge = null;
+          OEdgeInternal edge;
 
           if (content != null) {
             if (fields != null)
@@ -224,13 +222,13 @@ public class OCommandExecutorSQLCreateEdge extends OCommandExecutorSQLSetAware
             }
           }
 
-          edge = fromVertex.addEdge(toVertex, edgeLabel);
+          edge = (OEdgeInternal) fromVertex.addEdge(toVertex, edgeLabel);
           if (fields != null && !fields.isEmpty()) {
             OSQLHelper.bindParameters(
                 edge.getRecord(), fields, new OCommandParameters(iArgs), context);
           }
 
-          edge.save(clusterName);
+          edge.getBaseDocument().save(clusterName);
           fromVertex.save();
           toVertex.save();
 

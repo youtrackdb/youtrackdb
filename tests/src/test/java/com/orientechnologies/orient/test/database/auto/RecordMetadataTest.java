@@ -10,7 +10,6 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 /**
- * @author edegtyarenko
  * @since 11.03.13 12:00
  */
 @Test

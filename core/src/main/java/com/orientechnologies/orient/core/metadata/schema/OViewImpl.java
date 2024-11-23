@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.core.metadata.schema;
 
 import com.orientechnologies.orient.core.collate.OCollate;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
@@ -184,10 +185,10 @@ public abstract class OViewImpl extends OClassImpl implements OView {
     return cfg.getQuery();
   }
 
-  public long count(final boolean isPolymorphic) {
+  public long count(ODatabaseSession session, final boolean isPolymorphic) {
     acquireSchemaReadLock();
     try {
-      return getDatabase().countView(getName());
+      return ((ODatabaseSessionInternal) session).countView(getName());
     } finally {
       releaseSchemaReadLock();
     }
@@ -227,14 +228,14 @@ public abstract class OViewImpl extends OClassImpl implements OView {
     return cfg.getIndexes();
   }
 
-  public Set<OIndex> getClassIndexes() {
+  public Set<OIndex> getClassIndexes(ODatabaseSession session) {
     if (activeIndexNames == null || activeIndexNames.isEmpty()) {
       return new HashSet<>();
     }
     acquireSchemaReadLock();
     try {
 
-      final ODatabaseSessionInternal database = getDatabase();
+      final ODatabaseSessionInternal database = (ODatabaseSessionInternal) session;
       final OIndexManagerAbstract idxManager = database.getMetadata().getIndexManagerInternal();
       if (idxManager == null) {
         return new HashSet<>();
@@ -250,10 +251,10 @@ public abstract class OViewImpl extends OClassImpl implements OView {
   }
 
   @Override
-  public void getClassIndexes(final Collection<OIndex> indexes) {
+  public void getClassIndexes(ODatabaseSession session, final Collection<OIndex> indexes) {
     acquireSchemaReadLock();
     try {
-      final ODatabaseSessionInternal database = getDatabase();
+      final ODatabaseSessionInternal database = (ODatabaseSessionInternal) session;
       final OIndexManagerAbstract idxManager = database.getMetadata().getIndexManagerInternal();
       if (idxManager == null) {
         return;
@@ -268,28 +269,28 @@ public abstract class OViewImpl extends OClassImpl implements OView {
     }
   }
 
-  public List<String> inactivateIndexes() {
-    acquireSchemaWriteLock();
+  public List<String> inactivateIndexes(ODatabaseSessionInternal session) {
+    acquireSchemaWriteLock(session);
     try {
       List<String> oldIndexes = new ArrayList<>(activeIndexNames);
       this.activeIndexNames.clear();
       return oldIndexes;
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
   }
 
-  public void addActiveIndexes(List<String> names) {
-    acquireSchemaWriteLock();
+  public void addActiveIndexes(ODatabaseSessionInternal session, List<String> names) {
+    acquireSchemaWriteLock(session);
     try {
       this.activeIndexNames.addAll(names);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
   }
 
   public abstract OViewRemovedMetadata replaceViewClusterAndIndex(
-      int cluster, List<OIndex> indexes, long lastRefreshTime);
+      ODatabaseSessionInternal session, int cluster, List<OIndex> indexes, long lastRefreshTime);
 
   public Set<String> getActiveIndexNames() {
     return new HashSet<>(activeIndexNames);

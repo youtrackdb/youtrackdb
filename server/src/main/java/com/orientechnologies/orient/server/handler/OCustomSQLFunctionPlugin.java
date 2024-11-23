@@ -17,8 +17,6 @@ import java.util.Map;
 
 /**
  * Server Plugin to register custom SQL functions.
- *
- * @author Fabrizio Fortino
  */
 public class OCustomSQLFunctionPlugin extends OServerPluginAbstract {
 
@@ -51,7 +49,8 @@ public class OCustomSQLFunctionPlugin extends OServerPluginAbstract {
     try {
       String configurationContent = OIOUtils.readFileAsString(configFile);
       configurationContent = removeComments(configurationContent);
-      configuration = new ODocument().fromJSON(configurationContent);
+      configuration = new ODocument();
+      configuration.fromJSON(configurationContent);
     } catch (IOException e) {
       throw OException.wrapException(
           new OConfigurationException(

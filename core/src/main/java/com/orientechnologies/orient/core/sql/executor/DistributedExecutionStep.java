@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 
 /**
- * Created by luigidellaquila on 08/05/17.
+ *
  */
 public class DistributedExecutionStep extends AbstractExecutionStep {
 

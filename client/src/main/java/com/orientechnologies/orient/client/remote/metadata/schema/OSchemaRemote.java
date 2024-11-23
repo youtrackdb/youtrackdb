@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.client.remote.metadata.schema;
 
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Created by tglman on 13/06/17.
+ *
  */
 public class OSchemaRemote extends OSchemaShared {
 
@@ -157,7 +157,7 @@ public class OSchemaRemote extends OSchemaShared {
       result = classes.get(className.toLowerCase(Locale.ENGLISH));
 
       // WAKE UP DB LIFECYCLE LISTENER
-      for (Iterator<ODatabaseLifecycleListener> it = Orient.instance().getDbLifecycleListeners();
+      for (Iterator<ODatabaseLifecycleListener> it = Oxygen.instance().getDbLifecycleListeners();
           it.hasNext(); ) {
         it.next().onCreateClass(database, result);
       }
@@ -237,7 +237,7 @@ public class OSchemaRemote extends OSchemaShared {
       result = classes.get(className.toLowerCase(Locale.ENGLISH));
 
       // WAKE UP DB LIFECYCLE LISTENER
-      for (Iterator<ODatabaseLifecycleListener> it = Orient.instance().getDbLifecycleListeners();
+      for (Iterator<ODatabaseLifecycleListener> it = Oxygen.instance().getDbLifecycleListeners();
           it.hasNext(); ) {
         it.next().onCreateClass(database, result);
       }
@@ -298,7 +298,7 @@ public class OSchemaRemote extends OSchemaShared {
       result = views.get(cfg.getName().toLowerCase(Locale.ENGLISH));
 
       // WAKE UP DB LIFECYCLE LISTENER
-      for (Iterator<ODatabaseLifecycleListener> it = Orient.instance().getDbLifecycleListeners();
+      for (Iterator<ODatabaseLifecycleListener> it = Oxygen.instance().getDbLifecycleListeners();
           it.hasNext(); ) {
         it.next().onCreateView(database, result);
       }
@@ -351,7 +351,7 @@ public class OSchemaRemote extends OSchemaShared {
       result = views.get(name.toLowerCase(Locale.ENGLISH));
 
       // WAKE UP DB LIFECYCLE LISTENER
-      for (Iterator<ODatabaseLifecycleListener> it = Orient.instance().getDbLifecycleListeners();
+      for (Iterator<ODatabaseLifecycleListener> it = Oxygen.instance().getDbLifecycleListeners();
           it.hasNext(); ) {
         it.next().onCreateView(database, result);
       }
@@ -489,9 +489,9 @@ public class OSchemaRemote extends OSchemaShared {
         "'Internal' schema modification methods can be used only inside of embedded database");
   }
 
-  public void update(ODocument schema) {
+  public void update(ODatabaseSessionInternal session, ODocument schema) {
     if (!skipPush.get()) {
-      fromStream(schema);
+      fromStream(session, schema);
       this.snapshot = null;
     }
   }

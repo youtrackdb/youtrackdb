@@ -6,7 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by Enrico Risa on 05/10/16.
+ *
  */
 public class LuceneNullTest extends BaseLuceneTest {
 
@@ -26,13 +26,13 @@ public class LuceneNullTest extends BaseLuceneTest {
 
     db.begin();
     doc = db.bindToSession(doc);
-    doc.field("names", new String[] {"foo"});
+    doc.field("names", new String[]{"foo"});
     db.save(doc);
     db.commit();
 
     db.begin();
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Test.names");
-    Assert.assertEquals(1, index.getInternal().size());
+    Assert.assertEquals(1, index.getInternal().size(db));
     db.commit();
   }
 
@@ -46,7 +46,7 @@ public class LuceneNullTest extends BaseLuceneTest {
     ODocument doc = new ODocument("Test");
 
     db.begin();
-    doc.field("names", new String[] {"foo"});
+    doc.field("names", new String[]{"foo"});
     db.save(doc);
     db.commit();
 
@@ -60,7 +60,7 @@ public class LuceneNullTest extends BaseLuceneTest {
 
     db.begin();
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Test.names");
-    Assert.assertEquals(index.getInternal().size(), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
     db.commit();
   }
 }

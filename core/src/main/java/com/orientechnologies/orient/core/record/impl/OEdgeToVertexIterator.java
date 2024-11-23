@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.record.OVertex;
 import java.util.Iterator;
 
 /**
- * Created by luigidellaquila on 02/07/16.
+ *
  */
 public class OEdgeToVertexIterator implements Iterator<OVertex> {
 

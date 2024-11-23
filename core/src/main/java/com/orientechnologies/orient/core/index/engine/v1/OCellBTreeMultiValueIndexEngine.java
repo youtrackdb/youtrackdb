@@ -4,6 +4,7 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.config.IndexEngineData;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.encryption.OEncryption;
 import com.orientechnologies.orient.core.exception.OStorageException;
@@ -87,10 +88,12 @@ public final class OCellBTreeMultiValueIndexEngine
   }
 
   @Override
-  public void init(OIndexMetadata metadata) {}
+  public void init(OIndexMetadata metadata) {
+  }
 
   @Override
-  public void flush() {}
+  public void flush() {
+  }
 
   @Override
   public String getName() {
@@ -119,7 +122,7 @@ public final class OCellBTreeMultiValueIndexEngine
             data.getKeySize() + 1,
             encryption);
         nullTree.create(
-            atomicOperation, OCompactedLinkSerializer.INSTANCE, new OType[] {OType.LINK}, 1, null);
+            atomicOperation, OCompactedLinkSerializer.INSTANCE, new OType[]{OType.LINK}, 1, null);
       }
     } catch (IOException e) {
       throw OException.wrapException(
@@ -243,7 +246,7 @@ public final class OCellBTreeMultiValueIndexEngine
 
       svTree.load(name, keySize + 1, sbTypes, new CompositeKeySerializer(), null);
       nullTree.load(
-          nullTreeName, 1, new OType[] {OType.LINK}, OCompactedLinkSerializer.INSTANCE, null);
+          nullTreeName, 1, new OType[]{OType.LINK}, OCompactedLinkSerializer.INSTANCE, null);
     }
   }
 
@@ -437,7 +440,7 @@ public final class OCellBTreeMultiValueIndexEngine
 
   @Override
   public Stream<ORawPair<Object, ORID>> iterateEntriesBetween(
-      Object rangeFrom,
+      ODatabaseSessionInternal session, Object rangeFrom,
       boolean fromInclusive,
       Object rangeTo,
       boolean toInclusive,
@@ -537,7 +540,7 @@ public final class OCellBTreeMultiValueIndexEngine
       }
 
       if (firstKey != null && lastKey != null) {
-        final Object[] prevKey = new Object[] {new Object()};
+        final Object[] prevKey = new Object[]{new Object()};
         try (final Stream<ORawPair<Object, ORID>> stream =
             mvTree.iterateEntriesBetween(firstKey, true, lastKey, true, true)) {
           counter +=

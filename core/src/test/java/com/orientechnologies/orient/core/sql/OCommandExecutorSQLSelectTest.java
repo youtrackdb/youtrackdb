@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2015 OrientDB LTD (info(at)orientdb.com)
+ *  *  Copyright 2015 OxygenDB LTD (info(at)orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql;
@@ -29,7 +29,7 @@ import static org.junit.Assert.fail;
 
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.common.profiler.OProfiler;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorClass;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -380,7 +380,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
   }
 
   private static OProfiler getProfilerInstance() {
-    return Orient.instance().getProfiler();
+    return Oxygen.instance().getProfiler();
   }
 
   @Test
@@ -389,7 +389,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
 
     List<ODocument> qResult =
         db.command(new OCommandSQL("select * from foo where address.city = 'NY' order by name ASC"))
-            .execute();
+            .execute(db);
     assertEquals(qResult.size(), 1);
   }
 
@@ -399,7 +399,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
 
     List<ODocument> qResult =
         db.command(new OCommandSQL("select * from foo where bar = 2 or name ='a' and bar >= 0"))
-            .execute();
+            .execute(db);
 
     assertEquals(qResult.size(), 2);
     assertEquals(indexUsages(db), idxUsagesBefore + 2);
@@ -411,7 +411,8 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     long idxUsagesBefore = indexUsages(db);
 
     List<ODocument> qResult =
-        db.command(new OCommandSQL("select * from foo where bar = 2 or notIndexed = 3")).execute();
+        db.command(new OCommandSQL("select * from foo where bar = 2 or notIndexed = 3"))
+            .execute(db);
 
     assertEquals(indexUsages(db), idxUsagesBefore);
   }
@@ -421,7 +422,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     long idxUsagesBefore = indexUsages(db);
 
     List<ODocument> qResult =
-        db.command(new OCommandSQL("select * from foo where comp = 'a' and osite = 1")).execute();
+        db.command(new OCommandSQL("select * from foo where comp = 'a' and osite = 1")).execute(db);
 
     assertEquals(qResult.size(), 1);
     assertEquals(indexUsages(db), idxUsagesBefore + 1);
@@ -432,7 +433,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     long idxUsagesBefore = indexUsages(db);
 
     List<ODocument> qResult =
-        db.command(new OCommandSQL("select a from foo where name = 'a' or bar = 1")).execute();
+        db.command(new OCommandSQL("select a from foo where name = 'a' or bar = 1")).execute(db);
 
     assertEquals(qResult.size(), 1);
     assertEquals(indexUsages(db), idxUsagesBefore + 2);
@@ -443,7 +444,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     long idxUsagesBefore = indexUsages(db);
 
     List<ODocument> qResult =
-        db.command(new OCommandSQL("select a from foo where name = 'a' or bar = 2")).execute();
+        db.command(new OCommandSQL("select a from foo where name = 'a' or bar = 2")).execute(db);
 
     assertEquals(qResult.size(), 2);
     assertEquals(indexUsages(db), idxUsagesBefore + 2);
@@ -456,7 +457,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     List<ODocument> qResult =
         db.command(
                 new OCommandSQL("select * from foo where (comp = 'a' and osite = 1) or name = 'a'"))
-            .execute();
+            .execute(db);
 
     assertEquals(qResult.size(), 2);
     assertEquals(indexUsages(db), idxUsagesBefore + 2);
@@ -621,7 +622,8 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
   @Test
   public void testFlattenOnEmbedded() {
     List<ODocument> qResult =
-        db.command(new OCommandSQL("select flatten(address) from foo where name = 'a'")).execute();
+        db.command(new OCommandSQL("select flatten(address) from foo where name = 'a'"))
+            .execute(db);
 
     assertEquals(qResult.size(), 1);
     assertEquals(qResult.get(0).field("city"), "NY");
@@ -1632,7 +1634,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
 
     OClass clazz = db.getMetadata().getSchema().createClass("TestOrderByRidDescMultiCluster");
     if (clazz.getClusterIds().length < 2) {
-      clazz.addCluster("TestOrderByRidDescMultiCluster_11111");
+      clazz.addCluster(db, "TestOrderByRidDescMultiCluster_11111");
     }
 
     for (int i = 0; i < 100; i++) {

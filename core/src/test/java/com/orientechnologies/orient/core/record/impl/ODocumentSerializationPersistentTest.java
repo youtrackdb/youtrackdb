@@ -21,7 +21,6 @@ import org.junit.Test;
 /**
  * Tests that {@link ODocument} is serializable.
  *
- * @author Artem Orobets (enisher-at-gmail.com)
  * @since 12/20/12
  */
 public class ODocumentSerializationPersistentTest extends BaseMemoryInternalDatabase {
@@ -55,8 +54,8 @@ public class ODocumentSerializationPersistentTest extends BaseMemoryInternalData
     final ObjectOutputStream out = new ObjectOutputStream(byteArrayOutputStream);
 
     out.writeObject(doc);
-    db.close();
 
+    db.begin();
     final ObjectInputStream in =
         new ObjectInputStream(new ByteArrayInputStream(byteArrayOutputStream.toByteArray()));
     final ODocument loadedDoc = (ODocument) in.readObject();
@@ -70,6 +69,7 @@ public class ODocumentSerializationPersistentTest extends BaseMemoryInternalData
     for (int i = 0; i < numbers.size(); i++) {
       assertEquals((int) numbers.get(i), i);
     }
+    db.rollback();
   }
 
   @Test(expected = ODatabaseException.class)
@@ -91,7 +91,7 @@ public class ODocumentSerializationPersistentTest extends BaseMemoryInternalData
     doc.setProperty("emb", docs, OType.EMBEDDEDLIST);
     doc.setProperty("some", "test");
 
-    byte[] res = db.getSerializer().toStream(doc);
-    db.getSerializer().fromStream(res, new ODocument(), new String[] {});
+    byte[] res = db.getSerializer().toStream(db, doc);
+    db.getSerializer().fromStream(res, new ODocument(), new String[]{});
   }
 }

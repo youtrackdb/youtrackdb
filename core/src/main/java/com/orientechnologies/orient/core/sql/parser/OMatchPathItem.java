@@ -97,14 +97,15 @@ public class OMatchPathItem extends SimpleNode {
       whileCondition = this.filter.getWhileCondition();
       maxDepth = this.filter.getMaxDepth();
       String className = this.filter.getClassName(iCommandContext);
-      oClass = getDatabase().getMetadata().getImmutableSchemaSnapshot().getClass(className);
+      oClass = iCommandContext.getDatabase().getMetadata().getImmutableSchemaSnapshot()
+          .getClass(className);
     }
 
     Set<OIdentifiable> result = new HashSet<OIdentifiable>();
 
     if (whileCondition == null
         && maxDepth
-            == null) { // in this case starting point is not returned and only one level depth is
+        == null) { // in this case starting point is not returned and only one level depth is
       // evaluated
       Iterable<OIdentifiable> queryResult =
           traversePatternEdge(matchContext, startingPoint, iCommandContext);
@@ -134,7 +135,7 @@ public class OMatchPathItem extends SimpleNode {
 
       if ((maxDepth == null || depth < maxDepth)
           && (whileCondition == null
-              || whileCondition.matchesFilters(startingPoint, iCommandContext))) {
+          || whileCondition.matchesFilters(startingPoint, iCommandContext))) {
 
         Iterable<OIdentifiable> queryResult =
             traversePatternEdge(matchContext, startingPoint, iCommandContext);

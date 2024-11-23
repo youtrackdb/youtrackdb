@@ -35,7 +35,7 @@ public class OSQLFunctionModeTest {
     int[] scores = {1, 2, 3, 3, 3, 2};
 
     for (int s : scores) {
-      mode.execute(null, null, null, new Object[] {s}, null);
+      mode.execute(null, null, null, new Object[]{s}, null);
     }
 
     Object result = mode.getResult();
@@ -47,7 +47,7 @@ public class OSQLFunctionModeTest {
     int[] scores = {1, 2, 3, 3, 3, 2, 2};
 
     for (int s : scores) {
-      mode.execute(null, null, null, new Object[] {s}, null);
+      mode.execute(null, null, null, new Object[]{s}, null);
     }
 
     Object result = mode.getResult();
@@ -64,7 +64,7 @@ public class OSQLFunctionModeTest {
     scores[1] = Arrays.asList(1, 1, 1, 2, null);
 
     for (List s : scores) {
-      mode.execute(null, null, null, new Object[] {s}, null);
+      mode.execute(null, null, null, new Object[]{s}, null);
     }
 
     Object result = mode.getResult();

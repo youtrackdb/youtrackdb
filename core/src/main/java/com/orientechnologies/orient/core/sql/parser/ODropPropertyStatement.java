@@ -65,7 +65,7 @@ public class ODropPropertyStatement extends ODDLStatement {
 
         boolean first = true;
         for (final OIndex index :
-            sourceClass.getClassInvolvedIndexes(propertyName.getStringValue())) {
+            sourceClass.getClassInvolvedIndexes(database, propertyName.getStringValue())) {
           if (!first) {
             indexNames.append(", ");
           } else {
@@ -82,7 +82,7 @@ public class ODropPropertyStatement extends ODDLStatement {
     }
 
     // REMOVE THE PROPERTY
-    sourceClass.dropProperty(propertyName.getStringValue());
+    sourceClass.dropProperty(database, propertyName.getStringValue());
 
     OResultInternal result = new OResultInternal();
     result.setProperty("operation", "drop property");
@@ -100,7 +100,7 @@ public class ODropPropertyStatement extends ODDLStatement {
             .getIndexManagerInternal()
             .getClassIndexes(database, className.getStringValue())) {
       if (OCollections.indexOf(
-              oIndex.getDefinition().getFields(), fieldName, new OCaseInsentiveComparator())
+          oIndex.getDefinition().getFields(), fieldName, new OCaseInsentiveComparator())
           > -1) {
         result.add(oIndex);
       }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,11 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.command.OCommandExecutor;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
+import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -35,8 +38,6 @@ import org.testng.annotations.Test;
 
 /**
  * Tests the right calls of all the db's listener API.
- *
- * @author Sylvain Spinelli
  */
 @Test
 public class DbListenerTest extends DocumentDBBaseTest {
@@ -234,8 +235,8 @@ public class DbListenerTest extends DocumentDBBaseTest {
     ODocument rec =
         database
             .<ODocument>newInstance()
-            .field("name", "Jay")
-            .save(database.getClusterNameById(database.getDefaultClusterId()));
+            .field("name", "Jay");
+    rec.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
     final DocumentChangeListener cl = new DocumentChangeListener(database);
@@ -246,6 +247,12 @@ public class DbListenerTest extends DocumentDBBaseTest {
     database.commit();
 
     Assert.assertEquals(cl.getChanges().size(), 1);
+  }
+
+  @Override
+  protected OxygenDBConfig createConfig(OrientDBConfigBuilder builder) {
+    builder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    return builder.build();
   }
 
   @Test

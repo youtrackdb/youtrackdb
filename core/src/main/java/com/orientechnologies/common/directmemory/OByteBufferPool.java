@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2015 OrientDB LTD (info(at)orientdb.com)
+ *  *  Copyright 2015 OxygenDB LTD (info(at)orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  *
  */
 package com.orientechnologies.common.directmemory;
@@ -199,7 +199,7 @@ public final class OByteBufferPool implements OByteBufferPoolMXBean {
     boolean detected = false;
     if (TRACK) {
       for (Map.Entry<OPointer, PointerTracker> entry : pointerMapping.entrySet()) {
-        final Object[] iAdditionalArgs = new Object[] {System.identityHashCode(entry.getKey())};
+        final Object[] iAdditionalArgs = new Object[]{System.identityHashCode(entry.getKey())};
         OLogManager.instance()
             .error(
                 this,

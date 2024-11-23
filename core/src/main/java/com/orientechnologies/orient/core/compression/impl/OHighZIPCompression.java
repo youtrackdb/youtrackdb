@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientechnologies.com
+ *
  *
  */
 
@@ -24,8 +24,6 @@ import java.util.zip.ZipOutputStream;
 
 /**
  * Compression implementation that use ZIP algorithm to the maximum level of compression
- *
- * @author Luca Garulli
  */
 public class OHighZIPCompression extends OZIPCompression {
 

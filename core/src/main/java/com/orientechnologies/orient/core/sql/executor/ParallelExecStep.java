@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ *
  */
 public class ParallelExecStep extends AbstractExecutionStep {
 
@@ -48,7 +48,8 @@ public class ParallelExecStep extends AbstractExecutionStep {
           }
 
           @Override
-          public void close(OCommandContext ctx) {}
+          public void close(OCommandContext ctx) {
+          }
         };
 
     return new OMultipleExecutionStream(res);

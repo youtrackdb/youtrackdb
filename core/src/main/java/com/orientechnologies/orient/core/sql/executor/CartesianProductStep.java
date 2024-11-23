@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * Created by luigidellaquila on 11/10/16.
+ *
  */
 public class CartesianProductStep extends AbstractExecutionStep {
 

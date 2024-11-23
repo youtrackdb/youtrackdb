@@ -26,7 +26,8 @@ public class ODropViewStatement extends ODDLStatement {
 
   @Override
   public OExecutionStream executeDDL(OCommandContext ctx) {
-    OSchema schema = ctx.getDatabase().getMetadata().getSchema();
+    var db = ctx.getDatabase();
+    OSchema schema = db.getMetadata().getSchema();
     OView view = schema.getView(name.getStringValue());
     if (view == null) {
       if (ifExists) {
@@ -35,7 +36,7 @@ public class ODropViewStatement extends ODDLStatement {
       throw new OCommandExecutionException("View " + name.getStringValue() + " does not exist");
     }
 
-    if (view.count() > 0) {
+    if (view.count(db) > 0) {
       // no need for this probably, but perhaps in the future...
       if (view.isVertexType()) {
         throw new OCommandExecutionException(

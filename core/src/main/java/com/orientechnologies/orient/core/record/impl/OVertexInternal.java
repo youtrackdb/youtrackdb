@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.record.impl;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -182,9 +183,8 @@ public interface OVertexInternal extends OVertex, OElementInternal {
     return switch (direction) {
       case OUT -> propertyName.startsWith(DIRECTION_OUT_PREFIX);
       case IN -> propertyName.startsWith(DIRECTION_IN_PREFIX);
-      case BOTH ->
-          propertyName.startsWith(DIRECTION_OUT_PREFIX)
-              || propertyName.startsWith(DIRECTION_IN_PREFIX);
+      case BOTH -> propertyName.startsWith(DIRECTION_OUT_PREFIX)
+          || propertyName.startsWith(DIRECTION_IN_PREFIX);
     };
   }
 
@@ -208,7 +208,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
       }
     }
 
-    return getVertices(direction, types.toArray(new String[] {}));
+    return getVertices(direction, types.toArray(new String[]{}));
   }
 
   @Override
@@ -223,13 +223,13 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
   @Override
   default OEdge addEdge(OVertex to, String type) {
-    var db = getBaseDocument().getDatabase();
+    var db = getBaseDocument().getSession();
     return db.newEdge(this, to, type == null ? OEdgeInternal.CLASS_NAME : type);
   }
 
   @Override
   default OEdge addLightWeightEdge(OVertex to, String label) {
-    var db = getBaseDocument().getDatabase();
+    var db = getBaseDocument().getSession();
     return db.addLightweightEdge(this, to, label);
   }
 
@@ -266,7 +266,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
         types.add(t.getName());
       }
     }
-    return getEdges(direction, types.toArray(new String[] {}));
+    return getEdges(direction, types.toArray(new String[]{}));
   }
 
   @Override
@@ -274,13 +274,17 @@ public interface OVertexInternal extends OVertex, OElementInternal {
     return getBaseDocument().isUnloaded();
   }
 
+  default boolean isNotBound(ODatabaseSession session) {
+    return getBaseDocument().isNotBound(session);
+  }
+
   @Override
   default Iterable<OEdge> getEdges(ODirection direction) {
     var prefixes =
         switch (direction) {
-          case IN -> new String[] {DIRECTION_IN_PREFIX};
-          case OUT -> new String[] {DIRECTION_OUT_PREFIX};
-          case BOTH -> new String[] {DIRECTION_IN_PREFIX, DIRECTION_OUT_PREFIX};
+          case IN -> new String[]{DIRECTION_IN_PREFIX};
+          case OUT -> new String[]{DIRECTION_OUT_PREFIX};
+          case BOTH -> new String[]{DIRECTION_IN_PREFIX, DIRECTION_OUT_PREFIX};
         };
 
     Set<String> candidateClasses = new HashSet<>();
@@ -298,7 +302,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
       }
     }
 
-    return getEdges(direction, candidateClasses.toArray(new String[] {}));
+    return getEdges(direction, candidateClasses.toArray(new String[]{}));
   }
 
   @Override
@@ -312,7 +316,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
   }
 
   private Iterable<OEdge> getEdgesInternal(ODirection direction, String[] labels) {
-    var db = getBaseDocument().getDatabase();
+    var db = getBaseDocument().getSession();
     var schema = db.getMetadata().getImmutableSchemaSnapshot();
 
     labels = resolveAliases(schema, labels);
@@ -324,7 +328,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
       if (toLoadFieldNames != null) {
         // EARLY FETCH ALL THE FIELDS THAT MATTERS
-        doc.deserializeFields(toLoadFieldNames.toArray(new String[] {}));
+        doc.deserializeFields(toLoadFieldNames.toArray(new String[]{}));
         fieldNames = toLoadFieldNames;
       }
     }
@@ -541,8 +545,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
       }
 
     } else if (fieldValue instanceof Collection) {
-      @SuppressWarnings("unchecked")
-      final Collection<OIdentifiable> col = (Collection<OIdentifiable>) fieldValue;
+      @SuppressWarnings("unchecked") final Collection<OIdentifiable> col = (Collection<OIdentifiable>) fieldValue;
 
       if (col.remove(iVertexToRemove)) {
         col.add(newVertex);
@@ -565,121 +568,116 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
   @Override
   default ORID moveTo(final String className, final String clusterName) {
+
     final ODocument baseDoc = getBaseDocument();
-    var db = baseDoc.getDatabase();
+    var db = baseDoc.getSession();
+    if (!db.getTransaction().isActive()) {
+      throw new ODatabaseException("This operation is allowed only inside a transaction");
+    }
     if (checkDeletedInTx(getIdentity())) {
       throw new ORecordNotFoundException(
           getIdentity(), "The vertex " + getIdentity() + " has been deleted");
     }
-    boolean moveTx = !db.getTransaction().isActive();
-    try {
-      if (moveTx) {
-        db.begin();
-      }
 
-      final ORID oldIdentity = getIdentity().copy();
+    final ORID oldIdentity = getIdentity().copy();
 
-      final ORecord oldRecord = oldIdentity.getRecord();
-      var doc = baseDoc.copy();
+    final ORecord oldRecord = oldIdentity.getRecord();
+    var doc = baseDoc.copy();
+    ORecordInternal.setIdentity(doc, new OEmptyRecordId());
 
-      // DELETE THE OLD RECORD FIRST TO AVOID ISSUES WITH UNIQUE CONSTRAINTS
-      copyRidBags(oldRecord, doc);
-      detachRidbags(oldRecord);
-      db.delete(oldRecord);
+    // DELETE THE OLD RECORD FIRST TO AVOID ISSUES WITH UNIQUE CONSTRAINTS
+    copyRidBags(oldRecord, doc);
+    detachRidbags(oldRecord);
+    db.delete(oldRecord);
 
-      var delegate = new OVertexDelegate(doc);
-      final Iterable<OEdge> outEdges = delegate.getEdges(ODirection.OUT);
-      final Iterable<OEdge> inEdges = delegate.getEdges(ODirection.IN);
-      if (className != null) {
-        doc.setClassName(className);
-      }
-
-      // SAVE THE NEW VERTEX
-      doc.setDirty();
-      // RESET IDENTITY
-      ORecordInternal.setIdentity(doc, new OEmptyRecordId());
-      db.save(doc, clusterName);
-      final ORID newIdentity = doc.getIdentity();
-
-      // CONVERT OUT EDGES
-      for (OEdge oe : outEdges) {
-        final OIdentifiable inVLink = oe.getVertexLink(ODirection.IN);
-        var optSchemaType = oe.getSchemaType();
-
-        String schemaType;
-        //noinspection OptionalIsPresent
-        if (optSchemaType.isPresent()) {
-          schemaType = optSchemaType.get().getName();
-        } else {
-          schemaType = null;
-        }
-
-        final String inFieldName = getEdgeLinkFieldName(ODirection.IN, schemaType, true);
-
-        // link to itself
-        ODocument inRecord;
-        if (inVLink.equals(oldIdentity)) {
-          inRecord = doc;
-        } else {
-          inRecord = inVLink.getRecord();
-        }
-        //noinspection deprecation
-        if (oe.isLightweight()) {
-          // REPLACE ALL REFS IN inVertex
-          replaceLinks(inRecord, inFieldName, oldIdentity, newIdentity);
-        } else {
-          // REPLACE WITH NEW VERTEX
-          ((OElementInternal) oe).setPropertyInternal(OEdgeInternal.DIRECTION_OUT, newIdentity);
-        }
-
-        db.save(oe);
-      }
-
-      for (OEdge ine : inEdges) {
-        final OIdentifiable outVLink = ine.getVertexLink(ODirection.OUT);
-
-        var optSchemaType = ine.getSchemaType();
-
-        String schemaType;
-        //noinspection OptionalIsPresent
-        if (optSchemaType.isPresent()) {
-          schemaType = optSchemaType.get().getName();
-        } else {
-          schemaType = null;
-        }
-
-        final String outFieldName = getEdgeLinkFieldName(ODirection.OUT, schemaType, true);
-
-        ODocument outRecord;
-        if (outVLink.equals(oldIdentity)) {
-          outRecord = doc;
-        } else {
-          outRecord = outVLink.getRecord();
-        }
-        //noinspection deprecation
-        if (ine.isLightweight()) {
-          // REPLACE ALL REFS IN outVertex
-          replaceLinks(outRecord, outFieldName, oldIdentity, newIdentity);
-        } else {
-          // REPLACE WITH NEW VERTEX
-          ((OEdgeInternal) ine).setPropertyInternal(OEdge.DIRECTION_IN, newIdentity);
-        }
-
-        db.save(ine);
-      }
-
-      // FINAL SAVE
-      db.save(doc);
-      if (moveTx) {
-        db.commit();
-      }
-      return newIdentity;
-    } catch (RuntimeException ex) {
-      if (moveTx) {
-        db.rollback();
-      }
-      throw ex;
+    var delegate = new OVertexDelegate(doc);
+    final Iterable<OEdge> outEdges = delegate.getEdges(ODirection.OUT);
+    final Iterable<OEdge> inEdges = delegate.getEdges(ODirection.IN);
+    if (className != null) {
+      doc.setClassName(className);
     }
+
+    // SAVE THE NEW VERTEX
+    doc.setDirty();
+
+    ORecordInternal.setIdentity(doc, new OEmptyRecordId());
+    db.save(doc, clusterName);
+    if (db.getTransaction().getEntryCount() == 2) {
+      System.out.println("WTF");
+      db.save(doc, clusterName);
+    }
+    final ORID newIdentity = doc.getIdentity();
+
+    // CONVERT OUT EDGES
+    for (OEdge oe : outEdges) {
+      final OIdentifiable inVLink = oe.getVertexLink(ODirection.IN);
+      var optSchemaType = oe.getSchemaType();
+
+      String schemaType;
+      //noinspection OptionalIsPresent
+      if (optSchemaType.isPresent()) {
+        schemaType = optSchemaType.get().getName();
+      } else {
+        schemaType = null;
+      }
+
+      final String inFieldName = getEdgeLinkFieldName(ODirection.IN, schemaType, true);
+
+      // link to itself
+      ODocument inRecord;
+      if (inVLink.equals(oldIdentity)) {
+        inRecord = doc;
+      } else {
+        inRecord = inVLink.getRecord();
+      }
+      //noinspection deprecation
+      if (oe.isLightweight()) {
+        // REPLACE ALL REFS IN inVertex
+        replaceLinks(inRecord, inFieldName, oldIdentity, newIdentity);
+      } else {
+        // REPLACE WITH NEW VERTEX
+        ((OElementInternal) oe).setPropertyInternal(OEdgeInternal.DIRECTION_OUT, newIdentity);
+      }
+
+      db.save(oe);
+    }
+
+    for (OEdge ine : inEdges) {
+      final OIdentifiable outVLink = ine.getVertexLink(ODirection.OUT);
+
+      var optSchemaType = ine.getSchemaType();
+
+      String schemaType;
+      //noinspection OptionalIsPresent
+      if (optSchemaType.isPresent()) {
+        schemaType = optSchemaType.get().getName();
+      } else {
+        schemaType = null;
+      }
+
+      final String outFieldName = getEdgeLinkFieldName(ODirection.OUT, schemaType, true);
+
+      ODocument outRecord;
+      if (outVLink.equals(oldIdentity)) {
+        outRecord = doc;
+      } else {
+        outRecord = outVLink.getRecord();
+      }
+      //noinspection deprecation
+      if (ine.isLightweight()) {
+        // REPLACE ALL REFS IN outVertex
+        replaceLinks(outRecord, outFieldName, oldIdentity, newIdentity);
+      } else {
+        // REPLACE WITH NEW VERTEX
+        ((OEdgeInternal) ine).setPropertyInternal(OEdge.DIRECTION_IN, newIdentity);
+      }
+
+      db.save(ine);
+    }
+
+    // FINAL SAVE
+    db.save(doc);
+    return newIdentity;
   }
 
   private static void detachRidbags(ORecord oldRecord) {
@@ -841,7 +839,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
   @Override
   default void deleteEdge(OVertex to, String label) {
-    var db = getBaseDocument().getDatabase();
+    var db = getBaseDocument().getSession();
     var schema = db.getMetadata().getImmutableSchemaSnapshot();
     OClass cl = schema.getClass(label);
 
@@ -863,7 +861,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
     var inFieldName = OVertex.getEdgeLinkFieldName(ODirection.IN, label);
 
     var from = getBaseDocument();
-    var db = from.getDatabase();
+    var db = from.getSession();
     var outLink = from.getPropertyInternal(outFieldName);
 
     var toInternal = (OVertexInternal) to;
@@ -926,7 +924,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
     if (found == null) {
       if (propType == OType.LINKLIST
           || (prop != null
-              && "true".equalsIgnoreCase(prop.getCustom("ordered")))) { // TODO constant
+          && "true".equalsIgnoreCase(prop.getCustom("ordered")))) { // TODO constant
         var coll = new OList(fromVertex);
         coll.add(to);
         out = coll;
@@ -1033,18 +1031,18 @@ public interface OVertexInternal extends OVertex, OElementInternal {
     } else if (edgeProp instanceof ORidBag) {
       ((ORidBag) edgeProp).remove(edgeId);
     } else //noinspection deprecation
-    if (edgeProp instanceof OIdentifiable
-            && ((OIdentifiable) edgeProp).getIdentity() != null
-            && ((OIdentifiable) edgeProp).getIdentity().equals(edgeId)
-        || edge.isLightweight()) {
-      vertex.removePropertyInternal(edgeField);
-    } else {
-      OLogManager.instance()
-          .warn(
-              vertex,
-              "Error detaching edge: the vertex collection field is of type "
-                  + (edgeProp == null ? "null" : edgeProp.getClass()));
-    }
+      if (edgeProp instanceof OIdentifiable
+          && ((OIdentifiable) edgeProp).getIdentity() != null
+          && ((OIdentifiable) edgeProp).getIdentity().equals(edgeId)
+          || edge.isLightweight()) {
+        vertex.removePropertyInternal(edgeField);
+      } else {
+        OLogManager.instance()
+            .warn(
+                vertex,
+                "Error detaching edge: the vertex collection field is of type "
+                    + (edgeProp == null ? "null" : edgeProp.getClass()));
+      }
   }
 
   static void removeIncomingEdge(OVertex vertex, OEdge edge) {

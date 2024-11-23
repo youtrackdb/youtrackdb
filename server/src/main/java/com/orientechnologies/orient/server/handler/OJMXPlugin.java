@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -23,7 +23,7 @@ package com.orientechnologies.orient.server.handler;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.OConstants;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
@@ -37,7 +37,8 @@ public class OJMXPlugin extends OServerPluginAbstract {
   private ObjectName onProfiler;
   private boolean profilerManaged;
 
-  public OJMXPlugin() {}
+  public OJMXPlugin() {
+  }
 
   @Override
   public void config(final OServer oServer, final OServerParameterConfiguration[] iParams) {
@@ -65,7 +66,7 @@ public class OJMXPlugin extends OServerPluginAbstract {
         if (mBeanServer.isRegistered(onProfiler)) {
           mBeanServer.unregisterMBean(onProfiler);
         }
-        mBeanServer.registerMBean(Orient.instance().getProfiler(), onProfiler);
+        mBeanServer.registerMBean(Oxygen.instance().getProfiler(), onProfiler);
       }
 
     } catch (Exception e) {
@@ -91,7 +92,7 @@ public class OJMXPlugin extends OServerPluginAbstract {
 
     } catch (Exception e) {
       OLogManager.instance()
-          .error(this, "OrientDB Server v" + OConstants.getVersion() + " unregisterMBean error", e);
+          .error(this, "OxygenDB Server v" + OConstants.getVersion() + " unregisterMBean error", e);
     }
   }
 

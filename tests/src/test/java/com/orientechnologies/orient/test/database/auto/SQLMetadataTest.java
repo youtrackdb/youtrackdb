@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ public class SQLMetadataTest extends DocumentDBBaseTest {
     List<ODocument> result =
         database
             .command(new OSQLSynchQuery<ODocument>("select expand(classes) from metadata:schema"))
-            .execute();
+            .execute(database);
 
     Assert.assertTrue(result.size() != 0);
   }
@@ -52,7 +52,7 @@ public class SQLMetadataTest extends DocumentDBBaseTest {
                 new OSQLSynchQuery<ODocument>(
                     "select expand(properties) from (select expand(classes) from metadata:schema)"
                         + " where name = 'OUser'"))
-            .execute();
+            .execute(database);
 
     Assert.assertTrue(result.size() != 0);
   }
@@ -63,7 +63,7 @@ public class SQLMetadataTest extends DocumentDBBaseTest {
         database
             .command(
                 new OSQLSynchQuery<ODocument>("select expand(indexes) from metadata:indexmanager"))
-            .execute();
+            .execute(database);
 
     Assert.assertTrue(result.size() != 0);
   }
@@ -73,7 +73,7 @@ public class SQLMetadataTest extends DocumentDBBaseTest {
     try {
       database
           .command(new OSQLSynchQuery<ODocument>("select expand(indexes) from metadata:blaaa"))
-          .execute();
+          .execute(database);
       Assert.fail();
     } catch (OQueryParsingException e) {
     }

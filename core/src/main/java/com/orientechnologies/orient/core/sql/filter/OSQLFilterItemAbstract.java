@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.filter;
@@ -24,6 +24,8 @@ import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -42,22 +44,22 @@ import java.util.Locale;
 
 /**
  * Represents an object field as value in the query condition.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OSQLFilterItemAbstract implements OSQLFilterItem {
 
   protected List<OPair<OSQLMethodRuntime, Object[]>> operationsChain = null;
 
-  protected OSQLFilterItemAbstract() {}
+  protected OSQLFilterItemAbstract() {
+  }
 
-  public OSQLFilterItemAbstract(final OBaseParser iQueryToParse, final String iText) {
+  public OSQLFilterItemAbstract(ODatabaseSession session, final OBaseParser iQueryToParse,
+      final String iText) {
     final List<String> parts =
         OStringSerializerHelper.smartSplit(
             iText,
-            new char[] {'.', '[', ']'},
-            new boolean[] {false, false, true},
-            new boolean[] {false, true, false},
+            new char[]{'.', '[', ']'},
+            new boolean[]{false, false, true},
+            new boolean[]{false, true, false},
             0,
             -1,
             false,
@@ -80,22 +82,23 @@ public abstract class OSQLFilterItemAbstract implements OSQLFilterItem {
           operationsChain.add(
               new OPair<OSQLMethodRuntime, Object[]>(
                   new OSQLMethodRuntime(OSQLEngine.getMethod(OSQLMethodMultiValue.NAME)),
-                  new Object[] {part}));
+                  new Object[]{part}));
         } else if (pindex > -1) {
           final String methodName = part.substring(0, pindex).trim().toLowerCase(Locale.ENGLISH);
 
           OSQLMethod method = OSQLEngine.getMethod(methodName);
           final Object[] arguments;
           if (method != null) {
-            if (method.getMaxParams() == -1 || method.getMaxParams() > 0) {
+            if (method.getMaxParams(session) == -1 || method.getMaxParams(session) > 0) {
               arguments = OStringSerializerHelper.getParameters(part).toArray();
               if (arguments.length < method.getMinParams()
-                  || (method.getMaxParams() > -1 && arguments.length > method.getMaxParams())) {
+                  || (method.getMaxParams(session) > -1 && arguments.length > method.getMaxParams(
+                  session))) {
                 String params;
-                if (method.getMinParams() == method.getMaxParams()) {
+                if (method.getMinParams() == method.getMaxParams(session)) {
                   params = "" + method.getMinParams();
                 } else {
-                  params = method.getMinParams() + "-" + method.getMaxParams();
+                  params = method.getMinParams() + "-" + method.getMaxParams(session);
                 }
                 throw new OQueryParsingException(
                     iQueryToParse.parserText,
@@ -126,20 +129,21 @@ public abstract class OSQLFilterItemAbstract implements OSQLFilterItem {
                   0);
             }
 
-            if (f.getMaxParams() == -1 || f.getMaxParams() > 0) {
+            if (f.getMaxParams(session) == -1 || f.getMaxParams(session) > 0) {
               arguments = OStringSerializerHelper.getParameters(part).toArray();
               if (arguments.length + 1 < f.getMinParams()
-                  || (f.getMaxParams() > -1 && arguments.length + 1 > f.getMaxParams())) {
+                  || (f.getMaxParams(session) > -1 && arguments.length + 1 > f.getMaxParams(
+                  session))) {
                 String params;
-                if (f.getMinParams() == f.getMaxParams()) {
+                if (f.getMinParams() == f.getMaxParams(session)) {
                   params = "" + f.getMinParams();
                 } else {
-                  params = f.getMinParams() + "-" + f.getMaxParams();
+                  params = f.getMinParams() + "-" + f.getMaxParams(session);
                 }
                 throw new OQueryParsingException(
                     iQueryToParse.parserText,
                     "Syntax error: function '"
-                        + f.getName()
+                        + f.getName(session)
                         + "' needs "
                         + params
                         + " argument(s) while has been received "
@@ -162,13 +166,13 @@ public abstract class OSQLFilterItemAbstract implements OSQLFilterItem {
           operationsChain.add(
               new OPair<OSQLMethodRuntime, Object[]>(
                   new OSQLMethodRuntime(OSQLEngine.getMethod(OSQLMethodField.NAME)),
-                  new Object[] {part}));
+                  new Object[]{part}));
         }
       }
     }
   }
 
-  public abstract String getRoot();
+  public abstract String getRoot(ODatabaseSession session);
 
   public Object transformValue(
       final OIdentifiable iRecord, final OCommandContext iContext, Object ioResult) {
@@ -203,30 +207,35 @@ public abstract class OSQLFilterItemAbstract implements OSQLFilterItem {
 
   @Override
   public String toString() {
-    final StringBuilder buffer = new StringBuilder(128);
-    final String root = getRoot();
-    if (root != null) {
-      buffer.append(root);
-    }
-    if (operationsChain != null) {
-      for (OPair<OSQLMethodRuntime, Object[]> op : operationsChain) {
-        buffer.append('.');
-        buffer.append(op.getKey());
-        if (op.getValue() != null) {
-          final Object[] values = op.getValue();
-          buffer.append('(');
-          int i = 0;
-          for (Object v : values) {
-            if (i++ > 0) {
-              buffer.append(',');
+    var db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    if (db != null) {
+      final StringBuilder buffer = new StringBuilder(128);
+      final String root = getRoot(db);
+      if (root != null) {
+        buffer.append(root);
+      }
+      if (operationsChain != null) {
+        for (OPair<OSQLMethodRuntime, Object[]> op : operationsChain) {
+          buffer.append('.');
+          buffer.append(op.getKey());
+          if (op.getValue() != null) {
+            final Object[] values = op.getValue();
+            buffer.append('(');
+            int i = 0;
+            for (Object v : values) {
+              if (i++ > 0) {
+                buffer.append(',');
+              }
+              buffer.append(v);
             }
-            buffer.append(v);
+            buffer.append(')');
           }
-          buffer.append(')');
         }
       }
+      return buffer.toString();
     }
-    return buffer.toString();
+
+    return super.toString();
   }
 
   protected abstract void setRoot(OBaseParser iQueryToParse, final String iRoot);

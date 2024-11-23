@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.iterator;
@@ -35,8 +35,6 @@ import java.util.Arrays;
  * updates to the cluster sizes while browsing. This is the case when concurrent clients/threads
  * insert and remove item in any cluster the iterator is browsing. If the cluster are hot removed by
  * from the database the iterator could be invalid and throw exception of cluster not found.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ORecordIteratorClass<REC extends ORecord> extends ORecordIteratorClusters<REC> {
 
@@ -117,7 +115,7 @@ public class ORecordIteratorClass<REC extends ORecord> extends ORecordIteratorCl
   protected boolean include(final ORecord record) {
     return record instanceof ODocument
         && targetClass.isSuperClassOf(
-            ODocumentInternal.getImmutableSchemaClass(((ODocument) record)));
+        ODocumentInternal.getImmutableSchemaClass(((ODocument) record)));
   }
 
   public OClass getTargetClass() {
@@ -138,8 +136,7 @@ public class ORecordIteratorClass<REC extends ORecord> extends ORecordIteratorCl
     // ADJUST TOTAL ELEMENT BASED ON CURRENT TRANSACTION'S ENTRIES
     {
       for (ORecordOperation entry : txEntries) {
-        if (!entry.getRecord().getIdentity().isPersistent()
-            && entry.type != ORecordOperation.DELETED) {
+        if (!entry.record.getIdentity().isPersistent() && entry.type != ORecordOperation.DELETED) {
           totalAvailableRecords++;
         } else if (entry.type == ORecordOperation.DELETED) {
           totalAvailableRecords--;

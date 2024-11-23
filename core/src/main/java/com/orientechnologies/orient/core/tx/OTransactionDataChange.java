@@ -1,9 +1,9 @@
 package com.orientechnologies.orient.core.tx;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializerDelta;
@@ -22,22 +22,23 @@ public class OTransactionDataChange {
   private int version;
   private boolean contentChanged;
 
-  public OTransactionDataChange(ORecordOperation operation) {
+  public OTransactionDataChange(ODatabaseSessionInternal session, ORecordOperation operation) {
     this.type = operation.type;
-    ORecord rec = operation.getRecord();
+    var rec = operation.record;
     this.recordType = ORecordInternal.getRecordType(rec);
     this.id = rec.getIdentity();
     this.version = rec.getVersion();
     switch (operation.type) {
       case ORecordOperation.CREATED:
-        this.record = Optional.of(ORecordSerializerNetworkDistributed.INSTANCE.toStream(rec));
+        this.record = Optional.of(
+            ORecordSerializerNetworkDistributed.INSTANCE.toStream(session, rec));
         this.contentChanged = ORecordInternal.isContentChanged(rec);
         break;
       case ORecordOperation.UPDATED:
         if (recordType == ODocument.RECORD_TYPE) {
           record = Optional.of(ODocumentSerializerDelta.instance().serializeDelta((ODocument) rec));
         } else {
-          record = Optional.of(ORecordSerializerNetworkDistributed.INSTANCE.toStream(rec));
+          record = Optional.of(ORecordSerializerNetworkDistributed.INSTANCE.toStream(session, rec));
         }
         this.contentChanged = ORecordInternal.isContentChanged(rec);
         break;
@@ -47,7 +48,8 @@ public class OTransactionDataChange {
     }
   }
 
-  private OTransactionDataChange() {}
+  private OTransactionDataChange() {
+  }
 
   public OTransactionDataChange(
       byte type,

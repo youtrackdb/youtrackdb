@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by frank on 09/05/2017.
+ *
  */
 public class OLuceneMetadataFieldsTest extends OLuceneBaseTest {
 
@@ -27,11 +27,11 @@ public class OLuceneMetadataFieldsTest extends OLuceneBaseTest {
 
     db.begin();
     assertThat(
-            db.getMetadata()
-                .getIndexManagerInternal()
-                .getIndex(db, "Song.title")
-                .getInternal()
-                .size())
+        db.getMetadata()
+            .getIndexManagerInternal()
+            .getIndex(db, "Song.title")
+            .getInternal()
+            .size(db))
         .isEqualTo(585);
     db.commit();
 

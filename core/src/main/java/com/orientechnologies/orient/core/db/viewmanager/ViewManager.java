@@ -8,8 +8,8 @@ import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
-import com.orientechnologies.orient.core.db.OrientDBInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentEmbedded;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.document.ODatabaseSessionEmbedded;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.index.OClassIndexManager;
@@ -57,7 +57,7 @@ import java.util.stream.Collectors;
 
 public class ViewManager {
 
-  private final OrientDBInternal orientDB;
+  private final OxygenDBInternal orientDB;
   private final String dbName;
   private boolean viewsExist = false;
 
@@ -87,13 +87,13 @@ public class ViewManager {
   private volatile TimerTask timerTask;
   private volatile boolean closed = false;
 
-  public ViewManager(OrientDBInternal orientDb, String dbName) {
+  public ViewManager(OxygenDBInternal orientDb, String dbName) {
     this.orientDB = orientDb;
     this.dbName = dbName;
   }
 
   protected void init() {
-    orientDB.executeNoAuthorization(
+    orientDB.executeNoAuthorizationAsync(
         dbName,
         (db) -> {
           // do this to make sure that the storage is already initialized and so is the shared
@@ -150,7 +150,7 @@ public class ViewManager {
             if (closed) {
               return;
             }
-            orientDB.executeNoAuthorization(
+            orientDB.executeNoAuthorizationAsync(
                 dbName,
                 (db) -> {
                   ViewManager.this.updateViews(db);
@@ -186,7 +186,7 @@ public class ViewManager {
   }
 
   public void cleanUnusedViewClusters(ODatabaseSession db) {
-    if (((ODatabaseDocumentEmbedded) db).getStorage().isIcrementalBackupRunning()) {
+    if (((ODatabaseSessionEmbedded) db).getStorage().isIcrementalBackupRunning()) {
       // backup is running handle delete the next run
       return;
     }
@@ -366,7 +366,7 @@ public class ViewManager {
         return;
       }
       OViewRemovedMetadata oldMetadata =
-          ((OViewImpl) view).replaceViewClusterAndIndex(cluster, indexes, lastRefreshTime);
+          ((OViewImpl) view).replaceViewClusterAndIndex(db, cluster, indexes, lastRefreshTime);
       OLogManager.instance()
           .info(
               this,
@@ -456,7 +456,7 @@ public class ViewManager {
         String engine = cfg.getEngine();
         OIndex idx =
             idxMgr.createIndex(
-                db, indexName, type, definition, new int[] {cluster}, null, null, engine);
+                db, indexName, type, definition, new int[]{cluster}, null, null, engine);
         result.add(idx);
       }
       return result;
@@ -520,7 +520,7 @@ public class ViewManager {
   }
 
   public void updateViewAsync(String name, ViewCreationListener listener) {
-    orientDB.executeNoAuthorization(
+    orientDB.executeNoAuthorizationAsync(
         dbName,
         (databaseSession) -> {
           if (!buildOnThisNode(
@@ -563,7 +563,7 @@ public class ViewManager {
   }
 
   public void recordAdded(
-      OImmutableClass clazz, ODocument doc, ODatabaseDocumentEmbedded oDatabaseDocumentEmbedded) {
+      OImmutableClass clazz, ODocument doc, ODatabaseSessionEmbedded oDatabaseDocumentEmbedded) {
     if (viewsExist) {
       lastChangePerClass.put(
           clazz.getName().toLowerCase(Locale.ENGLISH), System.currentTimeMillis());
@@ -571,7 +571,7 @@ public class ViewManager {
   }
 
   public void recordUpdated(
-      OImmutableClass clazz, ODocument doc, ODatabaseDocumentEmbedded oDatabaseDocumentEmbedded) {
+      OImmutableClass clazz, ODocument doc, ODatabaseSessionEmbedded oDatabaseDocumentEmbedded) {
     if (viewsExist) {
       lastChangePerClass.put(
           clazz.getName().toLowerCase(Locale.ENGLISH), System.currentTimeMillis());
@@ -579,7 +579,7 @@ public class ViewManager {
   }
 
   public void recordDeleted(
-      OImmutableClass clazz, ODocument doc, ODatabaseDocumentEmbedded oDatabaseDocumentEmbedded) {
+      OImmutableClass clazz, ODocument doc, ODatabaseSessionEmbedded oDatabaseDocumentEmbedded) {
     if (viewsExist) {
       lastChangePerClass.put(
           clazz.getName().toLowerCase(Locale.ENGLISH), System.currentTimeMillis());
@@ -627,7 +627,7 @@ public class ViewManager {
             view.getOriginRidField(),
             view.getName(),
             dbInternal.getClusterNameById(cluster),
-            new ArrayList<>(view.getIndexes()));
+            new ArrayList<>(view.getIndexes(db)));
       }
     }
 
@@ -699,6 +699,7 @@ public class ViewManager {
     }
 
     @Override
-    public void onEnd(ODatabaseSession database) {}
+    public void onEnd(ODatabaseSession database) {
+    }
   }
 }

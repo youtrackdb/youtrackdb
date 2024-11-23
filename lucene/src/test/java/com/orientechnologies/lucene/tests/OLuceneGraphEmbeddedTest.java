@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by enricorisa on 03/09/14.
+ *
  */
 public class OLuceneGraphEmbeddedTest extends OLuceneBaseTest {
 
@@ -35,9 +35,9 @@ public class OLuceneGraphEmbeddedTest extends OLuceneBaseTest {
   public void init() {
 
     OClass type = db.createVertexClass("City");
-    type.createProperty("latitude", OType.DOUBLE);
-    type.createProperty("longitude", OType.DOUBLE);
-    type.createProperty("name", OType.STRING);
+    type.createProperty(db, "latitude", OType.DOUBLE);
+    type.createProperty(db, "longitude", OType.DOUBLE);
+    type.createProperty(db, "name", OType.STRING);
 
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE");
   }
@@ -77,7 +77,7 @@ public class OLuceneGraphEmbeddedTest extends OLuceneBaseTest {
   public void testGetVericesFilterClass() {
 
     OClass v = db.getClass("V");
-    v.createProperty("name", OType.STRING);
+    v.createProperty(db, "name", OType.STRING);
     db.command("CREATE INDEX V.name ON V(name) NOTUNIQUE");
 
     OClass oneClass = db.createVertexClass("One");

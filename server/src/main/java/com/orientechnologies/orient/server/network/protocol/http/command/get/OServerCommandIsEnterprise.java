@@ -18,7 +18,7 @@
 
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -59,7 +59,7 @@ public class OServerCommandIsEnterprise extends OServerCommandAuthenticatedServe
 
     if ("isEE".equalsIgnoreCase(parts[0])) {
 
-      ODocument context = Orient.instance().getProfiler().getContext();
+      ODocument context = Oxygen.instance().getProfiler().getContext();
 
       if (context.getProperty("enterprise") == null) {
         context.setProperty("enterprise", false);

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.config;
@@ -30,8 +30,6 @@ import java.util.Set;
 
 /**
  * Server configuration manager. It manages the orientdb-server-config.xml file.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OServerConfigurationManager {
 
@@ -152,8 +150,9 @@ public class OServerConfigurationManager {
         // COPY LEFT PART
         System.arraycopy(configuration.users, 0, newArray, 0, i);
         // COPY RIGHT PART
-        if (newArray.length - i >= 0)
+        if (newArray.length - i >= 0) {
           System.arraycopy(configuration.users, i + 1, newArray, i, newArray.length - i);
+        }
         configuration.users = newArray;
         break;
       }

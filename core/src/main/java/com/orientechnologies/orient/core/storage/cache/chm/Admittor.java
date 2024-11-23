@@ -20,8 +20,6 @@ package com.orientechnologies.orient.core.storage.cache.chm;
  * a victim to remove if the cache exceeds a maximum size. An admission policy augments the eviction
  * policy by letting the cache not accept the new entry, based on the assumption that the victim is
  * more likely to be used again.
- *
- * @author ben.manes@gmail.com (Ben Manes)
  */
 interface Admittor {
 

@@ -1,6 +1,4 @@
 /*
- *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,23 +12,25 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *  *
  *
  */
 package com.orientechnologies.orient.server;
 
 /**
  * Interface to get notified on the server lifecycle.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OServerLifecycleListener {
 
-  default void onBeforeActivate() {}
+  default void onBeforeActivate() {
+  }
 
-  default void onAfterActivate() {}
+  default void onAfterActivate() {
+  }
 
-  default void onBeforeDeactivate() {}
+  default void onBeforeDeactivate() {
+  }
 
-  default void onAfterDeactivate() {}
+  default void onAfterDeactivate() {
+  }
 }

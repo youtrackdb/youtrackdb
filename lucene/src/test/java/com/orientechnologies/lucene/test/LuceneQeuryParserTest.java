@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by frank on 19/05/2016.
+ *
  */
 public class LuceneQeuryParserTest extends BaseLuceneTest {
 

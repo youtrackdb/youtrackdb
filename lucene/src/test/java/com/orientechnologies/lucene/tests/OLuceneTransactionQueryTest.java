@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by Enrico Risa on 10/08/15.
+ *
  */
 public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
 
@@ -48,8 +48,8 @@ public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
   public void init() {
 
     final OClass c1 = db.createVertexClass("C1");
-    c1.createProperty("p1", OType.STRING);
-    c1.createIndex("C1.p1", "FULLTEXT", null, null, "LUCENE", new String[] {"p1"});
+    c1.createProperty(db, "p1", OType.STRING);
+    c1.createIndex(db, "C1.p1", "FULLTEXT", null, null, "LUCENE", new String[]{"p1"});
   }
 
   @Test
@@ -89,7 +89,7 @@ public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
     try (OResultSet vertices = db.command(query)) {
       assertThat(vertices).hasSize(1);
     }
-    assertThat(index.getInternal().size()).isEqualTo(1);
+    assertThat(index.getInternal().size(db)).isEqualTo(1);
 
     db.commit();
 
@@ -100,7 +100,7 @@ public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
       results = vertices.stream().collect(Collectors.toList());
       assertThat(results).hasSize(1);
     }
-    assertThat(index.getInternal().size()).isEqualTo(1);
+    assertThat(index.getInternal().size(db)).isEqualTo(1);
 
     doc = new ODocument("c1");
     doc.field("p1", "abc");
@@ -110,7 +110,7 @@ public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
 
     Collection coll;
     try (OResultSet vertices = db.query(query)) {
-      try (Stream<ORID> stream = index.getInternal().getRids("abc")) {
+      try (Stream<ORID> stream = index.getInternal().getRids(db, "abc")) {
         coll = stream.collect(Collectors.toList());
       }
 
@@ -125,7 +125,7 @@ public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
       i++;
     }
     Assert.assertEquals(i, 0);
-    assertThat(index.getInternal().size()).isEqualTo(0);
+    assertThat(index.getInternal().size(db)).isEqualTo(0);
     db.rollback();
 
     query = "select from C1 where search_fields(['p1'], 'abc' )=true ";
@@ -133,7 +133,7 @@ public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
     try (OResultSet vertices = db.command(query)) {
       assertThat(vertices).hasSize(1);
     }
-    assertThat(index.getInternal().size()).isEqualTo(1);
+    assertThat(index.getInternal().size(db)).isEqualTo(1);
   }
 
   @Test
@@ -142,13 +142,13 @@ public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
     OClass c1 = db.getMetadata().getSchema().getClass("C1");
     try {
-      c1.truncate();
+      c1.truncate(db);
     } catch (IOException e) {
       e.printStackTrace();
     }
 
     db.begin();
-    Assert.assertEquals(index.getInternal().size(), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
 
     ODocument doc = new ODocument("c1");
     doc.field("p1", "update");
@@ -159,7 +159,7 @@ public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
     try (OResultSet vertices = db.command(query)) {
       assertThat(vertices).hasSize(1);
     }
-    Assert.assertEquals(1, index.getInternal().size());
+    Assert.assertEquals(1, index.getInternal().size(db));
 
     db.commit();
 
@@ -171,13 +171,13 @@ public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
     }
 
     Collection coll;
-    try (Stream<ORID> stream = index.getInternal().getRids("update")) {
+    try (Stream<ORID> stream = index.getInternal().getRids(db, "update")) {
       coll = stream.collect(Collectors.toList());
     }
 
     assertThat(results).hasSize(1);
     assertThat(coll).hasSize(1);
-    assertThat(index.getInternal().size()).isEqualTo(1);
+    assertThat(index.getInternal().size(db)).isEqualTo(1);
 
     db.begin();
 
@@ -190,11 +190,11 @@ public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
     try (OResultSet vertices = db.command(query)) {
       assertThat(vertices).hasSize(0);
     }
-    Assert.assertEquals(1, index.getInternal().size());
+    Assert.assertEquals(1, index.getInternal().size(db));
 
     query = "select from C1 where search_fields(['p1'], \"removed\")=true ";
     try (OResultSet vertices = db.command(query)) {
-      try (Stream<ORID> stream = index.getInternal().getRids("removed")) {
+      try (Stream<ORID> stream = index.getInternal().getRids(db, "removed")) {
         coll = stream.collect(Collectors.toList());
       }
 
@@ -207,13 +207,13 @@ public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
 
     query = "select from C1 where search_fields(['p1'], \"update\")=true ";
     try (OResultSet vertices = db.command(query)) {
-      try (Stream<ORID> stream = index.getInternal().getRids("update")) {
+      try (Stream<ORID> stream = index.getInternal().getRids(db, "update")) {
         coll = stream.collect(Collectors.toList());
       }
       assertThat(vertices).hasSize(1);
     }
     assertThat(coll).hasSize(1);
-    assertThat(index.getInternal().size()).isEqualTo(1);
+    assertThat(index.getInternal().size(db)).isEqualTo(1);
   }
 
   @Test
@@ -222,13 +222,13 @@ public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
     OClass c1 = db.getMetadata().getSchema().getClass("C1");
     try {
-      c1.truncate();
+      c1.truncate(db);
     } catch (IOException e) {
       e.printStackTrace();
     }
 
     db.begin();
-    Assert.assertEquals(index.getInternal().size(), 0);
+    Assert.assertEquals(index.getInternal().size(db), 0);
 
     ODocument doc = new ODocument("c1");
     doc.field("p1", "abc");
@@ -250,7 +250,7 @@ public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
     String query = "select from C1 where search_fields(['p1'], \"abc\")=true ";
     Collection coll;
     try (OResultSet vertices = db.command(query)) {
-      try (Stream<ORID> stream = index.getInternal().getRids("abc")) {
+      try (Stream<ORID> stream = index.getInternal().getRids(db, "abc")) {
         coll = stream.collect(Collectors.toList());
       }
 
@@ -269,11 +269,11 @@ public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
     Assert.assertEquals(i, 1);
     Assert.assertNotNull(rid);
     Assert.assertEquals(doc1.getIdentity().toString(), rid.getIdentity().toString());
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
 
     query = "select from C1 where search_fields(['p1'], \"removed\")=true ";
     try (OResultSet vertices = db.command(query)) {
-      try (Stream<ORID> stream = index.getInternal().getRids("removed")) {
+      try (Stream<ORID> stream = index.getInternal().getRids(db, "removed")) {
         coll = stream.collect(Collectors.toList());
       }
 
@@ -288,6 +288,6 @@ public class OLuceneTransactionQueryTest extends OLuceneBaseTest {
       assertThat(vertices).hasSize(2);
     }
 
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(db), 2);
   }
 }

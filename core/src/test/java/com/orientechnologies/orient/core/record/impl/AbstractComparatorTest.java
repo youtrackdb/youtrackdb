@@ -1,6 +1,8 @@
 package com.orientechnologies.orient.core.record.impl;
 
+import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.collate.OCollate;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.BytesContainer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.OBinaryComparator;
@@ -9,43 +11,31 @@ import com.orientechnologies.orient.core.serialization.serializer.record.binary.
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerBinary;
 import org.junit.Assert;
 
-public abstract class AbstractComparatorTest {
+public abstract class AbstractComparatorTest extends BaseMemoryDatabase {
 
   protected ODocumentSerializer serializer =
       ORecordSerializerBinary.INSTANCE.getCurrentSerializer();
   protected OBinaryComparator comparator = serializer.getComparator();
 
-  protected void testEquals(OType sourceType) {
-    OType[] numberTypes =
-        new OType[] {OType.BYTE, OType.DOUBLE, OType.FLOAT, OType.SHORT, OType.INTEGER, OType.LONG};
-
-    for (OType t : numberTypes) {
-      testEquals(t, sourceType);
-    }
-
-    for (OType t : numberTypes) {
-      testEquals(sourceType, t);
-    }
-  }
-
-  protected void testEquals(OType sourceType, OType destType) {
+  protected void testEquals(ODatabaseSessionInternal db, OType sourceType, OType destType) {
     try {
-      Assert.assertTrue(comparator.isEqual(field(sourceType, 10), field(destType, 10)));
-      Assert.assertFalse(comparator.isEqual(field(sourceType, 10), field(destType, 9)));
-      Assert.assertFalse(comparator.isEqual(field(sourceType, 10), field(destType, 11)));
+      Assert.assertTrue(comparator.isEqual(field(db, sourceType, 10), field(db, destType, 10)));
+      Assert.assertFalse(comparator.isEqual(field(db, sourceType, 10), field(db, destType, 9)));
+      Assert.assertFalse(comparator.isEqual(field(db, sourceType, 10), field(db, destType, 11)));
     } catch (AssertionError e) {
       System.out.println("ERROR: testEquals(" + sourceType + "," + destType + ")");
       throw e;
     }
   }
 
-  protected OBinaryField field(final OType type, final Object value) {
-    return field(type, value, null);
+  protected OBinaryField field(ODatabaseSessionInternal db, final OType type, final Object value) {
+    return field(db, type, value, null);
   }
 
-  protected OBinaryField field(final OType type, final Object value, OCollate collate) {
+  protected OBinaryField field(ODatabaseSessionInternal db, final OType type, final Object value,
+      OCollate collate) {
     BytesContainer bytes = new BytesContainer();
-    bytes.offset = serializer.serializeValue(bytes, value, type, null, null, null);
+    bytes.offset = serializer.serializeValue(db, bytes, value, type, null, null, null);
     return new OBinaryField(null, type, bytes, collate);
   }
 }

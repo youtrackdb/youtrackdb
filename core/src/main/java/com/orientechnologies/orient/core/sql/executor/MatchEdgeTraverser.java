@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Created by luigidellaquila on 23/09/16.
+ *
  */
 public class MatchEdgeTraverser {
 
@@ -128,7 +128,7 @@ public class MatchEdgeTraverser {
 
     if (whileCondition == null
         && maxDepth
-            == null) { // in this case starting point is not returned and only one level depth is
+        == null) { // in this case starting point is not returned and only one level depth is
       // evaluated
 
       OExecutionStream queryResult = traversePatternEdge(startingPoint, iCommandContext);
@@ -162,7 +162,7 @@ public class MatchEdgeTraverser {
 
       if ((maxDepth == null || depth < maxDepth)
           && (whileCondition == null
-              || whileCondition.matchesFilters(startingPoint, iCommandContext))) {
+          || whileCondition.matchesFilters(startingPoint, iCommandContext))) {
 
         OExecutionStream queryResult = traversePatternEdge(startingPoint, iCommandContext);
 

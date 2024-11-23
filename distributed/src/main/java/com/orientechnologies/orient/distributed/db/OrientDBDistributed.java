@@ -57,7 +57,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Created by tglman on 08/08/17.
+ *
  */
 public class OrientDBDistributed extends OrientDBEmbedded implements OServerAware {
 

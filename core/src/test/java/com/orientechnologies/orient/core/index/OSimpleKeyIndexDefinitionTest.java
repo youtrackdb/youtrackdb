@@ -52,7 +52,7 @@ public class OSimpleKeyIndexDefinitionTest extends BaseMemoryDatabase {
   @Test
   public void testCreateValueCompositeKeyNullListParam() {
     final Object result =
-        simpleKeyIndexDefinition.createValue(db, Collections.singletonList((Object) null));
+        simpleKeyIndexDefinition.createValue(db, Collections.singletonList(null));
 
     Assert.assertNull(result);
   }
@@ -126,7 +126,7 @@ public class OSimpleKeyIndexDefinitionTest extends BaseMemoryDatabase {
   @Test
   public void testGetKeyTypes() {
     Assert.assertEquals(
-        simpleKeyIndexDefinition.getTypes(), new OType[] {OType.INTEGER, OType.STRING});
+        simpleKeyIndexDefinition.getTypes(), new OType[]{OType.INTEGER, OType.STRING});
   }
 
   @Test
@@ -134,7 +134,7 @@ public class OSimpleKeyIndexDefinitionTest extends BaseMemoryDatabase {
     final OSimpleKeyIndexDefinition keyIndexDefinition =
         new OSimpleKeyIndexDefinition(OType.BOOLEAN);
 
-    Assert.assertEquals(keyIndexDefinition.getTypes(), new OType[] {OType.BOOLEAN});
+    Assert.assertEquals(keyIndexDefinition.getTypes(), new OType[]{OType.BOOLEAN});
   }
 
   @Test

@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,7 +9,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://www.orientdb.com
+ * <p>*
  */
 package com.orientechnologies.spatial.shape;
 
@@ -58,11 +56,11 @@ public class OMultiLineStringShapeBuilder extends OComplexShapeBuilder<JtsGeomet
   public void initClazz(ODatabaseSessionInternal db) {
     OSchema schema = db.getMetadata().getSchema();
     OClass lineString = schema.createAbstractClass(getName(), superClass(db));
-    lineString.createProperty(COORDINATES, OType.EMBEDDEDLIST, OType.EMBEDDEDLIST);
+    lineString.createProperty(db, COORDINATES, OType.EMBEDDEDLIST, OType.EMBEDDEDLIST);
 
     if (OGlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean()) {
       OClass lineStringZ = schema.createAbstractClass(getName() + "Z", superClass(db));
-      lineStringZ.createProperty(COORDINATES, OType.EMBEDDEDLIST, OType.EMBEDDEDLIST);
+      lineStringZ.createProperty(db, COORDINATES, OType.EMBEDDEDLIST, OType.EMBEDDEDLIST);
     }
   }
 
@@ -109,12 +107,12 @@ public class OMultiLineStringShapeBuilder extends OComplexShapeBuilder<JtsGeomet
                   line ->
                       "("
                           + line.stream()
-                              .map(
-                                  point ->
-                                      (point.stream()
-                                          .map(coord -> format(coord))
-                                          .collect(Collectors.joining(" "))))
-                              .collect(Collectors.joining(", "))
+                          .map(
+                              point ->
+                                  (point.stream()
+                                      .map(coord -> format(coord))
+                                      .collect(Collectors.joining(" "))))
+                          .collect(Collectors.joining(", "))
                           + ")")
               .collect(Collectors.joining(", "));
       return "MULTILINESTRING Z(" + result + ")";

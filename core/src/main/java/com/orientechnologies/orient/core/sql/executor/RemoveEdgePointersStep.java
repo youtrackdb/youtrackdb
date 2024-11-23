@@ -8,8 +8,6 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 /**
  * This is intended for INSERT FROM SELECT. This step removes existing edge pointers so that the
  * resulting graph is still consistent
- *
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class RemoveEdgePointersStep extends AbstractExecutionStep {
 

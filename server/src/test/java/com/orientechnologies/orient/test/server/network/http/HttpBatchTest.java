@@ -13,8 +13,6 @@ import org.junit.Before;
 
 /**
  * Test HTTP "batch" command.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com) (l.garulli--at-orientdb.com)
  */
 public class HttpBatchTest extends BaseHttpDatabaseTest {
 
@@ -44,8 +42,10 @@ public class HttpBatchTest extends BaseHttpDatabaseTest {
 
     Assert.assertNotNull(response);
 
+    var responseDoc = new ODocument();
+    responseDoc.fromJSON(response);
     ODocument insertedDocument =
-        ((List<ODocument>) new ODocument().fromJSON(response).field("result")).get(0);
+        ((List<ODocument>) responseDoc.field("result")).get(0);
 
     // TEST UPDATE
     Assert.assertEquals(

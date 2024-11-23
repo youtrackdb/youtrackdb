@@ -18,7 +18,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by tglman on 01/07/16.
+ *
  */
 public class SBTreeBagDeleteTest extends BaseMemoryInternalDatabase {
 

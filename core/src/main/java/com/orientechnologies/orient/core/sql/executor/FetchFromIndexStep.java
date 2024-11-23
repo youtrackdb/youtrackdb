@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Created by luigidellaquila on 23/07/16.
+ *
  */
 public class FetchFromIndexStep extends AbstractExecutionStep {
 
@@ -181,7 +181,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       return Collections.emptyList();
     }
     if (condition == null) {
-      return processFlatIteration(index, isOrderAsc);
+      return processFlatIteration(ctx.getDatabase(), index, isOrderAsc);
     } else if (condition instanceof OBinaryCondition) {
       return processBinaryCondition(ctx.getDatabase(), index, condition, isOrderAsc, ctx);
     } else if (condition instanceof OBetweenCondition) {
@@ -269,30 +269,31 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
   }
 
   private static List<Stream<ORawPair<Object, ORID>>> processFlatIteration(
-      OIndexInternal index, boolean isOrderAsc) {
+      ODatabaseSessionInternal session, OIndexInternal index, boolean isOrderAsc) {
     List<Stream<ORawPair<Object, ORID>>> streams = new ArrayList<>();
     Set<Stream<ORawPair<Object, ORID>>> acquiredStreams =
         Collections.newSetFromMap(new IdentityHashMap<>());
 
-    var stream = fetchNullKeys(index);
+    var stream = fetchNullKeys(session, index);
     if (stream != null) {
       acquiredStreams.add(stream);
       streams.add(stream);
     }
 
-    stream = isOrderAsc ? index.stream() : index.descStream();
+    stream = isOrderAsc ? index.stream(session) : index.descStream(session);
     if (acquiredStreams.add(stream)) {
       streams.add(stream);
     }
     return streams;
   }
 
-  private static Stream<ORawPair<Object, ORID>> fetchNullKeys(OIndexInternal index) {
+  private static Stream<ORawPair<Object, ORID>> fetchNullKeys(ODatabaseSessionInternal session,
+      OIndexInternal index) {
     if (index.getDefinition().isNullValuesIgnored()) {
       return null;
     }
 
-    return getStreamForNullKey(index);
+    return getStreamForNullKey(session, index);
   }
 
   private static List<Stream<ORawPair<Object, ORID>>> multipleRange(
@@ -305,6 +306,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       boolean isOrderAsc,
       OBinaryCondition additionalRangeCondition,
       OCommandContext ctx) {
+    var db = ctx.getDatabase();
     List<Stream<ORawPair<Object, ORID>>> streams = new ArrayList<>();
     Set<Stream<ORawPair<Object, ORID>>> acquiredStreams =
         Collections.newSetFromMap(new IdentityHashMap<>());
@@ -334,8 +336,9 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       thirdValue = unboxOResult(thirdValue);
 
       try {
-        secondValue = convertToIndexDefinitionTypes(condition, secondValue, indexDef.getTypes());
-        thirdValue = convertToIndexDefinitionTypes(condition, thirdValue, indexDef.getTypes());
+        secondValue = convertToIndexDefinitionTypes(db, condition, secondValue,
+            indexDef.getTypes());
+        thirdValue = convertToIndexDefinitionTypes(db, condition, thirdValue, indexDef.getTypes());
       } catch (Exception e) {
         // manage subquery that returns a single collection
         if (secondValue instanceof Collection && secondValue.equals(thirdValue)) {
@@ -344,22 +347,22 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
                   item -> {
                     Stream<ORawPair<Object, ORID>> stream;
                     Object itemVal =
-                        convertToIndexDefinitionTypes(condition, item, indexDef.getTypes());
+                        convertToIndexDefinitionTypes(db, condition, item, indexDef.getTypes());
                     if (index.supportsOrderedIterations()) {
 
-                      Object from = toBetweenIndexKey(ctx.getDatabase(), indexDef, itemVal);
-                      Object to = toBetweenIndexKey(ctx.getDatabase(), indexDef, itemVal);
+                      Object from = toBetweenIndexKey(db, indexDef, itemVal);
+                      Object to = toBetweenIndexKey(db, indexDef, itemVal);
                       if (from == null && to == null) {
                         // manage null value explicitly, as the index API does not seem to work
                         // correctly in this
                         // case
-                        stream = getStreamForNullKey(index);
+                        stream = getStreamForNullKey(db, index);
                         if (acquiredStreams.add(stream)) {
                           streams.add(stream);
                         }
                       } else {
                         stream =
-                            index.streamEntriesBetween(
+                            index.streamEntriesBetween(db,
                                 from, fromKeyIncluded, to, toKeyIncluded, isOrderAsc);
                         if (acquiredStreams.add(stream)) {
                           streams.add(stream);
@@ -369,8 +372,8 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
                     } else if (additionalRangeCondition == null
                         && allEqualities((OAndBlock) condition)) {
                       stream =
-                          index.streamEntries(
-                              toIndexKey(ctx.getDatabase(), indexDef, itemVal), isOrderAsc);
+                          index.streamEntries(db,
+                              toIndexKey(db, indexDef, itemVal), isOrderAsc);
 
                       if (acquiredStreams.add(stream)) {
                         streams.add(stream);
@@ -378,8 +381,8 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
 
                     } else if (isFullTextIndex(index)) {
                       stream =
-                          index.streamEntries(
-                              toIndexKey(ctx.getDatabase(), indexDef, itemVal), isOrderAsc);
+                          index.streamEntries(db,
+                              toIndexKey(db, indexDef, itemVal), isOrderAsc);
                       if (acquiredStreams.add(stream)) {
                         streams.add(stream);
                       }
@@ -396,18 +399,19 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       Stream<ORawPair<Object, ORID>> stream;
       if (index.supportsOrderedIterations()) {
 
-        Object from = toBetweenIndexKey(ctx.getDatabase(), indexDef, secondValue);
-        Object to = toBetweenIndexKey(ctx.getDatabase(), indexDef, thirdValue);
+        Object from = toBetweenIndexKey(db, indexDef, secondValue);
+        Object to = toBetweenIndexKey(db, indexDef, thirdValue);
 
         if (from == null && to == null) {
           // manage null value explicitly, as the index API does not seem to work correctly in this
           // case
-          stream = getStreamForNullKey(index);
+          stream = getStreamForNullKey(db, index);
           if (acquiredStreams.add(stream)) {
             streams.add(stream);
           }
         } else {
-          stream = index.streamEntriesBetween(from, fromKeyIncluded, to, toKeyIncluded, isOrderAsc);
+          stream = index.streamEntriesBetween(db, from, fromKeyIncluded, to, toKeyIncluded,
+              isOrderAsc);
           if (acquiredStreams.add(stream)) {
             streams.add(stream);
           }
@@ -415,13 +419,15 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
 
       } else if (additionalRangeCondition == null && allEqualities((OAndBlock) condition)) {
         stream =
-            index.streamEntries(toIndexKey(ctx.getDatabase(), indexDef, secondValue), isOrderAsc);
+            index.streamEntries(db, toIndexKey(ctx.getDatabase(), indexDef, secondValue),
+                isOrderAsc);
         if (acquiredStreams.add(stream)) {
           streams.add(stream);
         }
       } else if (isFullTextIndex(index)) {
         stream =
-            index.streamEntries(toIndexKey(ctx.getDatabase(), indexDef, secondValue), isOrderAsc);
+            index.streamEntries(db, toIndexKey(ctx.getDatabase(), indexDef, secondValue),
+                isOrderAsc);
         if (acquiredStreams.add(stream)) {
           streams.add(stream);
         }
@@ -438,8 +444,9 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
         && !index.getAlgorithm().equalsIgnoreCase("LUCENE");
   }
 
-  private static Stream<ORawPair<Object, ORID>> getStreamForNullKey(OIndexInternal index) {
-    final Stream<ORID> stream = index.getRids(null);
+  private static Stream<ORawPair<Object, ORID>> getStreamForNullKey(
+      ODatabaseSessionInternal session, OIndexInternal index) {
+    final Stream<ORID> stream = index.getRids(session, null);
     return stream.map((rid) -> new ORawPair<>(null, rid));
   }
 
@@ -511,7 +518,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
   }
 
   private static Object convertToIndexDefinitionTypes(
-      OBooleanExpression condition, Object val, OType[] types) {
+      ODatabaseSessionInternal session, OBooleanExpression condition, Object val, OType[] types) {
     if (val == null) {
       return null;
     }
@@ -519,7 +526,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       List<Object> result = new ArrayList<>();
       int i = 0;
       for (Object o : OMultiValue.getMultiValueIterable(val)) {
-        result.add(OType.convert(o, types[i++].getDefaultJavaType()));
+        result.add(OType.convert(session, o, types[i++].getDefaultJavaType()));
       }
       if (condition instanceof OAndBlock) {
 
@@ -545,7 +552,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
       }
       return result;
     }
-    return OType.convert(val, types[0].getDefaultJavaType());
+    return OType.convert(session, val, types[0].getDefaultJavaType());
   }
 
   private static boolean allEqualities(OAndBlock condition) {
@@ -583,13 +590,13 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     secondValue = unboxOResult(secondValue);
     Object thirdValue = third.execute((OResult) null, ctx);
     thirdValue = unboxOResult(thirdValue);
+    var db = ctx.getDatabase();
     Stream<ORawPair<Object, ORID>> stream =
-        index.streamEntriesBetween(
-            toBetweenIndexKey(ctx.getDatabase(), definition, secondValue),
+        index.streamEntriesBetween(db,
+            toBetweenIndexKey(db, definition, secondValue),
             true,
-            toBetweenIndexKey(ctx.getDatabase(), definition, thirdValue),
-            true,
-            isOrderAsc);
+            toBetweenIndexKey(db, definition, thirdValue),
+            true, isOrderAsc);
     streams.add(stream);
     return streams;
   }
@@ -667,15 +674,15 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     if (operator instanceof OEqualsCompareOperator
         || operator instanceof OContainsKeyOperator
         || operator instanceof OContainsValueOperator) {
-      return index.streamEntries(toIndexKey(session, definition, value), orderAsc);
+      return index.streamEntries(session, toIndexKey(session, definition, value), orderAsc);
     } else if (operator instanceof OGeOperator) {
-      return index.streamEntriesMajor(value, true, orderAsc);
+      return index.streamEntriesMajor(session, value, true, orderAsc);
     } else if (operator instanceof OGtOperator) {
-      return index.streamEntriesMajor(value, false, orderAsc);
+      return index.streamEntriesMajor(session, value, false, orderAsc);
     } else if (operator instanceof OLeOperator) {
-      return index.streamEntriesMinor(value, true, orderAsc);
+      return index.streamEntriesMinor(session, value, true, orderAsc);
     } else if (operator instanceof OLtOperator) {
-      return index.streamEntriesMinor(value, false, orderAsc);
+      return index.streamEntriesMinor(session, value, false, orderAsc);
     } else {
       throw new OCommandExecutionException(
           "search for index for " + condition + " is not supported yet");

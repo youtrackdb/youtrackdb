@@ -6,6 +6,7 @@ import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.client.remote.message.tx.IndexChange;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -23,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by tglman on 30/12/16.
+ *
  */
 public class OCommit38Request implements OBinaryRequest<OCommit37Response> {
 
@@ -33,10 +34,11 @@ public class OCommit38Request implements OBinaryRequest<OCommit37Response> {
   private List<ORecordOperationRequest> operations;
   private List<IndexChange> indexChanges;
 
-  public OCommit38Request() {}
+  public OCommit38Request() {
+  }
 
   public OCommit38Request(
-      int txId,
+      ODatabaseSessionInternal session, int txId,
       boolean hasContent,
       boolean usingLong,
       Iterable<ORecordOperation> operations,
@@ -50,25 +52,26 @@ public class OCommit38Request implements OBinaryRequest<OCommit37Response> {
       for (ORecordOperation txEntry : operations) {
         ORecordOperationRequest request = new ORecordOperationRequest();
         request.setType(txEntry.type);
-        request.setVersion(txEntry.getRecord().getVersion());
-        request.setId(txEntry.getRecord().getIdentity());
+        request.setVersion(txEntry.record.getVersion());
+        request.setId(txEntry.record.getIdentity());
         switch (txEntry.type) {
           case ORecordOperation.CREATED:
-            request.setRecordType(ORecordInternal.getRecordType(txEntry.getRecord()));
+            request.setRecordType(ORecordInternal.getRecordType(txEntry.record));
             request.setRecord(
-                ORecordSerializerNetworkV37Client.INSTANCE.toStream(txEntry.getRecord()));
-            request.setContentChanged(ORecordInternal.isContentChanged(txEntry.getRecord()));
+                ORecordSerializerNetworkV37Client.INSTANCE.toStream(session, txEntry.record));
+            request.setContentChanged(ORecordInternal.isContentChanged(txEntry.record));
             break;
           case ORecordOperation.UPDATED:
-            if (ODocument.RECORD_TYPE == ORecordInternal.getRecordType(txEntry.getRecord())) {
+            if (ODocument.RECORD_TYPE == ORecordInternal.getRecordType(txEntry.record)) {
               request.setRecordType(ODocumentSerializerDelta.DELTA_RECORD_TYPE);
               ODocumentSerializerDelta delta = ODocumentSerializerDelta.instance();
-              request.setRecord(delta.serializeDelta((ODocument) txEntry.getRecord()));
-              request.setContentChanged(ORecordInternal.isContentChanged(txEntry.getRecord()));
+              request.setRecord(delta.serializeDelta((ODocument) txEntry.record));
+              request.setContentChanged(ORecordInternal.isContentChanged(txEntry.record));
             } else {
-              request.setRecordType(ORecordInternal.getRecordType(txEntry.getRecord()));
-              request.setRecord(ORecordSerializerNetworkV37.INSTANCE.toStream(txEntry.getRecord()));
-              request.setContentChanged(ORecordInternal.isContentChanged(txEntry.getRecord()));
+              request.setRecordType(ORecordInternal.getRecordType(txEntry.record));
+              request.setRecord(
+                  ORecordSerializerNetworkV37.INSTANCE.toStream(session, txEntry.record));
+              request.setContentChanged(ORecordInternal.isContentChanged(txEntry.record));
             }
             break;
         }
@@ -83,7 +86,8 @@ public class OCommit38Request implements OBinaryRequest<OCommit37Response> {
   }
 
   @Override
-  public void write(OChannelDataOutput network, OStorageRemoteSession session) throws IOException {
+  public void write(ODatabaseSessionInternal database, OChannelDataOutput network,
+      OStorageRemoteSession session) throws IOException {
     // from 3.0 the the serializer is bound to the protocol
     ORecordSerializerNetworkV37Client serializer = ORecordSerializerNetworkV37Client.INSTANCE;
     network.writeInt(txId);

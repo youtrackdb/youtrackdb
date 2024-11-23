@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.serialization;
@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.serialization;
 import com.orientechnologies.common.profiler.OAbstractProfiler.OProfilerHookValue;
 import com.orientechnologies.common.profiler.OProfiler.METRIC_TYPE;
 import com.orientechnologies.common.util.OArrays;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
@@ -32,7 +32,6 @@ import java.util.Arrays;
 /**
  * Class to parse and write buffers in very fast way.
  *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @deprecated use {@link OByteArrayOutputStream} instead.
  */
 @Deprecated
@@ -48,7 +47,7 @@ public class OMemoryStream extends OutputStream {
   private static long metricResize = 0;
 
   static {
-    Orient.instance()
+    Oxygen.instance()
         .getProfiler()
         .registerHookValue(
             "system.memory.stream.resize",
@@ -162,7 +161,9 @@ public class OMemoryStream extends OutputStream {
     final byte[] localBuffer = buffer;
 
     if (iLength < NATIVE_COPY_THRESHOLD) {
-      if (iLength >= 0) System.arraycopy(iBuffer, iOffset + 0, localBuffer, pos + 0, iLength);
+      if (iLength >= 0) {
+        System.arraycopy(iBuffer, iOffset, localBuffer, pos, iLength);
+      }
     } else {
       System.arraycopy(iBuffer, iOffset, localBuffer, pos, iLength);
     }
@@ -293,7 +294,9 @@ public class OMemoryStream extends OutputStream {
       final byte[] newbuf = new byte[Math.max(bufferLength << 1, capacity)];
 
       if (pos < NATIVE_COPY_THRESHOLD) {
-        if (pos >= 0) System.arraycopy(localBuffer, 0, newbuf, 0, pos);
+        if (pos >= 0) {
+          System.arraycopy(localBuffer, 0, newbuf, 0, pos);
+        }
       } else {
         System.arraycopy(localBuffer, 0, newbuf, 0, pos);
       }

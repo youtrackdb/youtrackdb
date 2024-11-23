@@ -16,7 +16,11 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import javax.crypto.AEADBadTagException;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -29,9 +33,6 @@ import javax.crypto.spec.SecretKeySpec;
 
 /**
  * OEncryption implementation using AES/GCM/NoPadding with a 12 byte nonce and 16 byte tag size.
- *
- * @author Skymatic / Markus Kreusch (markus.kreusch--(at)--skymatic.de)
- * @author Skymatic / Sebastian Stenzel (sebastian.stenzel--(at)--skymatic.de)
  */
 public class OAESGCMEncryption implements OEncryption {
 

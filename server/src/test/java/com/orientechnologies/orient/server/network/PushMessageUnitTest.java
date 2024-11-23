@@ -8,6 +8,7 @@ import com.orientechnologies.orient.client.remote.OStorageRemotePushThread;
 import com.orientechnologies.orient.client.remote.message.OBinaryPushRequest;
 import com.orientechnologies.orient.client.remote.message.OBinaryPushResponse;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput;
 import com.orientechnologies.orient.server.OServer;
@@ -24,14 +25,15 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 /**
- * Created by tglman on 10/05/17.
+ *
  */
 public class PushMessageUnitTest {
 
   public class MockPushResponse implements OBinaryPushResponse {
 
     @Override
-    public void write(OChannelDataOutput network) throws IOException {}
+    public void write(OChannelDataOutput network) throws IOException {
+    }
 
     @Override
     public void read(OChannelDataInput channel) throws IOException {
@@ -42,7 +44,8 @@ public class PushMessageUnitTest {
   public class MockPushRequest implements OBinaryPushRequest<OBinaryPushResponse> {
 
     @Override
-    public void write(OChannelDataOutput channel) throws IOException {
+    public void write(ODatabaseSessionInternal session, OChannelDataOutput channel)
+        throws IOException {
       requestWritten.countDown();
     }
 
@@ -52,10 +55,12 @@ public class PushMessageUnitTest {
     }
 
     @Override
-    public void read(OChannelDataInput network) throws IOException {}
+    public void read(OChannelDataInput network) throws IOException {
+    }
 
     @Override
-    public OBinaryPushResponse execute(ORemotePushHandler remote) {
+    public OBinaryPushResponse execute(ODatabaseSessionInternal session,
+        ORemotePushHandler remote) {
       executed.countDown();
       return new MockPushResponse();
     }
@@ -69,7 +74,8 @@ public class PushMessageUnitTest {
   public class MockPushRequestNoResponse implements OBinaryPushRequest<OBinaryPushResponse> {
 
     @Override
-    public void write(OChannelDataOutput channel) throws IOException {
+    public void write(ODatabaseSessionInternal session, OChannelDataOutput channel)
+        throws IOException {
       requestWritten.countDown();
     }
 
@@ -79,10 +85,12 @@ public class PushMessageUnitTest {
     }
 
     @Override
-    public void read(OChannelDataInput network) throws IOException {}
+    public void read(OChannelDataInput network) throws IOException {
+    }
 
     @Override
-    public OBinaryPushResponse execute(ORemotePushHandler remote) {
+    public OBinaryPushResponse execute(ODatabaseSessionInternal session,
+        ORemotePushHandler remote) {
       executed.countDown();
       return null;
     }
@@ -98,9 +106,11 @@ public class PushMessageUnitTest {
   private CountDownLatch executed;
   private MockPipeChannel channelBinaryServer;
   private MockPipeChannel channelBinaryClient;
-  @Mock private OServer server;
+  @Mock
+  private OServer server;
 
-  @Mock private ORemotePushHandler remote;
+  @Mock
+  private ORemotePushHandler remote;
 
   @Before
   public void before() throws IOException {
@@ -125,13 +135,13 @@ public class PushMessageUnitTest {
     ONetworkProtocolBinary binary = new ONetworkProtocolBinary(server);
     binary.initVariables(server, channelBinaryServer);
     new Thread(
-            () -> {
-              try {
-                binary.push(new MockPushRequest());
-              } catch (IOException e) {
-                e.printStackTrace();
-              }
-            })
+        () -> {
+          try {
+            binary.push(null, new MockPushRequest());
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
+        })
         .start();
     binary.start();
     assertTrue(requestWritten.await(10, TimeUnit.SECONDS));
@@ -153,7 +163,7 @@ public class PushMessageUnitTest {
         new Thread(
             () -> {
               try {
-                assertNull(binary.push(new MockPushRequestNoResponse()));
+                assertNull(binary.push(null, new MockPushRequestNoResponse()));
               } catch (IOException e) {
                 e.printStackTrace();
               }

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2017 OrientDB LTD (http://orientdb.com)
+ *  *  Copyright 2010-2017 OxygenDB LTD (http://orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -45,7 +45,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * @author Sergey Sitnikov
+ *
  */
 public class FreezeAndRecordInsertAtomicityTest {
 
@@ -86,8 +86,8 @@ public class FreezeAndRecordInsertAtomicityTest {
     db.getMetadata()
         .getSchema()
         .createClass("Person")
-        .createProperty("name", OType.STRING)
-        .createIndex(OClass.INDEX_TYPE.UNIQUE);
+        .createProperty(db, "name", OType.STRING)
+        .createIndex(db, OClass.INDEX_TYPE.UNIQUE);
 
     executorService = Executors.newFixedThreadPool(THREADS);
 
@@ -134,7 +134,7 @@ public class FreezeAndRecordInsertAtomicityTest {
                         try {
                           for (ODocument document : db.browseClass("Person")) {
                             try (Stream<ORID> rids =
-                                index.getInternal().getRids(document.field("name"))) {
+                                index.getInternal().getRids(db, document.field("name"))) {
                               assertEquals(document.getIdentity(), rids.findFirst().orElse(null));
                             }
                           }

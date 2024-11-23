@@ -12,7 +12,6 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 3/24/14
  */
 @Test
@@ -31,7 +30,7 @@ public class SQLCreateVertexTest extends DocumentDBBaseTest {
     OSchema schema = database.getMetadata().getSchema();
     if (!schema.existsClass("CreateVertexByContent")) {
       OClass vClass = schema.createClass("CreateVertexByContent", schema.getClass("V"));
-      vClass.createProperty("message", OType.STRING);
+      vClass.createProperty(database, "message", OType.STRING);
     }
 
     database.begin();
@@ -100,7 +99,7 @@ public class SQLCreateVertexTest extends DocumentDBBaseTest {
     database.close();
 
     database = createSessionInstance();
-    database.createVertexClass("Like").createProperty("anything", OType.STRING);
-    database.createVertexClass("Is").createProperty("anything", OType.STRING);
+    database.createVertexClass("Like").createProperty(database, "anything", OType.STRING);
+    database.createVertexClass("Is").createProperty(database, "anything", OType.STRING);
   }
 }

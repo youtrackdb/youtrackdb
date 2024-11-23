@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ import org.apache.lucene.search.highlight.TextFragment;
 import org.apache.lucene.search.highlight.TokenSources;
 
 /**
- * Created by Enrico Risa on 16/09/15.
+ *
  */
 public class OLuceneResultSet implements Set<OIdentifiable> {
 
@@ -72,7 +72,8 @@ public class OLuceneResultSet implements Set<OIdentifiable> {
 
   private boolean closed = false;
 
-  protected OLuceneResultSet() {}
+  protected OLuceneResultSet() {
+  }
 
   public OLuceneResultSet(
       final OLuceneIndexEngine engine,

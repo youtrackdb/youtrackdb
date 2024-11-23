@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.functions.coll;
@@ -22,6 +22,7 @@ package com.orientechnologies.orient.core.sql.functions.coll;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.util.OSupportsContains;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemVariable;
@@ -36,8 +37,6 @@ import java.util.Set;
 /**
  * This operator can work as aggregate or inline. If only one argument is passed than aggregates,
  * otherwise executes, and returns, the INTERSECTION of the collections received as parameters.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionIntersect extends OSQLFunctionMultiValueAbstract<Object> {
 
@@ -123,7 +122,7 @@ public class OSQLFunctionIntersect extends OSQLFunctionMultiValueAbstract<Object
 
     if (!(value instanceof Set)
         && (!(value instanceof OSupportsContains)
-            || !((OSupportsContains) value).supportsFastContains())) {
+        || !((OSupportsContains) value).supportsFastContains())) {
       value = OMultiValue.toSet(value);
     }
 
@@ -147,7 +146,7 @@ public class OSQLFunctionIntersect extends OSQLFunctionMultiValueAbstract<Object
     return tempSet;
   }
 
-  public String getSyntax() {
+  public String getSyntax(ODatabaseSession session) {
     return "intersect(<field>*)";
   }
 

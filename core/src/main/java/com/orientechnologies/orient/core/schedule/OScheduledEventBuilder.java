@@ -16,6 +16,8 @@
 
 package com.orientechnologies.orient.core.schedule;
 
+import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
@@ -25,7 +27,6 @@ import java.util.Map;
 /**
  * Builds a OSchedulerEvent with a fluent interface
  *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @since v2.2
  */
 public class OScheduledEventBuilder extends ODocumentWrapper {
@@ -41,36 +42,41 @@ public class OScheduledEventBuilder extends ODocumentWrapper {
     super(doc);
   }
 
-  public OScheduledEventBuilder setFunction(final OFunction function) {
-    getDocument().field(OScheduledEvent.PROP_FUNC, function);
+  public OScheduledEventBuilder setFunction(ODatabaseSession session, final OFunction function) {
+    getDocument(session).field(OScheduledEvent.PROP_FUNC, function);
     return this;
   }
 
-  public OScheduledEventBuilder setRule(final String rule) {
-    getDocument().field(OScheduledEvent.PROP_RULE, rule);
+  public OScheduledEventBuilder setRule(ODatabaseSession session, final String rule) {
+    getDocument(session).field(OScheduledEvent.PROP_RULE, rule);
     return this;
   }
 
-  public OScheduledEventBuilder setArguments(final Map<Object, Object> arguments) {
-    getDocument().field(OScheduledEvent.PROP_ARGUMENTS, arguments);
+  public OScheduledEventBuilder setArguments(ODatabaseSession session,
+      final Map<Object, Object> arguments) {
+    getDocument(session).field(OScheduledEvent.PROP_ARGUMENTS, arguments);
     return this;
   }
 
-  public OScheduledEventBuilder setStartTime(final Date startTime) {
-    getDocument().field(OScheduledEvent.PROP_STARTTIME, startTime);
+  public OScheduledEventBuilder setStartTime(ODatabaseSession session, final Date startTime) {
+    getDocument(session).field(OScheduledEvent.PROP_STARTTIME, startTime);
     return this;
   }
 
-  public OScheduledEvent build() {
-    return new OScheduledEvent(getDocument());
+  public OScheduledEvent build(ODatabaseSession session) {
+    return new OScheduledEvent(getDocument(session), session);
   }
 
   public String toString() {
-    return getDocument().toString();
+    var db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+    if (db != null) {
+      return getDocument(db).toString();
+    }
+    return super.toString();
   }
 
-  public OScheduledEventBuilder setName(final String name) {
-    getDocument().field(OScheduledEvent.PROP_NAME, name);
+  public OScheduledEventBuilder setName(ODatabaseSession session, final String name) {
+    getDocument(session).field(OScheduledEvent.PROP_NAME, name);
     return this;
   }
 }

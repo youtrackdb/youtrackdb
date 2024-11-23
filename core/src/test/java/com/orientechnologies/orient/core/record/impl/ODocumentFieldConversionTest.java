@@ -25,44 +25,44 @@ public class ODocumentFieldConversionTest extends BaseMemoryInternalDatabase {
   public void beforeTest() {
     super.beforeTest();
     clazz = db.getMetadata().getSchema().createClass("testClass");
-    clazz.createProperty("integer", OType.INTEGER);
-    clazz.createProperty("string", OType.STRING);
-    clazz.createProperty("boolean", OType.BOOLEAN);
-    clazz.createProperty("long", OType.LONG);
-    clazz.createProperty("float", OType.FLOAT);
-    clazz.createProperty("double", OType.DOUBLE);
-    clazz.createProperty("decimal", OType.DECIMAL);
-    clazz.createProperty("date", OType.DATE);
+    clazz.createProperty(db, "integer", OType.INTEGER);
+    clazz.createProperty(db, "string", OType.STRING);
+    clazz.createProperty(db, "boolean", OType.BOOLEAN);
+    clazz.createProperty(db, "long", OType.LONG);
+    clazz.createProperty(db, "float", OType.FLOAT);
+    clazz.createProperty(db, "double", OType.DOUBLE);
+    clazz.createProperty(db, "decimal", OType.DECIMAL);
+    clazz.createProperty(db, "date", OType.DATE);
 
-    clazz.createProperty("byteList", OType.EMBEDDEDLIST, OType.BYTE);
-    clazz.createProperty("integerList", OType.EMBEDDEDLIST, OType.INTEGER);
-    clazz.createProperty("longList", OType.EMBEDDEDLIST, OType.LONG);
-    clazz.createProperty("stringList", OType.EMBEDDEDLIST, OType.STRING);
-    clazz.createProperty("floatList", OType.EMBEDDEDLIST, OType.FLOAT);
-    clazz.createProperty("doubleList", OType.EMBEDDEDLIST, OType.DOUBLE);
-    clazz.createProperty("decimalList", OType.EMBEDDEDLIST, OType.DECIMAL);
-    clazz.createProperty("booleanList", OType.EMBEDDEDLIST, OType.BOOLEAN);
-    clazz.createProperty("dateList", OType.EMBEDDEDLIST, OType.DATE);
+    clazz.createProperty(db, "byteList", OType.EMBEDDEDLIST, OType.BYTE);
+    clazz.createProperty(db, "integerList", OType.EMBEDDEDLIST, OType.INTEGER);
+    clazz.createProperty(db, "longList", OType.EMBEDDEDLIST, OType.LONG);
+    clazz.createProperty(db, "stringList", OType.EMBEDDEDLIST, OType.STRING);
+    clazz.createProperty(db, "floatList", OType.EMBEDDEDLIST, OType.FLOAT);
+    clazz.createProperty(db, "doubleList", OType.EMBEDDEDLIST, OType.DOUBLE);
+    clazz.createProperty(db, "decimalList", OType.EMBEDDEDLIST, OType.DECIMAL);
+    clazz.createProperty(db, "booleanList", OType.EMBEDDEDLIST, OType.BOOLEAN);
+    clazz.createProperty(db, "dateList", OType.EMBEDDEDLIST, OType.DATE);
 
-    clazz.createProperty("byteSet", OType.EMBEDDEDSET, OType.BYTE);
-    clazz.createProperty("integerSet", OType.EMBEDDEDSET, OType.INTEGER);
-    clazz.createProperty("longSet", OType.EMBEDDEDSET, OType.LONG);
-    clazz.createProperty("stringSet", OType.EMBEDDEDSET, OType.STRING);
-    clazz.createProperty("floatSet", OType.EMBEDDEDSET, OType.FLOAT);
-    clazz.createProperty("doubleSet", OType.EMBEDDEDSET, OType.DOUBLE);
-    clazz.createProperty("decimalSet", OType.EMBEDDEDSET, OType.DECIMAL);
-    clazz.createProperty("booleanSet", OType.EMBEDDEDSET, OType.BOOLEAN);
-    clazz.createProperty("dateSet", OType.EMBEDDEDSET, OType.DATE);
+    clazz.createProperty(db, "byteSet", OType.EMBEDDEDSET, OType.BYTE);
+    clazz.createProperty(db, "integerSet", OType.EMBEDDEDSET, OType.INTEGER);
+    clazz.createProperty(db, "longSet", OType.EMBEDDEDSET, OType.LONG);
+    clazz.createProperty(db, "stringSet", OType.EMBEDDEDSET, OType.STRING);
+    clazz.createProperty(db, "floatSet", OType.EMBEDDEDSET, OType.FLOAT);
+    clazz.createProperty(db, "doubleSet", OType.EMBEDDEDSET, OType.DOUBLE);
+    clazz.createProperty(db, "decimalSet", OType.EMBEDDEDSET, OType.DECIMAL);
+    clazz.createProperty(db, "booleanSet", OType.EMBEDDEDSET, OType.BOOLEAN);
+    clazz.createProperty(db, "dateSet", OType.EMBEDDEDSET, OType.DATE);
 
-    clazz.createProperty("byteMap", OType.EMBEDDEDMAP, OType.BYTE);
-    clazz.createProperty("integerMap", OType.EMBEDDEDMAP, OType.INTEGER);
-    clazz.createProperty("longMap", OType.EMBEDDEDMAP, OType.LONG);
-    clazz.createProperty("stringMap", OType.EMBEDDEDMAP, OType.STRING);
-    clazz.createProperty("floatMap", OType.EMBEDDEDMAP, OType.FLOAT);
-    clazz.createProperty("doubleMap", OType.EMBEDDEDMAP, OType.DOUBLE);
-    clazz.createProperty("decimalMap", OType.EMBEDDEDMAP, OType.DECIMAL);
-    clazz.createProperty("booleanMap", OType.EMBEDDEDMAP, OType.BOOLEAN);
-    clazz.createProperty("dateMap", OType.EMBEDDEDMAP, OType.DATE);
+    clazz.createProperty(db, "byteMap", OType.EMBEDDEDMAP, OType.BYTE);
+    clazz.createProperty(db, "integerMap", OType.EMBEDDEDMAP, OType.INTEGER);
+    clazz.createProperty(db, "longMap", OType.EMBEDDEDMAP, OType.LONG);
+    clazz.createProperty(db, "stringMap", OType.EMBEDDEDMAP, OType.STRING);
+    clazz.createProperty(db, "floatMap", OType.EMBEDDEDMAP, OType.FLOAT);
+    clazz.createProperty(db, "doubleMap", OType.EMBEDDEDMAP, OType.DOUBLE);
+    clazz.createProperty(db, "decimalMap", OType.EMBEDDEDMAP, OType.DECIMAL);
+    clazz.createProperty(db, "booleanMap", OType.EMBEDDEDMAP, OType.BOOLEAN);
+    clazz.createProperty(db, "dateMap", OType.EMBEDDEDMAP, OType.DATE);
   }
 
   @Test
@@ -621,7 +621,7 @@ public class ODocumentFieldConversionTest extends BaseMemoryInternalDatabase {
       assertTrue(val instanceof Float);
     }
     for (int i = 1; i < 7; i++) {
-      assertTrue(set.contains(new Float(i)));
+      assertTrue(set.contains(Float.valueOf(i)));
     }
   }
 
@@ -662,7 +662,7 @@ public class ODocumentFieldConversionTest extends BaseMemoryInternalDatabase {
       assertTrue(val instanceof Double);
     }
     for (int i = 1; i < 7; i++) {
-      assertTrue(set.contains(new Double(i)));
+      assertTrue(set.contains(Double.valueOf(i)));
     }
   }
 

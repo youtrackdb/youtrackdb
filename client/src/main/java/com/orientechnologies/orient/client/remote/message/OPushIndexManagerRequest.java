@@ -3,6 +3,7 @@ package com.orientechnologies.orient.client.remote.message;
 import static com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol.REQUEST_PUSH_INDEX_MANAGER;
 
 import com.orientechnologies.orient.client.remote.ORemotePushHandler;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
@@ -14,15 +15,17 @@ public class OPushIndexManagerRequest implements OBinaryPushRequest<OBinaryPushR
 
   private ODocument indexManager;
 
-  public OPushIndexManagerRequest() {}
+  public OPushIndexManagerRequest() {
+  }
 
   public OPushIndexManagerRequest(ODocument indexManager) {
     this.indexManager = indexManager;
   }
 
   @Override
-  public void write(OChannelDataOutput channel) throws IOException {
-    channel.writeBytes(ORecordSerializerNetworkV37.INSTANCE.toStream(indexManager));
+  public void write(ODatabaseSessionInternal session, OChannelDataOutput channel)
+      throws IOException {
+    channel.writeBytes(ORecordSerializerNetworkV37.INSTANCE.toStream(session, indexManager));
   }
 
   @Override
@@ -33,7 +36,8 @@ public class OPushIndexManagerRequest implements OBinaryPushRequest<OBinaryPushR
   }
 
   @Override
-  public OBinaryPushResponse execute(ORemotePushHandler pushHandler) {
+  public OBinaryPushResponse execute(ODatabaseSessionInternal session,
+      ORemotePushHandler pushHandler) {
     return pushHandler.executeUpdateIndexManager(this);
   }
 

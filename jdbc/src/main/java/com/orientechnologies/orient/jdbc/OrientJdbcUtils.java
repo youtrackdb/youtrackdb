@@ -3,7 +3,7 @@ package com.orientechnologies.orient.jdbc;
 import java.util.regex.Pattern;
 
 /**
- * Created by frank on 07/02/2017.
+ *
  */
 public class OrientJdbcUtils {
 

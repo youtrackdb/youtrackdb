@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.distributed;
@@ -33,8 +33,6 @@ import java.util.Set;
 
 /**
  * Server cluster interface to abstract cluster behavior.
- *
- * @author Luca Garulli (l.garulli--at--orientdb.com)
  */
 public interface ODistributedServerManager {
 
@@ -303,20 +301,27 @@ public interface ODistributedServerManager {
 
   void notifyClients(String databaseName);
 
-  default void messageReceived(ODistributedRequest request) {}
+  default void messageReceived(ODistributedRequest request) {
+  }
 
   default void messagePartitionCalculate(
-      ODistributedRequest request, Set<Integer> involvedWorkerQueues) {}
+      ODistributedRequest request, Set<Integer> involvedWorkerQueues) {
+  }
 
-  default void messageBeforeOp(String op, ODistributedRequestId requestId) {}
+  default void messageBeforeOp(String op, ODistributedRequestId requestId) {
+  }
 
-  default void messageAfterOp(String op, ODistributedRequestId requestId) {}
+  default void messageAfterOp(String op, ODistributedRequestId requestId) {
+  }
 
-  default void messageCurrentPayload(ODistributedRequestId requestId, Object responsePayload) {}
+  default void messageCurrentPayload(ODistributedRequestId requestId, Object responsePayload) {
+  }
 
-  default void messageProcessStart(ODistributedRequest message) {}
+  default void messageProcessStart(ODistributedRequest message) {
+  }
 
-  default void messageProcessEnd(ODistributedRequest iRequest, Object responsePayload) {}
+  default void messageProcessEnd(ODistributedRequest iRequest, Object responsePayload) {
+  }
 
   ODocument getOnlineDatabaseConfiguration(String databaseName);
 }

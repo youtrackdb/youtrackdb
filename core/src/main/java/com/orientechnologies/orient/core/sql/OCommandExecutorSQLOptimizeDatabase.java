@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql;
@@ -33,8 +33,6 @@ import java.util.Map;
 
 /**
  * SQL ALTER DATABASE command: Changes an attribute of the current database.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 @SuppressWarnings("unchecked")
 public class OCommandExecutorSQLOptimizeDatabase extends OCommandExecutorSQLAbstract
@@ -94,7 +92,7 @@ public class OCommandExecutorSQLOptimizeDatabase extends OCommandExecutorSQLAbst
   /**
    * Execute the ALTER DATABASE.
    */
-  public Object execute(final Map<Object, Object> iArgs) {
+  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
     final StringBuilder result = new StringBuilder();
 
     if (optimizeEdges) {

@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.server;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import java.io.File;
 import java.io.InputStream;
 import org.junit.After;
@@ -10,7 +10,7 @@ import org.junit.Rule;
 import org.junit.rules.TestName;
 
 /**
- * Created by Enrico Risa on 14/03/17.
+ *
  */
 public class AbstractRemoteTest {
 
@@ -18,7 +18,8 @@ public class AbstractRemoteTest {
 
   private OServer server;
 
-  @Rule public TestName name = new TestName();
+  @Rule
+  public TestName name = new TestName();
 
   @Before
   public void setup() throws Exception {
@@ -44,8 +45,8 @@ public class AbstractRemoteTest {
   public void teardown() {
     server.shutdown();
 
-    Orient.instance().shutdown();
+    Oxygen.instance().shutdown();
     OFileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
-    Orient.instance().startup();
+    Oxygen.instance().startup();
   }
 }

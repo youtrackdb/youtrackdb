@@ -12,7 +12,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author Artem Loginov
+ *
  */
 public class ClassIteratorTest extends BaseMemoryDatabase {
 
@@ -35,9 +35,9 @@ public class ClassIteratorTest extends BaseMemoryDatabase {
     // Create Person class
     final OClass personClass = schema.createClass("Person");
     personClass
-        .createProperty("First", OType.STRING)
-        .setMandatory(true)
-        .setNotNull(true)
+        .createProperty(db, "First", OType.STRING)
+        .setMandatory(db, true)
+        .setNotNull(db, true)
         .setMin("1");
 
     // Insert some data
@@ -57,13 +57,13 @@ public class ClassIteratorTest extends BaseMemoryDatabase {
     final OClass personClass = db.getMetadata().getSchema().getClass("Person");
 
     // empty old cluster but keep it attached
-    personClass.truncate();
+    personClass.truncate(db);
 
     // reload the data in a new 'test' cluster
     int testClusterId = db.addCluster("test");
-    personClass.addClusterId(testClusterId);
-    personClass.setClusterSelection(new ODefaultClusterSelectionStrategy());
-    personClass.setDefaultClusterId(testClusterId);
+    personClass.addClusterId(db, testClusterId);
+    personClass.setClusterSelection(db, new ODefaultClusterSelectionStrategy());
+    personClass.setDefaultClusterId(db, testClusterId);
 
     for (String name : names) {
       createPerson("Person", name);

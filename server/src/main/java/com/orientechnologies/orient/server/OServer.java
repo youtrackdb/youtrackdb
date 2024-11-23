@@ -1,6 +1,4 @@
 /*
- *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,8 +12,6 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
- *
  */
 package com.orientechnologies.orient.server;
 
@@ -29,10 +25,16 @@ import com.orientechnologies.common.parser.OSystemVariableResolver;
 import com.orientechnologies.common.profiler.OAbstractProfiler.OProfilerHookValue;
 import com.orientechnologies.common.profiler.OProfiler.METRIC_TYPE;
 import com.orientechnologies.orient.core.OConstants;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.*;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.ODatabaseType;
+import com.orientechnologies.orient.core.db.OSystemDatabase;
+import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTxInternal;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -42,7 +44,16 @@ import com.orientechnologies.orient.core.metadata.security.auth.OTokenAuthInfo;
 import com.orientechnologies.orient.core.security.OInvalidPasswordException;
 import com.orientechnologies.orient.core.security.OParsedToken;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
-import com.orientechnologies.orient.server.config.*;
+import com.orientechnologies.orient.server.config.OServerConfiguration;
+import com.orientechnologies.orient.server.config.OServerConfigurationManager;
+import com.orientechnologies.orient.server.config.OServerEntryConfiguration;
+import com.orientechnologies.orient.server.config.OServerHandlerConfiguration;
+import com.orientechnologies.orient.server.config.OServerNetworkListenerConfiguration;
+import com.orientechnologies.orient.server.config.OServerNetworkProtocolConfiguration;
+import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
+import com.orientechnologies.orient.server.config.OServerSocketFactoryConfiguration;
+import com.orientechnologies.orient.server.config.OServerStorageConfiguration;
+import com.orientechnologies.orient.server.config.OServerUserConfiguration;
 import com.orientechnologies.orient.server.distributed.ODistributedServerManager;
 import com.orientechnologies.orient.server.distributed.config.ODistributedConfig;
 import com.orientechnologies.orient.server.handler.OConfigurableHooksManager;
@@ -61,7 +72,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.locks.ReentrantLock;
@@ -99,43 +116,43 @@ public class OServer {
   private OPushManager pushManager;
   private ClassLoader extensionClassLoader;
   private OTokenHandler tokenHandler;
-  private OrientDB context;
-  private OrientDBInternal databases;
+  private OxygenDB context;
+  private OxygenDBInternal databases;
   protected Date startedOn = new Date();
 
   public OServer() {
-    this(!Orient.instance().isInsideWebContainer());
+    this(!Oxygen.instance().isInsideWebContainer());
   }
 
   public OServer(boolean shutdownEngineOnExit) {
-    final boolean insideWebContainer = Orient.instance().isInsideWebContainer();
+    final boolean insideWebContainer = Oxygen.instance().isInsideWebContainer();
 
     if (insideWebContainer && shutdownEngineOnExit) {
       OLogManager.instance()
           .warn(
               this,
-              "OrientDB instance is running inside of web application, it is highly unrecommended"
-                  + " to force to shutdown OrientDB engine on server shutdown");
+              "OxygenDB instance is running inside of web application, it is highly unrecommended"
+                  + " to force to shutdown OxygenDB engine on server shutdown");
     }
 
     this.shutdownEngineOnExit = shutdownEngineOnExit;
 
     serverRootDirectory =
-        OSystemVariableResolver.resolveSystemVariables("${" + Orient.ORIENTDB_HOME + "}", ".");
+        OSystemVariableResolver.resolveSystemVariables("${" + Oxygen.OXYGENDB_HOME + "}", ".");
 
     OLogManager.instance().installCustomFormatter();
 
     defaultSettings();
 
-    threadGroup = new ThreadGroup("OrientDB Server");
+    threadGroup = new ThreadGroup("OxygenDB Server");
 
     System.setProperty("com.sun.management.jmxremote", "true");
 
-    Orient.instance().startup();
+    Oxygen.instance().startup();
 
     if (OGlobalConfiguration.PROFILER_ENABLED.getValueAsBoolean()
-        && !Orient.instance().getProfiler().isRecording()) {
-      Orient.instance().getProfiler().startRecording();
+        && !Oxygen.instance().getProfiler().isRecording()) {
+      Oxygen.instance().getProfiler().startRecording();
     }
 
     if (shutdownEngineOnExit) {
@@ -233,15 +250,15 @@ public class OServer {
 
   public void restart()
       throws ClassNotFoundException,
-          InvocationTargetException,
-          InstantiationException,
-          NoSuchMethodException,
-          IllegalAccessException,
-          IOException {
+      InvocationTargetException,
+      InstantiationException,
+      NoSuchMethodException,
+      IllegalAccessException,
+      IOException {
     try {
       deinit();
     } finally {
-      Orient.instance().startup();
+      Oxygen.instance().startup();
       startup(serverCfg.getConfiguration());
       activate();
     }
@@ -293,7 +310,7 @@ public class OServer {
       config = System.getProperty(OServerConfiguration.PROPERTY_CONFIG_FILE);
     }
 
-    Orient.instance().startup();
+    Oxygen.instance().startup();
 
     startup(new File(OSystemVariableResolver.resolveSystemVariables(config)));
 
@@ -337,9 +354,9 @@ public class OServer {
 
   public OServer startupFromConfiguration() throws IOException {
     OLogManager.instance()
-        .info(this, "OrientDB Server v" + OConstants.getVersion() + " is starting up...");
+        .info(this, "OxygenDB Server v" + OConstants.getVersion() + " is starting up...");
 
-    Orient.instance();
+    Oxygen.instance();
 
     if (startupLatch == null) {
       startupLatch = new CountDownLatch(1);
@@ -375,11 +392,11 @@ public class OServer {
       databaseDirectory += "/";
     }
 
-    OrientDBConfigBuilder builder = OrientDBConfig.builder();
+    OrientDBConfigBuilder builder = OxygenDBConfig.builder();
     for (OServerUserConfiguration user : serverCfg.getUsers()) {
       builder.addGlobalUser(user.getName(), user.getPassword(), user.getResources());
     }
-    OrientDBConfig config =
+    OxygenDBConfig config =
         builder
             .fromContext(contextConfiguration)
             .setSecurityConfig(new OServerSecurityConfig(this, this.serverCfg))
@@ -395,18 +412,18 @@ public class OServer {
 
       if (configuration.distributed != null && configuration.distributed.enabled) {
         try {
-          OrientDBConfig orientDBConfig =
+          OxygenDBConfig oxygenDBConfig =
               ODistributedConfig.buildConfig(
                   contextConfiguration, ODistributedConfig.fromEnv(configuration.distributed));
-          databases = OrientDBInternal.distributed(this.databaseDirectory, orientDBConfig);
+          databases = OxygenDBInternal.distributed(this.databaseDirectory, oxygenDBConfig);
         } catch (ODatabaseException ex) {
-          databases = OrientDBInternal.embedded(this.databaseDirectory, config);
+          databases = OxygenDBInternal.embedded(this.databaseDirectory, config);
         }
       } else {
         try {
-          databases = OrientDBInternal.distributed(this.databaseDirectory, config);
+          databases = OxygenDBInternal.distributed(this.databaseDirectory, config);
         } catch (ODatabaseException ex) {
-          databases = OrientDBInternal.embedded(this.databaseDirectory, config);
+          databases = OxygenDBInternal.embedded(this.databaseDirectory, config);
         }
       }
     }
@@ -420,7 +437,7 @@ public class OServer {
     OLogManager.instance()
         .info(this, "Databases directory: " + new File(databaseDirectory).getAbsolutePath());
 
-    Orient.instance()
+    Oxygen.instance()
         .getProfiler()
         .registerHookValue(
             "system.databases",
@@ -448,7 +465,7 @@ public class OServer {
       throws ClassNotFoundException, InstantiationException, IllegalAccessException {
     lock.lock();
     try {
-      // Checks to see if the OrientDB System Database exists and creates it if not.
+      // Checks to see if the OxygenDB System Database exists and creates it if not.
       // Make sure this happens after setSecurity() is called.
       initSystemDatabase();
 
@@ -539,17 +556,17 @@ public class OServer {
       OLogManager.instance()
           .info(
               this,
-              "OrientDB Studio available at $ANSI{blue %s://%s/studio/index.html}",
+              "OxygenDB Studio available at $ANSI{blue %s://%s/studio/index.html}",
               proto,
               httpAddress);
       OLogManager.instance()
           .info(
               this,
-              "$ANSI{green:italic OrientDB Server is active} v" + OConstants.getVersion() + ".");
+              "$ANSI{green:italic OxygenDB Server is active} v" + OConstants.getVersion() + ".");
     } catch (ClassNotFoundException
-        | InstantiationException
-        | IllegalAccessException
-        | RuntimeException e) {
+             | InstantiationException
+             | IllegalAccessException
+             | RuntimeException e) {
       deinit();
       throw e;
     } finally {
@@ -595,13 +612,13 @@ public class OServer {
     try {
       running = false;
 
-      OLogManager.instance().info(this, "OrientDB Server is shutting down...");
+      OLogManager.instance().info(this, "OxygenDB Server is shutting down...");
 
       if (shutdownHook != null) {
         shutdownHook.cancel();
       }
 
-      Orient.instance().getProfiler().unregisterHookValue("system.databases");
+      Oxygen.instance().getProfiler().unregisterHookValue("system.databases");
 
       for (OServerLifecycleListener l : lifecycleListeners) {
         l.onBeforeDeactivate();
@@ -652,22 +669,22 @@ public class OServer {
         lock.unlock();
       }
 
-      if (shutdownEngineOnExit && !Orient.isRegisterDatabaseByPath()) {
+      if (shutdownEngineOnExit && !Oxygen.isRegisterDatabaseByPath()) {
         try {
           OLogManager.instance().info(this, "Shutting down databases:");
-          Orient.instance().shutdown();
+          Oxygen.instance().shutdown();
         } catch (Exception e) {
-          OLogManager.instance().error(this, "Error during OrientDB shutdown", e);
+          OLogManager.instance().error(this, "Error during OxygenDB shutdown", e);
         }
       }
       if (!contextConfiguration.getValueAsBoolean(
-              OGlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY)
+          OGlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY)
           && databases != null) {
         databases.close();
         databases = null;
       }
     } finally {
-      OLogManager.instance().info(this, "OrientDB Server shutdown complete\n");
+      OLogManager.instance().info(this, "OxygenDB Server shutdown complete\n");
       OLogManager.instance().flush();
     }
 
@@ -684,7 +701,7 @@ public class OServer {
         shutdownLatch.await();
       }
     } catch (InterruptedException e) {
-      OLogManager.instance().error(this, "Error during waiting for OrientDB shutdown", e);
+      OLogManager.instance().error(this, "Error during waiting for OxygenDB shutdown", e);
     }
   }
 
@@ -787,7 +804,7 @@ public class OServer {
       final String iUserName, final String iPassword, final String iResourceToCheck) {
     return databases
         .getSecuritySystem()
-        .authenticateAndAuthorize(iUserName, iPassword, iResourceToCheck);
+        .authenticateAndAuthorize(null, iUserName, iPassword, iResourceToCheck);
   }
 
   public boolean existsStoragePath(final String iURL) {
@@ -901,7 +918,7 @@ public class OServer {
   }
 
   public ODatabaseSessionInternal openDatabase(final String iDbUrl, final OParsedToken iToken) {
-    return databases.open(new OTokenAuthInfo(iToken), OrientDBConfig.defaultConfig());
+    return databases.open(new OTokenAuthInfo(iToken), OxygenDBConfig.defaultConfig());
   }
 
   public ODatabaseSessionInternal openDatabase(
@@ -991,7 +1008,7 @@ public class OServer {
         if (typeIndex <= 0) {
           throw new OConfigurationException(
               "Error in database URL: the engine was not specified. Syntax is: "
-                  + Orient.URL_SYNTAX
+                  + Oxygen.URL_SYNTAX
                   + ". URL was: "
                   + url);
         }
@@ -1221,25 +1238,26 @@ public class OServer {
     }
   }
 
-  protected void defaultSettings() {}
+  protected void defaultSettings() {
+  }
 
   public OTokenHandler getTokenHandler() {
     return tokenHandler;
   }
 
   public ThreadGroup getThreadGroup() {
-    return Orient.instance().getThreadGroup();
+    return Oxygen.instance().getThreadGroup();
   }
 
   private void initSystemDatabase() {
     databases.getSystemDatabase().init();
   }
 
-  public OrientDBInternal getDatabases() {
+  public OxygenDBInternal getDatabases() {
     return databases;
   }
 
-  public OrientDB getContext() {
+  public OxygenDB getContext() {
     return context;
   }
 
@@ -1255,7 +1273,7 @@ public class OServer {
     return databases.exists(databaseName, null, null);
   }
 
-  public void createDatabase(String databaseName, ODatabaseType type, OrientDBConfig config) {
+  public void createDatabase(String databaseName, ODatabaseType type, OxygenDBConfig config) {
     databases.create(databaseName, null, null, type, config);
   }
 
@@ -1266,7 +1284,7 @@ public class OServer {
   }
 
   public void restore(String name, String path) {
-    databases.restore(name, null, null, null, path, OrientDBConfig.defaultConfig());
+    databases.restore(name, null, null, null, path, OxygenDBConfig.defaultConfig());
   }
 
   public Date getStartedOn() {

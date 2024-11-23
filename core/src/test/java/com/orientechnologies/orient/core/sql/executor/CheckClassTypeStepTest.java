@@ -8,7 +8,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by olena.kolesnyk on 30/07/2017.
+ *
  */
 public class CheckClassTypeStepTest extends TestUtilsFixture {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 OrientDB LTD (info--at--orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * @author Andrea Iacono (a.iacono--at--orientdb.com) Checks for consistency on the cluster with
  * these steps: - 2 server (quorum=2) - record1 is inserted on server1 - record1 (version 1) is
  * propagated to the other server - introduce a delay after record locking for the two servers
  * (different for each one) - the two clients at the same time update the same record on different

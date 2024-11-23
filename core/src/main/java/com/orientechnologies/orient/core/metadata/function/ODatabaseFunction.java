@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,20 +14,19 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.metadata.function;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunction;
 import java.util.List;
 
 /**
  * Dynamic function factory bound to the database's functions
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ODatabaseFunction implements OSQLFunction {
 
@@ -58,8 +57,8 @@ public class ODatabaseFunction implements OSQLFunction {
   }
 
   @Override
-  public String getName() {
-    return f.getName();
+  public String getName(ODatabaseSession session) {
+    return f.getName(session);
   }
 
   @Override
@@ -68,16 +67,16 @@ public class ODatabaseFunction implements OSQLFunction {
   }
 
   @Override
-  public int getMaxParams() {
-    return f.getParameters() != null ? f.getParameters().size() : 0;
+  public int getMaxParams(ODatabaseSession session) {
+    return f.getParameters(session) != null ? f.getParameters(session).size() : 0;
   }
 
   @Override
-  public String getSyntax() {
+  public String getSyntax(ODatabaseSession session) {
     final StringBuilder buffer = new StringBuilder(512);
-    buffer.append(f.getName());
+    buffer.append(f.getName(session));
     buffer.append('(');
-    final List<String> params = f.getParameters();
+    final List<String> params = f.getParameters(session);
     for (int p = 0; p < params.size(); ++p) {
       if (p > 0) {
         buffer.append(',');
@@ -94,10 +93,12 @@ public class ODatabaseFunction implements OSQLFunction {
   }
 
   @Override
-  public void setResult(final Object iResult) {}
+  public void setResult(final Object iResult) {
+  }
 
   @Override
-  public void config(final Object[] configuredParameters) {}
+  public void config(final Object[] configuredParameters) {
+  }
 
   @Override
   public boolean shouldMergeDistributedResult() {

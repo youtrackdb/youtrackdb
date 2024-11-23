@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,12 +9,12 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://www.orientdb.com
+ * <p>*
  */
 package com.orientechnologies.security.auditing;
 
-import com.orientechnologies.orient.core.Orient;
-import com.orientechnologies.orient.core.db.OrientDBInternal;
+import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -26,8 +24,6 @@ import java.util.concurrent.BlockingQueue;
 
 /**
  * Thread that logs asynchronously.
- *
- * @author Luca Garulli
  */
 public class OAuditingLoggingThread extends Thread {
 
@@ -35,7 +31,7 @@ public class OAuditingLoggingThread extends Thread {
   private final BlockingQueue<ODocument> auditingQueue;
   private volatile boolean running = true;
   private volatile boolean waitForAllLogs = true;
-  private final OrientDBInternal context;
+  private final OxygenDBInternal context;
 
   private final String className;
   private final OSecuritySystem security;
@@ -43,10 +39,10 @@ public class OAuditingLoggingThread extends Thread {
   public OAuditingLoggingThread(
       final String iDatabaseName,
       final BlockingQueue auditingQueue,
-      final OrientDBInternal context,
+      final OxygenDBInternal context,
       OSecuritySystem security) {
     super(
-        Orient.instance().getThreadGroup(), "OrientDB Auditing Logging Thread - " + iDatabaseName);
+        Oxygen.instance().getThreadGroup(), "OxygenDB Auditing Logging Thread - " + iDatabaseName);
 
     this.databaseName = iDatabaseName;
     this.auditingQueue = auditingQueue;
@@ -65,12 +61,13 @@ public class OAuditingLoggingThread extends Thread {
     context
         .getSystemDatabase()
         .executeInDBScope(
-            iArgument -> {
-              OSchema schema = iArgument.getMetadata().getSchema();
+            session -> {
+              OSchema schema = session.getMetadata().getSchema();
               if (!schema.existsClass(className)) {
                 OClass clazz = schema.getClass(ODefaultAuditing.AUDITING_LOG_CLASSNAME);
                 OClass cls = schema.createClass(className, clazz);
-                cls.createIndex(className + ".date", OClass.INDEX_TYPE.NOTUNIQUE, "date");
+                cls.createIndex(session, className + ".date", OClass.INDEX_TYPE.NOTUNIQUE,
+                    "date");
               }
               return null;
             });

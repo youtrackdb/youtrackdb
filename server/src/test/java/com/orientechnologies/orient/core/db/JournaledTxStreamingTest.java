@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2017 OrientDB LTD (http://orientdb.com)
+ *  *  Copyright 2010-2017 OxygenDB LTD (http://orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -45,7 +45,7 @@ public class JournaledTxStreamingTest {
 
   private File buildDir;
   private Process serverProcess;
-  private OrientDB ctx;
+  private OxygenDB ctx;
   private ODatabaseSessionInternal db;
   private DataInputStream stream;
 
@@ -67,7 +67,7 @@ public class JournaledTxStreamingTest {
 
     spawnServer();
 
-    ctx = new OrientDB("remote:localhost:3500", "root", "root", OrientDBConfig.defaultConfig());
+    ctx = new OxygenDB("remote:localhost:3500", "root", "root", OxygenDBConfig.defaultConfig());
     ctx.execute("create database " + JournaledTxStreamingTest.class.getSimpleName() + " plocal ")
         .close();
 

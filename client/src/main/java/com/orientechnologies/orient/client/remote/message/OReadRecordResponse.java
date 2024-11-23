@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.client.remote.message;
@@ -22,7 +22,7 @@ package com.orientechnologies.orient.client.remote.message;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
@@ -38,20 +38,22 @@ public final class OReadRecordResponse implements OBinaryResponse {
   private byte recordType;
   private int version;
   private byte[] record;
-  private Set<ORecord> recordsToSend;
+  private Set<ORecordAbstract> recordsToSend;
   private ORawBuffer result;
 
-  public OReadRecordResponse() {}
+  public OReadRecordResponse() {
+  }
 
   public OReadRecordResponse(
-      byte recordType, int version, byte[] record, Set<ORecord> recordsToSend) {
+      byte recordType, int version, byte[] record, Set<ORecordAbstract> recordsToSend) {
     this.recordType = recordType;
     this.version = version;
     this.record = record;
     this.recordsToSend = recordsToSend;
   }
 
-  public void write(OChannelDataOutput network, int protocolVersion, ORecordSerializer serializer)
+  public void write(ODatabaseSessionInternal session, OChannelDataOutput network,
+      int protocolVersion, ORecordSerializer serializer)
       throws IOException {
     if (record != null) {
       network.writeByte((byte) 1);
@@ -64,11 +66,11 @@ public final class OReadRecordResponse implements OBinaryResponse {
         network.writeVersion(version);
         network.writeBytes(record);
       }
-      for (ORecord d : recordsToSend) {
+      for (ORecordAbstract d : recordsToSend) {
         if (d.getIdentity().isValid()) {
           network.writeByte((byte) 2); // CLIENT CACHE
           // RECORD. IT ISN'T PART OF THE RESULT SET
-          OMessageHelper.writeRecord(network, d, serializer);
+          OMessageHelper.writeRecord(session, network, d, serializer);
         }
       }
     }

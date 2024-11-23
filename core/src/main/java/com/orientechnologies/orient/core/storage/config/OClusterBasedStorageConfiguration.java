@@ -95,31 +95,31 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
   private static final String UUID = "UUID";
 
   private static final String[] INT_PROPERTIES =
-      new String[] {
-        MINIMUM_CLUSTERS_PROPERTY,
-        VERSION_PROPERTY,
-        BINARY_FORMAT_VERSION_PROPERTY,
-        RECORD_SERIALIZER_VERSION_PROPERTY,
-        PAGE_SIZE_PROPERTY,
-        FREE_LIST_BOUNDARY_PROPERTY,
-        MAX_KEY_SIZE_PROPERTY
+      new String[]{
+          MINIMUM_CLUSTERS_PROPERTY,
+          VERSION_PROPERTY,
+          BINARY_FORMAT_VERSION_PROPERTY,
+          RECORD_SERIALIZER_VERSION_PROPERTY,
+          PAGE_SIZE_PROPERTY,
+          FREE_LIST_BOUNDARY_PROPERTY,
+          MAX_KEY_SIZE_PROPERTY
       };
 
   private static final String[] STRING_PROPERTIES =
-      new String[] {
-        SCHEMA_RECORD_ID_PROPERTY,
-        INDEX_MANAGER_RECORD_ID_PROPERTY,
-        LOCALE_LANGUAGE_PROPERTY,
-        LOCALE_COUNTRY_PROPERTY,
-        DATE_FORMAT_PROPERTY,
-        DATE_TIME_FORMAT_PROPERTY,
-        TIME_ZONE_PROPERTY,
-        CHARSET_PROPERTY,
-        CONFLICT_STRATEGY_PROPERTY,
-        CLUSTER_SELECTION_PROPERTY,
-        RECORD_SERIALIZER_PROPERTY,
-        CREATED_AT_VERSION_PROPERTY,
-        UUID
+      new String[]{
+          SCHEMA_RECORD_ID_PROPERTY,
+          INDEX_MANAGER_RECORD_ID_PROPERTY,
+          LOCALE_LANGUAGE_PROPERTY,
+          LOCALE_COUNTRY_PROPERTY,
+          DATE_FORMAT_PROPERTY,
+          DATE_TIME_FORMAT_PROPERTY,
+          TIME_ZONE_PROPERTY,
+          CHARSET_PROPERTY,
+          CONFLICT_STRATEGY_PROPERTY,
+          CLUSTER_SELECTION_PROPERTY,
+          RECORD_SERIALIZER_PROPERTY,
+          CREATED_AT_VERSION_PROPERTY,
+          UUID
       };
 
   private OContextConfiguration configuration;
@@ -941,7 +941,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
       final OGlobalConfiguration cfg = OGlobalConfiguration.findByKey(key);
       if (cfg != null) {
         if (value != null) {
-          configuration.setValue(key, OType.convert(value, cfg.getType()));
+          configuration.setValue(key, OType.convert(null, value, cfg.getType()));
         }
       } else {
         OLogManager.instance()
@@ -1038,8 +1038,8 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
       final String key = PROPERTY_PREFIX_PROPERTY + name;
       updateStringProperty(atomicOperation, key, value, false);
 
-      @SuppressWarnings("unchecked")
-      final Map<String, String> properties = (Map<String, String>) cache.get(PROPERTIES);
+      @SuppressWarnings("unchecked") final Map<String, String> properties = (Map<String, String>) cache.get(
+          PROPERTIES);
       properties.put(name, value);
     } finally {
       lock.writeLock().unlock();
@@ -1073,8 +1073,8 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
   public String getProperty(final String name) {
     lock.readLock().lock();
     try {
-      @SuppressWarnings("unchecked")
-      final Map<String, String> properties = (Map<String, String>) cache.get(PROPERTIES);
+      @SuppressWarnings("unchecked") final Map<String, String> properties = (Map<String, String>) cache.get(
+          PROPERTIES);
       return properties.get(name);
     } finally {
       lock.readLock().unlock();
@@ -1085,8 +1085,8 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
   public List<OStorageEntryConfiguration> getProperties() {
     lock.readLock().lock();
     try {
-      @SuppressWarnings("unchecked")
-      final Map<String, String> properties = (Map<String, String>) cache.get(PROPERTIES);
+      @SuppressWarnings("unchecked") final Map<String, String> properties = (Map<String, String>) cache.get(
+          PROPERTIES);
 
       final List<OStorageEntryConfiguration> result = new ArrayList<>(8);
 
@@ -1190,8 +1190,8 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
         cluster.deleteRecord(atomicOperation, rid.getClusterPosition());
       }
 
-      @SuppressWarnings("unchecked")
-      final Map<String, String> properties = (Map<String, String>) cache.get(PROPERTIES);
+      @SuppressWarnings("unchecked") final Map<String, String> properties = (Map<String, String>) cache.get(
+          PROPERTIES);
       properties.clear();
     } finally {
       lock.writeLock().unlock();
@@ -1304,8 +1304,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
       OAtomicOperation atomicOperation, final OStorageClusterConfiguration config) {
     lock.writeLock().lock();
     try {
-      @SuppressWarnings("unchecked")
-      final List<OStorageClusterConfiguration> clusters =
+      @SuppressWarnings("unchecked") final List<OStorageClusterConfiguration> clusters =
           (List<OStorageClusterConfiguration>) cache.get(CLUSTERS);
       if (config.getId() < clusters.size()) {
         clusters.set(config.getId(), config);
@@ -1335,8 +1334,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
       final OStorageClusterConfiguration.STATUS status) {
     lock.writeLock().lock();
     try {
-      @SuppressWarnings("unchecked")
-      final List<OStorageClusterConfiguration> clusters =
+      @SuppressWarnings("unchecked") final List<OStorageClusterConfiguration> clusters =
           (List<OStorageClusterConfiguration>) cache.get(CLUSTERS);
 
       if (clusterId < clusters.size()) {
@@ -1418,8 +1416,7 @@ public final class OClusterBasedStorageConfiguration implements OStorageConfigur
   public void dropCluster(final OAtomicOperation atomicOperation, final int clusterId) {
     lock.writeLock().lock();
     try {
-      @SuppressWarnings("unchecked")
-      final List<OStorageClusterConfiguration> clusters =
+      @SuppressWarnings("unchecked") final List<OStorageClusterConfiguration> clusters =
           (List<OStorageClusterConfiguration>) cache.get(CLUSTERS);
       if (clusterId < clusters.size()) {
         clusters.set(clusterId, null);

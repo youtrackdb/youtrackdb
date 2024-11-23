@@ -4,7 +4,7 @@ import com.orientechnologies.orient.core.serialization.serializer.record.ORecord
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 
 /**
- * Created by Enrico Risa on 10/04/17.
+ *
  */
 public class ORecordSerializerNetworkFactory {
 

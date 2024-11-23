@@ -16,8 +16,6 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Created by luigidellaquila on 12/01/17.
- *
  * <p>Fetches temporary records (cluster id -1) from current transaction
  */
 public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
@@ -54,7 +52,7 @@ public class FetchTemporaryFromTxStep extends AbstractExecutionStep {
     List<ORecord> records = new ArrayList<>();
     if (iterable != null) {
       for (ORecordOperation op : iterable) {
-        ORecord record = op.getRecord();
+        ORecord record = op.record;
         if (matchesClass(record, className) && !hasCluster(record)) {
           records.add(record);
         }

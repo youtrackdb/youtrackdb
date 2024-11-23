@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.record.impl;
@@ -30,8 +30,7 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentAbstract;
-import com.orientechnologies.orient.core.db.record.ODetachable;
+import com.orientechnologies.orient.core.db.document.ODatabaseSessionAbstract;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.OMap;
@@ -120,13 +119,12 @@ import javax.annotation.Nullable;
 @SuppressWarnings({"unchecked"})
 public class ODocument extends ORecordAbstract
     implements Iterable<Entry<String, Object>>,
-        ORecordSchemaAware,
-        ODetachable,
-        Externalizable,
-        OElementInternal {
+    ORecordSchemaAware,
+    Externalizable,
+    OElementInternal {
 
   public static final byte RECORD_TYPE = 'd';
-  private static final String[] EMPTY_STRINGS = new String[] {};
+  private static final String[] EMPTY_STRINGS = new String[]{};
   private int fieldSize;
 
   protected Map<String, ODocumentEntry> fields;
@@ -213,7 +211,7 @@ public class ODocument extends ORecordAbstract
     this(iClassName);
     recordId = (ORecordId) iRID.copy();
 
-    final ODatabaseSessionInternal database = getDatabase();
+    final ODatabaseSessionInternal database = getSession();
     if (recordId.getClusterId() > -1) {
       final OSchema schema = database.getMetadata().getImmutableSchemaSnapshot();
       final OClass cls = schema.getClassByClusterId(recordId.getClusterId());
@@ -239,6 +237,11 @@ public class ODocument extends ORecordAbstract
    */
   public ODocument(final String iClassName) {
     setup(ODatabaseRecordThreadLocal.instance().getIfDefined());
+    setClassName(iClassName);
+  }
+
+  public ODocument(final String iClassName, ODatabaseSessionInternal session) {
+    setup(session);
     setClassName(iClassName);
   }
 
@@ -271,6 +274,8 @@ public class ODocument extends ORecordAbstract
    * @param iFields Array of field pairs
    */
   public ODocument(final Object[] iFields) {
+    this(OElement.DEFAULT_CLASS_NAME);
+
     setup(ODatabaseRecordThreadLocal.instance().getIfDefined());
     if (iFields != null && iFields.length > 0) {
       for (int i = 0; i < iFields.length; i += 2) {
@@ -396,7 +401,6 @@ public class ODocument extends ORecordAbstract
   @Override
   public Optional<OClass> getSchemaType() {
     checkForBinding();
-
     return Optional.ofNullable(getImmutableSchemaClass());
   }
 
@@ -451,15 +455,11 @@ public class ODocument extends ORecordAbstract
 
   @Override
   public Set<String> getPropertyNames() {
-    checkForBinding();
-
     return getPropertyNamesInternal();
   }
 
   @Override
   public Set<String> getPropertyNamesInternal() {
-    checkForBinding();
-
     return calculatePropertyNames();
   }
 
@@ -471,8 +471,6 @@ public class ODocument extends ORecordAbstract
    * @return the field value. Null if the field does not exist.
    */
   public <RET> RET getProperty(final String fieldName) {
-    checkForBinding();
-
     return getPropertyInternal(fieldName);
   }
 
@@ -483,21 +481,19 @@ public class ODocument extends ORecordAbstract
 
   @Override
   public <RET> RET getPropertyInternal(String name, boolean lazyLoad) {
-    checkForBinding();
-
     if (name == null) {
       return null;
     }
 
+    checkForBinding();
     RET value = (RET) ODocumentHelper.getIdentifiableValue(this, name);
-
     if (!name.startsWith("@")
         && lazyLoad
         && value instanceof ORID rid
         && (rid.isPersistent() || rid.isNew())
         && ODatabaseRecordThreadLocal.instance().isDefined()) {
       // CREATE THE DOCUMENT OBJECT IN LAZY WAY
-      var db = getDatabase();
+      var db = getSession();
       try {
         RET newValue = db.load((ORID) value);
 
@@ -538,7 +534,7 @@ public class ODocument extends ORecordAbstract
       if (onLoadValue instanceof ORID orid) {
         if (isLazyLoad()) {
           try {
-            return getDatabase().load(orid);
+            return getSession().load(orid);
           } catch (ORecordNotFoundException e) {
             return null;
           }
@@ -584,16 +580,12 @@ public class ODocument extends ORecordAbstract
   @Nullable
   @Override
   public OIdentifiable getLinkProperty(String fieldName) {
-    checkForBinding();
-
     return getLinkPropertyInternal(fieldName);
   }
 
   @Nullable
   @Override
   public OIdentifiable getLinkPropertyInternal(String name) {
-    checkForBinding();
-
     if (name == null) {
       return null;
     }
@@ -641,15 +633,11 @@ public class ODocument extends ORecordAbstract
    * @param iPropertyValue The property value
    */
   public void setProperty(final String iFieldName, Object iPropertyValue) {
-    checkForBinding();
-
     setPropertyInternal(iFieldName, iPropertyValue);
   }
 
   @Override
   public void setPropertyInternal(String name, Object value) {
-    checkForBinding();
-
     if (value instanceof OElement element
         && element.getSchemaClass() == null
         && !element.getIdentity().isValid()) {
@@ -667,8 +655,6 @@ public class ODocument extends ORecordAbstract
    * @param types Forced type (not auto-determined)
    */
   public void setProperty(String name, Object value, OType... types) {
-    checkForBinding();
-
     setPropertyInternal(name, value, types);
   }
 
@@ -731,7 +717,7 @@ public class ODocument extends ORecordAbstract
 
     OType fieldType = deriveFieldType(name, entry, type);
     if (value != null && fieldType != null) {
-      value = ODocumentHelper.convertField(this, name, fieldType, null, value);
+      value = ODocumentHelper.convertField(getSession(), this, name, fieldType, null, value);
     } else {
       if (value instanceof Enum) {
         value = value.toString();
@@ -836,16 +822,7 @@ public class ODocument extends ORecordAbstract
     }
   }
 
-  @Override
-  public void delete() {
-    checkForBinding();
-
-    super.delete();
-  }
-
   public <RET> RET removeProperty(final String iFieldName) {
-    checkForBinding();
-
     return removePropertyInternal(iFieldName);
   }
 
@@ -910,14 +887,16 @@ public class ODocument extends ORecordAbstract
           throw new OSecurityException(
               String.format(
                   "Change of field '%s' is not allowed for user '%s'",
-                  iRecord.getClassName() + "." + mapEntry.getKey(), internal.getUser().getName()));
+                  iRecord.getClassName() + "." + mapEntry.getKey(),
+                  internal.getUser().getName(internal)));
         }
       }
     }
   }
 
   private static void validateField(
-      OImmutableSchema schema, ODocument iRecord, OImmutableProperty p)
+      ODatabaseSessionInternal session, OImmutableSchema schema, ODocument iRecord,
+      OImmutableProperty p)
       throws OValidationException {
     iRecord.checkForBinding();
     iRecord = (ODocument) iRecord.getRecord();
@@ -1029,7 +1008,7 @@ public class ODocument extends ORecordAbstract
           } else {
             if (p.getLinkedType() != null) {
               for (Object item : ((List<?>) fieldValue)) {
-                validateType(p, item);
+                validateType(session, p, item);
               }
             }
           }
@@ -1049,7 +1028,7 @@ public class ODocument extends ORecordAbstract
           } else {
             if (p.getLinkedType() != null) {
               for (Object item : ((Set<?>) fieldValue)) {
-                validateType(p, item);
+                validateType(session, p, item);
               }
             }
           }
@@ -1069,7 +1048,7 @@ public class ODocument extends ORecordAbstract
           } else {
             if (p.getLinkedType() != null) {
               for (Entry<?, ?> collEntry : ((Map<?, ?>) fieldValue).entrySet()) {
-                validateType(p, collEntry.getValue());
+                validateType(session, p, collEntry.getValue());
               }
             }
           }
@@ -1208,7 +1187,7 @@ public class ODocument extends ORecordAbstract
         for (var object : event) {
           if (object.getChangeType() == OMultiValueChangeEvent.OChangeType.ADD
               || object.getChangeType() == OMultiValueChangeEvent.OChangeType.UPDATE
-                  && object.getValue() != null) {
+              && object.getValue() != null) {
             validateLink(schema, property, object.getValue(), true);
           }
         }
@@ -1220,9 +1199,10 @@ public class ODocument extends ORecordAbstract
     }
   }
 
-  private static void validateType(final OProperty p, final Object value) {
+  private static void validateType(ODatabaseSessionInternal session, final OProperty p,
+      final Object value) {
     if (value != null) {
-      if (OType.convert(value, p.getLinkedType().getDefaultJavaType()) == null) {
+      if (OType.convert(session, value, p.getLinkedType().getDefaultJavaType()) == null) {
         throw new OValidationException(
             "The field '"
                 + p.getFullName()
@@ -1462,45 +1442,15 @@ public class ODocument extends ORecordAbstract
 
     destination.dirty = dirty; // LEAVE IT AS LAST TO AVOID SOMETHING SET THE FLAG TO TRUE
     destination.contentChanged = contentChanged;
+
+    var dirtyManager = new ODirtyManager();
+    if (dirty) {
+      dirtyManager.setDirty(this);
+    }
+
     destination.dirtyManager = dirtyManager;
 
     return destination;
-  }
-
-  /**
-   * Detaches all the connected records. If new records are linked to the document the detaching
-   * cannot be completed and false will be returned. RidBag types cannot be fully detached when the
-   * database is connected using "remote" protocol.
-   *
-   * @return true if the record has been detached, otherwise false
-   */
-  public final boolean detach() {
-    deserializeFields();
-    boolean fullyDetached = true;
-
-    if (fields != null) {
-      Object fieldValue;
-      for (Map.Entry<String, ODocumentEntry> entry : fields.entrySet()) {
-        var docEntry = entry.getValue();
-        fieldValue = docEntry.value;
-
-        if (fieldValue instanceof ORecord record) {
-          if (record.getIdentity().isNew()) {
-            fullyDetached = false;
-          } else {
-            entry.getValue().value = record.getIdentity();
-          }
-        }
-
-        if (fieldValue instanceof ODetachable) {
-          if (!((ODetachable) fieldValue).detach()) {
-            fullyDetached = false;
-          }
-        }
-      }
-    }
-
-    return fullyDetached;
   }
 
   /**
@@ -1526,7 +1476,7 @@ public class ODocument extends ORecordAbstract
   public ODocument load(final String iFetchPlan, boolean iIgnoreCache) {
     Object result;
     try {
-      result = getDatabase().load(this, iFetchPlan, iIgnoreCache);
+      result = getSession().load(this, iFetchPlan, iIgnoreCache);
     } catch (Exception e) {
       throw OException.wrapException(new ORecordNotFoundException(getIdentity()), e);
     }
@@ -1549,7 +1499,6 @@ public class ODocument extends ORecordAbstract
   @Override
   public byte[] toStream() {
     checkForBinding();
-
     if (recordFormat == null) {
       setup(ODatabaseRecordThreadLocal.instance().getIfDefined());
     }
@@ -1558,7 +1507,7 @@ public class ODocument extends ORecordAbstract
     status = STATUS.MARSHALLING;
     try {
       if (source == null) {
-        source = recordFormat.toStream(this);
+        source = recordFormat.toStream(getSession(), this);
       }
     } finally {
       status = prev;
@@ -1575,7 +1524,6 @@ public class ODocument extends ORecordAbstract
    */
   public Map<String, Object> toMap() {
     checkForBinding();
-
     final Map<String, Object> map = new HashMap<>();
     for (String field : fieldNames()) {
       map.put(field, field(field));
@@ -1608,7 +1556,7 @@ public class ODocument extends ORecordAbstract
 
   /**
    * Fills the ODocument directly with the string representation of the document itself. Use it for
-   * faster insertion but pay attention to respect the OrientDB record format.
+   * faster insertion but pay attention to respect the OxygenDB record format.
    *
    * <p><code> record.reset();<br> record.setClassName("Account");<br>
    * record.fromString(new String("Account@id:" + data.getCyclesDone() +
@@ -1638,9 +1586,7 @@ public class ODocument extends ORecordAbstract
    * Returns the set of field names.
    */
   public String[] fieldNames() {
-    checkForBinding();
-
-    return calculatePropertyNames().toArray(new String[] {});
+    return calculatePropertyNames().toArray(new String[]{});
   }
 
   /**
@@ -1675,12 +1621,12 @@ public class ODocument extends ORecordAbstract
     // OPTIMIZATION
     if (!allowChainedAccess
         || (iFieldName.charAt(0) != '@'
-            && OStringSerializerHelper.indexOf(iFieldName, 0, '.', '[') == -1)) {
+        && OStringSerializerHelper.indexOf(iFieldName, 0, '.', '[') == -1)) {
       return (RET) accessProperty(iFieldName);
     }
 
     // NOT FOUND, PARSE THE FIELD NAME
-    return ODocumentHelper.getFieldValue(this, iFieldName);
+    return ODocumentHelper.getFieldValue(getSession(), this, iFieldName);
   }
 
   /**
@@ -1710,7 +1656,7 @@ public class ODocument extends ORecordAbstract
   public Object eval(final String iExpression, final OCommandContext iContext) {
     checkForBinding();
 
-    return new OSQLPredicate(iExpression).evaluate(this, null, iContext);
+    return new OSQLPredicate(getSession(), iExpression).evaluate(this, null, iContext);
   }
 
   /**
@@ -1731,7 +1677,7 @@ public class ODocument extends ORecordAbstract
         && (((ORID) value).isPersistent() || ((ORID) value).isNew())
         && ODatabaseRecordThreadLocal.instance().isDefined()) {
       // CREATE THE DOCUMENT OBJECT IN LAZY WAY
-      var db = getDatabase();
+      var db = getSession();
       try {
         RET newValue = db.load((ORID) value);
         unTrack((ORID) value);
@@ -1767,8 +1713,8 @@ public class ODocument extends ORecordAbstract
 
     if (value != null) {
       value =
-          ODocumentHelper.convertField(
-              this, iFieldName, OType.getTypeByClass(iFieldType), iFieldType, value);
+          ODocumentHelper.convertField(getSession()
+              , this, iFieldName, OType.getTypeByClass(iFieldType), iFieldType, value);
     }
 
     return value;
@@ -1784,6 +1730,7 @@ public class ODocument extends ORecordAbstract
   public <RET> RET field(final String iFieldName, final OType iFieldType) {
     checkForBinding();
 
+    var session = getSession();
     RET value = field(iFieldName);
     OType original;
     if (iFieldType != null && iFieldType != (original = fieldType(iFieldName))) {
@@ -1808,24 +1755,27 @@ public class ODocument extends ORecordAbstract
             newValue =
                 Collections.unmodifiableSet(
                     (Set<?>)
-                        ODocumentHelper.convertField(this, iFieldName, iFieldType, null, value));
+                        ODocumentHelper.convertField(getSession(), this, iFieldName, iFieldType,
+                            null,
+                            value));
           } else {
             if ((iFieldType == OType.EMBEDDEDLIST || iFieldType == OType.LINKLIST)
                 && value instanceof Set) {
               newValue =
                   Collections.unmodifiableList(
                       (List<?>)
-                          ODocumentHelper.convertField(this, iFieldName, iFieldType, null, value));
+                          ODocumentHelper.convertField(session, this, iFieldName,
+                              iFieldType, null, value));
             } else {
               if ((iFieldType == OType.EMBEDDEDMAP || iFieldType == OType.LINKMAP)
                   && value instanceof Map) {
                 newValue =
                     Collections.unmodifiableMap(
                         (Map<?, ?>)
-                            ODocumentHelper.convertField(
+                            ODocumentHelper.convertField(session,
                                 this, iFieldName, iFieldType, null, value));
               } else {
-                newValue = OType.convert(value, iFieldType.getDefaultJavaType());
+                newValue = OType.convert(session, value, iFieldType.getDefaultJavaType());
               }
             }
           }
@@ -1850,8 +1800,6 @@ public class ODocument extends ORecordAbstract
    * in chain.
    */
   public ODocument field(final String iFieldName, Object iPropertyValue) {
-    checkForBinding();
-
     return field(iFieldName, iPropertyValue, OCommonConst.EMPTY_TYPES_ARRAY);
   }
 
@@ -1883,9 +1831,8 @@ public class ODocument extends ORecordAbstract
    */
   @Deprecated
   public ODocument fields(final Map<String, Object> iMap) {
-    checkForBinding();
-
-    return fromMap(iMap);
+    fromMap(iMap);
+    return this;
   }
 
   /**
@@ -1895,30 +1842,18 @@ public class ODocument extends ORecordAbstract
    *
    * @since 2.0
    */
-  public ODocument fromMap(final Map<String, ?> iMap) {
+  public void fromMap(final Map<String, ?> map) {
+    checkForBinding();
     incrementLoading();
     try {
-      if (iMap != null) {
-        for (Entry<String, ?> entry : iMap.entrySet()) {
+      if (map != null) {
+        for (Entry<String, ?> entry : map.entrySet()) {
           setProperty(entry.getKey(), entry.getValue());
         }
       }
     } finally {
       decrementLoading();
     }
-
-    return this;
-  }
-
-  /**
-   * Fills the record parsing the content in JSON format.
-   *
-   * @param iSource Object content in JSON format
-   * @return The Object instance itself giving a "fluent interface". Useful to call multiple methods
-   * in chain.
-   */
-  public ODocument fromJSON(final String iSource) {
-    return super.fromJSON(iSource);
   }
 
   public final ODocument fromJSON(final String iSource, final String iOptions) {
@@ -2084,7 +2019,8 @@ public class ODocument extends ORecordAbstract
     OType fieldType = deriveFieldType(iFieldName, entry, iFieldType);
     if (iPropertyValue != null && fieldType != null) {
       iPropertyValue =
-          ODocumentHelper.convertField(this, iFieldName, fieldType, null, iPropertyValue);
+          ODocumentHelper.convertField(getSession(), this, iFieldName, fieldType, null,
+              iPropertyValue);
     } else {
       if (iPropertyValue instanceof Enum) {
         iPropertyValue = iPropertyValue.toString();
@@ -2441,8 +2377,6 @@ public class ODocument extends ORecordAbstract
    */
   @Override
   public boolean containsField(final String iFieldName) {
-    checkForBinding();
-
     return hasProperty(iFieldName);
   }
 
@@ -2484,7 +2418,6 @@ public class ODocument extends ORecordAbstract
 
   @Deprecated
   public Iterable<ORecordElement> getOwners() {
-    checkForBinding();
     if (owner == null || owner.get() == null) {
       return Collections.emptyList();
     }
@@ -2500,8 +2433,6 @@ public class ODocument extends ORecordAbstract
    */
   @Override
   public ORecordAbstract setDirty() {
-    checkForBinding();
-
     if (owner != null) {
       // PROPAGATES TO THE OWNER
       var ownerDoc = owner.get();
@@ -2510,6 +2441,7 @@ public class ODocument extends ORecordAbstract
       }
     } else {
       if (!isDirty()) {
+        checkForBinding();
         getDirtyManager().setDirty(this);
       }
     }
@@ -2517,7 +2449,6 @@ public class ODocument extends ORecordAbstract
     // THIS IS IMPORTANT TO BE SURE THAT FIELDS ARE LOADED BEFORE IT'S TOO LATE AND THE RECORD
     // _SOURCE IS NULL
     checkForFields();
-
     super.setDirty();
 
     return this;
@@ -2525,8 +2456,6 @@ public class ODocument extends ORecordAbstract
 
   @Override
   public void setDirtyNoChanged() {
-    checkForBinding();
-
     if (owner != null) {
       // PROPAGATES TO THE OWNER
       var ownerDoc = owner.get();
@@ -2536,7 +2465,6 @@ public class ODocument extends ORecordAbstract
     }
 
     getDirtyManager().setDirty(this);
-
     // THIS IS IMPORTANT TO BE SURE THAT FIELDS ARE LOADED BEFORE IT'S TOO LATE AND THE RECORD
     // _SOURCE IS NULL
     checkForFields();
@@ -2620,9 +2548,9 @@ public class ODocument extends ORecordAbstract
   }
 
   @Override
-  public ODocument unload() {
+  public void unload() {
     if (status == ORecordElement.STATUS.NOT_LOADED) {
-      return this;
+      return;
     }
 
     if (dirty) {
@@ -2632,7 +2560,6 @@ public class ODocument extends ORecordAbstract
     internalReset();
 
     super.unload();
-    return this;
   }
 
   /**
@@ -2643,17 +2570,15 @@ public class ODocument extends ORecordAbstract
    * <p>The following code will clear all data from specified document. <code>
    * doc.clear(); doc.save(); </code>
    *
-   * @return this
    * @see #reset()
    */
   @Override
-  public ODocument clear() {
+  public void clear() {
     checkForBinding();
 
     super.clear();
     internalReset();
     owner = null;
-    return this;
   }
 
   /**
@@ -2687,7 +2612,7 @@ public class ODocument extends ORecordAbstract
    * changes is enabled @see {@link #isTrackingChanges()} and {@link #setTrackingChanges(boolean)}
    * methods.
    */
-  public ODocument undo() {
+  public void undo() {
     if (!trackingChanges) {
       throw new OConfigurationException(
           "Cannot undo the document because tracking of changes is disabled");
@@ -2706,7 +2631,6 @@ public class ODocument extends ORecordAbstract
       }
       fieldSize = fields.size();
     }
-    return this;
   }
 
   public ODocument undo(final String field) {
@@ -2896,16 +2820,6 @@ public class ODocument extends ORecordAbstract
     return this;
   }
 
-  @Override
-  public ODocument save() {
-    return (ODocument) super.save();
-  }
-
-  @Override
-  public ODocument save(final String iClusterName) {
-    return (ODocument) super.save(iClusterName);
-  }
-
   /*
    * Initializes the object if has been unserialized
    */
@@ -3029,7 +2943,7 @@ public class ODocument extends ORecordAbstract
     stream.write(idBuffer);
     stream.writeInt(recordVersion);
 
-    final byte[] content = serializer.toStream(this);
+    final byte[] content = serializer.toStream(getSession(), this);
     stream.writeInt(content.length);
     stream.write(content);
 
@@ -3107,13 +3021,11 @@ public class ODocument extends ORecordAbstract
       return;
     }
 
-    final ODatabaseSessionInternal db = getDatabaseIfDefined();
-    if (db != null) {
-      final OClass _clazz = db.getMetadata().getImmutableSchemaSnapshot().getClass(iClassName);
-      if (_clazz != null) {
-        className = _clazz.getName();
-        convertFieldsToClass(_clazz);
-      }
+    final OClass _clazz = getSession().getMetadata().getImmutableSchemaSnapshot()
+        .getClass(iClassName);
+    if (_clazz != null) {
+      className = _clazz.getName();
+      convertFieldsToClass(_clazz);
     }
   }
 
@@ -3129,12 +3041,7 @@ public class ODocument extends ORecordAbstract
       return null;
     }
 
-    final ODatabaseSessionInternal databaseRecord = getDatabaseIfDefined();
-    if (databaseRecord != null) {
-      return databaseRecord.getMetadata().getSchema().getClass(className);
-    }
-
-    return null;
+    return getSession().getMetadata().getSchema().getClass(className);
   }
 
   public String getClassName() {
@@ -3157,21 +3064,18 @@ public class ODocument extends ORecordAbstract
       return;
     }
 
-    final var db = getDatabaseIfDefined();
-    if (db != null) {
-      OMetadataInternal metadata = db.getMetadata();
-      this.immutableClazz =
-          (OImmutableClass) metadata.getImmutableSchemaSnapshot().getClass(className);
-      OClass clazz;
-      if (this.immutableClazz != null) {
-        clazz = this.immutableClazz;
-      } else {
-        clazz = metadata.getSchema().getOrCreateClass(className);
-      }
-      if (clazz != null) {
-        this.className = clazz.getName();
-        convertFieldsToClass(clazz);
-      }
+    OMetadataInternal metadata = getSession().getMetadata();
+    this.immutableClazz =
+        (OImmutableClass) metadata.getImmutableSchemaSnapshot().getClass(className);
+    OClass clazz;
+    if (this.immutableClazz != null) {
+      clazz = this.immutableClazz;
+    } else {
+      clazz = metadata.getSchema().getOrCreateClass(className);
+    }
+    if (clazz != null) {
+      this.className = clazz.getName();
+      convertFieldsToClass(clazz);
     }
   }
 
@@ -3190,11 +3094,11 @@ public class ODocument extends ORecordAbstract
     checkForFields();
     autoConvertValues();
 
-    ODatabaseSessionInternal internal = ODatabaseRecordThreadLocal.instance().getIfDefined();
-    if (internal != null) {
-      validateFieldsSecurity(internal, this);
+    var session = getSession();
+    if (session != null) {
+      validateFieldsSecurity(session, this);
     }
-    if (internal != null && !internal.isValidationEnabled()) {
+    if (session != null && !session.isValidationEnabled()) {
       return;
     }
 
@@ -3214,9 +3118,9 @@ public class ODocument extends ORecordAbstract
         }
       }
 
-      final OImmutableSchema immutableSchema = internal.getMetadata().getImmutableSchemaSnapshot();
-      for (OProperty p : immutableSchemaClass.properties()) {
-        validateField(immutableSchema, this, (OImmutableProperty) p);
+      final OImmutableSchema immutableSchema = session.getMetadata().getImmutableSchemaSnapshot();
+      for (OProperty p : immutableSchemaClass.properties(session)) {
+        validateField(session, immutableSchema, this, (OImmutableProperty) p);
       }
     }
   }
@@ -3238,8 +3142,8 @@ public class ODocument extends ORecordAbstract
 
       checkForFields();
 
-      final ODatabaseSession db = getDatabaseIfDefined();
-      if (db != null && !db.isClosed()) {
+      var session = getSession();
+      if (session != null && !session.isClosed()) {
         final String clsName = getClassName();
         if (clsName != null) {
           buffer.append(clsName);
@@ -3406,19 +3310,20 @@ public class ODocument extends ORecordAbstract
 
   protected OGlobalProperty getGlobalPropertyById(int id) {
     checkForBinding();
+    var session = getSession();
     if (schema == null) {
-      OMetadataInternal metadata = getDatabase().getMetadata();
+      OMetadataInternal metadata = session.getMetadata();
       schema = metadata.getImmutableSchemaSnapshot();
     }
     OGlobalProperty prop = schema.getGlobalPropertyById(id);
     if (prop == null) {
-      ODatabaseSessionInternal db = getDatabase();
-      if (db == null || db.isClosed()) {
+      if (session == null || session.isClosed()) {
         throw new ODatabaseException(
             "Cannot unmarshall the document because no database is active, use detach for use the"
                 + " document outside the database session scope");
       }
-      OMetadataInternal metadata = db.getMetadata();
+
+      OMetadataInternal metadata = session.getMetadata();
       if (metadata.getImmutableSchemaSnapshot() != null) {
         metadata.clearThreadLocalSchemaSnapshot();
       }
@@ -3441,21 +3346,17 @@ public class ODocument extends ORecordAbstract
   }
 
   protected OImmutableClass getImmutableSchemaClass() {
-    return getImmutableSchemaClass(null);
+    return getImmutableSchemaClass(getSession());
   }
 
-  protected OImmutableClass getImmutableSchemaClass(ODatabaseSessionInternal database) {
+  protected OImmutableClass getImmutableSchemaClass(@Nonnull ODatabaseSessionInternal database) {
     if (immutableClazz == null) {
       if (className == null) {
         fetchClassName();
       }
 
       if (className != null) {
-        if (database == null) {
-          database = getDatabaseIfDefined();
-        }
-
-        if (database != null && !database.isClosed()) {
+        if (!database.isClosed()) {
           final OSchema immutableSchema = database.getMetadata().getImmutableSchemaSnapshot();
           if (immutableSchema == null) {
             return null;
@@ -3510,9 +3411,10 @@ public class ODocument extends ORecordAbstract
   public void autoConvertValues() {
     checkForBinding();
 
+    var session = getSession();
     OClass clazz = getImmutableSchemaClass();
     if (clazz != null) {
-      for (OProperty prop : clazz.properties()) {
+      for (OProperty prop : clazz.properties(session)) {
         OType type = prop.getType();
         OType linkedType = prop.getLinkedType();
         OClass linkedClass = prop.getLinkedClass();
@@ -3578,7 +3480,7 @@ public class ODocument extends ORecordAbstract
             OTrackedList<Object> list = new OTrackedList<>(this);
             Collection<Object> values = (Collection<Object>) value;
             for (Object object : values) {
-              list.add(OType.convert(object, linkedType.getDefaultJavaType()));
+              list.add(OType.convert(session, object, linkedType.getDefaultJavaType()));
             }
             entry.value = list;
             replaceListenerOnAutoconvert(entry);
@@ -3589,7 +3491,7 @@ public class ODocument extends ORecordAbstract
               for (Entry<Object, Object> object : values.entrySet()) {
                 map.put(
                     object.getKey(),
-                    OType.convert(object.getValue(), linkedType.getDefaultJavaType()));
+                    OType.convert(session, object.getValue(), linkedType.getDefaultJavaType()));
               }
               entry.value = map;
               replaceListenerOnAutoconvert(entry);
@@ -3598,7 +3500,7 @@ public class ODocument extends ORecordAbstract
                 Set<Object> set = new OTrackedSet<>(this);
                 Collection<Object> values = (Collection<Object>) value;
                 for (Object object : values) {
-                  set.add(OType.convert(object, linkedType.getDefaultJavaType()));
+                  set.add(OType.convert(session, object, linkedType.getDefaultJavaType()));
                 }
                 entry.value = set;
                 replaceListenerOnAutoconvert(entry);
@@ -3926,16 +3828,16 @@ public class ODocument extends ORecordAbstract
   }
 
   boolean checkForFields(final String... iFields) {
-    checkForBinding();
-
     if (fields == null) {
       fields = ordered ? new LinkedHashMap<>() : new HashMap<>();
     }
 
-    if (status == ORecordElement.STATUS.LOADED && source != null)
-    // POPULATE FIELDS LAZY
-    {
-      return deserializeFields(iFields);
+    if (source != null) {
+      checkForBinding();
+
+      if (status == ORecordElement.STATUS.LOADED) {
+        return deserializeFields(iFields);
+      }
     }
 
     return true;
@@ -3964,7 +3866,7 @@ public class ODocument extends ORecordAbstract
    * Internal.
    */
   @Override
-  protected void setup(ODatabaseSessionInternal db) {
+  public void setup(ODatabaseSessionInternal db) {
     super.setup(db);
 
     if (db != null) {
@@ -3974,7 +3876,7 @@ public class ODocument extends ORecordAbstract
     if (recordFormat == null)
     // GET THE DEFAULT ONE
     {
-      recordFormat = ODatabaseDocumentAbstract.getDefaultSerializer();
+      recordFormat = ODatabaseSessionAbstract.getDefaultSerializer();
     }
   }
 
@@ -4070,6 +3972,7 @@ public class ODocument extends ORecordAbstract
 
   void autoConvertFieldsToClass(final ODatabaseSessionInternal database) {
     checkForBinding();
+
     if (className != null) {
       OClass klazz = database.getMetadata().getImmutableSchemaSnapshot().getClass(className);
       if (klazz != null) {
@@ -4082,7 +3985,9 @@ public class ODocument extends ORecordAbstract
    * Checks and convert the field of the document matching the types specified by the class.
    */
   private void convertFieldsToClass(final OClass clazz) {
-    for (OProperty prop : clazz.properties()) {
+    var session = getSession();
+
+    for (OProperty prop : clazz.properties(session)) {
       ODocumentEntry entry = fields != null ? fields.get(prop.getName()) : null;
       if (entry != null && entry.exists()) {
         if (entry.type == null || entry.type != prop.getType()) {
@@ -4105,9 +4010,9 @@ public class ODocument extends ORecordAbstract
       } else {
         String defValue = prop.getDefaultValue();
         if (defValue != null && /*defValue.length() > 0 && */ !containsField(prop.getName())) {
-          Object curFieldValue = OSQLHelper.parseDefaultValue(this, defValue);
+          Object curFieldValue = OSQLHelper.parseDefaultValue(session, this, defValue);
           Object fieldValue =
-              ODocumentHelper.convertField(
+              ODocumentHelper.convertField(session,
                   this, prop.getName(), prop.getType(), null, curFieldValue);
           rawField(prop.getName(), fieldValue, prop.getType());
         }

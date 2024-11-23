@@ -16,12 +16,12 @@ import org.junit.Test;
 
 public class OViewRefreshIT {
 
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
 
   @Before
   public void before() {
-    orientDB = new OrientDB("embedded:", OrientDBConfig.defaultConfig());
-    orientDB
+    oxygenDB = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
+    oxygenDB
         .execute(
             "create database ? memory users (admin identified by 'admpwd' role admin)",
             this.getClass().getSimpleName())
@@ -30,7 +30,7 @@ public class OViewRefreshIT {
 
   @Test
   public void testLiveUpdateInsert() throws InterruptedException {
-    try (ODatabaseSession db = orientDB.open(this.getClass().getSimpleName(), "admin", "admpwd")) {
+    try (ODatabaseSession db = oxygenDB.open(this.getClass().getSimpleName(), "admin", "admpwd")) {
       String className = "testLiveUpdateInsertClass";
       String viewName = "testLiveUpdateInsert";
       db.createClass(className);
@@ -67,7 +67,7 @@ public class OViewRefreshIT {
 
   @Test
   public void testMultipleInsert() throws InterruptedException {
-    try (ODatabaseSession db = orientDB.open(this.getClass().getSimpleName(), "admin", "admpwd")) {
+    try (ODatabaseSession db = oxygenDB.open(this.getClass().getSimpleName(), "admin", "admpwd")) {
       String className = "testUpdateInsertClass";
       String viewName = "testUpdateInsert";
       db.createClass(className);
@@ -110,7 +110,7 @@ public class OViewRefreshIT {
 
   @Test
   public void testUdpateDeleted() throws InterruptedException {
-    try (ODatabaseSession db = orientDB.open(this.getClass().getSimpleName(), "admin", "admpwd")) {
+    try (ODatabaseSession db = oxygenDB.open(this.getClass().getSimpleName(), "admin", "admpwd")) {
       String className = "testUpdateDeleteClass";
       String viewName = "testUpdateDelete";
       db.createClass(className);
@@ -148,7 +148,7 @@ public class OViewRefreshIT {
 
   @Test
   public void testBigDataParallelRefresh() throws InterruptedException {
-    try (ODatabaseSession db = orientDB.open(this.getClass().getSimpleName(), "admin", "admpwd")) {
+    try (ODatabaseSession db = oxygenDB.open(this.getClass().getSimpleName(), "admin", "admpwd")) {
       String className = "testUpdateDeleteClass";
       String viewName = "testUpdateDelete";
       db.createClass(className);
@@ -198,7 +198,7 @@ public class OViewRefreshIT {
 
   @Test
   public void testBigDataParallelIndexRefresh() throws InterruptedException {
-    try (ODatabaseSession db = orientDB.open(this.getClass().getSimpleName(), "admin", "admpwd")) {
+    try (ODatabaseSession db = oxygenDB.open(this.getClass().getSimpleName(), "admin", "admpwd")) {
       String className = "testUpdateDeleteClass";
       String viewName = "testUpdateDelete";
       db.createClass(className);
@@ -260,7 +260,7 @@ public class OViewRefreshIT {
 
   @Test
   public void testUdpateChangedDeleted() throws InterruptedException {
-    try (ODatabaseSession db = orientDB.open(this.getClass().getSimpleName(), "admin", "admpwd")) {
+    try (ODatabaseSession db = oxygenDB.open(this.getClass().getSimpleName(), "admin", "admpwd")) {
       String className = "testUpdateDeleteClass";
       String viewName = "testUpdateDelete";
       db.createClass(className);
@@ -303,16 +303,16 @@ public class OViewRefreshIT {
   public void testOpenCloseRefresh() throws InterruptedException {
     String className = "testLiveUpdateInsertClass";
     String viewName = "testLiveUpdateInsert";
-    try (OrientDB orientDB =
-        new OrientDB("embedded:./target/viewRefresh", OrientDBConfig.defaultConfig())) {
-      orientDB
+    try (OxygenDB oxygenDB =
+        new OxygenDB("embedded:./target/viewRefresh", OxygenDBConfig.defaultConfig())) {
+      oxygenDB
           .execute(
               "create database ? plocal users (admin identified by 'admpwd' role admin)",
               this.getClass().getSimpleName())
           .close();
 
       try (ODatabaseSession db =
-          orientDB.open(this.getClass().getSimpleName(), "admin", "admpwd")) {
+          oxygenDB.open(this.getClass().getSimpleName(), "admin", "admpwd")) {
 
         db.createClass(className);
 
@@ -346,11 +346,11 @@ public class OViewRefreshIT {
         }
       }
     }
-    try (OrientDB orientDB =
-        new OrientDB("embedded:./target/viewRefresh", OrientDBConfig.defaultConfig())) {
+    try (OxygenDB oxygenDB =
+        new OxygenDB("embedded:./target/viewRefresh", OxygenDBConfig.defaultConfig())) {
 
       try (ODatabaseSession db =
-          orientDB.open(this.getClass().getSimpleName(), "admin", "admpwd")) {
+          oxygenDB.open(this.getClass().getSimpleName(), "admin", "admpwd")) {
         Thread.sleep(2000);
 
         try (OResultSet result = db.query("SELECT FROM " + viewName)) {
@@ -368,14 +368,14 @@ public class OViewRefreshIT {
           Assert.assertEquals(30, result.stream().count());
         }
       } finally {
-        orientDB.drop(this.getClass().getSimpleName());
+        oxygenDB.drop(this.getClass().getSimpleName());
       }
     }
   }
 
   @Test
   public void testRefreshFail() throws InterruptedException {
-    try (ODatabaseSession db = orientDB.open(this.getClass().getSimpleName(), "admin", "admpwd")) {
+    try (ODatabaseSession db = oxygenDB.open(this.getClass().getSimpleName(), "admin", "admpwd")) {
 
       String className = "testLiveUpdateDeleteClass";
       String viewName = "testLiveUpdateDelete";
@@ -434,6 +434,6 @@ public class OViewRefreshIT {
 
   @After
   public void after() {
-    orientDB.close();
+    oxygenDB.close();
   }
 }

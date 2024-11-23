@@ -16,8 +16,6 @@ import java.util.stream.Collectors;
 
 /**
  * Factory for custom SQL functions.
- *
- * @author Fabrizio Fortino
  */
 public class OCustomSQLFunctionFactory implements OSQLFunctionFactory {
 

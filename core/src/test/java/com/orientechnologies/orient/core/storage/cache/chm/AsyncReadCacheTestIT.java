@@ -350,10 +350,12 @@ public class AsyncReadCacheTestIT {
     }
 
     @Override
-    public void addPageIsBrokenListener(final OPageIsBrokenListener listener) {}
+    public void addPageIsBrokenListener(final OPageIsBrokenListener listener) {
+    }
 
     @Override
-    public void removePageIsBrokenListener(final OPageIsBrokenListener listener) {}
+    public void removePageIsBrokenListener(final OPageIsBrokenListener listener) {
+    }
 
     @Override
     public long bookFileId(final String fileName) {
@@ -386,10 +388,12 @@ public class AsyncReadCacheTestIT {
     }
 
     @Override
-    public void syncDataFiles(long segmentId, byte[] lastMetadata) {}
+    public void syncDataFiles(long segmentId, byte[] lastMetadata) {
+    }
 
     @Override
-    public void flushTillSegment(final long segmentId) {}
+    public void flushTillSegment(final long segmentId) {
+    }
 
     @Override
     public boolean exists(final String fileName) {
@@ -402,16 +406,20 @@ public class AsyncReadCacheTestIT {
     }
 
     @Override
-    public void restoreModeOn() {}
+    public void restoreModeOn() {
+    }
 
     @Override
-    public void restoreModeOff() {}
+    public void restoreModeOff() {
+    }
 
     @Override
-    public void store(final long fileId, final long pageIndex, final OCachePointer dataPointer) {}
+    public void store(final long fileId, final long pageIndex, final OCachePointer dataPointer) {
+    }
 
     @Override
-    public void checkCacheOverflow() {}
+    public void checkCacheOverflow() {
+    }
 
     @Override
     public int allocateNewPage(final long fileId) {
@@ -432,10 +440,12 @@ public class AsyncReadCacheTestIT {
     }
 
     @Override
-    public void flush(final long fileId) {}
+    public void flush(final long fileId) {
+    }
 
     @Override
-    public void flush() {}
+    public void flush() {
+    }
 
     @Override
     public long getFilledUpTo(final long fileId) {
@@ -448,13 +458,16 @@ public class AsyncReadCacheTestIT {
     }
 
     @Override
-    public void deleteFile(final long fileId) {}
+    public void deleteFile(final long fileId) {
+    }
 
     @Override
-    public void truncateFile(final long fileId) {}
+    public void truncateFile(final long fileId) {
+    }
 
     @Override
-    public void renameFile(final long fileId, final String newFileName) {}
+    public void renameFile(final long fileId, final String newFileName) {
+    }
 
     @Override
     public long[] close() {
@@ -462,7 +475,8 @@ public class AsyncReadCacheTestIT {
     }
 
     @Override
-    public void close(final long fileId, final boolean flush) {}
+    public void close(final long fileId, final boolean flush) {
+    }
 
     @Override
     public OPageDataVerificationError[] checkStoredPages(
@@ -506,10 +520,12 @@ public class AsyncReadCacheTestIT {
     }
 
     @Override
-    public void addBackgroundExceptionListener(final OBackgroundExceptionListener listener) {}
+    public void addBackgroundExceptionListener(final OBackgroundExceptionListener listener) {
+    }
 
     @Override
-    public void removeBackgroundExceptionListener(final OBackgroundExceptionListener listener) {}
+    public void removeBackgroundExceptionListener(final OBackgroundExceptionListener listener) {
+    }
 
     @Override
     public Path getRootDirectory() {
@@ -538,16 +554,20 @@ public class AsyncReadCacheTestIT {
 
     @Override
     public void updateDirtyPagesTable(
-        final OCachePointer pointer, final OLogSequenceNumber startLSN) {}
+        final OCachePointer pointer, final OLogSequenceNumber startLSN) {
+    }
 
     @Override
-    public void create() {}
+    public void create() {
+    }
 
     @Override
-    public void open() throws IOException {}
+    public void open() throws IOException {
+    }
 
     @Override
-    public void replaceFileId(long fileId, long newFileId) {}
+    public void replaceFileId(long fileId, long newFileId) {
+    }
   }
 
   private static final class ScrambledZipfianGenerator {

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.command.script;
@@ -63,12 +63,11 @@ import javax.script.ScriptException;
 /**
  * Executes Script Commands.
  *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @see OCommandScript
  */
 public class OScriptManager {
 
-  protected static final Object[] EMPTY_PARAMS = new Object[] {};
+  protected static final Object[] EMPTY_PARAMS = new Object[]{};
   protected static final int LINES_AROUND_ERROR = 5;
   protected static final String DEF_LANGUAGE = "javascript";
   protected String defaultLanguage = DEF_LANGUAGE;
@@ -151,26 +150,27 @@ public class OScriptManager {
     customExecutors.forEachRemaining(e -> e.registerExecutor(this, commandManager));
   }
 
-  public String getFunctionDefinition(final OFunction iFunction) {
+  public String getFunctionDefinition(ODatabaseSession session, final OFunction iFunction) {
     final OScriptFormatter formatter =
-        formatters.get(iFunction.getLanguage().toLowerCase(Locale.ENGLISH));
+        formatters.get(iFunction.getLanguage(session).toLowerCase(Locale.ENGLISH));
     if (formatter == null) {
       throw new IllegalArgumentException(
-          "Cannot find script formatter for the language '" + iFunction.getLanguage() + "'");
+          "Cannot find script formatter for the language '" + iFunction.getLanguage(session) + "'");
     }
 
-    return formatter.getFunctionDefinition(iFunction);
+    return formatter.getFunctionDefinition((ODatabaseSessionInternal) session, iFunction);
   }
 
-  public String getFunctionInvoke(final OFunction iFunction, final Object[] iArgs) {
+  public String getFunctionInvoke(ODatabaseSessionInternal session, final OFunction iFunction,
+      final Object[] iArgs) {
     final OScriptFormatter formatter =
-        formatters.get(iFunction.getLanguage().toLowerCase(Locale.ENGLISH));
+        formatters.get(iFunction.getLanguage(session).toLowerCase(Locale.ENGLISH));
     if (formatter == null) {
       throw new IllegalArgumentException(
-          "Cannot find script formatter for the language '" + iFunction.getLanguage() + "'");
+          "Cannot find script formatter for the language '" + iFunction.getLanguage(session) + "'");
     }
 
-    return formatter.getFunctionInvoke(iFunction, iArgs);
+    return formatter.getFunctionInvoke(session, iFunction, iArgs);
   }
 
   /**
@@ -193,12 +193,12 @@ public class OScriptManager {
     for (String fName : functions) {
       final OFunction f = db.getMetadata().getFunctionLibrary().getFunction(fName);
 
-      if (f.getLanguage() == null) {
+      if (f.getLanguage(db) == null) {
         throw new OConfigurationException("Database function '" + fName + "' has no language");
       }
 
-      if (f.getLanguage().equalsIgnoreCase(iLanguage)) {
-        final String def = getFunctionDefinition(f);
+      if (f.getLanguage(db).equalsIgnoreCase(iLanguage)) {
+        final String def = getFunctionDefinition(db, f);
         if (def != null) {
           code.append(def);
           code.append("\n");

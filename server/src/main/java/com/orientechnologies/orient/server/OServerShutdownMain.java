@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server;
@@ -32,8 +32,6 @@ import java.util.Arrays;
 
 /**
  * Sends a shutdown command to the server.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OServerShutdownMain {
 
@@ -87,7 +85,7 @@ public class OServerShutdownMain {
     channel.writeByte(request.getCommand());
     channel.writeInt(0);
     channel.writeBytes(null);
-    request.write(channel, null);
+    request.write(null, channel, null);
     channel.flush();
 
     channel.beginResponse(0, true);
@@ -124,7 +122,7 @@ public class OServerShutdownMain {
     if ("NOT_PRESENT".equals(rootPassword) || printUsage) {
       System.out.println("allowed parameters");
       System.out.println(
-          "-h | --host hostname : name or ip of the host where OrientDB is running. Deafult to"
+          "-h | --host hostname : name or ip of the host where OxygenDB is running. Deafult to"
               + " localhost ");
       System.out.println(
           "-P | --ports  ports : ports in the form of single value or range. Default to 2424-2430");
@@ -134,7 +132,7 @@ public class OServerShutdownMain {
           "example: shutdown.sh -h orientserver.mydomain -P 2424-2430 -u root -p securePassword");
     }
 
-    System.out.println("Sending shutdown command to remote OrientDB Server instance...");
+    System.out.println("Sending shutdown command to remote OxygenDB Server instance...");
 
     try {
       new OServerShutdownMain(serverHost, serverPorts, rootUser, rootPassword).connect(5000);

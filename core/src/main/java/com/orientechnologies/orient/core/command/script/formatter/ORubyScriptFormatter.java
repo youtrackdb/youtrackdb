@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,30 +14,29 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.command.script.formatter;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import java.util.Scanner;
 
 /**
  * Ruby script formatter
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ORubyScriptFormatter implements OScriptFormatter {
 
-  public String getFunctionDefinition(final OFunction f) {
+  public String getFunctionDefinition(ODatabaseSessionInternal session, final OFunction f) {
 
     final StringBuilder fCode = new StringBuilder(1024);
     fCode.append("def ");
-    fCode.append(f.getName());
+    fCode.append(f.getName(session));
     fCode.append('(');
     int i = 0;
-    if (f.getParameters() != null) {
-      for (String p : f.getParameters()) {
+    if (f.getParameters(session) != null) {
+      for (String p : f.getParameters(session)) {
         if (i++ > 0) {
           fCode.append(',');
         }
@@ -46,7 +45,7 @@ public class ORubyScriptFormatter implements OScriptFormatter {
     }
     fCode.append(")\n");
 
-    final Scanner scanner = new Scanner(f.getCode());
+    final Scanner scanner = new Scanner(f.getCode(session));
     try {
       scanner.useDelimiter("\n").skip("\r");
 
@@ -63,10 +62,11 @@ public class ORubyScriptFormatter implements OScriptFormatter {
   }
 
   @Override
-  public String getFunctionInvoke(final OFunction iFunction, final Object[] iArgs) {
+  public String getFunctionInvoke(ODatabaseSessionInternal session, final OFunction iFunction,
+      final Object[] iArgs) {
     final StringBuilder code = new StringBuilder(1024);
 
-    code.append(iFunction.getName());
+    code.append(iFunction.getName(session));
     code.append('(');
     if (iArgs != null) {
       int i = 0;

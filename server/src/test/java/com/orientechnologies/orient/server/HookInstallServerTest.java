@@ -2,7 +2,7 @@ package com.orientechnologies.orient.server;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
 import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -27,7 +27,8 @@ public class HookInstallServerTest {
 
   public static class MyHook extends ODocumentHookAbstract {
 
-    public MyHook() {}
+    public MyHook() {
+    }
 
     @Override
     public DISTRIBUTED_EXECUTION_MODE getDistributedExecutionMode() {
@@ -46,18 +47,18 @@ public class HookInstallServerTest {
   @Before
   public void before()
       throws MalformedObjectNameException,
-          InstanceAlreadyExistsException,
-          MBeanRegistrationException,
-          NotCompliantMBeanException,
-          ClassNotFoundException,
-          NullPointerException,
-          IOException,
-          IllegalArgumentException,
-          SecurityException,
-          InvocationTargetException,
-          NoSuchMethodException,
-          InstantiationException,
-          IllegalAccessException {
+      InstanceAlreadyExistsException,
+      MBeanRegistrationException,
+      NotCompliantMBeanException,
+      ClassNotFoundException,
+      NullPointerException,
+      IOException,
+      IllegalArgumentException,
+      SecurityException,
+      InvocationTargetException,
+      NoSuchMethodException,
+      InstantiationException,
+      IllegalAccessException {
     server = new OServer(false);
     server.setServerRootDirectory(SERVER_DIRECTORY);
 
@@ -88,9 +89,9 @@ public class HookInstallServerTest {
     admin.close();
     server.shutdown();
 
-    Orient.instance().shutdown();
+    Oxygen.instance().shutdown();
     OFileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
-    Orient.instance().startup();
+    Oxygen.instance().startup();
   }
 
   @Test

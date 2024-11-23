@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,7 +9,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://www.orientdb.com
+ * <p>*
  */
 package com.orientechnologies.spatial;
 
@@ -29,7 +27,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by Enrico Risa on 05/10/15.
+ *
  */
 public class LuceneTransactionGeoQueryTest {
 
@@ -46,9 +44,9 @@ public class LuceneTransactionGeoQueryTest {
       OSchema schema = db.getMetadata().getSchema();
       OClass v = schema.getClass("V");
       OClass oClass = schema.createClass("City");
-      oClass.setSuperClass(v);
-      oClass.createProperty("location", OType.EMBEDDED, schema.getClass("OPoint"));
-      oClass.createProperty("name", OType.STRING);
+      oClass.setSuperClass(db, v);
+      oClass.createProperty(db, "location", OType.EMBEDDED, schema.getClass("OPoint"));
+      oClass.createProperty(db, "name", OType.STRING);
 
       db.command("CREATE INDEX City.location ON City(location) SPATIAL ENGINE LUCENE").close();
 
@@ -72,7 +70,7 @@ public class LuceneTransactionGeoQueryTest {
               + " 21.787556698550834)' ";
       List<ODocument> docs = db.query(new OSQLSynchQuery<ODocument>(query));
       Assert.assertEquals(1, docs.size());
-      Assert.assertEquals(3, idx.getInternal().size());
+      Assert.assertEquals(3, idx.getInternal().size(db));
       db.rollback();
 
       query =
@@ -84,7 +82,7 @@ public class LuceneTransactionGeoQueryTest {
 
       db.begin();
       Assert.assertEquals(0, docs.size());
-      Assert.assertEquals(0, idx.getInternal().size());
+      Assert.assertEquals(0, idx.getInternal().size(db));
       db.commit();
     } finally {
       db.drop();
@@ -102,9 +100,9 @@ public class LuceneTransactionGeoQueryTest {
       OSchema schema = db.getMetadata().getSchema();
       OClass v = schema.getClass("V");
       OClass oClass = schema.createClass("City");
-      oClass.setSuperClass(v);
-      oClass.createProperty("location", OType.EMBEDDED, schema.getClass("OPoint"));
-      oClass.createProperty("name", OType.STRING);
+      oClass.setSuperClass(db, v);
+      oClass.createProperty(db, "location", OType.EMBEDDED, schema.getClass("OPoint"));
+      oClass.createProperty(db, "name", OType.STRING);
 
       db.command("CREATE INDEX City.location ON City(location) SPATIAL ENGINE LUCENE").close();
 
@@ -126,7 +124,7 @@ public class LuceneTransactionGeoQueryTest {
 
       db.begin();
       Assert.assertEquals(0, docs.size());
-      Assert.assertEquals(1, idx.getInternal().size());
+      Assert.assertEquals(1, idx.getInternal().size(db));
 
       db.command("update City set location = ST_GeomFromText('" + PWKT + "')").close();
 
@@ -137,7 +135,7 @@ public class LuceneTransactionGeoQueryTest {
               + " 21.787556698550834)' ";
       docs = db.query(new OSQLSynchQuery<ODocument>(query));
       Assert.assertEquals(1, docs.size());
-      Assert.assertEquals(1, idx.getInternal().size());
+      Assert.assertEquals(1, idx.getInternal().size(db));
 
       db.commit();
 
@@ -150,7 +148,7 @@ public class LuceneTransactionGeoQueryTest {
 
       db.begin();
       Assert.assertEquals(1, docs.size());
-      Assert.assertEquals(1, idx.getInternal().size());
+      Assert.assertEquals(1, idx.getInternal().size(db));
       db.commit();
 
     } finally {

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,14 +14,14 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.network.protocol.http;
 
 import com.orientechnologies.common.concur.resource.OSharedResourceAbstract;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.server.OServer;
 import java.security.SecureRandom;
@@ -33,8 +33,6 @@ import java.util.Random;
 
 /**
  * Handles the HTTP sessions such as a real HTTP Server.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OHttpSessionManager extends OSharedResourceAbstract {
 
@@ -45,11 +43,11 @@ public class OHttpSessionManager extends OSharedResourceAbstract {
   public OHttpSessionManager(OServer server) {
     expirationTime =
         server
-                .getContextConfiguration()
-                .getValueAsInteger(OGlobalConfiguration.NETWORK_HTTP_SESSION_EXPIRE_TIMEOUT)
+            .getContextConfiguration()
+            .getValueAsInteger(OGlobalConfiguration.NETWORK_HTTP_SESSION_EXPIRE_TIMEOUT)
             * 1000;
 
-    Orient.instance()
+    Oxygen.instance()
         .scheduleTask(
             new Runnable() {
               @Override

@@ -9,8 +9,6 @@ import org.junit.Test;
 
 /**
  * Test HTTP "query" command.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com) (l.garulli--at-orientdb.com)
  */
 public class HttpQueryTest extends BaseHttpDatabaseTest {
 
@@ -18,10 +16,10 @@ public class HttpQueryTest extends BaseHttpDatabaseTest {
   public void queryRootCredentials() throws IOException {
     ClassicHttpResponse response =
         get("query/"
-                + getDatabaseName()
-                + "/sql/"
-                + URLEncoder.encode("select from OUSer", StandardCharsets.UTF_8)
-                + "/10")
+            + getDatabaseName()
+            + "/sql/"
+            + URLEncoder.encode("select from OUSer", StandardCharsets.UTF_8)
+            + "/10")
             .setUserName("root")
             .setUserPassword("root")
             .getResponse();
@@ -32,10 +30,10 @@ public class HttpQueryTest extends BaseHttpDatabaseTest {
   public void queryDatabaseCredentials() throws IOException {
     ClassicHttpResponse response =
         get("query/"
-                + getDatabaseName()
-                + "/sql/"
-                + URLEncoder.encode("select from OUSer", StandardCharsets.UTF_8)
-                + "/10")
+            + getDatabaseName()
+            + "/sql/"
+            + URLEncoder.encode("select from OUSer", StandardCharsets.UTF_8)
+            + "/10")
             .setUserName("admin")
             .setUserPassword("admin")
             .getResponse();

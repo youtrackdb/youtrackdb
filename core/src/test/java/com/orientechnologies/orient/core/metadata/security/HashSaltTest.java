@@ -8,8 +8,6 @@ import org.junit.Test;
 
 /**
  * Tests the salt + hash of passwords.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class HashSaltTest {
 

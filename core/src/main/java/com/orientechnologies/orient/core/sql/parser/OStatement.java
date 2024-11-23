@@ -40,7 +40,8 @@ public class OStatement extends SimpleNode {
     builder.append(originalStatement);
   }
 
-  public void validate() throws OCommandSQLParsingException {}
+  public void validate() throws OCommandSQLParsingException {
+  }
 
   @Override
   public String toString(String prefix) {

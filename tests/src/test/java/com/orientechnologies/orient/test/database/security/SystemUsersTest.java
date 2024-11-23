@@ -2,8 +2,8 @@ package com.orientechnologies.orient.test.database.security;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import java.io.File;
 import org.junit.Test;
 
@@ -17,10 +17,10 @@ public class SystemUsersTest {
 
     OLogManager.instance().info(this, "ORIENTDB_HOME: " + System.getProperty("ORIENTDB_HOME"));
 
-    OrientDB orient =
-        new OrientDB(
+    OxygenDB orient =
+        new OxygenDB(
             "plocal:target/" + SystemUsersTest.class.getSimpleName(),
-            OrientDBConfig.defaultConfig());
+            OxygenDBConfig.defaultConfig());
 
     try {
       orient.execute(

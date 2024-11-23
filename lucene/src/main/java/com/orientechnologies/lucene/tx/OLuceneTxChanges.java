@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 
 package com.orientechnologies.lucene.tx;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import java.util.Collections;
 import java.util.Set;
@@ -26,13 +27,13 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 
 /**
- * Created by Enrico Risa on 15/09/15.
+ *
  */
 public interface OLuceneTxChanges {
 
   void put(Object key, OIdentifiable value, Document doc);
 
-  void remove(Object key, OIdentifiable value);
+  void remove(ODatabaseSessionInternal session, Object key, OIdentifiable value);
 
   IndexSearcher searcher();
 

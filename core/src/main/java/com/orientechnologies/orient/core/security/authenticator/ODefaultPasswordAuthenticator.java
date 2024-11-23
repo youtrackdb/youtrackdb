@@ -14,13 +14,14 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.security.authenticator;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.security.OImmutableUser;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
@@ -33,8 +34,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Provides a default password authenticator.
- *
- * @author S. Colin Leister
  */
 public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstract {
 
@@ -49,8 +48,9 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
   }
 
   // OSecurityComponent
-  public void config(final ODocument jsonConfig, OSecuritySystem security) {
-    super.config(jsonConfig, security);
+  public void config(ODatabaseSessionInternal session, final ODocument jsonConfig,
+      OSecuritySystem security) {
+    super.config(session, jsonConfig, security);
 
     try {
       if (jsonConfig.containsField("users")) {
@@ -58,10 +58,10 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
 
         for (ODocument userDoc : usersList) {
 
-          OSecurityUser userCfg = createServerUser(userDoc);
+          OSecurityUser userCfg = createServerUser(session, userDoc);
 
           if (userCfg != null) {
-            String checkName = userCfg.getName();
+            String checkName = userCfg.getName(session);
 
             if (!isCaseSensitive()) {
               checkName = checkName.toLowerCase(Locale.ENGLISH);
@@ -77,7 +77,8 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
   }
 
   // Derived implementations can override this method to provide new server user implementations.
-  protected OSecurityUser createServerUser(final ODocument userDoc) {
+  protected OSecurityUser createServerUser(ODatabaseSessionInternal session,
+      final ODocument userDoc) {
     OSecurityUser userCfg = null;
 
     if (userDoc.containsField("username") && userDoc.containsField("resources")) {
@@ -88,7 +89,7 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
       if (password == null) {
         password = "";
       }
-      userCfg = new OImmutableUser(user, OSecurityUser.SERVER_USER_TYPE);
+      userCfg = new OImmutableUser(session, user, OSecurityUser.SERVER_USER_TYPE);
       // userCfg.addRole(OSecurityShared.createRole(null, user));
     }
 
@@ -110,10 +111,10 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
       ODatabaseSession session, final String username, final String password) {
 
     try {
-      OSecurityUser user = getUser(username);
+      OSecurityUser user = getUser(username, (ODatabaseSessionInternal) session);
 
-      if (isPasswordValid(user)) {
-        if (OSecurityManager.checkPassword(password, user.getPassword())) {
+      if (isPasswordValid(session, user)) {
+        if (OSecurityManager.checkPassword(password, user.getPassword(session))) {
           if (user != null) {
             return user;
           }
@@ -127,16 +128,17 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
 
   // OSecurityAuthenticator
   // If not supported by the authenticator, return false.
-  public boolean isAuthorized(final String username, final String resource) {
+  public boolean isAuthorized(ODatabaseSession session, final String username,
+      final String resource) {
     if (username == null || resource == null) {
       return false;
     }
 
-    OSecurityUser userCfg = getUser(username);
+    OSecurityUser userCfg = getUser(username, (ODatabaseSessionInternal) session);
 
     if (userCfg != null) {
       // TODO: to verify if this logic match previous logic
-      return userCfg.checkIfAllowed(resource, ORole.PERMISSION_ALL) != null;
+      return userCfg.checkIfAllowed(session, resource, ORole.PERMISSION_ALL) != null;
 
       // Total Access
       /*
@@ -154,7 +156,7 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
   }
 
   // OSecurityAuthenticator
-  public OSecurityUser getUser(final String username) {
+  public OSecurityUser getUser(final String username, ODatabaseSessionInternal session) {
     OSecurityUser userCfg = null;
 
     synchronized (usersMap) {

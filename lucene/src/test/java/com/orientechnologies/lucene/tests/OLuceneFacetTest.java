@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * Created by Enrico Risa on 22/04/15.
+ *
  */
 public class OLuceneFacetTest extends OLuceneBaseTest {
 
@@ -40,8 +40,8 @@ public class OLuceneFacetTest extends OLuceneBaseTest {
     OSchema schema = db.getMetadata().getSchema();
     OClass oClass = schema.createClass("Item");
 
-    oClass.createProperty("name", OType.STRING);
-    oClass.createProperty("category", OType.STRING);
+    oClass.createProperty(db, "name", OType.STRING);
+    oClass.createProperty(db, "category", OType.STRING);
 
     db.command(
             "create index Item.name_category on Item (name,category) FULLTEXT ENGINE LUCENE"

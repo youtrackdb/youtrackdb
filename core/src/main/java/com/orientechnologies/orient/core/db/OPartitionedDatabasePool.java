@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.db;
@@ -23,7 +23,7 @@ import com.orientechnologies.common.concur.lock.OInterruptedException;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.OOrientListenerAbstract;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OStorageExistsException;
@@ -68,7 +68,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * wait till free connection will be available. If total amount of connection is set to value 0 or
  * less it means that there is no connection limit.
  *
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 06/11/14
  */
 public class OPartitionedDatabasePool extends OOrientListenerAbstract {
@@ -118,8 +117,8 @@ public class OPartitionedDatabasePool extends OOrientListenerAbstract {
 
     partitions = pts;
 
-    Orient.instance().registerWeakOrientStartupListener(this);
-    Orient.instance().registerWeakOrientShutdownListener(this);
+    Oxygen.instance().registerWeakOrientStartupListener(this);
+    Oxygen.instance().registerWeakOrientShutdownListener(this);
   }
 
   private static int nextHashCode() {

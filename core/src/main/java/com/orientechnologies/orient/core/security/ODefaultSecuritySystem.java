@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2016 OrientDB LTD (info(-at-)orientdb.com)
+
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.security;
@@ -25,10 +25,18 @@ import com.orientechnologies.common.parser.OSystemVariableResolver;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDBInternal;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.metadata.security.*;
+import com.orientechnologies.orient.core.metadata.security.OImmutableUser;
+import com.orientechnologies.orient.core.metadata.security.ORole;
+import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.security.ORule.ResourceGeneric;
+import com.orientechnologies.orient.core.metadata.security.OSecurity;
+import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
+import com.orientechnologies.orient.core.metadata.security.OSecurityRole;
+import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
+import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
+import com.orientechnologies.orient.core.metadata.security.OSystemUser;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.security.authenticator.ODatabaseUserAuthenticator;
@@ -37,14 +45,16 @@ import com.orientechnologies.orient.core.security.authenticator.OSystemUserAuthe
 import com.orientechnologies.orient.core.security.authenticator.OTemporaryGlobalUser;
 import java.io.File;
 import java.io.FileInputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
  * Provides an implementation of OServerSecurity.
- *
- * @author S. Colin Leister
  */
 public class ODefaultSecuritySystem implements OSecuritySystem {
 
@@ -73,7 +83,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   // current JSON
   // configuration.
   private OSecurityConfig serverConfig;
-  private OrientDBInternal context;
+  private OxygenDBInternal context;
 
   private ODocument auditingDoc;
   private ODocument serverDoc;
@@ -93,88 +103,88 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
 
   private final Map<String, OGlobalUser> configUsers = new HashMap<String, OGlobalUser>();
 
-  public ODefaultSecuritySystem() {}
+  public ODefaultSecuritySystem() {
+  }
 
-  public void activate(final OrientDBInternal context, final OSecurityConfig serverCfg) {
+  public void activate(final OxygenDBInternal context,
+      final OSecurityConfig serverCfg) {
     this.context = context;
     this.serverConfig = serverCfg;
     if (serverConfig != null) {
       this.load(serverConfig.getConfigurationFile());
     }
-    onAfterDynamicPlugins();
+    onAfterDynamicPlugins(null);
     tokenSign = new OTokenSignImpl(context.getConfigurations().getConfigurations());
     for (OGlobalUser user : context.getConfigurations().getUsers()) {
       configUsers.put(user.getName(), user);
     }
   }
 
-  public void createSystemRoles(ODatabaseSession session) {
+  public static void createSystemRoles(ODatabaseSession session) {
     session.executeInTx(
         () -> {
           OSecurity security = ((ODatabaseSessionInternal) session).getMetadata().getSecurity();
           if (security.getRole("root") == null) {
             ORole root = security.createRole("root", ORole.ALLOW_MODES.DENY_ALL_BUT);
             for (ORule.ResourceGeneric resource : ORule.ResourceGeneric.values()) {
-              root.addRule(resource, null, ORole.PERMISSION_ALL);
+              root.addRule(session, resource, null, ORole.PERMISSION_ALL);
             }
             // Do not allow root to have access to audit log class by default.
-            root.addRule(ORule.ResourceGeneric.CLASS, "OAuditingLog", ORole.PERMISSION_NONE);
-            root.addRule(ORule.ResourceGeneric.CLUSTER, "oauditinglog", ORole.PERMISSION_NONE);
-            root.save();
+            root.addRule(session, ResourceGeneric.CLASS, "OAuditingLog", ORole.PERMISSION_NONE);
+            root.addRule(session, ResourceGeneric.CLUSTER, "oauditinglog", ORole.PERMISSION_NONE);
+            root.save(session);
           }
           if (security.getRole("guest") == null) {
             ORole guest = security.createRole("guest", ORole.ALLOW_MODES.DENY_ALL_BUT);
-            guest.addRule(ResourceGeneric.SERVER, "listDatabases", ORole.PERMISSION_ALL);
-            guest.save();
+            guest.addRule(session, ResourceGeneric.SERVER, "listDatabases", ORole.PERMISSION_ALL);
+            guest.save(session);
           }
           // for monitoring/logging purposes, intended to connect from external monitoring systems
           if (security.getRole("monitor") == null) {
             ORole guest = security.createRole("monitor", ORole.ALLOW_MODES.DENY_ALL_BUT);
-            guest.addRule(ResourceGeneric.CLASS, null, ORole.PERMISSION_READ);
-            guest.addRule(ResourceGeneric.CLUSTER, null, ORole.PERMISSION_READ);
-            guest.addRule(ResourceGeneric.SYSTEM_CLUSTERS, null, ORole.PERMISSION_READ);
-            guest.addRule(ResourceGeneric.SCHEMA, null, ORole.PERMISSION_READ);
-            guest.addRule(ResourceGeneric.FUNCTION, null, ORole.PERMISSION_ALL);
-            guest.addRule(ResourceGeneric.COMMAND, null, ORole.PERMISSION_ALL);
-            guest.addRule(ResourceGeneric.COMMAND_GREMLIN, null, ORole.PERMISSION_ALL);
-            guest.addRule(ResourceGeneric.DATABASE, null, ORole.PERMISSION_READ);
-            guest.addRule(ResourceGeneric.SERVER, null, ORole.PERMISSION_READ);
-            guest.save();
+            guest.addRule(session, ResourceGeneric.CLASS, null, ORole.PERMISSION_READ);
+            guest.addRule(session, ResourceGeneric.CLUSTER, null, ORole.PERMISSION_READ);
+            guest.addRule(session, ResourceGeneric.SYSTEM_CLUSTERS, null, ORole.PERMISSION_READ);
+            guest.addRule(session, ResourceGeneric.SCHEMA, null, ORole.PERMISSION_READ);
+            guest.addRule(session, ResourceGeneric.FUNCTION, null, ORole.PERMISSION_ALL);
+            guest.addRule(session, ResourceGeneric.COMMAND, null, ORole.PERMISSION_ALL);
+            guest.addRule(session, ResourceGeneric.COMMAND_GREMLIN, null, ORole.PERMISSION_ALL);
+            guest.addRule(session, ResourceGeneric.DATABASE, null, ORole.PERMISSION_READ);
+            guest.addRule(session, ResourceGeneric.SERVER, null, ORole.PERMISSION_READ);
+            guest.save(session);
           }
           // a separate role for accessing the auditing logs
           if (security.getRole("auditor") == null) {
             ORole auditor = security.createRole("auditor", OSecurityRole.ALLOW_MODES.DENY_ALL_BUT);
-            auditor.addRule(ORule.ResourceGeneric.DATABASE, null, ORole.PERMISSION_READ);
-            auditor.addRule(ORule.ResourceGeneric.SCHEMA, null, ORole.PERMISSION_READ);
-            auditor.addRule(ORule.ResourceGeneric.CLASS, null, ORole.PERMISSION_READ);
-            auditor.addRule(ORule.ResourceGeneric.CLUSTER, null, ORole.PERMISSION_READ);
-            auditor.addRule(ORule.ResourceGeneric.CLUSTER, "orole", ORole.PERMISSION_NONE);
-            auditor.addRule(ORule.ResourceGeneric.CLUSTER, "ouser", ORole.PERMISSION_NONE);
-            auditor.addRule(ORule.ResourceGeneric.CLASS, "OUser", ORole.PERMISSION_NONE);
-            auditor.addRule(ORule.ResourceGeneric.CLASS, "orole", ORole.PERMISSION_NONE);
-            auditor.addRule(ORule.ResourceGeneric.SYSTEM_CLUSTERS, null, ORole.PERMISSION_NONE);
-            auditor.addRule(
-                ORule.ResourceGeneric.CLASS,
-                "OAuditingLog",
+            auditor.addRule(session, ResourceGeneric.DATABASE, null, ORole.PERMISSION_READ);
+            auditor.addRule(session, ResourceGeneric.SCHEMA, null, ORole.PERMISSION_READ);
+            auditor.addRule(session, ResourceGeneric.CLASS, null, ORole.PERMISSION_READ);
+            auditor.addRule(session, ResourceGeneric.CLUSTER, null, ORole.PERMISSION_READ);
+            auditor.addRule(session, ResourceGeneric.CLUSTER, "orole", ORole.PERMISSION_NONE);
+            auditor.addRule(session, ResourceGeneric.CLUSTER, "ouser", ORole.PERMISSION_NONE);
+            auditor.addRule(session, ResourceGeneric.CLASS, "OUser", ORole.PERMISSION_NONE);
+            auditor.addRule(session, ResourceGeneric.CLASS, "orole", ORole.PERMISSION_NONE);
+            auditor.addRule(session, ResourceGeneric.SYSTEM_CLUSTERS, null, ORole.PERMISSION_NONE);
+            auditor.addRule(session, ResourceGeneric.CLASS, "OAuditingLog",
                 ORole.PERMISSION_CREATE + ORole.PERMISSION_READ + ORole.PERMISSION_UPDATE);
-            auditor.addRule(
-                ORule.ResourceGeneric.CLUSTER,
+            auditor.addRule(session,
+                ResourceGeneric.CLUSTER,
                 "oauditinglog",
                 ORole.PERMISSION_CREATE + ORole.PERMISSION_READ + ORole.PERMISSION_UPDATE);
-            auditor.save();
+            auditor.save(session);
           }
         });
   }
 
-  private void initDefultAuthenticators() {
+  private void initDefultAuthenticators(ODatabaseSessionInternal session) {
     OServerConfigAuthenticator serverAuth = new OServerConfigAuthenticator();
-    serverAuth.config(null, this);
+    serverAuth.config(session, null, this);
 
     ODatabaseUserAuthenticator databaseAuth = new ODatabaseUserAuthenticator();
-    databaseAuth.config(null, this);
+    databaseAuth.config(session, null, this);
 
     OSystemUserAuthenticator systemAuth = new OSystemUserAuthenticator();
-    systemAuth.config(null, this);
+    systemAuth.config(session, null, this);
 
     List<OSecurityAuthenticator> authenticators = new ArrayList<OSecurityAuthenticator>();
     authenticators.add(serverAuth);
@@ -268,18 +278,19 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     return null; // Indicates authentication failed.
   }
 
-  public OSecurityUser authenticateServerUser(final String username, final String password) {
-    OSecurityUser user = getServerUser(username);
+  public OSecurityUser authenticateServerUser(ODatabaseSession session, final String username,
+      final String password) {
+    OSecurityUser user = getServerUser((ODatabaseSessionInternal) session, username);
 
-    if (user != null && user.getPassword() != null) {
-      if (OSecurityManager.checkPassword(password, user.getPassword().trim())) {
+    if (user != null && user.getPassword(session) != null) {
+      if (OSecurityManager.checkPassword(password, user.getPassword(session).trim())) {
         return user;
       }
     }
     return null;
   }
 
-  public OrientDBInternal getContext() {
+  public OxygenDBInternal getContext() {
     return context;
   }
 
@@ -290,9 +301,9 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
 
     // Default to Basic.
     if (databaseName != null) {
-      header = "WWW-Authenticate: Basic realm=\"OrientDB db-" + databaseName + "\"";
+      header = "WWW-Authenticate: Basic realm=\"OxygenDB db-" + databaseName + "\"";
     } else {
-      header = "WWW-Authenticate: Basic realm=\"OrientDB Server\"";
+      header = "WWW-Authenticate: Basic realm=\"OxygenDB Server\"";
     }
 
     if (enabled) {
@@ -325,9 +336,9 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
 
     // Default to Basic.
     if (databaseName != null) {
-      headers.put("WWW-Authenticate", "Basic realm=\"OrientDB db-" + databaseName + "\"");
+      headers.put("WWW-Authenticate", "Basic realm=\"OxygenDB db-" + databaseName + "\"");
     } else {
-      headers.put("WWW-Authenticate", "Basic realm=\"OrientDB Server\"");
+      headers.put("WWW-Authenticate", "Basic realm=\"OxygenDB Server\"");
     }
 
     if (enabled) {
@@ -408,21 +419,20 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   public OSecurityUser getSystemUser(final String username, final String dbName) {
     // ** There are cases when we need to retrieve an OUser that is a system user.
     //  if (isEnabled() && !OSystemDatabase.SYSTEM_DB_NAME.equals(dbName)) {
+    var systemDb = context.getSystemDatabase();
     if (context.getSystemDatabase().exists()) {
-      return (OImmutableUser)
-          context
-              .getSystemDatabase()
-              .execute(
-                  (resultset) -> {
-                    if (resultset != null && resultset.hasNext()) {
-                      return new OImmutableUser(
-                          0,
-                          new OSystemUser(resultset.next().getElement().get().getRecord(), dbName));
-                    }
-                    return null;
-                  },
-                  "select from OUser where name = ? limit 1 fetchplan roles:1",
-                  username);
+      return systemDb
+          .execute(
+              (resultset, session) -> {
+                if (resultset != null && resultset.hasNext()) {
+                  return new OImmutableUser(session,
+                      0,
+                      new OSystemUser(resultset.next().getElement().get().getRecord(), dbName));
+                }
+                return null;
+              },
+              "select from OUser where name = ? limit 1 fetchplan roles:1",
+              username);
     }
     return null;
   }
@@ -430,26 +440,28 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   // OSecuritySystem (via OServerSecurity)
   // This will first look for a user in the security.json "users" array and then check if a resource
   // matches.
-  public boolean isAuthorized(final String username, final String resource) {
+  public boolean isAuthorized(ODatabaseSession session, final String username,
+      final String resource) {
     if (username == null || resource == null) {
       return false;
     }
 
     // Walk through the list of OSecurityAuthenticators.
     for (OSecurityAuthenticator sa : enabledAuthenticators) {
-      if (sa.isAuthorized(username, resource)) {
+      if (sa.isAuthorized(session, username, resource)) {
         return true;
       }
     }
     return false;
   }
 
-  public boolean isServerUserAuthorized(final String username, final String resource) {
-    final OSecurityUser user = getServerUser(username);
+  public boolean isServerUserAuthorized(ODatabaseSession session, final String username,
+      final String resource) {
+    final OSecurityUser user = getServerUser((ODatabaseSessionInternal) session, username);
 
     if (user != null) {
       // TODO: to verify if this logic match previous logic
-      return user.checkIfAllowed(resource, ORole.PERMISSION_ALL) != null;
+      return user.checkIfAllowed(session, resource, ORole.PERMISSION_ALL) != null;
       /*
       if (user.getResources().equals("*"))
         // ACCESS TO ALL
@@ -503,14 +515,6 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     }
   }
 
-  public void replacePasswordValidator(OPasswordValidator validator) {
-    synchronized (passwordValidatorSynch) {
-      if (passwordValidator == null || !passwordValidator.isEnabled()) {
-        passwordValidator = validator;
-      }
-    }
-  }
-
   /**
    * OServerSecurity Interface *
    */
@@ -550,12 +554,12 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   }
 
   // OServerSecurity
-  public OSecurityUser getUser(final String username) {
+  public OSecurityUser getUser(final String username, ODatabaseSessionInternal session) {
     OSecurityUser userCfg = null;
 
     // Walk through the list of OSecurityAuthenticators.
     for (OSecurityAuthenticator sa : enabledAuthenticators) {
-      userCfg = sa.getUser(username);
+      userCfg = sa.getUser(username, session);
       if (userCfg != null) {
         break;
       }
@@ -564,7 +568,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     return userCfg;
   }
 
-  public OSecurityUser getServerUser(final String username) {
+  public OSecurityUser getServerUser(ODatabaseSessionInternal session, final String username) {
     OSecurityUser systemUser = null;
     // This will throw an IllegalArgumentException if iUserName is null or empty.
     // However, a null or empty iUserName is possible with some security implementations.
@@ -579,9 +583,9 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
         }
       }
       if (userCfg != null) {
-        OSecurityRole role = OSecurityShared.createRole(null, userCfg);
+        OSecurityRole role = OSecurityShared.createRole(userCfg);
         systemUser =
-            new OImmutableUser(
+            new OImmutableUser(session,
                 username, userCfg.getPassword(), OSecurityUser.SERVER_USER_TYPE, role);
       }
     }
@@ -596,13 +600,13 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
 
   // OSecuritySystem
   public void log(
-      final OAuditingOperation operation,
+      ODatabaseSessionInternal session, final OAuditingOperation operation,
       final String dbName,
       OSecurityUser user,
       final String message) {
     synchronized (auditingSynch) {
       if (auditingService != null) {
-        auditingService.log(operation, dbName, user, message);
+        auditingService.log(session, operation, dbName, user, message);
       }
     }
   }
@@ -645,34 +649,23 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   }
 
   // OSecuritySystem
-  public void reload(final String cfgPath) {
-    reload(null, cfgPath);
+  public void reload(ODatabaseSessionInternal session, final ODocument configDoc) {
+    reload(session, null, configDoc);
   }
 
   @Override
-  public void reload(OSecurityUser user, String cfgPath) {
-    reload(user, loadConfig(cfgPath));
-  }
-
-  // OSecuritySystem
-  public void reload(final ODocument configDoc) {
-    reload(null, configDoc);
-  }
-
-  @Override
-  public void reload(OSecurityUser user, ODocument configDoc) {
+  public void reload(ODatabaseSessionInternal session, OSecurityUser user, ODocument configDoc) {
     if (configDoc != null) {
       close();
 
       this.configDoc = configDoc;
 
-      onAfterDynamicPlugins(user);
+      onAfterDynamicPlugins(session, user);
 
-      log(
+      log(session,
           OAuditingOperation.RELOADEDSECURITY,
           null,
-          user,
-          "The security configuration file has been reloaded");
+          user, "The security configuration file has been reloaded");
     } else {
       OLogManager.instance()
           .warn(
@@ -684,7 +677,8 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     }
   }
 
-  public void reloadComponent(OSecurityUser user, final String name, final ODocument jsonConfig) {
+  public void reloadComponent(ODatabaseSessionInternal session, OSecurityUser user,
+      final String name, final ODocument jsonConfig) {
     if (name == null || name.isEmpty()) {
       throw new OSecuritySystemException(
           "ODefaultServerSecurity.reloadComponent() name is null or empty");
@@ -696,32 +690,31 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
 
     if (name.equalsIgnoreCase("auditing")) {
       auditingDoc = jsonConfig;
-      reloadAuditingService();
+      reloadAuditingService(session);
 
     } else if (name.equalsIgnoreCase("authentication")) {
       authDoc = jsonConfig;
-      reloadAuthMethods();
+      reloadAuthMethods(session);
 
     } else if (name.equalsIgnoreCase("ldapImporter")) {
       ldapImportDoc = jsonConfig;
-      reloadImportLDAP();
+      reloadImportLDAP(session);
     } else if (name.equalsIgnoreCase("passwordValidator")) {
       passwdValDoc = jsonConfig;
-      reloadPasswordValidator();
+      reloadPasswordValidator(session);
     } else if (name.equalsIgnoreCase("server")) {
       serverDoc = jsonConfig;
       reloadServer();
     }
     setSection(name, jsonConfig);
 
-    log(
+    log(session,
         OAuditingOperation.RELOADEDSECURITY,
         null,
-        user,
-        String.format("The %s security component has been reloaded", name));
+        user, String.format("The %s security component has been reloaded", name));
   }
 
-  private void loadAuthenticators(final ODocument authDoc) {
+  private void loadAuthenticators(ODatabaseSessionInternal session, final ODocument authDoc) {
     if (authDoc.containsField("authenticators")) {
       List<OSecurityAuthenticator> autheticators = new ArrayList<OSecurityAuthenticator>();
       List<ODocument> authMethodsList = authDoc.field("authenticators");
@@ -746,7 +739,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
                   OSecurityAuthenticator authPlugin =
                       (OSecurityAuthenticator) authClass.newInstance();
 
-                  authPlugin.config(authMethodDoc, this);
+                  authPlugin.config(session, authMethodDoc, this);
                   authPlugin.active();
 
                   autheticators.add(authPlugin);
@@ -786,37 +779,37 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
       }
       setAuthenticatorList(autheticators);
     } else {
-      initDefultAuthenticators();
+      initDefultAuthenticators(session);
     }
   }
 
   // OServerSecurity
-  public void onAfterDynamicPlugins() {
-    onAfterDynamicPlugins(null);
+  public void onAfterDynamicPlugins(ODatabaseSessionInternal session) {
+    onAfterDynamicPlugins(session, null);
   }
 
   @Override
-  public void onAfterDynamicPlugins(OSecurityUser user) {
+  public void onAfterDynamicPlugins(ODatabaseSessionInternal session, OSecurityUser user) {
     if (configDoc != null) {
-      loadComponents();
+      loadComponents(session);
 
       if (enabled) {
-        log(OAuditingOperation.SECURITY, null, user, "The security module is now loaded");
+        log(session, OAuditingOperation.SECURITY, null, user, "The security module is now loaded");
       }
     } else {
-      initDefultAuthenticators();
+      initDefultAuthenticators(session);
       OLogManager.instance().debug(this, "onAfterDynamicPlugins() Configuration document is empty");
     }
   }
 
-  protected void loadComponents() {
+  protected void loadComponents(ODatabaseSessionInternal session) {
     // Loads the top-level configuration properties ("enabled" and "debug").
     loadSecurity();
 
     if (enabled) {
       // Loads the "auditing" configuration properties.
       auditingDoc = getSection("auditing");
-      reloadAuditingService();
+      reloadAuditingService(session);
 
       // Loads the "server" configuration properties.
       serverDoc = getSection("server");
@@ -824,15 +817,15 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
 
       // Loads the "authentication" configuration properties.
       authDoc = getSection("authentication");
-      reloadAuthMethods();
+      reloadAuthMethods(session);
 
       // Loads the "passwordValidator" configuration properties.
       passwdValDoc = getSection("passwordValidator");
-      reloadPasswordValidator();
+      reloadPasswordValidator(session);
 
       // Loads the "ldapImporter" configuration properties.
       ldapImportDoc = getSection("ldapImporter");
-      reloadImportLDAP();
+      reloadImportLDAP(session);
     }
   }
 
@@ -983,17 +976,17 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     }
   }
 
-  private void reloadAuthMethods() {
+  private void reloadAuthMethods(ODatabaseSessionInternal session) {
     if (authDoc != null) {
       if (authDoc.containsField("allowDefault")) {
         allowDefault = authDoc.field("allowDefault");
       }
 
-      loadAuthenticators(authDoc);
+      loadAuthenticators(session, authDoc);
     }
   }
 
-  private void reloadPasswordValidator() {
+  private void reloadPasswordValidator(ODatabaseSessionInternal session) {
     try {
       synchronized (passwordValidatorSynch) {
         if (passwdValDoc != null && isEnabled(passwdValDoc)) {
@@ -1008,7 +1001,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
           if (cls != null) {
             if (OPasswordValidator.class.isAssignableFrom(cls)) {
               passwordValidator = (OPasswordValidator) cls.newInstance();
-              passwordValidator.config(passwdValDoc, this);
+              passwordValidator.config(session, passwdValDoc, this);
               passwordValidator.active();
             } else {
               OLogManager.instance()
@@ -1033,7 +1026,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     }
   }
 
-  private void reloadImportLDAP() {
+  private void reloadImportLDAP(ODatabaseSessionInternal session) {
     try {
       synchronized (importLDAPSynch) {
         if (importLDAP != null) {
@@ -1047,7 +1040,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
           if (cls != null) {
             if (OSecurityComponent.class.isAssignableFrom(cls)) {
               importLDAP = (OSecurityComponent) cls.newInstance();
-              importLDAP.config(ldapImportDoc, this);
+              importLDAP.config(session, ldapImportDoc, this);
               importLDAP.active();
             } else {
               OLogManager.instance()
@@ -1072,7 +1065,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     }
   }
 
-  private void reloadAuditingService() {
+  private void reloadAuditingService(ODatabaseSessionInternal session) {
     try {
       synchronized (auditingSynch) {
         if (auditingService != null) {
@@ -1086,7 +1079,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
           if (cls != null) {
             if (OAuditingService.class.isAssignableFrom(cls)) {
               auditingService = (OAuditingService) cls.newInstance();
-              auditingService.config(auditingDoc, this);
+              auditingService.config(session, auditingDoc, this);
               auditingService.active();
             } else {
               OLogManager.instance()
@@ -1143,13 +1136,14 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
 
   @Override
   public OSecurityUser authenticateAndAuthorize(
-      String iUserName, String iPassword, String iResourceToCheck) {
+      ODatabaseSessionInternal session, String iUserName, String iPassword,
+      String iResourceToCheck) {
     // Returns the authenticated username, if successful, otherwise null.
     OSecurityUser user = authenticate(null, iUserName, iPassword);
 
     // Authenticated, now see if the user is authorized.
     if (user != null) {
-      if (isAuthorized(user.getName(), iResourceToCheck)) {
+      if (isAuthorized(session, user.getName(session), iResourceToCheck)) {
         return user;
       }
     }

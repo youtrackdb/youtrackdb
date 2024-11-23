@@ -8,7 +8,7 @@ import java.util.Properties;
 public class OConstants {
 
   public static final String ORIENT_URL = "https://www.orientdb.com";
-  public static final String COPYRIGHT = "Copyrights (c) 2017 OrientDB LTD";
+  public static final String COPYRIGHT = "Copyrights (c) 2017 OxygenDB LTD";
 
   private static final Properties properties = new Properties();
 
@@ -19,12 +19,12 @@ public class OConstants {
         properties.load(inputStream);
       }
     } catch (IOException e) {
-      OLogManager.instance().error(OConstants.class, "Failed to load OrientDB properties", e);
+      OLogManager.instance().error(OConstants.class, "Failed to load OxygenDB properties", e);
     }
   }
 
   /**
-   * @return Major part of OrientDB version
+   * @return Major part of OxygenDB version
    */
   public static int getVersionMajor() {
     final String[] versions = properties.getProperty("version").split("\\.");
@@ -45,7 +45,7 @@ public class OConstants {
   }
 
   /**
-   * @return Minor part of OrientDB version
+   * @return Minor part of OxygenDB version
    */
   public static int getVersionMinor() {
     final String[] versions = properties.getProperty("version").split("\\.");
@@ -67,7 +67,7 @@ public class OConstants {
   }
 
   /**
-   * @return Hotfix part of OrientDB version
+   * @return Hotfix part of OxygenDB version
    */
   @SuppressWarnings("unused")
   public static int getVersionHotfix() {
@@ -101,7 +101,7 @@ public class OConstants {
   }
 
   /**
-   * Returns the complete text of the current OrientDB version.
+   * Returns the complete text of the current OxygenDB version.
    */
   public static String getVersion() {
     return properties.getProperty("version")
@@ -113,7 +113,7 @@ public class OConstants {
   }
 
   /**
-   * Returns true if current OrientDB version is a snapshot.
+   * Returns true if current OxygenDB version is a snapshot.
    */
   public static boolean isSnapshot() {
     return properties.getProperty("version").endsWith("SNAPSHOT");

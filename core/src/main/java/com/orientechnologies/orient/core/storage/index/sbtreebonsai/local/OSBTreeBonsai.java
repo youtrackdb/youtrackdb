@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -48,7 +48,6 @@ import java.util.Map;
  * +--------------------------------------------------------------------------------------------+<br>
  * </code>
  *
- * @author Artem Orobets (enisher-at-gmail.com)
  * @since 1.7rc1
  */
 public interface OSBTreeBonsai<K, V> extends OTreeInternal<K, V> {

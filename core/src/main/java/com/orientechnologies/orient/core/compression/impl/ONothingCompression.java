@@ -14,14 +14,13 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientechnologies.com
+ *
  *
  */
 
 package com.orientechnologies.orient.core.compression.impl;
 
 /**
- * @author Andrey Lomakin
  * @since 05.06.13
  */
 public class ONothingCompression extends OAbstractCompression {

@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,7 +9,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://www.orientdb.com
+ * <p>*
  */
 package com.orientechnologies.spatial.shape;
 
@@ -46,15 +44,16 @@ public class OPointShapeBuilder extends OShapeBuilder<Point> {
 
     OSchema schema = db.getMetadata().getSchema();
     OClass point = schema.createAbstractClass(NAME, superClass(db));
-    OProperty coordinates = point.createProperty(COORDINATES, OType.EMBEDDEDLIST, OType.DOUBLE);
+    OProperty coordinates = point.createProperty(db, COORDINATES, OType.EMBEDDEDLIST, OType.DOUBLE);
     coordinates.setMin("2");
-    coordinates.setMax("2");
+    coordinates.setMax(db, "2");
 
     if (OGlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean()) {
       OClass pointz = schema.createAbstractClass(NAME + "Z", superClass(db));
-      OProperty coordinatesz = pointz.createProperty(COORDINATES, OType.EMBEDDEDLIST, OType.DOUBLE);
+      OProperty coordinatesz = pointz.createProperty(db, COORDINATES, OType.EMBEDDEDLIST,
+          OType.DOUBLE);
       coordinatesz.setMin("3");
-      coordinatesz.setMax("3");
+      coordinatesz.setMax(db, "3");
     }
   }
 

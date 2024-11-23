@@ -110,7 +110,7 @@ public class OCreateIndexStatement extends ODDLStatement {
           && "LUCENE_CROSS_CLASS".equalsIgnoreCase(engine)) {
         // handle special case of cross class  Lucene index: awful but works
         OIndexDefinition keyDef =
-            new OSimpleKeyIndexDefinition(new OType[] {OType.STRING}, collatesList);
+            new OSimpleKeyIndexDefinition(new OType[]{OType.STRING}, collatesList);
         idx =
             database
                 .getMetadata()
@@ -143,7 +143,7 @@ public class OCreateIndexStatement extends ODDLStatement {
           throw new ODatabaseException(
               "Impossible to create an index, property not found: " + name.getValue());
         }
-        String[] fields = new String[] {split[1]};
+        String[] fields = new String[]{split[1]};
         idx = getoIndex(oClass, fields, engine, database, collatesList, metadataDoc);
 
       } else {
@@ -159,7 +159,7 @@ public class OCreateIndexStatement extends ODDLStatement {
     }
 
     if (idx != null) {
-      return database.computeInTx(() -> idx.getInternal().size());
+      return database.computeInTx(() -> idx.getInternal().size(database));
     }
 
     return null;
@@ -176,7 +176,7 @@ public class OCreateIndexStatement extends ODDLStatement {
     if ((keyTypes == null || keyTypes.size() == 0) && collatesList == null) {
 
       idx =
-          oClass.createIndex(
+          oClass.createIndex(database,
               name.getValue(), type.getStringValue(), null, metadataDoc, engine, fields);
     } else {
       final List<OType> fieldTypeList;
@@ -240,7 +240,7 @@ public class OCreateIndexStatement extends ODDLStatement {
     return propertyList.stream()
         .map(x -> x.getCompleteKey())
         .collect(Collectors.toList())
-        .toArray(new String[] {});
+        .toArray(new String[]{});
   }
 
   /**
@@ -275,7 +275,7 @@ public class OCreateIndexStatement extends ODDLStatement {
     return keyTypes.stream()
         .map(x -> OType.valueOf(x.getStringValue()))
         .collect(Collectors.toList())
-        .toArray(new OType[] {});
+        .toArray(new OType[]{});
   }
 
   private List<OCollate> calculateCollates(OCommandContext ctx) {

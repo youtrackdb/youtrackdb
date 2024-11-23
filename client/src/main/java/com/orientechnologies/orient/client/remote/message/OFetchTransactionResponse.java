@@ -4,6 +4,7 @@ import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.client.remote.message.tx.IndexChange;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.ORecordInternal;
@@ -20,7 +21,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Created by tglman on 30/12/16.
+ *
  */
 public class OFetchTransactionResponse implements OBinaryResponse {
 
@@ -28,10 +29,11 @@ public class OFetchTransactionResponse implements OBinaryResponse {
   private List<ORecordOperationRequest> operations;
   private List<IndexChange> indexChanges;
 
-  public OFetchTransactionResponse() {}
+  public OFetchTransactionResponse() {
+  }
 
   public OFetchTransactionResponse(
-      int txId,
+      ODatabaseSessionInternal session, int txId,
       Iterable<ORecordOperation> operations,
       Map<String, OTransactionIndexChanges> indexChanges,
       Map<ORID, ORID> updatedRids) {
@@ -46,13 +48,14 @@ public class OFetchTransactionResponse implements OBinaryResponse {
     for (ORecordOperation txEntry : operations) {
       ORecordOperationRequest request = new ORecordOperationRequest();
       request.setType(txEntry.type);
-      request.setVersion(txEntry.getRecord().getVersion());
+      request.setVersion(txEntry.record.getVersion());
       request.setId(txEntry.getRID());
       ORID oldID = reversed.get(txEntry.getRID());
       request.setOldId(oldID != null ? oldID : txEntry.getRID());
-      request.setRecordType(ORecordInternal.getRecordType(txEntry.getRecord()));
-      request.setRecord(ORecordSerializerNetworkV37Client.INSTANCE.toStream(txEntry.getRecord()));
-      request.setContentChanged(ORecordInternal.isContentChanged(txEntry.getRecord()));
+      request.setRecordType(ORecordInternal.getRecordType(txEntry.record));
+      request.setRecord(
+          ORecordSerializerNetworkV37Client.INSTANCE.toStream(session, txEntry.record));
+      request.setContentChanged(ORecordInternal.isContentChanged(txEntry.record));
       netOperations.add(request);
     }
     this.operations = netOperations;
@@ -63,7 +66,8 @@ public class OFetchTransactionResponse implements OBinaryResponse {
   }
 
   @Override
-  public void write(OChannelDataOutput channel, int protocolVersion, ORecordSerializer serializer)
+  public void write(ODatabaseSessionInternal session, OChannelDataOutput channel,
+      int protocolVersion, ORecordSerializer serializer)
       throws IOException {
     channel.writeInt(txId);
 

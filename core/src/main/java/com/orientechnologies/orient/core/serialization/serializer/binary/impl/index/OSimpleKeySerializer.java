@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -31,7 +31,6 @@ import java.nio.ByteBuffer;
  * Serializer that is used for serialization of non
  * {@link com.orientechnologies.orient.core.index.OCompositeKey} keys in index.
  *
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 31.03.12
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -42,7 +41,8 @@ public class OSimpleKeySerializer<T extends Comparable<?>> implements OBinarySer
   public static final byte ID = 15;
   public static final String NAME = "bsks";
 
-  public OSimpleKeySerializer() {}
+  public OSimpleKeySerializer() {
+  }
 
   public int getObjectSize(T key, Object... hints) {
     init(key, hints);
@@ -69,7 +69,7 @@ public class OSimpleKeySerializer<T extends Comparable<?>> implements OBinarySer
     init(serializerId);
     return OBinarySerializerFactory.TYPE_IDENTIFIER_SIZE
         + binarySerializer.getObjectSize(
-            stream, startPosition + OBinarySerializerFactory.TYPE_IDENTIFIER_SIZE);
+        stream, startPosition + OBinarySerializerFactory.TYPE_IDENTIFIER_SIZE);
   }
 
   public byte getId() {
@@ -108,7 +108,7 @@ public class OSimpleKeySerializer<T extends Comparable<?>> implements OBinarySer
     init(serializerId);
     return OBinarySerializerFactory.TYPE_IDENTIFIER_SIZE
         + binarySerializer.getObjectSizeNative(
-            stream, startPosition + OBinarySerializerFactory.TYPE_IDENTIFIER_SIZE);
+        stream, startPosition + OBinarySerializerFactory.TYPE_IDENTIFIER_SIZE);
   }
 
   public void serializeNativeObject(T key, byte[] stream, int startPosition, Object... hints) {
@@ -210,6 +210,6 @@ public class OSimpleKeySerializer<T extends Comparable<?>> implements OBinarySer
   public int getObjectSizeInByteBuffer(ByteBuffer buffer, OWALChanges walChanges, int offset) {
     return OBinarySerializerFactory.TYPE_IDENTIFIER_SIZE
         + binarySerializer.getObjectSizeInByteBuffer(
-            buffer, walChanges, OBinarySerializerFactory.TYPE_IDENTIFIER_SIZE + offset);
+        buffer, walChanges, OBinarySerializerFactory.TYPE_IDENTIFIER_SIZE + offset);
   }
 }

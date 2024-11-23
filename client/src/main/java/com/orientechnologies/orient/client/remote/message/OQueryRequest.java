@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.client.remote.message;
@@ -24,6 +24,7 @@ import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemote;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
@@ -48,7 +49,7 @@ public final class OQueryRequest implements OBinaryRequest<OQueryResponse> {
   private boolean namedParams;
 
   public OQueryRequest(
-      String language,
+      ODatabaseSessionInternal session, String language,
       String iCommand,
       Object[] positionalParams,
       byte operationType,
@@ -67,11 +68,11 @@ public final class OQueryRequest implements OBinaryRequest<OQueryResponse> {
     ODocument parms = new ODocument();
     parms.field("params", this.params);
 
-    paramsBytes = OMessageHelper.getRecordBytes(parms, serializer);
+    paramsBytes = OMessageHelper.getRecordBytes(session, parms, serializer);
   }
 
   public OQueryRequest(
-      String language,
+      ODatabaseSessionInternal session, String language,
       String iCommand,
       Map<String, Object> namedParams,
       byte operationType,
@@ -83,7 +84,7 @@ public final class OQueryRequest implements OBinaryRequest<OQueryResponse> {
     ODocument parms = new ODocument();
     parms.field("params", this.params);
 
-    paramsBytes = OMessageHelper.getRecordBytes(parms, serializer);
+    paramsBytes = OMessageHelper.getRecordBytes(session, parms, serializer);
     this.namedParams = true;
     this.serializer = serializer;
     this.recordsPerPage = recordsPerPage;
@@ -93,10 +94,12 @@ public final class OQueryRequest implements OBinaryRequest<OQueryResponse> {
     this.operationType = operationType;
   }
 
-  public OQueryRequest() {}
+  public OQueryRequest() {
+  }
 
   @Override
-  public void write(OChannelDataOutput network, OStorageRemoteSession session) throws IOException {
+  public void write(ODatabaseSessionInternal database, OChannelDataOutput network,
+      OStorageRemoteSession session) throws IOException {
     network.writeString(language);
     network.writeString(statement);
     network.writeByte(operationType);

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,21 +14,22 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.metadata.schema;
 
 import com.orientechnologies.orient.core.collate.OCollate;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndex;
+import com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYPE;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.Collection;
 import java.util.Set;
 
 /**
  * Contains the description of a persistent class property.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OProperty extends Comparable<OProperty> {
 
@@ -56,9 +57,9 @@ public interface OProperty extends Comparable<OProperty> {
    */
   String getFullName();
 
-  OProperty setName(String iName);
+  OProperty setName(ODatabaseSession session, String iName);
 
-  void set(ATTRIBUTES attribute, Object iValue);
+  void set(ODatabaseSession session, ATTRIBUTES attribute, Object iValue);
 
   OType getType();
 
@@ -70,29 +71,29 @@ public interface OProperty extends Comparable<OProperty> {
    */
   OClass getLinkedClass();
 
-  OProperty setLinkedClass(OClass oClass);
+  OProperty setLinkedClass(ODatabaseSession session, OClass oClass);
 
   OType getLinkedType();
 
-  OProperty setLinkedType(OType type);
+  OProperty setLinkedType(ODatabaseSession session, OType type);
 
   boolean isNotNull();
 
-  OProperty setNotNull(boolean iNotNull);
+  OProperty setNotNull(ODatabaseSession session, boolean iNotNull);
 
   OCollate getCollate();
 
-  OProperty setCollate(String iCollateName);
+  OProperty setCollate(ODatabaseSession session, String iCollateName);
 
-  OProperty setCollate(OCollate collate);
+  OProperty setCollate(ODatabaseSession session, OCollate collate);
 
   boolean isMandatory();
 
-  OProperty setMandatory(boolean mandatory);
+  OProperty setMandatory(ODatabaseSession session, boolean mandatory);
 
   boolean isReadonly();
 
-  OProperty setReadonly(boolean iReadonly);
+  OProperty setReadonly(ODatabaseSession session, boolean iReadonly);
 
   /**
    * Min behavior depends on the Property OType.
@@ -117,7 +118,17 @@ public interface OProperty extends Comparable<OProperty> {
    * @return this property
    * @see OProperty#getMin()
    */
-  OProperty setMin(String min);
+  default OProperty setMin(String min) {
+    return setMin(min);
+  }
+
+  /**
+   * @param session
+   * @param min     can be null
+   * @return this property
+   * @see OProperty#getMin()
+   */
+  OProperty setMin(ODatabaseSession session, String min);
 
   /**
    * Max behavior depends on the Property OType.
@@ -138,11 +149,12 @@ public interface OProperty extends Comparable<OProperty> {
   String getMax();
 
   /**
-   * @param max can be null
+   * @param session
+   * @param max     can be null
    * @return this property
    * @see OProperty#getMax()
    */
-  OProperty setMax(String max);
+  OProperty setMax(ODatabaseSession session, String max);
 
   /**
    * Default value for the property; can be function
@@ -152,36 +164,43 @@ public interface OProperty extends Comparable<OProperty> {
   String getDefaultValue();
 
   /**
+   * @param session
    * @param defaultValue can be null
    * @return this property
    * @see OProperty#getDefaultValue()
    */
-  OProperty setDefaultValue(String defaultValue);
+  OProperty setDefaultValue(ODatabaseSession session, String defaultValue);
 
   /**
    * Creates an index on this property. Indexes speed up queries but slow down insert and update
    * operations. For massive inserts we suggest to remove the index, make the massive insert and
    * recreate it.
    *
-   * @param iType One of types supported.
-   *              <ul>
-   *                <li>UNIQUE: Doesn't allow duplicates
-   *                <li>NOTUNIQUE: Allow duplicates
-   *                <li>FULLTEXT: Indexes single word for full text search
-   *              </ul>
-   * @return see {@link OClass#createIndex(String, OClass.INDEX_TYPE, String...)}.
+   * @param session
+   * @param iType   One of types supported.
+   *                <ul>
+   *                  <li>UNIQUE: Doesn't allow duplicates
+   *                  <li>NOTUNIQUE: Allow duplicates
+   *                  <li>FULLTEXT: Indexes single word for full text search
+   *                </ul>
+   * @return see
+   * {@link OClass#createIndex(com.orientechnologies.orient.core.db.ODatabaseSession, String,
+   * OClass.INDEX_TYPE, String...)}.
    */
-  OIndex createIndex(final OClass.INDEX_TYPE iType);
+  OIndex createIndex(ODatabaseSession session, final INDEX_TYPE iType);
 
   /**
    * Creates an index on this property. Indexes speed up queries but slow down insert and update
    * operations. For massive inserts we suggest to remove the index, make the massive insert and
    * recreate it.
    *
+   * @param session
    * @param iType
-   * @return see {@link OClass#createIndex(String, OClass.INDEX_TYPE, String...)}.
+   * @return see
+   * {@link OClass#createIndex(com.orientechnologies.orient.core.db.ODatabaseSession, String,
+   * OClass.INDEX_TYPE, String...)}.
    */
-  OIndex createIndex(final String iType);
+  OIndex createIndex(ODatabaseSession session, final String iType);
 
   /**
    * Creates an index on this property. Indexes speed up queries but slow down insert and update
@@ -195,9 +214,30 @@ public interface OProperty extends Comparable<OProperty> {
    *                   <li>FULLTEXT: Indexes single word for full text search
    *                 </ul>
    * @param metadata the index metadata
-   * @return see {@link OClass#createIndex(String, OClass.INDEX_TYPE, String...)}.
+   * @return see {@link OClass#createIndex(ODatabaseSession, String, INDEX_TYPE, String...)}.
    */
-  OIndex createIndex(String iType, ODocument metadata);
+  default OIndex createIndex(String iType, ODocument metadata) {
+    return createIndex(iType, metadata);
+  }
+
+  /**
+   * Creates an index on this property. Indexes speed up queries but slow down insert and update
+   * operations. For massive inserts we suggest to remove the index, make the massive insert and
+   * recreate it.
+   *
+   * @param session
+   * @param iType    One of types supported.
+   *                 <ul>
+   *                   <li>UNIQUE: Doesn't allow duplicates
+   *                   <li>NOTUNIQUE: Allow duplicates
+   *                   <li>FULLTEXT: Indexes single word for full text search
+   *                 </ul>
+   * @param metadata the index metadata
+   * @return see
+   * {@link OClass#createIndex(com.orientechnologies.orient.core.db.ODatabaseSession, String,
+   * OClass.INDEX_TYPE, String...)}.
+   */
+  OIndex createIndex(ODatabaseSession session, String iType, ODocument metadata);
 
   /**
    * Creates an index on this property. Indexes speed up queries but slow down insert and update
@@ -211,7 +251,9 @@ public interface OProperty extends Comparable<OProperty> {
    *                   <li>FULLTEXT: Indexes single word for full text search
    *                 </ul>
    * @param metadata the index metadata
-   * @return see {@link OClass#createIndex(String, OClass.INDEX_TYPE, String...)}.
+   * @return see
+   * {@link OClass#createIndex(com.orientechnologies.orient.core.db.ODatabaseSession, String,
+   * OClass.INDEX_TYPE, String...)}.
    */
   OIndex createIndex(OClass.INDEX_TYPE iType, ODocument metadata);
 
@@ -222,57 +264,68 @@ public interface OProperty extends Comparable<OProperty> {
    * @deprecated Use SQL command instead.
    */
   @Deprecated
-  OProperty dropIndexes();
+  OProperty dropIndexes(ODatabaseSessionInternal session);
 
   /**
    * @return All indexes in which this property participates as first key item.
-   * @deprecated Use {@link OClass#getInvolvedIndexes(String...)} instead.
+   * @deprecated Use
+   * {@link OClass#getInvolvedIndexes(com.orientechnologies.orient.core.db.ODatabaseSession,
+   * String...)} instead.
    */
   @Deprecated
-  Set<OIndex> getIndexes();
+  Set<OIndex> getIndexes(ODatabaseSession session);
 
   /**
    * @return The first index in which this property participates as first key item.
-   * @deprecated Use {@link OClass#getInvolvedIndexes(String...)} instead.
+   * @deprecated Use
+   * {@link OClass#getInvolvedIndexes(com.orientechnologies.orient.core.db.ODatabaseSession,
+   * String...)} instead.
    */
   @Deprecated
-  OIndex getIndex();
+  OIndex getIndex(ODatabaseSession session);
 
   /**
    * @return All indexes in which this property participates.
    */
-  Collection<OIndex> getAllIndexes();
+  Collection<OIndex> getAllIndexes(ODatabaseSession session);
 
   /**
    * Indicates whether property is contained in indexes as its first key item. If you would like to
-   * fetch all indexes or check property presence in other indexes use {@link #getAllIndexes()}
-   * instead.
+   * fetch all indexes or check property presence in other indexes use
+   * {@link #getAllIndexes(ODatabaseSession)} instead.
    *
    * @return <code>true</code> if and only if this property is contained in indexes as its first key
    * item.
-   * @deprecated Use {@link OClass#areIndexed(String...)} instead.
+   * @deprecated Use
+   * {@link OClass#areIndexed(com.orientechnologies.orient.core.db.ODatabaseSession, String...)}
+   * instead.
    */
   @Deprecated
-  boolean isIndexed();
+  boolean isIndexed(ODatabaseSession session);
 
   String getRegexp();
 
-  OProperty setRegexp(String regexp);
+  default OProperty setRegexp(String regexp) {
+    return setRegexp(regexp);
+  }
+
+  OProperty setRegexp(ODatabaseSession session, String regexp);
 
   /**
    * Change the type. It checks for compatibility between the change of type.
    *
+   * @param session
    * @param iType
    */
-  OProperty setType(final OType iType);
+  OProperty setType(ODatabaseSession session, final OType iType);
 
   String getCustom(final String iName);
 
-  OProperty setCustom(final String iName, final String iValue);
+  OProperty setCustom(ODatabaseSession session, final String iName, final String iValue);
 
-  void removeCustom(final String iName);
+  void removeCustom(ODatabaseSession session, final String iName);
 
-  void clearCustom();
+  void clearCustom(ODatabaseSession session);
 
   Set<String> getCustomKeys();
 
@@ -284,5 +337,5 @@ public interface OProperty extends Comparable<OProperty> {
 
   String getDescription();
 
-  OProperty setDescription(String iDescription);
+  OProperty setDescription(ODatabaseSession session, String iDescription);
 }

@@ -399,10 +399,10 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
                 buffer.rewind();
 
                 if (XX_HASH.hash(
-                        buffer,
-                        XX_HASH_LEN + RECORD_TYPE_FLAG_LEN,
-                        buffer.capacity() - XX_HASH_LEN - RECORD_TYPE_FLAG_LEN,
-                        XX_HASH_SEED)
+                    buffer,
+                    XX_HASH_LEN + RECORD_TYPE_FLAG_LEN,
+                    buffer.capacity() - XX_HASH_LEN - RECORD_TYPE_FLAG_LEN,
+                    XX_HASH_SEED)
                     != xxHash) {
                   throwSegmentIsBroken(segmentPath);
                 }
@@ -516,10 +516,10 @@ public class DoubleWriteLogGL implements DoubleWriteLog {
               buffer.rewind();
 
               if (XX_HASH.hash(
-                      buffer,
-                      XX_HASH_LEN + RECORD_TYPE_FLAG_LEN,
-                      buffer.capacity() - XX_HASH_LEN - RECORD_TYPE_FLAG_LEN,
-                      XX_HASH_SEED)
+                  buffer,
+                  XX_HASH_LEN + RECORD_TYPE_FLAG_LEN,
+                  buffer.capacity() - XX_HASH_LEN - RECORD_TYPE_FLAG_LEN,
+                  XX_HASH_SEED)
                   != xxHash) {
                 printSegmentIsBroken(segment);
                 continue segmentLoop;

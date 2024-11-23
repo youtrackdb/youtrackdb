@@ -36,7 +36,7 @@ public class OSQLFunctionVarianceTest {
     Integer[] scores = {4, 7, 15, 3};
 
     for (Integer s : scores) {
-      variance.execute(null, null, null, new Object[] {s}, null);
+      variance.execute(null, null, null, new Object[]{s}, null);
     }
 
     Object result = variance.getResult();
@@ -48,7 +48,7 @@ public class OSQLFunctionVarianceTest {
     Integer[] scores = {4, 7};
 
     for (Integer s : scores) {
-      variance.execute(null, null, null, new Object[] {s}, null);
+      variance.execute(null, null, null, new Object[]{s}, null);
     }
 
     Object result = variance.getResult();
@@ -60,7 +60,7 @@ public class OSQLFunctionVarianceTest {
     Integer[] scores = {15, 3};
 
     for (Integer s : scores) {
-      variance.execute(null, null, null, new Object[] {s}, null);
+      variance.execute(null, null, null, new Object[]{s}, null);
     }
 
     Object result = variance.getResult();

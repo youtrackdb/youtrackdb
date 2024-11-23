@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * @author Ilya Bershadskiy (ibersh20-at-gmail.com)
  * @since 19.01.12
  */
 public class StringSerializerTest {

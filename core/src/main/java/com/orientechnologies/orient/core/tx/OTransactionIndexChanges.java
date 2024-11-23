@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.tx;
@@ -31,8 +31,6 @@ import java.util.TreeMap;
 
 /**
  * Collects the changes to an index for a certain key
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OTransactionIndexChanges implements IdentityChangeListener {
 
@@ -101,7 +99,7 @@ public class OTransactionIndexChanges implements IdentityChangeListener {
     if (interval.isEmpty()) {
       return new Object[0];
     } else {
-      return new Object[] {interval.firstKey(), interval.lastKey()};
+      return new Object[]{interval.firstKey(), interval.lastKey()};
     }
   }
 

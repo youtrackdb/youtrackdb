@@ -9,8 +9,6 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
  * instances. Records that are not identifiable are discarded.
  *
  * <p>This is the opposite of ConvertToResultInternalStep
- *
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class ConvertToUpdatableResultStep extends AbstractExecutionStep {
 

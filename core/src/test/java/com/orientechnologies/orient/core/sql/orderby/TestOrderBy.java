@@ -49,7 +49,7 @@ public class TestOrderBy extends BaseMemoryDatabase {
     db.set(ATTRIBUTES.LOCALECOUNTRY, Locale.GERMANY.getCountry());
     db.set(ATTRIBUTES.LOCALELANGUAGE, Locale.GERMANY.getLanguage());
     OClass clazz = db.getMetadata().getSchema().createClass("test");
-    clazz.createProperty("name", OType.STRING).createIndex(INDEX_TYPE.NOTUNIQUE);
+    clazz.createProperty(db, "name", OType.STRING).createIndex(db, INDEX_TYPE.NOTUNIQUE);
     ORecord res1 = db.save(new ODocument("test").field("name", "Ähhhh"));
     ORecord res2 = db.save(new ODocument("test").field("name", "Ahhhh"));
     ORecord res3 = db.save(new ODocument("test").field("name", "Zebra"));

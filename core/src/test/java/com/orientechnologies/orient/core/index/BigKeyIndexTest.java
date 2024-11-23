@@ -14,8 +14,8 @@ public class BigKeyIndexTest extends BaseMemoryDatabase {
   @Test
   public void testBigKey() {
     OClass cl = db.createClass("One");
-    OProperty prop = cl.createProperty("two", OType.STRING);
-    prop.createIndex(INDEX_TYPE.NOTUNIQUE);
+    OProperty prop = cl.createProperty(db, "two", OType.STRING);
+    prop.createIndex(db, INDEX_TYPE.NOTUNIQUE);
 
     for (int i = 0; i < 100; i++) {
       db.begin();
@@ -34,8 +34,8 @@ public class BigKeyIndexTest extends BaseMemoryDatabase {
   @Test(expected = OTooBigIndexKeyException.class)
   public void testTooBigKey() {
     OClass cl = db.createClass("One");
-    OProperty prop = cl.createProperty("two", OType.STRING);
-    prop.createIndex(INDEX_TYPE.NOTUNIQUE);
+    OProperty prop = cl.createProperty(db, "two", OType.STRING);
+    prop.createIndex(db, INDEX_TYPE.NOTUNIQUE);
 
     db.begin();
     ODocument doc = db.newInstance("One");

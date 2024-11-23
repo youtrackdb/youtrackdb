@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -76,12 +76,24 @@ import javax.annotation.Nonnull;
 
 public interface ODatabaseSessionInternal extends ODatabaseSession {
 
+  /**
+   * Returns the active session for the current thread.
+   *
+   * @return the active session for the current thread
+   * @see #activateOnCurrentThread()
+   * @see #isActiveOnCurrentThread()
+   */
+  static ODatabaseSessionInternal getActiveSession() {
+    final ODatabaseRecordThreadLocal tl = ODatabaseRecordThreadLocal.instance();
+    return tl.get();
+  }
+
   String TYPE = "document";
 
   /**
    * Internal. Returns the factory that defines a set of components that current database should use
    * to be compatible to current version of storage. So if you open a database create with old
-   * version of OrientDB it defines a components that should be used to provide backward
+   * version of OxygenDB it defines a components that should be used to provide backward
    * compatibility with that version of database.
    */
   OCurrentStorageComponentsFactory getStorageVersions();
@@ -167,6 +179,8 @@ public interface ODatabaseSessionInternal extends ODatabaseSession {
   void recycle(ORecord record);
 
   void checkIfActive();
+
+  boolean validateIfActive();
 
   void callOnOpenListeners();
 
@@ -311,13 +325,17 @@ public interface ODatabaseSessionInternal extends ODatabaseSession {
 
   int[] getClustersIds(Set<String> filterClusters);
 
-  default void startExclusiveMetadataChange() {}
+  default void startExclusiveMetadataChange() {
+  }
 
-  default void endExclusiveMetadataChange() {}
+  default void endExclusiveMetadataChange() {
+  }
 
-  default void queryStartUsingViewCluster(int cluster) {}
+  default void queryStartUsingViewCluster(int cluster) {
+  }
 
-  default void queryStartUsingViewIndex(String index) {}
+  default void queryStartUsingViewIndex(String index) {
+  }
 
   void truncateClass(String name);
 
@@ -660,9 +678,11 @@ public interface ODatabaseSessionInternal extends ODatabaseSession {
     return new ODatabaseStats();
   }
 
-  default void resetRecordLoadStats() {}
+  default void resetRecordLoadStats() {
+  }
 
-  default void addRidbagPrefetchStats(long execTimeMs) {}
+  default void addRidbagPrefetchStats(long execTimeMs) {
+  }
 
   String getType();
 
@@ -718,7 +738,7 @@ public interface ODatabaseSessionInternal extends ODatabaseSession {
    * Drops a database.
    *
    * @throws ODatabaseException if database is closed. @Deprecated use instead
-   *                            {@link OrientDB#drop}
+   *                            {@link OxygenDB#drop}
    */
   @Deprecated
   void drop();
@@ -799,7 +819,7 @@ public interface ODatabaseSessionInternal extends ODatabaseSession {
    * @param iName  Property name
    * @param iValue new value to set
    * @return The previous value if any, otherwise null
-   * @deprecated use <code>OrientDBConfig.builder().setConfig(propertyName, propertyValue).build();
+   * @deprecated use <code>OxygenDBConfig.builder().setConfig(propertyName, propertyValue).build();
    * </code> instead if you use >=3.0 API.
    */
   @Deprecated

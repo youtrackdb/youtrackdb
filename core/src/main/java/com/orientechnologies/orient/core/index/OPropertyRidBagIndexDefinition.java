@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -33,13 +33,13 @@ import java.util.List;
 /**
  * Index definition for index which is bound to field with type {@link OType#LINKBAG} .
  *
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 1/30/14
  */
 public class OPropertyRidBagIndexDefinition extends OPropertyIndexDefinition
     implements OIndexDefinitionMultiValue {
 
-  public OPropertyRidBagIndexDefinition() {}
+  public OPropertyRidBagIndexDefinition() {
+  }
 
   public OPropertyRidBagIndexDefinition(String className, String field) {
     super(className, field, OType.LINK);
@@ -47,7 +47,7 @@ public class OPropertyRidBagIndexDefinition extends OPropertyIndexDefinition
 
   @Override
   public Object createSingleValue(ODatabaseSessionInternal session, Object... param) {
-    return OType.convert(refreshRid(session, param[0]), keyType.getDefaultJavaType());
+    return OType.convert(session, refreshRid(session, param[0]), keyType.getDefaultJavaType());
   }
 
   public void processChangeEvent(
@@ -56,17 +56,15 @@ public class OPropertyRidBagIndexDefinition extends OPropertyIndexDefinition
       final Object2IntMap<Object> keysToAdd,
       final Object2IntMap<Object> keysToRemove) {
     switch (changeEvent.getChangeType()) {
-      case ADD:
-        {
-          processAdd(createSingleValue(session, changeEvent.getValue()), keysToAdd, keysToRemove);
-          break;
-        }
-      case REMOVE:
-        {
-          processRemoval(
-              createSingleValue(session, changeEvent.getOldValue()), keysToAdd, keysToRemove);
-          break;
-        }
+      case ADD: {
+        processAdd(createSingleValue(session, changeEvent.getValue()), keysToAdd, keysToRemove);
+        break;
+      }
+      case REMOVE: {
+        processRemoval(
+            createSingleValue(session, changeEvent.getOldValue()), keysToAdd, keysToRemove);
+        break;
+      }
       default:
         throw new IllegalArgumentException("Invalid change type : " + changeEvent.getChangeType());
     }

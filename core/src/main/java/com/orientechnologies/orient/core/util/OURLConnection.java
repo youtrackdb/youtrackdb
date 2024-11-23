@@ -4,7 +4,7 @@ import com.orientechnologies.orient.core.db.ODatabaseType;
 import java.util.Optional;
 
 /**
- * Created by Enrico Risa on 17/11/16.
+ *
  */
 public class OURLConnection {
 

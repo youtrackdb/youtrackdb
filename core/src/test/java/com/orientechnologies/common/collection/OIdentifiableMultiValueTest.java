@@ -6,7 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ *
  */
 public class OIdentifiableMultiValueTest {
 
@@ -22,7 +22,7 @@ public class OIdentifiableMultiValueTest {
 
   @Test
   public void testArraySize() {
-    String[] collection = new String[] {"foo", "bar", "baz"};
+    String[] collection = new String[]{"foo", "bar", "baz"};
     Assert.assertEquals(OMultiValue.getSize(collection), 3);
   }
 
@@ -39,7 +39,7 @@ public class OIdentifiableMultiValueTest {
 
   @Test
   public void testArrayFirstLast() {
-    String[] collection = new String[] {"foo", "bar", "baz"};
+    String[] collection = new String[]{"foo", "bar", "baz"};
     Assert.assertEquals(OMultiValue.getFirstValue(collection), "foo");
     Assert.assertEquals(OMultiValue.getLastValue(collection), "baz");
   }

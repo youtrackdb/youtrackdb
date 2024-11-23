@@ -58,7 +58,7 @@ public class OAlterPropertyStatement extends ODDLStatement {
       String customName = customPropertyName.getStringValue();
       Object oldValue = property.getCustom(customName);
       Object finalValue = customPropertyValue.execute((OIdentifiable) null, ctx);
-      property.setCustom(customName, finalValue == null ? null : "" + finalValue);
+      property.setCustom(db, customName, finalValue == null ? null : "" + finalValue);
 
       result.setProperty("operation", "alter property custom");
       result.setProperty("customAttribute", customPropertyName.getStringValue());
@@ -70,9 +70,9 @@ public class OAlterPropertyStatement extends ODDLStatement {
       Object finalValue = settingValue.execute((OIdentifiable) null, ctx);
       if (finalValue == null
           && (setting.equalsIgnoreCase("name")
-              || setting.equalsIgnoreCase("shortname")
-              || setting.equalsIgnoreCase("type")
-              || isCollate)) {
+          || setting.equalsIgnoreCase("shortname")
+          || setting.equalsIgnoreCase("type")
+          || isCollate)) {
         finalValue = settingValue.toString();
         String stringFinalValue = (String) finalValue;
         if (stringFinalValue.startsWith("`")
@@ -95,7 +95,7 @@ public class OAlterPropertyStatement extends ODDLStatement {
             e);
       }
       Object oldValue = property.get(attribute);
-      property.set(attribute, finalValue);
+      property.set(db, attribute, finalValue);
       finalValue = property.get(attribute); // it makes some conversions...
 
       result.setProperty("operation", "alter property");

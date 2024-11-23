@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * @author Luca Molino (molino.luca--at--gmail.com)
+ *
  */
 public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbstract {
 
@@ -61,8 +61,8 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
 
     while (!parserIsEnded()
         && (fields.size() == 0
-            || parserGetLastSeparator() == ','
-            || parserGetCurrentChar() == ',')) {
+        || parserGetLastSeparator() == ','
+        || parserGetCurrentChar() == ',')) {
       fieldName = parserRequiredWord(false, "Field name expected");
       if (fieldName.equalsIgnoreCase(KEYWORD_WHERE)) {
         parserGoBack();
@@ -257,7 +257,8 @@ public abstract class OCommandExecutorSQLSetAware extends OCommandExecutorSQLAbs
 
   protected ODocument parseJSON() {
     final String contentAsString = parserRequiredWord(false, "JSON expected").trim();
-    final ODocument json = new ODocument().fromJSON(contentAsString);
+    final ODocument json = new ODocument();
+    json.fromJSON(contentAsString);
     parserSkipWhiteSpaces();
     return json;
   }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.exception.OCoreException;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import java.io.File;
@@ -36,7 +36,7 @@ public class DbCreationTest {
 
   private static final String DB_NAME = "DbCreationTest";
 
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
   private final boolean remoteDB;
 
   @Parameters(value = "remote")
@@ -51,57 +51,57 @@ public class DbCreationTest {
 
   @AfterClass
   public void afterClass() {
-    orientDB.close();
+    oxygenDB.close();
   }
 
   private void initODB() {
-    var configBuilder = OrientDBConfig.builder();
+    var configBuilder = OxygenDBConfig.builder();
     configBuilder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
 
     if (remoteDB) {
-      orientDB =
-          OrientDB.remote(
+      oxygenDB =
+          OxygenDB.remote(
               "localhost",
               "root",
               "D2AFD02F20640EC8B7A5140F34FCA49D2289DB1F0D0598BB9DE8AAA75A0792F3",
               configBuilder.build());
     } else {
       final String buildDirectory = System.getProperty("buildDirectory", ".");
-      orientDB = OrientDB.embedded(buildDirectory + "/test-db", configBuilder.build());
+      oxygenDB = OxygenDB.embedded(buildDirectory + "/test-db", configBuilder.build());
     }
   }
 
   @Test
   public void testDbCreationDefault() {
-    if (orientDB.exists(DB_NAME)) {
-      orientDB.drop(DB_NAME);
+    if (oxygenDB.exists(DB_NAME)) {
+      oxygenDB.drop(DB_NAME);
     }
 
-    orientDB.create(DB_NAME, ODatabaseType.PLOCAL, "admin", "admin", "admin");
+    oxygenDB.create(DB_NAME, ODatabaseType.PLOCAL, "admin", "admin", "admin");
   }
 
   @Test(dependsOnMethods = {"testDbCreationDefault"})
   public void testDbExists() {
-    Assert.assertTrue(orientDB.exists(DB_NAME), "Database " + DB_NAME + " not found");
+    Assert.assertTrue(oxygenDB.exists(DB_NAME), "Database " + DB_NAME + " not found");
   }
 
   @Test(dependsOnMethods = {"testDbExists"})
   public void testDbOpen() {
-    var database = orientDB.open(DB_NAME, "admin", "admin");
+    var database = oxygenDB.open(DB_NAME, "admin", "admin");
     Assert.assertNotNull(database.getName());
     database.close();
   }
 
   @Test(dependsOnMethods = {"testDbOpen"})
   public void testDbOpenWithLastAsSlash() {
-    orientDB.close();
+    oxygenDB.close();
 
     String url = calculateURL() + "/";
 
-    var configBuilder = OrientDBConfig.builder();
+    var configBuilder = OxygenDBConfig.builder();
     configBuilder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
 
-    try (var odb = new OrientDB(url, "root", "root", configBuilder.build())) {
+    try (var odb = new OxygenDB(url, "root", "root", configBuilder.build())) {
       var database = odb.open(DB_NAME, "admin", "admin");
       database.close();
     }
@@ -122,7 +122,7 @@ public class DbCreationTest {
 
   @Test(dependsOnMethods = {"testDbOpenWithLastAsSlash"})
   public void testChangeLocale() {
-    try (var database = orientDB.open(DB_NAME, "admin", "admin")) {
+    try (var database = oxygenDB.open(DB_NAME, "admin", "admin")) {
       database.command(" ALTER DATABASE LOCALELANGUAGE  ?", Locale.GERMANY.getLanguage()).close();
       database.command(" ALTER DATABASE LOCALECOUNTRY  ?", Locale.GERMANY.getCountry()).close();
 
@@ -141,7 +141,7 @@ public class DbCreationTest {
 
   @Test(dependsOnMethods = {"testChangeLocale"})
   public void testRoles() {
-    try (var database = orientDB.open(DB_NAME, "admin", "admin")) {
+    try (var database = oxygenDB.open(DB_NAME, "admin", "admin")) {
       database.begin();
       database.query("select from ORole where name = 'admin'").close();
       database.commit();
@@ -156,9 +156,9 @@ public class DbCreationTest {
 
     var url = calculateURL();
 
-    var configBuilder = OrientDBConfig.builder();
+    var configBuilder = OxygenDBConfig.builder();
     configBuilder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
-    var odb = new OrientDB(url, "root", "root", configBuilder.build());
+    var odb = new OxygenDB(url, "root", "root", configBuilder.build());
     if (odb.exists("sub")) {
       odb.drop("sub");
     }
@@ -178,10 +178,10 @@ public class DbCreationTest {
 
     var url = calculateURL();
 
-    var configBuilder = OrientDBConfig.builder();
+    var configBuilder = OxygenDBConfig.builder();
     configBuilder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
 
-    var odb = new OrientDB(url, "root", "root", configBuilder.build());
+    var odb = new OxygenDB(url, "root", "root", configBuilder.build());
     if (odb.exists("sub")) {
       odb.drop("sub");
     }
@@ -196,7 +196,7 @@ public class DbCreationTest {
   @Test(dependsOnMethods = {"testSubFolderDbCreateConnPool"})
   public void testOpenCloseConnectionPool() {
     for (int i = 0; i < 500; i++) {
-      orientDB.cachedPool(DB_NAME, "admin", "admin").acquire().close();
+      oxygenDB.cachedPool(DB_NAME, "admin", "admin").acquire().close();
     }
   }
 
@@ -209,31 +209,31 @@ public class DbCreationTest {
     for (int i = 0; i < 3; ++i) {
       String dbName = "a" + i + "$db";
       try {
-        orientDB.drop(dbName);
+        oxygenDB.drop(dbName);
         Assert.fail();
       } catch (OStorageException e) {
         // ignore
       }
 
-      orientDB.create(dbName, ODatabaseType.PLOCAL, "admin", "admin", "admin");
-      Assert.assertTrue(orientDB.exists(dbName));
+      oxygenDB.create(dbName, ODatabaseType.PLOCAL, "admin", "admin", "admin");
+      Assert.assertTrue(oxygenDB.exists(dbName));
 
-      orientDB.open(dbName, "admin", "admin").close();
+      oxygenDB.open(dbName, "admin", "admin").close();
     }
 
     for (int i = 0; i < 3; ++i) {
       String dbName = "a" + i + "$db";
-      Assert.assertTrue(orientDB.exists(dbName));
-      orientDB.drop(dbName);
-      Assert.assertFalse(orientDB.exists(dbName));
+      Assert.assertTrue(oxygenDB.exists(dbName));
+      oxygenDB.drop(dbName);
+      Assert.assertFalse(oxygenDB.exists(dbName));
     }
   }
 
   public void testDbIsNotRemovedOnSecondTry() {
-    orientDB.create(DB_NAME + "Remove", ODatabaseType.PLOCAL, "admin", "admin", "admin");
+    oxygenDB.create(DB_NAME + "Remove", ODatabaseType.PLOCAL, "admin", "admin", "admin");
 
     try {
-      orientDB.create(DB_NAME + "Remove", ODatabaseType.PLOCAL, "admin", "admin", "admin");
+      oxygenDB.create(DB_NAME + "Remove", ODatabaseType.PLOCAL, "admin", "admin", "admin");
       Assert.fail();
     } catch (OCoreException e) {
       // ignore all is correct
@@ -245,9 +245,9 @@ public class DbCreationTest {
       Assert.assertTrue(new File(path).exists());
     }
 
-    orientDB.drop(DB_NAME + "Remove");
+    oxygenDB.drop(DB_NAME + "Remove");
     try {
-      orientDB.drop(DB_NAME + "Remove");
+      oxygenDB.drop(DB_NAME + "Remove");
       Assert.fail();
     } catch (OCoreException e) {
       // ignore all is correct

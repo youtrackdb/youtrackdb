@@ -9,8 +9,8 @@ import static org.mockito.Mockito.when;
 
 import com.orientechnologies.lucene.test.BaseLuceneTest;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.io.File;
@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 /**
- * Created by frank on 03/03/2016.
+ *
  */
 public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
 
@@ -44,8 +44,8 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
   @Test
   public void shouldCreateNioFsDirectory() throws Exception {
     meta.field(DIRECTORY_TYPE, DIRECTORY_NIO);
-    try (OrientDB ctx =
-        new OrientDB("embedded:./target/testDatabase/", OrientDBConfig.defaultConfig())) {
+    try (OxygenDB ctx =
+        new OxygenDB("embedded:./target/testDatabase/", OxygenDBConfig.defaultConfig())) {
       ctx.execute(
           "create database "
               + dbName
@@ -63,8 +63,8 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
   @Test
   public void shouldCreateMMapFsDirectory() throws Exception {
     meta.field(DIRECTORY_TYPE, DIRECTORY_MMAP);
-    try (OrientDB ctx =
-        new OrientDB("embedded:./target/testDatabase/", OrientDBConfig.defaultConfig())) {
+    try (OxygenDB ctx =
+        new OxygenDB("embedded:./target/testDatabase/", OxygenDBConfig.defaultConfig())) {
       ctx.execute(
           "create database "
               + dbName
@@ -82,8 +82,8 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
   @Test
   public void shouldCreateRamDirectory() throws Exception {
     meta.field(DIRECTORY_TYPE, DIRECTORY_RAM);
-    try (OrientDB ctx =
-        new OrientDB("embedded:./target/testDatabase/", OrientDBConfig.defaultConfig())) {
+    try (OxygenDB ctx =
+        new OxygenDB("embedded:./target/testDatabase/", OxygenDBConfig.defaultConfig())) {
       ctx.execute(
           "create database "
               + dbName
@@ -99,8 +99,8 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
   @Test
   public void shouldCreateRamDirectoryOnMemoryDatabase() {
     meta.field(DIRECTORY_TYPE, DIRECTORY_RAM);
-    try (OrientDB ctx =
-        new OrientDB("embedded:./target/testDatabase/", OrientDBConfig.defaultConfig())) {
+    try (OxygenDB ctx =
+        new OxygenDB("embedded:./target/testDatabase/", OxygenDBConfig.defaultConfig())) {
       ctx.execute(
           "create database "
               + dbName
@@ -118,8 +118,8 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
   @Test
   public void shouldCreateRamDirectoryOnMemoryFromMmapDatabase() {
     meta.field(DIRECTORY_TYPE, DIRECTORY_MMAP);
-    try (OrientDB ctx =
-        new OrientDB("embedded:./target/testDatabase/", OrientDBConfig.defaultConfig())) {
+    try (OxygenDB ctx =
+        new OxygenDB("embedded:./target/testDatabase/", OxygenDBConfig.defaultConfig())) {
       ctx.execute(
           "create database "
               + dbName

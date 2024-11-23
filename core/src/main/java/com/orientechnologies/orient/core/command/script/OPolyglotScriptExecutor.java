@@ -7,7 +7,6 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.script.transformer.OScriptTransformer;
 import com.orientechnologies.orient.core.command.traverse.OAbstractScriptExecutor;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.security.ORole;
@@ -27,7 +26,7 @@ import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.Value;
 
 /**
- * Created by Luca Garulli
+ *
  */
 public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
     implements OResourcePoolListener<ODatabaseSessionInternal, Context> {
@@ -35,7 +34,7 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
   private final OScriptTransformer transformer;
   protected ConcurrentHashMap<String, OResourcePool<ODatabaseSessionInternal, Context>>
       contextPools =
-          new ConcurrentHashMap<String, OResourcePool<ODatabaseSessionInternal, Context>>();
+      new ConcurrentHashMap<String, OResourcePool<ODatabaseSessionInternal, Context>>();
 
   public OPolyglotScriptExecutor(final String language, OScriptTransformer scriptTransformer) {
     super("javascript".equalsIgnoreCase(language) ? "js" : language);
@@ -155,12 +154,10 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
       OCommandContext context, final String functionName, final Map<Object, Object> iArgs) {
 
     ODatabaseSessionInternal database = context.getDatabase();
-    if (database == null) {
-      database = ODatabaseRecordThreadLocal.instance().get();
-    }
     final OFunction f = database.getMetadata().getFunctionLibrary().getFunction(functionName);
 
-    database.checkSecurity(ORule.ResourceGeneric.FUNCTION, ORole.PERMISSION_READ, f.getName());
+    database.checkSecurity(ORule.ResourceGeneric.FUNCTION, ORole.PERMISSION_READ,
+        f.getName(database));
 
     final OScriptManager scriptManager =
         database.getSharedContext().getOrientDB().getScriptManager();
@@ -173,7 +170,7 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
       scriptManager.bindContextVariables(null, bindings, database, null, iArgs);
       final Object[] args = iArgs == null ? null : iArgs.keySet().toArray();
 
-      Value result = ctx.eval(language, scriptManager.getFunctionInvoke(f, args));
+      Value result = ctx.eval(language, scriptManager.getFunctionInvoke(database, f, args));
 
       Object finalResult;
       if (result.isNull()) {

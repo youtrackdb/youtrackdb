@@ -30,7 +30,8 @@ import java.util.stream.Collectors;
 
 public class OSecurityRemote implements OSecurityInternal {
 
-  public OSecurityRemote() {}
+  public OSecurityRemote() {
+  }
 
   @Override
   public boolean isAllowed(
@@ -155,16 +156,13 @@ public class OSecurityRemote implements OSecurityInternal {
       final String iUserName,
       final String iUserPassword,
       final String... iRoles) {
-    return session.computeInTx(
-        () -> {
-          final OUser user = new OUser(iUserName, iUserPassword);
-          if (iRoles != null) {
-            for (String r : iRoles) {
-              user.addRole(r);
-            }
-          }
-          return user.save();
-        });
+    final OUser user = new OUser(session, iUserName, iUserPassword);
+    if (iRoles != null) {
+      for (String r : iRoles) {
+        user.addRole(session, r);
+      }
+    }
+    return user.save(session);
   }
 
   @Override
@@ -173,16 +171,15 @@ public class OSecurityRemote implements OSecurityInternal {
       final String userName,
       final String userPassword,
       final ORole... roles) {
-
-    final OUser user = new OUser(userName, userPassword);
+    final OUser user = new OUser(session, userName, userPassword);
 
     if (roles != null) {
       for (ORole r : roles) {
-        user.addRole(r);
+        user.addRole(session, r);
       }
     }
 
-    return user.save();
+    return user.save(session);
   }
 
   @Override
@@ -202,15 +199,15 @@ public class OSecurityRemote implements OSecurityInternal {
       final String iRoleName,
       final ORole iParent,
       final ORole.ALLOW_MODES iAllowMode) {
-    final ORole role = new ORole(iRoleName, iParent, iAllowMode);
-    return role.save();
+    final ORole role = new ORole(session, iRoleName, iParent, iAllowMode);
+    return role.save(session);
   }
 
   @Override
   public OUser getUser(final ODatabaseSession session, final String iUserName) {
     try (OResultSet result = session.query("select from OUser where name = ? limit 1", iUserName)) {
       if (result.hasNext()) {
-        return new OUser((ODocument) result.next().getElement().get());
+        return new OUser(session, (ODocument) result.next().getElement().get());
       }
     }
     return null;
@@ -226,14 +223,14 @@ public class OSecurityRemote implements OSecurityInternal {
     if (!result.getClassName().equals(OUser.CLASS_NAME)) {
       result = null;
     }
-    return new OUser(result);
+    return new OUser(session, result);
   }
 
   public ORole getRole(final ODatabaseSession session, final OIdentifiable iRole) {
     final ODocument doc = session.load(iRole.getIdentity());
     OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
     if (clazz != null && clazz.isOrole()) {
-      return new ORole(doc);
+      return new ORole(session, doc);
     }
 
     return null;
@@ -247,7 +244,7 @@ public class OSecurityRemote implements OSecurityInternal {
     try (final OResultSet result =
         session.query("select from ORole where name = ? limit 1", iRoleName)) {
       if (result.hasNext()) {
-        return new ORole((ODocument) result.next().getElement().get());
+        return new ORole(session, (ODocument) result.next().getElement().get());
       }
     }
 
@@ -349,10 +346,12 @@ public class OSecurityRemote implements OSecurityInternal {
   }
 
   @Override
-  public void load(ODatabaseSession session) {}
+  public void load(ODatabaseSession session) {
+  }
 
   @Override
-  public void close() {}
+  public void close() {
+  }
 
   @Override
   public Set<String> getFilteredProperties(ODatabaseSession session, ODocument document) {

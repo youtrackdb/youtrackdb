@@ -10,7 +10,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ *
  */
 public class OGrantStatementExecutionTest extends BaseMemoryDatabase {
 

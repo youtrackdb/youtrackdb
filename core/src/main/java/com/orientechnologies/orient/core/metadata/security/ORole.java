@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,14 +14,18 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.common.log.OLogManager;
+import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
+import com.orientechnologies.orient.core.metadata.security.ORule.ResourceGeneric;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -64,7 +68,8 @@ public class ORole extends OIdentity implements OSecurityRole {
           + PERMISSION_EXECUTE;
   protected static final byte STREAM_DENY = 0;
   protected static final byte STREAM_ALLOW = 1;
-  @Serial private static final long serialVersionUID = 1L;
+  @Serial
+  private static final long serialVersionUID = 1L;
   // CRUD OPERATIONS
   private static Int2ObjectOpenHashMap<String> PERMISSION_BIT_NAMES;
   protected ALLOW_MODES mode = ALLOW_MODES.DENY_ALL_BUT;
@@ -76,36 +81,39 @@ public class ORole extends OIdentity implements OSecurityRole {
   /**
    * Constructor used in unmarshalling.
    */
-  public ORole() {}
+  public ORole() {
+  }
 
-  public ORole(final String iName, final ORole iParent, final ALLOW_MODES iAllowMode) {
-    this(iName, iParent, iAllowMode, null);
+  public ORole(ODatabaseSession session, final String iName, final ORole iParent,
+      final ALLOW_MODES iAllowMode) {
+    this(session, iName, iParent, iAllowMode, null);
   }
 
   public ORole(
-      final String iName,
+      ODatabaseSession session, final String iName,
       final ORole iParent,
       final ALLOW_MODES iAllowMode,
       Map<String, OSecurityPolicy> policies) {
     super(CLASS_NAME);
-    getDocument().field("name", iName);
+    getDocument(session).field("name", iName);
 
     parentRole = iParent;
-    getDocument().field("inheritedRole", iParent != null ? iParent.getIdentity() : null);
+    getDocument(session).field("inheritedRole",
+        iParent != null ? iParent.getIdentity(session) : null);
     if (policies != null) {
       Map<String, OIdentifiable> p = new HashMap<>();
       policies.forEach((k, v) -> p.put(k, ((OSecurityPolicyImpl) v).getElement()));
-      getDocument().setProperty("policies", p);
+      getDocument(session).setProperty("policies", p);
     }
 
-    updateRolesDocumentContent();
+    updateRolesDocumentContent(session);
   }
 
   /**
    * Create the role by reading the source document.
    */
-  public ORole(final ODocument iSource) {
-    fromStream(iSource);
+  public ORole(ODatabaseSession session, final ODocument iSource) {
+    fromStream((ODatabaseSessionInternal) session, iSource);
   }
 
   /**
@@ -157,14 +165,14 @@ public class ORole extends OIdentity implements OSecurityRole {
   }
 
   @Override
-  public void fromStream(final ODocument iSource) {
-    if (getDocument() != null) {
+  public void fromStream(ODatabaseSessionInternal session, final ODocument iSource) {
+    if (getDocument(session) != null) {
       return;
     }
 
-    setDocument(iSource);
+    setDocument(session, iSource);
 
-    var document = getDocument();
+    var document = getDocument(session);
     try {
       final Number modeField = document.field("mode");
       if (modeField == null) {
@@ -182,7 +190,7 @@ public class ORole extends OIdentity implements OSecurityRole {
 
     final OIdentifiable role = document.field("inheritedRole");
     parentRole =
-        role != null ? document.getDatabase().getMetadata().getSecurity().getRole(role) : null;
+        role != null ? session.getMetadata().getSecurity().getRole(role) : null;
 
     boolean rolesNeedToBeUpdated = false;
     Object loadedRules = document.field("rules");
@@ -209,15 +217,15 @@ public class ORole extends OIdentity implements OSecurityRole {
       rolesNeedToBeUpdated = true;
     }
 
-    if (getName().equals("admin") && !hasRule(ORule.ResourceGeneric.BYPASS_RESTRICTED, null))
+    if (getName(session).equals("admin") && !hasRule(ORule.ResourceGeneric.BYPASS_RESTRICTED, null))
     // FIX 1.5.1 TO ASSIGN database.bypassRestricted rule to the role
     {
-      addRule(ORule.ResourceGeneric.BYPASS_RESTRICTED, null, ORole.PERMISSION_ALL).save();
+      addRule(session, ResourceGeneric.BYPASS_RESTRICTED, null, ORole.PERMISSION_ALL).save(session);
     }
 
     if (rolesNeedToBeUpdated) {
-      updateRolesDocumentContent();
-      save();
+      updateRolesDocumentContent(session);
+      save(session);
     }
   }
 
@@ -253,7 +261,8 @@ public class ORole extends OIdentity implements OSecurityRole {
   }
 
   public ORole addRule(
-      final ORule.ResourceGeneric resourceGeneric, String resourceSpecific, final int iOperation) {
+      ODatabaseSession session, final ResourceGeneric resourceGeneric, String resourceSpecific,
+      final int iOperation) {
     ORule rule = rules.get(resourceGeneric);
 
     if (rule == null) {
@@ -265,7 +274,7 @@ public class ORole extends OIdentity implements OSecurityRole {
 
     rules.put(resourceGeneric, rule);
 
-    updateRolesDocumentContent();
+    updateRolesDocumentContent(session);
 
     return this;
   }
@@ -300,44 +309,44 @@ public class ORole extends OIdentity implements OSecurityRole {
 
   @Deprecated
   @Override
-  public OSecurityRole addRule(String iResource, int iOperation) {
+  public OSecurityRole addRule(ODatabaseSession session, String iResource, int iOperation) {
     final String specificResource = ORule.mapLegacyResourceToSpecificResource(iResource);
     final ORule.ResourceGeneric resourceGeneric =
         ORule.mapLegacyResourceToGenericResource(iResource);
 
     if (specificResource == null || specificResource.equals("*")) {
-      return addRule(resourceGeneric, null, iOperation);
+      return addRule(session, resourceGeneric, null, iOperation);
     }
 
-    return addRule(resourceGeneric, specificResource, iOperation);
+    return addRule(session, resourceGeneric, specificResource, iOperation);
   }
 
   @Deprecated
   @Override
-  public OSecurityRole grant(String iResource, int iOperation) {
+  public OSecurityRole grant(ODatabaseSession session, String iResource, int iOperation) {
     final String specificResource = ORule.mapLegacyResourceToSpecificResource(iResource);
     final ORule.ResourceGeneric resourceGeneric =
         ORule.mapLegacyResourceToGenericResource(iResource);
 
     if (specificResource == null || specificResource.equals("*")) {
-      return grant(resourceGeneric, null, iOperation);
+      return grant(session, resourceGeneric, null, iOperation);
     }
 
-    return grant(resourceGeneric, specificResource, iOperation);
+    return grant(session, resourceGeneric, specificResource, iOperation);
   }
 
   @Deprecated
   @Override
-  public OSecurityRole revoke(String iResource, int iOperation) {
+  public OSecurityRole revoke(ODatabaseSession session, String iResource, int iOperation) {
     final String specificResource = ORule.mapLegacyResourceToSpecificResource(iResource);
     final ORule.ResourceGeneric resourceGeneric =
         ORule.mapLegacyResourceToGenericResource(iResource);
 
     if (specificResource == null || specificResource.equals("*")) {
-      return revoke(resourceGeneric, null, iOperation);
+      return revoke(session, resourceGeneric, null, iOperation);
     }
 
-    return revoke(resourceGeneric, specificResource, iOperation);
+    return revoke(session, resourceGeneric, specificResource, iOperation);
   }
 
   /**
@@ -346,7 +355,8 @@ public class ORole extends OIdentity implements OSecurityRole {
    * @return
    */
   public ORole grant(
-      final ORule.ResourceGeneric resourceGeneric, String resourceSpecific, final int iOperation) {
+      ODatabaseSession session, final ResourceGeneric resourceGeneric, String resourceSpecific,
+      final int iOperation) {
     ORule rule = rules.get(resourceGeneric);
 
     if (rule == null) {
@@ -357,7 +367,7 @@ public class ORole extends OIdentity implements OSecurityRole {
     rule.grantAccess(resourceSpecific, iOperation);
 
     rules.put(resourceGeneric, rule);
-    updateRolesDocumentContent();
+    updateRolesDocumentContent(session);
     return this;
   }
 
@@ -365,7 +375,8 @@ public class ORole extends OIdentity implements OSecurityRole {
    * Revoke a permission to the resource.
    */
   public ORole revoke(
-      final ORule.ResourceGeneric resourceGeneric, String resourceSpecific, final int iOperation) {
+      ODatabaseSession session, final ResourceGeneric resourceGeneric, String resourceSpecific,
+      final int iOperation) {
     if (iOperation == PERMISSION_NONE) {
       return this;
     }
@@ -380,13 +391,13 @@ public class ORole extends OIdentity implements OSecurityRole {
     rule.revokeAccess(resourceSpecific, iOperation);
     rules.put(resourceGeneric, rule);
 
-    updateRolesDocumentContent();
+    updateRolesDocumentContent(session);
 
     return this;
   }
 
-  public String getName() {
-    return getDocument().field("name");
+  public String getName(ODatabaseSession session) {
+    return getDocument(session).field("name");
   }
 
   @Deprecated
@@ -405,15 +416,16 @@ public class ORole extends OIdentity implements OSecurityRole {
     return parentRole;
   }
 
-  public ORole setParentRole(final OSecurityRole iParent) {
+  public ORole setParentRole(ODatabaseSession session, final OSecurityRole iParent) {
     this.parentRole = (ORole) iParent;
-    getDocument().field("inheritedRole", parentRole != null ? parentRole.getIdentity() : null);
+    getDocument(session).field("inheritedRole",
+        parentRole != null ? parentRole.getIdentity(session) : null);
     return this;
   }
 
   @Override
-  public ORole save() {
-    getDocument().save(ORole.class.getSimpleName());
+  public ORole save(ODatabaseSession session) {
+    getDocument(session).save(ORole.class.getSimpleName());
     return this;
   }
 
@@ -442,12 +454,18 @@ public class ORole extends OIdentity implements OSecurityRole {
 
   @Override
   public String toString() {
-    return getName();
+    var database = ODatabaseRecordThreadLocal.instance().getIfDefined();
+
+    if (database != null) {
+      return getName(database);
+    }
+
+    return "ORole";
   }
 
   @Override
-  public OIdentifiable getIdentity() {
-    return getDocument();
+  public OIdentifiable getIdentity(ODatabaseSession session) {
+    return getDocument(session);
   }
 
   private void loadOldVersionOfRules(final Map<String, Number> storedRules) {
@@ -471,13 +489,13 @@ public class ORole extends OIdentity implements OSecurityRole {
     }
   }
 
-  private void updateRolesDocumentContent() {
-    getDocument().field("rules", getRules());
+  private void updateRolesDocumentContent(ODatabaseSession session) {
+    getDocument(session).field("rules", getRules());
   }
 
   @Override
-  public Map<String, OSecurityPolicy> getPolicies() {
-    Map<String, OIdentifiable> policies = getDocument().getProperty("policies");
+  public Map<String, OSecurityPolicy> getPolicies(ODatabaseSession session) {
+    Map<String, OIdentifiable> policies = getDocument(session).getProperty("policies");
     if (policies == null) {
       return null;
     }
@@ -495,8 +513,8 @@ public class ORole extends OIdentity implements OSecurityRole {
   }
 
   @Override
-  public OSecurityPolicy getPolicy(String resource) {
-    Map<String, OIdentifiable> policies = getDocument().getProperty("policies");
+  public OSecurityPolicy getPolicy(ODatabaseSession session, String resource) {
+    Map<String, OIdentifiable> policies = getDocument(session).getProperty("policies");
     if (policies == null) {
       return null;
     }

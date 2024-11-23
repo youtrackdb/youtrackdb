@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.client.remote.message;
@@ -23,11 +23,13 @@ import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryAsyncRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
@@ -36,13 +38,14 @@ import java.io.IOException;
 
 public class OCreateRecordRequest implements OBinaryAsyncRequest<OCreateRecordResponse> {
 
-  private ORecord content;
+  private ORecordAbstract content;
   private byte[] rawContent;
   private ORecordId rid;
   private byte recordType;
   private byte mode;
 
-  public OCreateRecordRequest() {}
+  public OCreateRecordRequest() {
+  }
 
   public byte getMode() {
     return mode;
@@ -64,14 +67,15 @@ public class OCreateRecordRequest implements OBinaryAsyncRequest<OCreateRecordRe
     this.recordType = iRecordType;
   }
 
-  public OCreateRecordRequest(ORecord iContent, ORecordId iRid, byte iRecordType) {
+  public OCreateRecordRequest(ORecordAbstract iContent, ORecordId iRid, byte iRecordType) {
     this.content = iContent;
     this.rid = iRid;
     this.recordType = iRecordType;
   }
 
   @Override
-  public void write(final OChannelDataOutput network, final OStorageRemoteSession session)
+  public void write(ODatabaseSessionInternal database, final OChannelDataOutput network,
+      final OStorageRemoteSession session)
       throws IOException {
     network.writeShort((short) rid.getClusterId());
     network.writeBytes(rawContent);
@@ -88,7 +92,7 @@ public class OCreateRecordRequest implements OBinaryAsyncRequest<OCreateRecordRe
     recordType = channel.readByte();
     mode = channel.readByte();
     content =
-        Orient.instance()
+        Oxygen.instance()
             .getRecordFactoryManager()
             .newInstance(recordType, rid, ODatabaseRecordThreadLocal.instance().getIfDefined());
     serializer.fromStream(rec, content, null);

@@ -28,7 +28,8 @@ public class ODropClassStatement extends ODDLStatement {
 
   @Override
   public OExecutionStream executeDDL(OCommandContext ctx) {
-    OSchema schema = ctx.getDatabase().getMetadata().getSchema();
+    var db = ctx.getDatabase();
+    OSchema schema = db.getMetadata().getSchema();
     String className;
     if (name != null) {
       className = name.getStringValue();
@@ -43,7 +44,7 @@ public class ODropClassStatement extends ODDLStatement {
       throw new OCommandExecutionException("Class " + className + " does not exist");
     }
 
-    if (!unsafe && clazz.count() > 0) {
+    if (!unsafe && clazz.count(db) > 0) {
       // check vertex or edge
       if (clazz.isVertexType()) {
         throw new OCommandExecutionException(

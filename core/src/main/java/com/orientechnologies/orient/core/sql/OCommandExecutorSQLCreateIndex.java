@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql;
@@ -56,8 +56,6 @@ import java.util.Map;
  * <p>Supports following grammar: <br>
  * "CREATE" "INDEX" &lt;indexName&gt; ["ON" &lt;className&gt; "(" &lt;propName&gt; (","
  * &lt;propName&gt;)* ")"] &lt;indexType&gt; [&lt;keyType&gt; ("," &lt;keyType&gt;)*]
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 @SuppressWarnings("unchecked")
 public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
@@ -195,7 +193,7 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
             throw new OCommandExecutionException("Class " + parts[0] + " not found");
           }
 
-          fields = new String[] {parts[1]};
+          fields = new String[]{parts[1]};
         }
       }
 
@@ -222,7 +220,8 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
       if (configPos > -1) {
         final String configString =
             parserText.substring(configPos + KEYWORD_METADATA.length()).trim();
-        metadataDoc = new ODocument().fromJSON(configString);
+        metadataDoc = new ODocument();
+        metadataDoc.fromJSON(configString);
       }
 
       pos = nextWord(parserText, parserTextUpperCase, oldPos, word, true);
@@ -274,7 +273,7 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
    * Execute the CREATE INDEX.
    */
   @SuppressWarnings("rawtypes")
-  public Object execute(final Map<Object, Object> iArgs) {
+  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
     if (indexName == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
@@ -336,7 +335,8 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
     } else {
       if ((keyTypes == null || keyTypes.length == 0) && collates == null) {
         idx =
-            oClass.createIndex(indexName, indexType.toString(), null, metadataDoc, engine, fields);
+            oClass.createIndex(database, indexName, indexType.toString(), null, metadataDoc, engine,
+                fields);
       } else {
         final List<OType> fieldTypeList;
         if (keyTypes == null) {
@@ -383,7 +383,7 @@ public class OCommandExecutorSQLCreateIndex extends OCommandExecutorSQLAbstract
     }
 
     if (idx != null) {
-      return idx.getInternal().size();
+      return idx.getInternal().size(database);
     }
 
     return null;

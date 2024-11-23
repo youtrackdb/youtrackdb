@@ -9,7 +9,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import java.util.stream.Collectors;
 
 /**
- * Created by luigidellaquila on 16/03/17.
+ *
  */
 public class GetValueFromIndexEntryStep extends AbstractExecutionStep {
 

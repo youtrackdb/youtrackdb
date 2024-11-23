@@ -4,6 +4,7 @@ import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataInput;
@@ -11,7 +12,7 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelDataOutput
 import java.io.IOException;
 
 /**
- * Created by tglman on 21/06/17.
+ *
  */
 public class ODistributedConnectRequest implements OBinaryRequest<ODistributedConnectResponse> {
 
@@ -19,7 +20,8 @@ public class ODistributedConnectRequest implements OBinaryRequest<ODistributedCo
   private String username;
   private String password;
 
-  public ODistributedConnectRequest() {}
+  public ODistributedConnectRequest() {
+  }
 
   public ODistributedConnectRequest(
       int distributedProtocolVersion, String username, String password) {
@@ -29,7 +31,8 @@ public class ODistributedConnectRequest implements OBinaryRequest<ODistributedCo
   }
 
   @Override
-  public void write(OChannelDataOutput network, OStorageRemoteSession session) throws IOException {
+  public void write(ODatabaseSessionInternal database, OChannelDataOutput network,
+      OStorageRemoteSession session) throws IOException {
     network.writeInt(distributedProtocolVersion);
     network.writeString(username);
     network.writeString(password);

@@ -4,14 +4,12 @@ import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OSharedContextEmbedded;
-import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.executor.resultset.OProduceExecutionStream;
+import java.util.Map;
 
 /**
  * Returns an OResult containing metadata regarding the database
- *
- * @author Luigi Dell'Aquila (l.dellaquila - at - orientdb.com)
  */
 public class FetchFromDistributedMetadataStep extends AbstractExecutionStep {
 
@@ -31,13 +29,12 @@ public class FetchFromDistributedMetadataStep extends AbstractExecutionStep {
   private OResult produce(OCommandContext ctx) {
     ODatabaseSessionInternal session = ctx.getDatabase();
     OSharedContextEmbedded value = (OSharedContextEmbedded) session.getSharedContext();
-    ODocument doc = value.loadDistributedConfig(session);
-    OResultInternal result = new OResultInternal();
-    doc.setTrackingChanges(false);
-    doc.deserializeFields();
 
-    for (String alias : doc.getPropertyNamesInternal()) {
-      result.setProperty(alias, doc.getPropertyInternal(alias));
+    Map<String, Object> map = value.loadDistributedConfig(session);
+    OResultInternal result = new OResultInternal();
+
+    for (var entry : map.entrySet()) {
+      result.setProperty(entry.getKey(), entry.getValue());
     }
     return result;
   }

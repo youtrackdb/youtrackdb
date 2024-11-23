@@ -1,13 +1,15 @@
 package com.orientechnologies.orient.core.command.script;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.script.Bindings;
 import org.graalvm.polyglot.Value;
 
 /**
  * Wraps a GraalVM value as a JSR223 Bindings for compatibility.
- *
- * @author Luca Garulli
  */
 public class OPolyglotScriptBinding implements Bindings {
 

@@ -7,8 +7,8 @@ import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.record.OVertex;
 import java.util.Iterator;
 import org.junit.After;
@@ -18,18 +18,18 @@ import org.junit.Test;
 public class OBrowseClusterTest {
 
   private ODatabaseSession db;
-  private OrientDB orientDb;
+  private OxygenDB oxygenDb;
 
   @Before
   public void before() {
-    orientDb =
-        new OrientDB(
+    oxygenDb =
+        new OxygenDB(
             "embedded:",
-            OrientDBConfig.builder()
+            OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CLASS_MINIMUM_CLUSTERS, 1)
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
-    orientDb.execute(
+    oxygenDb.execute(
         "create database "
             + "test"
             + " "
@@ -37,7 +37,7 @@ public class OBrowseClusterTest {
             + " users ( admin identified by '"
             + OCreateDatabaseUtil.NEW_ADMIN_PASSWORD
             + "' role admin)");
-    db = orientDb.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    db = oxygenDb.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     db.createVertexClass("One");
   }
 
@@ -71,6 +71,6 @@ public class OBrowseClusterTest {
   @After
   public void after() {
     db.close();
-    orientDb.close();
+    oxygenDb.close();
   }
 }

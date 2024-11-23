@@ -5,7 +5,10 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OServerCommandContext;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.*;
+import com.orientechnologies.orient.core.db.ODatabaseType;
+import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -41,7 +44,7 @@ public class OCreateDatabaseStatement extends OSimpleExecServerStatement {
 
   @Override
   public OExecutionStream executeSimple(OServerCommandContext ctx) {
-    OrientDBInternal server = ctx.getServer();
+    OxygenDBInternal server = ctx.getServer();
     OResultInternal result = new OResultInternal();
     result.setProperty("operation", "create database");
     String dbName =
@@ -62,7 +65,7 @@ public class OCreateDatabaseStatement extends OSimpleExecServerStatement {
       result.setProperty("existing", true);
     } else {
       try {
-        OrientDBConfigBuilder configBuilder = OrientDBConfig.builder();
+        OrientDBConfigBuilder configBuilder = OxygenDBConfig.builder();
 
         if (config != null) {
           configBuilder = mapOrientDBConfig(this.config, ctx, configBuilder);
@@ -108,9 +111,9 @@ public class OCreateDatabaseStatement extends OSimpleExecServerStatement {
     if (globalConfig != null && globalConfig instanceof Map) {
       ((Map<String, Object>) globalConfig)
           .entrySet().stream()
-              .filter(x -> OGlobalConfiguration.findByKey(x.getKey()) != null)
-              .forEach(
-                  x -> builder.addConfig(OGlobalConfiguration.findByKey(x.getKey()), x.getValue()));
+          .filter(x -> OGlobalConfiguration.findByKey(x.getKey()) != null)
+          .forEach(
+              x -> builder.addConfig(OGlobalConfiguration.findByKey(x.getKey()), x.getValue()));
     }
     return builder;
   }

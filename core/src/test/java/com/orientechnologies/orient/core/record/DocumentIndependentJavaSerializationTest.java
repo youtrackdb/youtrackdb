@@ -2,9 +2,10 @@ package com.orientechnologies.orient.core.record;
 
 import static org.junit.Assert.assertEquals;
 
+import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -16,14 +17,14 @@ import java.io.ObjectOutputStream;
 import org.junit.Test;
 
 /**
- * Created by tglman on 24/06/16.
+ *
  */
-public class DocumentIndependentJavaSerializationTest {
+public class DocumentIndependentJavaSerializationTest extends BaseMemoryDatabase {
 
   @Test
   public void testSerialization() throws IOException, ClassNotFoundException {
     byte[] ser;
-    try (OrientDB ctx = new OrientDB("embedded:", OrientDBConfig.defaultConfig())) {
+    try (OxygenDB ctx = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig())) {
       ctx.execute(
           "create database "
               + DocumentIndependentJavaSerializationTest.class.getSimpleName()
@@ -34,7 +35,7 @@ public class DocumentIndependentJavaSerializationTest {
               "admin",
               "adminpwd")) {
         OClass clazz = db.getMetadata().getSchema().createClass("Test");
-        clazz.createProperty("test", OType.STRING);
+        clazz.createProperty(db, "test", OType.STRING);
         ODocument doc = new ODocument(clazz);
         doc.field("test", "Some Value");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -60,7 +61,7 @@ public class DocumentIndependentJavaSerializationTest {
     oos.writeObject(doc);
     byte[] ser = baos.toByteArray();
 
-    try (OrientDB ctx = new OrientDB("embedded:", OrientDBConfig.defaultConfig())) {
+    try (OxygenDB ctx = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig())) {
       ctx.execute(
           "create database "
               + DocumentIndependentJavaSerializationTest.class.getSimpleName()
@@ -72,7 +73,7 @@ public class DocumentIndependentJavaSerializationTest {
               "adminpwd")) {
 
         OClass clazz = db.getMetadata().getSchema().createClass("Test");
-        clazz.createProperty("test", OType.STRING);
+        clazz.createProperty(db, "test", OType.STRING);
         ObjectInputStream input = new ObjectInputStream(new ByteArrayInputStream(ser));
         ODocument doc1 = (ODocument) input.readObject();
         assertEquals(doc1.recordFormat, ((ODatabaseSessionInternal) db).getSerializer());

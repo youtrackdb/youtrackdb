@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -19,9 +19,10 @@
 package com.orientechnologies.lucene.test;
 
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.engine.local.OEngineLocalPaginated;
 import com.orientechnologies.orient.core.engine.memory.OEngineMemory;
 import com.orientechnologies.orient.core.id.ORID;
@@ -36,7 +37,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 /**
- * Created by enricorisa on 28/06/14.
+ *
  */
 public class LuceneInsertMultithreadTest {
 
@@ -46,7 +47,7 @@ public class LuceneInsertMultithreadTest {
   private static String buildDirectory;
   private static final String dbName;
   private static final ODatabaseType databaseType;
-  private static final OrientDB orientDB;
+  private static final OxygenDB OXYGEN_DB;
 
   static {
     System.getProperty("buildDirectory", ".");
@@ -66,7 +67,7 @@ public class LuceneInsertMultithreadTest {
     }
 
     dbName = "multiThread";
-    orientDB = new OrientDB(storageType + ":" + buildDirectory, OrientDBConfig.defaultConfig());
+    OXYGEN_DB = new OxygenDB(storageType + ":" + buildDirectory, OxygenDBConfig.defaultConfig());
   }
 
   public LuceneInsertMultithreadTest() {
@@ -75,21 +76,22 @@ public class LuceneInsertMultithreadTest {
 
   @Test
   public void testConcurrentInsertWithIndex() throws Exception {
-    if (orientDB.exists(dbName)) {
-      orientDB.drop(dbName);
+    if (OXYGEN_DB.exists(dbName)) {
+      OXYGEN_DB.drop(dbName);
     }
-    orientDB.execute(
+    OXYGEN_DB.execute(
         "create database ? " + databaseType + " users(admin identified by 'admin' role admin)",
         dbName);
     OSchema schema;
-    try (ODatabaseSession databaseDocumentTx = orientDB.open(dbName, "admin", "admin")) {
+    try (ODatabaseSession databaseDocumentTx = OXYGEN_DB.open(dbName, "admin", "admin")) {
       schema = databaseDocumentTx.getMetadata().getSchema();
 
       if (schema.getClass("City") == null) {
         OClass oClass = schema.createClass("City");
 
-        oClass.createProperty("name", OType.STRING);
-        oClass.createIndex("City.name", "FULLTEXT", null, null, "LUCENE", new String[] {"name"});
+        oClass.createProperty(databaseDocumentTx, "name", OType.STRING);
+        oClass.createIndex(databaseDocumentTx, "City.name", "FULLTEXT", null, null, "LUCENE",
+            new String[]{"name"});
       }
 
       Thread[] threads = new Thread[THREADS + RTHREADS];
@@ -109,13 +111,14 @@ public class LuceneInsertMultithreadTest {
         threads[i].join();
       }
 
-      OIndex idx = schema.getClass("City").getClassIndex("City.name");
+      OIndex idx = schema.getClass("City").getClassIndex(databaseDocumentTx, "City.name");
 
       databaseDocumentTx.begin();
-      Assertions.assertThat(idx.getInternal().size()).isEqualTo(THREADS * CYCLE);
+      Assertions.assertThat(idx.getInternal().size((ODatabaseSessionInternal) databaseDocumentTx))
+          .isEqualTo(THREADS * CYCLE);
       databaseDocumentTx.commit();
     }
-    orientDB.drop(dbName);
+    OXYGEN_DB.drop(dbName);
   }
 
   public static class LuceneInsertThread implements Runnable {
@@ -129,7 +132,7 @@ public class LuceneInsertMultithreadTest {
     @Override
     public void run() {
 
-      try (ODatabaseSession db = orientDB.open(dbName, "admin", "admin")) {
+      try (ODatabaseSession db = OXYGEN_DB.open(dbName, "admin", "admin")) {
         db.begin();
         for (int i = 0; i < cycle; i++) {
           ODocument doc = new ODocument("City");
@@ -161,13 +164,14 @@ public class LuceneInsertMultithreadTest {
     @Override
     public void run() {
       OSchema schema;
-      try (ODatabaseSession databaseDocumentTx = orientDB.open(dbName, "admin", "admin")) {
+      try (ODatabaseSession databaseDocumentTx = OXYGEN_DB.open(dbName, "admin", "admin")) {
         schema = databaseDocumentTx.getMetadata().getSchema();
 
-        OIndex idx = schema.getClass("City").getClassIndex("City.name");
+        OIndex idx = schema.getClass("City").getClassIndex(databaseDocumentTx, "City.name");
 
         for (int i = 0; i < cycle; i++) {
-          try (Stream<ORID> stream = idx.getInternal().getRids("Rome")) {
+          try (Stream<ORID> stream = idx.getInternal()
+              .getRids((ODatabaseSessionInternal) databaseDocumentTx, "Rome")) {
             //noinspection ResultOfMethodCallIgnored
             stream.collect(Collectors.toList());
           }

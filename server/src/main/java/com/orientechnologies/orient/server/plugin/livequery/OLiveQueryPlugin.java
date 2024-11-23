@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2015 OrientDB LTD (info(-at-)orientdb.com)
+ *  *  Copyright 2015 OxygenDB LTD (info(-at-)orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.plugin.livequery;
@@ -27,8 +27,6 @@ import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 import com.orientechnologies.orient.server.plugin.OServerPluginAbstract;
 
 /**
- * Created by Luigi Dell'Aquila
- *
  * <p>Not needed anymore, keeping the class for backward compatibilty
  */
 @Deprecated
@@ -72,17 +70,22 @@ public class OLiveQueryPlugin extends OServerPluginAbstract implements ODatabase
   }
 
   @Override
-  public void onCreate(ODatabaseSessionInternal iDatabase) {}
+  public void onCreate(ODatabaseSessionInternal iDatabase) {
+  }
 
   @Override
-  public void onOpen(ODatabaseSessionInternal iDatabase) {}
+  public void onOpen(ODatabaseSessionInternal iDatabase) {
+  }
 
   @Override
-  public void onClose(ODatabaseSessionInternal iDatabase) {}
+  public void onClose(ODatabaseSessionInternal iDatabase) {
+  }
 
   @Override
-  public void onDrop(ODatabaseSessionInternal iDatabase) {}
+  public void onDrop(ODatabaseSessionInternal iDatabase) {
+  }
 
   @Override
-  public void onLocalNodeConfigurationRequest(ODocument iConfiguration) {}
+  public void onLocalNodeConfigurationRequest(ODocument iConfiguration) {
+  }
 }

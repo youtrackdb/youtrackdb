@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ public class SQLSelectGroupByTest extends DocumentDBBaseTest {
         database
             .command(
                 new OSQLSynchQuery<ODocument>("select location from Account group by location"))
-            .execute();
+            .execute(database);
 
     Assert.assertTrue(result.size() > 1);
     Set<Object> set = new HashSet<Object>();
@@ -66,7 +66,7 @@ public class SQLSelectGroupByTest extends DocumentDBBaseTest {
             .command(
                 new OSQLSynchQuery<ODocument>(
                     "select location from Account group by location limit 2"))
-            .execute();
+            .execute(database);
 
     Assert.assertEquals(result.size(), 2);
   }
@@ -77,7 +77,7 @@ public class SQLSelectGroupByTest extends DocumentDBBaseTest {
         database
             .command(
                 new OSQLSynchQuery<ODocument>("select count(*) from Account group by location"))
-            .execute();
+            .execute(database);
 
     Assert.assertTrue(result.size() > 1);
   }
@@ -129,7 +129,7 @@ public class SQLSelectGroupByTest extends DocumentDBBaseTest {
               .command(
                   new OSQLSynchQuery<ODocument>(
                       "select location, count(*) from GroupByTest group by location"))
-              .execute();
+              .execute(database);
 
       Assert.assertEquals(result.size(), 3);
 
@@ -166,7 +166,7 @@ public class SQLSelectGroupByTest extends DocumentDBBaseTest {
               .command(
                   new OSQLSynchQuery<ODocument>(
                       "select location, count(*) from GroupByTest group by location"))
-              .execute();
+              .execute(database);
 
       Assert.assertEquals(result.size(), 2);
 

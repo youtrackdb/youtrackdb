@@ -23,7 +23,8 @@ public abstract class OSingleOrientDBServerBaseIT {
           .withExposedPorts(2480, 2424)
           .waitingFor(Wait.forListeningPort());
 
-  @Rule public TestName name = new TestName();
+  @Rule
+  public TestName name = new TestName();
 
   protected OrientDB orientDB;
   protected ODatabasePool pool;

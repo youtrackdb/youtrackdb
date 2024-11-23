@@ -6,9 +6,15 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.common.concur.ONeedRetryException;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.*;
+import com.orientechnologies.orient.core.db.ODatabasePool;
+import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.ODatabaseThreadLocalFactory;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.ArrayList;
@@ -20,14 +26,12 @@ import org.junit.Test;
 
 /**
  * Tests cases for the Scheduler component.
- *
- * @author Enrico Risa
  */
 public class OSchedulerTest {
 
   @Test
   public void scheduleSQLFunction() throws Exception {
-    try (OrientDB context = createContext()) {
+    try (OxygenDB context = createContext()) {
       final ODatabaseSession db =
           context.cachedPool("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD).acquire();
       createLogEvent(db);
@@ -43,7 +47,7 @@ public class OSchedulerTest {
 
   @Test
   public void scheduleWithDbClosed() throws Exception {
-    OrientDB context = createContext();
+    OxygenDB context = createContext();
     {
       ODatabaseSession db = context.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       createLogEvent(db);
@@ -64,21 +68,21 @@ public class OSchedulerTest {
 
   @Test
   public void eventLifecycle() throws Exception {
-    try (OrientDB context = createContext()) {
+    try (OxygenDB context = createContext()) {
       ODatabaseSession db =
           context.cachedPool("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD).acquire();
       createLogEvent(db);
 
       Thread.sleep(2000);
 
-      db.getMetadata().getScheduler().removeEvent("test");
+      db.getMetadata().getScheduler().removeEvent(db, "test");
 
       assertThat(db.getMetadata().getScheduler().getEvents()).isEmpty();
 
       assertThat(db.getMetadata().getScheduler().getEvent("test")).isNull();
 
       // remove again
-      db.getMetadata().getScheduler().removeEvent("test");
+      db.getMetadata().getScheduler().removeEvent(db, "test");
 
       Thread.sleep(3000);
 
@@ -90,7 +94,7 @@ public class OSchedulerTest {
 
   @Test
   public void eventSavedAndLoaded() throws Exception {
-    OrientDB context = createContext();
+    OxygenDB context = createContext();
     final ODatabaseSession db =
         context.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     createLogEvent(db);
@@ -113,15 +117,15 @@ public class OSchedulerTest {
 
   @Test
   public void testScheduleEventWithMultipleActiveDatabaseConnections() {
-    final OrientDB orientDb =
-        new OrientDB(
+    final OxygenDB oxygenDb =
+        new OxygenDB(
             "embedded:",
-            OrientDBConfig.builder()
+            OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.DB_POOL_MAX, 1)
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
-    if (!orientDb.exists("test")) {
-      orientDb.execute(
+    if (!oxygenDb.exists("test")) {
+      oxygenDb.execute(
           "create database "
               + "test"
               + " "
@@ -131,19 +135,19 @@ public class OSchedulerTest {
               + "' role admin)");
     }
     final ODatabasePool pool =
-        orientDb.cachedPool("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        oxygenDb.cachedPool("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     final ODatabaseSession db = pool.acquire();
 
     assertEquals(db, ODatabaseRecordThreadLocal.instance().getIfDefined());
     createLogEvent(db);
     assertEquals(db, ODatabaseRecordThreadLocal.instance().getIfDefined());
 
-    orientDb.close();
+    oxygenDb.close();
   }
 
   @Test
   public void eventBySQL() throws Exception {
-    OrientDB context = createContext();
+    OxygenDB context = createContext();
     try (context;
         ODatabaseSession db =
             context.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
@@ -151,7 +155,7 @@ public class OSchedulerTest {
       db.begin();
       db.command(
               "insert into oschedule set name = 'test', function = ?, rule = \"0/1 * * * * ?\"",
-              func.getId())
+              func.getId(db))
           .close();
       db.commit();
 
@@ -170,7 +174,7 @@ public class OSchedulerTest {
         try {
           db.begin();
           db.command(
-                  "update oschedule set rule = \"0/2 * * * * ?\" where name = 'test'", func.getId())
+                  "update oschedule set rule = \"0/2 * * * * ?\" where name = 'test'", func.getId(db))
               .close();
           db.commit();
           break;
@@ -197,7 +201,7 @@ public class OSchedulerTest {
         try {
           // DELETE
           db.begin();
-          db.command("delete from oschedule where name = 'test'", func.getId()).close();
+          db.command("delete from oschedule where name = 'test'", func.getId(db)).close();
           db.commit();
           break;
         } catch (ONeedRetryException e) {
@@ -217,14 +221,14 @@ public class OSchedulerTest {
     }
   }
 
-  private OrientDB createContext() {
-    final OrientDB orientDB =
+  private OxygenDB createContext() {
+    final OxygenDB oxygenDB =
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    Orient.instance()
+    Oxygen.instance()
         .registerThreadDatabaseFactory(
             new TestScheduleDatabaseFactory(
-                orientDB, "test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD));
-    return orientDB;
+                oxygenDB, "test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD));
+    return oxygenDB;
   }
 
   private void createLogEvent(ODatabaseSession db) {
@@ -234,13 +238,13 @@ public class OSchedulerTest {
     args.put("note", "test");
     db.getMetadata()
         .getScheduler()
-        .scheduleEvent(
+        .scheduleEvent(db,
             new OScheduledEventBuilder()
-                .setName("test")
-                .setRule("0/1 * * * * ?")
-                .setFunction(func)
-                .setArguments(args)
-                .build());
+                .setName(db, "test")
+                .setRule(db, "0/1 * * * * ?")
+                .setFunction(db, func)
+                .setArguments(db, args)
+                .build(db));
   }
 
   private OFunction createFunction(ODatabaseSession db) {
@@ -249,12 +253,12 @@ public class OSchedulerTest {
     return db.computeInTx(
         () -> {
           OFunction func = db.getMetadata().getFunctionLibrary().createFunction("logEvent");
-          func.setLanguage("SQL");
-          func.setCode("insert into scheduler_log set timestamp = sysdate(), note = :note");
+          func.setLanguage(db, "SQL");
+          func.setCode(db, "insert into scheduler_log set timestamp = sysdate(), note = :note");
           final List<String> pars = new ArrayList<>();
           pars.add("note");
-          func.setParameters(pars);
-          func.save();
+          func.setParameters(db, pars);
+          func.save(db);
           return func;
         });
   }
@@ -267,13 +271,13 @@ public class OSchedulerTest {
 
   private static class TestScheduleDatabaseFactory implements ODatabaseThreadLocalFactory {
 
-    private final OrientDB context;
+    private final OxygenDB context;
     private final String database;
     private final String username;
     private final String password;
 
     public TestScheduleDatabaseFactory(
-        OrientDB context, String database, String username, String password) {
+        OxygenDB context, String database, String username, String password) {
       this.context = context;
       this.database = database;
       this.username = username;

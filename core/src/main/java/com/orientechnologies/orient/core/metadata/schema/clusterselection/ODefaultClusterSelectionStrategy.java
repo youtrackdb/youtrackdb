@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2014 OrientDB LTD (info(-at-)orientdb.com)
+ * Copyright 2010-2014 OxygenDB LTD (info(-at-)orientdb.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,6 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 
 /**
  * Returns always the first cluster configured.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class ODefaultClusterSelectionStrategy implements OClusterSelectionStrategy {
 

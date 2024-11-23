@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,27 +14,28 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.type;
 
 import com.orientechnologies.orient.core.annotation.ODocumentInstance;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.io.Serializable;
 
 /**
  * Base abstract class to wrap a document.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 @SuppressWarnings("unchecked")
 public class ODocumentWrapper implements Serializable {
 
-  @ODocumentInstance private ODocument document;
+  @ODocumentInstance
+  private ODocument document;
 
-  public ODocumentWrapper() {}
+  public ODocumentWrapper() {
+  }
 
   public ODocumentWrapper(final String iClassName) {
     this(new ODocument(iClassName));
@@ -44,12 +45,12 @@ public class ODocumentWrapper implements Serializable {
     document = iDocument;
   }
 
-  public void fromStream(final ODocument iDocument) {
+  public void fromStream(ODatabaseSessionInternal session, final ODocument iDocument) {
     document = iDocument;
   }
 
-  public ODocument toStream() {
-    return getDocument();
+  public ODocument toStream(ODatabaseSession session) {
+    return getDocument(session);
   }
 
   public <RET extends ODocumentWrapper> RET load(
@@ -58,7 +59,7 @@ public class ODocumentWrapper implements Serializable {
     return (RET) this;
   }
 
-  public <RET extends ODocumentWrapper> RET save() {
+  public <RET extends ODocumentWrapper> RET save(ODatabaseSession session) {
     document.save();
     return (RET) this;
   }
@@ -68,22 +69,22 @@ public class ODocumentWrapper implements Serializable {
     return (RET) this;
   }
 
-  public ODocument getDocument() {
+  public ODocument getDocument(ODatabaseSession session) {
     if (document != null && document.isUnloaded()) {
       var id = document.getIdentity();
       if (id != null && id.isValid()) {
-        document = ODatabaseSession.getActiveSession().bindToSession(document);
+        document = session.bindToSession(document);
       }
     }
 
     return document;
   }
 
-  public void setDocument(ODocument document) {
+  public void setDocument(ODatabaseSessionInternal session, ODocument document) {
     if (document != null && document.isUnloaded()) {
       var id = document.getIdentity();
       if (id != null && id.isValid()) {
-        document = ODatabaseSession.getActiveSession().bindToSession(document);
+        document = session.bindToSession(document);
       }
     }
 

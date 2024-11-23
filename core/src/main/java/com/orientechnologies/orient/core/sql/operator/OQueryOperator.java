@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,15 +14,16 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.operator;
 
 import com.orientechnologies.common.profiler.OProfiler;
 import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -42,8 +43,6 @@ import java.util.stream.Stream;
 
 /**
  * Query Operators. Remember to handle the operator in OQueryItemCondition.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OQueryOperator {
 
@@ -74,33 +73,33 @@ public abstract class OQueryOperator {
    * MUST BE PLACED BEFORE! AND ALSO FOR PERFORMANCE (MOST USED BEFORE)
    */
   protected static final Class<?>[] DEFAULT_OPERATORS_ORDER = {
-    OQueryOperatorEquals.class,
-    OQueryOperatorAnd.class,
-    OQueryOperatorOr.class,
-    OQueryOperatorNotEquals.class,
-    OQueryOperatorNotEquals2.class,
-    OQueryOperatorNot.class,
-    OQueryOperatorMinorEquals.class,
-    OQueryOperatorMinor.class,
-    OQueryOperatorMajorEquals.class,
-    OQueryOperatorContainsAll.class,
-    OQueryOperatorMajor.class,
-    OQueryOperatorLike.class,
-    OQueryOperatorMatches.class,
-    OQueryOperatorInstanceof.class,
-    OQueryOperatorIs.class,
-    OQueryOperatorIn.class,
-    OQueryOperatorContainsKey.class,
-    OQueryOperatorContainsValue.class,
-    OQueryOperatorContainsText.class,
-    OQueryOperatorContains.class,
-    OQueryOperatorTraverse.class,
-    OQueryOperatorBetween.class,
-    OQueryOperatorPlus.class,
-    OQueryOperatorMinus.class,
-    OQueryOperatorMultiply.class,
-    OQueryOperatorDivide.class,
-    OQueryOperatorMod.class
+      OQueryOperatorEquals.class,
+      OQueryOperatorAnd.class,
+      OQueryOperatorOr.class,
+      OQueryOperatorNotEquals.class,
+      OQueryOperatorNotEquals2.class,
+      OQueryOperatorNot.class,
+      OQueryOperatorMinorEquals.class,
+      OQueryOperatorMinor.class,
+      OQueryOperatorMajorEquals.class,
+      OQueryOperatorContainsAll.class,
+      OQueryOperatorMajor.class,
+      OQueryOperatorLike.class,
+      OQueryOperatorMatches.class,
+      OQueryOperatorInstanceof.class,
+      OQueryOperatorIs.class,
+      OQueryOperatorIn.class,
+      OQueryOperatorContainsKey.class,
+      OQueryOperatorContainsValue.class,
+      OQueryOperatorContainsText.class,
+      OQueryOperatorContains.class,
+      OQueryOperatorTraverse.class,
+      OQueryOperatorBetween.class,
+      OQueryOperatorPlus.class,
+      OQueryOperatorMinus.class,
+      OQueryOperatorMultiply.class,
+      OQueryOperatorDivide.class,
+      OQueryOperatorMod.class
   };
 
   public final String keyword;
@@ -206,9 +205,11 @@ public abstract class OQueryOperator {
     return "<left> " + keyword + " <right>";
   }
 
-  public abstract ORID getBeginRidRange(final Object iLeft, final Object iRight);
+  public abstract ORID getBeginRidRange(ODatabaseSession session, final Object iLeft,
+      final Object iRight);
 
-  public abstract ORID getEndRidRange(final Object iLeft, final Object iRight);
+  public abstract ORID getEndRidRange(ODatabaseSession session, final Object iLeft,
+      final Object iRight);
 
   public boolean isUnary() {
     return unary;
@@ -260,7 +261,7 @@ public abstract class OQueryOperator {
       iContext.updateMetric("compositeIndexUsed", +1);
     }
 
-    final OProfiler profiler = Orient.instance().getProfiler();
+    final OProfiler profiler = Oxygen.instance().getProfiler();
     if (profiler.isRecording()) {
       profiler.updateCounter(
           profiler.getDatabaseMetric(index.getDatabaseName(), "query.indexUsed"),

@@ -2,7 +2,7 @@ package com.orientechnologies.orient.client.remote.db.document;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperation38Response;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -11,7 +11,6 @@ import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -25,7 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Created by tglman on 03/01/17.
+ *
  */
 public class OTransactionOptimisticClient extends OTransactionOptimistic {
 
@@ -48,7 +47,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
       ORecordAbstract record = null;
       ORecordOperation op = oldEntries.get(operation.getOldId());
       if (op != null) {
-        record = op.getRecord();
+        record = op.record;
       }
       if (record == null) {
         record = getDatabase().getLocalCache().findRecord(operation.getOldId());
@@ -58,7 +57,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
         record.unload();
       } else {
         record =
-            Orient.instance()
+            Oxygen.instance()
                 .getRecordFactoryManager()
                 .newInstance(operation.getRecordType(), operation.getOldId(), database);
         ORecordInternal.unsetDirty(record);
@@ -98,32 +97,30 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
 
   private boolean checkCallHook(Map<ORID, ORecordOperation> oldEntries, ORID rid, byte type) {
     ORecordOperation val = oldEntries.get(rid);
-    return val == null || val.getType() != type;
+    return val == null || val.type != type;
   }
 
   public void addRecord(
-      ORecord iRecord, final byte iStatus, final String iClusterName, boolean callHook) {
+      ORecordAbstract iRecord, final byte iStatus, final String iClusterName, boolean callHook) {
     try {
       if (callHook) {
         switch (iStatus) {
-          case ORecordOperation.CREATED:
-            {
-              OIdentifiable res = database.beforeCreateOperations(iRecord, iClusterName);
-              if (res != null) {
-                iRecord = (ORecord) res;
-                changed = true;
-              }
+          case ORecordOperation.CREATED: {
+            OIdentifiable res = database.beforeCreateOperations(iRecord, iClusterName);
+            if (res != null) {
+              iRecord = (ORecordAbstract) res;
+              changed = true;
             }
-            break;
-          case ORecordOperation.UPDATED:
-            {
-              OIdentifiable res = database.beforeUpdateOperations(iRecord, iClusterName);
-              if (res != null) {
-                iRecord = (ORecord) res;
-                changed = true;
-              }
+          }
+          break;
+          case ORecordOperation.UPDATED: {
+            OIdentifiable res = database.beforeUpdateOperations(iRecord, iClusterName);
+            if (res != null) {
+              iRecord = (ORecordAbstract) res;
+              changed = true;
             }
-            break;
+          }
+          break;
 
           case ORecordOperation.DELETED:
             database.beforeDeleteOperations(iRecord, iClusterName);

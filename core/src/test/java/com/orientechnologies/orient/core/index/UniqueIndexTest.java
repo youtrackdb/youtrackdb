@@ -14,7 +14,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by tglman on 01/02/16.
+ *
  */
 public class UniqueIndexTest extends BaseMemoryDatabase {
 
@@ -24,10 +24,10 @@ public class UniqueIndexTest extends BaseMemoryDatabase {
 
     var entityClass = db.createVertexClass("Entity");
     var edgeOutPropertyName = OVertex.getEdgeLinkFieldName(ODirection.OUT, "Link");
-    entityClass.createProperty(edgeOutPropertyName, OType.LINKBAG);
+    entityClass.createProperty(db, edgeOutPropertyName, OType.LINKBAG);
 
-    entityClass.createProperty("type", OType.STRING);
-    entityClass.createIndex("typeLink", OClass.INDEX_TYPE.UNIQUE, "type", edgeOutPropertyName);
+    entityClass.createProperty(db, "type", OType.STRING);
+    entityClass.createIndex(db, "typeLink", OClass.INDEX_TYPE.UNIQUE, "type", edgeOutPropertyName);
 
     db.begin();
     var firstEntity = db.newVertex(entityClass);
@@ -65,10 +65,10 @@ public class UniqueIndexTest extends BaseMemoryDatabase {
 
     var entityClass = db.createVertexClass("Entity");
     var edgeOutPropertyName = OVertex.getEdgeLinkFieldName(ODirection.OUT, "Link");
-    entityClass.createProperty(edgeOutPropertyName, OType.LINKBAG);
+    entityClass.createProperty(db, edgeOutPropertyName, OType.LINKBAG);
 
-    entityClass.createProperty("type", OType.STRING);
-    entityClass.createIndex("typeLink", OClass.INDEX_TYPE.UNIQUE, "type", edgeOutPropertyName);
+    entityClass.createProperty(db, "type", OType.STRING);
+    entityClass.createIndex(db, "typeLink", OClass.INDEX_TYPE.UNIQUE, "type", edgeOutPropertyName);
 
     db.begin();
     var firstEntity = db.newVertex(entityClass);
@@ -104,10 +104,10 @@ public class UniqueIndexTest extends BaseMemoryDatabase {
 
     var entityClass = db.createVertexClass("Entity");
     var edgeOutPropertyName = OVertex.getEdgeLinkFieldName(ODirection.OUT, "Link");
-    entityClass.createProperty(edgeOutPropertyName, OType.LINKBAG);
+    entityClass.createProperty(db, edgeOutPropertyName, OType.LINKBAG);
 
-    entityClass.createProperty("type", OType.STRING);
-    entityClass.createIndex("typeLink", OClass.INDEX_TYPE.UNIQUE, "type", edgeOutPropertyName);
+    entityClass.createProperty(db, "type", OType.STRING);
+    entityClass.createIndex(db, "typeLink", OClass.INDEX_TYPE.UNIQUE, "type", edgeOutPropertyName);
 
     db.begin();
     var firstEntity = db.newVertex(entityClass);
@@ -143,7 +143,8 @@ public class UniqueIndexTest extends BaseMemoryDatabase {
   public void testUniqueOnUpdate() {
     final OSchema schema = db.getMetadata().getSchema();
     OClass userClass = schema.createClass("User");
-    userClass.createProperty("MailAddress", OType.STRING).createIndex(OClass.INDEX_TYPE.UNIQUE);
+    userClass.createProperty(db, "MailAddress", OType.STRING)
+        .createIndex(db, OClass.INDEX_TYPE.UNIQUE);
 
     db.begin();
     ODocument john = new ODocument("User");
@@ -154,7 +155,8 @@ public class UniqueIndexTest extends BaseMemoryDatabase {
     db.begin();
     ODocument jane = new ODocument("User");
     jane.field("MailAddress", "jane@doe.com");
-    ODocument id = jane.save();
+    ODocument id = jane;
+    jane.save();
     db.save(jane);
     db.commit();
 
@@ -176,7 +178,8 @@ public class UniqueIndexTest extends BaseMemoryDatabase {
   public void testUniqueOnUpdateNegativeVersion() {
     final OSchema schema = db.getMetadata().getSchema();
     OClass userClass = schema.createClass("User");
-    userClass.createProperty("MailAddress", OType.STRING).createIndex(OClass.INDEX_TYPE.UNIQUE);
+    userClass.createProperty(db, "MailAddress", OType.STRING)
+        .createIndex(db, OClass.INDEX_TYPE.UNIQUE);
 
     db.begin();
     ODocument jane = new ODocument("User");

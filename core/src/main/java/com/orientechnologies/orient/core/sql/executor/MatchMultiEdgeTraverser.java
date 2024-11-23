@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Created by luigidellaquila on 14/10/16.
+ *
  */
 public class MatchMultiEdgeTraverser extends MatchEdgeTraverser {
 
@@ -78,12 +78,12 @@ public class MatchMultiEdgeTraverser extends MatchEdgeTraverser {
           if (nextSteps instanceof Collection) {
             ((Collection) nextSteps)
                 .stream()
-                    .map(x -> toOResultInternal(x))
-                    .filter(Objects::nonNull)
-                    .filter(
-                        x ->
-                            matchesCondition((OResultInternal) x, sub.getFilter(), iCommandContext))
-                    .forEach(i -> rightSide.add((OResultInternal) i));
+                .map(x -> toOResultInternal(x))
+                .filter(Objects::nonNull)
+                .filter(
+                    x ->
+                        matchesCondition((OResultInternal) x, sub.getFilter(), iCommandContext))
+                .forEach(i -> rightSide.add((OResultInternal) i));
           } else if (nextSteps instanceof OIdentifiable) {
             OResultInternal res = new OResultInternal((OIdentifiable) nextSteps);
             if (matchesCondition(res, sub.getFilter(), iCommandContext)) {

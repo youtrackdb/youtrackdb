@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.client.remote.message;
@@ -26,6 +26,7 @@ import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OCollectionNetworkSerializer;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.Change;
@@ -43,7 +44,8 @@ public class OSBTGetRealBagSizeRequest implements OBinaryRequest<OSBTGetRealBagS
   private Map<OIdentifiable, Change> changes;
   private OBinarySerializer<OIdentifiable> keySerializer;
 
-  public OSBTGetRealBagSizeRequest() {}
+  public OSBTGetRealBagSizeRequest() {
+  }
 
   public OSBTGetRealBagSizeRequest(
       OBinarySerializer<OIdentifiable> keySerializer,
@@ -55,13 +57,14 @@ public class OSBTGetRealBagSizeRequest implements OBinaryRequest<OSBTGetRealBagS
   }
 
   @Override
-  public void write(OChannelDataOutput network, OStorageRemoteSession session) throws IOException {
+  public void write(ODatabaseSessionInternal database, OChannelDataOutput network,
+      OStorageRemoteSession session) throws IOException {
     OCollectionNetworkSerializer.INSTANCE.writeCollectionPointer(network, collectionPointer);
     final ChangeSerializationHelper changeSerializer = ChangeSerializationHelper.INSTANCE;
     final byte[] stream =
         new byte
             [OIntegerSerializer.INT_SIZE
-                + changeSerializer.getChangesSerializedSize(changes.size())];
+            + changeSerializer.getChangesSerializedSize(changes.size())];
     changeSerializer.serializeChanges(changes, keySerializer, stream, 0);
     network.writeBytes(stream);
   }

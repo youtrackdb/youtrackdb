@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.serialization.serializer;
@@ -69,10 +69,10 @@ public abstract class OStringSerializerHelper {
   public static final char ENTRY_SEPARATOR = ':';
   public static final char PARAMETER_NAMED = ':';
   public static final char PARAMETER_POSITIONAL = '?';
-  public static final char[] PARAMETER_SEPARATOR = new char[] {','};
-  public static final char[] PARAMETER_EXT_SEPARATOR = new char[] {' ', '.'};
-  public static final char[] DEFAULT_IGNORE_CHARS = new char[] {'\n', '\r', ' '};
-  public static final char[] DEFAULT_FIELD_SEPARATOR = new char[] {',', ' '};
+  public static final char[] PARAMETER_SEPARATOR = new char[]{','};
+  public static final char[] PARAMETER_EXT_SEPARATOR = new char[]{' ', '.'};
+  public static final char[] DEFAULT_IGNORE_CHARS = new char[]{'\n', '\r', ' '};
+  public static final char[] DEFAULT_FIELD_SEPARATOR = new char[]{',', ' '};
   public static final char COLLECTION_SEPARATOR = ',';
   public static final String SKIPPED_VALUE = "[SKIPPED VALUE]";
 
@@ -93,101 +93,93 @@ public abstract class OStringSerializerHelper {
         }
         return iValue.toString();
 
-      case INTEGER:
-        {
-          if (iValue instanceof Integer) {
-            return iValue;
-          }
-          final String valueString = OIOUtils.getStringContent(iValue);
-          if (valueString.isEmpty()) {
-            return null;
-          }
-          return Integer.parseInt(valueString);
+      case INTEGER: {
+        if (iValue instanceof Integer) {
+          return iValue;
         }
+        final String valueString = OIOUtils.getStringContent(iValue);
+        if (valueString.isEmpty()) {
+          return null;
+        }
+        return Integer.parseInt(valueString);
+      }
 
-      case BOOLEAN:
-        {
-          if (iValue instanceof Boolean) {
-            return iValue;
-          }
-          final String valueString = OIOUtils.getStringContent(iValue);
-          if (valueString.isEmpty()) {
-            return null;
-          }
-          return Boolean.parseBoolean(valueString);
+      case BOOLEAN: {
+        if (iValue instanceof Boolean) {
+          return iValue;
         }
+        final String valueString = OIOUtils.getStringContent(iValue);
+        if (valueString.isEmpty()) {
+          return null;
+        }
+        return Boolean.parseBoolean(valueString);
+      }
 
-      case DECIMAL:
-        {
-          if (iValue instanceof BigDecimal) {
-            return iValue;
-          }
-          final String valueString = OIOUtils.getStringContent(iValue);
-          if (valueString.isEmpty()) {
-            return null;
-          }
-          return new BigDecimal(valueString);
+      case DECIMAL: {
+        if (iValue instanceof BigDecimal) {
+          return iValue;
         }
+        final String valueString = OIOUtils.getStringContent(iValue);
+        if (valueString.isEmpty()) {
+          return null;
+        }
+        return new BigDecimal(valueString);
+      }
 
-      case FLOAT:
-        {
-          if (iValue instanceof Float) {
-            return iValue;
-          }
-          final String valueString = OIOUtils.getStringContent(iValue);
-          if (valueString.isEmpty()) {
-            return null;
-          }
-          return Float.parseFloat(valueString);
+      case FLOAT: {
+        if (iValue instanceof Float) {
+          return iValue;
         }
+        final String valueString = OIOUtils.getStringContent(iValue);
+        if (valueString.isEmpty()) {
+          return null;
+        }
+        return Float.parseFloat(valueString);
+      }
 
-      case LONG:
-        {
-          if (iValue instanceof Long) {
-            return iValue;
-          }
-          final String valueString = OIOUtils.getStringContent(iValue);
-          if (valueString.isEmpty()) {
-            return null;
-          }
-          return Long.parseLong(valueString);
+      case LONG: {
+        if (iValue instanceof Long) {
+          return iValue;
         }
+        final String valueString = OIOUtils.getStringContent(iValue);
+        if (valueString.isEmpty()) {
+          return null;
+        }
+        return Long.parseLong(valueString);
+      }
 
-      case DOUBLE:
-        {
-          if (iValue instanceof Double) {
-            return iValue;
-          }
-          final String valueString = OIOUtils.getStringContent(iValue);
-          if (valueString.isEmpty()) {
-            return null;
-          }
-          return Double.parseDouble(valueString);
+      case DOUBLE: {
+        if (iValue instanceof Double) {
+          return iValue;
         }
+        final String valueString = OIOUtils.getStringContent(iValue);
+        if (valueString.isEmpty()) {
+          return null;
+        }
+        return Double.parseDouble(valueString);
+      }
 
-      case SHORT:
-        {
-          if (iValue instanceof Short) {
-            return iValue;
-          }
-          final String valueString = OIOUtils.getStringContent(iValue);
-          if (valueString.isEmpty()) {
-            return null;
-          }
-          return Short.parseShort(valueString);
+      case SHORT: {
+        if (iValue instanceof Short) {
+          return iValue;
         }
+        final String valueString = OIOUtils.getStringContent(iValue);
+        if (valueString.isEmpty()) {
+          return null;
+        }
+        return Short.parseShort(valueString);
+      }
 
-      case BYTE:
-        {
-          if (iValue instanceof Byte) {
-            return iValue;
-          }
-          final String valueString = OIOUtils.getStringContent(iValue);
-          if (valueString.isEmpty()) {
-            return null;
-          }
-          return Byte.parseByte(valueString);
+      case BYTE: {
+        if (iValue instanceof Byte) {
+          return iValue;
         }
+        final String valueString = OIOUtils.getStringContent(iValue);
+        if (valueString.isEmpty()) {
+          return null;
+        }
+        return Byte.parseByte(valueString);
+      }
 
       case BINARY:
         return getBinaryContent(iValue);
@@ -260,7 +252,7 @@ public abstract class OStringSerializerHelper {
       final char... iJumpChars) {
     return smartSplit(
         iSource,
-        new char[] {iRecordSeparator},
+        new char[]{iRecordSeparator},
         0,
         -1,
         true,
@@ -275,7 +267,7 @@ public abstract class OStringSerializerHelper {
   public static List<String> smartSplit(
       final String iSource, final char iRecordSeparator, final char... iJumpChars) {
     return smartSplit(
-        iSource, new char[] {iRecordSeparator}, 0, -1, true, true, false, false, iJumpChars);
+        iSource, new char[]{iRecordSeparator}, 0, -1, true, true, false, false, iJumpChars);
   }
 
   public static List<String> smartSplit(
@@ -286,7 +278,7 @@ public abstract class OStringSerializerHelper {
       final char... iJumpChars) {
     return smartSplit(
         iSource,
-        new char[] {iRecordSeparator},
+        new char[]{iRecordSeparator},
         0,
         -1,
         false,
@@ -451,25 +443,25 @@ public abstract class OStringSerializerHelper {
     int previousBegin2 = beginIndex;
     if (iSource != null && !iSource.isEmpty()) {
       while ((beginIndex =
-              parse(
-                  iSource,
-                  buffer,
-                  beginIndex,
-                  endIndex,
-                  iRecordSeparator,
-                  iStringSeparatorExtended,
-                  iConsiderBraces,
-                  iConsiderSets,
-                  -1,
-                  iConsiderBags,
-                  iUnicode,
-                  iPreserveQuotes,
-                  (parts.size() % 2 == 1
-                          && (parts.get(parts.size() - 1).startsWith("\"out_")
-                              || parts.get(parts.size() - 1).startsWith("\"in_")))
-                      ? maxRidbagSizeBeforeSkip
-                      : -1,
-                  iJumpChars))
+          parse(
+              iSource,
+              buffer,
+              beginIndex,
+              endIndex,
+              iRecordSeparator,
+              iStringSeparatorExtended,
+              iConsiderBraces,
+              iConsiderSets,
+              -1,
+              iConsiderBags,
+              iUnicode,
+              iPreserveQuotes,
+              (parts.size() % 2 == 1
+                  && (parts.get(parts.size() - 1).startsWith("\"out_")
+                  || parts.get(parts.size() - 1).startsWith("\"in_")))
+                  ? maxRidbagSizeBeforeSkip
+                  : -1,
+              iJumpChars))
           > -1) {
         parts.add(buffer.toString());
         if (buffer.toString().equals(SKIPPED_VALUE)) {
@@ -508,19 +500,19 @@ public abstract class OStringSerializerHelper {
     if (iSource != null && !iSource.isEmpty()) {
 
       while ((beginIndex =
-              parse(
-                  iSource,
-                  buffer,
-                  beginIndex,
-                  endIndex,
-                  iRecordSeparator,
-                  iStringSeparatorExtended,
-                  iConsiderBraces,
-                  iConsiderSets,
-                  startSeparatorAt,
-                  considerBags,
-                  true,
-                  iJumpChars))
+          parse(
+              iSource,
+              buffer,
+              beginIndex,
+              endIndex,
+              iRecordSeparator,
+              iStringSeparatorExtended,
+              iConsiderBraces,
+              iConsiderSets,
+              startSeparatorAt,
+              considerBags,
+              true,
+              iJumpChars))
           > -1) {
 
         if (beginIndex > -1) {
@@ -1318,9 +1310,8 @@ public abstract class OStringSerializerHelper {
           buffer.append('\t');
         } else if (c == 'r') {
           buffer.append('\r');
-        } else if (c == '\\') {
-          buffer.append('\\');
-        } else buffer.append(c);
+        } else
+          buffer.append(c);
         continue;
       } else if (c == '\\') {
         escaped = true;
@@ -1372,7 +1363,7 @@ public abstract class OStringSerializerHelper {
       return (byte[]) iValue;
     } else if (iValue instanceof String s) {
       if (s.length() > 1
-              && (s.charAt(0) == BINARY_BEGINEND && s.charAt(s.length() - 1) == BINARY_BEGINEND)
+          && (s.charAt(0) == BINARY_BEGINEND && s.charAt(s.length() - 1) == BINARY_BEGINEND)
           || (s.charAt(0) == '\'' && s.charAt(s.length() - 1) == '\''))
       // @COMPATIBILITY 1.0rc7-SNAPSHOT ' TO SUPPORT OLD DATABASES
       {
@@ -1412,7 +1403,7 @@ public abstract class OStringSerializerHelper {
     if (iValue != null
         && iValue.length() > 1
         && (iValue.charAt(0) == '\'' && iValue.charAt(iValue.length() - 1) == '\''
-            || iValue.charAt(0) == '"' && iValue.charAt(iValue.length() - 1) == '"')) {
+        || iValue.charAt(0) == '"' && iValue.charAt(iValue.length() - 1) == '"')) {
       return iValue.substring(1, iValue.length() - 1);
     }
 

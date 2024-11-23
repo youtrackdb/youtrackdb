@@ -11,13 +11,12 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
 /**
- * Created by emrul on 27/10/2014.
  *
- * @author Emrul Islam <emrul@emrul.com> Copyright 2014 Emrul Islam
  */
 public interface OTokenHandler {
 
-  @Deprecated String TOKEN_HANDLER_NAME = "OTokenHandler";
+  @Deprecated
+  String TOKEN_HANDLER_NAME = "OTokenHandler";
 
   // Return null if token is unparseable or fails verification.
   // The returned token should be checked to ensure isVerified == true.

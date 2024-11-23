@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2015 OrientDB LTD (info(at)orientdb.com)
+ *  *  Copyright 2015 OxygenDB LTD (info(at)orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.parser;
@@ -26,7 +26,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by luigidellaquila on 02/07/15.
+ *
  */
 public class OMathExpressionTest {
 
@@ -36,12 +36,12 @@ public class OMathExpressionTest {
     OMathExpression expr = new OMathExpression(-1);
 
     OMathExpression.Operator[] basicOps =
-        new OMathExpression.Operator[] {
-          OMathExpression.Operator.PLUS,
-          OMathExpression.Operator.MINUS,
-          OMathExpression.Operator.STAR,
-          OMathExpression.Operator.SLASH,
-          OMathExpression.Operator.REM
+        new OMathExpression.Operator[]{
+            OMathExpression.Operator.PLUS,
+            OMathExpression.Operator.MINUS,
+            OMathExpression.Operator.STAR,
+            OMathExpression.Operator.SLASH,
+            OMathExpression.Operator.REM
         };
 
     for (OMathExpression.Operator op : basicOps) {

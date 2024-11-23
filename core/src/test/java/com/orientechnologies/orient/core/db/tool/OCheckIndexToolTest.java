@@ -9,7 +9,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by luigidellaquila on 14/09/17.
+ *
  */
 public class OCheckIndexToolTest extends BaseMemoryInternalDatabase {
 
@@ -38,7 +38,7 @@ public class OCheckIndexToolTest extends BaseMemoryInternalDatabase {
 
     OIndex idx = db.getMetadata().getIndexManagerInternal().getIndex(db, "Foo.name");
     Object key = idx.getDefinition().createValue(db, "a");
-    idx.remove(key, rid);
+    idx.remove(db, key, rid);
 
     OResultSet result = db.query("SELECT FROM Foo");
     Assert.assertEquals(N_RECORDS + 1, result.stream().count());

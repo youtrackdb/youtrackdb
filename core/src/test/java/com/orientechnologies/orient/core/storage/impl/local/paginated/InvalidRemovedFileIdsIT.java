@@ -5,8 +5,8 @@ import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.common.serialization.types.OStringSerializer;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.cache.OWriteCache;
@@ -31,15 +31,15 @@ public class InvalidRemovedFileIdsIT {
 
     deleteDirectory(new File(dbPath));
 
-    final OrientDBConfig config =
-        OrientDBConfig.builder()
+    final OxygenDBConfig config =
+        OxygenDBConfig.builder()
             .addAttribute(ODatabaseSession.ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
 
-    OrientDB orientDB = new OrientDB("plocal:" + buildDirectory, config);
-    orientDB.execute(
+    OxygenDB oxygenDB = new OxygenDB("plocal:" + buildDirectory, config);
+    oxygenDB.execute(
         "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
-    var db = orientDB.open(dbName, "admin", "admin");
+    var db = oxygenDB.open(dbName, "admin", "admin");
 
     OStorage storage = ((ODatabaseSessionInternal) db).getStorage();
     OWriteCache writeCache = ((OAbstractPaginatedStorage) storage).getWriteCache();
@@ -52,7 +52,7 @@ public class InvalidRemovedFileIdsIT {
     }
 
     db.close();
-    orientDB.close();
+    oxygenDB.close();
 
     // create file map of v1 binary format because but with incorrect negative file ids is present
     // only there
@@ -77,8 +77,8 @@ public class InvalidRemovedFileIdsIT {
 
     fileMap.close();
 
-    orientDB = new OrientDB("plocal:" + buildDirectory, config);
-    db = orientDB.open(dbName, "admin", "admin");
+    oxygenDB = new OxygenDB("plocal:" + buildDirectory, config);
+    db = oxygenDB.open(dbName, "admin", "admin");
 
     final OSchema schema = db.getMetadata().getSchema();
     schema.createClass("c1");
@@ -135,7 +135,7 @@ public class InvalidRemovedFileIdsIT {
     Assert.assertTrue(ids.add(c4_pcl_id));
 
     db.close();
-    orientDB.close();
+    oxygenDB.close();
   }
 
   private static void writeNameIdEntry(RandomAccessFile file, String name, int fileId)

@@ -8,7 +8,6 @@ import com.orientechnologies.orient.setup.ServerRun;
 import org.junit.Assert;
 
 /**
- * @author Matan Shukry (matanshukry@gmail.com)
  * @since 3/9/2015
  * <p>Events: 0. Create new document with value 2L, and version 1 1. Node 0 starts a
  * transaction, and loads document with version 1 and value 2 2. Node 1 starts a transaction, loads

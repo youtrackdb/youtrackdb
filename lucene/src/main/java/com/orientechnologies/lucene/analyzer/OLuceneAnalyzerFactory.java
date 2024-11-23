@@ -14,7 +14,7 @@ import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
 /**
- * Created by frank on 30/10/2015.
+ *
  */
 public class OLuceneAnalyzerFactory {
 

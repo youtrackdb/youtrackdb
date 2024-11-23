@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,14 +14,14 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.cache;
 
 import com.orientechnologies.common.profiler.OAbstractProfiler.OProfilerHookValue;
 import com.orientechnologies.common.profiler.OProfiler.METRIC_TYPE;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.id.ORID;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,8 +29,6 @@ import java.util.Set;
 /**
  * Cache of documents. Delegates real work on storing to {@link ORecordCache} implementation passed
  * at creation time leaving only DB specific functionality
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OAbstractRecordCache {
 
@@ -132,7 +130,7 @@ public abstract class OAbstractRecordCache {
   public void startup() {
     underlying.startup();
 
-    Orient.instance()
+    Oxygen.instance()
         .getProfiler()
         .registerHookValue(
             profilerPrefix + "current",
@@ -152,10 +150,10 @@ public abstract class OAbstractRecordCache {
   public void shutdown() {
     underlying.shutdown();
 
-    if (Orient.instance().getProfiler() != null) {
-      Orient.instance().getProfiler().unregisterHookValue(profilerPrefix + "enabled");
-      Orient.instance().getProfiler().unregisterHookValue(profilerPrefix + "current");
-      Orient.instance().getProfiler().unregisterHookValue(profilerPrefix + "max");
+    if (Oxygen.instance().getProfiler() != null) {
+      Oxygen.instance().getProfiler().unregisterHookValue(profilerPrefix + "enabled");
+      Oxygen.instance().getProfiler().unregisterHookValue(profilerPrefix + "current");
+      Oxygen.instance().getProfiler().unregisterHookValue(profilerPrefix + "max");
     }
   }
 }

@@ -6,11 +6,11 @@ import static org.junit.Assert.assertNotNull;
 
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import java.util.Locale;
@@ -19,16 +19,16 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by tglman on 23/05/17.
+ *
  */
 public class MetadataPushTest {
 
   private static final String SERVER_DIRECTORY = "./target/metadata-push";
   private OServer server;
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
   private ODatabaseSession database;
 
-  private OrientDB secondOrientDB;
+  private OxygenDB secondOxygenDB;
   private ODatabaseSessionInternal secondDatabase;
 
   @Before
@@ -38,31 +38,31 @@ public class MetadataPushTest {
     server.startup(getClass().getResourceAsStream("orientdb-server-config.xml"));
     server.activate();
 
-    orientDB = new OrientDB("remote:localhost", "root", "root", OrientDBConfig.defaultConfig());
-    orientDB.execute(
+    oxygenDB = new OxygenDB("remote:localhost", "root", "root", OxygenDBConfig.defaultConfig());
+    oxygenDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         MetadataPushTest.class.getSimpleName());
-    database = orientDB.open(MetadataPushTest.class.getSimpleName(), "admin", "admin");
+    database = oxygenDB.open(MetadataPushTest.class.getSimpleName(), "admin", "admin");
 
-    secondOrientDB = new OrientDB("remote:localhost", OrientDBConfig.defaultConfig());
+    secondOxygenDB = new OxygenDB("remote:localhost", OxygenDBConfig.defaultConfig());
     secondDatabase =
         (ODatabaseSessionInternal)
-            orientDB.open(MetadataPushTest.class.getSimpleName(), "admin", "admin");
+            oxygenDB.open(MetadataPushTest.class.getSimpleName(), "admin", "admin");
   }
 
   @After
   public void after() {
     database.activateOnCurrentThread();
     database.close();
-    orientDB.close();
+    oxygenDB.close();
     secondDatabase.activateOnCurrentThread();
     secondDatabase.close();
-    secondOrientDB.close();
+    secondOxygenDB.close();
     server.shutdown();
 
-    Orient.instance().shutdown();
+    Oxygen.instance().shutdown();
     OFileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
-    Orient.instance().startup();
+    Oxygen.instance().startup();
   }
 
   @Test

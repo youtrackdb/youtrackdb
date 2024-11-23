@@ -13,7 +13,7 @@ import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.server.distributed.impl.ODatabaseDocumentDistributed;
 
 /**
- * Created by tglman on 23/06/17.
+ *
  */
 public class OIndexManagerDistributed extends OIndexManagerShared {
 

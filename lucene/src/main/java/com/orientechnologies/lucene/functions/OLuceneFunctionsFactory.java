@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,15 @@
  */
 package com.orientechnologies.lucene.functions;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionFactoryTemplate;
 
 public class OLuceneFunctionsFactory extends OSQLFunctionFactoryTemplate {
 
-  public OLuceneFunctionsFactory() {
-    register(new OLuceneSearchOnIndexFunction());
-    register(new OLuceneSearchOnFieldsFunction());
-    register(new OLuceneSearchOnClassFunction());
-    register(new OLuceneSearchMoreLikeThisFunction());
+  public OLuceneFunctionsFactory(ODatabaseSessionInternal session) {
+    register(session, new OLuceneSearchOnIndexFunction());
+    register(session, new OLuceneSearchOnFieldsFunction());
+    register(session, new OLuceneSearchOnClassFunction());
+    register(session, new OLuceneSearchMoreLikeThisFunction());
   }
 }

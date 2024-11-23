@@ -2,10 +2,11 @@ package com.orientechnologies.orient.core.sql.query;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 
 /**
- * Created by luigidellaquila on 23/03/15.
+ *
  */
 public class OLocalLiveResultListener implements OLiveResultListener, OCommandResultListener {
 
@@ -16,12 +17,13 @@ public class OLocalLiveResultListener implements OLiveResultListener, OCommandRe
   }
 
   @Override
-  public boolean result(Object iRecord) {
+  public boolean result(ODatabaseSessionInternal querySession, Object iRecord) {
     return false;
   }
 
   @Override
-  public void end() {}
+  public void end() {
+  }
 
   @Override
   public Object getResult() {

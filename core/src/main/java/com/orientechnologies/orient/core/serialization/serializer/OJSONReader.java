@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.serialization.serializer;
@@ -37,20 +37,20 @@ import java.util.regex.Pattern;
 public class OJSONReader {
 
   public static final char NEW_LINE = '\n';
-  public static final char[] DEFAULT_JUMP = new char[] {' ', '\r', '\n', '\t'};
+  public static final char[] DEFAULT_JUMP = new char[]{' ', '\r', '\n', '\t'};
   // public static final char[] DEFAULT_SKIP = new char[] {'\r', '\n', '\t'};
-  public static final char[] BEGIN_OBJECT = new char[] {'{'};
-  public static final char[] END_OBJECT = new char[] {'}'};
-  public static final char[] FIELD_ASSIGNMENT = new char[] {':'};
+  public static final char[] BEGIN_OBJECT = new char[]{'{'};
+  public static final char[] END_OBJECT = new char[]{'}'};
+  public static final char[] FIELD_ASSIGNMENT = new char[]{':'};
   // public static final char[] BEGIN_STRING = new char[] {'"'};
-  public static final char[] COMMA_SEPARATOR = new char[] {','};
-  public static final char[] NEXT_IN_OBJECT = new char[] {',', '}'};
-  public static final char[] NEXT_IN_ARRAY = new char[] {',', ']'};
-  public static final char[] NEXT_OBJ_IN_ARRAY = new char[] {'{', ']'};
+  public static final char[] COMMA_SEPARATOR = new char[]{','};
+  public static final char[] NEXT_IN_OBJECT = new char[]{',', '}'};
+  public static final char[] NEXT_IN_ARRAY = new char[]{',', ']'};
+  public static final char[] NEXT_OBJ_IN_ARRAY = new char[]{'{', ']'};
   public static final char[] ANY_NUMBER =
-      new char[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
-  public static final char[] BEGIN_COLLECTION = new char[] {'['};
-  public static final char[] END_COLLECTION = new char[] {']'};
+      new char[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
+  public static final char[] BEGIN_COLLECTION = new char[]{'['};
+  public static final char[] END_COLLECTION = new char[]{']'};
 
   private final BufferedReader in;
   private int cursor = 0;
@@ -354,7 +354,7 @@ public class OJSONReader {
         } else if (c == '[') {
           if (openSquare == 0
               && (lastString.toString().startsWith("out_")
-                  || lastString.toString().startsWith("in_"))) {
+              || lastString.toString().startsWith("in_"))) {
             lastCollection = new StringBuilder();
             lastFieldName = lastString.toString();
             lastFieldName = lastFieldName.substring(0, lastFieldName.length() - 1);

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2014 OrientDB LTD (info(at)orientdb.com)
+ *  *  Copyright 2014 OxygenDB LTD (info(at)orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.metadata.sequence;
@@ -28,7 +28,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 /**
- * @author Matan Shukry (matanshukry@gmail.com)
  * @since 3/2/2015
  */
 public class OSequenceLibraryProxy extends OSequenceLibraryAbstract {
@@ -112,7 +111,7 @@ public class OSequenceLibraryProxy extends OSequenceLibraryAbstract {
 
   @Override
   public void create() {
-    delegate.create(database);
+    OSequenceLibraryImpl.create(database);
   }
 
   @Override

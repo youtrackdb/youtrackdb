@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
@@ -93,19 +94,19 @@ public class OLuceneTextOperator extends OQueryTargetOperator {
     //noinspection resource
     return index
         .getInternal()
-        .getRids(
+        .getRids(iContext.getDatabase(),
             new OLuceneKeyAndMetadata(
                 new OLuceneCompositeKey(keyParams).setContext(iContext), new ODocument()))
         .map((rid) -> new ORawPair<>(new OLuceneCompositeKey(keyParams), rid));
   }
 
   @Override
-  public ORID getBeginRidRange(Object iLeft, Object iRight) {
+  public ORID getBeginRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 
   @Override
-  public ORID getEndRidRange(Object iLeft, Object iRight) {
+  public ORID getEndRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 
@@ -124,7 +125,9 @@ public class OLuceneTextOperator extends OQueryTargetOperator {
       OCommandContext iContext,
       final ODocumentSerializer serializer) {
 
-    OLuceneFullTextIndex index = involvedIndex(iRecord, iCurrentResult, iCondition, iLeft, iRight);
+    OLuceneFullTextIndex index = involvedIndex(iContext.getDatabase(), iRecord, iCurrentResult,
+        iCondition, iLeft,
+        iRight);
     if (index == null) {
       return false;
     }
@@ -140,9 +143,10 @@ public class OLuceneTextOperator extends OQueryTargetOperator {
       // In case of collection field evaluate the query with every item until matched
 
       if (iLeft instanceof List && index.isCollectionIndex()) {
-        return matchCollectionIndex((List) iLeft, iRight, index, memoryIndex);
+        return matchCollectionIndex(iContext.getDatabase(), (List) iLeft, iRight, index,
+            memoryIndex);
       } else {
-        return matchField(iLeft, iRight, index, memoryIndex);
+        return matchField(iContext.getDatabase(), iLeft, iRight, index, memoryIndex);
       }
 
     } catch (ParseException e) {
@@ -155,22 +159,24 @@ public class OLuceneTextOperator extends OQueryTargetOperator {
   }
 
   private boolean matchField(
-      Object iLeft, Object iRight, OLuceneFullTextIndex index, MemoryIndex memoryIndex)
+      ODatabaseSessionInternal session, Object iLeft, Object iRight, OLuceneFullTextIndex index,
+      MemoryIndex memoryIndex)
       throws IOException, ParseException {
-    for (IndexableField field : index.buildDocument(iLeft).getFields()) {
+    for (IndexableField field : index.buildDocument(session, iLeft).getFields()) {
       memoryIndex.addField(field, index.indexAnalyzer());
     }
     return memoryIndex.search(index.buildQuery(iRight)) > 0.0f;
   }
 
   private boolean matchCollectionIndex(
-      List iLeft, Object iRight, OLuceneFullTextIndex index, MemoryIndex memoryIndex)
+      ODatabaseSessionInternal session, List iLeft, Object iRight, OLuceneFullTextIndex index,
+      MemoryIndex memoryIndex)
       throws IOException, ParseException {
     boolean match = false;
     List<Object> collections = transformInput(iLeft, iRight, index, memoryIndex);
     for (Object collection : collections) {
       memoryIndex.reset();
-      match = match || matchField(collection, iRight, index, memoryIndex);
+      match = match || matchField(session, collection, iRight, index, memoryIndex);
       if (match) {
         break;
       }
@@ -223,7 +229,7 @@ public class OLuceneTextOperator extends OQueryTargetOperator {
   }
 
   protected OLuceneFullTextIndex involvedIndex(
-      OIdentifiable iRecord,
+      ODatabaseSessionInternal session, OIdentifiable iRecord,
       ODocument iCurrentResult,
       OSQLFilterCondition iCondition,
       Object iLeft,
@@ -247,7 +253,7 @@ public class OLuceneTextOperator extends OQueryTargetOperator {
             cls = oClass;
           }
         }
-        Set<OIndex> classInvolvedIndexes = cls.getInvolvedIndexes(fields(iCondition));
+        Set<OIndex> classInvolvedIndexes = cls.getInvolvedIndexes(session, fields(iCondition));
         OLuceneFullTextIndex idx = null;
         for (OIndex classInvolvedIndex : classInvolvedIndexes) {
 

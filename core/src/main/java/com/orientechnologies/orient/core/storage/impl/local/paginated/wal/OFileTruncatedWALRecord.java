@@ -7,7 +7,8 @@ public class OFileTruncatedWALRecord extends OOperationUnitBodyRecord {
 
   private long fileId;
 
-  public OFileTruncatedWALRecord() {}
+  public OFileTruncatedWALRecord() {
+  }
 
   public OFileTruncatedWALRecord(long operationUnitId, long fileId) {
     super(operationUnitId);

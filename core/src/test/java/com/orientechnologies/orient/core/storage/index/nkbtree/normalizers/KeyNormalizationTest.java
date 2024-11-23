@@ -591,7 +591,7 @@ public class KeyNormalizationTest {
 
   @Test
   public void normalizeCompositeBinary() {
-    final byte[] key = new byte[] {1, 2, 3, 4, 5, 6};
+    final byte[] key = new byte[]{1, 2, 3, 4, 5, 6};
 
     final OCompositeKey compositeKey = new OCompositeKey();
     compositeKey.addKey(key);
@@ -608,9 +608,9 @@ public class KeyNormalizationTest {
 
   @Test
   public void normalizeCompositeBinaryCompare() {
-    final byte[] smallest = getNormalizedKeySingle(new byte[] {1, 2, 3, 4, 5, 6}, OType.BINARY);
-    final byte[] middle = getNormalizedKeySingle(new byte[] {2, 2, 3, 4, 5, 6}, OType.BINARY);
-    final byte[] biggest = getNormalizedKeySingle(new byte[] {3, 2, 3, 4, 5, 6}, OType.BINARY);
+    final byte[] smallest = getNormalizedKeySingle(new byte[]{1, 2, 3, 4, 5, 6}, OType.BINARY);
+    final byte[] middle = getNormalizedKeySingle(new byte[]{2, 2, 3, 4, 5, 6}, OType.BINARY);
+    final byte[] biggest = getNormalizedKeySingle(new byte[]{3, 2, 3, 4, 5, 6}, OType.BINARY);
     compareWithUnsafeByteArrayComparator(smallest, middle, biggest);
     compareWithByteArrayComparator(smallest, middle, biggest);
   }

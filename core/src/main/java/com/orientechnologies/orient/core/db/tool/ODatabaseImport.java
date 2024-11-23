@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.db.tool;
@@ -64,6 +64,7 @@ import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
 import com.orientechnologies.orient.core.metadata.security.OUser;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.OElementInternal;
@@ -167,7 +168,8 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       final OCommandOutputListener outputListener,
       final InputStream inputStream) {
     if (outputListener == null) {
-      listener = text -> {};
+      listener = text -> {
+      };
     }
     jsonReader = new OJSONReader(new InputStreamReader(inputStream));
   }
@@ -218,7 +220,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       database.setUser(null);
 
       removeDefaultNonSecurityClasses();
-      database.getMetadata().getIndexManagerInternal().reload();
+      database.getMetadata().getIndexManagerInternal().reload(database);
 
       for (final OIndex index :
           database.getMetadata().getIndexManagerInternal().getIndexes(database)) {
@@ -349,7 +351,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
   }
 
   public void rebuildIndexes() {
-    database.getMetadata().getIndexManagerInternal().reload();
+    database.getMetadata().getIndexManagerInternal().reload(database);
 
     OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
@@ -381,7 +383,8 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
     return this;
   }
 
-  public void close() {}
+  public void close() {
+  }
 
   public boolean isMigrateLinks() {
     return migrateLinks;
@@ -514,7 +517,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
           && !dbClass.isSuperClassOf(user)
           && !dbClass.isSuperClassOf(identity) /*&& !dbClass.isSuperClassOf(oSecurityPolicy)*/) {
         classesToDrop.put(className, dbClass);
-        for (final OIndex index : dbClass.getIndexes()) {
+        for (final OIndex index : dbClass.getIndexes(database)) {
           indexNames.add(index.getName());
         }
       }
@@ -563,7 +566,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
 
     OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
     // FORCE RELOADING
-    indexManager.reload();
+    indexManager.reload(database);
 
     int n = 0;
     do {
@@ -611,7 +614,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
               }
             }
 
-            index.put(document.field("key"), newRid.getIdentity());
+            index.put(database, document.field("key"), newRid.getIdentity());
           } else {
             ORuntimeKeyIndexDefinition<?> runtimeKeyIndexDefinition =
                 (ORuntimeKeyIndexDefinition<?>) index.getDefinition();
@@ -628,7 +631,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
               }
             }
 
-            index.put(binarySerializer.deserialize(document.field("key"), 0), newRid);
+            index.put(database, binarySerializer.deserialize(document.field("key"), 0), newRid);
           }
           tot++;
         }
@@ -655,7 +658,8 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
     for (final Entry<OPropertyImpl, String> linkedClass : linkedClasses.entrySet()) {
       linkedClass
           .getKey()
-          .setLinkedClass(database.getMetadata().getSchema().getClass(linkedClass.getValue()));
+          .setLinkedClass(database,
+              database.getMetadata().getSchema().getClass(linkedClass.getValue()));
     }
   }
 
@@ -776,7 +780,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
 
         if (cls != null) {
           if (cls.getDefaultClusterId() != realClassDefClusterId) {
-            cls.setDefaultClusterId(realClassDefClusterId);
+            cls.setDefaultClusterId(database, realClassDefClusterId);
           }
         } else {
           if (clustersImported) {
@@ -785,7 +789,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
                     database
                         .getMetadata()
                         .getSchema()
-                        .createClass(className, new int[] {realClassDefClusterId});
+                        .createClass(className, new int[]{realClassDefClusterId});
           } else {
             if (className.equalsIgnoreCase("ORestricted")) {
               cls = (OClassImpl) database.getMetadata().getSchema().createAbstractClass(className);
@@ -806,7 +810,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
                   && clusterToClusterMapping.get(classDefClusterId) > -2) {
                 i = clusterToClusterMapping.get(i);
               }
-              cls.addClusterId(i);
+              cls.addClusterId(database, i);
             }
           }
         }
@@ -818,17 +822,17 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
 
           switch (value) {
             case "\"strictMode\"" ->
-                cls.setStrictMode(jsonReader.readBoolean(OJSONReader.NEXT_IN_OBJECT));
+                cls.setStrictMode(database, jsonReader.readBoolean(OJSONReader.NEXT_IN_OBJECT));
             case "\"abstract\"" ->
-                cls.setAbstract(jsonReader.readBoolean(OJSONReader.NEXT_IN_OBJECT));
+                cls.setAbstract(database, jsonReader.readBoolean(OJSONReader.NEXT_IN_OBJECT));
             case "\"oversize\"" -> {
               final String oversize = jsonReader.readString(OJSONReader.NEXT_IN_OBJECT);
-              cls.setOverSize(Float.parseFloat(oversize));
+              cls.setOverSize(database, Float.parseFloat(oversize));
             }
             case "\"short-name\"" -> {
               final String shortName = jsonReader.readString(OJSONReader.NEXT_IN_OBJECT);
               if (!cls.getName().equalsIgnoreCase(shortName)) {
-                cls.setShortName(shortName);
+                cls.setShortName(database, shortName);
               }
             }
             case "\"super-class\"" -> {
@@ -870,12 +874,13 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
             case "\"customFields\"" -> {
               Map<String, String> customFields = importCustomFields();
               for (Entry<String, String> entry : customFields.entrySet()) {
-                cls.setCustom(entry.getKey(), entry.getValue());
+                cls.setCustom(database, entry.getKey(), entry.getValue());
               }
             }
             case "\"cluster-selection\"" ->
-                // @SINCE 1.7
-                cls.setClusterSelection(jsonReader.readString(OJSONReader.NEXT_IN_OBJECT));
+              // @SINCE 1.7
+                cls.setClusterSelection(database,
+                    jsonReader.readString(OJSONReader.NEXT_IN_OBJECT));
           }
         }
 
@@ -889,7 +894,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
 
       if (exporterVersion < 11) {
         OClass role = database.getMetadata().getSchema().getClass("ORole");
-        role.dropProperty("rules");
+        role.dropProperty(database, "rules");
       }
 
       listener.onMessage("OK (" + classImported + " classes)");
@@ -908,7 +913,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
         final OClass superClass = database.getMetadata().getSchema().getClass(superClassName);
 
         if (!entry.getKey().getSuperClasses().contains(superClass)) {
-          entry.getKey().addSuperClass(superClass);
+          entry.getKey().addSuperClass(database, superClass);
         }
       }
     }
@@ -1012,36 +1017,36 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
     OPropertyImpl prop = (OPropertyImpl) iClass.getProperty(propName);
     if (prop == null) {
       // CREATE IT
-      prop = (OPropertyImpl) iClass.createProperty(propName, type, (OType) null, true);
+      prop = (OPropertyImpl) iClass.createProperty(database, propName, type, (OType) null, true);
     }
-    prop.setMandatory(mandatory);
-    prop.setReadonly(readonly);
-    prop.setNotNull(notNull);
+    prop.setMandatory(database, mandatory);
+    prop.setReadonly(database, readonly);
+    prop.setNotNull(database, notNull);
 
     if (min != null) {
       prop.setMin(min);
     }
     if (max != null) {
-      prop.setMax(max);
+      prop.setMax(database, max);
     }
     if (linkedClass != null) {
       linkedClasses.put(prop, linkedClass);
     }
     if (linkedType != null) {
-      prop.setLinkedType(linkedType);
+      prop.setLinkedType(database, linkedType);
     }
     if (collate != null) {
-      prop.setCollate(collate);
+      prop.setCollate(database, collate);
     }
     if (regexp != null) {
       prop.setRegexp(regexp);
     }
     if (defaultValue != null) {
-      prop.setDefaultValue(value);
+      prop.setDefaultValue(database, value);
     }
     if (customFields != null) {
       for (Entry<String, String> entry : customFields.entrySet()) {
-        prop.setCustom(entry.getKey(), entry.getValue());
+        prop.setCustom(database, entry.getKey(), entry.getValue());
       }
     }
   }
@@ -1183,7 +1188,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
           final OClass clazz =
               database.getMetadata().getSchema().getClassByClusterId(createdClusterId);
           if (clazz instanceof OClassEmbedded) {
-            ((OClassEmbedded) clazz).removeClusterId(createdClusterId, true);
+            ((OClassEmbedded) clazz).removeClusterId(database, createdClusterId, true);
           }
 
           database.dropCluster(createdClusterId);
@@ -1207,7 +1212,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
           .getMetadata()
           .getIndexManagerInternal()
           .getIndex(database, indexName)
-          .rebuild(
+          .rebuild(database,
               new OProgressListener() {
                 private long last = 0;
 
@@ -1234,7 +1239,8 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
                 }
 
                 @Override
-                public void onCompletition(Object iTask, boolean iSucceed) {
+                public void onCompletition(ODatabaseSessionInternal session, Object iTask,
+                    boolean iSucceed) {
                   listener.onMessage(" Index " + indexName + " was successfully rebuilt.");
                 }
               });
@@ -1281,7 +1287,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       value = value.substring(1);
     }
 
-    ORecord record = null;
+    ORecordAbstract record = null;
 
     // big ridbags (ie. supernodes) sometimes send the system OOM, so they have to be discarded at
     // this stage
@@ -1450,7 +1456,8 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
         record.setDirty();
 
         var recordToSave = record;
-        database.executeInTx(() -> recordToSave.save(database.getClusterNameById(clusterId)));
+        database.executeInTx(
+            () -> recordToSave.save(database.getClusterNameById(clusterId)));
         if (!rid.equals(record.getIdentity())) {
           // SAVE IT ONLY IF DIFFERENT
           var recordRid = record.getIdentity();
@@ -1513,9 +1520,9 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       schema.dropClass(EXPORT_IMPORT_CLASS_NAME);
     }
     final OClass cls = schema.createClass(EXPORT_IMPORT_CLASS_NAME);
-    cls.createProperty("key", OType.STRING);
-    cls.createProperty("value", OType.STRING);
-    cls.createIndex(EXPORT_IMPORT_INDEX_NAME, OClass.INDEX_TYPE.DICTIONARY, "key");
+    cls.createProperty(database, "key", OType.STRING);
+    cls.createProperty(database, "value", OType.STRING);
+    cls.createIndex(database, EXPORT_IMPORT_INDEX_NAME, OClass.INDEX_TYPE.DICTIONARY, "key");
 
     jsonReader.readNext(OJSONReader.BEGIN_COLLECTION);
 
@@ -1673,7 +1680,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
     listener.onMessage("\n\nImporting indexes ...");
 
     OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
-    indexManager.reload();
+    indexManager.reload(database);
 
     jsonReader.readNext(OJSONReader.BEGIN_COLLECTION);
 
@@ -1713,14 +1720,16 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
                 } else {
                   if (fieldName.equals("metadata")) {
                     final String jsonMetadata = jsonReader.readString(OJSONReader.END_OBJECT, true);
-                    metadata = new ODocument().fromJSON(jsonMetadata);
+                    metadata = new ODocument();
+                    metadata.fromJSON(jsonMetadata);
                     jsonReader.readNext(OJSONReader.NEXT_IN_OBJECT);
                   } else {
                     if (fieldName.equals("engineProperties")) {
                       final String jsonEngineProperties =
                           jsonReader.readString(OJSONReader.END_OBJECT, true);
-                      Map<String, Object> map =
-                          new ODocument().fromJSON(jsonEngineProperties).toMap();
+                      var doc = new ODocument();
+                      doc.fromJSON(jsonEngineProperties);
+                      Map<String, ?> map = doc.toMap();
                       if (map != null) {
                         map.replaceAll((k, v) -> v);
                       }
@@ -1818,7 +1827,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       if (blueprintsIndexClass != null) {
         ODocument configuration = index.getConfiguration();
         configuration.field("blueprintsIndexClass", blueprintsIndexClass);
-        indexManager.save();
+        indexManager.save(database);
       }
       numberOfCreatedIndexes++;
       listener.onMessage("OK");
@@ -1903,7 +1912,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       OStorage storage = database.getStorage();
 
       OPhysicalPosition[] positions =
-          storage.ceilingPhysicalPositions(clusterId, new OPhysicalPosition(0));
+          storage.ceilingPhysicalPositions(database, clusterId, new OPhysicalPosition(0));
       while (positions.length > 0) {
         for (OPhysicalPosition position : positions) {
           ORecord record = database.load(new ORecordId(clusterId, position.clusterPosition));
@@ -1931,7 +1940,8 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
           }
         }
 
-        positions = storage.higherPhysicalPositions(clusterId, positions[positions.length - 1]);
+        positions = storage.higherPhysicalPositions(database, clusterId,
+            positions[positions.length - 1]);
       }
 
       listener.onMessage(

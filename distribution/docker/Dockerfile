@@ -1,5 +1,5 @@
 ############################################################
-# Dockerfile to run an OrientDB (Graph) Container
+# Dockerfile to run an OxygenDB (Graph) Container
 # for current developed version
 ############################################################
 

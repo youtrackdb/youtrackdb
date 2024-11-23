@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.db.document;
@@ -32,7 +32,6 @@ import com.orientechnologies.orient.core.metadata.security.OToken;
  * method does not close the database for real but release it to the owner pool. The database born
  * as opened and will leave open until the pool is closed.
  *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @see ODatabasePoolBase
  */
 @SuppressWarnings("unchecked")

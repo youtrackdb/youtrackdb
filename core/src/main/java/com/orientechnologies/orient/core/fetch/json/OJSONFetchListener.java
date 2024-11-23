@@ -1,6 +1,6 @@
 /*
  *
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import com.orientechnologies.orient.core.serialization.serializer.OJSONWriter;
 import java.io.IOException;
 
 /**
- * @author Luca Molino (molino.luca--at--gmail.com)
+ *
  */
 public class OJSONFetchListener implements OFetchListener {
 
@@ -162,5 +162,6 @@ public class OJSONFetchListener implements OFetchListener {
       OFetchContext iContext,
       Object iUserObject,
       String iFormat)
-      throws OFetchException {}
+      throws OFetchException {
+  }
 }

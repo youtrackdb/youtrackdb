@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Created by luigidellaquila on 12/10/16.
+ *
  */
 public class ReturnMatchElementsStep extends AbstractUnrollStep {
 

@@ -82,7 +82,8 @@ public class KeyNormalizerVsSerializerBenchmark {
     private RunResult serializer;
     private RunResult normalizer;
 
-    public Pair() {}
+    public Pair() {
+    }
 
     public RunResult getSerializer() {
       return serializer;
@@ -272,14 +273,14 @@ public class KeyNormalizerVsSerializerBenchmark {
   @Benchmark
   public void binarySerializer() {
     final OBinaryTypeSerializer serializer = new OBinaryTypeSerializer();
-    final byte[] binary = new byte[] {1, 2, 3, 4, 5, 6};
+    final byte[] binary = new byte[]{1, 2, 3, 4, 5, 6};
     serializer.serialize(binary, new byte[binary.length + OIntegerSerializer.INT_SIZE], 0);
   }
 
   @Benchmark
   public void binaryNormalizer() throws Exception {
     final BinaryKeyNormalizer normalizer = new BinaryKeyNormalizer();
-    final byte[] binary = new byte[] {1, 2, 3, 4, 5, 6};
+    final byte[] binary = new byte[]{1, 2, 3, 4, 5, 6};
     normalizer.execute(binary, 0);
   }
 

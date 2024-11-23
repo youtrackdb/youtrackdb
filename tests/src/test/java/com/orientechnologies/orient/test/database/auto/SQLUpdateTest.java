@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -693,7 +693,8 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
 
   public void testMultiplePut() {
     database.begin();
-    ODocument v = database.<ODocument>newInstance("V").save();
+    ODocument v = database.newInstance("V");
+    v.save();
     database.commit();
 
     database.begin();
@@ -719,7 +720,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
   public void testAutoConversionOfEmbeddededListWithLinkedClass() {
     OClass c = database.getMetadata().getSchema().getOrCreateClass("TestConvert");
     if (!c.existsProperty("embeddedListWithLinkedClass")) {
-      c.createProperty(
+      c.createProperty(database,
           "embeddedListWithLinkedClass",
           OType.EMBEDDEDLIST,
           database.getMetadata().getSchema().getOrCreateClass("TestConvertLinkedClass"));

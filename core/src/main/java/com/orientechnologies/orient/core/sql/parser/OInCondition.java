@@ -5,6 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.sql.executor.OIndexSearchInfo;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -48,7 +49,7 @@ public class OInCondition extends OBooleanExpression {
     if (rightVal == null) {
       return false;
     }
-    return evaluateExpression(leftVal, rightVal);
+    return evaluateExpression(ctx.getDatabase(), leftVal, rightVal);
   }
 
   public Object evaluateRight(OIdentifiable currentRecord, OCommandContext ctx) {
@@ -83,13 +84,13 @@ public class OInCondition extends OBooleanExpression {
     }
 
     Object leftVal = evaluateLeft(currentRecord, ctx);
-    return evaluateExpression(leftVal, rightVal);
+    return evaluateExpression(ctx.getDatabase(), leftVal, rightVal);
   }
 
   private boolean evaluateAny(OResult currentRecord, Object rightVal, OCommandContext ctx) {
     for (String s : currentRecord.getPropertyNames()) {
       Object leftVal = currentRecord.getProperty(s);
-      if (evaluateExpression(leftVal, rightVal)) {
+      if (evaluateExpression(ctx.getDatabase(), leftVal, rightVal)) {
         return true;
       }
     }
@@ -99,7 +100,7 @@ public class OInCondition extends OBooleanExpression {
   private boolean evaluateAllFunction(OResult currentRecord, Object rightVal, OCommandContext ctx) {
     for (String s : currentRecord.getPropertyNames()) {
       Object leftVal = currentRecord.getProperty(s);
-      if (!evaluateExpression(leftVal, rightVal)) {
+      if (!evaluateExpression(ctx.getDatabase(), leftVal, rightVal)) {
         return false;
       }
     }
@@ -129,7 +130,8 @@ public class OInCondition extends OBooleanExpression {
     return result.stream().collect(Collectors.toSet());
   }
 
-  protected static boolean evaluateExpression(final Object iLeft, final Object iRight) {
+  protected static boolean evaluateExpression(ODatabaseSessionInternal session, final Object iLeft,
+      final Object iRight) {
     if (OMultiValue.isMultiValue(iRight)) {
       if (iRight instanceof Set<?> set) {
         if (set.contains(iLeft)) {
@@ -145,18 +147,18 @@ public class OInCondition extends OBooleanExpression {
       }
 
       for (final Object rightItem : OMultiValue.getMultiValueIterable(iRight)) {
-        if (OQueryOperatorEquals.equals(iLeft, rightItem)) {
+        if (OQueryOperatorEquals.equals(session, iLeft, rightItem)) {
           return true;
         }
         if (OMultiValue.isMultiValue(iLeft)) {
           if (OMultiValue.getSize(iLeft) == 1) {
             Object leftItem = OMultiValue.getFirstValue(iLeft);
-            if (compareItems(rightItem, leftItem)) {
+            if (compareItems(session, rightItem, leftItem)) {
               return true;
             }
           } else {
             for (final Object leftItem : OMultiValue.getMultiValueIterable(iLeft)) {
-              if (compareItems(rightItem, leftItem)) {
+              if (compareItems(session, rightItem, leftItem)) {
                 return true;
               }
             }
@@ -165,15 +167,15 @@ public class OInCondition extends OBooleanExpression {
       }
     } else if (iRight.getClass().isArray()) {
       for (final Object rightItem : (Object[]) iRight) {
-        if (OQueryOperatorEquals.equals(iLeft, rightItem)) {
+        if (OQueryOperatorEquals.equals(session, iLeft, rightItem)) {
           return true;
         }
       }
     } else if (iRight instanceof OResultSet rsRight) {
       rsRight.reset();
 
-      while (((OResultSet) iRight).hasNext()) {
-        if (OQueryOperatorEquals.equals(iLeft, rsRight.next())) {
+      while (rsRight.hasNext()) {
+        if (OQueryOperatorEquals.equals(session, iLeft, rsRight.next())) {
           return true;
         }
       }
@@ -182,8 +184,9 @@ public class OInCondition extends OBooleanExpression {
     return false;
   }
 
-  private static boolean compareItems(Object rightItem, Object leftItem) {
-    if (OQueryOperatorEquals.equals(leftItem, rightItem)) {
+  private static boolean compareItems(ODatabaseSessionInternal session, Object rightItem,
+      Object leftItem) {
+    if (OQueryOperatorEquals.equals(session, leftItem, rightItem)) {
       return true;
     }
 
@@ -191,7 +194,7 @@ public class OInCondition extends OBooleanExpression {
       Object propValue =
           ((OResult) leftItem)
               .getProperty(((OResult) leftItem).getPropertyNames().iterator().next());
-      return OQueryOperatorEquals.equals(propValue, rightItem);
+      return OQueryOperatorEquals.equals(session, propValue, rightItem);
     }
 
     return false;
@@ -431,7 +434,9 @@ public class OInCondition extends OBooleanExpression {
       if (info.getField().equals(left.getDefaultAlias().getStringValue())) {
         if (rightMathExpression != null) {
           return rightMathExpression.isEarlyCalculated(info.getCtx());
-        } else return rightParam != null;
+        } else {
+          return rightParam != null;
+        }
       }
     }
     return false;

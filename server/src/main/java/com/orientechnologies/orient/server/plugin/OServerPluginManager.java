@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.plugin;
@@ -23,7 +23,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.parser.OSystemVariableResolver;
 import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.common.util.OService;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.server.OServer;
@@ -51,8 +51,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Manages Server Extensions
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OServerPluginManager implements OService {
 
@@ -103,7 +101,7 @@ public class OServerPluginManager implements OService {
 
     if (hotReload) {
       autoReloadTimerTask =
-          Orient.instance().scheduleTask(this::updatePlugins, CHECK_DELAY, CHECK_DELAY);
+          Oxygen.instance().scheduleTask(this::updatePlugins, CHECK_DELAY, CHECK_DELAY);
     }
   }
 
@@ -358,7 +356,7 @@ public class OServerPluginManager implements OService {
     try {
       final URL url = pluginFile.toURI().toURL();
 
-      pluginClassLoader = new URLClassLoader(new URL[] {url}, getClass().getClassLoader());
+      pluginClassLoader = new URLClassLoader(new URL[]{url}, getClass().getClassLoader());
 
       // LOAD PLUGIN.JSON FILE
       final URL r = pluginClassLoader.findResource("plugin.json");

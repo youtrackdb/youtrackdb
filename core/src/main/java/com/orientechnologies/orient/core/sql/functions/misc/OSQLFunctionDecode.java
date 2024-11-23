@@ -16,6 +16,7 @@
 package com.orientechnologies.orient.core.sql.functions.misc;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionAbstract;
@@ -23,8 +24,6 @@ import java.util.Base64;
 
 /**
  * Encode a string in various format (only base64 for now)
- *
- * @author Johann Sorel (Geomatys)
  */
 public class OSQLFunctionDecode extends OSQLFunctionAbstract {
 
@@ -56,7 +55,7 @@ public class OSQLFunctionDecode extends OSQLFunctionAbstract {
   }
 
   @Override
-  public String getSyntax() {
+  public String getSyntax(ODatabaseSession session) {
     return "decode(<binaryfield>, <format>)";
   }
 }

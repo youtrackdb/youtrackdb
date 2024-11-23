@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -87,7 +87,6 @@ import java.util.stream.StreamSupport;
  *         amount of memory involved in performing of operations and as result speed up data
  *         processing.
  *
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 8/7/13
  */
 public final class CellBTreeSingleValueV1<K> extends ODurableComponent
@@ -161,15 +160,13 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
             }
 
             try (final OCacheEntry rootCacheEntry = addPage(atomicOperation, fileId)) {
-              @SuppressWarnings("unused")
-              final CellBTreeBucketSingleValueV1<K> rootBucket =
+              @SuppressWarnings("unused") final CellBTreeBucketSingleValueV1<K> rootBucket =
                   new CellBTreeBucketSingleValueV1<>(rootCacheEntry);
               rootBucket.init(true);
             }
 
             try (final OCacheEntry nullCacheEntry = addPage(atomicOperation, nullBucketFileId)) {
-              @SuppressWarnings("unused")
-              final CellBTreeNullBucketSingleValueV1 nullBucket =
+              @SuppressWarnings("unused") final CellBTreeNullBucketSingleValueV1 nullBucket =
                   new CellBTreeNullBucketSingleValueV1(nullCacheEntry);
               nullBucket.init();
             }
@@ -1340,8 +1337,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
       }
 
       try (final OCacheEntry bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
-        @SuppressWarnings("ObjectAllocationInLoop")
-        final CellBTreeBucketSingleValueV1<K> keyBucket =
+        @SuppressWarnings("ObjectAllocationInLoop") final CellBTreeBucketSingleValueV1<K> keyBucket =
             new CellBTreeBucketSingleValueV1<>(bucketEntry);
         final int index = keyBucket.find(key, keySerializer, encryption);
 
@@ -1380,8 +1376,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
 
       path.add(pageIndex);
       try (final OCacheEntry bucketEntry = loadPageForRead(atomicOperation, fileId, pageIndex)) {
-        @SuppressWarnings("ObjectAllocationInLoop")
-        final CellBTreeBucketSingleValueV1<K> keyBucket =
+        @SuppressWarnings("ObjectAllocationInLoop") final CellBTreeBucketSingleValueV1<K> keyBucket =
             new CellBTreeBucketSingleValueV1<>(bucketEntry);
         final int index = keyBucket.find(key, keySerializer, encryption);
 
@@ -1587,8 +1582,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
 
             try (final OCacheEntry cacheEntry =
                 loadPageForRead(atomicOperation, fileId, pageIndex)) {
-              @SuppressWarnings("ObjectAllocationInLoop")
-              final CellBTreeBucketSingleValueV1<K> bucket =
+              @SuppressWarnings("ObjectAllocationInLoop") final CellBTreeBucketSingleValueV1<K> bucket =
                   new CellBTreeBucketSingleValueV1<>(cacheEntry);
 
               final int bucketSize = bucket.size();
@@ -1599,8 +1593,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
               }
 
               while (itemIndex < bucketSize && dataCache.size() < prefetchSize) {
-                @SuppressWarnings("ObjectAllocationInLoop")
-                final ORawPair<K, ORID> entry =
+                @SuppressWarnings("ObjectAllocationInLoop") final ORawPair<K, ORID> entry =
                     convertToMapEntry(bucket.getEntry(itemIndex, encryption, keySerializer));
                 itemIndex++;
 
@@ -1758,8 +1751,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
 
             try (final OCacheEntry cacheEntry =
                 loadPageForRead(atomicOperation, fileId, pageIndex)) {
-              @SuppressWarnings("ObjectAllocationInLoop")
-              final CellBTreeBucketSingleValueV1<K> bucket =
+              @SuppressWarnings("ObjectAllocationInLoop") final CellBTreeBucketSingleValueV1<K> bucket =
                   new CellBTreeBucketSingleValueV1<>(cacheEntry);
 
               if (itemIndex >= bucket.size()) {
@@ -1773,8 +1765,7 @@ public final class CellBTreeSingleValueV1<K> extends ODurableComponent
               }
 
               while (itemIndex >= 0 && dataCache.size() < prefetchSize) {
-                @SuppressWarnings("ObjectAllocationInLoop")
-                final ORawPair<K, ORID> entry =
+                @SuppressWarnings("ObjectAllocationInLoop") final ORawPair<K, ORID> entry =
                     convertToMapEntry(bucket.getEntry(itemIndex, encryption, keySerializer));
                 itemIndex--;
 

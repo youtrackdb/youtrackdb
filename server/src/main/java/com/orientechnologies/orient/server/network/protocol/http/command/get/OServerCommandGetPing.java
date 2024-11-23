@@ -14,7 +14,8 @@ public class OServerCommandGetPing extends OServerCommandAbstract {
     return NAMES;
   }
 
-  public OServerCommandGetPing() {}
+  public OServerCommandGetPing() {
+  }
 
   @Override
   public boolean execute(final OHttpRequest iRequest, final OHttpResponse iResponse)

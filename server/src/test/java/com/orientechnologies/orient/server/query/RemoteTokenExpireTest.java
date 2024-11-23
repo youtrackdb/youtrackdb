@@ -4,12 +4,12 @@ import static com.orientechnologies.orient.core.config.OGlobalConfiguration.QUER
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.client.remote.OStorageRemote;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.enterprise.channel.binary.OTokenSecurityException;
 import com.orientechnologies.orient.server.OServer;
@@ -21,13 +21,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by wolf4ood on 1/03/19.
+ *
  */
 public class RemoteTokenExpireTest {
 
   private static final String SERVER_DIRECTORY = "./target/token";
   private OServer server;
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
   private ODatabaseSession session;
   private int oldPageSize;
 
@@ -46,22 +46,22 @@ public class RemoteTokenExpireTest {
     OTokenHandlerImpl token = (OTokenHandlerImpl) server.getTokenHandler();
     token.setSessionInMills(expireTimeout);
 
-    orientDB = new OrientDB("remote:localhost", "root", "root", OrientDBConfig.defaultConfig());
-    orientDB.execute(
+    oxygenDB = new OxygenDB("remote:localhost", "root", "root", OxygenDBConfig.defaultConfig());
+    oxygenDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         RemoteTokenExpireTest.class.getSimpleName());
-    session = orientDB.open(RemoteTokenExpireTest.class.getSimpleName(), "admin", "admin");
+    session = oxygenDB.open(RemoteTokenExpireTest.class.getSimpleName(), "admin", "admin");
     session.createClass("Some");
     oldPageSize = QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
     QUERY_REMOTE_RESULTSET_PAGE_SIZE.setValue(10);
 
     session.close();
-    orientDB.close();
+    oxygenDB.close();
 
     var config =
-        OrientDBConfig.builder().addConfig(OGlobalConfiguration.NETWORK_SOCKET_RETRY, 0).build();
-    orientDB = new OrientDB("remote:localhost", "root", "root", config);
-    session = orientDB.open(RemoteTokenExpireTest.class.getSimpleName(), "admin", "admin");
+        OxygenDBConfig.builder().addConfig(OGlobalConfiguration.NETWORK_SOCKET_RETRY, 0).build();
+    oxygenDB = new OxygenDB("remote:localhost", "root", "root", config);
+    session = oxygenDB.open(RemoteTokenExpireTest.class.getSimpleName(), "admin", "admin");
   }
 
   private void clean() {
@@ -201,11 +201,11 @@ public class RemoteTokenExpireTest {
 
     ODatabasePool pool =
         new ODatabasePool(
-            orientDB,
+            oxygenDB,
             RemoteTokenExpireTest.class.getSimpleName(),
             "admin",
             "admin",
-            OrientDBConfig.builder()
+            OxygenDBConfig.builder()
                 .addConfig(
                     OGlobalConfiguration.CLIENT_CONNECTION_STRATEGY,
                     OStorageRemote.CONNECTION_STRATEGY.ROUND_ROBIN_CONNECT)
@@ -236,11 +236,11 @@ public class RemoteTokenExpireTest {
     QUERY_REMOTE_RESULTSET_PAGE_SIZE.setValue(oldPageSize);
     session.activateOnCurrentThread();
     session.close();
-    orientDB.close();
+    oxygenDB.close();
     server.shutdown();
 
-    Orient.instance().shutdown();
+    Oxygen.instance().shutdown();
     OFileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
-    Orient.instance().startup();
+    Oxygen.instance().startup();
   }
 }

@@ -65,7 +65,8 @@ public class OStorageConfigurationPayload {
     }
   }
 
-  public OStorageConfigurationPayload() {}
+  public OStorageConfigurationPayload() {
+  }
 
   public void write(OChannelDataOutput channel) throws IOException {
     channel.writeString(this.dateFormat);

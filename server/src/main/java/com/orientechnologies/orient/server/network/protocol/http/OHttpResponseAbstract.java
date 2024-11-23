@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.network.protocol.http;
@@ -56,8 +56,6 @@ import java.util.zip.GZIPOutputStream;
 
 /**
  * Maintains information about current HTTP response.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OHttpResponseAbstract implements OHttpResponse {
 
@@ -217,8 +215,8 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
         newResult = Collections.singleton(doc).iterator();
       } else if (OMultiValue.isMultiValue(iResult)
           && (OMultiValue.getSize(iResult) > 0
-              && !((OMultiValue.getFirstValue(iResult) instanceof OIdentifiable)
-                  || ((OMultiValue.getFirstValue(iResult) instanceof OResult))))) {
+          && !((OMultiValue.getFirstValue(iResult) instanceof OIdentifiable)
+          || ((OMultiValue.getFirstValue(iResult) instanceof OResult))))) {
         newResult = Collections.singleton(new ODocument().field("value", iResult)).iterator();
       } else if (iResult instanceof OIdentifiable) {
         // CONVERT SINGLE VALUE IN A COLLECTION
@@ -333,7 +331,8 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
                   result
                       .toElement()
                       .getSchemaType()
-                      .ifPresent(x -> x.properties().forEach(prop -> colNames.add(prop.getName())));
+                      .ifPresent(x -> x.properties(databaseDocumentInternal)
+                          .forEach(prop -> colNames.add(prop.getName())));
                   for (String fieldName : result.getPropertyNames()) {
                     colNames.add(fieldName);
                   }

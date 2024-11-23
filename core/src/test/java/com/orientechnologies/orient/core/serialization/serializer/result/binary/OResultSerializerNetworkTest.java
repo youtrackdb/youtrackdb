@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.serialization.serializer.result.binary;
 
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.BytesContainer;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -14,13 +14,13 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by tglman on 25/05/16.
+ *
  */
 public class OResultSerializerNetworkTest {
 
   @Test
   public void test() {
-    try (var orientDB = new OrientDB("memory", OrientDBConfig.defaultConfig())) {
+    try (var orientDB = new OxygenDB("memory", OxygenDBConfig.defaultConfig())) {
       orientDB.createIfNotExists("test", ODatabaseType.MEMORY, "admin", "admin", "admin");
       try (var ignore = orientDB.open("test", "admin", "admin")) {
         OResultSerializerNetwork serializer = new OResultSerializerNetwork();

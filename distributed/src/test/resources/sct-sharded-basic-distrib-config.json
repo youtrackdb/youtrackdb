@@ -7,16 +7,24 @@
     "internal": {
     },
     "client_usa": {
-      "servers" : [ "usa" ]
+      "servers": [
+        "usa"
+      ]
     },
     "client_europe": {
-      "servers" : [ "europe" ]
+      "servers": [
+        "europe"
+      ]
     },
     "client_asia": {
-      "servers" : [ "asia" ]
+      "servers": [
+        "asia"
+      ]
     },
     "*": {
-      "servers" : [ "<NEW_NODE>" ]
+      "servers": [
+        "<NEW_NODE>"
+      ]
     }
   }
 }

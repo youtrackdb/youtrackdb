@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Created by luigidellaquila on 03/01/17.
+ *
  */
 public class OSQLFunctionOut extends OSQLFunctionMoveFiltered {
 
@@ -82,8 +82,8 @@ public class OSQLFunctionOut extends OSQLFunctionMoveFiltered {
     if (edgeClass == null) {
       return null;
     }
-    Set<OIndex> indexes = edgeClass.getInvolvedIndexes("out", "in");
-    if (indexes == null || indexes.size() == 0) {
+    Set<OIndex> indexes = edgeClass.getInvolvedIndexes(graph, "out", "in");
+    if (indexes == null || indexes.isEmpty()) {
       return null;
     }
     OIndex index = indexes.iterator().next();
@@ -91,7 +91,8 @@ public class OSQLFunctionOut extends OSQLFunctionMoveFiltered {
     OMultiCollectionIterator<OVertex> result = new OMultiCollectionIterator<OVertex>();
     for (OIdentifiable to : iTo) {
       final OCompositeKey key = new OCompositeKey(iFrom, to);
-      try (Stream<ORID> stream = index.getInternal().getRids(key)) {
+      try (Stream<ORID> stream = index.getInternal()
+          .getRids((ODatabaseSessionInternal) graph, key)) {
         result.add(
             stream
                 .map((rid) -> ((ODocument) rid.getRecord()).rawField("in"))

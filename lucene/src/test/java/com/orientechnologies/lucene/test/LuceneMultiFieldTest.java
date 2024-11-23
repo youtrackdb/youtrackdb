@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * Created by enricorisa on 19/09/14.
+ *
  */
 public class LuceneMultiFieldTest extends BaseLuceneTest {
 
@@ -151,7 +151,7 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
 
     // nidex api
     final OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Item.i_lucene");
-    try (Stream<ORID> stream = index.getInternal().getRids("(Title:test )")) {
+    try (Stream<ORID> stream = index.getInternal().getRids(db, "(Title:test )")) {
       assertThat(stream.findAny().isPresent()).isTrue();
     }
   }

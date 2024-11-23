@@ -3,6 +3,7 @@ package com.orientechnologies.orient.client.remote.message;
 import com.orientechnologies.common.exception.OErrorCode;
 import com.orientechnologies.orient.client.remote.ORemotePushHandler;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
@@ -13,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by tglman on 17/05/17.
+ *
  */
 public class OLiveQueryPushRequest implements OBinaryPushRequest {
 
@@ -43,10 +44,12 @@ public class OLiveQueryPushRequest implements OBinaryPushRequest {
     this.events = events;
   }
 
-  public OLiveQueryPushRequest() {}
+  public OLiveQueryPushRequest() {
+  }
 
   @Override
-  public void write(OChannelDataOutput channel) throws IOException {
+  public void write(ODatabaseSessionInternal session, OChannelDataOutput channel)
+      throws IOException {
     channel.writeInt(monitorId);
     channel.writeByte(status);
     if (status == ERROR) {
@@ -57,10 +60,10 @@ public class OLiveQueryPushRequest implements OBinaryPushRequest {
       channel.writeInt(events.size());
       for (OLiveQueryResult event : events) {
         channel.writeByte(event.getEventType());
-        OMessageHelper.writeResult(
+        OMessageHelper.writeResult(session,
             event.getCurrentValue(), channel, ORecordSerializerNetworkV37.INSTANCE);
         if (event.getEventType() == OLiveQueryResult.UPDATE_EVENT) {
-          OMessageHelper.writeResult(
+          OMessageHelper.writeResult(session,
               event.getOldValue(), channel, ORecordSerializerNetworkV37.INSTANCE);
         }
       }
@@ -91,7 +94,7 @@ public class OLiveQueryPushRequest implements OBinaryPushRequest {
   }
 
   @Override
-  public OBinaryPushResponse execute(ORemotePushHandler remote) {
+  public OBinaryPushResponse execute(ODatabaseSessionInternal session, ORemotePushHandler remote) {
     remote.executeLiveQueryPush(this);
     return null;
   }

@@ -168,8 +168,7 @@ public class OMixedIndexRIDContainer implements Set<OIdentifiable> {
     final T[] embeddedArray = embeddedSet.toArray(a);
     final T[] treeArray = tree.toArray(a);
 
-    @SuppressWarnings("unchecked")
-    final T[] result =
+    @SuppressWarnings("unchecked") final T[] result =
         (T[])
             java.lang.reflect.Array.newInstance(
                 a.getClass().getComponentType(), embeddedArray.length + treeArray.length);

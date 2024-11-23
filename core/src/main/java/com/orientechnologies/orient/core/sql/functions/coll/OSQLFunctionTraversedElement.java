@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,13 +14,14 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.functions.coll;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.traverse.OTraverseRecordProcess;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
@@ -34,8 +35,6 @@ import java.util.stream.Collectors;
 
 /**
  * Returns a traversed element from the stack. Use it with SQL traverse only.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionTraversedElement extends OSQLFunctionConfigurableAbstract {
 
@@ -63,8 +62,8 @@ public class OSQLFunctionTraversedElement extends OSQLFunctionConfigurableAbstra
     return true;
   }
 
-  public String getSyntax() {
-    return getName() + "(<beginIndex> [,<items>])";
+  public String getSyntax(ODatabaseSession session) {
+    return getName(session) + "(<beginIndex> [,<items>])";
   }
 
   public Object execute(
@@ -90,7 +89,7 @@ public class OSQLFunctionTraversedElement extends OSQLFunctionConfigurableAbstra
     }
     if (stack == null) {
       throw new OCommandExecutionException(
-          "Cannot invoke " + getName() + "() against non traverse command");
+          "Cannot invoke " + getName(iContext.getDatabase()) + "() against non traverse command");
     }
 
     final List<OIdentifiable> result = items > 1 ? new ArrayList<OIdentifiable>(items) : null;
@@ -104,7 +103,7 @@ public class OSQLFunctionTraversedElement extends OSQLFunctionConfigurableAbstra
 
           if (iClassName == null
               || ODocumentInternal.getImmutableSchemaClass(record.getRecord())
-                  .isSubClassOf(iClassName)) {
+              .isSubClassOf(iClassName)) {
             if (i <= beginIndex) {
               if (items == 1) {
                 return record;
@@ -121,7 +120,7 @@ public class OSQLFunctionTraversedElement extends OSQLFunctionConfigurableAbstra
 
           if (iClassName == null
               || ODocumentInternal.getImmutableSchemaClass(record.getRecord())
-                  .isSubClassOf(iClassName)) {
+              .isSubClassOf(iClassName)) {
             if (i <= beginIndex) {
               if (items == 1) {
                 return record;
@@ -146,7 +145,7 @@ public class OSQLFunctionTraversedElement extends OSQLFunctionConfigurableAbstra
 
           if (iClassName == null
               || ODocumentInternal.getImmutableSchemaClass(record.getRecord())
-                  .isSubClassOf(iClassName)) {
+              .isSubClassOf(iClassName)) {
             if (i >= beginIndex) {
               if (items == 1) {
                 return record;
@@ -163,7 +162,7 @@ public class OSQLFunctionTraversedElement extends OSQLFunctionConfigurableAbstra
 
           if (iClassName == null
               || ODocumentInternal.getImmutableSchemaClass(record.getRecord())
-                  .isSubClassOf(iClassName)) {
+              .isSubClassOf(iClassName)) {
             if (i >= beginIndex) {
               if (items == 1) {
                 return record;

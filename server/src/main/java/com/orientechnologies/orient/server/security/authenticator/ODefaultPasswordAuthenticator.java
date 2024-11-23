@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.security.authenticator;
@@ -24,4 +24,6 @@ package com.orientechnologies.orient.server.security.authenticator;
  */
 public class ODefaultPasswordAuthenticator
     extends com.orientechnologies.orient.core.security.authenticator
-        .ODefaultPasswordAuthenticator {}
+    .ODefaultPasswordAuthenticator {
+
+}

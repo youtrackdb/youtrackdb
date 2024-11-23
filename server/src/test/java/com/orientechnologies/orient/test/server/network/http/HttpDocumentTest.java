@@ -8,8 +8,6 @@ import org.junit.Test;
 
 /**
  * Test HTTP "query" command.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com) (l.garulli--at-orientdb.com)
  */
 public class HttpDocumentTest extends BaseHttpDatabaseTest {
 
@@ -143,10 +141,10 @@ public class HttpDocumentTest extends BaseHttpDatabaseTest {
     Assert.assertEquals(created.getVersion(), 1);
 
     put("document/"
-            + getDatabaseName()
-            + "/"
-            + created.getIdentity().toString().substring(1)
-            + "?updateMode=partial")
+        + getDatabaseName()
+        + "/"
+        + created.getIdentity().toString().substring(1)
+        + "?updateMode=partial")
         .payload("{age:1}", CONTENT.JSON)
         .exec();
     Assert.assertEquals(getResponse().getCode(), 200);

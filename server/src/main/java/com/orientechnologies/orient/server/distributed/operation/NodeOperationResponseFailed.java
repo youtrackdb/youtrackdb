@@ -5,14 +5,15 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 /**
- * Created by Enrico Risa on 16/01/2018.
+ *
  */
 public class NodeOperationResponseFailed implements NodeOperationResponse {
 
   private Integer code;
   private String message;
 
-  public NodeOperationResponseFailed() {}
+  public NodeOperationResponseFailed() {
+  }
 
   public NodeOperationResponseFailed(Integer code, String message) {
     this.code = code;

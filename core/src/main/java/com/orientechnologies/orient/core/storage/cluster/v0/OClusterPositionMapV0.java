@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -32,7 +32,6 @@ import java.io.IOException;
 import java.util.Arrays;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 10/7/13
  */
 public class OClusterPositionMapV0 extends OClusterPositionMap {
@@ -203,7 +202,7 @@ public class OClusterPositionMapV0 extends OClusterPositionMap {
       final long clusterPosition, final OAtomicOperation atomicOperation) throws IOException {
     long realPosition = clusterPosition + 1;
     if (clusterPosition == Long.MAX_VALUE) {
-      return new OClusterPositionEntry[] {};
+      return new OClusterPositionEntry[]{};
     }
 
     if (realPosition < 0) {
@@ -216,7 +215,7 @@ public class OClusterPositionMapV0 extends OClusterPositionMap {
     final long filledUpTo = getFilledUpTo(atomicOperation, fileId);
 
     if (pageIndex >= filledUpTo) {
-      return new OClusterPositionEntry[] {};
+      return new OClusterPositionEntry[]{};
     }
 
     OClusterPositionEntry[] result = null;
@@ -259,7 +258,7 @@ public class OClusterPositionMapV0 extends OClusterPositionMap {
     } while (result == null && pageIndex < filledUpTo);
 
     if (result == null) {
-      result = new OClusterPositionEntry[] {};
+      result = new OClusterPositionEntry[]{};
     }
 
     return result;

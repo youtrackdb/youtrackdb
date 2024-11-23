@@ -10,8 +10,6 @@ import org.apache.lucene.analysis.DelegatingAnalyzerWrapper;
 import org.apache.lucene.analysis.core.KeywordAnalyzer;
 
 /**
- * Created by frank on 10/12/15.
- *
  * <p>Doesn't allow to wrap components or readers. Thread local resources can be delegated to the
  * delegate analyzer, but not allocated on this analyzer (limit memory consumption). Uses a per
  * field reuse strategy.

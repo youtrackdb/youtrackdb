@@ -4,7 +4,6 @@ import com.orientechnologies.orient.setup.ServerRun;
 import org.junit.Test;
 
 /**
- * @author Matan Shukry (matanshukry@gmail.com)
  * @since 3/2/2015
  */
 public class ServerClusterLocalSequenceIT extends AbstractServerClusterSequenceTest {

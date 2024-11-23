@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.metadata.function;
@@ -44,8 +44,6 @@ import java.util.regex.Pattern;
 
 /**
  * Manages stored functions.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OFunctionLibraryImpl {
 
@@ -53,7 +51,8 @@ public class OFunctionLibraryImpl {
   protected final Map<String, OFunction> functions = new ConcurrentHashMap<String, OFunction>();
   private final AtomicBoolean needReload = new AtomicBoolean(false);
 
-  public OFunctionLibraryImpl() {}
+  public OFunctionLibraryImpl() {
+  }
 
   public void create(ODatabaseSessionInternal db) {
     init(db);
@@ -89,7 +88,7 @@ public class OFunctionLibraryImpl {
           final OFunction f = new OFunction(d);
 
           // RESTORE CALLBACK IF ANY
-          f.setCallback(callbacks.get(f.getName()));
+          f.setCallback(callbacks.get(f.getName(db)));
 
           functions.put(d.field("name").toString().toUpperCase(Locale.ENGLISH), f);
         }
@@ -128,9 +127,9 @@ public class OFunctionLibraryImpl {
     reloadIfNeeded(ODatabaseRecordThreadLocal.instance().get());
 
     database.begin();
-    final OFunction f = new OFunction().setName(iName);
+    final OFunction f = new OFunction(database).setName(database, iName);
     try {
-      f.save();
+      f.save(database);
       functions.put(iName.toUpperCase(Locale.ENGLISH), f);
       database.commit();
     } catch (ORecordDuplicatedException ex) {
@@ -153,37 +152,36 @@ public class OFunctionLibraryImpl {
     if (db.getMetadata().getSchema().existsClass("OFunction")) {
       final OClass f = db.getMetadata().getSchema().getClass("OFunction");
       OProperty prop = f.getProperty("name");
-      if (prop.getAllIndexes().isEmpty()) {
-        prop.createIndex(OClass.INDEX_TYPE.UNIQUE_HASH_INDEX);
+      if (prop.getAllIndexes(db).isEmpty()) {
+        prop.createIndex(db, OClass.INDEX_TYPE.UNIQUE_HASH_INDEX);
       }
       return;
     }
 
     final OClass f = db.getMetadata().getSchema().createClass("OFunction");
-    OProperty prop = f.createProperty("name", OType.STRING, (OType) null, true);
-    prop.createIndex(OClass.INDEX_TYPE.UNIQUE_HASH_INDEX);
-    f.createProperty("code", OType.STRING, (OType) null, true);
-    f.createProperty("language", OType.STRING, (OType) null, true);
-    f.createProperty("idempotent", OType.BOOLEAN, (OType) null, true);
-    f.createProperty("parameters", OType.EMBEDDEDLIST, OType.STRING, true);
+    OProperty prop = f.createProperty(db, "name", OType.STRING, (OType) null, true);
+    prop.createIndex(db, OClass.INDEX_TYPE.UNIQUE_HASH_INDEX);
+    f.createProperty(db, "code", OType.STRING, (OType) null, true);
+    f.createProperty(db, "language", OType.STRING, (OType) null, true);
+    f.createProperty(db, "idempotent", OType.BOOLEAN, (OType) null, true);
+    f.createProperty(db, "parameters", OType.EMBEDDEDLIST, OType.STRING, true);
   }
 
-  public synchronized void dropFunction(OFunction function) {
-    reloadIfNeeded(ODatabaseRecordThreadLocal.instance().get());
-    String name = function.getName();
-    ODocument doc = function.getDocument();
+  public synchronized void dropFunction(ODatabaseSessionInternal session, OFunction function) {
+    reloadIfNeeded(session);
+    String name = function.getName(session);
+    ODocument doc = function.getDocument(session);
     doc.delete();
     functions.remove(name.toUpperCase(Locale.ENGLISH));
   }
 
-  public synchronized void dropFunction(String iName) {
-    var db = ODatabaseRecordThreadLocal.instance().get();
-    reloadIfNeeded(db);
+  public synchronized void dropFunction(ODatabaseSessionInternal session, String iName) {
+    reloadIfNeeded(session);
 
-    db.executeInTx(
+    session.executeInTx(
         () -> {
           OFunction function = getFunction(iName);
-          ODocument doc = function.getDocument();
+          ODocument doc = function.getDocument(session);
           doc.delete();
           functions.remove(iName.toUpperCase(Locale.ENGLISH));
         });
@@ -219,7 +217,7 @@ public class OFunctionLibraryImpl {
 
   private void onFunctionsChanged(ODatabaseSessionInternal database) {
     for (OMetadataUpdateListener listener : database.getSharedContext().browseListeners()) {
-      listener.onFunctionLibraryUpdate(database.getName());
+      listener.onFunctionLibraryUpdate(database, database.getName());
     }
     database.getSharedContext().getOrientDB().getScriptManager().close(database.getName());
   }

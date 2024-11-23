@@ -38,12 +38,12 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     if (!database.getMetadata().getSchema().existsClass("DocumentTrackingTestClass")) {
       final OClass trackedClass =
           database.getMetadata().getSchema().createClass("DocumentTrackingTestClass");
-      trackedClass.createProperty("embeddedlist", OType.EMBEDDEDLIST);
-      trackedClass.createProperty("embeddedmap", OType.EMBEDDEDMAP);
-      trackedClass.createProperty("embeddedset", OType.EMBEDDEDSET);
-      trackedClass.createProperty("linkset", OType.LINKSET);
-      trackedClass.createProperty("linklist", OType.LINKLIST);
-      trackedClass.createProperty("linkmap", OType.LINKMAP);
+      trackedClass.createProperty(database, "embeddedlist", OType.EMBEDDEDLIST);
+      trackedClass.createProperty(database, "embeddedmap", OType.EMBEDDEDMAP);
+      trackedClass.createProperty(database, "embeddedset", OType.EMBEDDEDSET);
+      trackedClass.createProperty(database, "linkset", OType.LINKSET);
+      trackedClass.createProperty(database, "linklist", OType.LINKLIST);
+      trackedClass.createProperty(database, "linkmap", OType.LINKMAP);
     }
   }
 
@@ -61,7 +61,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     database.commit();
 
     document = database.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final List<String> trackedList = document.field("embeddedlist");
@@ -80,7 +80,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(timeLine.getMultiValueChangeEvents(), firedEvents);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[] {"embeddedlist"});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedlist"});
   }
 
   public void testDocumentEmbeddedMapTrackingAfterSave() {
@@ -97,7 +97,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     database.commit();
 
     document = database.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final Map<String, String> trackedMap = document.field("embeddedmap");
@@ -116,7 +116,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(timeLine.getMultiValueChangeEvents(), firedEvents);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[] {"embeddedmap"});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedmap"});
   }
 
   public void testDocumentEmbeddedSetTrackingAfterSave() {
@@ -134,7 +134,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     document = database.bindToSession(document);
     Assert.assertFalse(document.isDirty());
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
 
     final Set<String> trackedSet = document.field("embeddedset");
     trackedSet.add("value2");
@@ -152,7 +152,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(timeLine.getMultiValueChangeEvents(), firedEvents);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[] {"embeddedset"});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedset"});
   }
 
   public void testDocumentLinkSetTrackingAfterSave() {
@@ -175,7 +175,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     document = database.bindToSession(document);
     Assert.assertFalse(document.isDirty());
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
 
     final Set<ORID> trackedSet = document.field("linkset");
     trackedSet.add(docTwo.getIdentity());
@@ -185,7 +185,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linkset");
     Assert.assertNotNull(timeLine);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[] {"linkset"});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{"linkset"});
   }
 
   public void testDocumentLinkListTrackingAfterSave() {
@@ -209,7 +209,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document = database.bindToSession(document);
 
     Assert.assertFalse(document.isDirty());
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
 
     final List<ORID> trackedList = document.field("linklist");
     trackedList.add(docTwo.getIdentity());
@@ -219,7 +219,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linklist");
     Assert.assertNotNull(timeLine);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[] {"linklist"});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{"linklist"});
   }
 
   public void testDocumentLinkMapTrackingAfterSave() {
@@ -243,7 +243,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     document = database.bindToSession(document);
 
     Assert.assertFalse(document.isDirty());
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
 
     final Map<String, ORID> trackedMap = document.field("linkmap");
     trackedMap.put("key2", docTwo.getIdentity());
@@ -251,7 +251,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linkmap");
     Assert.assertNotNull(timeLine);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[] {"linkmap"});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{"linkmap"});
   }
 
   public void testDocumentEmbeddedListTrackingAfterSaveCacheDisabled() {
@@ -267,7 +267,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     database.commit();
 
     document = database.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final List<String> trackedList = document.field("embeddedlist");
@@ -286,7 +286,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(timeLine.getMultiValueChangeEvents(), firedEvents);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[] {"embeddedlist"});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedlist"});
   }
 
   public void testDocumentEmbeddedMapTrackingAfterSaveCacheDisabled() {
@@ -302,7 +302,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     database.commit();
 
     document = database.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final Map<String, String> trackedMap = document.field("embeddedmap");
@@ -321,7 +321,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(timeLine.getMultiValueChangeEvents(), firedEvents);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[] {"embeddedmap"});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedmap"});
   }
 
   public void testDocumentEmbeddedSetTrackingAfterSaveCacheDisabled() {
@@ -338,7 +338,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     document = database.bindToSession(document);
     Assert.assertFalse(document.isDirty());
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
 
     final Set<String> trackedSet = document.field("embeddedset");
     trackedSet.add("value2");
@@ -356,7 +356,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(timeLine.getMultiValueChangeEvents(), firedEvents);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[] {"embeddedset"});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedset"});
   }
 
   public void testDocumentLinkSetTrackingAfterSaveCacheDisabled() {
@@ -379,7 +379,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     document = database.bindToSession(document);
     Assert.assertFalse(document.isDirty());
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
 
     final Set<ORID> trackedSet = document.field("linkset");
     trackedSet.add(docTwo.getIdentity());
@@ -389,7 +389,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linkset");
     Assert.assertNotNull(timeLine);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[] {"linkset"});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{"linkset"});
   }
 
   public void testDocumentLinkListTrackingAfterSaveCacheDisabled() {
@@ -412,7 +412,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     document = database.bindToSession(document);
     Assert.assertFalse(document.isDirty());
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
 
     final List<ORID> trackedList = document.field("linklist");
     trackedList.add(docTwo.getIdentity());
@@ -422,7 +422,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linklist");
     Assert.assertNotNull(timeLine);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[] {"linklist"});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{"linklist"});
   }
 
   public void testDocumentLinkMapTrackingAfterSaveCacheDisabled() {
@@ -445,7 +445,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     document = database.bindToSession(document);
     Assert.assertFalse(document.isDirty());
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
 
     final Map<String, ORID> trackedMap = document.field("linkmap");
     trackedMap.put("key2", docTwo.getIdentity());
@@ -453,7 +453,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linkmap");
     Assert.assertNotNull(timeLine);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[] {"linkmap"});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{"linkmap"});
   }
 
   public void testDocumentEmbeddedListTrackingAfterSaveWitClass() {
@@ -469,7 +469,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     database.commit();
 
     document = database.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final List<String> trackedList = document.field("embeddedlist");
@@ -489,7 +489,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     Assert.assertEquals(timeLine.getMultiValueChangeEvents(), firedEvents);
     Assert.assertTrue(document.isDirty());
 
-    Assert.assertEquals(document.getDirtyFields(), new String[] {"embeddedlist"});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedlist"});
   }
 
   public void testDocumentEmbeddedMapTrackingAfterSaveWithClass() {
@@ -505,7 +505,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     database.commit();
 
     document = database.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final Map<String, String> trackedMap = document.field("embeddedmap");
@@ -524,7 +524,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(timeLine.getMultiValueChangeEvents(), firedEvents);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[] {"embeddedmap"});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedmap"});
   }
 
   public void testDocumentEmbeddedSetTrackingAfterSaveWithClass() {
@@ -541,7 +541,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     document = database.bindToSession(document);
     Assert.assertFalse(document.isDirty());
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
 
     final Set<String> trackedSet = document.field("embeddedset");
     trackedSet.add("value2");
@@ -559,7 +559,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(timeLine.getMultiValueChangeEvents(), firedEvents);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[] {"embeddedset"});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedset"});
   }
 
   public void testDocumentLinkSetTrackingAfterSaveWithClass() {
@@ -582,7 +582,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     document = database.bindToSession(document);
     Assert.assertFalse(document.isDirty());
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
 
     final Set<ORID> trackedSet = document.field("linkset");
     trackedSet.add(docTwo.getIdentity());
@@ -590,7 +590,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linkset");
     Assert.assertNotNull(timeLine);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[] {"linkset"});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{"linkset"});
   }
 
   public void testDocumentLinkListTrackingAfterSaveWithClass() {
@@ -613,7 +613,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     document = database.bindToSession(document);
     Assert.assertFalse(document.isDirty());
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
 
     final List<ORID> trackedList = document.field("linklist");
     trackedList.add(docTwo.getIdentity());
@@ -623,7 +623,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linklist");
     Assert.assertNotNull(timeLine);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[] {"linklist"});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{"linklist"});
   }
 
   public void testDocumentLinkMapTrackingAfterSaveWithClass() {
@@ -646,7 +646,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     document = database.bindToSession(document);
     Assert.assertFalse(document.isDirty());
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
 
     final Map<String, ORID> trackedMap = document.field("linkmap");
     trackedMap.put("key2", docTwo.getIdentity());
@@ -654,7 +654,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("linkmap");
     Assert.assertNotNull(timeLine);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[] {"linkmap"});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{"linkmap"});
   }
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
@@ -671,7 +671,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     database.commit();
 
     document = database.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final List<String> trackedList = document.field("embeddedlist", OType.EMBEDDEDLIST);
@@ -693,7 +693,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     document = database.bindToSession(document);
     Assert.assertFalse(document.isDirty());
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
 
     final Set<String> trackedSet = document.field("embeddedset", OType.EMBEDDEDSET);
     trackedSet.add("value2");
@@ -712,7 +712,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     database.commit();
 
     document = database.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final List<String> trackedList = document.field("embeddedlist");
@@ -727,7 +727,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedlist");
     Assert.assertNull(timeLine);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[] {"embeddedlist"});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedlist"});
   }
 
   public void testDocumentEmbeddedMapTrackingAfterReplace() {
@@ -743,7 +743,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     database.commit();
 
     document = database.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final Map<String, String> trackedMap = document.field("embeddedmap");
@@ -758,7 +758,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedmap");
     Assert.assertNull(timeLine);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[] {"embeddedmap"});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedmap"});
   }
 
   public void testDocumentEmbeddedSetTrackingAfterReplace() {
@@ -775,7 +775,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     document = database.bindToSession(document);
     Assert.assertFalse(document.isDirty());
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
 
     final Set<String> trackedSet = document.field("embeddedset");
     trackedSet.add("value2");
@@ -789,7 +789,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     final OMultiValueChangeTimeLine timeLine = document.getCollectionTimeLine("embeddedset");
     Assert.assertNull(timeLine);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[] {"embeddedset"});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedset"});
   }
 
   public void testRemoveField() {
@@ -805,7 +805,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     database.commit();
 
     document = database.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final List<String> trackedList = document.field("embeddedlist");
@@ -813,7 +813,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     document.removeField("embeddedlist");
 
-    Assert.assertEquals(document.getDirtyFields(), new String[] {"embeddedlist"});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedlist"});
     Assert.assertTrue(document.isDirty());
     Assert.assertNull(document.getCollectionTimeLine("embeddedlist"));
   }
@@ -831,7 +831,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     database.commit();
 
     document = database.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final List<String> trackedList = document.field("embeddedlist");
@@ -839,7 +839,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     document.setTrackingChanges(false);
 
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
     Assert.assertTrue(document.isDirty());
     Assert.assertNull(document.getCollectionTimeLine("embeddedlist"));
   }
@@ -857,7 +857,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     database.commit();
 
     document = database.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final List<String> trackedList = document.field("embeddedlist");
@@ -868,7 +868,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     trackedList.add("value3");
 
-    Assert.assertEquals(document.getDirtyFields(), new String[] {"embeddedlist"});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedlist"});
     Assert.assertTrue(document.isDirty());
     Assert.assertNotNull(document.getCollectionTimeLine("embeddedlist"));
 
@@ -894,7 +894,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     database.commit();
 
     document = database.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final List<String> trackedList = document.field("embeddedlist");
@@ -902,7 +902,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     document = new ODocument("DocumentTrackingTestClass");
 
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
     Assert.assertTrue(document.isDirty());
     Assert.assertNull(document.getCollectionTimeLine("embeddedlist"));
   }
@@ -920,7 +920,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     database.commit();
 
     document = database.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final List<String> trackedList = document.field("embeddedlist");
@@ -928,7 +928,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
 
     document.clear();
 
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
     Assert.assertTrue(document.isDirty());
     Assert.assertNull(document.getCollectionTimeLine("embeddedlist"));
   }
@@ -946,7 +946,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     database.commit();
 
     document = database.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final List<String> trackedList = document.field("embeddedlist");
@@ -971,7 +971,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     database.commit();
 
     document = database.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final List<String> trackedList = document.field("embeddedlist");
@@ -994,7 +994,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     database.commit();
 
     document = database.bindToSession(document);
-    Assert.assertEquals(document.getDirtyFields(), new String[] {});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{});
     Assert.assertFalse(document.isDirty());
 
     final List<String> trackedList = document.field("embeddedlist");
@@ -1004,7 +1004,7 @@ public class DocumentTrackingTest extends DocumentDBBaseTest {
     fieldIterator.next();
     fieldIterator.remove();
 
-    Assert.assertEquals(document.getDirtyFields(), new String[] {"embeddedlist"});
+    Assert.assertEquals(document.getDirtyFields(), new String[]{"embeddedlist"});
     Assert.assertTrue(document.isDirty());
     Assert.assertNull(document.getCollectionTimeLine("embeddedlist"));
   }

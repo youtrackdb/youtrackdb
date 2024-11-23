@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,13 +14,14 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.operator;
 
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OCompositeIndexDefinition;
@@ -41,8 +42,6 @@ import java.util.stream.Stream;
 
 /**
  * CONTAINS operator.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OQueryOperatorContains extends OQueryOperatorEqualityNotNulls {
 
@@ -58,6 +57,7 @@ public class OQueryOperatorContains extends OQueryOperatorEqualityNotNulls {
       final Object iLeft,
       final Object iRight,
       OCommandContext iContext) {
+    var database = iContext.getDatabase();
     final OSQLFilterCondition condition;
     if (iCondition.getLeft() instanceof OSQLFilterCondition) {
       condition = (OSQLFilterCondition) iCondition.getLeft();
@@ -121,7 +121,7 @@ public class OQueryOperatorContains extends OQueryOperatorEqualityNotNulls {
           }
         }
         for (final Object o : iterable) {
-          if (OQueryOperatorEquals.equals(iRight, o, type)) {
+          if (OQueryOperatorEquals.equals(database, iRight, o, type)) {
             return true;
           }
         }
@@ -140,7 +140,7 @@ public class OQueryOperatorContains extends OQueryOperatorEqualityNotNulls {
       } else {
         // CHECK AGAINST A SINGLE VALUE
         for (final Object o : iterable) {
-          if (OQueryOperatorEquals.equals(iLeft, o)) {
+          if (OQueryOperatorEquals.equals(database, iLeft, o)) {
             return true;
           }
         }
@@ -184,7 +184,7 @@ public class OQueryOperatorContains extends OQueryOperatorEqualityNotNulls {
         return null;
       }
 
-      stream = index.getInternal().getRids(key).map((rid) -> new ORawPair<>(key, rid));
+      stream = index.getInternal().getRids(database, key).map((rid) -> new ORawPair<>(key, rid));
     } else {
       // in case of composite keys several items can be returned in case of we perform search
       // using part of composite key stored in index.
@@ -200,11 +200,13 @@ public class OQueryOperatorContains extends OQueryOperatorEqualityNotNulls {
 
       final Object keyTwo = compositeIndexDefinition.createSingleValue(database, keyParams);
       if (internalIndex.hasRangeQuerySupport()) {
-        stream = index.getInternal().streamEntriesBetween(keyOne, true, keyTwo, true, ascSortOrder);
+        stream = index.getInternal().streamEntriesBetween(database, keyOne, true, keyTwo, true,
+            ascSortOrder);
       } else {
         int indexParamCount = indexDefinition.getParamCount();
         if (indexParamCount == keyParams.size()) {
-          stream = index.getInternal().getRids(keyOne).map((rid) -> new ORawPair<>(keyOne, rid));
+          stream = index.getInternal().getRids(database, keyOne)
+              .map((rid) -> new ORawPair<>(keyOne, rid));
         } else {
           return null;
         }
@@ -216,12 +218,12 @@ public class OQueryOperatorContains extends OQueryOperatorEqualityNotNulls {
   }
 
   @Override
-  public ORID getBeginRidRange(Object iLeft, Object iRight) {
+  public ORID getBeginRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 
   @Override
-  public ORID getEndRidRange(Object iLeft, Object iRight) {
+  public ORID getEndRidRange(ODatabaseSession session, Object iLeft, Object iRight) {
     return null;
   }
 }

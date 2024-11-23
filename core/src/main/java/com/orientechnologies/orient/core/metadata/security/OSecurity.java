@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.metadata.security;
@@ -27,13 +27,12 @@ import java.util.Set;
 
 /**
  * Manages users and roles.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OSecurity {
 
   String RESTRICTED_CLASSNAME = "ORestricted";
-  @Deprecated String IDENTITY_CLASSNAME = OIdentity.CLASS_NAME;
+  @Deprecated
+  String IDENTITY_CLASSNAME = OIdentity.CLASS_NAME;
   String ALLOW_ALL_FIELD = "_allow";
   String ALLOW_READ_FIELD = "_allowRead";
   String ALLOW_UPDATE_FIELD = "_allowUpdate";

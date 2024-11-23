@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,5 +83,6 @@ public class OLuceneMapEntryIterator<K, V> implements Iterator<Map.Entry<K, V>> 
   }
 
   @Override
-  public void remove() {}
+  public void remove() {
+  }
 }

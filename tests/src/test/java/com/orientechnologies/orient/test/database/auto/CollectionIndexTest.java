@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,10 +46,10 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
       database.getMetadata().getSchema().dropClass("Collector");
     }
     final OClass collector = database.createClass("Collector");
-    collector.createProperty("id", OType.STRING);
+    collector.createProperty(database, "id", OType.STRING);
     collector
-        .createProperty("stringCollection", OType.EMBEDDEDLIST, OType.STRING)
-        .createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
+        .createProperty(database, "stringCollection", OType.EMBEDDEDLIST, OType.STRING)
+        .createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
   }
 
   @AfterMethod
@@ -72,7 +72,7 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     final OIndex index = getIndex("Collector.stringCollection");
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -102,7 +102,7 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
     }
 
     final OIndex index = getIndex("Collector.stringCollection");
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -128,7 +128,7 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     final OIndex index = getIndex("Collector.stringCollection");
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -164,7 +164,7 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
 
     final OIndex index = getIndex("Collector.stringCollection");
 
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(database), 2);
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
       keysIterator = keyStream.iterator();
@@ -195,7 +195,7 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
 
     final OIndex index = getIndex("Collector.stringCollection");
 
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -230,7 +230,7 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     final OIndex index = getIndex("Collector.stringCollection");
-    Assert.assertEquals(index.getInternal().size(), 3);
+    Assert.assertEquals(index.getInternal().size(database), 3);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -267,7 +267,7 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
 
     final OIndex index = getIndex("Collector.stringCollection");
 
-    Assert.assertEquals(index.getInternal().size(), 3);
+    Assert.assertEquals(index.getInternal().size(database), 3);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -298,7 +298,7 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
     database.rollback();
 
     final OIndex index = getIndex("Collector.stringCollection");
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -334,7 +334,7 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
     }
 
     final OIndex index = getIndex("Collector.stringCollection");
-    Assert.assertEquals(index.getInternal().size(), 1);
+    Assert.assertEquals(index.getInternal().size(database), 1);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -365,7 +365,7 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
     database.rollback();
 
     final OIndex index = getIndex("Collector.stringCollection");
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -422,7 +422,7 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
 
     final OIndex index = getIndex("Collector.stringCollection");
 
-    Assert.assertEquals(index.getInternal().size(), 0);
+    Assert.assertEquals(index.getInternal().size(database), 0);
   }
 
   public void testIndexCollectionRemoveInTx() {
@@ -444,7 +444,7 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
 
     final OIndex index = getIndex("Collector.stringCollection");
 
-    Assert.assertEquals(index.getInternal().size(), 0);
+    Assert.assertEquals(index.getInternal().size(database), 0);
   }
 
   public void testIndexCollectionRemoveInTxRollback() {
@@ -461,7 +461,7 @@ public class CollectionIndexTest extends DocumentDBBaseTest {
     database.rollback();
 
     final OIndex index = getIndex("Collector.stringCollection");
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {

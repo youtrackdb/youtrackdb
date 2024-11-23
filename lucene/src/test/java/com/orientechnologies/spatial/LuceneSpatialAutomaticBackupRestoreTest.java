@@ -24,7 +24,7 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -52,14 +52,14 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 
 /**
- * Created by Enrico Risa on 07/07/15.
+ *
  */
 public class LuceneSpatialAutomaticBackupRestoreTest {
 
   private static final String DBNAME = "OLuceneAutomaticBackupRestoreTest";
 
   public File tempFolder;
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
   private String URL = null;
   private String BACKUPDIR = null;
   private String BACKUFILE = null;
@@ -67,7 +67,8 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
   private OServer server;
   private ODatabaseSessionInternal db;
 
-  @Rule public TestName name = new TestName();
+  @Rule
+  public TestName name = new TestName();
 
   @Before
   public void setUp() throws Exception {
@@ -94,7 +95,7 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
     System.setProperty("ORIENTDB_HOME", tempFolder.getAbsolutePath());
 
     String path = tempFolder.getAbsolutePath() + File.separator + "databases";
-    orientDB = server.getContext();
+    oxygenDB = server.getContext();
 
     URL = "plocal:" + path + File.separator + DBNAME;
 
@@ -107,10 +108,10 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
 
     dropIfExists();
 
-    orientDB.execute(
+    oxygenDB.execute(
         "create database ? plocal users(admin identified by 'admin' role admin)", DBNAME);
 
-    db = (ODatabaseSessionInternal) orientDB.open(DBNAME, "admin", "admin");
+    db = (ODatabaseSessionInternal) oxygenDB.open(DBNAME, "admin", "admin");
 
     db.command("create class City ").close();
     db.command("create property City.name string").close();
@@ -147,8 +148,8 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
 
   private void dropIfExists() {
 
-    if (orientDB.exists(DBNAME)) {
-      orientDB.drop(DBNAME);
+    if (oxygenDB.exists(DBNAME)) {
+      oxygenDB.drop(DBNAME);
     }
   }
 
@@ -175,24 +176,24 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
             getClass().getClassLoader().getResourceAsStream("automatic-backup.json"));
 
     ODocument doc =
-        new ODocument()
-            .fromJSON(jsonConfig)
-            .field("enabled", true)
-            .field("targetFileName", "${DBNAME}.json")
-            .field("targetDirectory", BACKUPDIR)
-            .field("mode", "EXPORT")
-            .field("dbInclude", new String[] {DBNAME})
-            .field(
-                "firstTime",
-                new SimpleDateFormat("HH:mm:ss")
-                    .format(new Date(System.currentTimeMillis() + 2000)));
+        new ODocument();
+    doc.fromJSON(jsonConfig);
+    doc.field("enabled", true)
+        .field("targetFileName", "${DBNAME}.json")
+        .field("targetDirectory", BACKUPDIR)
+        .field("mode", "EXPORT")
+        .field("dbInclude", new String[]{DBNAME})
+        .field(
+            "firstTime",
+            new SimpleDateFormat("HH:mm:ss")
+                .format(new Date(System.currentTimeMillis() + 2000)));
 
     OIOUtils.writeFile(
         new File(tempFolder.getAbsolutePath() + "/config/automatic-backup.json"), doc.toJSON());
 
     final OAutomaticBackup aBackup = new OAutomaticBackup();
 
-    final OServerParameterConfiguration[] config = new OServerParameterConfiguration[] {};
+    final OServerParameterConfiguration[] config = new OServerParameterConfiguration[]{};
 
     aBackup.config(server, config);
     final CountDownLatch latch = new CountDownLatch(1);
@@ -221,12 +222,13 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
 
     GZIPInputStream stream = new GZIPInputStream(new FileInputStream(BACKUFILE + ".json.gz"));
     new ODatabaseImport(
-            db,
-            stream,
-            new OCommandOutputListener() {
-              @Override
-              public void onMessage(String s) {}
-            })
+        db,
+        stream,
+        new OCommandOutputListener() {
+          @Override
+          public void onMessage(String s) {
+          }
+        })
         .importDatabase();
 
     db.close();
@@ -245,12 +247,12 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
   }
 
   private ODatabaseSessionInternal createAndOpen() {
-    orientDB.execute(
+    oxygenDB.execute(
         "create database ? plocal users(admin identified by 'admin' role admin)", DBNAME);
     return open();
   }
 
   private ODatabaseSessionInternal open() {
-    return (ODatabaseSessionInternal) orientDB.open(DBNAME, "admin", "admin");
+    return (ODatabaseSessionInternal) oxygenDB.open(DBNAME, "admin", "admin");
   }
 }

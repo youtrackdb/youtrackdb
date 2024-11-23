@@ -33,42 +33,45 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     db.commit();
 
     OClass embeddedClazz = db.getMetadata().getSchema().createClass("EmbeddedValidation");
-    embeddedClazz.createProperty("int", OType.INTEGER).setMandatory(true);
+    embeddedClazz.createProperty(db, "int", OType.INTEGER).setMandatory(db, true);
 
     OClass clazz = db.getMetadata().getSchema().createClass("Validation");
-    clazz.createProperty("int", OType.INTEGER).setMandatory(true);
-    clazz.createProperty("long", OType.LONG).setMandatory(true);
-    clazz.createProperty("float", OType.FLOAT).setMandatory(true);
-    clazz.createProperty("boolean", OType.BOOLEAN).setMandatory(true);
-    clazz.createProperty("binary", OType.BINARY).setMandatory(true);
-    clazz.createProperty("byte", OType.BYTE).setMandatory(true);
-    clazz.createProperty("date", OType.DATE).setMandatory(true);
-    clazz.createProperty("datetime", OType.DATETIME).setMandatory(true);
-    clazz.createProperty("decimal", OType.DECIMAL).setMandatory(true);
-    clazz.createProperty("double", OType.DOUBLE).setMandatory(true);
-    clazz.createProperty("short", OType.SHORT).setMandatory(true);
-    clazz.createProperty("string", OType.STRING).setMandatory(true);
-    clazz.createProperty("link", OType.LINK).setMandatory(true);
-    clazz.createProperty("embedded", OType.EMBEDDED, embeddedClazz).setMandatory(true);
+    clazz.createProperty(db, "int", OType.INTEGER).setMandatory(db, true);
+    clazz.createProperty(db, "long", OType.LONG).setMandatory(db, true);
+    clazz.createProperty(db, "float", OType.FLOAT).setMandatory(db, true);
+    clazz.createProperty(db, "boolean", OType.BOOLEAN).setMandatory(db, true);
+    clazz.createProperty(db, "binary", OType.BINARY).setMandatory(db, true);
+    clazz.createProperty(db, "byte", OType.BYTE).setMandatory(db, true);
+    clazz.createProperty(db, "date", OType.DATE).setMandatory(db, true);
+    clazz.createProperty(db, "datetime", OType.DATETIME).setMandatory(db, true);
+    clazz.createProperty(db, "decimal", OType.DECIMAL).setMandatory(db, true);
+    clazz.createProperty(db, "double", OType.DOUBLE).setMandatory(db, true);
+    clazz.createProperty(db, "short", OType.SHORT).setMandatory(db, true);
+    clazz.createProperty(db, "string", OType.STRING).setMandatory(db, true);
+    clazz.createProperty(db, "link", OType.LINK).setMandatory(db, true);
+    clazz.createProperty(db, "embedded", OType.EMBEDDED, embeddedClazz).setMandatory(db, true);
 
-    clazz.createProperty("embeddedListNoClass", OType.EMBEDDEDLIST).setMandatory(true);
-    clazz.createProperty("embeddedSetNoClass", OType.EMBEDDEDSET).setMandatory(true);
-    clazz.createProperty("embeddedMapNoClass", OType.EMBEDDEDMAP).setMandatory(true);
+    clazz.createProperty(db, "embeddedListNoClass", OType.EMBEDDEDLIST).setMandatory(db, true);
+    clazz.createProperty(db, "embeddedSetNoClass", OType.EMBEDDEDSET).setMandatory(db, true);
+    clazz.createProperty(db, "embeddedMapNoClass", OType.EMBEDDEDMAP).setMandatory(db, true);
 
-    clazz.createProperty("embeddedList", OType.EMBEDDEDLIST, embeddedClazz).setMandatory(true);
-    clazz.createProperty("embeddedSet", OType.EMBEDDEDSET, embeddedClazz).setMandatory(true);
-    clazz.createProperty("embeddedMap", OType.EMBEDDEDMAP, embeddedClazz).setMandatory(true);
+    clazz.createProperty(db, "embeddedList", OType.EMBEDDEDLIST, embeddedClazz)
+        .setMandatory(db, true);
+    clazz.createProperty(db, "embeddedSet", OType.EMBEDDEDSET, embeddedClazz)
+        .setMandatory(db, true);
+    clazz.createProperty(db, "embeddedMap", OType.EMBEDDEDMAP, embeddedClazz)
+        .setMandatory(db, true);
 
-    clazz.createProperty("linkList", OType.LINKLIST).setMandatory(true);
-    clazz.createProperty("linkSet", OType.LINKSET).setMandatory(true);
-    clazz.createProperty("linkMap", OType.LINKMAP).setMandatory(true);
+    clazz.createProperty(db, "linkList", OType.LINKLIST).setMandatory(db, true);
+    clazz.createProperty(db, "linkSet", OType.LINKSET).setMandatory(db, true);
+    clazz.createProperty(db, "linkMap", OType.LINKMAP).setMandatory(db, true);
 
     ODocument d = new ODocument(clazz);
     d.field("int", 10);
     d.field("long", 10);
     d.field("float", 10);
     d.field("boolean", 10);
-    d.field("binary", new byte[] {});
+    d.field("binary", new byte[]{});
     d.field("byte", 10);
     d.field("date", new Date());
     d.field("datetime", new Date());
@@ -138,14 +141,14 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
   @Test
   public void testValidationNotValidEmbedded() {
     OClass embeddedClazz = db.getMetadata().getSchema().createClass("EmbeddedValidation");
-    embeddedClazz.createProperty("int", OType.INTEGER).setMandatory(true);
+    embeddedClazz.createProperty(db, "int", OType.INTEGER).setMandatory(db, true);
 
     OClass clazz = db.getMetadata().getSchema().createClass("Validation");
-    clazz.createProperty("int", OType.INTEGER).setMandatory(true);
-    clazz.createProperty("long", OType.LONG).setMandatory(true);
-    clazz.createProperty("embedded", OType.EMBEDDED, embeddedClazz).setMandatory(true);
+    clazz.createProperty(db, "int", OType.INTEGER).setMandatory(db, true);
+    clazz.createProperty(db, "long", OType.LONG).setMandatory(db, true);
+    clazz.createProperty(db, "embedded", OType.EMBEDDED, embeddedClazz).setMandatory(db, true);
     OClass clazzNotVertex = db.getMetadata().getSchema().createClass("NotVertex");
-    clazzNotVertex.createProperty("embeddedSimple", OType.EMBEDDED);
+    clazzNotVertex.createProperty(db, "embeddedSimple", OType.EMBEDDED);
 
     ODocument d = new ODocument(clazz);
     d.field("int", 30);
@@ -167,13 +170,14 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
   @Test
   public void testValidationNotValidEmbeddedSet() {
     OClass embeddedClazz = db.getMetadata().getSchema().createClass("EmbeddedValidation");
-    embeddedClazz.createProperty("int", OType.INTEGER).setMandatory(true);
-    embeddedClazz.createProperty("long", OType.LONG).setMandatory(true);
+    embeddedClazz.createProperty(db, "int", OType.INTEGER).setMandatory(db, true);
+    embeddedClazz.createProperty(db, "long", OType.LONG).setMandatory(db, true);
 
     OClass clazz = db.getMetadata().getSchema().createClass("Validation");
-    clazz.createProperty("int", OType.INTEGER).setMandatory(true);
-    clazz.createProperty("long", OType.LONG).setMandatory(true);
-    clazz.createProperty("embeddedSet", OType.EMBEDDEDSET, embeddedClazz).setMandatory(true);
+    clazz.createProperty(db, "int", OType.INTEGER).setMandatory(db, true);
+    clazz.createProperty(db, "long", OType.LONG).setMandatory(db, true);
+    clazz.createProperty(db, "embeddedSet", OType.EMBEDDEDSET, embeddedClazz)
+        .setMandatory(db, true);
 
     ODocument d = new ODocument(clazz);
     d.field("int", 30);
@@ -201,13 +205,14 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
   @Test
   public void testValidationNotValidEmbeddedList() {
     OClass embeddedClazz = db.getMetadata().getSchema().createClass("EmbeddedValidation");
-    embeddedClazz.createProperty("int", OType.INTEGER).setMandatory(true);
-    embeddedClazz.createProperty("long", OType.LONG).setMandatory(true);
+    embeddedClazz.createProperty(db, "int", OType.INTEGER).setMandatory(db, true);
+    embeddedClazz.createProperty(db, "long", OType.LONG).setMandatory(db, true);
 
     OClass clazz = db.getMetadata().getSchema().createClass("Validation");
-    clazz.createProperty("int", OType.INTEGER).setMandatory(true);
-    clazz.createProperty("long", OType.LONG).setMandatory(true);
-    clazz.createProperty("embeddedList", OType.EMBEDDEDLIST, embeddedClazz).setMandatory(true);
+    clazz.createProperty(db, "int", OType.INTEGER).setMandatory(db, true);
+    clazz.createProperty(db, "long", OType.LONG).setMandatory(db, true);
+    clazz.createProperty(db, "embeddedList", OType.EMBEDDEDLIST, embeddedClazz)
+        .setMandatory(db, true);
 
     ODocument d = new ODocument(clazz);
     d.field("int", 30);
@@ -235,13 +240,14 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
   @Test
   public void testValidationNotValidEmbeddedMap() {
     OClass embeddedClazz = db.getMetadata().getSchema().createClass("EmbeddedValidation");
-    embeddedClazz.createProperty("int", OType.INTEGER).setMandatory(true);
-    embeddedClazz.createProperty("long", OType.LONG).setMandatory(true);
+    embeddedClazz.createProperty(db, "int", OType.INTEGER).setMandatory(db, true);
+    embeddedClazz.createProperty(db, "long", OType.LONG).setMandatory(db, true);
 
     OClass clazz = db.getMetadata().getSchema().createClass("Validation");
-    clazz.createProperty("int", OType.INTEGER).setMandatory(true);
-    clazz.createProperty("long", OType.LONG).setMandatory(true);
-    clazz.createProperty("embeddedMap", OType.EMBEDDEDMAP, embeddedClazz).setMandatory(true);
+    clazz.createProperty(db, "int", OType.INTEGER).setMandatory(db, true);
+    clazz.createProperty(db, "long", OType.LONG).setMandatory(db, true);
+    clazz.createProperty(db, "embeddedMap", OType.EMBEDDEDMAP, embeddedClazz)
+        .setMandatory(db, true);
 
     ODocument d = new ODocument(clazz);
     d.field("int", 30);
@@ -279,42 +285,42 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
   @Test
   public void testMaxValidation() {
     OClass clazz = db.getMetadata().getSchema().createClass("Validation");
-    clazz.createProperty("int", OType.INTEGER).setMax("11");
-    clazz.createProperty("long", OType.LONG).setMax("11");
-    clazz.createProperty("float", OType.FLOAT).setMax("11");
+    clazz.createProperty(db, "int", OType.INTEGER).setMax(db, "11");
+    clazz.createProperty(db, "long", OType.LONG).setMax(db, "11");
+    clazz.createProperty(db, "float", OType.FLOAT).setMax(db, "11");
     // clazz.createProperty("boolean", OType.BOOLEAN) no meaning
-    clazz.createProperty("binary", OType.BINARY).setMax("11");
-    clazz.createProperty("byte", OType.BYTE).setMax("11");
+    clazz.createProperty(db, "binary", OType.BINARY).setMax(db, "11");
+    clazz.createProperty(db, "byte", OType.BYTE).setMax(db, "11");
     Calendar cal = Calendar.getInstance();
     cal.add(Calendar.HOUR, cal.get(Calendar.HOUR) == 11 ? 0 : 1);
     SimpleDateFormat format = db.getStorage().getConfiguration().getDateFormatInstance();
-    clazz.createProperty("date", OType.DATE).setMax(format.format(cal.getTime()));
+    clazz.createProperty(db, "date", OType.DATE).setMax(db, format.format(cal.getTime()));
     cal = Calendar.getInstance();
     cal.add(Calendar.HOUR, 1);
     format = db.getStorage().getConfiguration().getDateTimeFormatInstance();
-    clazz.createProperty("datetime", OType.DATETIME).setMax(format.format(cal.getTime()));
+    clazz.createProperty(db, "datetime", OType.DATETIME).setMax(db, format.format(cal.getTime()));
 
-    clazz.createProperty("decimal", OType.DECIMAL).setMax("11");
-    clazz.createProperty("double", OType.DOUBLE).setMax("11");
-    clazz.createProperty("short", OType.SHORT).setMax("11");
-    clazz.createProperty("string", OType.STRING).setMax("11");
+    clazz.createProperty(db, "decimal", OType.DECIMAL).setMax(db, "11");
+    clazz.createProperty(db, "double", OType.DOUBLE).setMax(db, "11");
+    clazz.createProperty(db, "short", OType.SHORT).setMax(db, "11");
+    clazz.createProperty(db, "string", OType.STRING).setMax(db, "11");
     // clazz.createProperty("link", OType.LINK) no meaning
     // clazz.createProperty("embedded", OType.EMBEDDED) no meaning
 
-    clazz.createProperty("embeddedList", OType.EMBEDDEDLIST).setMax("2");
-    clazz.createProperty("embeddedSet", OType.EMBEDDEDSET).setMax("2");
-    clazz.createProperty("embeddedMap", OType.EMBEDDEDMAP).setMax("2");
+    clazz.createProperty(db, "embeddedList", OType.EMBEDDEDLIST).setMax(db, "2");
+    clazz.createProperty(db, "embeddedSet", OType.EMBEDDEDSET).setMax(db, "2");
+    clazz.createProperty(db, "embeddedMap", OType.EMBEDDEDMAP).setMax(db, "2");
 
-    clazz.createProperty("linkList", OType.LINKLIST).setMax("2");
-    clazz.createProperty("linkSet", OType.LINKSET).setMax("2");
-    clazz.createProperty("linkMap", OType.LINKMAP).setMax("2");
-    clazz.createProperty("linkBag", OType.LINKBAG).setMax("2");
+    clazz.createProperty(db, "linkList", OType.LINKLIST).setMax(db, "2");
+    clazz.createProperty(db, "linkSet", OType.LINKSET).setMax(db, "2");
+    clazz.createProperty(db, "linkMap", OType.LINKMAP).setMax(db, "2");
+    clazz.createProperty(db, "linkBag", OType.LINKBAG).setMax(db, "2");
 
     ODocument d = new ODocument(clazz);
     d.field("int", 11);
     d.field("long", 11);
     d.field("float", 11);
-    d.field("binary", new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11});
+    d.field("binary", new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11});
     d.field("byte", 11);
     d.field("date", new Date());
     d.field("datetime", new Date());
@@ -345,7 +351,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     checkField(d, "int", 12);
     checkField(d, "long", 12);
     checkField(d, "float", 20);
-    checkField(d, "binary", new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13});
+    checkField(d, "binary", new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13});
 
     checkField(d, "byte", 20);
     cal = Calendar.getInstance();
@@ -395,42 +401,42 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     db.commit();
 
     OClass clazz = db.getMetadata().getSchema().createClass("Validation");
-    clazz.createProperty("int", OType.INTEGER).setMin("11");
-    clazz.createProperty("long", OType.LONG).setMin("11");
-    clazz.createProperty("float", OType.FLOAT).setMin("11");
+    clazz.createProperty(db, "int", OType.INTEGER).setMin("11");
+    clazz.createProperty(db, "long", OType.LONG).setMin("11");
+    clazz.createProperty(db, "float", OType.FLOAT).setMin("11");
     // clazz.createProperty("boolean", OType.BOOLEAN) //no meaning
-    clazz.createProperty("binary", OType.BINARY).setMin("11");
-    clazz.createProperty("byte", OType.BYTE).setMin("11");
+    clazz.createProperty(db, "binary", OType.BINARY).setMin("11");
+    clazz.createProperty(db, "byte", OType.BYTE).setMin("11");
     Calendar cal = Calendar.getInstance();
     cal.add(Calendar.HOUR, cal.get(Calendar.HOUR) == 11 ? 0 : 1);
     SimpleDateFormat format = db.getStorage().getConfiguration().getDateFormatInstance();
-    clazz.createProperty("date", OType.DATE).setMin(format.format(cal.getTime()));
+    clazz.createProperty(db, "date", OType.DATE).setMin(format.format(cal.getTime()));
     cal = Calendar.getInstance();
     cal.add(Calendar.HOUR, 1);
     format = db.getStorage().getConfiguration().getDateTimeFormatInstance();
-    clazz.createProperty("datetime", OType.DATETIME).setMin(format.format(cal.getTime()));
+    clazz.createProperty(db, "datetime", OType.DATETIME).setMin(format.format(cal.getTime()));
 
-    clazz.createProperty("decimal", OType.DECIMAL).setMin("11");
-    clazz.createProperty("double", OType.DOUBLE).setMin("11");
-    clazz.createProperty("short", OType.SHORT).setMin("11");
-    clazz.createProperty("string", OType.STRING).setMin("11");
+    clazz.createProperty(db, "decimal", OType.DECIMAL).setMin("11");
+    clazz.createProperty(db, "double", OType.DOUBLE).setMin("11");
+    clazz.createProperty(db, "short", OType.SHORT).setMin("11");
+    clazz.createProperty(db, "string", OType.STRING).setMin("11");
     // clazz.createProperty("link", OType.LINK) no meaning
     // clazz.createProperty("embedded", OType.EMBEDDED) no meaning
 
-    clazz.createProperty("embeddedList", OType.EMBEDDEDLIST).setMin("1");
-    clazz.createProperty("embeddedSet", OType.EMBEDDEDSET).setMin("1");
-    clazz.createProperty("embeddedMap", OType.EMBEDDEDMAP).setMin("1");
+    clazz.createProperty(db, "embeddedList", OType.EMBEDDEDLIST).setMin("1");
+    clazz.createProperty(db, "embeddedSet", OType.EMBEDDEDSET).setMin("1");
+    clazz.createProperty(db, "embeddedMap", OType.EMBEDDEDMAP).setMin("1");
 
-    clazz.createProperty("linkList", OType.LINKLIST).setMin("1");
-    clazz.createProperty("linkSet", OType.LINKSET).setMin("1");
-    clazz.createProperty("linkMap", OType.LINKMAP).setMin("1");
-    clazz.createProperty("linkBag", OType.LINKBAG).setMin("1");
+    clazz.createProperty(db, "linkList", OType.LINKLIST).setMin("1");
+    clazz.createProperty(db, "linkSet", OType.LINKSET).setMin("1");
+    clazz.createProperty(db, "linkMap", OType.LINKMAP).setMin("1");
+    clazz.createProperty(db, "linkBag", OType.LINKBAG).setMin("1");
 
     ODocument d = new ODocument(clazz);
     d.field("int", 11);
     d.field("long", 11);
     d.field("float", 11);
-    d.field("binary", new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11});
+    d.field("binary", new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11});
     d.field("byte", 11);
 
     cal = Calendar.getInstance();
@@ -461,7 +467,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     checkField(d, "int", 10);
     checkField(d, "long", 10);
     checkField(d, "float", 10);
-    checkField(d, "binary", new byte[] {1, 2, 3, 4, 5, 6, 7, 8});
+    checkField(d, "binary", new byte[]{1, 2, 3, 4, 5, 6, 7, 8});
     checkField(d, "byte", 10);
 
     cal = Calendar.getInstance();
@@ -489,35 +495,35 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     db.commit();
 
     OClass clazz = db.getMetadata().getSchema().createClass("Validation");
-    clazz.createProperty("int", OType.INTEGER).setNotNull(true);
-    clazz.createProperty("long", OType.LONG).setNotNull(true);
-    clazz.createProperty("float", OType.FLOAT).setNotNull(true);
-    clazz.createProperty("boolean", OType.BOOLEAN).setNotNull(true);
-    clazz.createProperty("binary", OType.BINARY).setNotNull(true);
-    clazz.createProperty("byte", OType.BYTE).setNotNull(true);
-    clazz.createProperty("date", OType.DATE).setNotNull(true);
-    clazz.createProperty("datetime", OType.DATETIME).setNotNull(true);
-    clazz.createProperty("decimal", OType.DECIMAL).setNotNull(true);
-    clazz.createProperty("double", OType.DOUBLE).setNotNull(true);
-    clazz.createProperty("short", OType.SHORT).setNotNull(true);
-    clazz.createProperty("string", OType.STRING).setNotNull(true);
-    clazz.createProperty("link", OType.LINK).setNotNull(true);
-    clazz.createProperty("embedded", OType.EMBEDDED).setNotNull(true);
+    clazz.createProperty(db, "int", OType.INTEGER).setNotNull(db, true);
+    clazz.createProperty(db, "long", OType.LONG).setNotNull(db, true);
+    clazz.createProperty(db, "float", OType.FLOAT).setNotNull(db, true);
+    clazz.createProperty(db, "boolean", OType.BOOLEAN).setNotNull(db, true);
+    clazz.createProperty(db, "binary", OType.BINARY).setNotNull(db, true);
+    clazz.createProperty(db, "byte", OType.BYTE).setNotNull(db, true);
+    clazz.createProperty(db, "date", OType.DATE).setNotNull(db, true);
+    clazz.createProperty(db, "datetime", OType.DATETIME).setNotNull(db, true);
+    clazz.createProperty(db, "decimal", OType.DECIMAL).setNotNull(db, true);
+    clazz.createProperty(db, "double", OType.DOUBLE).setNotNull(db, true);
+    clazz.createProperty(db, "short", OType.SHORT).setNotNull(db, true);
+    clazz.createProperty(db, "string", OType.STRING).setNotNull(db, true);
+    clazz.createProperty(db, "link", OType.LINK).setNotNull(db, true);
+    clazz.createProperty(db, "embedded", OType.EMBEDDED).setNotNull(db, true);
 
-    clazz.createProperty("embeddedList", OType.EMBEDDEDLIST).setNotNull(true);
-    clazz.createProperty("embeddedSet", OType.EMBEDDEDSET).setNotNull(true);
-    clazz.createProperty("embeddedMap", OType.EMBEDDEDMAP).setNotNull(true);
+    clazz.createProperty(db, "embeddedList", OType.EMBEDDEDLIST).setNotNull(db, true);
+    clazz.createProperty(db, "embeddedSet", OType.EMBEDDEDSET).setNotNull(db, true);
+    clazz.createProperty(db, "embeddedMap", OType.EMBEDDEDMAP).setNotNull(db, true);
 
-    clazz.createProperty("linkList", OType.LINKLIST).setNotNull(true);
-    clazz.createProperty("linkSet", OType.LINKSET).setNotNull(true);
-    clazz.createProperty("linkMap", OType.LINKMAP).setNotNull(true);
+    clazz.createProperty(db, "linkList", OType.LINKLIST).setNotNull(db, true);
+    clazz.createProperty(db, "linkSet", OType.LINKSET).setNotNull(db, true);
+    clazz.createProperty(db, "linkMap", OType.LINKMAP).setNotNull(db, true);
 
     ODocument d = new ODocument(clazz);
     d.field("int", 12);
     d.field("long", 12);
     d.field("float", 12);
     d.field("boolean", true);
-    d.field("binary", new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12});
+    d.field("binary", new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12});
     d.field("byte", 12);
     d.field("date", new Date());
     d.field("datetime", new Date());
@@ -560,7 +566,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
   @Test
   public void testRegExpValidation() {
     OClass clazz = db.getMetadata().getSchema().createClass("Validation");
-    clazz.createProperty("string", OType.STRING).setRegexp("[^Z]*");
+    clazz.createProperty(db, "string", OType.STRING).setRegexp("[^Z]*");
 
     ODocument d = new ODocument(clazz);
     d.field("string", "yeah");
@@ -572,9 +578,9 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
   @Test
   public void testLinkedTypeValidation() {
     OClass clazz = db.getMetadata().getSchema().createClass("Validation");
-    clazz.createProperty("embeddedList", OType.EMBEDDEDLIST).setLinkedType(OType.INTEGER);
-    clazz.createProperty("embeddedSet", OType.EMBEDDEDSET).setLinkedType(OType.INTEGER);
-    clazz.createProperty("embeddedMap", OType.EMBEDDEDMAP).setLinkedType(OType.INTEGER);
+    clazz.createProperty(db, "embeddedList", OType.EMBEDDEDLIST).setLinkedType(db, OType.INTEGER);
+    clazz.createProperty(db, "embeddedSet", OType.EMBEDDEDSET).setLinkedType(db, OType.INTEGER);
+    clazz.createProperty(db, "embeddedMap", OType.EMBEDDEDMAP).setLinkedType(db, OType.INTEGER);
 
     ODocument d = new ODocument(clazz);
     List<Integer> list = Arrays.asList(1, 2);
@@ -601,14 +607,14 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
   public void testLinkedClassValidation() {
     OClass clazz = db.getMetadata().getSchema().createClass("Validation");
     OClass clazz1 = db.getMetadata().getSchema().createClass("Validation1");
-    clazz.createProperty("link", OType.LINK).setLinkedClass(clazz1);
-    clazz.createProperty("embedded", OType.EMBEDDED).setLinkedClass(clazz1);
-    clazz.createProperty("linkList", OType.LINKLIST).setLinkedClass(clazz1);
-    clazz.createProperty("embeddedList", OType.EMBEDDEDLIST).setLinkedClass(clazz1);
-    clazz.createProperty("embeddedSet", OType.EMBEDDEDSET).setLinkedClass(clazz1);
-    clazz.createProperty("linkSet", OType.LINKSET).setLinkedClass(clazz1);
-    clazz.createProperty("linkMap", OType.LINKMAP).setLinkedClass(clazz1);
-    clazz.createProperty("linkBag", OType.LINKBAG).setLinkedClass(clazz1);
+    clazz.createProperty(db, "link", OType.LINK).setLinkedClass(db, clazz1);
+    clazz.createProperty(db, "embedded", OType.EMBEDDED).setLinkedClass(db, clazz1);
+    clazz.createProperty(db, "linkList", OType.LINKLIST).setLinkedClass(db, clazz1);
+    clazz.createProperty(db, "embeddedList", OType.EMBEDDEDLIST).setLinkedClass(db, clazz1);
+    clazz.createProperty(db, "embeddedSet", OType.EMBEDDEDSET).setLinkedClass(db, clazz1);
+    clazz.createProperty(db, "linkSet", OType.LINKSET).setLinkedClass(db, clazz1);
+    clazz.createProperty(db, "linkMap", OType.LINKMAP).setLinkedClass(db, clazz1);
+    clazz.createProperty(db, "linkBag", OType.LINKBAG).setLinkedClass(db, clazz1);
     ODocument d = new ODocument(clazz);
     d.field("link", new ODocument(clazz1));
     d.field("embedded", new ODocument(clazz1));
@@ -654,10 +660,10 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
   public void testValidLinkCollectionsUpdate() {
     OClass clazz = db.getMetadata().getSchema().createClass("Validation");
     OClass clazz1 = db.getMetadata().getSchema().createClass("Validation1");
-    clazz.createProperty("linkList", OType.LINKLIST).setLinkedClass(clazz1);
-    clazz.createProperty("linkSet", OType.LINKSET).setLinkedClass(clazz1);
-    clazz.createProperty("linkMap", OType.LINKMAP).setLinkedClass(clazz1);
-    clazz.createProperty("linkBag", OType.LINKBAG).setLinkedClass(clazz1);
+    clazz.createProperty(db, "linkList", OType.LINKLIST).setLinkedClass(db, clazz1);
+    clazz.createProperty(db, "linkSet", OType.LINKSET).setLinkedClass(db, clazz1);
+    clazz.createProperty(db, "linkMap", OType.LINKMAP).setLinkedClass(db, clazz1);
+    clazz.createProperty(db, "linkBag", OType.LINKBAG).setLinkedClass(db, clazz1);
     ODocument d = new ODocument(clazz);
     d.field("link", new ODocument(clazz1));
     d.field("embedded", new ODocument(clazz1));
@@ -676,34 +682,47 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     db.commit();
 
     try {
+      db.begin();
       d = db.bindToSession(d);
       ODocument newD = d.copy();
       ((Collection) newD.field("linkList")).add(new ODocument(clazz));
       newD.validate();
       fail();
     } catch (OValidationException v) {
+      db.rollback();
     }
 
     try {
+      db.begin();
+      d = db.bindToSession(d);
       ODocument newD = d.copy();
       ((Collection) newD.field("linkSet")).add(new ODocument(clazz));
       newD.validate();
       fail();
     } catch (OValidationException v) {
+      db.rollback();
     }
+
     try {
+      db.begin();
+      d = db.bindToSession(d);
       ODocument newD = d.copy();
       ((ORidBag) newD.field("linkBag")).add(new ODocument(clazz));
       newD.validate();
       fail();
     } catch (OValidationException v) {
+      db.rollback();
     }
+
     try {
+      db.begin();
+      d = db.bindToSession(d);
       ODocument newD = d.copy();
       ((Map<String, ODocument>) newD.field("linkMap")).put("a", new ODocument(clazz));
       newD.validate();
       fail();
     } catch (OValidationException v) {
+      db.rollback();
     }
   }
 

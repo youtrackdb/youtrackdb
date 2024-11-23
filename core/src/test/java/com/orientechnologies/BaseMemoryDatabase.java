@@ -3,9 +3,9 @@ package com.orientechnologies;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import java.io.File;
 import org.junit.After;
 import org.junit.Before;
@@ -15,16 +15,17 @@ import org.junit.rules.TestName;
 public class BaseMemoryDatabase {
 
   protected ODatabaseSessionInternal db;
-  protected OrientDB context;
-  @Rule public TestName name = new TestName();
+  protected OxygenDB context;
+  @Rule
+  public TestName name = new TestName();
   private String databaseName;
 
   @Before
   public void beforeTest() {
-    var builder = OrientDBConfig.builder();
+    var builder = OxygenDBConfig.builder();
     final String buildDirectory = System.getProperty("buildDirectory", ".");
     context =
-        OrientDB.embedded(
+        OxygenDB.embedded(
             buildDirectory + File.separator + this.getClass().getSimpleName(),
             createConfig(builder));
     String dbName = name.getMethodName();
@@ -41,7 +42,7 @@ public class BaseMemoryDatabase {
     this.db = (ODatabaseSessionInternal) context.open(this.databaseName, user, password);
   }
 
-  protected OrientDBConfig createConfig(OrientDBConfigBuilder builder) {
+  protected OxygenDBConfig createConfig(OrientDBConfigBuilder builder) {
     return builder.build();
   }
 

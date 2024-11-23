@@ -69,7 +69,7 @@ public class KeyNormalizerBenchmark {
 
   private void binaryFixture() {
     keyNormalizer = new KeyNormalizer();
-    final byte[] binaryKey = new byte[] {1, 2, 3, 4, 5, 6};
+    final byte[] binaryKey = new byte[]{1, 2, 3, 4, 5, 6};
     binaryCompositeKey = new OCompositeKey();
     binaryCompositeKey.addKey(binaryKey);
     binaryTypes = new OType[1];

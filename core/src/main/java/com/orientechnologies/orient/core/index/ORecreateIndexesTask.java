@@ -1,8 +1,9 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.log.OLogManager;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OSharedContext;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentEmbedded;
+import com.orientechnologies.orient.core.db.document.ODatabaseSessionEmbedded;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -30,8 +31,8 @@ public class ORecreateIndexesTask implements Runnable {
   @Override
   public void run() {
     try {
-      final ODatabaseDocumentEmbedded newDb =
-          new ODatabaseDocumentEmbedded((OStorage) ctx.getStorage());
+      final ODatabaseSessionEmbedded newDb =
+          new ODatabaseSessionEmbedded((OStorage) ctx.getStorage());
       newDb.activateOnCurrentThread();
       newDb.init(null, ctx);
       newDb.internalOpen("admin", "nopass", false);
@@ -40,7 +41,7 @@ public class ORecreateIndexesTask implements Runnable {
       indexManager.acquireExclusiveLock();
       try {
         final Collection<ODocument> knownIndexes =
-            indexManager.getDocument().field(OIndexManagerShared.CONFIG_INDEXES);
+            indexManager.getDocument(newDb).field(OIndexManagerShared.CONFIG_INDEXES);
         if (knownIndexes == null) {
           OLogManager.instance().warn(this, "List of indexes is empty");
           indexesToRebuild = Collections.emptyList();
@@ -51,7 +52,7 @@ public class ORecreateIndexesTask implements Runnable {
           }
         }
       } finally {
-        indexManager.releaseExclusiveLock();
+        indexManager.releaseExclusiveLock(newDb);
       }
 
       try {
@@ -70,7 +71,7 @@ public class ORecreateIndexesTask implements Runnable {
   }
 
   private void recreateIndexes(
-      Collection<ODocument> indexesToRebuild, ODatabaseDocumentEmbedded db) {
+      Collection<ODocument> indexesToRebuild, ODatabaseSessionEmbedded db) {
     ok = 0;
     errors = 0;
     for (ODocument index : indexesToRebuild) {
@@ -82,7 +83,7 @@ public class ORecreateIndexesTask implements Runnable {
       }
     }
 
-    db.getMetadata().getIndexManagerInternal().save();
+    db.getMetadata().getIndexManagerInternal().save(db);
 
     indexManager.rebuildCompleted = true;
 
@@ -90,7 +91,7 @@ public class ORecreateIndexesTask implements Runnable {
         .info(this, "%d indexes were restored successfully, %d errors", ok, errors);
   }
 
-  private void recreateIndex(ODocument indexDocument, ODatabaseDocumentEmbedded db) {
+  private void recreateIndex(ODocument indexDocument, ODatabaseSessionEmbedded db) {
     final OIndexInternal index = createIndex(indexDocument);
     final OIndexMetadata indexMetadata = index.loadMetadata(indexDocument);
     final OIndexDefinition indexDefinition = indexMetadata.getIndexDefinition();
@@ -119,7 +120,7 @@ public class ORecreateIndexesTask implements Runnable {
                 this,
                 "Index '%s' is a non-durable automatic index and must be rebuilt",
                 indexMetadata.getName());
-        rebuildNonDurableAutomaticIndex(indexDocument, index, indexMetadata, indexDefinition);
+        rebuildNonDurableAutomaticIndex(db, indexDocument, index, indexMetadata, indexDefinition);
       }
     } else {
       if (durable) {
@@ -143,22 +144,22 @@ public class ORecreateIndexesTask implements Runnable {
   }
 
   private void rebuildNonDurableAutomaticIndex(
-      ODocument indexDocument,
+      ODatabaseSessionInternal session, ODocument indexDocument,
       OIndexInternal index,
       OIndexMetadata indexMetadata,
       OIndexDefinition indexDefinition) {
-    index.loadFromConfiguration(indexDocument);
-    index.delete();
+    index.loadFromConfiguration(session, indexDocument);
+    index.delete(session);
 
     final String indexName = indexMetadata.getName();
     final Set<String> clusters = indexMetadata.getClustersToIndex();
     final String type = indexMetadata.getType();
 
-    if (indexName != null && clusters != null && !clusters.isEmpty() && type != null) {
+    if (clusters != null && !clusters.isEmpty() && type != null) {
       OLogManager.instance().info(this, "Start creation of index '%s'", indexName);
-      index.create(indexMetadata, false, new OIndexRebuildOutputListener(index));
+      index.create(session, indexMetadata, false, new OIndexRebuildOutputListener(index));
 
-      indexManager.addIndexInternal(index);
+      indexManager.addIndexInternal(session, index);
 
       OLogManager.instance()
           .info(
@@ -166,7 +167,7 @@ public class ORecreateIndexesTask implements Runnable {
               "Index '%s' was successfully created and rebuild is going to be started",
               indexName);
 
-      index.rebuild(new OIndexRebuildOutputListener(index));
+      index.rebuild(session, new OIndexRebuildOutputListener(index));
 
       ok++;
 
@@ -188,9 +189,9 @@ public class ORecreateIndexesTask implements Runnable {
   }
 
   private void addIndexAsIs(
-      ODocument indexDocument, OIndexInternal index, ODatabaseDocumentEmbedded database) {
-    if (index.loadFromConfiguration(indexDocument)) {
-      indexManager.addIndexInternal(index);
+      ODocument indexDocument, OIndexInternal index, ODatabaseSessionEmbedded database) {
+    if (index.loadFromConfiguration(database, indexDocument)) {
+      indexManager.addIndexInternal(database, index);
 
       ok++;
       OLogManager.instance().info(this, "Index '%s' was added in DB index list", index.getName());
@@ -198,7 +199,7 @@ public class ORecreateIndexesTask implements Runnable {
       try {
         OLogManager.instance()
             .error(this, "Index '%s' can't be restored and will be deleted", null, index.getName());
-        index.delete();
+        index.delete(database);
       } catch (Exception e) {
         OLogManager.instance().error(this, "Error while deleting index '%s'", e, index.getName());
       }

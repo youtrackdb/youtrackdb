@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Created by luigidellaquila on 08/07/16.
+ *
  */
 public class FetchFromClassExecutionStep extends AbstractExecutionStep {
 
@@ -150,7 +150,8 @@ public class FetchFromClassExecutionStep extends AbstractExecutionStep {
           }
 
           @Override
-          public void close(OCommandContext ctx) {}
+          public void close(OCommandContext ctx) {
+          }
         };
 
     return new OMultipleExecutionStream(res)

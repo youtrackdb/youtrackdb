@@ -8,14 +8,147 @@ import com.orientechnologies.common.serialization.types.ONullSerializer;
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
-import com.orientechnologies.orient.client.remote.message.*;
+import com.orientechnologies.orient.client.remote.message.OAddClusterRequest;
+import com.orientechnologies.orient.client.remote.message.OAddClusterResponse;
+import com.orientechnologies.orient.client.remote.message.OBeginTransaction38Request;
+import com.orientechnologies.orient.client.remote.message.OBeginTransactionRequest;
+import com.orientechnologies.orient.client.remote.message.OBeginTransactionResponse;
+import com.orientechnologies.orient.client.remote.message.OBinaryProtocolHelper;
+import com.orientechnologies.orient.client.remote.message.OCeilingPhysicalPositionsRequest;
+import com.orientechnologies.orient.client.remote.message.OCeilingPhysicalPositionsResponse;
+import com.orientechnologies.orient.client.remote.message.OCleanOutRecordRequest;
+import com.orientechnologies.orient.client.remote.message.OCleanOutRecordResponse;
+import com.orientechnologies.orient.client.remote.message.OCloseQueryRequest;
+import com.orientechnologies.orient.client.remote.message.OCloseQueryResponse;
+import com.orientechnologies.orient.client.remote.message.OCloseRequest;
+import com.orientechnologies.orient.client.remote.message.OCommandRequest;
+import com.orientechnologies.orient.client.remote.message.OCommandResponse;
+import com.orientechnologies.orient.client.remote.message.OCommit37Request;
+import com.orientechnologies.orient.client.remote.message.OCommit37Response;
+import com.orientechnologies.orient.client.remote.message.OCommit38Request;
+import com.orientechnologies.orient.client.remote.message.OCommitRequest;
+import com.orientechnologies.orient.client.remote.message.OCommitResponse;
+import com.orientechnologies.orient.client.remote.message.OConnect37Request;
+import com.orientechnologies.orient.client.remote.message.OConnectRequest;
+import com.orientechnologies.orient.client.remote.message.OConnectResponse;
+import com.orientechnologies.orient.client.remote.message.OCountRecordsRequest;
+import com.orientechnologies.orient.client.remote.message.OCountRecordsResponse;
+import com.orientechnologies.orient.client.remote.message.OCountRequest;
+import com.orientechnologies.orient.client.remote.message.OCountResponse;
+import com.orientechnologies.orient.client.remote.message.OCreateDatabaseRequest;
+import com.orientechnologies.orient.client.remote.message.OCreateDatabaseResponse;
+import com.orientechnologies.orient.client.remote.message.OCreateRecordRequest;
+import com.orientechnologies.orient.client.remote.message.OCreateRecordResponse;
+import com.orientechnologies.orient.client.remote.message.ODistributedConnectRequest;
+import com.orientechnologies.orient.client.remote.message.ODistributedConnectResponse;
+import com.orientechnologies.orient.client.remote.message.ODistributedStatusRequest;
+import com.orientechnologies.orient.client.remote.message.ODistributedStatusResponse;
+import com.orientechnologies.orient.client.remote.message.ODropClusterRequest;
+import com.orientechnologies.orient.client.remote.message.ODropClusterResponse;
+import com.orientechnologies.orient.client.remote.message.ODropDatabaseRequest;
+import com.orientechnologies.orient.client.remote.message.ODropDatabaseResponse;
+import com.orientechnologies.orient.client.remote.message.OExistsDatabaseRequest;
+import com.orientechnologies.orient.client.remote.message.OExistsDatabaseResponse;
+import com.orientechnologies.orient.client.remote.message.OFetchTransaction38Request;
+import com.orientechnologies.orient.client.remote.message.OFetchTransaction38Response;
+import com.orientechnologies.orient.client.remote.message.OFetchTransactionRequest;
+import com.orientechnologies.orient.client.remote.message.OFetchTransactionResponse;
+import com.orientechnologies.orient.client.remote.message.OFloorPhysicalPositionsRequest;
+import com.orientechnologies.orient.client.remote.message.OFloorPhysicalPositionsResponse;
+import com.orientechnologies.orient.client.remote.message.OFreezeDatabaseRequest;
+import com.orientechnologies.orient.client.remote.message.OFreezeDatabaseResponse;
+import com.orientechnologies.orient.client.remote.message.OGetClusterDataRangeRequest;
+import com.orientechnologies.orient.client.remote.message.OGetClusterDataRangeResponse;
+import com.orientechnologies.orient.client.remote.message.OGetGlobalConfigurationRequest;
+import com.orientechnologies.orient.client.remote.message.OGetGlobalConfigurationResponse;
+import com.orientechnologies.orient.client.remote.message.OGetRecordMetadataRequest;
+import com.orientechnologies.orient.client.remote.message.OGetRecordMetadataResponse;
+import com.orientechnologies.orient.client.remote.message.OGetSizeRequest;
+import com.orientechnologies.orient.client.remote.message.OGetSizeResponse;
+import com.orientechnologies.orient.client.remote.message.OHigherPhysicalPositionsRequest;
+import com.orientechnologies.orient.client.remote.message.OHigherPhysicalPositionsResponse;
+import com.orientechnologies.orient.client.remote.message.OImportRequest;
+import com.orientechnologies.orient.client.remote.message.OImportResponse;
+import com.orientechnologies.orient.client.remote.message.OIncrementalBackupRequest;
+import com.orientechnologies.orient.client.remote.message.OIncrementalBackupResponse;
+import com.orientechnologies.orient.client.remote.message.OListDatabasesRequest;
+import com.orientechnologies.orient.client.remote.message.OListDatabasesResponse;
+import com.orientechnologies.orient.client.remote.message.OListGlobalConfigurationsRequest;
+import com.orientechnologies.orient.client.remote.message.OListGlobalConfigurationsResponse;
+import com.orientechnologies.orient.client.remote.message.OLowerPhysicalPositionsRequest;
+import com.orientechnologies.orient.client.remote.message.OLowerPhysicalPositionsResponse;
+import com.orientechnologies.orient.client.remote.message.OOpen37Request;
+import com.orientechnologies.orient.client.remote.message.OOpen37Response;
+import com.orientechnologies.orient.client.remote.message.OOpenRequest;
+import com.orientechnologies.orient.client.remote.message.OOpenResponse;
+import com.orientechnologies.orient.client.remote.message.OQueryNextPageRequest;
+import com.orientechnologies.orient.client.remote.message.OQueryRequest;
+import com.orientechnologies.orient.client.remote.message.OQueryResponse;
+import com.orientechnologies.orient.client.remote.message.OReadRecordRequest;
+import com.orientechnologies.orient.client.remote.message.OReadRecordResponse;
+import com.orientechnologies.orient.client.remote.message.ORecordExistsRequest;
+import com.orientechnologies.orient.client.remote.message.ORecordExistsResponse;
+import com.orientechnologies.orient.client.remote.message.OReleaseDatabaseRequest;
+import com.orientechnologies.orient.client.remote.message.OReleaseDatabaseResponse;
+import com.orientechnologies.orient.client.remote.message.OReloadRequest;
+import com.orientechnologies.orient.client.remote.message.OReloadRequest37;
+import com.orientechnologies.orient.client.remote.message.OReloadResponse;
+import com.orientechnologies.orient.client.remote.message.OReloadResponse37;
+import com.orientechnologies.orient.client.remote.message.OReopenRequest;
+import com.orientechnologies.orient.client.remote.message.OReopenResponse;
+import com.orientechnologies.orient.client.remote.message.ORollbackTransactionRequest;
+import com.orientechnologies.orient.client.remote.message.ORollbackTransactionResponse;
+import com.orientechnologies.orient.client.remote.message.OSBTCreateTreeRequest;
+import com.orientechnologies.orient.client.remote.message.OSBTCreateTreeResponse;
+import com.orientechnologies.orient.client.remote.message.OSBTFetchEntriesMajorRequest;
+import com.orientechnologies.orient.client.remote.message.OSBTFetchEntriesMajorResponse;
+import com.orientechnologies.orient.client.remote.message.OSBTFirstKeyRequest;
+import com.orientechnologies.orient.client.remote.message.OSBTFirstKeyResponse;
+import com.orientechnologies.orient.client.remote.message.OSBTGetRealBagSizeRequest;
+import com.orientechnologies.orient.client.remote.message.OSBTGetRealBagSizeResponse;
+import com.orientechnologies.orient.client.remote.message.OSBTGetRequest;
+import com.orientechnologies.orient.client.remote.message.OSBTGetResponse;
+import com.orientechnologies.orient.client.remote.message.OServerInfoRequest;
+import com.orientechnologies.orient.client.remote.message.OServerInfoResponse;
+import com.orientechnologies.orient.client.remote.message.OServerQueryRequest;
+import com.orientechnologies.orient.client.remote.message.OServerQueryResponse;
+import com.orientechnologies.orient.client.remote.message.OSetGlobalConfigurationRequest;
+import com.orientechnologies.orient.client.remote.message.OSetGlobalConfigurationResponse;
+import com.orientechnologies.orient.client.remote.message.OShutdownRequest;
+import com.orientechnologies.orient.client.remote.message.OShutdownResponse;
+import com.orientechnologies.orient.client.remote.message.OSubscribeDistributedConfigurationRequest;
+import com.orientechnologies.orient.client.remote.message.OSubscribeDistributedConfigurationResponse;
+import com.orientechnologies.orient.client.remote.message.OSubscribeFunctionsRequest;
+import com.orientechnologies.orient.client.remote.message.OSubscribeFunctionsResponse;
+import com.orientechnologies.orient.client.remote.message.OSubscribeIndexManagerRequest;
+import com.orientechnologies.orient.client.remote.message.OSubscribeIndexManagerResponse;
+import com.orientechnologies.orient.client.remote.message.OSubscribeLiveQueryRequest;
+import com.orientechnologies.orient.client.remote.message.OSubscribeLiveQueryResponse;
+import com.orientechnologies.orient.client.remote.message.OSubscribeRequest;
+import com.orientechnologies.orient.client.remote.message.OSubscribeResponse;
+import com.orientechnologies.orient.client.remote.message.OSubscribeSchemaRequest;
+import com.orientechnologies.orient.client.remote.message.OSubscribeSchemaResponse;
+import com.orientechnologies.orient.client.remote.message.OSubscribeSequencesRequest;
+import com.orientechnologies.orient.client.remote.message.OSubscribeSequencesResponse;
+import com.orientechnologies.orient.client.remote.message.OSubscribeStorageConfigurationRequest;
+import com.orientechnologies.orient.client.remote.message.OSubscribeStorageConfigurationResponse;
+import com.orientechnologies.orient.client.remote.message.OUnsubscribLiveQueryResponse;
+import com.orientechnologies.orient.client.remote.message.OUnsubscribeLiveQueryRequest;
+import com.orientechnologies.orient.client.remote.message.OUnsubscribeRequest;
+import com.orientechnologies.orient.client.remote.message.OUnsubscribeResponse;
+import com.orientechnologies.orient.client.remote.message.OUpdateRecordRequest;
+import com.orientechnologies.orient.client.remote.message.OUpdateRecordResponse;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
 import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.*;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.ODatabaseType;
+import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
@@ -62,14 +195,30 @@ import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProt
 import com.orientechnologies.orient.server.distributed.ODistributedConfiguration;
 import com.orientechnologies.orient.server.distributed.ODistributedServerManager;
 import com.orientechnologies.orient.server.distributed.ORemoteServerController;
-import com.orientechnologies.orient.server.network.protocol.binary.*;
+import com.orientechnologies.orient.server.network.protocol.binary.HandshakeInfo;
+import com.orientechnologies.orient.server.network.protocol.binary.OAbstractCommandResultListener;
+import com.orientechnologies.orient.server.network.protocol.binary.OAsyncCommandResultListener;
+import com.orientechnologies.orient.server.network.protocol.binary.OLiveCommandResultListener;
+import com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary;
+import com.orientechnologies.orient.server.network.protocol.binary.OSyncCommandResultListener;
 import com.orientechnologies.orient.server.plugin.OServerPlugin;
 import com.orientechnologies.orient.server.tx.OTransactionOptimisticServer;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -169,7 +318,8 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     connection.setDatabase(
         server
             .getDatabases()
-            .openNoAuthenticate(request.getDatabaseName(), connection.getServerUser().getName()));
+            .openNoAuthenticate(request.getDatabaseName(),
+                connection.getServerUser().getName(null)));
 
     return new OCreateDatabaseResponse();
   }
@@ -197,12 +347,14 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeGetSize(OGetSizeRequest request) {
-    return new OGetSizeResponse(connection.getDatabase().getStorage().getSize());
+    var db = connection.getDatabase();
+    return new OGetSizeResponse(db.getStorage().getSize(db));
   }
 
   @Override
   public OBinaryResponse executeCountRecords(OCountRecordsRequest request) {
-    return new OCountRecordsResponse(connection.getDatabase().getStorage().countRecords());
+    var db = connection.getDatabase();
+    return new OCountRecordsResponse(db.getStorage().countRecords(db));
   }
 
   @Override
@@ -297,16 +449,17 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
       final byte[] record =
           ((OClusterBasedStorageConfiguration)
-                  connection.getDatabase().getStorageInfo().getConfiguration())
+              connection.getDatabase().getStorageInfo().getConfiguration())
               .toStream(connection.getData().protocolVersion, StandardCharsets.UTF_8);
 
       response = new OReadRecordResponse(OBlob.RECORD_TYPE, 0, record, new HashSet<>());
 
     } else {
-      final ORecord record = connection.getDatabase().load(rid, fetchPlanString, ignoreCache);
+      final ORecordAbstract record = connection.getDatabase()
+          .load(rid, fetchPlanString, ignoreCache);
       if (record != null) {
         byte[] bytes = getRecordBytes(connection, record);
-        final Set<ORecord> recordsToSend = new HashSet<>();
+        final Set<ORecordAbstract> recordsToSend = new HashSet<>();
         if (record != null) {
           if (fetchPlanString.length() > 0) {
             // BUILD THE SERVER SIDE RECORD TO ACCES TO THE FETCH
@@ -317,7 +470,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
               final OFetchListener listener =
                   new ORemoteFetchListener() {
                     @Override
-                    protected void sendRecord(ORecord iLinked) {
+                    protected void sendRecord(ORecordAbstract iLinked) {
                       recordsToSend.add(iLinked);
                     }
                   };
@@ -417,7 +570,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
         .toString()
         .equals(database.getStorageInfo().getConfiguration().getIndexMgrRecordId())) {
       // FORCE INDEX MANAGER UPDATE. THIS HAPPENS FOR DIRECT CHANGES FROM REMOTE LIKE IN GRAPH
-      database.getMetadata().getIndexManagerInternal().reload();
+      database.getMetadata().getIndexManagerInternal().reload(connection.getDatabase());
     }
     final int newVersion = currentRecord.getVersion();
 
@@ -439,41 +592,40 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeHigherPosition(OHigherPhysicalPositionsRequest request) {
+    var db = connection.getDatabase();
     OPhysicalPosition[] nextPositions =
-        connection
-            .getDatabase()
+        db
             .getStorage()
-            .higherPhysicalPositions(request.getClusterId(), request.getClusterPosition());
+            .higherPhysicalPositions(db, request.getClusterId(), request.getClusterPosition());
     return new OHigherPhysicalPositionsResponse(nextPositions);
   }
 
   @Override
   public OBinaryResponse executeCeilingPosition(OCeilingPhysicalPositionsRequest request) {
+    var db = connection.getDatabase();
     final OPhysicalPosition[] previousPositions =
-        connection
-            .getDatabase()
-            .getStorage()
-            .ceilingPhysicalPositions(request.getClusterId(), request.getPhysicalPosition());
+        db.getStorage()
+            .ceilingPhysicalPositions(db, request.getClusterId(), request.getPhysicalPosition());
     return new OCeilingPhysicalPositionsResponse(previousPositions);
   }
 
   @Override
   public OBinaryResponse executeLowerPosition(OLowerPhysicalPositionsRequest request) {
+    var db = connection.getDatabase();
     final OPhysicalPosition[] previousPositions =
-        connection
-            .getDatabase()
+        db
             .getStorage()
-            .lowerPhysicalPositions(request.getiClusterId(), request.getPhysicalPosition());
+            .lowerPhysicalPositions(db, request.getiClusterId(), request.getPhysicalPosition());
     return new OLowerPhysicalPositionsResponse(previousPositions);
   }
 
   @Override
   public OBinaryResponse executeFloorPosition(OFloorPhysicalPositionsRequest request) {
+    var db = connection.getDatabase();
     final OPhysicalPosition[] previousPositions =
-        connection
-            .getDatabase()
+        db
             .getStorage()
-            .floorPhysicalPositions(request.getClusterId(), request.getPhysicalPosition());
+            .floorPhysicalPositions(db, request.getClusterId(), request.getPhysicalPosition());
     return new OFloorPhysicalPositionsResponse(previousPositions);
   }
 
@@ -533,7 +685,8 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     command.setCacheableResult(true);
 
     // ASSIGNED THE PARSED FETCHPLAN
-    final OCommandRequestText commandRequest = connection.getDatabase().command(command);
+    var db = connection.getDatabase();
+    final OCommandRequestText commandRequest = db.command(command);
     listener.setFetchPlan(commandRequest.getFetchPlan());
     OCommandResponse response;
     if (asynch) {
@@ -545,9 +698,9 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
       // SYNCHRONOUS
       final Object result;
       if (params == null) {
-        result = commandRequest.execute();
+        result = commandRequest.execute(db);
       } else {
-        result = commandRequest.execute(params);
+        result = commandRequest.execute(db, params);
       }
 
       // FETCHPLAN HAS TO BE ASSIGNED AGAIN, because it can be changed by SQL statement
@@ -680,7 +833,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     ODatabaseSessionInternal database =
         server
             .getDatabases()
-            .openNoAuthenticate(request.getName(), connection.getServerUser().getName());
+            .openNoAuthenticate(request.getName(), connection.getServerUser().getName(null));
     connection.setDatabase(database);
 
     OLogManager.instance().info(this, "Freezing database '%s'", connection.getDatabase().getURL());
@@ -694,7 +847,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     ODatabaseSessionInternal database =
         server
             .getDatabases()
-            .openNoAuthenticate(request.getName(), connection.getServerUser().getName());
+            .openNoAuthenticate(request.getName(), connection.getServerUser().getName(null));
 
     connection.setDatabase(database);
 
@@ -895,11 +1048,11 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
     if (connection.getServerUser() == null) {
       throw new OSecurityAccessException(
-          "Wrong user/password to [connect] to the remote OrientDB Server instance");
+          "Wrong user/password to [connect] to the remote OxygenDB Server instance");
     }
     byte[] token = null;
     if (connection.getData().protocolVersion > OChannelBinaryProtocol.PROTOCOL_VERSION_26) {
-      connection.getData().serverUsername = connection.getServerUser().getName();
+      connection.getData().serverUsername = connection.getServerUser().getName(null);
       connection.getData().serverUser = true;
 
       if (Boolean.TRUE.equals(connection.getTokenBased())) {
@@ -928,12 +1081,12 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
     if (connection.getServerUser() == null) {
       throw new OSecurityAccessException(
-          "Wrong user/password to [connect] to the remote OrientDB Server instance");
+          "Wrong user/password to [connect] to the remote OxygenDB Server instance");
     }
 
     byte[] token = null;
     if (connection.getData().protocolVersion > OChannelBinaryProtocol.PROTOCOL_VERSION_26) {
-      connection.getData().serverUsername = connection.getServerUser().getName();
+      connection.getData().serverUsername = connection.getServerUser().getName(null);
       connection.getData().serverUser = true;
 
       if (Boolean.TRUE.equals(connection.getTokenBased())) {
@@ -1111,7 +1264,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   private void runShutdownInNonDaemonThread() {
     Thread shutdownThread =
-        new Thread("OrientDB server shutdown thread") {
+        new Thread("OxygenDB server shutdown thread") {
           public void run() {
             server.shutdown();
           }
@@ -1146,18 +1299,14 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     return new OSetGlobalConfigurationResponse();
   }
 
-  public static byte[] getRecordBytes(OClientConnection connection, final ORecord iRecord) {
+  public static byte[] getRecordBytes(OClientConnection connection, final ORecordAbstract iRecord) {
+    var db = connection.getDatabase();
     final byte[] stream;
-    String dbSerializerName = null;
-    if (ODatabaseRecordThreadLocal.instance().getIfDefined() != null) {
-      dbSerializerName = ((ORecordAbstract) iRecord).getDatabase().getSerializer().toString();
-    }
     String name = connection.getData().getSerializationImpl();
-    if (ORecordInternal.getRecordType(iRecord) == ODocument.RECORD_TYPE
-        && (dbSerializerName == null || !dbSerializerName.equals(name))) {
+    if (ORecordInternal.getRecordType(iRecord) == ODocument.RECORD_TYPE) {
       ((ODocument) iRecord).deserializeFields();
       ORecordSerializer ser = ORecordSerializerFactory.instance().getFormat(name);
-      stream = ser.toStream(iRecord);
+      stream = ser.toStream(db, iRecord);
     } else {
       stream = iRecord.toStream();
     }
@@ -1167,7 +1316,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeServerQuery(OServerQueryRequest request) {
-    OrientDB orientdb = server.getContext();
+    OxygenDB orientdb = server.getContext();
 
     OResultSet rs;
 
@@ -1266,7 +1415,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse executeQueryNextPage(OQueryNextPageRequest request) {
     ODatabaseSessionInternal database = connection.getDatabase();
-    OrientDBInternal orientDB = database.getSharedContext().getOrientDB();
+    OxygenDBInternal orientDB = database.getSharedContext().getOrientDB();
     OLocalResultSetLifecycleDecorator rs =
         (OLocalResultSetLifecycleDecorator) database.getActiveQuery(request.getQueryId());
 
@@ -1565,7 +1714,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
           "Invalid transaction id, expected " + tx.getId() + " but received " + request.getTxId());
     }
 
-    return new OFetchTransactionResponse(
+    return new OFetchTransactionResponse(database,
         tx.getId(),
         tx.getRecordOperations(),
         tx.getIndexOperations(),
@@ -1584,7 +1733,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
           "Invalid transaction id, expected " + tx.getId() + " but received " + request.getTxId());
     }
 
-    return new OFetchTransaction38Response(
+    return new OFetchTransaction38Response(database,
         tx.getId(),
         tx.getRecordOperations(),
         Collections.emptyMap(),
@@ -1617,7 +1766,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     OPushManager manager = server.getPushManager();
     manager.subscribeDistributeConfig((ONetworkProtocolBinary) connection.getProtocol());
 
-    OrientDBInternal databases = server.getDatabases();
+    OxygenDBInternal databases = server.getDatabases();
     Set<String> dbs = databases.listLodadedDatabases();
     ODistributedServerManager plugin = server.getPlugin("cluster");
     if (plugin != null) {
@@ -1695,7 +1844,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     HandshakeInfo handshakeInfo =
         new HandshakeInfo(
             (short) OChannelBinaryProtocol.PROTOCOL_VERSION_38,
-            "OrientDB Distributed",
+            "OxygenDB Distributed",
             "",
             (byte) 0,
             OChannelBinaryProtocol.ERROR_MESSAGE_JAVA);
@@ -1707,11 +1856,11 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
     if (serverUser == null) {
       throw new OSecurityAccessException(
-          "Wrong user/password to [connect] to the remote OrientDB Server instance");
+          "Wrong user/password to [connect] to the remote OxygenDB Server instance");
     }
 
-    connection.getData().driverName = "OrientDB Distributed";
-    connection.getData().clientId = "OrientDB Distributed";
+    connection.getData().driverName = "OxygenDB Distributed";
+    connection.getData().clientId = "OxygenDB Distributed";
     connection.getData().setSerializer(ORecordSerializerNetworkV37.INSTANCE);
     connection.setTokenBased(true);
     connection.getData().supportsLegacyPushMessages = false;
@@ -1730,7 +1879,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
       throw new ODatabaseException("protocol version too old rejected connection");
     } else {
       connection.setServerUser(serverUser);
-      connection.getData().serverUsername = serverUser.getName();
+      connection.getData().serverUsername = serverUser.getName(null);
       connection.getData().serverUser = true;
       byte[] token =
           server.getTokenHandler().getSignedBinaryToken(null, null, connection.getData());

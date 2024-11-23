@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
 import com.orientechnologies.orient.core.command.script.OScriptManager;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDBInternal;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -47,7 +47,7 @@ public class OServerCommandGetSupportedLanguages extends OServerCommandAuthentic
       Set<String> languages = new HashSet<String>();
 
       OScriptManager scriptManager =
-          OrientDBInternal.extract(server.getContext()).getScriptManager();
+          OxygenDBInternal.extract(server.getContext()).getScriptManager();
       for (String language : scriptManager.getSupportedLanguages()) {
         if (scriptManager.getFormatters() != null
             && scriptManager.getFormatters().get(language) != null) {

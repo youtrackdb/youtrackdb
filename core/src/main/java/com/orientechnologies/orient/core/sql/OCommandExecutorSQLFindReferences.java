@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql;
@@ -22,6 +22,7 @@ package com.orientechnologies.orient.core.sql;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.id.ORID;
@@ -34,8 +35,6 @@ import java.util.Set;
 
 /**
  * FIND REFERENCES command: Finds references to records in all or part of database
- *
- * @author Luca Molino
  */
 @SuppressWarnings("unchecked")
 public class OCommandExecutorSQLFindReferences extends OCommandExecutorSQLEarlyResultsetAbstract {
@@ -103,14 +102,14 @@ public class OCommandExecutorSQLFindReferences extends OCommandExecutorSQLEarlyR
   /**
    * Execute the FIND REFERENCES.
    */
-  public Object execute(final Map<Object, Object> iArgs) {
+  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
     if (recordIds.isEmpty() && subQuery == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
     }
 
     if (subQuery != null) {
-      final List<OIdentifiable> result = new OCommandSQL(subQuery.toString()).execute();
+      final List<OIdentifiable> result = new OCommandSQL(subQuery.toString()).execute(querySession);
       for (OIdentifiable id : result) {
         recordIds.add(id.getIdentity());
       }

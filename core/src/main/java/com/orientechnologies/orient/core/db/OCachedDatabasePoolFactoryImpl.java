@@ -8,15 +8,13 @@ import java.util.TimerTask;
 /**
  * Default implementation of {@link OCachedDatabasePoolFactory}
  *
- * <p>Used in {@link OrientDBEmbedded} by default
+ * <p>Used in {@link OxygenDBEmbedded} by default
  *
  * <p>Works like LRU cache
  *
  * <p>How it works: 1. Pool cache capacity is 100 2. We have 100 pools in cache 3. We want get 101
  * pool 4. First we will remove pool which used long time ago from pool cache 5. Then we add new
  * pool from point 3 to pool cache
- *
- * @author Vitalii Honchar (weaxme@gmail.com)
  */
 public class OCachedDatabasePoolFactoryImpl implements OCachedDatabasePoolFactory {
 
@@ -27,17 +25,17 @@ public class OCachedDatabasePoolFactoryImpl implements OCachedDatabasePoolFactor
 
   private volatile boolean closed;
   private final ConcurrentLinkedHashMap<String, ODatabasePoolInternal> poolCache;
-  private final OrientDBInternal orientDB;
+  private final OxygenDBInternal orientDB;
   private final long timeout;
 
   /**
-   * @param orientDB instance of {@link OrientDB} which will be used for create new database pools
+   * @param orientDB instance of {@link OxygenDB} which will be used for create new database pools
    *                 {@link ODatabasePoolInternal}
    * @param capacity capacity of pool cache, by default is 100
    * @param timeout  timeout in milliseconds which means that every timeout will be executed task
    *                 for clean up cache from closed pools
    */
-  public OCachedDatabasePoolFactoryImpl(OrientDBInternal orientDB, int capacity, long timeout) {
+  public OCachedDatabasePoolFactoryImpl(OxygenDBInternal orientDB, int capacity, long timeout) {
     poolCache =
         new ConcurrentLinkedHashMap.Builder<String, ODatabasePoolInternal>()
             .maximumWeightedCapacity(capacity)
@@ -93,7 +91,7 @@ public class OCachedDatabasePoolFactoryImpl implements OCachedDatabasePoolFactor
    */
   @Override
   public ODatabasePoolInternal get(
-      String database, String username, String password, OrientDBConfig parentConfig) {
+      String database, String username, String password, OxygenDBConfig parentConfig) {
     checkForClose();
 
     String key = OSecurityManager.createSHA256(database + username + password);
@@ -103,8 +101,8 @@ public class OCachedDatabasePoolFactoryImpl implements OCachedDatabasePoolFactor
       return pool;
     }
 
-    OrientDBConfig config =
-        OrientDBConfig.builder().addConfig(OGlobalConfiguration.DB_POOL_MAX, maxPoolSize).build();
+    OxygenDBConfig config =
+        OxygenDBConfig.builder().addConfig(OGlobalConfiguration.DB_POOL_MAX, maxPoolSize).build();
 
     if (parentConfig != null) {
       config.setParent(parentConfig);

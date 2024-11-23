@@ -13,7 +13,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 
 /**
- * Created by luigidellaquila on 21/06/17.
+ *
  */
 public class ODistributedResultSet implements OResultSet {
 

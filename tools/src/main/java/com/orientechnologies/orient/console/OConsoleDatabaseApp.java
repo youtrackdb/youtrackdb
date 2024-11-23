@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.console;
@@ -35,11 +35,11 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.client.remote.ODatabaseImportRemote;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.client.remote.OStorageRemote;
-import com.orientechnologies.orient.client.remote.OrientDBRemote;
-import com.orientechnologies.orient.client.remote.db.document.ODatabaseDocumentRemote;
+import com.orientechnologies.orient.client.remote.OxygenDBRemote;
+import com.orientechnologies.orient.client.remote.db.document.ODatabaseSessionRemote;
 import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.OSignalHandler;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.command.script.OCommandExecutorScript;
 import com.orientechnologies.orient.core.command.script.OCommandScript;
@@ -49,10 +49,10 @@ import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
-import com.orientechnologies.orient.core.db.OrientDBInternal;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.tool.OBonsaiTreeRepair;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
@@ -128,7 +128,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   protected List<OIdentifiable> currentResultSet;
   protected Object currentResult;
   protected OURLConnection urlConnection;
-  protected OrientDB orientDB;
+  protected OxygenDB oxygenDB;
   private int lastPercentStep;
   private String currentDatabaseUserName;
   private String currentDatabaseUserPassword;
@@ -167,7 +167,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       restoreTerminal(interactiveMode);
     }
 
-    Orient.instance().shutdown();
+    Oxygen.instance().shutdown();
     System.exit(result);
   }
 
@@ -202,7 +202,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
     final String cmd = "stty " + args + " < /dev/tty";
 
-    final Process p = Runtime.getRuntime().exec(new String[] {"sh", "-c", cmd});
+    final Process p = Runtime.getRuntime().exec(new String[]{"sh", "-c", cmd});
     p.waitFor(10, TimeUnit.SECONDS);
 
     return p.exitValue();
@@ -210,8 +210,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
   private void checkDefaultPassword(String database, String user, String password) {
     if ((("admin".equals(user) && "admin".equals(password))
-            || ("reader".equals(user) && "reader".equals(password))
-            || ("writer".equals(user) && "writer".equals(password)))
+        || ("reader".equals(user) && "reader".equals(password))
+        || ("writer".equals(user) && "writer".equals(password)))
         && WARNING_DEFAULT_USERS.getValueAsBoolean()) {
       message(
           String.format(
@@ -227,14 +227,14 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "Console-Command-Connect")
   public void connect(
       @ConsoleParameter(
-              name = "url",
-              description =
-                  "The url of the remote server or the database to connect to in the format"
-                      + " '<mode>:<path>'")
-          String iURL,
+          name = "url",
+          description =
+              "The url of the remote server or the database to connect to in the format"
+                  + " '<mode>:<path>'")
+      String iURL,
       @ConsoleParameter(name = "user", description = "User name") String iUserName,
       @ConsoleParameter(name = "password", description = "User password", optional = true)
-          String iUserPassword)
+      String iUserPassword)
       throws IOException {
     disconnect();
 
@@ -252,19 +252,19 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       checkDefaultPassword(
           urlConnection.getDbName(), currentDatabaseUserName, currentDatabaseUserPassword);
     }
-    orientDB =
-        new OrientDB(
+    oxygenDB =
+        new OxygenDB(
             urlConnection.getType() + ":" + urlConnection.getPath(),
             iUserName,
             iUserPassword,
-            OrientDBConfig.defaultConfig());
+            OxygenDBConfig.defaultConfig());
 
     if (!"".equals(urlConnection.getDbName())) {
       // OPEN DB
       message("\nConnecting to database [" + iURL + "] with user '" + iUserName + "'...");
       currentDatabase =
           (ODatabaseSessionInternal)
-              orientDB.open(urlConnection.getDbName(), iUserName, iUserPassword);
+              oxygenDB.open(urlConnection.getDbName(), iUserName, iUserPassword);
       currentDatabaseName = currentDatabase.getName();
     }
 
@@ -297,8 +297,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       out.println();
     }
     urlConnection = null;
-    if (orientDB != null) {
-      orientDB.close();
+    if (oxygenDB != null) {
+      oxygenDB.close();
     }
   }
 
@@ -309,35 +309,34 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "Console-Command-Create-Database")
   public void createDatabase(
       @ConsoleParameter(
-              name = "database-url",
-              description = "The url of the database to create in the format '<mode>:<path>'")
-          String databaseURL,
+          name = "database-url",
+          description = "The url of the database to create in the format '<mode>:<path>'")
+      String databaseURL,
       @ConsoleParameter(name = "user", optional = true, description = "Server administrator name")
-          String userName,
+      String userName,
       @ConsoleParameter(
-              name = "password",
-              optional = true,
-              description = "Server administrator password")
-          String userPassword,
+          name = "password",
+          optional = true,
+          description = "Server administrator password")
+      String userPassword,
       @ConsoleParameter(
-              name = "storage-type",
-              optional = true,
-              description =
-                  "The type of the storage: 'plocal' for disk-based databases and 'memory' for"
-                      + " in-memory database")
-          String storageType,
+          name = "storage-type",
+          optional = true,
+          description =
+              "The type of the storage: 'plocal' for disk-based databases and 'memory' for"
+                  + " in-memory database")
+      String storageType,
       @ConsoleParameter(
-              name = "db-type",
-              optional = true,
-              description =
-                  "The type of the database used between 'document' and 'graph'. By default is"
-                      + " graph.")
-          String databaseType,
+          name = "db-type",
+          optional = true,
+          description =
+              "The type of the database used between 'document' and 'graph'. By default is"
+                  + " graph.")
+      String databaseType,
       @ConsoleParameter(
-              name = "[options]",
-              optional = true,
-              description = "Additional options, example: -encryption=aes -compression=nothing")
-          final String options)
+          name = "[options]",
+          optional = true,
+          description = "Additional options, example: -encryption=aes -compression=nothing") final String options)
       throws IOException {
 
     disconnect();
@@ -354,7 +353,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     final Map<String, String> omap = parseCommandOptions(options);
 
     urlConnection = OURLHelper.parseNew(databaseURL);
-    OrientDBConfigBuilder config = OrientDBConfig.builder();
+    OrientDBConfigBuilder config = OxygenDBConfig.builder();
 
     ODatabaseType type;
     if (storageType != null) {
@@ -365,25 +364,25 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
     message("\nCreating database [" + databaseURL + "] using the storage type [" + type + "]...");
     String conn = urlConnection.getType() + ":" + urlConnection.getPath();
-    if (orientDB != null) {
-      OrientDBInternal contectSession = OrientDBInternal.extract(orientDB);
-      String user = OrientDBInternal.extractUser(orientDB);
+    if (oxygenDB != null) {
+      OxygenDBInternal contectSession = OxygenDBInternal.extract(oxygenDB);
+      String user = OxygenDBInternal.extractUser(oxygenDB);
       if (!contectSession.getConnectionUrl().equals(conn)
           || user == null
           || !user.equals(userName)) {
-        orientDB =
-            new OrientDB(
+        oxygenDB =
+            new OxygenDB(
                 conn, currentDatabaseUserName, currentDatabaseUserPassword, config.build());
       }
     } else {
-      orientDB =
-          new OrientDB(conn, currentDatabaseUserName, currentDatabaseUserPassword, config.build());
+      oxygenDB =
+          new OxygenDB(conn, currentDatabaseUserName, currentDatabaseUserPassword, config.build());
     }
 
     final String backupPath = omap.remove("-restore");
 
     if (backupPath != null) {
-      OrientDBInternal internal = OrientDBInternal.extract(orientDB);
+      OxygenDBInternal internal = OxygenDBInternal.extract(oxygenDB);
       internal.restore(
           urlConnection.getDbName(),
           currentDatabaseUserName,
@@ -392,20 +391,20 @@ public class OConsoleDatabaseApp extends OConsoleApplication
           backupPath,
           config.build());
     } else {
-      OrientDBInternal internal = OrientDBInternal.extract(orientDB);
+      OxygenDBInternal internal = OxygenDBInternal.extract(oxygenDB);
       if (internal.isEmbedded()) {
-        orientDB.createIfNotExists(
+        oxygenDB.createIfNotExists(
             urlConnection.getDbName(),
             type,
             currentDatabaseUserName,
             currentDatabaseUserPassword,
             "admin");
       } else {
-        orientDB.create(urlConnection.getDbName(), type);
+        oxygenDB.create(urlConnection.getDbName(), type);
       }
     }
     currentDatabase =
-        (ODatabaseSessionInternal) orientDB.open(urlConnection.getDbName(), userName, userPassword);
+        (ODatabaseSessionInternal) oxygenDB.open(urlConnection.getDbName(), userName, userPassword);
     currentDatabaseName = currentDatabase.getName();
 
     message("\nDatabase created successfully.");
@@ -414,10 +413,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
   protected Map<String, String> parseCommandOptions(
       @ConsoleParameter(
-              name = "[options]",
-              optional = true,
-              description = "Additional options, example: -encryption=aes -compression=nothing")
-          String options) {
+          name = "[options]",
+          optional = true,
+          description = "Additional options, example: -encryption=aes -compression=nothing")
+      String options) {
     final Map<String, String> omap = new HashMap<String, String>();
     if (options != null) {
       final List<String> kvOptions = OStringSerializerHelper.smartSplit(options, ',', false);
@@ -437,8 +436,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       description = "List all the databases available on the connected server",
       onlineHelp = "Console-Command-List-Databases")
   public void listDatabases() throws IOException {
-    if (orientDB != null) {
-      final List<String> databases = orientDB.list();
+    if (oxygenDB != null) {
+      final List<String> databases = oxygenDB.list();
       message(String.format("\nFound %d databases:\n", databases.size()));
       for (String database : databases) {
         message(String.format("\n* %s ", database));
@@ -457,7 +456,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "Console-Command-List-Connections")
   public void listConnections() throws IOException {
     checkForRemoteServer();
-    OrientDBRemote remote = (OrientDBRemote) OrientDBInternal.extract(orientDB);
+    OxygenDBRemote remote = (OxygenDBRemote) OxygenDBInternal.extract(oxygenDB);
     final ODocument serverInfo =
         remote.getServerInfo(currentDatabaseUserName, currentDatabaseUserPassword);
 
@@ -526,7 +525,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
           "Create a new cluster in the current database. The cluster can be physical or memory")
   public void createCluster(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
-          String iCommandText) {
+      String iCommandText) {
     sqlCommand("create", iCommandText, "\nCluster created correctly in %.2f seconds\n", false);
     updateDatabaseInfo();
   }
@@ -536,9 +535,9 @@ public class OConsoleDatabaseApp extends OConsoleApplication
           "Remove a cluster in the current database. The cluster can be physical or memory")
   public void dropCluster(
       @ConsoleParameter(
-              name = "cluster-name",
-              description = "The name or the id of the cluster to remove")
-          String iClusterName) {
+          name = "cluster-name",
+          description = "The name or the id of the cluster to remove")
+      String iClusterName) {
     checkForDatabase();
 
     message("\nDropping cluster [" + iClusterName + "] in database " + currentDatabaseName + "...");
@@ -570,7 +569,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
           "Alters a cluster in the current database. The cluster can be physical or memory")
   public void alterCluster(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
-          String iCommandText) {
+      String iCommandText) {
     sqlCommand("alter", iCommandText, "\nCluster updated successfully.\n", false);
     updateDatabaseInfo();
   }
@@ -653,7 +652,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       description = "Truncate the class content in the current database")
   public void truncateClass(
       @ConsoleParameter(name = "text", description = "The name of the class to truncate")
-          String iCommandText) {
+      String iCommandText) {
     sqlCommand("truncate", iCommandText, "\nClass truncated.\n", false);
   }
 
@@ -662,38 +661,38 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       description = "Truncate the cluster content in the current database")
   public void truncateCluster(
       @ConsoleParameter(name = "text", description = "The name of the class to truncate")
-          String iCommandText) {
+      String iCommandText) {
     sqlCommand("truncate", iCommandText, "\nTruncated %d record(s) in %f sec(s).\n", true);
   }
 
   @ConsoleCommand(splitInWords = false, description = "Truncate a record deleting it at low level")
   public void truncateRecord(
       @ConsoleParameter(name = "text", description = "The record(s) to truncate")
-          String iCommandText) {
+      String iCommandText) {
     sqlCommand("truncate", iCommandText, "\nTruncated %d record(s) in %f sec(s).\n", true);
   }
 
   @ConsoleCommand(description = "Load a record in memory using passed fetch plan")
   public void loadRecord(
       @ConsoleParameter(
-              name = "record-id",
-              description =
-                  "The unique Record Id of the record to load. If you do not have the Record Id,"
-                      + " execute a query first")
-          String iRecordId,
+          name = "record-id",
+          description =
+              "The unique Record Id of the record to load. If you do not have the Record Id,"
+                  + " execute a query first")
+      String iRecordId,
       @ConsoleParameter(name = "fetch-plan", description = "The fetch plan to load the record with")
-          String iFetchPlan) {
+      String iFetchPlan) {
     loadRecordInternal(iRecordId, iFetchPlan);
   }
 
   @ConsoleCommand(description = "Load a record in memory and set it as the current")
   public void loadRecord(
       @ConsoleParameter(
-              name = "record-id",
-              description =
-                  "The unique Record Id of the record to load. If you do not have the Record Id,"
-                      + " execute a query first")
-          String iRecordId) {
+          name = "record-id",
+          description =
+              "The unique Record Id of the record to load. If you do not have the Record Id,"
+                  + " execute a query first")
+      String iRecordId) {
     loadRecordInternal(iRecordId, null);
   }
 
@@ -702,11 +701,11 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "Console-Command-Reload-Record")
   public void reloadRecord(
       @ConsoleParameter(
-              name = "record-id",
-              description =
-                  "The unique Record Id of the record to load. If you do not have the Record Id,"
-                      + " execute a query first")
-          String iRecordId) {
+          name = "record-id",
+          description =
+              "The unique Record Id of the record to load. If you do not have the Record Id,"
+                  + " execute a query first")
+      String iRecordId) {
     reloadRecordInternal(iRecordId);
   }
 
@@ -716,7 +715,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "SQL-Explain")
   public void explain(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
-          String iCommandText) {
+      String iCommandText) {
     Object result = sqlCommand("explain", iCommandText, "\n", false);
     if (result != null && result instanceof ODocument) {
       message(((ODocument) result).getProperty("executionPlanAsString"));
@@ -736,7 +735,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   @ConsoleCommand(splitInWords = false, description = "Executes a command inside a transaction")
   public void transactional(
       @ConsoleParameter(name = "command-text", description = "The command to execute")
-          String iCommandText) {
+      String iCommandText) {
     sqlCommand("transactional", iCommandText, "\nResult: '%s'. Executed in %f sec(s).\n", true);
   }
 
@@ -746,7 +745,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "SQL-Insert")
   public void insert(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
-          String iCommandText) {
+      String iCommandText) {
     sqlCommand("insert", iCommandText, "\nInserted record '%s' in %f sec(s).\n", true);
   }
 
@@ -756,7 +755,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "SQL-Create-Vertex")
   public void createVertex(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
-          String iCommandText) {
+      String iCommandText) {
     sqlCommand("create", iCommandText, "\nCreated vertex '%s' in %f sec(s).\n", true);
   }
 
@@ -766,7 +765,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "SQL-Create-Edge")
   public void createEdge(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
-          String iCommandText) {
+      String iCommandText) {
 
     String command = "create " + iCommandText;
     resetResultSet();
@@ -831,7 +830,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "SQL-Update")
   public void update(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
-          String iCommandText) {
+      String iCommandText) {
     sqlCommand("update", iCommandText, "\nUpdated record(s) '%s' in %f sec(s).\n", true);
     updateDatabaseInfo();
     currentDatabase.getLocalCache().invalidate();
@@ -843,7 +842,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "SQL-HA")
   public void ha(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
-          String iCommandText) {
+      String iCommandText) {
     sqlCommand("ha", iCommandText, "\nExecuted '%s' in %f sec(s).\n", true);
   }
 
@@ -855,7 +854,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   // EVALUATE THIS BEFORE 'MOVE'
   public void moveVertex(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
-          String iCommandText) {
+      String iCommandText) {
     sqlCommand(
         "move",
         iCommandText,
@@ -869,7 +868,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "SQL-Optimize-Database")
   public void optimizeDatabase(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
-          String iCommandText) {
+      String iCommandText) {
     sqlCommand("optimize", iCommandText, "\nDatabase optimized '%s' in %f sec(s).\n", true);
   }
 
@@ -884,7 +883,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "SQL-Delete")
   public void delete(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
-          String iCommandText) {
+      String iCommandText) {
     sqlCommand("delete", iCommandText, "\nDelete record(s) '%s' in %f sec(s).\n", true);
     updateDatabaseInfo();
     currentDatabase.getLocalCache().invalidate();
@@ -914,7 +913,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "SQL-Create-Link")
   public void createLink(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
-          String iCommandText) {
+      String iCommandText) {
     sqlCommand("create", iCommandText, "\nCreated %d link(s) in %f sec(s).\n", true);
   }
 
@@ -924,7 +923,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "SQL-Find-References")
   public void findReferences(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
-          String iCommandText) {
+      String iCommandText) {
     sqlCommand("find", iCommandText, "\nFound %s in %f sec(s).\n", true);
   }
 
@@ -934,7 +933,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "SQL-Alter-Database")
   public void alterDatabase(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
-          String iCommandText) {
+      String iCommandText) {
     sqlCommand("alter", iCommandText, "\nDatabase updated successfully.\n", false);
     updateDatabaseInfo();
   }
@@ -944,10 +943,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "Console-Command-Freeze-Database")
   public void freezeDatabase(
       @ConsoleParameter(
-              name = "storage-type",
-              description = "Storage type of server database",
-              optional = true)
-          String storageType)
+          name = "storage-type",
+          description = "Storage type of server database",
+          optional = true)
+      String storageType)
       throws IOException {
     checkForDatabase();
 
@@ -974,10 +973,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "Console-Command-Release-Db")
   public void releaseDatabase(
       @ConsoleParameter(
-              name = "storage-type",
-              description = "Storage type of server database",
-              optional = true)
-          String storageType)
+          name = "storage-type",
+          description = "Storage type of server database",
+          optional = true)
+      String storageType)
       throws IOException {
     checkForDatabase();
 
@@ -1002,10 +1001,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   @ConsoleCommand(description = "Flushes all database content to the disk")
   public void flushDatabase(
       @ConsoleParameter(
-              name = "storage-type",
-              description = "Storage type of server database",
-              optional = true)
-          String storageType)
+          name = "storage-type",
+          description = "Storage type of server database",
+          optional = true)
+      String storageType)
       throws IOException {
     freezeDatabase(storageType);
     releaseDatabase(storageType);
@@ -1031,7 +1030,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   @ConsoleCommand(splitInWords = false, description = "Alter a class in the database schema")
   public void alterClass(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
-          String iCommandText) {
+      String iCommandText) {
     sqlCommand("alter", iCommandText, "\nClass updated successfully.\n", false);
     updateDatabaseInfo();
   }
@@ -1042,7 +1041,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "SQL-Create-Class")
   public void createClass(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
-          String iCommandText) {
+      String iCommandText) {
     sqlCommand("create", iCommandText, "\nClass created successfully.\n", true);
     updateDatabaseInfo();
   }
@@ -1050,7 +1049,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   @ConsoleCommand(splitInWords = false, description = "Create a sequence in the database")
   public void createSequence(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
-          String iCommandText) {
+      String iCommandText) {
     sqlCommand("create", iCommandText, "\nSequence created successfully.\n", true);
     updateDatabaseInfo();
   }
@@ -1058,7 +1057,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   @ConsoleCommand(splitInWords = false, description = "Alter an existent sequence in the database")
   public void alterSequence(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
-          String iCommandText) {
+      String iCommandText) {
     sqlCommand("alter", iCommandText, "\nSequence altered successfully.\n", true);
     updateDatabaseInfo();
   }
@@ -1066,7 +1065,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   @ConsoleCommand(splitInWords = false, description = "Remove a sequence from the database")
   public void dropSequence(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
-          String iCommandText) {
+      String iCommandText) {
     sqlCommand("drop", iCommandText, "Sequence removed successfully.\n", false);
     updateDatabaseInfo();
   }
@@ -1077,7 +1076,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "SQL-Create-User")
   public void createUser(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
-          String iCommandText) {
+      String iCommandText) {
     sqlCommand("create", iCommandText, "\nUser created successfully.\n", false);
     updateDatabaseInfo();
   }
@@ -1085,7 +1084,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   @ConsoleCommand(splitInWords = false, description = "Drop a user", onlineHelp = "SQL-Drop-User")
   public void dropUser(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
-          String iCommandText) {
+      String iCommandText) {
     sqlCommand("drop", iCommandText, "\nUser dropped successfully.\n", false);
     updateDatabaseInfo();
   }
@@ -1096,7 +1095,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "SQL-Alter-Property")
   public void alterProperty(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
-          String iCommandText) {
+      String iCommandText) {
     sqlCommand("alter", iCommandText, "\nProperty updated successfully.\n", false);
     updateDatabaseInfo();
   }
@@ -1107,7 +1106,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "SQL-Create-Property")
   public void createProperty(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
-          String iCommandText) {
+      String iCommandText) {
     sqlCommand("create", iCommandText, "\nProperty created successfully.\n", true);
     updateDatabaseInfo();
   }
@@ -1116,7 +1115,6 @@ public class OConsoleDatabaseApp extends OConsoleApplication
    * * Creates a function.
    *
    * @param iCommandText the command text to execute
-   * @author Claudio Tesoriero
    */
   @ConsoleCommand(
       splitInWords = false,
@@ -1124,7 +1122,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "SQL-Create-Function")
   public void createFunction(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
-          String iCommandText) {
+      String iCommandText) {
     sqlCommand("create", iCommandText, "\nFunction created successfully with id=%s.\n", true);
     updateDatabaseInfo();
   }
@@ -1135,7 +1133,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "SQL-Traverse")
   public void traverse(
       @ConsoleParameter(name = "query-text", description = "The traverse to execute")
-          String iQueryText) {
+      String iQueryText) {
     final int limit;
     if (iQueryText.toLowerCase(Locale.ENGLISH).contains(" limit ")) {
       // RESET CONSOLE FLAG
@@ -1167,7 +1165,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "SQL-Query")
   public void select(
       @ConsoleParameter(name = "query-text", description = "The query to execute")
-          String iQueryText) {
+      String iQueryText) {
     checkForDatabase();
 
     if (iQueryText == null) {
@@ -1229,7 +1227,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "SQL-Match")
   public void match(
       @ConsoleParameter(name = "query-text", description = "The query to execute")
-          String iQueryText) {
+      String iQueryText) {
     checkForDatabase();
 
     if (iQueryText == null) {
@@ -1280,8 +1278,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       splitInWords = false,
       description = "Move from current record by evaluating a predicate against current record")
   public void move(
-      @ConsoleParameter(name = "text", description = "The sql predicate to evaluate")
-          final String iText) {
+      @ConsoleParameter(name = "text", description = "The sql predicate to evaluate") final String iText) {
     if (iText == null) {
       return;
     }
@@ -1290,7 +1287,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       return;
     }
 
-    final Object result = new OSQLPredicate(iText).evaluate(currentRecord, null, null);
+    final Object result = new OSQLPredicate(currentDatabase, iText).evaluate(currentRecord, null,
+        null);
 
     if (result != null) {
       if (result instanceof OIdentifiable) {
@@ -1315,8 +1313,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
   @ConsoleCommand(splitInWords = false, description = "Evaluate a predicate against current record")
   public void eval(
-      @ConsoleParameter(name = "text", description = "The sql predicate to evaluate")
-          final String iText) {
+      @ConsoleParameter(name = "text", description = "The sql predicate to evaluate") final String iText) {
     if (iText == null) {
       return;
     }
@@ -1325,7 +1322,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       return;
     }
 
-    final Object result = new OSQLPredicate(iText).evaluate(currentRecord, null, null);
+    final Object result = new OSQLPredicate(currentDatabase, iText).evaluate(currentRecord, null,
+        null);
     if (result != null) {
       out.println("\n" + result);
     }
@@ -1337,7 +1335,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       description = "Execute a script containing multiple commands separated by ; or new line")
   public void script(
       @ConsoleParameter(name = "text", description = "Commands to execute, one per line")
-          String iText) {
+      String iText) {
     final String language;
     final int languageEndPos = iText.indexOf(';');
     String[] splitted = iText.split(" ")[0].split(";")[0].split("\n")[0].split("\t");
@@ -1355,11 +1353,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   @ConsoleCommand(splitInWords = false, description = "Execute javascript commands in the console")
   public void js(
       @ConsoleParameter(
-              name = "text",
-              description =
-                  "The javascript to execute. Use 'db' to reference to a document database, 'gdb'"
-                      + " for a graph database")
-          final String iText) {
+          name = "text",
+          description =
+              "The javascript to execute. Use 'db' to reference to a document database, 'gdb'"
+                  + " for a graph database") final String iText) {
     if (iText == null) {
       return;
     }
@@ -1372,7 +1369,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
         final OCommandExecutorScript cmd = new OCommandExecutorScript();
         cmd.parse(new OCommandScript("Javascript", iText));
 
-        currentResult = cmd.execute(null);
+        currentResult = cmd.execute(null, currentDatabase);
         break;
       } catch (ORetryQueryException e) {
         continue;
@@ -1402,11 +1399,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       description = "Execute javascript commands against a remote server")
   public void jss(
       @ConsoleParameter(
-              name = "text",
-              description =
-                  "The javascript to execute. Use 'db' to reference to a document database, 'gdb'"
-                      + " for a graph database")
-          final String iText) {
+          name = "text",
+          description =
+              "The javascript to execute. Use 'db' to reference to a document database, 'gdb'"
+                  + " for a graph database") final String iText) {
     checkForRemoteServer();
 
     executeServerSideScript("javascript", iText);
@@ -1421,13 +1417,13 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   public void setServerUser(
       @ConsoleParameter(name = "user-name", description = "User name") String iServerUserName,
       @ConsoleParameter(name = "user-password", description = "User password")
-          String iServerUserPasswd,
+      String iServerUserPasswd,
       @ConsoleParameter(
-              name = "user-permissions",
-              description =
-                  "Permissions, look at"
-                      + " http://orientdb.com/docs/last/Security.html#servers-resources")
-          String iPermissions) {
+          name = "user-permissions",
+          description =
+              "Permissions, look at"
+                  + " http://orientdb.com/docs/last/Security.html#servers-resources")
+      String iPermissions) {
 
     if (iServerUserName == null || iServerUserName.length() == 0) {
       throw new IllegalArgumentException("User name null or empty");
@@ -1456,7 +1452,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       message(String.format("\nServer user '%s' set correctly", iServerUserName));
 
     } catch (Exception e) {
-      error(String.format("\nError on loading %s file: %s", serverCfgFile, e.toString()));
+      error(String.format("\nError on loading %s file: %s", serverCfgFile, e));
     }
   }
 
@@ -1523,7 +1519,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       }
 
     } catch (Exception e) {
-      error(String.format("\nError on loading %s file: %s", serverCfgFile, e.toString()));
+      error(String.format("\nError on loading %s file: %s", serverCfgFile, e));
     }
   }
 
@@ -1533,7 +1529,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "SQL-Create-Index")
   public void createIndex(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
-          String iCommandText)
+      String iCommandText)
       throws IOException {
     message("\n\nCreating index...");
 
@@ -1547,10 +1543,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "Console-Command-Drop-Database")
   public void dropDatabase(
       @ConsoleParameter(
-              name = "storage-type",
-              description = "Storage type of server database",
-              optional = true)
-          String storageType)
+          name = "storage-type",
+          description = "Storage type of server database",
+          optional = true)
+      String storageType)
       throws IOException {
     checkForDatabase();
 
@@ -1563,7 +1559,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       message("\n\nInvalid storage type for db: '" + storageType + "'");
       return;
     }
-    orientDB.drop(dbName);
+    oxygenDB.drop(dbName);
     currentDatabase = null;
     currentDatabaseName = null;
     message("\n\nDatabase '" + dbName + "' deleted successfully");
@@ -1574,17 +1570,17 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "Console-Command-Drop-Database")
   public void dropDatabase(
       @ConsoleParameter(
-              name = "database-url",
-              description = "The url of the database to drop in the format '<mode>:<path>'")
-          String iDatabaseURL,
+          name = "database-url",
+          description = "The url of the database to drop in the format '<mode>:<path>'")
+      String iDatabaseURL,
       @ConsoleParameter(name = "user", description = "Server administrator name") String iUserName,
       @ConsoleParameter(name = "password", description = "Server administrator password")
-          String iUserPassword,
+      String iUserPassword,
       @ConsoleParameter(
-              name = "storage-type",
-              description = "Storage type of server database",
-              optional = true)
-          String storageType)
+          name = "storage-type",
+          description = "Storage type of server database",
+          optional = true)
+      String storageType)
       throws IOException {
 
     connect(iDatabaseURL, iUserName, iUserPassword);
@@ -1597,7 +1593,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "SQL-Drop-Index")
   public void dropIndex(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
-          String iCommandText)
+      String iCommandText)
       throws IOException {
     message("\n\nRemoving index...");
 
@@ -1612,7 +1608,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "SQL-Rebuild-Index")
   public void rebuildIndex(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
-          String iCommandText)
+      String iCommandText)
       throws IOException {
     message("\n\nRebuilding index(es)...");
 
@@ -1628,7 +1624,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "SQL-Drop-Class")
   public void dropClass(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
-          String iCommandText)
+      String iCommandText)
       throws IOException {
     sqlCommand("drop", iCommandText, "\nRemoved class in %f sec(s).\n", false);
     updateDatabaseInfo();
@@ -1640,7 +1636,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "SQL-Drop-Property")
   public void dropProperty(
       @ConsoleParameter(name = "command-text", description = "The command text to execute")
-          String iCommandText)
+      String iCommandText)
       throws IOException {
     sqlCommand("drop", iCommandText, "\nRemoved class property in %f sec(s).\n", false);
     updateDatabaseInfo();
@@ -1650,8 +1646,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       description = "Browse all records of a class",
       onlineHelp = "Console-Command-Browse-Class")
   public void browseClass(
-      @ConsoleParameter(name = "class-name", description = "The name of the class")
-          final String iClassName) {
+      @ConsoleParameter(name = "class-name", description = "The name of the class") final String iClassName) {
     checkForDatabase();
 
     resetResultSet();
@@ -1665,8 +1660,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       description = "Browse all records of a cluster",
       onlineHelp = "Console-Command-Browse-Cluster")
   public void browseCluster(
-      @ConsoleParameter(name = "cluster-name", description = "The name of the cluster")
-          final String iClusterName) {
+      @ConsoleParameter(name = "cluster-name", description = "The name of the cluster") final String iClusterName) {
     checkForDatabase();
 
     resetResultSet();
@@ -1682,9 +1676,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "Console-Command-Display-Record")
   public void displayRecord(
       @ConsoleParameter(
-              name = "number",
-              description = "The number of the record in the most recent result set")
-          final String iRecordNumber) {
+          name = "number",
+          description = "The number of the record in the most recent result set") final String iRecordNumber) {
     checkForDatabase();
 
     if (iRecordNumber == null || currentResultSet == null) {
@@ -1807,8 +1800,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       description = "Display a class in the schema",
       onlineHelp = "Console-Command-Info-Class")
   public void infoClass(
-      @ConsoleParameter(name = "class-name", description = "The name of the class")
-          final String iClassName) {
+      @ConsoleParameter(name = "class-name", description = "The name of the class") final String iClassName) {
     checkForDatabase();
 
     currentDatabase.getMetadata().reload();
@@ -1874,12 +1866,12 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       out.println();
     }
 
-    if (cls.properties().size() > 0) {
+    if (cls.properties(currentDatabase).size() > 0) {
       message("\n\nPROPERTIES");
 
       final List<ODocument> resultSet = new ArrayList<ODocument>();
 
-      for (final OProperty p : cls.properties()) {
+      for (final OProperty p : cls.properties(currentDatabase)) {
         try {
           final ODocument row = new ODocument();
           resultSet.add(row);
@@ -1908,7 +1900,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       formatter.writeRecords(resultSet, -1);
     }
 
-    final Set<OIndex> indexes = cls.getClassIndexes();
+    final Set<OIndex> indexes = cls.getClassIndexes(currentDatabase);
     if (!indexes.isEmpty()) {
       message("\n\nINDEXES (" + indexes.size() + " altogether)");
 
@@ -1965,9 +1957,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "Console-Command-Info-Property")
   public void infoProperty(
       @ConsoleParameter(
-              name = "property-name",
-              description = "The name of the property as <class>.<property>")
-          final String iPropertyName) {
+          name = "property-name",
+          description = "The name of the property as <class>.<property>") final String iPropertyName) {
     checkForDatabase();
 
     if (iPropertyName.indexOf('.') == -1) {
@@ -2033,7 +2024,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       formatter.writeRecords(resultSet, -1);
     }
 
-    final Collection<OIndex> indexes = prop.getAllIndexes();
+    final Collection<OIndex> indexes = prop.getAllIndexes(currentDatabase);
     if (!indexes.isEmpty()) {
       message("\n\nINDEXES (" + indexes.size() + " altogether)");
 
@@ -2083,7 +2074,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
         final ODocument row = new ODocument();
         resultSet.add(row);
 
-        final long indexSize = index.getSize(); // getInternal doesn't work in remote...
+        final long indexSize = index.getSize(
+            currentDatabase); // getInternal doesn't work in remote...
         totalIndexedRecords += indexSize;
 
         row.field("NAME", index.getName());
@@ -2092,7 +2084,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
         try {
           final OIndexDefinition indexDefinition = index.getDefinition();
-          final long size = index.getInternal().size();
+          final long size = index.getInternal().size(currentDatabase);
           if (indexDefinition != null) {
             row.field("CLASS", indexDefinition.getClassName());
             row.field("COLLATE", indexDefinition.getCollate().getName());
@@ -2143,10 +2135,9 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "Console-Command-List-Clusters")
   public void listClusters(
       @ConsoleParameter(
-              name = "[options]",
-              optional = true,
-              description = "Additional options, example: -v=verbose")
-          final String options) {
+          name = "[options]",
+          optional = true,
+          description = "Additional options, example: -v=verbose") final String options) {
     final Map<String, String> commandOptions = parseCommandOptions(options);
 
     if (currentDatabaseName != null) {
@@ -2421,7 +2412,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
       message("\nCluster status:");
       ODocument clusterStatus =
-          ((OrientDBRemote) OrientDBInternal.extract(orientDB))
+          ((OxygenDBRemote) OxygenDBInternal.extract(oxygenDB))
               .getClusterStatus(currentDatabaseUserName, currentDatabaseUserPassword);
       out.println(clusterStatus.toJSON("attribSameRow,alwaysFetchEmbedded,fetchPlan:*:0"));
 
@@ -2432,8 +2423,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
   @ConsoleCommand(description = "Check database integrity", splitInWords = false)
   public void checkDatabase(
-      @ConsoleParameter(name = "options", description = "Options: -v", optional = true)
-          final String iOptions)
+      @ConsoleParameter(name = "options", description = "Options: -v", optional = true) final String iOptions)
       throws IOException {
     checkForDatabase();
 
@@ -2455,12 +2445,12 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   @ConsoleCommand(description = "Repair database structure", splitInWords = false)
   public void repairDatabase(
       @ConsoleParameter(
-              name = "options",
-              description =
-                  "Options: [--fix-graph] [--force-embedded-ridbags] [--fix-links] [-v]]"
-                      + " [--fix-ridbags] [--fix-bonsai]",
-              optional = true)
-          String iOptions)
+          name = "options",
+          description =
+              "Options: [--fix-graph] [--force-embedded-ridbags] [--fix-links] [-v]]"
+                  + " [--fix-ridbags] [--fix-bonsai]",
+          optional = true)
+      String iOptions)
       throws IOException {
     checkForDatabase();
     final boolean force_embedded =
@@ -2509,38 +2499,34 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
   @ConsoleCommand(description = "Compare two databases")
   public void compareDatabases(
-      @ConsoleParameter(name = "db1-url", description = "URL of the first database")
-          final String iDb1URL,
-      @ConsoleParameter(name = "db2-url", description = "URL of the second database")
-          final String iDb2URL,
-      @ConsoleParameter(name = "username", description = "User name", optional = false)
-          final String iUserName,
-      @ConsoleParameter(name = "password", description = "User password", optional = false)
-          final String iUserPassword,
+      @ConsoleParameter(name = "db1-url", description = "URL of the first database") final String iDb1URL,
+      @ConsoleParameter(name = "db2-url", description = "URL of the second database") final String iDb2URL,
+      @ConsoleParameter(name = "username", description = "User name", optional = false) final String iUserName,
+      @ConsoleParameter(name = "password", description = "User password", optional = false) final String iUserPassword,
       @ConsoleParameter(
-              name = "detect-mapping-data",
-              description =
-                  "Whether RID mapping data after DB import should be tried to found on the disk",
-              optional = true)
-          String autoDiscoveringMappingData)
+          name = "detect-mapping-data",
+          description =
+              "Whether RID mapping data after DB import should be tried to found on the disk",
+          optional = true)
+      String autoDiscoveringMappingData)
       throws IOException {
     OURLConnection firstUrl = OURLHelper.parseNew(iDb1URL);
     OURLConnection secondUrl = OURLHelper.parseNew(iDb2URL);
-    OrientDB firstContext =
-        new OrientDB(
+    OxygenDB firstContext =
+        new OxygenDB(
             firstUrl.getType() + ":" + firstUrl.getPath(),
             iUserName,
             iUserPassword,
-            OrientDBConfig.defaultConfig());
-    OrientDB secondContext;
+            OxygenDBConfig.defaultConfig());
+    OxygenDB secondContext;
     if (!firstUrl.getType().equals(secondUrl.getType())
         || !firstUrl.getPath().equals(secondUrl.getPath())) {
       secondContext =
-          new OrientDB(
+          new OxygenDB(
               secondUrl.getType() + ":" + secondUrl.getPath(),
               iUserName,
               iUserPassword,
-              OrientDBConfig.defaultConfig());
+              OxygenDBConfig.defaultConfig());
     } else {
       secondContext = firstContext;
     }
@@ -2572,8 +2558,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       splitInWords = true,
       onlineHelp = "Console-Command-Load-Script")
   public void loadScript(
-      @ConsoleParameter(name = "scripPath", description = "load script scriptPath")
-          final String scriptPath)
+      @ConsoleParameter(name = "scripPath", description = "load script scriptPath") final String scriptPath)
       throws IOException {
 
     checkForDatabase();
@@ -2732,8 +2717,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       description = "Export the current record in the requested format",
       onlineHelp = "Console-Command-Export-Record")
   public void exportRecord(
-      @ConsoleParameter(name = "format", description = "Format, such as 'json'")
-          final String iFormat,
+      @ConsoleParameter(name = "format", description = "Format, such as 'json'") final String iFormat,
       @ConsoleParameter(name = "options", description = "Options", optional = true) String iOptions)
       throws IOException {
     checkForDatabase();
@@ -2788,8 +2772,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
   @ConsoleCommand(description = "Return the value of a property")
   public void get(
-      @ConsoleParameter(name = "property-name", description = "Name of the property")
-          final String iPropertyName) {
+      @ConsoleParameter(name = "property-name", description = "Name of the property") final String iPropertyName) {
     Object value = properties.get(iPropertyName);
 
     out.println();
@@ -2805,10 +2788,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       description = "Change the value of a property",
       onlineHelp = "Console-Command-Set")
   public void set(
-      @ConsoleParameter(name = "property-name", description = "Name of the property")
-          final String iPropertyName,
-      @ConsoleParameter(name = "property-value", description = "Value to set")
-          final String iPropertyValue) {
+      @ConsoleParameter(name = "property-name", description = "Name of the property") final String iPropertyName,
+      @ConsoleParameter(name = "property-value", description = "Value to set") final String iPropertyValue) {
     Object prevValue = properties.get(iPropertyName);
 
     out.println();
@@ -2832,24 +2813,22 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   @ConsoleCommand(description = "Execute a command against the profiler")
   public void profiler(
       @ConsoleParameter(
-              name = "profiler command",
-              description = "command to execute against the profiler")
-          final String iCommandName) {
+          name = "profiler command",
+          description = "command to execute against the profiler") final String iCommandName) {
     if (iCommandName.equalsIgnoreCase("on")) {
-      Orient.instance().getProfiler().startRecording();
+      Oxygen.instance().getProfiler().startRecording();
       message("\nProfiler is ON now, use 'profiler off' to turn off.");
     } else if (iCommandName.equalsIgnoreCase("off")) {
-      Orient.instance().getProfiler().stopRecording();
+      Oxygen.instance().getProfiler().stopRecording();
       message("\nProfiler is OFF now, use 'profiler on' to turn on.");
     } else if (iCommandName.equalsIgnoreCase("dump")) {
-      out.println(Orient.instance().getProfiler().dump());
+      out.println(Oxygen.instance().getProfiler().dump());
     }
   }
 
   @ConsoleCommand(description = "Return the value of a configuration value")
   public void configGet(
-      @ConsoleParameter(name = "config-name", description = "Name of the configuration")
-          final String iConfigName)
+      @ConsoleParameter(name = "config-name", description = "Name of the configuration") final String iConfigName)
       throws IOException {
     final OGlobalConfiguration config = OGlobalConfiguration.findByKey(iConfigName);
     if (config == null) {
@@ -2858,9 +2837,9 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     }
 
     final String value;
-    if (!OrientDBInternal.extract(orientDB).isEmbedded()) {
+    if (!OxygenDBInternal.extract(oxygenDB).isEmbedded()) {
       value =
-          ((OrientDBRemote) OrientDBInternal.extract(orientDB))
+          ((OxygenDBRemote) OxygenDBInternal.extract(oxygenDB))
               .getGlobalConfiguration(currentDatabaseUserName, currentDatabaseUserPassword, config);
       message("\nRemote configuration: ");
     } else {
@@ -2881,18 +2860,16 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
   @ConsoleCommand(description = "Change the value of a configuration value")
   public void configSet(
-      @ConsoleParameter(name = "config-name", description = "Name of the configuration")
-          final String iConfigName,
-      @ConsoleParameter(name = "config-value", description = "Value to set")
-          final String iConfigValue)
+      @ConsoleParameter(name = "config-name", description = "Name of the configuration") final String iConfigName,
+      @ConsoleParameter(name = "config-value", description = "Value to set") final String iConfigValue)
       throws IOException {
     final OGlobalConfiguration config = OGlobalConfiguration.findByKey(iConfigName);
     if (config == null) {
       throw new IllegalArgumentException("Configuration variable '" + iConfigName + "' not found");
     }
 
-    if (orientDB != null && !OrientDBInternal.extract(orientDB).isEmbedded()) {
-      ((OrientDBRemote) OrientDBInternal.extract(orientDB))
+    if (oxygenDB != null && !OxygenDBInternal.extract(oxygenDB).isEmbedded()) {
+      ((OxygenDBRemote) OxygenDBInternal.extract(oxygenDB))
           .setGlobalConfiguration(
               currentDatabaseUserName, currentDatabaseUserPassword, config, iConfigValue);
       message("\nRemote configuration value changed correctly");
@@ -2905,9 +2882,9 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
   @ConsoleCommand(description = "Return all the configuration values")
   public void config() throws IOException {
-    if (!OrientDBInternal.extract(orientDB).isEmbedded()) {
+    if (!OxygenDBInternal.extract(oxygenDB).isEmbedded()) {
       final Map<String, String> values =
-          ((OrientDBRemote) OrientDBInternal.extract(orientDB))
+          ((OxygenDBRemote) OxygenDBInternal.extract(oxygenDB))
               .getGlobalConfigurations(currentDatabaseUserName, currentDatabaseUserPassword);
 
       message("\nREMOTE SERVER CONFIGURATION");
@@ -3042,15 +3019,14 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   public void open(
       @ConsoleParameter(name = "db-name", description = "The database name") final String dbName,
       @ConsoleParameter(name = "user", description = "The database user") final String user,
-      @ConsoleParameter(name = "password", description = "The database password")
-          final String password) {
+      @ConsoleParameter(name = "password", description = "The database password") final String password) {
 
-    if (orientDB == null) {
+    if (oxygenDB == null) {
       message("Invalid context. Please use 'connect env' first");
       return;
     }
 
-    currentDatabase = (ODatabaseSessionInternal) orientDB.open(dbName, user, password);
+    currentDatabase = (ODatabaseSessionInternal) oxygenDB.open(dbName, user, password);
 
     currentDatabaseName = currentDatabase.getName();
 
@@ -3072,13 +3048,13 @@ public class OConsoleDatabaseApp extends OConsoleApplication
         }
         return RESULT.NOT_EXECUTED;
       }
-      if (orientDB != null) {
+      if (oxygenDB != null) {
         int displayLimit = 20;
         try {
           if (properties.get(OConsoleProperties.LIMIT) != null) {
             displayLimit = Integer.parseInt(properties.get(OConsoleProperties.LIMIT));
           }
-          OResultSet rs = orientDB.execute(iCommand);
+          OResultSet rs = oxygenDB.execute(iCommand);
           int count = 0;
           List<OIdentifiable> result = new ArrayList<>();
           while (rs.hasNext() && (displayLimit < 0 || count < displayLimit)) {
@@ -3108,7 +3084,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   }
 
   /**
-   * console command to open an OrientDB context
+   * console command to open an OxygenDB context
    *
    * <p>usage: <code>
    * connect env URL serverUser serverPwd
@@ -3138,7 +3114,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       pw = parts.get(4);
     }
 
-    orientDB = new OrientDB(url, user, pw, OrientDBConfig.defaultConfig());
+    oxygenDB = new OxygenDB(url, user, pw, OxygenDBConfig.defaultConfig());
     return RESULT.OK;
   }
 
@@ -3146,7 +3122,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
    * Should be used only by console commands
    */
   protected void checkForRemoteServer() {
-    if (orientDB == null || OrientDBInternal.extract(orientDB).isEmbedded()) {
+    if (oxygenDB == null || OxygenDBInternal.extract(oxygenDB).isEmbedded()) {
       throw new OSystemException(
           "Remote server is not connected. Use 'connect remote:<host>[:<port>][/<database-name>]'"
               + " to connect");
@@ -3229,7 +3205,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     message("\nCurrent path: " + new File("").getAbsolutePath());
   }
 
-  public void onCompletition(final Object iTask, final boolean iSucceed) {
+  public void onCompletition(ODatabaseSessionInternal session, final Object iTask,
+      final boolean iSucceed) {
     if (interactiveMode) {
       if (iSucceed) {
         message("\r[==========] 100% Done.");
@@ -3250,8 +3227,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       currentDatabase.close();
       currentDatabase = null;
     }
-    if (orientDB != null) {
-      orientDB.close();
+    if (oxygenDB != null) {
+      oxygenDB.close();
     }
     currentResultSet = null;
     currentRecord = null;
@@ -3265,12 +3242,12 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     }
 
     if (currentDatabase.isRemote()) {
-      final OStorageRemote stg = ((ODatabaseDocumentRemote) currentDatabase).getStorageRemote();
+      final OStorageRemote stg = ((ODatabaseSessionRemote) currentDatabase).getStorageRemote();
       final ODocument distributedCfg = stg.getClusterConfiguration();
       if (distributedCfg != null && !distributedCfg.isEmpty()) {
         message("\n\nDISTRIBUTED CONFIGURATION:\n" + distributedCfg.toJSON("prettyPrint"));
       } else if (iForce) {
-        message("\n\nDISTRIBUTED CONFIGURATION: none (OrientDB is running in standalone mode)");
+        message("\n\nDISTRIBUTED CONFIGURATION: none (OxygenDB is running in standalone mode)");
       }
     }
   }
@@ -3320,7 +3297,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   }
 
   protected void printApplicationInfo() {
-    message("\nOrientDB console v." + OConstants.getVersion() + " " + OConstants.ORIENT_URL);
+    message("\nOxygenDB console v." + OConstants.getVersion() + " " + OConstants.ORIENT_URL);
     message("\nType 'help' to display all the supported commands.");
   }
 
@@ -3547,7 +3524,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
           "\n"
               + "+-------------------------------------------------------------------------------------------------+");
 
-      final byte[] value = rec.toStream();
+      final byte[] value = ((ORecordAbstract) rec).toStream();
       final int max =
           Math.min(
               Integer.parseInt(properties.get(OConsoleProperties.MAX_BINARY_DISPLAY)),

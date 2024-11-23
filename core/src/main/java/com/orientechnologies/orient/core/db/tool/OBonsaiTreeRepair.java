@@ -21,8 +21,6 @@ import java.util.Set;
 /**
  * Find and repair broken bonsai tree removing the double linked buckets and regenerating the whole
  * tree with data from referring records.
- *
- * @author tglman
  */
 public class OBonsaiTreeRepair {
 

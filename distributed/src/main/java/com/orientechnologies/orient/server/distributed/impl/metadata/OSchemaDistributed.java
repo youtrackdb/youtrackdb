@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Created by tglman on 22/06/17.
+ *
  */
 public class OSchemaDistributed extends OSchemaEmbedded {
 

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Created by luigidellaquila on 20/07/16.
+ *
  */
 public interface OExecutionStep {
 

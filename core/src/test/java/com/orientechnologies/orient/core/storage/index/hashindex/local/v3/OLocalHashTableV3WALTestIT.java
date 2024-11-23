@@ -6,8 +6,8 @@ import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.serialization.serializer.binary.OBinarySerializerFactory;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
@@ -18,7 +18,14 @@ import com.orientechnologies.orient.core.storage.disk.OLocalPaginatedStorage;
 import com.orientechnologies.orient.core.storage.fs.OFile;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODurablePage;
-import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.*;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OAtomicUnitEndRecord;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OAtomicUnitStartRecord;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OFileCreatedWALRecord;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OLogSequenceNumber;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.ONonTxOperationPerformedWALRecord;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OOperationUnitBodyRecord;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OUpdatePageRecord;
+import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWALRecord;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.cas.CASDiskWriteAheadLog;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.common.WriteableWALRecord;
 import com.orientechnologies.orient.core.storage.index.hashindex.local.OMurmurHash3HashFunction;
@@ -35,7 +42,6 @@ import org.junit.Assert;
 import org.junit.Before;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 5/19/14
  */
 public class OLocalHashTableV3WALTestIT extends OLocalHashTableV3Base {
@@ -58,7 +64,7 @@ public class OLocalHashTableV3WALTestIT extends OLocalHashTableV3Base {
   private ODatabaseSession expectedDatabaseDocumentTx;
   private OWriteCache expectedWriteCache;
 
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
 
   @Before
   public void before() throws IOException {
@@ -69,23 +75,23 @@ public class OLocalHashTableV3WALTestIT extends OLocalHashTableV3Base {
     final java.io.File buildDir = new java.io.File(buildDirectory);
     OFileUtils.deleteRecursively(buildDir);
 
-    orientDB =
-        new OrientDB(
+    oxygenDB =
+        new OxygenDB(
             "embedded:" + buildDirectory,
-            OrientDBConfig.builder()
+            OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
 
-    OCreateDatabaseUtil.createDatabase(ACTUAL_DB_NAME, orientDB, OCreateDatabaseUtil.TYPE_PLOCAL);
-    // orientDB.create(ACTUAL_DB_NAME, ODatabaseType.PLOCAL);
+    OCreateDatabaseUtil.createDatabase(ACTUAL_DB_NAME, oxygenDB, OCreateDatabaseUtil.TYPE_PLOCAL);
+    // oxygenDB.create(ACTUAL_DB_NAME, ODatabaseType.PLOCAL);
     databaseDocumentTx =
-        orientDB.open(ACTUAL_DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        oxygenDB.open(ACTUAL_DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     ((ODatabaseSessionInternal) databaseDocumentTx).getSharedContext().getViewManager().close();
 
-    OCreateDatabaseUtil.createDatabase(EXPECTED_DB_NAME, orientDB, OCreateDatabaseUtil.TYPE_PLOCAL);
-    // orientDB.create(EXPECTED_DB_NAME, ODatabaseType.PLOCAL);
+    OCreateDatabaseUtil.createDatabase(EXPECTED_DB_NAME, oxygenDB, OCreateDatabaseUtil.TYPE_PLOCAL);
+    // oxygenDB.create(EXPECTED_DB_NAME, ODatabaseType.PLOCAL);
     expectedDatabaseDocumentTx =
-        orientDB.open(EXPECTED_DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        oxygenDB.open(EXPECTED_DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     ((ODatabaseSessionInternal) expectedDatabaseDocumentTx)
         .getSharedContext()
         .getViewManager()
@@ -106,7 +112,7 @@ public class OLocalHashTableV3WALTestIT extends OLocalHashTableV3Base {
             .getWriteCache();
     expectedWriteCache =
         ((OLocalPaginatedStorage)
-                ((ODatabaseSessionInternal) expectedDatabaseDocumentTx).getStorage())
+            ((ODatabaseSessionInternal) expectedDatabaseDocumentTx).getStorage())
             .getWriteCache();
 
     CASDiskWriteAheadLog diskWriteAheadLog = (CASDiskWriteAheadLog) actualStorage.getWALInstance();
@@ -119,9 +125,9 @@ public class OLocalHashTableV3WALTestIT extends OLocalHashTableV3Base {
 
   @After
   public void after() {
-    orientDB.drop(ACTUAL_DB_NAME);
-    orientDB.drop(EXPECTED_DB_NAME);
-    orientDB.close();
+    oxygenDB.drop(ACTUAL_DB_NAME);
+    oxygenDB.drop(EXPECTED_DB_NAME);
+    oxygenDB.close();
   }
 
   private void createActualHashTable() throws IOException {
@@ -273,7 +279,7 @@ public class OLocalHashTableV3WALTestIT extends OLocalHashTableV3Base {
   private void restoreDataFromWAL() throws IOException {
     final OReadCache expectedReadCache =
         ((OAbstractPaginatedStorage)
-                ((ODatabaseSessionInternal) expectedDatabaseDocumentTx).getStorage())
+            ((ODatabaseSessionInternal) expectedDatabaseDocumentTx).getStorage())
             .getReadCache();
 
     CASDiskWriteAheadLog log =

@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -22,8 +22,6 @@ import com.orientechnologies.common.exception.OSystemException;
 
 /**
  * The operation will be redirect to another server.
- *
- * @author Luca Garulli (l.garulli--at--orientdb.com)
  */
 public class ODistributedRedirectException extends OSystemException {
 

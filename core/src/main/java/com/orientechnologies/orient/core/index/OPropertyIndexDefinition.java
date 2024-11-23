@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.index;
@@ -49,7 +49,8 @@ public class OPropertyIndexDefinition extends OAbstractIndexDefinition {
   /**
    * Constructor used for index unmarshalling.
    */
-  public OPropertyIndexDefinition() {}
+  public OPropertyIndexDefinition() {
+  }
 
   public String getClassName() {
     return className;
@@ -132,14 +133,14 @@ public class OPropertyIndexDefinition extends OAbstractIndexDefinition {
   }
 
   public Object createValue(ODatabaseSessionInternal session, final List<?> params) {
-    return OType.convert(params.get(0), keyType.getDefaultJavaType());
+    return OType.convert(session, params.get(0), keyType.getDefaultJavaType());
   }
 
   /**
    * {@inheritDoc}
    */
   public Object createValue(ODatabaseSessionInternal session, final Object... params) {
-    return OType.convert(refreshRid(session, params[0]), keyType.getDefaultJavaType());
+    return OType.convert(session, refreshRid(session, params[0]), keyType.getDefaultJavaType());
   }
 
   public int getParamCount() {
@@ -147,7 +148,7 @@ public class OPropertyIndexDefinition extends OAbstractIndexDefinition {
   }
 
   public OType[] getTypes() {
-    return new OType[] {keyType};
+    return new OType[]{keyType};
   }
 
   public void fromStream(@Nonnull ODocument document) {

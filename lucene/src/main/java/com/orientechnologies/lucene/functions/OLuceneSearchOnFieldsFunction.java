@@ -7,6 +7,7 @@ import com.orientechnologies.lucene.collections.OLuceneCompositeKey;
 import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
 import com.orientechnologies.lucene.query.OLuceneKeyAndMetadata;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
@@ -19,7 +20,6 @@ import com.orientechnologies.orient.core.sql.parser.OBinaryCompareOperator;
 import com.orientechnologies.orient.core.sql.parser.OExpression;
 import com.orientechnologies.orient.core.sql.parser.OFromClause;
 import com.orientechnologies.orient.core.sql.parser.OFromItem;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +30,7 @@ import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.memory.MemoryIndex;
 
 /**
- * Created by frank on 15/01/2017.
+ *
  */
 public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate {
 
@@ -41,7 +41,7 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
   }
 
   @Override
-  public String getName() {
+  public String getName(ODatabaseSession session) {
     return NAME;
   }
 
@@ -87,7 +87,7 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
             .map(s -> element.getProperty(s))
             .collect(Collectors.toList());
 
-    for (IndexableField field : index.buildDocument(key).getFields()) {
+    for (IndexableField field : index.buildDocument(ctx.getDatabase(), key).getFields()) {
       memoryIndex.addField(field, index.indexAnalyzer());
     }
 
@@ -102,14 +102,17 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
   private ODocument getMetadata(Object[] params) {
 
     if (params.length == 3) {
-      return new ODocument().fromMap((Map<String, ?>) params[2]);
+      var doc = new ODocument();
+      //noinspection unchecked
+      doc.fromMap((Map<String, ?>) params[2]);
+      return doc;
     }
 
     return OLuceneQueryBuilder.EMPTY_METADATA;
   }
 
   @Override
-  public String getSyntax() {
+  public String getSyntax(ODatabaseSession session) {
     return "SEARCH_INDEX( indexName, [ metdatada {} ] )";
   }
 
@@ -132,7 +135,7 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
       try (Stream<ORID> rids =
           index
               .getInternal()
-              .getRids(
+              .getRids(ctx.getDatabase(),
                   new OLuceneKeyAndMetadata(
                       new OLuceneCompositeKey(Collections.singletonList(query)).setContext(ctx),
                       meta))) {
@@ -161,14 +164,14 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
     return searchForIndex(className, ctx, fieldNames);
   }
 
-  private OLuceneFullTextIndex searchForIndex(
+  private static OLuceneFullTextIndex searchForIndex(
       String className, OCommandContext ctx, List<String> fieldNames) {
     var db = ctx.getDatabase();
     db.activateOnCurrentThread();
     OMetadataInternal dbMetadata = db.getMetadata();
 
     List<OLuceneFullTextIndex> indices =
-        dbMetadata.getImmutableSchemaSnapshot().getClass(className).getIndexes().stream()
+        dbMetadata.getImmutableSchemaSnapshot().getClass(className).getIndexes(db).stream()
             .filter(idx -> idx instanceof OLuceneFullTextIndex)
             .map(idx -> (OLuceneFullTextIndex) idx)
             .filter(idx -> intersect(idx.getDefinition().getFields(), fieldNames))
@@ -179,23 +182,10 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
           "too many indices matching given field name: " + String.join(",", fieldNames));
     }
 
-    return indices.size() == 0 ? null : indices.get(0);
+    return indices.isEmpty() ? null : indices.get(0);
   }
 
-  public <T> List<T> intersection(List<T> list1, List<T> list2) {
-    List<T> list = new ArrayList<T>();
-
-    for (T t : list1) {
-      if (list2.contains(t)) {
-        list.add(t);
-      }
-    }
-
-    return list;
-  }
-
-  public <T> boolean intersect(List<T> list1, List<T> list2) {
-
+  public static <T> boolean intersect(List<T> list1, List<T> list2) {
     for (T t : list1) {
       if (list2.contains(t)) {
         return true;

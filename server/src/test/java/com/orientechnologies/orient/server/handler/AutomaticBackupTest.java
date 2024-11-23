@@ -28,7 +28,7 @@ import javax.management.NotCompliantMBeanException;
 import org.junit.Assert;
 
 /**
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
+ *
  */
 public class AutomaticBackupTest {
 
@@ -82,12 +82,12 @@ public class AutomaticBackupTest {
   // @Before
   public void init()
       throws InstantiationException,
-          IllegalAccessException,
-          ClassNotFoundException,
-          IllegalArgumentException,
-          SecurityException,
-          InvocationTargetException,
-          NoSuchMethodException {
+      IllegalAccessException,
+      ClassNotFoundException,
+      IllegalArgumentException,
+      SecurityException,
+      InvocationTargetException,
+      NoSuchMethodException {
     final File f =
         new File(
             OSystemVariableResolver.resolveSystemVariables(
@@ -131,12 +131,13 @@ public class AutomaticBackupTest {
     String jsonConfig =
         OIOUtils.readStreamAsString(getClass().getResourceAsStream("automatic-backup.json"));
 
-    ODocument doc = new ODocument().fromJSON(jsonConfig);
+    ODocument doc = new ODocument();
+    doc.fromJSON(jsonConfig);
 
     doc.field("enabled", true);
     doc.field("targetFileName", "${DBNAME}.zip");
 
-    doc.field("dbInclude", new String[] {"testautobackup"});
+    doc.field("dbInclude", new String[]{"testautobackup"});
 
     doc.field(
         "firstTime",
@@ -146,7 +147,7 @@ public class AutomaticBackupTest {
 
     final OAutomaticBackup aBackup = new OAutomaticBackup();
 
-    final OServerParameterConfiguration[] config = new OServerParameterConfiguration[] {};
+    final OServerParameterConfiguration[] config = new OServerParameterConfiguration[]{};
 
     aBackup.config(server, config);
 
@@ -179,12 +180,13 @@ public class AutomaticBackupTest {
     String jsonConfig =
         OIOUtils.readStreamAsString(getClass().getResourceAsStream("automatic-backup.json"));
 
-    ODocument doc = new ODocument().fromJSON(jsonConfig);
+    ODocument doc = new ODocument();
+    doc.fromJSON(jsonConfig);
 
     doc.field("enabled", true);
     doc.field("targetFileName", "${DBNAME}.zip");
 
-    doc.field("dbExclude", new String[] {"testautobackup"});
+    doc.field("dbExclude", new String[]{"testautobackup"});
 
     doc.field(
         "firstTime",
@@ -194,7 +196,7 @@ public class AutomaticBackupTest {
 
     final OAutomaticBackup aBackup = new OAutomaticBackup();
 
-    final OServerParameterConfiguration[] config = new OServerParameterConfiguration[] {};
+    final OServerParameterConfiguration[] config = new OServerParameterConfiguration[]{};
 
     aBackup.config(server, config);
 
@@ -218,15 +220,16 @@ public class AutomaticBackupTest {
     final OAutomaticBackup aBackup = new OAutomaticBackup();
 
     final OServerParameterConfiguration[] config =
-        new OServerParameterConfiguration[] {
-          new OServerParameterConfiguration("enabled", "true"),
-          new OServerParameterConfiguration(
-              "firstTime",
-              new SimpleDateFormat("HH:mm:ss").format(new Date(System.currentTimeMillis() + 5000))),
-          new OServerParameterConfiguration("delay", "1d"),
-          new OServerParameterConfiguration("mode", "FULL_BACKUP"),
-          new OServerParameterConfiguration("target.directory", BACKUPDIR),
-          new OServerParameterConfiguration("target.fileName", "fullBackup.zip")
+        new OServerParameterConfiguration[]{
+            new OServerParameterConfiguration("enabled", "true"),
+            new OServerParameterConfiguration(
+                "firstTime",
+                new SimpleDateFormat("HH:mm:ss").format(
+                    new Date(System.currentTimeMillis() + 5000))),
+            new OServerParameterConfiguration("delay", "1d"),
+            new OServerParameterConfiguration("mode", "FULL_BACKUP"),
+            new OServerParameterConfiguration("target.directory", BACKUPDIR),
+            new OServerParameterConfiguration("target.fileName", "fullBackup.zip")
         };
 
     aBackup.config(server, config);
@@ -251,21 +254,22 @@ public class AutomaticBackupTest {
   // @Test
   public void testAutomaticBackupDisable()
       throws IOException,
-          ClassNotFoundException,
-          MalformedObjectNameException,
-          InstanceAlreadyExistsException,
-          NotCompliantMBeanException,
-          MBeanRegistrationException {
+      ClassNotFoundException,
+      MalformedObjectNameException,
+      InstanceAlreadyExistsException,
+      NotCompliantMBeanException,
+      MBeanRegistrationException {
 
     String jsonConfig =
         OIOUtils.readStreamAsString(getClass().getResourceAsStream("automatic-backup.json"));
 
-    ODocument doc = new ODocument().fromJSON(jsonConfig);
+    ODocument doc = new ODocument();
+    doc.fromJSON(jsonConfig);
 
     doc.field("enabled", false);
     doc.field("targetFileName", "${DBNAME}.zip");
 
-    doc.field("dbExclude", new String[] {"testautobackup"});
+    doc.field("dbExclude", new String[]{"testautobackup"});
 
     doc.field(
         "firstTime",
@@ -275,7 +279,7 @@ public class AutomaticBackupTest {
 
     final OAutomaticBackup aBackup = new OAutomaticBackup();
 
-    final OServerParameterConfiguration[] config = new OServerParameterConfiguration[] {};
+    final OServerParameterConfiguration[] config = new OServerParameterConfiguration[]{};
 
     try {
       aBackup.config(server, config);
@@ -329,15 +333,16 @@ public class AutomaticBackupTest {
     final OAutomaticBackup aBackup = new OAutomaticBackup();
 
     final OServerParameterConfiguration[] config =
-        new OServerParameterConfiguration[] {
-          new OServerParameterConfiguration("enabled", "true"),
-          new OServerParameterConfiguration(
-              "firstTime",
-              new SimpleDateFormat("HH:mm:ss").format(new Date(System.currentTimeMillis() + 5000))),
-          new OServerParameterConfiguration("delay", "1d"),
-          new OServerParameterConfiguration("mode", "EXPORT"),
-          new OServerParameterConfiguration("target.directory", BACKUPDIR),
-          new OServerParameterConfiguration("target.fileName", "fullExport.json.gz")
+        new OServerParameterConfiguration[]{
+            new OServerParameterConfiguration("enabled", "true"),
+            new OServerParameterConfiguration(
+                "firstTime",
+                new SimpleDateFormat("HH:mm:ss").format(
+                    new Date(System.currentTimeMillis() + 5000))),
+            new OServerParameterConfiguration("delay", "1d"),
+            new OServerParameterConfiguration("mode", "EXPORT"),
+            new OServerParameterConfiguration("target.directory", BACKUPDIR),
+            new OServerParameterConfiguration("target.fileName", "fullExport.json.gz")
         };
 
     aBackup.config(server, config);

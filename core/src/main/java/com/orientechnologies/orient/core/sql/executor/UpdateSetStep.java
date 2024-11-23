@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.sql.parser.OUpdateItem;
 import java.util.List;
 
 /**
- * Created by luigidellaquila on 09/08/16.
+ *
  */
 public class UpdateSetStep extends AbstractExecutionStep {
 

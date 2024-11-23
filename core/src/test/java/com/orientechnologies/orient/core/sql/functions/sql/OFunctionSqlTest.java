@@ -10,7 +10,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by Enrico Risa on 07/04/15.
+ *
  */
 public class OFunctionSqlTest extends BaseMemoryDatabase {
 
@@ -29,16 +29,16 @@ public class OFunctionSqlTest extends BaseMemoryDatabase {
     db.commit();
 
     db.begin();
-    OFunction function = new OFunction();
-    function.setName("test");
-    function.setCode("select from Test where name = :name");
-    function.setParameters(
+    OFunction function = new OFunction(db);
+    function.setName(db, "test");
+    function.setCode(db, "select from Test where name = :name");
+    function.setParameters(db,
         new ArrayList<>() {
           {
             add("name");
           }
         });
-    function.save();
+    function.save(db);
     db.commit();
 
     Object result = function.executeInContext(new OBasicCommandContext(), "Enrico");
@@ -61,30 +61,31 @@ public class OFunctionSqlTest extends BaseMemoryDatabase {
     db.commit();
 
     db.begin();
-    OFunction function = new OFunction();
-    function.setName("test");
-    function.setCode("select name from Test where name = :name and hello(:name) = 'Hello Enrico'");
-    function.setParameters(
+    OFunction function = new OFunction(db);
+    function.setName(db, "test");
+    function.setCode(db,
+        "select name from Test where name = :name and hello(:name) = 'Hello Enrico'");
+    function.setParameters(db,
         new ArrayList<>() {
           {
             add("name");
           }
         });
-    function.save();
+    function.save(db);
     db.commit();
 
     db.begin();
-    OFunction function1 = new OFunction();
-    function1.setName("hello");
-    function1.setLanguage("javascript");
-    function1.setCode("return 'Hello ' + name");
-    function1.setParameters(
+    OFunction function1 = new OFunction(db);
+    function1.setName(db, "hello");
+    function1.setLanguage(db, "javascript");
+    function1.setCode(db, "return 'Hello ' + name");
+    function1.setParameters(db,
         new ArrayList<>() {
           {
             add("name");
           }
         });
-    function1.save();
+    function1.save(db);
     db.commit();
 
     Object result = function.executeInContext(new OBasicCommandContext(), "Enrico");

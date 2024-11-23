@@ -4,6 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -31,7 +32,7 @@ public class OContainsCondition extends OBooleanExpression {
     super(p, id);
   }
 
-  public boolean execute(Object left, Object right) {
+  public boolean execute(ODatabaseSessionInternal session, Object left, Object right) {
     if (left instanceof Collection) {
       if (right instanceof Collection) {
         if (((Collection) right).size() == 1) {
@@ -68,7 +69,7 @@ public class OContainsCondition extends OBooleanExpression {
         }
       }
       for (Object o : (Collection) left) {
-        if (equalsInContainsSpace(o, right)) {
+        if (equalsInContainsSpace(session, o, right)) {
           return true;
         }
       }
@@ -117,11 +118,12 @@ public class OContainsCondition extends OBooleanExpression {
     return false;
   }
 
-  private boolean equalsInContainsSpace(Object left, Object right) {
+  private boolean equalsInContainsSpace(ODatabaseSessionInternal session, Object left,
+      Object right) {
     if (left == null && right == null) {
       return true;
     } else {
-      return OQueryOperatorEquals.equals(left, right);
+      return OQueryOperatorEquals.equals(session, left, right);
     }
   }
 
@@ -130,7 +132,7 @@ public class OContainsCondition extends OBooleanExpression {
     Object leftValue = left.execute(currentRecord, ctx);
     if (right != null) {
       Object rightValue = right.execute(currentRecord, ctx);
-      return execute(leftValue, rightValue);
+      return execute(ctx.getDatabase(), leftValue, rightValue);
     } else {
       if (!OMultiValue.isMultiValue(leftValue)) {
         return false;
@@ -161,7 +163,7 @@ public class OContainsCondition extends OBooleanExpression {
     Object leftValue = left.execute(currentRecord, ctx);
     if (right != null) {
       Object rightValue = right.execute(currentRecord, ctx);
-      return execute(leftValue, rightValue);
+      return execute(ctx.getDatabase(), leftValue, rightValue);
     } else {
       if (!OMultiValue.isMultiValue(leftValue)) {
         return false;
@@ -192,7 +194,7 @@ public class OContainsCondition extends OBooleanExpression {
       for (String s : currentRecord.getPropertyNames()) {
         Object leftVal = currentRecord.getProperty(s);
         Object rightValue = right.execute(currentRecord, ctx);
-        if (execute(leftVal, rightValue)) {
+        if (execute(ctx.getDatabase(), leftVal, rightValue)) {
           return true;
         }
       }
@@ -231,7 +233,7 @@ public class OContainsCondition extends OBooleanExpression {
       for (String s : currentRecord.getPropertyNames()) {
         Object leftVal = currentRecord.getProperty(s);
         Object rightValue = right.execute(currentRecord, ctx);
-        if (!execute(leftVal, rightValue)) {
+        if (!execute(ctx.getDatabase(), leftVal, rightValue)) {
           return false;
         }
       }

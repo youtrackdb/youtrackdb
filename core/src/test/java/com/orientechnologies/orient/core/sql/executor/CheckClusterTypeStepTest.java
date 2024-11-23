@@ -8,7 +8,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by olena.kolesnyk on 30/07/2017.
+ *
  */
 public class CheckClusterTypeStepTest extends TestUtilsFixture {
 
@@ -17,7 +17,7 @@ public class CheckClusterTypeStepTest extends TestUtilsFixture {
 
   @Test
   public void shouldCheckClusterType() {
-    OClass clazz = createClassInstance().addCluster(CLASS_CLUSTER_NAME);
+    OClass clazz = createClassInstance().addCluster(db, CLASS_CLUSTER_NAME);
     OBasicCommandContext context = new OBasicCommandContext();
     context.setDatabase(db);
     CheckClusterTypeStep step =

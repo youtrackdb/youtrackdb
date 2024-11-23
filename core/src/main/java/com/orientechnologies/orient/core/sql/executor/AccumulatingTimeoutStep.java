@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OTimeoutResultSe
 import com.orientechnologies.orient.core.sql.parser.OTimeout;
 
 /**
- * Created by luigidellaquila on 08/08/16.
+ *
  */
 public class AccumulatingTimeoutStep extends AbstractExecutionStep {
 
@@ -46,7 +46,8 @@ public class AccumulatingTimeoutStep extends AbstractExecutionStep {
   }
 
   @Override
-  public void reset() {}
+  public void reset() {
+  }
 
   @Override
   public String prettyPrint(int depth, int indent) {

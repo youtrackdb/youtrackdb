@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2013 OrientDB LTD (info--at--orientdb.com)
+ * Copyright 2010-2013 OxygenDB LTD (info--at--orientdb.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 /**
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
+ *
  */
 package com.orientechnologies.orient.core.sql.functions.conversion;

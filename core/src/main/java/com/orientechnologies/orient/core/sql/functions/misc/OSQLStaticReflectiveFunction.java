@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.sql.functions.misc;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunction;
@@ -19,8 +20,6 @@ import java.util.stream.Collectors;
 /**
  * This {@link OSQLFunction} is able to invoke a static method using reflection. If contains more
  * than one {@link Method} it tries to pick the one that better fits the input parameters.
- *
- * @author Fabrizio Fortino
  */
 public class OSQLStaticReflectiveFunction extends OSQLFunctionAbstract {
 
@@ -129,8 +128,8 @@ public class OSQLStaticReflectiveFunction extends OSQLFunctionAbstract {
   }
 
   @Override
-  public String getSyntax() {
-    return this.getName();
+  public String getSyntax(ODatabaseSession session) {
+    return this.getName(session);
   }
 
   private Method pickMethod(Object[] iParams) {

@@ -6,7 +6,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
- * Created by luigidellaquila on 09/11/16.
+ *
  */
 public class SQLDropClassTest {
 

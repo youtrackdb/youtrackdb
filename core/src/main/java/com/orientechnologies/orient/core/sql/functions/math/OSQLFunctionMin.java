@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.functions.math;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import java.util.Collection;
@@ -28,8 +29,6 @@ import java.util.List;
 /**
  * Compute the minimum value for a field. Uses the context to save the last minimum number. When
  * different Number class are used, take the class with most precision.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionMin extends OSQLFunctionMathAbstract {
 
@@ -105,7 +104,7 @@ public class OSQLFunctionMin extends OSQLFunctionMathAbstract {
         && !configuredParameters[0].toString().contains("$current"));
   }
 
-  public String getSyntax() {
+  public String getSyntax(ODatabaseSession session) {
     return "min(<field> [,<field>*])";
   }
 

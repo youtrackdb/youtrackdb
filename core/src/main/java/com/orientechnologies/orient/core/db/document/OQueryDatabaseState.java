@@ -12,7 +12,8 @@ public class OQueryDatabaseState {
   private final IntArrayList usedClusters = new IntArrayList();
   private final ArrayList<String> usedIndexes = new ArrayList<>();
 
-  public OQueryDatabaseState() {}
+  public OQueryDatabaseState() {
+  }
 
   public OQueryDatabaseState(OResultSet resultSet) {
     this.resultSet = resultSet;

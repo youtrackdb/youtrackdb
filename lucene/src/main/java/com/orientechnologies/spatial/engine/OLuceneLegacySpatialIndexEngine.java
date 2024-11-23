@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * <p>
- * For more information: http://www.orientdb.com
+ * *
  */
 package com.orientechnologies.spatial.engine;
 
@@ -23,6 +23,7 @@ import com.orientechnologies.lucene.collections.OLuceneResultSet;
 import com.orientechnologies.lucene.query.OLuceneQueryContext;
 import com.orientechnologies.lucene.tx.OLuceneTxChanges;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.OContextualRecordId;
 import com.orientechnologies.orient.core.id.ORID;
@@ -64,7 +65,7 @@ import org.locationtech.spatial4j.shape.Point;
 import org.locationtech.spatial4j.shape.Shape;
 
 /**
- * Created by Enrico Risa on 26/09/15.
+ *
  */
 public class OLuceneLegacySpatialIndexEngine extends OLuceneSpatialIndexEngineAbstract {
 
@@ -75,30 +76,33 @@ public class OLuceneLegacySpatialIndexEngine extends OLuceneSpatialIndexEngineAb
     super(storage, indexName, id, factory);
   }
 
-  private Set<OIdentifiable> legacySearch(Object key, OLuceneTxChanges changes) throws IOException {
+  private Set<OIdentifiable> legacySearch(ODatabaseSessionInternal session, Object key,
+      OLuceneTxChanges changes) throws IOException {
     if (key instanceof OSpatialCompositeKey newKey) {
 
       final SpatialOperation strategy =
           newKey.getOperation() != null ? newKey.getOperation() : SpatialOperation.Intersects;
 
       if (SpatialOperation.Intersects.equals(strategy)) {
-        return searchIntersect(newKey, newKey.getMaxDistance(), newKey.getContext(), changes);
+        return searchIntersect(session, newKey, newKey.getMaxDistance(), newKey.getContext(),
+            changes);
       } else if (SpatialOperation.IsWithin.equals(strategy)) {
         return searchWithin(newKey, newKey.getContext(), changes);
       }
 
     } else if (key instanceof OCompositeKey) {
-      return searchIntersect((OCompositeKey) key, 0, null, changes);
+      return searchIntersect(session, (OCompositeKey) key, 0, null, changes);
     }
     throw new OIndexEngineException("Unknown key" + key, null);
   }
 
   private Set<OIdentifiable> searchIntersect(
-      OCompositeKey key, double distance, OCommandContext context, OLuceneTxChanges changes)
+      ODatabaseSessionInternal session, OCompositeKey key, double distance, OCommandContext context,
+      OLuceneTxChanges changes)
       throws IOException {
 
-    double lat = (Double) OType.convert(key.getKeys().get(0), Double.class);
-    double lng = (Double) OType.convert(key.getKeys().get(1), Double.class);
+    double lat = (Double) OType.convert(session, key.getKeys().get(0), Double.class);
+    double lng = (Double) OType.convert(session, key.getKeys().get(1), Double.class);
     SpatialOperation operation = SpatialOperation.Intersects;
 
     @SuppressWarnings("deprecation")
@@ -133,7 +137,7 @@ public class OLuceneLegacySpatialIndexEngine extends OLuceneSpatialIndexEngineAb
   private Set<OIdentifiable> searchWithin(
       OSpatialCompositeKey key, OCommandContext context, OLuceneTxChanges changes) {
 
-    Shape shape = legacyBuilder.makeShape(key, ctx);
+    Shape shape = legacyBuilder.makeShape(context.getDatabase(), key, ctx);
     if (shape == null) {
       return null;
     }
@@ -176,11 +180,12 @@ public class OLuceneLegacySpatialIndexEngine extends OLuceneSpatialIndexEngineAb
   }
 
   @Override
-  public Set<OIdentifiable> getInTx(Object key, OLuceneTxChanges changes) {
+  public Set<OIdentifiable> getInTx(ODatabaseSessionInternal session, Object key,
+      OLuceneTxChanges changes) {
     try {
       updateLastAccess();
       openIfClosed();
-      return legacySearch(key, changes);
+      return legacySearch(session, key, changes);
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -188,12 +193,13 @@ public class OLuceneLegacySpatialIndexEngine extends OLuceneSpatialIndexEngineAb
   }
 
   @Override
-  public Object get(Object key) {
-    return getInTx(key, null);
+  public Object get(ODatabaseSessionInternal session, Object key) {
+    return getInTx(session, key, null);
   }
 
   @Override
-  public void put(OAtomicOperation atomicOperation, Object key, Object value) {
+  public void put(ODatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
+      Object value) {
 
     if (key instanceof OCompositeKey compositeKey) {
       updateLastAccess();
@@ -201,14 +207,15 @@ public class OLuceneLegacySpatialIndexEngine extends OLuceneSpatialIndexEngineAb
       addDocument(
           newGeoDocument(
               (OIdentifiable) value,
-              legacyBuilder.makeShape(compositeKey, ctx),
+              legacyBuilder.makeShape(session, compositeKey, ctx),
               compositeKey.toDocument()));
     }
   }
 
   @Override
   public void update(
-      OAtomicOperation atomicOperation, Object key, OIndexKeyUpdater<Object> updater) {
+      ODatabaseSessionInternal session, OAtomicOperation atomicOperation, Object key,
+      OIndexKeyUpdater<Object> updater) {
     throw new UnsupportedOperationException();
   }
 
@@ -223,10 +230,10 @@ public class OLuceneLegacySpatialIndexEngine extends OLuceneSpatialIndexEngineAb
   }
 
   @Override
-  public Document buildDocument(Object key, OIdentifiable value) {
+  public Document buildDocument(ODatabaseSessionInternal session, Object key, OIdentifiable value) {
     return newGeoDocument(
         value,
-        legacyBuilder.makeShape((OCompositeKey) key, ctx),
+        legacyBuilder.makeShape(session, (OCompositeKey) key, ctx),
         ((OCompositeKey) key).toDocument());
   }
 

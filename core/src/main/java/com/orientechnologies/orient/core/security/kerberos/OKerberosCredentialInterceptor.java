@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2015 OrientDB LTD (info(-at-)orientdb.com)
+ *  *  Copyright 2015 OxygenDB LTD (info(-at-)orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.security.kerberos;
@@ -41,8 +41,6 @@ import org.ietf.jgss.Oid;
 
 /**
  * Provides a Kerberos credential interceptor.
- *
- * @author S. Colin Leister
  */
 public class OKerberosCredentialInterceptor implements OCredentialInterceptor {
 
@@ -73,7 +71,7 @@ public class OKerberosCredentialInterceptor implements OCredentialInterceptor {
     // spn should be the SPN of the service.
     if (spn == null || spn.isEmpty()) {
       // If spn is null or an empty string, the SPN will be generated from the URL like this:
-      //		OrientDB/host
+      //		OxygenDB/host
       if (url == null || url.isEmpty()) {
         throw new OSecurityException(
             "OKerberosCredentialInterceptor URL and SPN cannot both be null!");
@@ -96,7 +94,7 @@ public class OKerberosCredentialInterceptor implements OCredentialInterceptor {
               "OKerberosCredentialInterceptor Could not create SPN from URL: " + url);
         }
 
-        actualSPN = "OrientDB/" + host;
+        actualSPN = "OxygenDB/" + host;
       } catch (URISyntaxException ex) {
         throw OException.wrapException(
             new OSecurityException(

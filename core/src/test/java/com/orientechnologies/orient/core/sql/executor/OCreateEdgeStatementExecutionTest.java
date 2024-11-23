@@ -11,7 +11,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ *
  */
 public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
 
@@ -169,8 +169,8 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
     String eClass = "testUpsertE";
 
     OClass eclazz = schema.createClass(eClass, schema.getClass("E"));
-    eclazz.createProperty("out", OType.LINK, vclazz1);
-    eclazz.createProperty("in", OType.LINK, vclazz2);
+    eclazz.createProperty(db, "out", OType.LINK, vclazz1);
+    eclazz.createProperty(db, "in", OType.LINK, vclazz2);
 
     db.command("CREATE INDEX " + eClass + "out_in ON " + eclazz + " (out, in) UNIQUE");
 
@@ -243,8 +243,8 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
     String eClass = "testUpsertHashIndexE";
 
     OClass eclazz = schema.createClass(eClass, schema.getClass("E"));
-    eclazz.createProperty("out", OType.LINK, vclazz1);
-    eclazz.createProperty("in", OType.LINK, vclazz2);
+    eclazz.createProperty(db, "out", OType.LINK, vclazz1);
+    eclazz.createProperty(db, "in", OType.LINK, vclazz2);
 
     db.command("CREATE INDEX " + eClass + "out_in ON " + eclazz + " (out, in) UNIQUE");
 
@@ -316,8 +316,8 @@ public class OCreateEdgeStatementExecutionTest extends BaseMemoryDatabase {
     String eClass = "testBreakUniqueWithoutUpsertE";
 
     OClass eclazz = schema.createClass(eClass, schema.getClass("E"));
-    eclazz.createProperty("out", OType.LINK, vclazz1);
-    eclazz.createProperty("in", OType.LINK, vclazz2);
+    eclazz.createProperty(db, "out", OType.LINK, vclazz1);
+    eclazz.createProperty(db, "in", OType.LINK, vclazz2);
 
     db.command("CREATE INDEX " + eClass + "out_in ON " + eclazz + " (out, in) UNIQUE");
 

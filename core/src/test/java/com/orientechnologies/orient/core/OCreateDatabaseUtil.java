@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 
 /**
  * Used as part of the security test refactoring of the ODB `core` module, cf.
@@ -16,16 +16,16 @@ public class OCreateDatabaseUtil {
   public static final String TYPE_PLOCAL = ODatabaseType.PLOCAL.name().toLowerCase(); // "plocal";
   public static final String TYPE_MEMORY = ODatabaseType.MEMORY.name().toLowerCase(); // "memory";
 
-  public static OrientDB createDatabase(
+  public static OxygenDB createDatabase(
       final String database, final String url, final String type) {
-    final OrientDB orientDB =
-        new OrientDB(
+    final OxygenDB oxygenDB =
+        new OxygenDB(
             url,
-            OrientDBConfig.builder()
+            OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
-    if (!orientDB.exists(database)) {
-      orientDB.execute(
+    if (!oxygenDB.exists(database)) {
+      oxygenDB.execute(
           "create database "
               + database
               + " "
@@ -34,13 +34,13 @@ public class OCreateDatabaseUtil {
               + NEW_ADMIN_PASSWORD
               + "' role admin)");
     }
-    return orientDB;
+    return oxygenDB;
   }
 
   public static void createDatabase(
-      final String database, final OrientDB orientDB, final String type) {
-    if (!orientDB.exists(database)) {
-      orientDB.execute(
+      final String database, final OxygenDB oxygenDB, final String type) {
+    if (!oxygenDB.exists(database)) {
+      oxygenDB.execute(
           "create database "
               + database
               + " "

@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 
 /**
- * Created by tglman on 28/07/17.
+ *
  */
 public final class OLinkConverter implements OValuesConverter<OIdentifiable> {
 

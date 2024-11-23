@@ -251,8 +251,7 @@ public class TrackedSetTest {
 
     final ObjectInputStream input =
         new ObjectInputStream(new ByteArrayInputStream(memoryStream.copy()));
-    @SuppressWarnings("unchecked")
-    final Set<String> afterSerialization = (Set<String>) input.readObject();
+    @SuppressWarnings("unchecked") final Set<String> afterSerialization = (Set<String>) input.readObject();
 
     Assert.assertEquals(afterSerialization.size(), beforeSerialization.size());
     Assert.assertTrue(beforeSerialization.containsAll(afterSerialization));

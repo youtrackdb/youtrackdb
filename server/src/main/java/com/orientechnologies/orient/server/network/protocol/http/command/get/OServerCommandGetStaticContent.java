@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
@@ -46,22 +46,22 @@ import java.util.zip.GZIPOutputStream;
 public class OServerCommandGetStaticContent extends OServerCommandConfigurableAbstract {
 
   private static final String[] DEF_PATTERN = {
-    "GET|www",
-    "GET|studio/",
-    "GET|",
-    "GET|*.htm",
-    "GET|*.html",
-    "GET|*.xml",
-    "GET|*.jpeg",
-    "GET|*.jpg",
-    "GET|*.png",
-    "GET|*.gif",
-    "GET|*.js",
-    "GET|*.otf",
-    "GET|*.css",
-    "GET|*.swf",
-    "GET|favicon.ico",
-    "GET|robots.txt"
+      "GET|www",
+      "GET|studio/",
+      "GET|",
+      "GET|*.htm",
+      "GET|*.html",
+      "GET|*.xml",
+      "GET|*.jpeg",
+      "GET|*.jpg",
+      "GET|*.png",
+      "GET|*.gif",
+      "GET|*.js",
+      "GET|*.otf",
+      "GET|*.css",
+      "GET|*.swf",
+      "GET|favicon.ico",
+      "GET|robots.txt"
   };
 
   private static final String CONFIG_HTTP_CACHE = "http.cache:";

@@ -75,7 +75,7 @@ public class ORecordLazySetTest extends BaseMemoryDatabase {
   public void testSetWithNotExistentRecordWithValidation() {
     OClass test = db.getMetadata().getSchema().createClass("test");
     OClass test1 = db.getMetadata().getSchema().createClass("test1");
-    test.createProperty("fi", OType.LINKSET).setLinkedClass(test1);
+    test.createProperty(db, "fi", OType.LINKSET).setLinkedClass(db, test1);
 
     db.begin();
     ODocument doc = new ODocument(test);

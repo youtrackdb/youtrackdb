@@ -28,5 +28,6 @@ public class NormalizedKeyBTreeValue<K> extends ODurableComponent implements Nor
   }
 
   @Override
-  public void put(final OCompositeKey key, final byte[] value) {}
+  public void put(final OCompositeKey key, final byte[] value) {
+  }
 }

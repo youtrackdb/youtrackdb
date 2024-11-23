@@ -21,13 +21,17 @@ import org.mockito.MockitoAnnotations;
 
 public class OClientConnectionManagerTest {
 
-  @Mock private ONetworkProtocolBinary protocol;
+  @Mock
+  private ONetworkProtocolBinary protocol;
 
-  @Mock private OToken token;
+  @Mock
+  private OToken token;
 
-  @Mock private OTokenHandler handler;
+  @Mock
+  private OTokenHandler handler;
 
-  @Mock private OServer server;
+  @Mock
+  private OServer server;
 
   @Before
   public void before() throws NoSuchAlgorithmException, InvalidKeyException, IOException {
@@ -55,7 +59,7 @@ public class OClientConnectionManagerTest {
   @Test
   @Ignore
   public void testTokenConnectDisconnect() throws IOException {
-    byte[] atoken = new byte[] {};
+    byte[] atoken = new byte[]{};
 
     OClientConnectionManager manager = new OClientConnectionManager(server);
     OClientConnection ret = manager.connect(protocol);

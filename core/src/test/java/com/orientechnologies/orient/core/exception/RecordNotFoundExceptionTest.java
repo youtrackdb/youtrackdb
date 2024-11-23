@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.id.ORecordId;
 import org.junit.Test;
 
 /**
- * Created by tglman on 22/02/17.
+ *
  */
 public class RecordNotFoundExceptionTest {
 

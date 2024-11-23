@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.storage.OStorage;
 
 /**
- * Created by tglman on 30/03/17.
+ *
  */
 public class ODatabaseDocumentDistributedPooled extends ODatabaseDocumentDistributed {
 

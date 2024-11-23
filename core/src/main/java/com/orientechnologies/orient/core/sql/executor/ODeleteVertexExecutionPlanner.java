@@ -10,7 +10,7 @@ import com.orientechnologies.orient.core.sql.parser.OSelectStatement;
 import com.orientechnologies.orient.core.sql.parser.OWhereClause;
 
 /**
- * Created by luigidellaquila on 08/08/16.
+ *
  */
 public class ODeleteVertexExecutionPlanner {
 

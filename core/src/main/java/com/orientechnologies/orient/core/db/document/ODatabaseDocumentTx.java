@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.db.document;
 
 import static com.orientechnologies.orient.core.db.document.ODatabaseDocumentTxInternal.closeAllOnShutdown;
 
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.script.OCommandScriptException;
@@ -17,10 +17,10 @@ import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.OSharedContext;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
 import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
-import com.orientechnologies.orient.core.db.OrientDBInternal;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.dictionary.ODictionary;
@@ -80,24 +80,26 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 
 /**
- * Created by tglman on 20/07/16. @Deprecated use {@link OrientDB} instead.
+ *
  */
 @Deprecated
 public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
 
-  protected static ConcurrentMap<String, OrientDBInternal> embedded = new ConcurrentHashMap<>();
-  protected static ConcurrentMap<String, OrientDBInternal> remote = new ConcurrentHashMap<>();
+  protected static ConcurrentMap<String, OxygenDBInternal> embedded = new ConcurrentHashMap<>();
+  protected static ConcurrentMap<String, OxygenDBInternal> remote = new ConcurrentHashMap<>();
 
   protected static final Lock embeddedLock = new ReentrantLock();
   protected static final Lock remoteLock = new ReentrantLock();
 
   protected ODatabaseSessionInternal internal;
   private final String url;
-  private OrientDBInternal factory;
+  private OxygenDBInternal factory;
   private final String type;
   private final String dbName;
   private final String baseUrl;
@@ -126,15 +128,15 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
       };
 
   static {
-    Orient.instance()
-        .registerOrientStartupListener(() -> Orient.instance().addShutdownHandler(shutdownHandler));
-    Orient.instance().addShutdownHandler(shutdownHandler);
+    Oxygen.instance()
+        .registerOrientStartupListener(() -> Oxygen.instance().addShutdownHandler(shutdownHandler));
+    Oxygen.instance().addShutdownHandler(shutdownHandler);
   }
 
   public static void closeAll() {
     embeddedLock.lock();
     try {
-      for (OrientDBInternal factory : embedded.values()) {
+      for (OxygenDBInternal factory : embedded.values()) {
         factory.close();
       }
       embedded.clear();
@@ -144,7 +146,7 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
 
     remoteLock.lock();
     try {
-      for (OrientDBInternal factory : remote.values()) {
+      for (OxygenDBInternal factory : remote.values()) {
         factory.close();
       }
       remote.clear();
@@ -153,14 +155,14 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
     }
   }
 
-  protected static OrientDBInternal getOrCreateRemoteFactory(String baseUrl) {
-    OrientDBInternal factory;
+  protected static OxygenDBInternal getOrCreateRemoteFactory(String baseUrl) {
+    OxygenDBInternal factory;
 
     remoteLock.lock();
     try {
       factory = remote.get(baseUrl);
       if (factory == null || !factory.isOpen()) {
-        factory = OrientDBInternal.fromUrl("remote:" + baseUrl, null);
+        factory = OxygenDBInternal.fromUrl("remote:" + baseUrl, null);
         remote.put(baseUrl, factory);
       }
     } finally {
@@ -179,20 +181,20 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
     return false;
   }
 
-  protected static OrientDBInternal getOrCreateEmbeddedFactory(
-      String baseUrl, OrientDBConfig config) {
+  protected static OxygenDBInternal getOrCreateEmbeddedFactory(
+      String baseUrl, OxygenDBConfig config) {
     if (!baseUrl.endsWith("/")) {
       baseUrl += "/";
     }
-    OrientDBInternal factory;
+    OxygenDBInternal factory;
     embeddedLock.lock();
     try {
       factory = embedded.get(baseUrl);
       if (factory == null || !factory.isOpen()) {
         try {
-          factory = OrientDBInternal.distributed(baseUrl, config);
+          factory = OxygenDBInternal.distributed(baseUrl, config);
         } catch (ODatabaseException ignore) {
-          factory = OrientDBInternal.embedded(baseUrl, config);
+          factory = OxygenDBInternal.embedded(baseUrl, config);
         }
         embedded.put(baseUrl, factory);
       }
@@ -204,7 +206,7 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   /**
-   * @Deprecated use {{@link OrientDB}} instead.
+   * @Deprecated use {{@link OxygenDB}} instead.
    */
   @Deprecated
   public ODatabaseDocumentTx(String url) {
@@ -359,7 +361,7 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
     if (internal != null) {
       internal.setConflictStrategy(iStrategyName);
     } else {
-      conflictStrategy = Orient.instance().getRecordConflictStrategy().getStrategy(iStrategyName);
+      conflictStrategy = Oxygen.instance().getRecordConflictStrategy().getStrategy(iStrategyName);
     }
     return this;
   }
@@ -389,6 +391,11 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   @Override
   public void checkIfActive() {
     internal.checkIfActive();
+  }
+
+  @Override
+  public boolean validateIfActive() {
+    return internal.validateIfActive();
   }
 
   protected void checkOpenness() {
@@ -835,12 +842,12 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
     try {
       if ("remote".equals(type)) {
         factory = getOrCreateRemoteFactory(baseUrl);
-        OrientDBConfig config = buildConfig(null);
+        OxygenDBConfig config = buildConfig(null);
         internal = factory.open(dbName, iUserName, iUserPassword, config);
 
       } else {
         factory = getOrCreateEmbeddedFactory(baseUrl, null);
-        OrientDBConfig config = buildConfig(null);
+        OxygenDBConfig config = buildConfig(null);
         internal = factory.open(dbName, iUserName, iUserPassword, config);
       }
       if (databaseOwner != null) {
@@ -898,14 +905,14 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   public ODatabaseSession create(Map<OGlobalConfiguration, Object> iInitialSettings) {
     setupThreadOwner();
     try {
-      OrientDBConfig config = buildConfig(iInitialSettings);
+      OxygenDBConfig config = buildConfig(iInitialSettings);
       if ("remote".equals(type)) {
         throw new UnsupportedOperationException();
       } else if ("memory".equals(type)) {
         factory = getOrCreateEmbeddedFactory(baseUrl, null);
         factory.create(dbName, null, null, ODatabaseType.MEMORY, config);
-        OrientDBConfig openConfig =
-            OrientDBConfig.builder().fromContext(config.getConfigurations()).build();
+        OxygenDBConfig openConfig =
+            OxygenDBConfig.builder().fromContext(config.getConfigurations()).build();
         internal = factory.open(dbName, "admin", "admin", openConfig);
         for (Map.Entry<ATTRIBUTES, Object> attr : preopenAttributes.entrySet()) {
           internal.set(attr.getKey(), attr.getValue());
@@ -918,8 +925,8 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
       } else {
         factory = getOrCreateEmbeddedFactory(baseUrl, null);
         factory.create(dbName, null, null, ODatabaseType.PLOCAL, config);
-        OrientDBConfig openConfig =
-            OrientDBConfig.builder().fromContext(config.getConfigurations()).build();
+        OxygenDBConfig openConfig =
+            OxygenDBConfig.builder().fromContext(config.getConfigurations()).build();
         internal = factory.open(dbName, "admin", "admin", openConfig);
         for (Map.Entry<ATTRIBUTES, Object> attr : preopenAttributes.entrySet()) {
           internal.set(attr.getKey(), attr.getValue());
@@ -1296,14 +1303,14 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
     return internal.query(query, args);
   }
 
-  private OrientDBConfig buildConfig(final Map<OGlobalConfiguration, Object> iProperties) {
+  private OxygenDBConfig buildConfig(final Map<OGlobalConfiguration, Object> iProperties) {
     Map<String, Object> pars = new HashMap<>(preopenProperties);
     if (iProperties != null) {
       for (Map.Entry<OGlobalConfiguration, Object> par : iProperties.entrySet()) {
         pars.put(par.getKey().getKey(), par.getValue());
       }
     }
-    OrientDBConfigBuilder builder = OrientDBConfig.builder();
+    OrientDBConfigBuilder builder = OxygenDBConfig.builder();
     final String connectionStrategy =
         pars != null
             ? (String) pars.get(OGlobalConfiguration.CLIENT_CONNECTION_STRATEGY.getKey())
@@ -1572,6 +1579,41 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   @Override
   public void executeInTx(Runnable runnable) {
     internal.executeInTx(runnable);
+  }
+
+  @Override
+  public <T> void executeInTxBatches(
+      Iterator<T> iterator, int batchSize, BiConsumer<ODatabaseSession, T> consumer) {
+    internal.executeInTxBatches(iterator, batchSize, consumer);
+  }
+
+  @Override
+  public <T> void executeInTxBatches(
+      Iterator<T> iterator, BiConsumer<ODatabaseSession, T> consumer) {
+    internal.executeInTxBatches(iterator, consumer);
+  }
+
+  @Override
+  public <T> void executeInTxBatches(
+      Iterable<T> iterable, int batchSize, BiConsumer<ODatabaseSession, T> consumer) {
+    internal.executeInTxBatches(iterable, batchSize, consumer);
+  }
+
+  @Override
+  public <T> void executeInTxBatches(
+      Iterable<T> iterable, BiConsumer<ODatabaseSession, T> consumer) {
+    internal.executeInTxBatches(iterable, consumer);
+  }
+
+  @Override
+  public <T> void executeInTxBatches(
+      Stream<T> stream, int batchSize, BiConsumer<ODatabaseSession, T> consumer) {
+    internal.executeInTxBatches(stream, batchSize, consumer);
+  }
+
+  @Override
+  public <T> void executeInTxBatches(Stream<T> stream, BiConsumer<ODatabaseSession, T> consumer) {
+    internal.executeInTxBatches(stream, consumer);
   }
 
   @Override

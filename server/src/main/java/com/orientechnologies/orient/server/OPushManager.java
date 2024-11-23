@@ -46,7 +46,8 @@ public class OPushManager implements OMetadataUpdateListener {
             "Push Requests", Thread.currentThread().getThreadGroup(), 5, 0);
   }
 
-  public synchronized void pushDistributedConfig(String database, List<String> hosts) {
+  public synchronized void pushDistributedConfig(ODatabaseSessionInternal database,
+      List<String> hosts) {
     Iterator<WeakReference<ONetworkProtocolBinary>> iter = distributedConfigPush.iterator();
     while (iter.hasNext()) {
       WeakReference<ONetworkProtocolBinary> ref = iter.next();
@@ -56,7 +57,7 @@ public class OPushManager implements OMetadataUpdateListener {
         OPushDistributedConfigurationRequest request =
             new OPushDistributedConfigurationRequest(hosts);
         try {
-          OBinaryPushResponse response = protocolBinary.push(request);
+          OBinaryPushResponse response = protocolBinary.push(database, request);
         } catch (IOException e) {
           iter.remove();
         }
@@ -134,39 +135,43 @@ public class OPushManager implements OMetadataUpdateListener {
   }
 
   @Override
-  public void onSchemaUpdate(String database, OSchemaShared schema) {
+  public void onSchemaUpdate(ODatabaseSessionInternal session, String database,
+      OSchemaShared schema) {
     OPushSchemaRequest request = new OPushSchemaRequest(schema.toNetworkStream());
-    this.schema.send(database, request, this);
+    this.schema.send(session, database, request, this);
   }
 
   @Override
-  public void onIndexManagerUpdate(String database, OIndexManagerAbstract indexManager) {
+  public void onIndexManagerUpdate(ODatabaseSessionInternal session, String database,
+      OIndexManagerAbstract indexManager) {
     var document = ((OIndexManagerShared) indexManager).toNetworkStream();
     OPushIndexManagerRequest request = new OPushIndexManagerRequest(document.copy());
-    this.indexManager.send(database, request, this);
+    this.indexManager.send(session, database, request, this);
     ORecordInternal.unsetDirty(document);
     document.unload();
   }
 
   @Override
-  public void onFunctionLibraryUpdate(String database) {
+  public void onFunctionLibraryUpdate(ODatabaseSessionInternal session, String database) {
     OPushFunctionsRequest request = new OPushFunctionsRequest();
-    this.functions.send(database, request, this);
+    this.functions.send(session, database, request, this);
   }
 
   @Override
-  public void onSequenceLibraryUpdate(String database) {
+  public void onSequenceLibraryUpdate(ODatabaseSessionInternal session, String database) {
     OPushSequencesRequest request = new OPushSequencesRequest();
-    this.sequences.send(database, request, this);
+    this.sequences.send(session, database, request, this);
   }
 
   @Override
-  public void onStorageConfigurationUpdate(String database, OStorageConfiguration update) {
+  public void onStorageConfigurationUpdate(String database,
+      OStorageConfiguration update) {
     OPushStorageConfigurationRequest request = new OPushStorageConfigurationRequest(update);
-    storageConfigurations.send(database, request, this);
+    storageConfigurations.send(null, database, request, this);
   }
 
   public void genericNotify(
+      ODatabaseSessionInternal session,
       Map<String, Set<WeakReference<ONetworkProtocolBinary>>> context,
       String database,
       OPushEventType pack) {
@@ -189,7 +194,7 @@ public class OPushManager implements OMetadataUpdateListener {
                   try {
                     OBinaryPushRequest<?> request = pack.getRequest(database);
                     if (request != null) {
-                      OBinaryPushResponse response = protocolBinary.push(request);
+                      OBinaryPushResponse response = protocolBinary.push(session, request);
                     }
                   } catch (IOException e) {
                     synchronized (OPushManager.this) {

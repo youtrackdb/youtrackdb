@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2016 OrientDB LTD (info(at)orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  */
 
 package com.orientechnologies.orient.core.index;
@@ -32,7 +32,7 @@ import java.util.List;
 import org.junit.Test;
 
 /**
- * @author Sergey Sitnikov
+ *
  */
 public class TxUniqueIndexWithCollationTest extends BaseMemoryDatabase {
 
@@ -41,9 +41,9 @@ public class TxUniqueIndexWithCollationTest extends BaseMemoryDatabase {
     db.getMetadata()
         .getSchema()
         .createClass("user")
-        .createProperty("name", OType.STRING)
-        .setCollate("ci")
-        .createIndex(OClass.INDEX_TYPE.UNIQUE);
+        .createProperty(db, "name", OType.STRING)
+        .setCollate(db, "ci")
+        .createIndex(db, OClass.INDEX_TYPE.UNIQUE);
 
     db.begin();
     OElement one = db.newElement("user");

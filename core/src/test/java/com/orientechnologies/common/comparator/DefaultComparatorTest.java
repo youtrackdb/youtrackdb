@@ -7,8 +7,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
- * @author Daniel Ritter
  * @since 11.07.12
  */
 public class DefaultComparatorTest {

@@ -43,17 +43,17 @@ public class OCreateFunctionStatement extends OSimpleExecStatement {
     var database = ctx.getDatabase();
     final OFunction f =
         database.getMetadata().getFunctionLibrary().createFunction(name.getStringValue());
-    f.setCode(code);
-    f.setIdempotent(Boolean.TRUE.equals(idempotent));
+    f.setCode(database, code);
+    f.setIdempotent(database, Boolean.TRUE.equals(idempotent));
     if (parameters != null) {
-      f.setParameters(
+      f.setParameters(database,
           parameters.stream().map(x -> x.getStringValue()).collect(Collectors.toList()));
     }
     if (language != null) {
-      f.setLanguage(language.getStringValue());
+      f.setLanguage(database, language.getStringValue());
     }
-    f.save();
-    ORID functionId = f.getId();
+    f.save(database);
+    ORID functionId = f.getId(database);
     OResultInternal result = new OResultInternal();
     result.setProperty("operation", "create function");
     result.setProperty("functionName", name.getStringValue());

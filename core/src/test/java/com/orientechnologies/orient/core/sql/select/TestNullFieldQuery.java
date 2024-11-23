@@ -10,7 +10,7 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Test;
 
 /**
- * Created by tglman on 21/07/16.
+ *
  */
 public class TestNullFieldQuery extends BaseMemoryDatabase {
 
@@ -30,7 +30,7 @@ public class TestNullFieldQuery extends BaseMemoryDatabase {
   @Test
   public void testQueryNullValueSchemaFull() {
     OClass clazz = db.getMetadata().getSchema().createClass("Test");
-    clazz.createProperty("name", OType.ANY);
+    clazz.createProperty(db, "name", OType.ANY);
 
     db.begin();
     ODocument doc = new ODocument("Test");

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.functions;
@@ -24,8 +24,6 @@ package com.orientechnologies.orient.core.sql.functions;
  * Extend it and register it with: <code>OSQLParser.getInstance().registerStatelessFunction()</code>
  * or <code>OSQLParser.getInstance().registerStatefullFunction()</code> to being used by the SQL
  * engine.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OSQLFunctionConfigurableAbstract extends OSQLFunctionAbstract {
 

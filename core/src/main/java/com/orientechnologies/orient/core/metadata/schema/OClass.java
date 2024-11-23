@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,12 +14,14 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.metadata.schema;
 
 import com.orientechnologies.common.listener.OProgressListener;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.clusterselection.OClusterSelectionStrategy;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -31,8 +33,6 @@ import java.util.Set;
 
 /**
  * Schema class
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OClass extends Comparable<OClass> {
 
@@ -84,17 +84,17 @@ public interface OClass extends Comparable<OClass> {
 
   boolean isAbstract();
 
-  OClass setAbstract(boolean iAbstract);
+  OClass setAbstract(ODatabaseSession session, boolean iAbstract);
 
   boolean isStrictMode();
 
-  OClass setStrictMode(boolean iMode);
+  OClass setStrictMode(ODatabaseSession session, boolean iMode);
 
   @Deprecated
   OClass getSuperClass();
 
   @Deprecated
-  OClass setSuperClass(OClass iSuperClass);
+  OClass setSuperClass(ODatabaseSession session, OClass iSuperClass);
 
   boolean hasSuperClasses();
 
@@ -102,39 +102,41 @@ public interface OClass extends Comparable<OClass> {
 
   List<OClass> getSuperClasses();
 
-  OClass setSuperClasses(List<? extends OClass> classes);
+  OClass setSuperClasses(ODatabaseSession session, List<? extends OClass> classes);
 
-  OClass addSuperClass(OClass superClass);
+  OClass addSuperClass(ODatabaseSession session, OClass superClass);
 
-  OClass removeSuperClass(OClass superClass);
+  OClass removeSuperClass(ODatabaseSession session, OClass superClass);
 
   String getName();
 
-  OClass setName(String iName);
+  OClass setName(ODatabaseSession session, String iName);
 
   String getDescription();
 
-  OClass setDescription(String iDescription);
+  OClass setDescription(ODatabaseSession session, String iDescription);
 
   String getStreamableName();
 
   Collection<OProperty> declaredProperties();
 
-  Collection<OProperty> properties();
+  Collection<OProperty> properties(ODatabaseSession session);
 
-  Map<String, OProperty> propertiesMap();
+  Map<String, OProperty> propertiesMap(ODatabaseSession session);
 
-  Collection<OProperty> getIndexedProperties();
+  Collection<OProperty> getIndexedProperties(ODatabaseSession session);
 
   OProperty getProperty(String iPropertyName);
 
-  OProperty createProperty(String iPropertyName, OType iType);
+  OProperty createProperty(ODatabaseSession session, String iPropertyName, OType iType);
 
-  OProperty createProperty(String iPropertyName, OType iType, OClass iLinkedClass);
+  OProperty createProperty(ODatabaseSession session, String iPropertyName, OType iType,
+      OClass iLinkedClass);
 
   /**
    * Create a property in the class with the specified options.
    *
+   * @param session
    * @param iPropertyName the name of the property.
    * @param iType         the type of the property.
    * @param iLinkedClass  in case of property of type
@@ -144,13 +146,16 @@ public interface OClass extends Comparable<OClass> {
    *                      used only if all persistent data is compatible with the property
    * @return the created property.
    */
-  OProperty createProperty(String iPropertyName, OType iType, OClass iLinkedClass, boolean iUnsafe);
+  OProperty createProperty(ODatabaseSession session, String iPropertyName, OType iType,
+      OClass iLinkedClass, boolean iUnsafe);
 
-  OProperty createProperty(String iPropertyName, OType iType, OType iLinkedType);
+  OProperty createProperty(ODatabaseSession session, String iPropertyName, OType iType,
+      OType iLinkedType);
 
   /**
    * Create a property in the class with the specified options.
    *
+   * @param session
    * @param iPropertyName the name of the property.
    * @param iType         the type of the property.
    * @param iLinkedType   in case of property of type EMBEDDEDLIST,EMBEDDEDSET,EMBEDDEDMAP can be
@@ -159,9 +164,10 @@ public interface OClass extends Comparable<OClass> {
    *                      used only if all persistent data is compatible with the property
    * @return the created property.
    */
-  OProperty createProperty(String iPropertyName, OType iType, OType iLinkedType, boolean iUnsafe);
+  OProperty createProperty(ODatabaseSession session, String iPropertyName, OType iType,
+      OType iLinkedType, boolean iUnsafe);
 
-  void dropProperty(String iPropertyName);
+  void dropProperty(ODatabaseSession session, String iPropertyName);
 
   boolean existsProperty(String iPropertyName);
 
@@ -169,30 +175,31 @@ public interface OClass extends Comparable<OClass> {
 
   int getDefaultClusterId();
 
-  void setDefaultClusterId(int iDefaultClusterId);
+  void setDefaultClusterId(ODatabaseSession session, int iDefaultClusterId);
 
   int[] getClusterIds();
 
-  OClass addClusterId(int iId);
+  OClass addClusterId(ODatabaseSession session, int iId);
 
   OClusterSelectionStrategy getClusterSelection();
 
-  OClass setClusterSelection(OClusterSelectionStrategy clusterSelection);
+  OClass setClusterSelection(ODatabaseSession session, OClusterSelectionStrategy clusterSelection);
 
-  OClass setClusterSelection(String iStrategyName);
+  OClass setClusterSelection(ODatabaseSession session, String iStrategyName);
 
-  OClass addCluster(String iClusterName);
+  OClass addCluster(ODatabaseSession session, String iClusterName);
 
   /**
    * Removes all data in the cluster with given name. As result indexes for this class will be
    * rebuilt.
    *
+   * @param session
    * @param clusterName Name of cluster to be truncated.
    * @return Instance of current object.
    */
-  OClass truncateCluster(String clusterName);
+  OClass truncateCluster(ODatabaseSession session, String clusterName);
 
-  OClass removeClusterId(int iId);
+  OClass removeClusterId(ODatabaseSession session, int iId);
 
   int[] getPolymorphicClusterIds();
 
@@ -217,7 +224,7 @@ public interface OClass extends Comparable<OClass> {
    */
   Collection<OClass> getAllSuperClasses();
 
-  long getSize();
+  long getSize(ODatabaseSessionInternal session);
 
   float getClassOverSize();
 
@@ -226,7 +233,7 @@ public interface OClass extends Comparable<OClass> {
    * defragmentation upon updates. 0 or 1.0 means no oversize.
    *
    * @return Oversize factor
-   * @see #setOverSize(float)
+   * @see #setOverSize(ODatabaseSession, float)
    */
   float getOverSize();
 
@@ -237,25 +244,25 @@ public interface OClass extends Comparable<OClass> {
    * @return Oversize factor
    * @see #getOverSize()
    */
-  OClass setOverSize(float overSize);
+  OClass setOverSize(ODatabaseSession session, float overSize);
 
   /**
    * Returns the number of the records of this class considering also subclasses (polymorphic).
    */
-  long count();
+  long count(ODatabaseSession session);
 
   /**
    * Returns the number of the records of this class and based on polymorphic parameter it consider
    * or not the subclasses.
    */
-  long count(boolean iPolymorphic);
+  long count(ODatabaseSession session, boolean iPolymorphic);
 
   /**
    * Truncates all the clusters the class uses.
    *
    * @throws IOException
    */
-  void truncate() throws IOException;
+  void truncate(ODatabaseSession session) throws IOException;
 
   /**
    * Tells if the current instance extends the passed schema class (iClass).
@@ -286,51 +293,56 @@ public interface OClass extends Comparable<OClass> {
 
   String getShortName();
 
-  OClass setShortName(String shortName);
+  OClass setShortName(ODatabaseSession session, String shortName);
 
   Object get(ATTRIBUTES iAttribute);
 
-  OClass set(ATTRIBUTES attribute, Object iValue);
+  OClass set(ODatabaseSession session, ATTRIBUTES attribute, Object iValue);
 
   /**
    * Creates database index that is based on passed in field names. Given index will be added into
    * class instance and associated with database index.
    *
-   * @param fields Field names from which index will be created.
-   * @param iName  Database index name
-   * @param iType  Index type.
+   * @param session
+   * @param iName   Database index name
+   * @param iType   Index type.
+   * @param fields  Field names from which index will be created.
    * @return Class index registered inside of given class ans associated with database index.
    */
-  OIndex createIndex(String iName, INDEX_TYPE iType, String... fields);
+  OIndex createIndex(ODatabaseSession session, String iName, INDEX_TYPE iType, String... fields);
 
   /**
    * Creates database index that is based on passed in field names. Given index will be added into
    * class instance and associated with database index.
    *
-   * @param fields Field names from which index will be created.
-   * @param iName  Database index name
-   * @param iType  Index type.
+   * @param session
+   * @param iName   Database index name
+   * @param iType   Index type.
+   * @param fields  Field names from which index will be created.
    * @return Class index registered inside of given class ans associated with database index.
    */
-  OIndex createIndex(String iName, String iType, String... fields);
+  OIndex createIndex(ODatabaseSession session, String iName, String iType, String... fields);
 
   /**
    * Creates database index that is based on passed in field names. Given index will be added into
    * class instance.
    *
-   * @param fields            Field names from which index will be created.
+   * @param session
    * @param iName             Database index name.
    * @param iType             Index type.
    * @param iProgressListener Progress listener.
+   * @param fields            Field names from which index will be created.
    * @return Class index registered inside of given class ans associated with database index.
    */
   OIndex createIndex(
-      String iName, INDEX_TYPE iType, OProgressListener iProgressListener, String... fields);
+      ODatabaseSession session, String iName, INDEX_TYPE iType, OProgressListener iProgressListener,
+      String... fields);
 
   /**
    * Creates database index that is based on passed in field names. Given index will be added into
    * class instance.
    *
+   * @param session
    * @param iName             Database index name.
    * @param iType             Index type.
    * @param iProgressListener Progress listener.
@@ -341,7 +353,7 @@ public interface OClass extends Comparable<OClass> {
    *                          registered inside of given class ans associated with database index.
    */
   OIndex createIndex(
-      String iName,
+      ODatabaseSession session, String iName,
       String iType,
       OProgressListener iProgressListener,
       ODocument metadata,
@@ -352,6 +364,7 @@ public interface OClass extends Comparable<OClass> {
    * Creates database index that is based on passed in field names. Given index will be added into
    * class instance.
    *
+   * @param session
    * @param iName             Database index name.
    * @param iType             Index type.
    * @param iProgressListener Progress listener.
@@ -361,7 +374,7 @@ public interface OClass extends Comparable<OClass> {
    *                          registered inside of given class ans associated with database index.
    */
   OIndex createIndex(
-      String iName,
+      ODatabaseSession session, String iName,
       String iType,
       OProgressListener iProgressListener,
       ODocument metadata,
@@ -374,11 +387,12 @@ public interface OClass extends Comparable<OClass> {
    * <p>All indexes sorted by their count of parameters in ascending order. If there are indexes
    * for the given set of fields in super class they will be taken into account.
    *
-   * @param fields Field names.
+   * @param session
+   * @param fields  Field names.
    * @return list of indexes that contain passed in fields names as their first keys.
    * @see com.orientechnologies.orient.core.index.OIndexDefinition#getParamCount()
    */
-  Set<OIndex> getInvolvedIndexes(Collection<String> fields);
+  Set<OIndex> getInvolvedIndexes(ODatabaseSession session, Collection<String> fields);
 
   /**
    * Returns list of indexes that contain passed in fields names as their first keys. Order of
@@ -387,11 +401,12 @@ public interface OClass extends Comparable<OClass> {
    * <p>All indexes sorted by their count of parameters in ascending order. If there are indexes
    * for the given set of fields in super class they will be taken into account.
    *
-   * @param fields Field names.
+   * @param session
+   * @param fields  Field names.
    * @return list of indexes that contain passed in fields names as their first keys.
-   * @see #getInvolvedIndexes(java.util.Collection)
+   * @see #getInvolvedIndexes(ODatabaseSession, Collection)
    */
-  Set<OIndex> getInvolvedIndexes(String... fields);
+  Set<OIndex> getInvolvedIndexes(ODatabaseSession session, String... fields);
 
   /**
    * Returns list of indexes that contain passed in fields names as their first keys. Order of
@@ -399,69 +414,74 @@ public interface OClass extends Comparable<OClass> {
    *
    * <p>Indexes that related only to the given class will be returned.
    *
-   * @param fields Field names.
+   * @param session
+   * @param fields  Field names.
    * @return list of indexes that contain passed in fields names as their first keys.
    * @see com.orientechnologies.orient.core.index.OIndexDefinition#getParamCount()
    */
-  Set<OIndex> getClassInvolvedIndexes(Collection<String> fields);
+  Set<OIndex> getClassInvolvedIndexes(ODatabaseSession session, Collection<String> fields);
 
   /**
-   * @param fields Field names.
+   * @param session
+   * @param fields  Field names.
    * @return list of indexes that contain passed in fields names as their first keys.
-   * @see #getClassInvolvedIndexes(java.util.Collection)
+   * @see #getClassInvolvedIndexes(ODatabaseSession, Collection)
    */
-  Set<OIndex> getClassInvolvedIndexes(String... fields);
+  Set<OIndex> getClassInvolvedIndexes(ODatabaseSession session, String... fields);
 
   /**
    * Indicates whether given fields are contained as first key fields in class indexes. Order of
    * fields does not matter. If there are indexes for the given set of fields in super class they
    * will be taken into account.
    *
-   * @param fields Field names.
+   * @param session
+   * @param fields  Field names.
    * @return <code>true</code> if given fields are contained as first key fields in class indexes.
    */
-  boolean areIndexed(Collection<String> fields);
+  boolean areIndexed(ODatabaseSession session, Collection<String> fields);
 
   /**
-   * @param fields Field names.
+   * @param session
+   * @param fields  Field names.
    * @return <code>true</code> if given fields are contained as first key fields in class indexes.
-   * @see #areIndexed(java.util.Collection)
+   * @see #areIndexed(ODatabaseSession, Collection)
    */
-  boolean areIndexed(String... fields);
+  boolean areIndexed(ODatabaseSession session, String... fields);
 
   /**
    * Returns index instance by database index name.
    *
-   * @param iName Database index name.
+   * @param session
+   * @param iName   Database index name.
    * @return Index instance.
    */
-  OIndex getClassIndex(String iName);
+  OIndex getClassIndex(ODatabaseSession session, String iName);
 
   /**
    * @return All indexes for given class, not the inherited ones.
    */
-  Set<OIndex> getClassIndexes();
+  Set<OIndex> getClassIndexes(ODatabaseSession session);
 
   /**
    * Internal. Copy all the indexes for given class, not the inherited ones, in the collection
    * received as argument.
    */
-  void getClassIndexes(Collection<OIndex> indexes);
+  void getClassIndexes(ODatabaseSession session, Collection<OIndex> indexes);
 
   /**
    * Internal. All indexes for given class and its super classes.
    */
-  void getIndexes(Collection<OIndex> indexes);
+  void getIndexes(ODatabaseSession session, Collection<OIndex> indexes);
 
   /**
    * @return All indexes for given class and its super classes.
    */
-  Set<OIndex> getIndexes();
+  Set<OIndex> getIndexes(ODatabaseSession session);
 
   /**
    * Returns the auto sharding index configured for the class if any.
    */
-  OIndex getAutoShardingIndex();
+  OIndex getAutoShardingIndex(ODatabaseSession session);
 
   /**
    * @return true if this class represents a subclass of an edge class (E)
@@ -475,11 +495,11 @@ public interface OClass extends Comparable<OClass> {
 
   String getCustom(String iName);
 
-  OClass setCustom(String iName, String iValue);
+  OClass setCustom(ODatabaseSession session, String iName, String iValue);
 
-  void removeCustom(String iName);
+  void removeCustom(ODatabaseSession session, String iName);
 
-  void clearCustom();
+  void clearCustom(ODatabaseSession session);
 
   Set<String> getCustomKeys();
 

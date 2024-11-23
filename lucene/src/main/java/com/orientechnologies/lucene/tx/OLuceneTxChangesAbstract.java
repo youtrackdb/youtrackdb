@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TopDocs;
 
 /**
- * Created by Enrico Risa on 28/09/15.
+ *
  */
 public abstract class OLuceneTxChangesAbstract implements OLuceneTxChanges {
 

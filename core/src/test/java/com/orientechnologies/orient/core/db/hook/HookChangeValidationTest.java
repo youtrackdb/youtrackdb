@@ -19,9 +19,9 @@ public class HookChangeValidationTest extends BaseMemoryDatabase {
 
     OSchema schema = db.getMetadata().getSchema();
     OClass classA = schema.createClass("TestClass");
-    classA.createProperty("property1", OType.STRING).setNotNull(true);
-    classA.createProperty("property2", OType.STRING).setReadonly(true);
-    classA.createProperty("property3", OType.STRING).setMandatory(true);
+    classA.createProperty(db, "property1", OType.STRING).setNotNull(db, true);
+    classA.createProperty(db, "property2", OType.STRING).setReadonly(db, true);
+    classA.createProperty(db, "property3", OType.STRING).setMandatory(db, true);
     db.registerHook(
         new ODocumentHookAbstract() {
           @Override
@@ -61,9 +61,9 @@ public class HookChangeValidationTest extends BaseMemoryDatabase {
 
     OSchema schema = db.getMetadata().getSchema();
     OClass classA = schema.createClass("TestClass");
-    classA.createProperty("property1", OType.STRING).setNotNull(true);
-    classA.createProperty("property2", OType.STRING).setReadonly(true);
-    classA.createProperty("property3", OType.STRING).setMandatory(true);
+    classA.createProperty(db, "property1", OType.STRING).setNotNull(db, true);
+    classA.createProperty(db, "property2", OType.STRING).setReadonly(db, true);
+    classA.createProperty(db, "property3", OType.STRING).setMandatory(db, true);
     db.registerHook(
         new ODocumentHookAbstract() {
           @Override
@@ -93,6 +93,7 @@ public class HookChangeValidationTest extends BaseMemoryDatabase {
     doc.save();
     db.commit();
 
+    db.begin();
     doc = db.bindToSession(doc);
     assertEquals("value1-create", doc.field("property1"));
     assertEquals("value2-create", doc.field("property2"));
@@ -101,7 +102,6 @@ public class HookChangeValidationTest extends BaseMemoryDatabase {
     doc.field("property1", "value1-update");
     doc.field("property2", "value2-update");
     try {
-      db.begin();
       doc.save();
       db.commit();
       Assert.fail("The document save should fail for validation exception");

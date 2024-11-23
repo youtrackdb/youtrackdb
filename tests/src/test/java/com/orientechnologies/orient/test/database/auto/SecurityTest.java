@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
 import com.orientechnologies.orient.core.exception.OSecurityException;
 import com.orientechnologies.orient.core.exception.OValidationException;
@@ -47,6 +50,12 @@ public class SecurityTest extends DocumentDBBaseTest {
     super(remote != null && remote);
   }
 
+  @Override
+  protected OxygenDBConfig createConfig(OrientDBConfigBuilder builder) {
+    builder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    return builder.build();
+  }
+
   @BeforeMethod
   @Override
   public void beforeMethod() throws Exception {
@@ -62,11 +71,9 @@ public class SecurityTest extends DocumentDBBaseTest {
       Assert.assertTrue(
           e instanceof OSecurityAccessException
               || e.getCause() != null
-                  && e.getCause()
-                          .toString()
-                          .indexOf(
-                              "com.orientechnologies.orient.core.exception.OSecurityAccessException")
-                      > -1);
+              && e.getCause()
+              .toString()
+              .contains("com.orientechnologies.orient.core.exception.OSecurityAccessException"));
     }
   }
 
@@ -127,8 +134,10 @@ public class SecurityTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(updated.intValue(), 1);
 
+    database.begin();
     OResultSet result = database.query("select from ouser where name = 'reader'");
     Assert.assertNotEquals(result.next().getProperty("password"), "test");
+    database.commit();
 
     // RESET OLD PASSWORD
     database.begin();
@@ -140,8 +149,10 @@ public class SecurityTest extends DocumentDBBaseTest {
     database.commit();
     Assert.assertEquals(updated.intValue(), 1);
 
+    database.begin();
     result = database.query("select from ouser where name = 'reader'");
     Assert.assertNotEquals(result.next().getProperty("password"), "reader");
+    database.commit();
 
     database.close();
   }
@@ -155,7 +166,7 @@ public class SecurityTest extends DocumentDBBaseTest {
 
     ORole writerChild =
         security.createRole("writerChild", writer, OSecurityRole.ALLOW_MODES.ALLOW_ALL_BUT);
-    writerChild.save();
+    writerChild.save(database);
     database.commit();
 
     try {
@@ -163,26 +174,30 @@ public class SecurityTest extends DocumentDBBaseTest {
       ORole writerGrandChild =
           security.createRole(
               "writerGrandChild", writerChild, OSecurityRole.ALLOW_MODES.ALLOW_ALL_BUT);
-      writerGrandChild.save();
+      writerGrandChild.save(database);
       database.commit();
 
       try {
         database.begin();
         OUser child = security.createUser("writerChild", "writerChild", writerGrandChild);
-        child.save();
+        child.save(database);
         database.commit();
 
         try {
-          Assert.assertTrue(child.hasRole("writer", true));
-          Assert.assertFalse(child.hasRole("wrter", true));
+          database.begin();
+          Assert.assertTrue(child.hasRole(database, "writer", true));
+          Assert.assertFalse(child.hasRole(database, "wrter", true));
+          database.commit();
 
           database.close();
           if (!database.isRemote()) {
             database = createSessionInstance("writerChild", "writerChild");
 
+            database.begin();
             OSecurityUser user = database.getUser();
-            Assert.assertTrue(user.hasRole("writer", true));
-            Assert.assertFalse(user.hasRole("wrter", true));
+            Assert.assertTrue(user.hasRole(database, "writer", true));
+            Assert.assertFalse(user.hasRole(database, "wrter", true));
+            database.commit();
 
             database.close();
           }
@@ -222,7 +237,7 @@ public class SecurityTest extends DocumentDBBaseTest {
     security = database.getMetadata().getSecurity();
     OUser user = security.getUser("user'quoted");
     Assert.assertNotNull(user);
-    security.dropUser(user.getName());
+    security.dropUser(user.getName(database));
     database.commit();
     database.close();
 
@@ -262,13 +277,19 @@ public class SecurityTest extends DocumentDBBaseTest {
   public void testAdminCanSeeSystemClusters() {
     database = createSessionInstance();
 
+    database.begin();
     List<OResult> result =
         database.command("select from ouser").stream().collect(Collectors.toList());
     Assert.assertFalse(result.isEmpty());
+    database.commit();
 
+    database.begin();
     Assert.assertTrue(database.browseClass("OUser").hasNext());
+    database.commit();
 
+    database.begin();
     Assert.assertTrue(database.browseCluster("OUser").hasNext());
+    database.commit();
   }
 
   @Test
@@ -277,7 +298,7 @@ public class SecurityTest extends DocumentDBBaseTest {
     database = createSessionInstance("reader", "reader");
 
     try {
-      database.command(new OCommandSQL("select from ouser")).execute();
+      database.command(new OCommandSQL("select from ouser")).execute(database);
     } catch (OSecurityException e) {
     }
 
@@ -303,7 +324,7 @@ public class SecurityTest extends DocumentDBBaseTest {
     database = createSessionInstance("writer", "writer");
 
     try {
-      database.command(new OCommandSQL("alter class Protected superclass OUser")).execute();
+      database.command(new OCommandSQL("alter class Protected superclass OUser")).execute(database);
       Assert.fail();
     } catch (OSecurityException e) {
     } finally {
@@ -353,7 +374,9 @@ public class SecurityTest extends DocumentDBBaseTest {
     try {
       OSecurity security = database.getMetadata().getSecurity();
 
+      database.begin();
       ORole reader = security.getRole("reader");
+      database.commit();
       final String userName = "  ";
       try {
         database.begin();
@@ -375,7 +398,9 @@ public class SecurityTest extends DocumentDBBaseTest {
     try {
       OSecurity security = database.getMetadata().getSecurity();
 
+      database.begin();
       ORole reader = security.getRole("reader");
+      database.commit();
       final String userName = " sas";
       try {
         database.begin();
@@ -397,10 +422,10 @@ public class SecurityTest extends DocumentDBBaseTest {
     try {
       OSecurity security = database.getMetadata().getSecurity();
 
+      database.begin();
       ORole reader = security.getRole("reader");
       final String userName = "sas ";
       try {
-        database.begin();
         security.createUser(userName, "foobar", reader);
         database.commit();
         Assert.fail();
@@ -419,7 +444,9 @@ public class SecurityTest extends DocumentDBBaseTest {
     try {
       OSecurity security = database.getMetadata().getSecurity();
 
+      database.begin();
       ORole reader = security.getRole("reader");
+      database.commit();
       final String userName = " sas ";
       try {
         database.begin();
@@ -441,7 +468,9 @@ public class SecurityTest extends DocumentDBBaseTest {
     try {
       OSecurity security = database.getMetadata().getSecurity();
 
+      database.begin();
       ORole reader = security.getRole("reader");
+      database.commit();
       final String userName = "s a s";
       database.begin();
       security.createUser(userName, "foobar", reader);

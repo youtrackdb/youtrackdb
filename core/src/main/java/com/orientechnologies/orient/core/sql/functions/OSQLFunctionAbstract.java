@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,13 +14,14 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.functions;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.Collection;
@@ -30,8 +31,6 @@ import java.util.List;
  * Abstract class to extend to build Custom SQL Functions. Extend it and register it with: <code>
  * OSQLParser.getInstance().registerStatelessFunction()</code> or <code>
  * OSQLParser.getInstance().registerStatefullFunction()</code> to being used by the SQL engine.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OSQLFunctionAbstract implements OSQLFunction {
 
@@ -46,7 +45,7 @@ public abstract class OSQLFunctionAbstract implements OSQLFunction {
   }
 
   @Override
-  public String getName() {
+  public String getName(ODatabaseSession session) {
     return name;
   }
 
@@ -56,7 +55,7 @@ public abstract class OSQLFunctionAbstract implements OSQLFunction {
   }
 
   @Override
-  public int getMaxParams() {
+  public int getMaxParams(ODatabaseSession session) {
     return maxParams;
   }
 
@@ -66,7 +65,8 @@ public abstract class OSQLFunctionAbstract implements OSQLFunction {
   }
 
   @Override
-  public void config(final Object[] iConfiguredParameters) {}
+  public void config(final Object[] iConfiguredParameters) {
+  }
 
   @Override
   public boolean aggregateResults() {
@@ -84,7 +84,8 @@ public abstract class OSQLFunctionAbstract implements OSQLFunction {
   }
 
   @Override
-  public void setResult(final Object iResult) {}
+  public void setResult(final Object iResult) {
+  }
 
   @Override
   public boolean shouldMergeDistributedResult() {

@@ -13,7 +13,7 @@ public class OSQLFunctionIndexKeySizeTest extends BaseMemoryDatabase {
   @Test
   public void test() {
     OClass clazz = db.getMetadata().getSchema().createClass("Test");
-    clazz.createProperty("name", OType.STRING);
+    clazz.createProperty(db, "name", OType.STRING);
     db.command("create index testindex on  Test (name) notunique").close();
 
     db.begin();

@@ -8,7 +8,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Created by luigidellaquila on 13/10/16.
+ *
  */
 public class WhileMatchStep extends AbstractUnrollStep {
 

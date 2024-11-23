@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 OrientDB.
+ * Copyright 2018 OxygenDB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,12 +34,13 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 /**
- * @author mdjurovi
+ *
  */
 public class OResultBinary implements OResult {
 
   private final ODocumentSerializer serializer;
-  @Nullable private final ORecordId id;
+  @Nullable
+  private final ORecordId id;
   private final byte[] bytes;
   private final int offset;
   private final int fieldLength;

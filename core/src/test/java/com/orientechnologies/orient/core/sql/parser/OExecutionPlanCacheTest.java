@@ -40,7 +40,7 @@ public class OExecutionPlanCacheTest extends BaseMemoryInternalDatabase {
     cache = OExecutionPlanCache.instance(db);
     Assert.assertTrue(cache.contains(stm));
 
-    OProperty prop = clazz.createProperty("name", OType.STRING);
+    OProperty prop = clazz.createProperty(db, "name", OType.STRING);
     Assert.assertFalse(cache.contains(stm));
 
     Thread.sleep(2);
@@ -50,7 +50,7 @@ public class OExecutionPlanCacheTest extends BaseMemoryInternalDatabase {
     cache = OExecutionPlanCache.instance(db);
     Assert.assertTrue(cache.contains(stm));
 
-    prop.createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
+    prop.createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
     Assert.assertFalse(cache.contains(stm));
   }
 }

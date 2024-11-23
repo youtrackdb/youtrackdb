@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.db.ODatabaseSession;
 import org.junit.Test;
 
 /**
- * @author S. Colin Leister
+ *
  */
 public class OSymmetricKeyTest {
 

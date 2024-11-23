@@ -9,7 +9,7 @@ import com.orientechnologies.orient.core.sql.parser.OExpression;
 import org.apache.lucene.index.memory.MemoryIndex;
 
 /**
- * Created by frank on 13/02/2017.
+ *
  */
 public class OLuceneFunctionsUtils {
 

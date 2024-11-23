@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.functions.coll;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import java.util.Collection;
 import java.util.HashSet;
@@ -28,8 +29,6 @@ import java.util.Set;
 /**
  * This operator can work inline. Returns the DIFFERENCE between the collections received as
  * parameters. Works also with no collection values.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFunctionDifference extends OSQLFunctionMultiValueAbstract<Set<Object>> {
 
@@ -75,7 +74,7 @@ public class OSQLFunctionDifference extends OSQLFunctionMultiValueAbstract<Set<O
     return result;
   }
 
-  public String getSyntax() {
+  public String getSyntax(ODatabaseSession session) {
     return "difference(<field>, <field> [, <field]*)";
   }
 }

@@ -4,9 +4,9 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
-import com.orientechnologies.orient.core.db.OrientDBInternal;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.db.viewmanager.ViewCreationListener;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.concurrent.CountDownLatch;
@@ -17,11 +17,11 @@ import org.junit.Test;
 
 public class OViewTest {
 
-  private OrientDB orientdb;
+  private OxygenDB orientdb;
 
   @Before
   public void setUp() {
-    orientdb = new OrientDB("embedded:./target/views", OrientDBConfig.defaultConfig());
+    orientdb = new OxygenDB("embedded:./target/views", OxygenDBConfig.defaultConfig());
   }
 
   @After
@@ -53,7 +53,8 @@ public class OViewTest {
                 }
 
                 @Override
-                public void onError(String viewName, Exception exception) {}
+                public void onError(String viewName, Exception exception) {
+                }
               });
       latch.await();
 
@@ -90,7 +91,7 @@ public class OViewTest {
           });
     }
 
-    OrientDBInternal.extract(orientdb).forceDatabaseClose("view_close");
+    OxygenDBInternal.extract(orientdb).forceDatabaseClose("view_close");
     try (ODatabaseSession session = orientdb.open("view_close", "admin", "adminpwd")) {
       BaseMemoryDatabase.assertWithTimeout(
           session,

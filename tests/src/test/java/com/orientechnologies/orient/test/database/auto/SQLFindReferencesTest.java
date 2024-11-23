@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -128,17 +128,17 @@ public class SQLFindReferencesTest extends DocumentDBBaseTest {
     OClass workplace = database.getMetadata().getSchema().createClass(WORKPLACE);
     OClass car = database.getMetadata().getSchema().createClass(CAR);
 
-    worker.createProperty("name", OType.STRING);
-    worker.createProperty("surname", OType.STRING);
-    worker.createProperty("colleagues", OType.LINKLIST, worker);
-    worker.createProperty("car", OType.LINK, car);
+    worker.createProperty(database, "name", OType.STRING);
+    worker.createProperty(database, "surname", OType.STRING);
+    worker.createProperty(database, "colleagues", OType.LINKLIST, worker);
+    worker.createProperty(database, "car", OType.LINK, car);
 
-    workplace.createProperty("name", OType.STRING);
-    workplace.createProperty("boss", OType.LINK, worker);
-    workplace.createProperty("workers", OType.LINKLIST, worker);
+    workplace.createProperty(database, "name", OType.STRING);
+    workplace.createProperty(database, "boss", OType.LINK, worker);
+    workplace.createProperty(database, "workers", OType.LINKLIST, worker);
 
-    car.createProperty("plate", OType.STRING);
-    car.createProperty("owner", OType.LINK, worker);
+    car.createProperty(database, "plate", OType.STRING);
+    car.createProperty(database, "owner", OType.LINK, worker);
   }
 
   private void populateDatabase() {

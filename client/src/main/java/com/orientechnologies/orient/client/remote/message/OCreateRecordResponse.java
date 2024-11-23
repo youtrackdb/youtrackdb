@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,13 +14,14 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.client.remote.message;
 
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
@@ -36,7 +37,8 @@ public class OCreateRecordResponse implements OBinaryResponse {
   private int version;
   private Map<UUID, OBonsaiCollectionPointer> changedIds;
 
-  public OCreateRecordResponse() {}
+  public OCreateRecordResponse() {
+  }
 
   public OCreateRecordResponse(
       ORecordId identity, int version, Map<UUID, OBonsaiCollectionPointer> changedIds) {
@@ -45,7 +47,8 @@ public class OCreateRecordResponse implements OBinaryResponse {
     this.changedIds = changedIds;
   }
 
-  public void write(OChannelDataOutput channel, int protocolVersion, ORecordSerializer serializer)
+  public void write(ODatabaseSessionInternal session, OChannelDataOutput channel,
+      int protocolVersion, ORecordSerializer serializer)
       throws IOException {
     channel.writeShort((short) this.identity.getClusterId());
     channel.writeLong(this.identity.getClusterPosition());

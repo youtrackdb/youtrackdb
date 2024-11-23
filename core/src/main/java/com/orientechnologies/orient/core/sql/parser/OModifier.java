@@ -481,8 +481,8 @@ public class OModifier extends SimpleNode {
     if (suffix != null && suffix.isBaseIdentifier()) {
       OProperty prop = clazz.getProperty(suffix.getIdentifier().getStringValue());
       if (prop != null
-          && prop.getAllIndexes().stream()
-              .anyMatch(idx -> idx.getDefinition().getFields().size() == 1)) {
+          && prop.getAllIndexes(ctx.getDatabase()).stream()
+          .anyMatch(idx -> idx.getDefinition().getFields().size() == 1)) {
         if (next != null) {
           OClass linkedClazz = prop.getLinkedClass();
           return next.isIndexChain(ctx, linkedClazz);

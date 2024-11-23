@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 OrientDB.
+ * Copyright 2018 OxygenDB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.core.metadata.sequence;
 
 /**
- * @author marko
+ *
  */
 public class OSequenceAction {
 

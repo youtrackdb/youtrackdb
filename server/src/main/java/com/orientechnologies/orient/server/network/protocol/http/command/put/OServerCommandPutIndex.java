@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.put;
@@ -61,11 +61,13 @@ public class OServerCommandPutIndex extends OServerCommandDocumentAbstract {
         record = new ORecordId(urlParts[4]);
       } else {
         // GET THE REQUEST CONTENT AS DOCUMENT
-        if (iRequest.getContent() == null || iRequest.getContent().length() == 0) {
+        if (iRequest.getContent() == null || iRequest.getContent().isEmpty()) {
           throw new IllegalArgumentException("Index's entry value is null");
         }
 
-        record = new ODocument().fromJSON(iRequest.getContent());
+        var doc = new ODocument();
+        doc.fromJSON(iRequest.getContent());
+        record = doc;
       }
 
       final OIndexDefinition indexDefinition = index.getDefinition();
@@ -86,7 +88,7 @@ public class OServerCommandPutIndex extends OServerCommandDocumentAbstract {
         ((ORecord) record).save();
       }
 
-      index.put(key, record);
+      index.put(db, key, record);
 
       if (existent) {
         iResponse.send(

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -31,7 +31,7 @@ import com.orientechnologies.orient.core.fetch.remote.ORemoteFetchListener;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHook;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OLiveResultListener;
@@ -51,8 +51,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Asynchronous command result manager. As soon as a record is returned by the command is sent over
  * the wire.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OLiveCommandResultListener extends OAbstractCommandResultListener
     implements OLiveResultListener {
@@ -74,7 +72,7 @@ public class OLiveCommandResultListener extends OAbstractCommandResultListener
   }
 
   @Override
-  public boolean result(final Object iRecord) {
+  public boolean result(ODatabaseSessionInternal querySession, final Object iRecord) {
     final ONetworkProtocolBinary protocol = ((ONetworkProtocolBinary) connection.getProtocol());
     if (empty.compareAndSet(true, false)) {
       try {
@@ -99,7 +97,7 @@ public class OLiveCommandResultListener extends OAbstractCommandResultListener
           iRecord,
           new ORemoteFetchListener() {
             @Override
-            protected void sendRecord(ORecord iLinked) {
+            protected void sendRecord(ORecordAbstract iLinked) {
               if (!alreadySent.contains(iLinked.getIdentity())) {
                 alreadySent.add(iLinked.getIdentity());
                 try {
@@ -156,10 +154,10 @@ public class OLiveCommandResultListener extends OAbstractCommandResultListener
           out.writeByte('r');
           out.writeByte(iOp.type);
           out.writeInt(iToken);
-          out.writeByte(ORecordInternal.getRecordType(iOp.getRecord()));
-          writeVersion(out, iOp.getRecord().getVersion());
-          writeRID(out, (ORecordId) iOp.getRecord().getIdentity());
-          writeBytes(out, ONetworkProtocolBinary.getRecordBytes(connection, iOp.getRecord()));
+          out.writeByte(ORecordInternal.getRecordType(iOp.record));
+          writeVersion(out, iOp.record.getVersion());
+          writeRID(out, (ORecordId) iOp.record.getIdentity());
+          writeBytes(out, ONetworkProtocolBinary.getRecordBytes(connection, iOp.record));
           channel.writeByte(OChannelBinaryProtocol.PUSH_DATA);
           channel.writeInt(Integer.MIN_VALUE);
           channel.writeByte(OChannelBinaryProtocol.REQUEST_PUSH_LIVE_QUERY);
@@ -194,7 +192,8 @@ public class OLiveCommandResultListener extends OAbstractCommandResultListener
   }
 
   @Override
-  public void onError(int iLiveToken) {}
+  public void onError(int iLiveToken) {
+  }
 
   @Override
   public void onUnsubscribe(int iLiveToken) {
@@ -260,5 +259,6 @@ public class OLiveCommandResultListener extends OAbstractCommandResultListener
   }
 
   @Override
-  public void linkdedBySimpleValue(ODocument doc) {}
+  public void linkdedBySimpleValue(ODocument doc) {
+  }
 }

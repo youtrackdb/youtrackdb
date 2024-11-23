@@ -28,7 +28,7 @@ import java.util.Locale;
 import java.util.concurrent.Callable;
 
 /**
- * Created by tglman on 22/06/17.
+ *
  */
 public class OClassDistributed extends OClassEmbedded {
 

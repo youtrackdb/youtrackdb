@@ -15,7 +15,6 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @param <T> see {@link TestFactory}
- * @author Artem Orobets (enisher-at-gmail.com)
  */
 public class ConcurrentTestHelper<T> {
 

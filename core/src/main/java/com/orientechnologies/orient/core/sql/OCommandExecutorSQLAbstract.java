@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql;
@@ -43,8 +43,6 @@ import java.util.Set;
 
 /**
  * SQL abstract Command Executor implementation.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OCommandExecutorSQLAbstract extends OCommandExecutorAbstract {
 
@@ -87,7 +85,7 @@ public abstract class OCommandExecutorSQLAbstract extends OCommandExecutorAbstra
    * @return
    */
   public OCommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE
-      getDistributedExecutionMode() {
+  getDistributedExecutionMode() {
     return OCommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE.REPLICATE;
   }
 
@@ -221,15 +219,15 @@ public abstract class OCommandExecutorSQLAbstract extends OCommandExecutorAbstra
   protected boolean checkClusterAccess(final ODatabaseSession db, final String iClusterName) {
     return db.getUser() == null
         || db.getUser()
-                .checkIfAllowed(
-                    ORule.ResourceGeneric.CLUSTER, iClusterName, getSecurityOperationType())
-            != null;
+        .checkIfAllowed(db,
+            ORule.ResourceGeneric.CLUSTER, iClusterName, getSecurityOperationType())
+        != null;
   }
 
   protected void bindDefaultContextVariables() {
     if (context != null) {
       if (getDatabase() != null && getDatabase().getUser() != null) {
-        context.setVariable(DEFAULT_PARAM_USER, getDatabase().getUser().getIdentity());
+        context.setVariable(DEFAULT_PARAM_USER, getDatabase().getUser().getIdentity(getDatabase()));
       }
     }
   }

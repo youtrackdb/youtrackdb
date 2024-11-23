@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.storage.impl.local.paginated;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -67,16 +67,15 @@ public class StorageBackupTestWithLuceneIndex {
   public void testSingeThreadFullBackup() throws IOException {
     final OSchema schema = db.getMetadata().getSchema();
     final OClass backupClass = schema.createClass("BackupClass");
-    backupClass.createProperty("num", OType.INTEGER);
-    backupClass.createProperty("name", OType.STRING);
+    backupClass.createProperty(db, "num", OType.INTEGER);
+    backupClass.createProperty(db, "name", OType.STRING);
 
-    backupClass.createIndex(
+    backupClass.createIndex(db,
         "backupLuceneIndex",
         OClass.INDEX_TYPE.FULLTEXT.toString(),
         null,
         null,
-        "LUCENE",
-        new String[] {"name"});
+        "LUCENE", new String[]{"name"});
 
     db.begin();
     final ODocument document = new ODocument("BackupClass");
@@ -109,7 +108,7 @@ public class StorageBackupTestWithLuceneIndex {
 
     backupStorage.close(true);
 
-    var orientDB = new OrientDB("embedded:" + buildDirectory, OrientDBConfig.defaultConfig());
+    var orientDB = new OxygenDB("embedded:" + buildDirectory, OxygenDBConfig.defaultConfig());
     final ODatabaseCompare compare =
         new ODatabaseCompare(
             (ODatabaseSessionInternal)
@@ -130,16 +129,15 @@ public class StorageBackupTestWithLuceneIndex {
 
     final OSchema schema = db.getMetadata().getSchema();
     final OClass backupClass = schema.createClass("BackupClass");
-    backupClass.createProperty("num", OType.INTEGER);
-    backupClass.createProperty("name", OType.STRING);
+    backupClass.createProperty(db, "num", OType.INTEGER);
+    backupClass.createProperty(db, "name", OType.STRING);
 
-    backupClass.createIndex(
+    backupClass.createIndex(db,
         "backupLuceneIndex",
         OClass.INDEX_TYPE.FULLTEXT.toString(),
         null,
         null,
-        "LUCENE",
-        new String[] {"name"});
+        "LUCENE", new String[]{"name"});
 
     final File backupDir = new File(buildDirectory, "backupDir");
     OFileUtils.deleteRecursively(backupDir);
@@ -187,7 +185,7 @@ public class StorageBackupTestWithLuceneIndex {
 
     backupStorage.close(true);
 
-    var orientDB = new OrientDB("embedded:" + buildDirectory, OrientDBConfig.defaultConfig());
+    var orientDB = new OxygenDB("embedded:" + buildDirectory, OxygenDBConfig.defaultConfig());
     final ODatabaseCompare compare =
         new ODatabaseCompare(
             (ODatabaseSessionInternal)

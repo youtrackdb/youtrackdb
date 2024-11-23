@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 OrientDB.
+ * Copyright 2018 OxygenDB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,14 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 /**
- * @author marko
+ *
  */
 public class OSequenceActionRequest {
 
   private OSequenceAction action = null;
 
-  public OSequenceActionRequest() {}
+  public OSequenceActionRequest() {
+  }
 
   public OSequenceActionRequest(OSequenceAction action) {
     this.action = action;

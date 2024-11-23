@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  * Copyright 2013 Geomatys.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,9 +25,6 @@ import com.orientechnologies.orient.core.sql.method.misc.OAbstractSQLMethod;
 
 /**
  * Converts a document in JSON string.
- *
- * @author Johann Sorel (Geomatys)
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLMethodFromJSON extends OAbstractSQLMethod {
 
@@ -63,7 +60,9 @@ public class OSQLMethodFromJSON extends OAbstractSQLMethod {
         }
       }
 
-      return new ODocument().fromJSON(iThis.toString());
+      var doc = new ODocument();
+      doc.fromJSON(iThis.toString());
+      return doc;
     }
 
     return null;

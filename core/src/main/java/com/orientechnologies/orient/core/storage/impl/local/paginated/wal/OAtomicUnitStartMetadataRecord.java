@@ -7,7 +7,8 @@ public class OAtomicUnitStartMetadataRecord extends OAtomicUnitStartRecord {
 
   private byte[] metadata;
 
-  public OAtomicUnitStartMetadataRecord() {}
+  public OAtomicUnitStartMetadataRecord() {
+  }
 
   public OAtomicUnitStartMetadataRecord(
       final boolean isRollbackSupported, final long unitId, byte[] metadata) {

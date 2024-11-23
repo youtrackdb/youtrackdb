@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.metadata.schema;
@@ -24,13 +24,14 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.util.OCollections;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.collate.ODefaultCollate;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.index.OPropertyIndexDefinition;
+import com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYPE;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -49,8 +50,6 @@ import java.util.Set;
 
 /**
  * Contains the description of a persistent class property.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OPropertyImpl implements OProperty {
 
@@ -132,17 +131,19 @@ public abstract class OPropertyImpl implements OProperty {
    * operations. For massive inserts we suggest to remove the index, make the massive insert and
    * recreate it.
    *
-   * @param iType One of types supported.
-   *              <ul>
-   *                <li>UNIQUE: Doesn't allow duplicates
-   *                <li>NOTUNIQUE: Allow duplicates
-   *                <li>FULLTEXT: Indexes single word for full text search
-   *              </ul>
+   * @param session
+   * @param iType   One of types supported.
+   *                <ul>
+   *                  <li>UNIQUE: Doesn't allow duplicates
+   *                  <li>NOTUNIQUE: Allow duplicates
+   *                  <li>FULLTEXT: Indexes single word for full text search
+   *                </ul>
    * @return
-   * @see {@link OClass#createIndex(String, OClass.INDEX_TYPE, String...)} instead.
+   * @see {@link OClass#createIndex(com.orientechnologies.orient.core.db.ODatabaseSession, String,
+   * OClass.INDEX_TYPE, String...)} instead.
    */
-  public OIndex createIndex(final OClass.INDEX_TYPE iType) {
-    return createIndex(iType.toString());
+  public OIndex createIndex(ODatabaseSession session, final INDEX_TYPE iType) {
+    return createIndex(session, iType.toString());
   }
 
   /**
@@ -150,14 +151,16 @@ public abstract class OPropertyImpl implements OProperty {
    * operations. For massive inserts we suggest to remove the index, make the massive insert and
    * recreate it.
    *
+   * @param session
    * @param iType
    * @return
-   * @see {@link OClass#createIndex(String, OClass.INDEX_TYPE, String...)} instead.
+   * @see {@link OClass#createIndex(com.orientechnologies.orient.core.db.ODatabaseSession, String,
+   * OClass.INDEX_TYPE, String...)} instead.
    */
-  public OIndex createIndex(final String iType) {
+  public OIndex createIndex(ODatabaseSession session, final String iType) {
     acquireSchemaReadLock();
     try {
-      return owner.createIndex(getFullName(), iType, globalRef.getName());
+      return owner.createIndex(session, getFullName(), iType, globalRef.getName());
     } finally {
       releaseSchemaReadLock();
     }
@@ -169,11 +172,11 @@ public abstract class OPropertyImpl implements OProperty {
   }
 
   @Override
-  public OIndex createIndex(String iType, ODocument metadata) {
+  public OIndex createIndex(ODatabaseSession session, String iType, ODocument metadata) {
     acquireSchemaReadLock();
     try {
-      return owner.createIndex(
-          getFullName(), iType, null, metadata, new String[] {globalRef.getName()});
+      return owner.createIndex(session,
+          getFullName(), iType, null, metadata, new String[]{globalRef.getName()});
     } finally {
       releaseSchemaReadLock();
     }
@@ -185,20 +188,19 @@ public abstract class OPropertyImpl implements OProperty {
    * @deprecated Use SQL command instead.
    */
   @Deprecated
-  public OPropertyImpl dropIndexes() {
-    final ODatabaseSessionInternal database = getDatabase();
-    database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_DELETE);
+  public OPropertyImpl dropIndexes(ODatabaseSessionInternal session) {
+    session.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_DELETE);
 
     acquireSchemaReadLock();
     try {
-      final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
+      final OIndexManagerAbstract indexManager = session.getMetadata().getIndexManagerInternal();
 
       final ArrayList<OIndex> relatedIndexes = new ArrayList<OIndex>();
-      for (final OIndex index : indexManager.getClassIndexes(database, owner.getName())) {
+      for (final OIndex index : indexManager.getClassIndexes(session, owner.getName())) {
         final OIndexDefinition definition = index.getDefinition();
 
         if (OCollections.indexOf(
-                definition.getFields(), globalRef.getName(), new OCaseInsentiveComparator())
+            definition.getFields(), globalRef.getName(), new OCaseInsentiveComparator())
             > -1) {
           if (definition instanceof OPropertyIndexDefinition) {
             relatedIndexes.add(index);
@@ -213,7 +215,7 @@ public abstract class OPropertyImpl implements OProperty {
       }
 
       for (final OIndex index : relatedIndexes) {
-        database.getMetadata().getIndexManagerInternal().dropIndex(database, index.getName());
+        session.getMetadata().getIndexManagerInternal().dropIndex(session, index.getName());
       }
 
       return this;
@@ -225,23 +227,25 @@ public abstract class OPropertyImpl implements OProperty {
   /**
    * Remove the index on property
    *
-   * @deprecated by {@link #dropIndexes()}
+   * @deprecated by {@link OProperty#dropIndexes(ODatabaseSessionInternal)}
    */
   @Deprecated
-  public void dropIndexesInternal() {
-    dropIndexes();
+  public void dropIndexesInternal(ODatabaseSessionInternal session) {
+    dropIndexes(session);
   }
 
   /**
    * Returns the first index defined for the property.
    *
-   * @deprecated Use {@link OClass#getInvolvedIndexes(String...)} instead.
+   * @deprecated Use
+   * {@link OClass#getInvolvedIndexes(com.orientechnologies.orient.core.db.ODatabaseSession,
+   * String...)} instead.
    */
   @Deprecated
-  public OIndex getIndex() {
+  public OIndex getIndex(ODatabaseSession session) {
     acquireSchemaReadLock();
     try {
-      Set<OIndex> indexes = owner.getInvolvedIndexes(globalRef.getName());
+      Set<OIndex> indexes = owner.getInvolvedIndexes(session, globalRef.getName());
       if (indexes != null && !indexes.isEmpty()) {
         return indexes.iterator().next();
       }
@@ -252,26 +256,30 @@ public abstract class OPropertyImpl implements OProperty {
   }
 
   /**
-   * @deprecated Use {@link OClass#getInvolvedIndexes(String...)} instead.
+   * @deprecated Use
+   * {@link OClass#getInvolvedIndexes(com.orientechnologies.orient.core.db.ODatabaseSession,
+   * String...)} instead.
    */
   @Deprecated
-  public Set<OIndex> getIndexes() {
+  public Set<OIndex> getIndexes(ODatabaseSession session) {
     acquireSchemaReadLock();
     try {
-      return owner.getInvolvedIndexes(globalRef.getName());
+      return owner.getInvolvedIndexes(session, globalRef.getName());
     } finally {
       releaseSchemaReadLock();
     }
   }
 
   /**
-   * @deprecated Use {@link OClass#areIndexed(String...)} instead.
+   * @deprecated Use
+   * {@link OClass#areIndexed(com.orientechnologies.orient.core.db.ODatabaseSession, String...)}
+   * instead.
    */
   @Deprecated
-  public boolean isIndexed() {
+  public boolean isIndexed(ODatabaseSession session) {
     acquireSchemaReadLock();
     try {
-      return owner.areIndexed(globalRef.getName());
+      return owner.areIndexed(session, globalRef.getName());
     } finally {
       releaseSchemaReadLock();
     }
@@ -424,8 +432,8 @@ public abstract class OPropertyImpl implements OProperty {
     }
   }
 
-  public void removeCustom(final String iName) {
-    setCustom(iName, null);
+  public void removeCustom(ODatabaseSession session, final String iName) {
+    setCustom(session, iName, null);
   }
 
   public Set<String> getCustomKeys() {
@@ -478,7 +486,7 @@ public abstract class OPropertyImpl implements OProperty {
     throw new IllegalArgumentException("Cannot find attribute '" + attribute + "'");
   }
 
-  public void set(final ATTRIBUTES attribute, final Object iValue) {
+  public void set(ODatabaseSession session, final ATTRIBUTES attribute, final Object iValue) {
     if (attribute == null) {
       throw new IllegalArgumentException("attribute is null");
     }
@@ -487,50 +495,50 @@ public abstract class OPropertyImpl implements OProperty {
 
     switch (attribute) {
       case LINKEDCLASS:
-        setLinkedClass(getDatabase().getMetadata().getSchema().getClass(stringValue));
+        setLinkedClass(session, session.getMetadata().getSchema().getClass(stringValue));
         break;
       case LINKEDTYPE:
         if (stringValue == null) {
-          setLinkedType(null);
+          setLinkedType(session, null);
         } else {
-          setLinkedType(OType.valueOf(stringValue));
+          setLinkedType(session, OType.valueOf(stringValue));
         }
         break;
       case MIN:
         setMin(stringValue);
         break;
       case MANDATORY:
-        setMandatory(Boolean.parseBoolean(stringValue));
+        setMandatory(session, Boolean.parseBoolean(stringValue));
         break;
       case READONLY:
-        setReadonly(Boolean.parseBoolean(stringValue));
+        setReadonly(session, Boolean.parseBoolean(stringValue));
         break;
       case MAX:
-        setMax(stringValue);
+        setMax(session, stringValue);
         break;
       case DEFAULT:
-        setDefaultValue(stringValue);
+        setDefaultValue(session, stringValue);
         break;
       case NAME:
-        setName(stringValue);
+        setName(session, stringValue);
         break;
       case NOTNULL:
-        setNotNull(Boolean.parseBoolean(stringValue));
+        setNotNull(session, Boolean.parseBoolean(stringValue));
         break;
       case REGEXP:
         setRegexp(stringValue);
         break;
       case TYPE:
-        setType(OType.valueOf(stringValue.toUpperCase(Locale.ENGLISH)));
+        setType(session, OType.valueOf(stringValue.toUpperCase(Locale.ENGLISH)));
         break;
       case COLLATE:
-        setCollate(stringValue);
+        setCollate(session, stringValue);
         break;
       case CUSTOM:
         int indx = stringValue != null ? stringValue.indexOf('=') : -1;
         if (indx < 0) {
           if ("clear".equalsIgnoreCase(stringValue)) {
-            clearCustom();
+            clearCustom(session);
           } else {
             throw new IllegalArgumentException(
                 "Syntax error: expected <name> = <value> or clear, instead found: " + iValue);
@@ -542,14 +550,14 @@ public abstract class OPropertyImpl implements OProperty {
             customValue = removeQuotes(customValue);
           }
           if (customValue.isEmpty()) {
-            removeCustom(customName);
+            removeCustom(session, customName);
           } else {
-            setCustom(customName, customValue);
+            setCustom(session, customName, customValue);
           }
         }
         break;
       case DESCRIPTION:
-        setDescription(stringValue);
+        setDescription(session, stringValue);
         break;
     }
   }
@@ -579,8 +587,8 @@ public abstract class OPropertyImpl implements OProperty {
     }
   }
 
-  public OProperty setCollate(final OCollate collate) {
-    setCollate(collate.getName());
+  public OProperty setCollate(ODatabaseSession session, final OCollate collate) {
+    setCollate(session, collate.getName());
     return this;
   }
 
@@ -696,10 +704,10 @@ public abstract class OPropertyImpl implements OProperty {
     description = document.containsField("description") ? document.field("description") : null;
   }
 
-  public Collection<OIndex> getAllIndexes() {
+  public Collection<OIndex> getAllIndexes(ODatabaseSession session) {
     acquireSchemaReadLock();
     try {
-      final Set<OIndex> indexes = owner.getIndexes();
+      final Set<OIndex> indexes = owner.getIndexes(session);
       final List<OIndex> indexList = new LinkedList<OIndex>();
       for (final OIndex index : indexes) {
         final OIndexDefinition indexDefinition = index.getDefinition();
@@ -757,31 +765,27 @@ public abstract class OPropertyImpl implements OProperty {
     owner.releaseSchemaReadLock();
   }
 
-  public void acquireSchemaWriteLock() {
-    owner.acquireSchemaWriteLock();
+  public void acquireSchemaWriteLock(ODatabaseSessionInternal session) {
+    owner.acquireSchemaWriteLock(session);
   }
 
-  public void releaseSchemaWriteLock() {
+  public void releaseSchemaWriteLock(ODatabaseSessionInternal session) {
     calculateHashCode();
-    owner.releaseSchemaWriteLock();
+    owner.releaseSchemaWriteLock(session);
   }
 
-  public void checkEmbedded() {
-    if (getDatabase().isRemote()) {
+  public static void checkEmbedded(ODatabaseSessionInternal session) {
+    if (session.isRemote()) {
       throw new OSchemaException(
           "'Internal' schema modification methods can be used only inside of embedded database");
     }
   }
 
-  protected ODatabaseSessionInternal getDatabase() {
-    return ODatabaseRecordThreadLocal.instance().get();
-  }
-
-  protected void checkForDateFormat(final String iDateAsString) {
+  protected void checkForDateFormat(ODatabaseSessionInternal session, final String iDateAsString) {
     if (iDateAsString != null) {
       if (globalRef.getType() == OType.DATE) {
         try {
-          ODateHelper.getDateFormatInstance(getDatabase()).parse(iDateAsString);
+          ODateHelper.getDateFormatInstance(session).parse(iDateAsString);
         } catch (ParseException e) {
           throw OException.wrapException(
               new OSchemaException(
@@ -790,7 +794,7 @@ public abstract class OPropertyImpl implements OProperty {
         }
       } else if (globalRef.getType() == OType.DATETIME) {
         try {
-          ODateHelper.getDateTimeFormatInstance(getDatabase()).parse(iDateAsString);
+          ODateHelper.getDateTimeFormatInstance(session).parse(iDateAsString);
         } catch (ParseException e) {
           throw OException.wrapException(
               new OSchemaException(
@@ -799,10 +803,6 @@ public abstract class OPropertyImpl implements OProperty {
         }
       }
     }
-  }
-
-  protected boolean isDistributedCommand() {
-    return !getDatabase().isLocalEnv();
   }
 
   @Override

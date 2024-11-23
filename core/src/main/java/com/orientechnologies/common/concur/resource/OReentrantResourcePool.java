@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.common.concur.resource;
@@ -22,7 +22,7 @@ package com.orientechnologies.common.concur.resource;
 import com.orientechnologies.common.concur.lock.OLockException;
 import com.orientechnologies.orient.core.OOrientShutdownListener;
 import com.orientechnologies.orient.core.OOrientStartupListener;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,8 +32,6 @@ import java.util.Map;
  * Reentrant implementation of Resource Pool. It manages multiple resource acquisition on thread
  * local map. If you're looking for a Reentrant implementation look at #OReentrantResourcePool.
  *
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com) (a.lomakin--at--orientdb.com)
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @see OResourcePool
  */
 public class OReentrantResourcePool<K, V> extends OResourcePool<K, V>
@@ -56,8 +54,8 @@ public class OReentrantResourcePool<K, V> extends OResourcePool<K, V>
       final int maxResources, final OResourcePoolListener<K, V> listener) {
     super(maxResources, listener);
 
-    Orient.instance().registerWeakOrientShutdownListener(this);
-    Orient.instance().registerWeakOrientStartupListener(this);
+    Oxygen.instance().registerWeakOrientShutdownListener(this);
+    Oxygen.instance().registerWeakOrientStartupListener(this);
   }
 
   @Override

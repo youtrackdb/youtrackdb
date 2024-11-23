@@ -438,76 +438,74 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
     final OSchema schema = database.getMetadata().getSchema();
     if (!schema.existsClass("lpirtStudent")) {
       final OClass curatorClass = schema.createClass("lpirtCurator");
-      curatorClass.createProperty("name", OType.STRING).createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
+      curatorClass.createProperty(database, "name", OType.STRING)
+          .createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
       curatorClass
-          .createProperty("salary", OType.INTEGER)
+          .createProperty(database, "salary", OType.INTEGER)
           .createIndex(OClass.INDEX_TYPE.UNIQUE, new ODocument().field("ignoreNullValues", true));
-      curatorClass.createIndex(
+      curatorClass.createIndex(database,
           "curotorCompositeIndex",
           OClass.INDEX_TYPE.UNIQUE.name(),
           null,
-          new ODocument().field("ignoreNullValues", true),
-          new String[] {"salary", "name"});
+          new ODocument().field("ignoreNullValues", true), new String[]{"salary", "name"});
 
       final OClass groupClass = schema.createClass("lpirtGroup");
       groupClass
-          .createProperty("name", OType.STRING)
+          .createProperty(database, "name", OType.STRING)
           .createIndex(OClass.INDEX_TYPE.UNIQUE, new ODocument().field("ignoreNullValues", true));
       groupClass
-          .createProperty("curator", OType.LINK, curatorClass)
+          .createProperty(database, "curator", OType.LINK, curatorClass)
           .createIndex(OClass.INDEX_TYPE.UNIQUE, new ODocument().field("ignoreNullValues", true));
 
       final OClass diplomaClass = schema.createClass("lpirtDiploma");
-      diplomaClass.createProperty("GPA", OType.DOUBLE).createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
-      diplomaClass.createProperty("thesis", OType.STRING);
+      diplomaClass.createProperty(database, "GPA", OType.DOUBLE)
+          .createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
+      diplomaClass.createProperty(database, "thesis", OType.STRING);
       diplomaClass
-          .createProperty("name", OType.STRING)
+          .createProperty(database, "name", OType.STRING)
           .createIndex(OClass.INDEX_TYPE.UNIQUE, new ODocument().field("ignoreNullValues", true));
-      diplomaClass.createIndex(
+      diplomaClass.createIndex(database,
           "diplomaThesisUnique",
           OClass.INDEX_TYPE.UNIQUE.name(),
           null,
-          new ODocument().field("ignoreNullValues", true),
-          new String[] {"thesis"});
+          new ODocument().field("ignoreNullValues", true), new String[]{"thesis"});
 
       final OClass transcriptClass = schema.createClass("lpirtTranscript");
       transcriptClass
-          .createProperty("id", OType.STRING)
+          .createProperty(database, "id", OType.STRING)
           .createIndex(
               OClass.INDEX_TYPE.UNIQUE_HASH_INDEX, new ODocument().field("ignoreNullValues", true));
 
       final OClass skillClass = schema.createClass("lpirtSkill");
       skillClass
-          .createProperty("name", OType.STRING)
+          .createProperty(database, "name", OType.STRING)
           .createIndex(OClass.INDEX_TYPE.UNIQUE, new ODocument().field("ignoreNullValues", true));
 
       final OClass studentClass = schema.createClass("lpirtStudent");
       studentClass
-          .createProperty("name", OType.STRING)
+          .createProperty(database, "name", OType.STRING)
           .createIndex(OClass.INDEX_TYPE.UNIQUE, new ODocument().field("ignoreNullValues", true));
       studentClass
-          .createProperty("group", OType.LINK, groupClass)
-          .createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
-      studentClass.createProperty("diploma", OType.LINK, diplomaClass);
+          .createProperty(database, "group", OType.LINK, groupClass)
+          .createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
+      studentClass.createProperty(database, "diploma", OType.LINK, diplomaClass);
       studentClass
-          .createProperty("transcript", OType.LINK, transcriptClass)
+          .createProperty(database, "transcript", OType.LINK, transcriptClass)
           .createIndex(
               OClass.INDEX_TYPE.UNIQUE_HASH_INDEX, new ODocument().field("ignoreNullValues", true));
-      studentClass.createProperty("skill", OType.LINK, skillClass);
+      studentClass.createProperty(database, "skill", OType.LINK, skillClass);
 
       final ODocument metadata = new ODocument().field("ignoreNullValues", false);
-      studentClass.createIndex(
+      studentClass.createIndex(database,
           "studentDiplomaAndNameIndex",
           OClass.INDEX_TYPE.UNIQUE.toString(),
           null,
-          metadata.copy(),
-          new String[] {"diploma", "name"});
-      studentClass.createIndex(
+          metadata.copy(), new String[]{"diploma", "name"});
+      studentClass.createIndex(database,
           "studentSkillAndGroupIndex",
           OClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX.toString(),
           null,
-          metadata.copy(),
-          new String[] {"skill", "group"});
+          metadata.copy(), new String[]{"skill", "group"});
     }
   }
 

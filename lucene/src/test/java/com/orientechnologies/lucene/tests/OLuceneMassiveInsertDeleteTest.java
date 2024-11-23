@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by enricorisa on 23/09/14.
+ *
  */
 public class OLuceneMassiveInsertDeleteTest extends OLuceneBaseTest {
 
@@ -39,7 +39,7 @@ public class OLuceneMassiveInsertDeleteTest extends OLuceneBaseTest {
   public void init() {
     OSchema schema = db.getMetadata().getSchema();
     OClass song = db.createVertexClass("City");
-    song.createProperty("name", OType.STRING);
+    song.createProperty(db, "name", OType.STRING);
 
     db.command("create index City.name on City (name) FULLTEXT ENGINE LUCENE");
   }
@@ -82,8 +82,8 @@ public class OLuceneMassiveInsertDeleteTest extends OLuceneBaseTest {
     db.getMetadata().reload();
 
     db.begin();
-    OIndex idx = db.getMetadata().getSchema().getClass("City").getClassIndex("City.name");
-    Assert.assertEquals(0, idx.getInternal().size());
+    OIndex idx = db.getMetadata().getSchema().getClass("City").getClassIndex(db, "City.name");
+    Assert.assertEquals(0, idx.getInternal().size(db));
     db.commit();
   }
 }

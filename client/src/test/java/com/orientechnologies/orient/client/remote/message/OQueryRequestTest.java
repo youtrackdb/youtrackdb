@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by luigidellaquila on 14/12/16.
+ *
  */
 public class OQueryRequestTest {
 
@@ -21,18 +21,16 @@ public class OQueryRequestTest {
 
   @Test
   public void testWithPositionalParams() throws IOException {
-    Object[] params = new Object[] {1, "Foo"};
+    Object[] params = new Object[]{1, "Foo"};
     OQueryRequest request =
-        new OQueryRequest(
+        new OQueryRequest(null,
             "sql",
             "select from Foo where a = ?",
             params,
-            OQueryRequest.QUERY,
-            ORecordSerializerNetworkFactory.INSTANCE.current(),
-            123);
+            OQueryRequest.QUERY, ORecordSerializerNetworkFactory.INSTANCE.current(), 123);
 
     MockChannel channel = new MockChannel();
-    request.write(channel, null);
+    request.write(null, channel, null);
 
     channel.close();
 
@@ -54,16 +52,15 @@ public class OQueryRequestTest {
     params.put("foo", "bar");
     params.put("baz", 12);
     OQueryRequest request =
-        new OQueryRequest(
+        new OQueryRequest(null,
             "sql",
             "select from Foo where a = ?",
             params,
             OQueryRequest.QUERY,
-            ORecordSerializerNetworkFactory.INSTANCE.current(),
-            123);
+            ORecordSerializerNetworkFactory.INSTANCE.current(), 123);
 
     MockChannel channel = new MockChannel();
-    request.write(channel, null);
+    request.write(null, channel, null);
 
     channel.close();
 
@@ -81,16 +78,15 @@ public class OQueryRequestTest {
   public void testWithNoParams() throws IOException {
     Map<String, Object> params = null;
     OQueryRequest request =
-        new OQueryRequest(
+        new OQueryRequest(null,
             "sql",
             "select from Foo where a = ?",
             params,
             OQueryRequest.QUERY,
-            ORecordSerializerNetworkFactory.INSTANCE.current(),
-            123);
+            ORecordSerializerNetworkFactory.INSTANCE.current(), 123);
 
     MockChannel channel = new MockChannel();
-    request.write(channel, null);
+    request.write(null, channel, null);
 
     channel.close();
 

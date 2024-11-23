@@ -39,7 +39,8 @@ public final class OLoaderExecutionStream implements OExecutionStream {
   }
 
   @Override
-  public void close(OCommandContext ctx) {}
+  public void close(OCommandContext ctx) {
+  }
 
   private void fetchNext(OCommandContext ctx) {
     if (nextResult != null) {

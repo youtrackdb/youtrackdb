@@ -1,5 +1,5 @@
 /*
- *  Copyright 2016 OrientDB LTD (info(at)orientdb.com)
+ *  Copyright 2016 OxygenDB LTD (info(at)orientdb.com)
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -13,15 +13,13 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  *
- *  For more information: http://www.orientdb.com
+ *  *
  */
 
 package com.orientechnologies.common.directmemory;
 
 /**
  * Provides an MBean for {@link OByteBufferPool}.
- *
- * @author Sergey Sitnikov
  */
 public interface OByteBufferPoolMXBean {
 

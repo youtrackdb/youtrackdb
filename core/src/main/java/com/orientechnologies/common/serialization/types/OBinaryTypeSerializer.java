@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -27,7 +27,6 @@ import java.util.Arrays;
 /**
  * Serializer for byte arrays .
  *
- * @author Ilya Bershadskiy (ibersh20-at-gmail.com)
  * @since 20.01.12
  */
 public class OBinaryTypeSerializer implements OBinarySerializer<byte[]> {

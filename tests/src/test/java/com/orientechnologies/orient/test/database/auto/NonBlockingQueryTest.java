@@ -64,13 +64,14 @@ public class NonBlockingQueryTest extends DocumentDBBaseTest {
                 "select from Foo",
                 new OCommandResultListener() {
                   @Override
-                  public boolean result(Object iRecord) {
+                  public boolean result(ODatabaseSessionInternal querySession, Object iRecord) {
                     counter.incrementAndGet();
                     return true;
                   }
 
                   @Override
-                  public void end() {}
+                  public void end() {
+                  }
 
                   @Override
                   public Object getResult() {
@@ -107,13 +108,14 @@ public class NonBlockingQueryTest extends DocumentDBBaseTest {
                 "select from Foo where x=500 and y=500",
                 new OCommandResultListener() {
                   @Override
-                  public boolean result(Object iRecord) {
+                  public boolean result(ODatabaseSessionInternal querySession, Object iRecord) {
                     counter.incrementAndGet();
                     return true;
                   }
 
                   @Override
-                  public void end() {}
+                  public void end() {
+                  }
 
                   @Override
                   public Object getResult() {

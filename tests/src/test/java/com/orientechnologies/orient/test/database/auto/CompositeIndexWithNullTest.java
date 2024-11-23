@@ -13,7 +13,6 @@ import org.testng.Assert;
 import org.testng.annotations.Parameters;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 4/11/14
  */
 public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
@@ -26,19 +25,18 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
   public void testPointQuery() {
     final OSchema schema = database.getMetadata().getSchema();
     OClass clazz = schema.createClass("compositeIndexNullPointQueryClass");
-    clazz.createProperty("prop1", OType.INTEGER);
-    clazz.createProperty("prop2", OType.INTEGER);
-    clazz.createProperty("prop3", OType.INTEGER);
+    clazz.createProperty(database, "prop1", OType.INTEGER);
+    clazz.createProperty(database, "prop2", OType.INTEGER);
+    clazz.createProperty(database, "prop3", OType.INTEGER);
 
     final ODocument metadata = new ODocument();
     metadata.field("ignoreNullValues", false);
 
-    clazz.createIndex(
+    clazz.createIndex(database,
         "compositeIndexNullPointQueryIndex",
         OClass.INDEX_TYPE.NOTUNIQUE.toString(),
         null,
-        metadata,
-        new String[] {"prop1", "prop2", "prop3"});
+        metadata, new String[]{"prop1", "prop2", "prop3"});
 
     for (int i = 0; i < 20; i++) {
       ODocument document = new ODocument("compositeIndexNullPointQueryClass");
@@ -64,7 +62,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.<Object>getProperty("prop2"), 2);
     }
 
-    ODocument explain = database.command(new OCommandSQL("explain " + query)).execute();
+    ODocument explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -80,7 +78,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       Assert.assertNull(document.getProperty("prop3"));
     }
 
-    explain = database.command(new OCommandSQL("explain " + query)).execute();
+    explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -90,19 +88,18 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
   public void testPointQueryInTx() {
     final OSchema schema = database.getMetadata().getSchema();
     OClass clazz = schema.createClass("compositeIndexNullPointQueryInTxClass");
-    clazz.createProperty("prop1", OType.INTEGER);
-    clazz.createProperty("prop2", OType.INTEGER);
-    clazz.createProperty("prop3", OType.INTEGER);
+    clazz.createProperty(database, "prop1", OType.INTEGER);
+    clazz.createProperty(database, "prop2", OType.INTEGER);
+    clazz.createProperty(database, "prop3", OType.INTEGER);
 
     final ODocument metadata = new ODocument();
     metadata.field("ignoreNullValues", false);
 
-    clazz.createIndex(
+    clazz.createIndex(database,
         "compositeIndexNullPointQueryInTxIndex",
         OClass.INDEX_TYPE.NOTUNIQUE.toString(),
         null,
-        metadata,
-        new String[] {"prop1", "prop2", "prop3"});
+        metadata, new String[]{"prop1", "prop2", "prop3"});
 
     database.begin();
 
@@ -131,7 +128,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.<Object>getProperty("prop2"), 2);
     }
 
-    ODocument explain = database.command(new OCommandSQL("explain " + query)).execute();
+    ODocument explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -147,7 +144,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       Assert.assertNull(document.getProperty("prop3"));
     }
 
-    explain = database.command(new OCommandSQL("explain " + query)).execute();
+    explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -161,19 +158,18 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
 
     final OSchema schema = database.getMetadata().getSchema();
     OClass clazz = schema.createClass("compositeIndexNullPointQueryInMiddleTxClass");
-    clazz.createProperty("prop1", OType.INTEGER);
-    clazz.createProperty("prop2", OType.INTEGER);
-    clazz.createProperty("prop3", OType.INTEGER);
+    clazz.createProperty(database, "prop1", OType.INTEGER);
+    clazz.createProperty(database, "prop2", OType.INTEGER);
+    clazz.createProperty(database, "prop3", OType.INTEGER);
 
     final ODocument metadata = new ODocument();
     metadata.field("ignoreNullValues", false);
 
-    clazz.createIndex(
+    clazz.createIndex(database,
         "compositeIndexNullPointQueryInMiddleTxIndex",
         OClass.INDEX_TYPE.NOTUNIQUE.toString(),
         null,
-        metadata,
-        new String[] {"prop1", "prop2", "prop3"});
+        metadata, new String[]{"prop1", "prop2", "prop3"});
 
     database.begin();
 
@@ -201,7 +197,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.<Object>getProperty("prop2"), 2);
     }
 
-    ODocument explain = database.command(new OCommandSQL("explain " + query)).execute();
+    ODocument explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -217,7 +213,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       Assert.assertNull(document.getProperty("prop3"));
     }
 
-    explain = database.command(new OCommandSQL("explain " + query)).execute();
+    explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -229,20 +225,19 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
   public void testRangeQuery() {
     final OSchema schema = database.getMetadata().getSchema();
     OClass clazz = schema.createClass("compositeIndexNullRangeQueryClass");
-    clazz.createProperty("prop1", OType.INTEGER);
-    clazz.createProperty("prop2", OType.INTEGER);
-    clazz.createProperty("prop3", OType.INTEGER);
+    clazz.createProperty(database, "prop1", OType.INTEGER);
+    clazz.createProperty(database, "prop2", OType.INTEGER);
+    clazz.createProperty(database, "prop3", OType.INTEGER);
 
     final ODocument metadata = new ODocument();
     metadata.field("ignoreNullValues", false);
 
-    clazz.createIndex(
+    clazz.createIndex(database,
         "compositeIndexNullRangeQueryIndex",
         OClass.INDEX_TYPE.NOTUNIQUE.toString(),
         null,
         metadata,
-        null,
-        new String[] {"prop1", "prop2", "prop3"});
+        null, new String[]{"prop1", "prop2", "prop3"});
 
     for (int i = 0; i < 20; i++) {
       ODocument document = new ODocument("compositeIndexNullRangeQueryClass");
@@ -269,7 +264,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       Assert.assertTrue(document.<Integer>getProperty("prop2") > 2);
     }
 
-    ODocument explain = database.command(new OCommandSQL("explain " + query)).execute();
+    ODocument explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -292,20 +287,19 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
 
     final OSchema schema = database.getMetadata().getSchema();
     OClass clazz = schema.createClass("compositeIndexNullRangeQueryInMiddleTxClass");
-    clazz.createProperty("prop1", OType.INTEGER);
-    clazz.createProperty("prop2", OType.INTEGER);
-    clazz.createProperty("prop3", OType.INTEGER);
+    clazz.createProperty(database, "prop1", OType.INTEGER);
+    clazz.createProperty(database, "prop2", OType.INTEGER);
+    clazz.createProperty(database, "prop3", OType.INTEGER);
 
     final ODocument metadata = new ODocument();
     metadata.field("ignoreNullValues", false);
 
-    clazz.createIndex(
+    clazz.createIndex(database,
         "compositeIndexNullRangeQueryInMiddleTxIndex",
         OClass.INDEX_TYPE.NOTUNIQUE.toString(),
         null,
         metadata,
-        null,
-        new String[] {"prop1", "prop2", "prop3"});
+        null, new String[]{"prop1", "prop2", "prop3"});
 
     database.begin();
     for (int i = 0; i < 20; i++) {
@@ -332,7 +326,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       Assert.assertTrue(document.<Integer>getProperty("prop2") > 2);
     }
 
-    ODocument explain = database.command(new OCommandSQL("explain " + query)).execute();
+    ODocument explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -353,20 +347,19 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
   public void testPointQueryNullInTheMiddle() {
     final OSchema schema = database.getMetadata().getSchema();
     OClass clazz = schema.createClass("compositeIndexNullPointQueryNullInTheMiddleClass");
-    clazz.createProperty("prop1", OType.INTEGER);
-    clazz.createProperty("prop2", OType.INTEGER);
-    clazz.createProperty("prop3", OType.INTEGER);
+    clazz.createProperty(database, "prop1", OType.INTEGER);
+    clazz.createProperty(database, "prop2", OType.INTEGER);
+    clazz.createProperty(database, "prop3", OType.INTEGER);
 
     final ODocument metadata = new ODocument();
     metadata.field("ignoreNullValues", false);
 
-    clazz.createIndex(
+    clazz.createIndex(database,
         "compositeIndexNullPointQueryNullInTheMiddleIndex",
         OClass.INDEX_TYPE.NOTUNIQUE.toString(),
         null,
         metadata,
-        null,
-        new String[] {"prop1", "prop2", "prop3"});
+        null, new String[]{"prop1", "prop2", "prop3"});
 
     for (int i = 0; i < 20; i++) {
       ODocument document = new ODocument("compositeIndexNullPointQueryNullInTheMiddleClass");
@@ -392,7 +385,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
     }
 
-    ODocument explain = database.command(new OCommandSQL("explain " + query)).execute();
+    ODocument explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -409,7 +402,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       Assert.assertNull(document.getProperty("prop2"));
     }
 
-    explain = database.command(new OCommandSQL("explain " + query)).execute();
+    explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -422,7 +415,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(result.size(), 1);
 
-    explain = database.command(new OCommandSQL("explain " + query)).execute();
+    explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -436,20 +429,19 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
 
     final OSchema schema = database.getMetadata().getSchema();
     OClass clazz = schema.createClass("compositeIndexNullPointQueryNullInTheMiddleInMiddleTxClass");
-    clazz.createProperty("prop1", OType.INTEGER);
-    clazz.createProperty("prop2", OType.INTEGER);
-    clazz.createProperty("prop3", OType.INTEGER);
+    clazz.createProperty(database, "prop1", OType.INTEGER);
+    clazz.createProperty(database, "prop2", OType.INTEGER);
+    clazz.createProperty(database, "prop3", OType.INTEGER);
 
     final ODocument metadata = new ODocument();
     metadata.field("ignoreNullValues", false);
 
-    clazz.createIndex(
+    clazz.createIndex(database,
         "compositeIndexNullPointQueryNullInTheMiddleInMiddleTxIndex",
         OClass.INDEX_TYPE.NOTUNIQUE.toString(),
         null,
         metadata,
-        null,
-        new String[] {"prop1", "prop2", "prop3"});
+        null, new String[]{"prop1", "prop2", "prop3"});
 
     database.begin();
 
@@ -477,7 +469,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
     }
 
-    ODocument explain = database.command(new OCommandSQL("explain " + query)).execute();
+    ODocument explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -494,7 +486,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       Assert.assertNull(document.getProperty("prop2"));
     }
 
-    explain = database.command(new OCommandSQL("explain " + query)).execute();
+    explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -507,7 +499,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
 
     Assert.assertEquals(result.size(), 1);
 
-    explain = database.command(new OCommandSQL("explain " + query)).execute();
+    explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -519,19 +511,18 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
   public void testRangeQueryNullInTheMiddle() {
     final OSchema schema = database.getMetadata().getSchema();
     OClass clazz = schema.createClass("compositeIndexNullRangeQueryNullInTheMiddleClass");
-    clazz.createProperty("prop1", OType.INTEGER);
-    clazz.createProperty("prop2", OType.INTEGER);
-    clazz.createProperty("prop3", OType.INTEGER);
+    clazz.createProperty(database, "prop1", OType.INTEGER);
+    clazz.createProperty(database, "prop2", OType.INTEGER);
+    clazz.createProperty(database, "prop3", OType.INTEGER);
 
     final ODocument metadata = new ODocument();
     metadata.field("ignoreNullValues", false);
 
-    clazz.createIndex(
+    clazz.createIndex(database,
         "compositeIndexNullRangeQueryNullInTheMiddleIndex",
         OClass.INDEX_TYPE.NOTUNIQUE.toString(),
         null,
-        metadata,
-        new String[] {"prop1", "prop2", "prop3"});
+        metadata, new String[]{"prop1", "prop2", "prop3"});
 
     for (int i = 0; i < 20; i++) {
       ODocument document = new ODocument("compositeIndexNullRangeQueryNullInTheMiddleClass");
@@ -558,7 +549,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
     }
 
-    ODocument explain = database.command(new OCommandSQL("explain " + query)).execute();
+    ODocument explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -572,19 +563,18 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
 
     final OSchema schema = database.getMetadata().getSchema();
     OClass clazz = schema.createClass("compositeIndexNullRangeQueryNullInTheMiddleInMiddleTxClass");
-    clazz.createProperty("prop1", OType.INTEGER);
-    clazz.createProperty("prop2", OType.INTEGER);
-    clazz.createProperty("prop3", OType.INTEGER);
+    clazz.createProperty(database, "prop1", OType.INTEGER);
+    clazz.createProperty(database, "prop2", OType.INTEGER);
+    clazz.createProperty(database, "prop3", OType.INTEGER);
 
     final ODocument metadata = new ODocument();
     metadata.field("ignoreNullValues", false);
 
-    clazz.createIndex(
+    clazz.createIndex(database,
         "compositeIndexNullRangeQueryNullInTheMiddleInMiddleTxIndex",
         OClass.INDEX_TYPE.NOTUNIQUE.toString(),
         null,
-        metadata,
-        new String[] {"prop1", "prop2", "prop3"});
+        metadata, new String[]{"prop1", "prop2", "prop3"});
 
     for (int i = 0; i < 20; i++) {
       ODocument document =
@@ -612,7 +602,7 @@ public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
       Assert.assertEquals(document.<Object>getProperty("prop1"), 1);
     }
 
-    ODocument explain = database.command(new OCommandSQL("explain " + query)).execute();
+    ODocument explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")

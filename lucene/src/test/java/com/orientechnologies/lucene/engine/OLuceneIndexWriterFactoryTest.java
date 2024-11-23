@@ -12,7 +12,7 @@ import org.apache.lucene.store.RAMDirectory;
 import org.junit.Test;
 
 /**
- * Created by frank on 05/01/2016.
+ *
  */
 public class OLuceneIndexWriterFactoryTest {
 
@@ -22,11 +22,10 @@ public class OLuceneIndexWriterFactoryTest {
     OLuceneIndexWriterFactory fc = new OLuceneIndexWriterFactory();
 
     // sample metadata json
-    ODocument meta =
-        new ODocument()
-            .fromJSON(
-                OIOUtils.readFileAsString(
-                    new File("./src/test/resources/index_metadata_new.json")));
+    ODocument meta = new ODocument();
+    meta.fromJSON(
+        OIOUtils.readFileAsString(
+            new File("./src/test/resources/index_metadata_new.json")));
 
     IndexWriter writer = fc.createIndexWriter(new RAMDirectory(), meta, new StandardAnalyzer());
 

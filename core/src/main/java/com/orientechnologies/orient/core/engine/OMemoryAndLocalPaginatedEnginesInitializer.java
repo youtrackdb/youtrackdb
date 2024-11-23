@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2016 OrientDB LTD (info(at)orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  */
 
 package com.orientechnologies.orient.core.engine;
@@ -31,8 +31,6 @@ import java.util.Locale;
  * Manages common initialization logic for memory and plocal engines. These engines are tight
  * together through dependency to {@link com.orientechnologies.common.directmemory.OByteBufferPool},
  * which is hard to reconfigure if initialization logic is separate.
- *
- * @author Sergey Sitnikov
  */
 public class OMemoryAndLocalPaginatedEnginesInitializer {
 
@@ -101,43 +99,43 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
     long diskCacheInMB;
     if (osMemory.insideContainer) {
       final Object[] additionalArgs =
-          new Object[] {
-            OGlobalConfiguration.MEMORY_LEFT_TO_CONTAINER.getValueAsString(),
-            OGlobalConfiguration.MEMORY_LEFT_TO_CONTAINER.getKey()
+          new Object[]{
+              OGlobalConfiguration.MEMORY_LEFT_TO_CONTAINER.getValueAsString(),
+              OGlobalConfiguration.MEMORY_LEFT_TO_CONTAINER.getKey()
           };
       OLogManager.instance()
           .info(
               this,
-              "Because OrientDB is running inside a container %s of memory will be left unallocated"
+              "Because OxygenDB is running inside a container %s of memory will be left unallocated"
                   + " according to the setting '%s' not taking into account heap memory",
               additionalArgs);
 
       diskCacheInMB =
           (calculateMemoryLeft(
-                      osMemory.memoryLimit,
-                      OGlobalConfiguration.MEMORY_LEFT_TO_CONTAINER.getKey(),
-                      OGlobalConfiguration.MEMORY_LEFT_TO_CONTAINER.getValueAsString())
-                  - jvmMaxMemory)
+              osMemory.memoryLimit,
+              OGlobalConfiguration.MEMORY_LEFT_TO_CONTAINER.getKey(),
+              OGlobalConfiguration.MEMORY_LEFT_TO_CONTAINER.getValueAsString())
+              - jvmMaxMemory)
               / (1024 * 1024);
     } else {
       final Object[] additionalArgs =
-          new Object[] {
-            OGlobalConfiguration.MEMORY_LEFT_TO_OS.getValueAsString(),
-            OGlobalConfiguration.MEMORY_LEFT_TO_OS.getKey()
+          new Object[]{
+              OGlobalConfiguration.MEMORY_LEFT_TO_OS.getValueAsString(),
+              OGlobalConfiguration.MEMORY_LEFT_TO_OS.getKey()
           };
       OLogManager.instance()
           .info(
               this,
-              "Because OrientDB is running outside a container %s of memory will be left "
+              "Because OxygenDB is running outside a container %s of memory will be left "
                   + "unallocated according to the setting '%s' not taking into account heap memory",
               additionalArgs);
 
       diskCacheInMB =
           (calculateMemoryLeft(
-                      osMemory.memoryLimit,
-                      OGlobalConfiguration.MEMORY_LEFT_TO_OS.getKey(),
-                      OGlobalConfiguration.MEMORY_LEFT_TO_OS.getValueAsString())
-                  - jvmMaxMemory)
+              osMemory.memoryLimit,
+              OGlobalConfiguration.MEMORY_LEFT_TO_OS.getKey(),
+              OGlobalConfiguration.MEMORY_LEFT_TO_OS.getValueAsString())
+              - jvmMaxMemory)
               / (1024 * 1024);
     }
 
@@ -145,7 +143,7 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
       OLogManager.instance()
           .info(
               this,
-              "OrientDB auto-config DISKCACHE=%,dMB (heap=%,dMB os=%,dMB)",
+              "OxygenDB auto-config DISKCACHE=%,dMB (heap=%,dMB os=%,dMB)",
               diskCacheInMB,
               jvmMaxMemory / 1024 / 1024,
               osMemory.memoryLimit / 1024 / 1024);
@@ -158,7 +156,7 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
           .warn(
               this,
               "Not enough physical memory available for DISKCACHE: %,dMB (heap=%,dMB). Set lower"
-                  + " Maximum Heap (-Xmx setting on JVM) and restart OrientDB. Now running with"
+                  + " Maximum Heap (-Xmx setting on JVM) and restart OxygenDB. Now running with"
                   + " DISKCACHE="
                   + diskCacheInMB
                   + "MB",
@@ -169,7 +167,7 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
       OLogManager.instance()
           .info(
               this,
-              "OrientDB config DISKCACHE=%,dMB (heap=%,dMB os=%,dMB)",
+              "OxygenDB config DISKCACHE=%,dMB (heap=%,dMB os=%,dMB)",
               diskCacheInMB,
               jvmMaxMemory / 1024 / 1024,
               osMemory.memoryLimit / 1024 / 1024);

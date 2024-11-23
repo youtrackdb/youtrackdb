@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 OrientDB LTD (info--at--orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,6 @@ import org.junit.Test;
  * server2 don't succeed - restart server3 - 5 threads for each running server write 100 records -
  * check consistency
  *
- * @author Gabriele Ponzi
  * @email <gabriele.ponzi--at--gmail.com>
  */
 public class ShutdownAndRestartNodeScenarioIT extends AbstractScenarioTest {

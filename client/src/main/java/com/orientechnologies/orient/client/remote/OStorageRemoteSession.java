@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.client.remote;
@@ -35,7 +35,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 /**
- * Created by tglman on 31/03/16.
+ *
  */
 public class OStorageRemoteSession {
 
@@ -146,7 +146,7 @@ public class OStorageRemoteSession {
                 nodeSession.getServerURL(), connectionManager, clientConfiguration);
         OCloseRequest request = new OCloseRequest();
         network.beginRequest(request.getCommand(), this);
-        request.write(network, this);
+        request.write(null, network, this);
         network.endRequest();
         connectionManager.release(network);
       } catch (OIOException ex) {

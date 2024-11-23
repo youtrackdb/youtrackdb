@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -38,11 +38,12 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by Enrico Risa on 10/08/15.
+ *
  */
 public class LuceneTransactionEmbeddedQueryTest {
 
-  public LuceneTransactionEmbeddedQueryTest() {}
+  public LuceneTransactionEmbeddedQueryTest() {
+  }
 
   @Test
   public void testRollback() {
@@ -53,7 +54,7 @@ public class LuceneTransactionEmbeddedQueryTest {
     createSchema(db);
     try {
       ODocument doc = new ODocument("c1");
-      doc.field("p1", new String[] {"abc"});
+      doc.field("p1", new String[]{"abc"});
       db.begin();
       db.save(doc);
 
@@ -73,8 +74,8 @@ public class LuceneTransactionEmbeddedQueryTest {
 
   private static void createSchema(ODatabaseSession db) {
     final OClass c1 = db.createVertexClass("C1");
-    c1.createProperty("p1", OType.EMBEDDEDLIST, OType.STRING);
-    c1.createIndex("C1.p1", "FULLTEXT", null, null, "LUCENE", new String[] {"p1"});
+    c1.createProperty(db, "p1", OType.EMBEDDEDLIST, OType.STRING);
+    c1.createIndex(db, "C1.p1", "FULLTEXT", null, null, "LUCENE", new String[]{"p1"});
   }
 
   @Test
@@ -88,7 +89,7 @@ public class LuceneTransactionEmbeddedQueryTest {
       db.begin();
 
       ODocument doc = new ODocument("c1");
-      doc.field("p1", new String[] {"abc"});
+      doc.field("p1", new String[]{"abc"});
 
       OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
 
@@ -99,7 +100,7 @@ public class LuceneTransactionEmbeddedQueryTest {
 
       Assert.assertEquals(1, vertices.stream().count());
 
-      Assert.assertEquals(1, index.getInternal().size());
+      Assert.assertEquals(1, index.getInternal().size(db));
       db.commit();
 
       query = "select from C1 where p1 lucene \"abc\" ";
@@ -107,7 +108,7 @@ public class LuceneTransactionEmbeddedQueryTest {
 
       OResult res = vertices.next();
       db.begin();
-      Assert.assertEquals(1, index.getInternal().size());
+      Assert.assertEquals(1, index.getInternal().size(db));
 
       db.delete(res.getIdentity().get());
 
@@ -115,7 +116,7 @@ public class LuceneTransactionEmbeddedQueryTest {
       vertices = db.query(query);
 
       Collection coll;
-      try (Stream<ORID> stream = index.getInternal().getRids("abc")) {
+      try (Stream<ORID> stream = index.getInternal().getRids(db, "abc")) {
         coll = stream.collect(Collectors.toList());
       }
 
@@ -129,7 +130,7 @@ public class LuceneTransactionEmbeddedQueryTest {
         i++;
       }
       Assert.assertEquals(0, i);
-      Assert.assertEquals(0, index.getInternal().size());
+      Assert.assertEquals(0, index.getInternal().size(db));
 
       db.rollback();
 
@@ -138,7 +139,7 @@ public class LuceneTransactionEmbeddedQueryTest {
 
       Assert.assertEquals(1, vertices.stream().count());
 
-      Assert.assertEquals(1, index.getInternal().size());
+      Assert.assertEquals(1, index.getInternal().size(db));
     } finally {
       //noinspection deprecation
       db.drop();
@@ -158,10 +159,10 @@ public class LuceneTransactionEmbeddedQueryTest {
       OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
 
       db.begin();
-      Assert.assertEquals(0, index.getInternal().size());
+      Assert.assertEquals(0, index.getInternal().size(db));
 
       ODocument doc = new ODocument("c1");
-      doc.field("p1", new String[] {"update removed", "update fixed"});
+      doc.field("p1", new String[]{"update removed", "update fixed"});
 
       db.save(doc);
 
@@ -170,7 +171,7 @@ public class LuceneTransactionEmbeddedQueryTest {
 
       Assert.assertEquals(vertices.stream().count(), 1);
 
-      Assert.assertEquals(2, index.getInternal().size());
+      Assert.assertEquals(2, index.getInternal().size(db));
 
       db.commit();
 
@@ -179,13 +180,13 @@ public class LuceneTransactionEmbeddedQueryTest {
       vertices = db.query(query);
 
       Collection coll;
-      try (final Stream<ORID> stream = index.getInternal().getRids("update")) {
+      try (final Stream<ORID> stream = index.getInternal().getRids(db, "update")) {
         coll = stream.collect(Collectors.toList());
       }
 
       OResult resultRecord = vertices.next();
       Assert.assertEquals(2, coll.size());
-      Assert.assertEquals(2, index.getInternal().size());
+      Assert.assertEquals(2, index.getInternal().size(db));
 
       db.begin();
 
@@ -197,7 +198,7 @@ public class LuceneTransactionEmbeddedQueryTest {
 
       query = "select from C1 where p1 lucene \"update\" ";
       vertices = db.query(query);
-      try (Stream<ORID> stream = index.getInternal().getRids("update")) {
+      try (Stream<ORID> stream = index.getInternal().getRids(db, "update")) {
         coll = stream.collect(Collectors.toList());
       }
 
@@ -212,12 +213,12 @@ public class LuceneTransactionEmbeddedQueryTest {
       }
       Assert.assertEquals(i, 1);
 
-      Assert.assertEquals(1, index.getInternal().size());
+      Assert.assertEquals(1, index.getInternal().size(db));
 
       query = "select from C1 where p1 lucene \"update\"";
       vertices = db.query(query);
 
-      try (Stream<ORID> stream = index.getInternal().getRids("update")) {
+      try (Stream<ORID> stream = index.getInternal().getRids(db, "update")) {
         coll = stream.collect(Collectors.toList());
       }
       Assert.assertEquals(coll.size(), 1);
@@ -231,7 +232,7 @@ public class LuceneTransactionEmbeddedQueryTest {
 
       Assert.assertEquals(1, vertices.stream().count());
 
-      Assert.assertEquals(2, index.getInternal().size());
+      Assert.assertEquals(2, index.getInternal().size(db));
     } finally {
       //noinspection deprecation
       db.drop();
@@ -249,15 +250,15 @@ public class LuceneTransactionEmbeddedQueryTest {
     try {
       OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "C1.p1");
 
-      Assert.assertEquals(0, index.getInternal().size());
+      Assert.assertEquals(0, index.getInternal().size(db));
 
       db.begin();
 
       ODocument doc = new ODocument("c1");
-      doc.field("p1", new String[] {"abc"});
+      doc.field("p1", new String[]{"abc"});
 
       ODocument doc1 = new ODocument("c1");
-      doc1.field("p1", new String[] {"abc"});
+      doc1.field("p1", new String[]{"abc"});
 
       db.save(doc1);
       db.save(doc);
@@ -267,13 +268,13 @@ public class LuceneTransactionEmbeddedQueryTest {
       db.begin();
 
       doc = db.bindToSession(doc);
-      doc.field("p1", new String[] {"removed"});
+      doc.field("p1", new String[]{"removed"});
       db.save(doc);
 
       String query = "select from C1 where p1 lucene \"abc\"";
       OResultSet vertices = db.query(query);
       Collection coll;
-      try (Stream<ORID> stream = index.getInternal().getRids("abc")) {
+      try (Stream<ORID> stream = index.getInternal().getRids(db, "abc")) {
         coll = stream.collect(Collectors.toList());
       }
 
@@ -292,11 +293,11 @@ public class LuceneTransactionEmbeddedQueryTest {
       Assert.assertNotNull(doc1);
       Assert.assertNotNull(rid);
       Assert.assertEquals(doc1.getIdentity().toString(), rid.getIdentity().toString());
-      Assert.assertEquals(2, index.getInternal().size());
+      Assert.assertEquals(2, index.getInternal().size(db));
 
       query = "select from C1 where p1 lucene \"removed\" ";
       vertices = db.query(query);
-      try (Stream<ORID> stream = index.getInternal().getRids("removed")) {
+      try (Stream<ORID> stream = index.getInternal().getRids(db, "removed")) {
         coll = stream.collect(Collectors.toList());
       }
 
@@ -310,7 +311,7 @@ public class LuceneTransactionEmbeddedQueryTest {
 
       Assert.assertEquals(2, vertices.stream().count());
 
-      Assert.assertEquals(2, index.getInternal().size());
+      Assert.assertEquals(2, index.getInternal().size(db));
     } finally {
       //noinspection deprecation
       db.drop();

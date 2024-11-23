@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -40,9 +40,7 @@ import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 
 /**
- * Dynamic script engine for OrientDB SQL commands. This implementation is multi-threads.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
+ * Dynamic script engine for OxygenDB SQL commands. This implementation is multi-threads.
  */
 public class OSQLScriptEngine implements ScriptEngine {
 
@@ -125,6 +123,7 @@ public class OSQLScriptEngine implements ScriptEngine {
 
   @Override
   public Object eval(Reader reader, Bindings n) throws ScriptException {
+    ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
     final StringBuilder buffer = new StringBuilder();
     try {
       while (reader.ready()) {
@@ -134,11 +133,12 @@ public class OSQLScriptEngine implements ScriptEngine {
       throw new ScriptException(e);
     }
 
-    return new OCommandScript(buffer.toString()).execute(n);
+    return new OCommandScript(buffer.toString()).execute(db, n);
   }
 
   @Override
-  public void put(String key, Object value) {}
+  public void put(String key, Object value) {
+  }
 
   @Override
   public Object get(String key) {
@@ -151,7 +151,8 @@ public class OSQLScriptEngine implements ScriptEngine {
   }
 
   @Override
-  public void setBindings(Bindings bindings, int scope) {}
+  public void setBindings(Bindings bindings, int scope) {
+  }
 
   @Override
   public Bindings createBindings() {
@@ -164,7 +165,8 @@ public class OSQLScriptEngine implements ScriptEngine {
   }
 
   @Override
-  public void setContext(ScriptContext context) {}
+  public void setContext(ScriptContext context) {
+  }
 
   @Override
   public ScriptEngineFactory getFactory() {

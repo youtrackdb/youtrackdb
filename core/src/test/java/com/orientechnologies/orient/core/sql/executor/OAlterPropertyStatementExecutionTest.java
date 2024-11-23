@@ -10,7 +10,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ *
  */
 public class OAlterPropertyStatementExecutionTest extends BaseMemoryDatabase {
 
@@ -18,8 +18,8 @@ public class OAlterPropertyStatementExecutionTest extends BaseMemoryDatabase {
   public void testSetProperty() {
     String className = "testSetProperty";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    OProperty prop = clazz.createProperty("name", OType.STRING);
-    prop.setMax("15");
+    OProperty prop = clazz.createProperty(db, "name", OType.STRING);
+    prop.setMax(db, "15");
 
     OResultSet result = db.command("alter property " + className + ".name max 30");
     printExecutionPlan(null, result);
@@ -39,8 +39,8 @@ public class OAlterPropertyStatementExecutionTest extends BaseMemoryDatabase {
   public void testSetCustom() {
     String className = "testSetCustom";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    OProperty prop = clazz.createProperty("name", OType.STRING);
-    prop.setCustom("foo", "bar");
+    OProperty prop = clazz.createProperty(db, "name", OType.STRING);
+    prop.setCustom(db, "foo", "bar");
 
     OResultSet result = db.command("alter property " + className + ".name custom foo='baz'");
     printExecutionPlan(null, result);

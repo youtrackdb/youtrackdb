@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *  *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.distributed.impl.task;
@@ -35,8 +35,6 @@ import java.io.IOException;
 /**
  * Task to request last database configuration across all the servers. This task is executed inside
  * a distributed lock.
- *
- * @author Luca Garulli (l.garulli--at---orientdb.com)
  */
 public class ORequestDatabaseConfigurationTask extends OAbstractRemoteTask {
 

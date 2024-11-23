@@ -16,7 +16,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 5/15/14
  */
 public class HashTableDirectoryV2Test {
@@ -54,7 +53,8 @@ public class HashTableDirectoryV2Test {
   }
 
   @Before
-  public void beforeMethod() {}
+  public void beforeMethod() {
+  }
 
   @After
   public void afterMethod() throws IOException {

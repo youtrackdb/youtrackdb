@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.console;
@@ -29,6 +29,7 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.id.OImmutableRecordId;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.util.ODateHelper;
@@ -257,26 +258,24 @@ public class OTableFormatter {
       switch (alignment) {
         case LEFT:
           break;
-        case CENTER:
-          {
-            final int room = columnWidth - valueAsString.length();
-            if (room > 1) {
-              for (int k = 0; k < room / 2; ++k) {
-                valueAsString = " " + valueAsString;
-              }
+        case CENTER: {
+          final int room = columnWidth - valueAsString.length();
+          if (room > 1) {
+            for (int k = 0; k < room / 2; ++k) {
+              valueAsString = " " + valueAsString;
             }
-            break;
           }
-        case RIGHT:
-          {
-            final int room = columnWidth - valueAsString.length();
-            if (room > 0) {
-              for (int k = 0; k < room; ++k) {
-                valueAsString = " " + valueAsString;
-              }
+          break;
+        }
+        case RIGHT: {
+          final int room = columnWidth - valueAsString.length();
+          if (room > 0) {
+            for (int k = 0; k < room; ++k) {
+              valueAsString = " " + valueAsString;
             }
-            break;
           }
+          break;
+        }
       }
     }
     return valueAsString;
@@ -297,13 +296,13 @@ public class OTableFormatter {
     } else if (iRecord instanceof ODocument) {
       value = ((ODocument) iRecord).getProperty(iColumnName);
     } else if (iRecord instanceof OBlob) {
-      value = "<binary> (size=" + ((OBlob) iRecord).toStream().length + " bytes)";
+      value = "<binary> (size=" + ((ORecordAbstract) iRecord).toStream().length + " bytes)";
     } else if (iRecord instanceof OIdentifiable) {
       final ORecord rec = iRecord.getRecord();
       if (rec instanceof ODocument) {
         value = ((ODocument) rec).getProperty(iColumnName);
       } else if (rec instanceof OBlob) {
-        value = "<binary> (size=" + rec.toStream().length + " bytes)";
+        value = "<binary> (size=" + ((ORecordAbstract) rec).toStream().length + " bytes)";
       }
     }
 
@@ -544,7 +543,7 @@ public class OTableFormatter {
       }
 
       if (rec instanceof ODocument doc) {
-        ((ODocument) rec).setLazyLoad(false);
+        doc.setLazyLoad(false);
         // PARSE ALL THE DOCUMENT'S FIELDS
         for (String fieldName : doc.getPropertyNames()) {
           columns.put(fieldName, getColumnSize(fetched, doc, fieldName, columns.get(fieldName)));

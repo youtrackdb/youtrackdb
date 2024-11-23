@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.db;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.listener.OListenerManger;
 import com.orientechnologies.common.profiler.OProfiler;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.viewmanager.ViewManager;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
@@ -25,13 +25,13 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 /**
- * Created by tglman on 15/06/16.
+ *
  */
 public abstract class OSharedContext extends OListenerManger<OMetadataUpdateListener> {
 
-  protected static final OProfiler PROFILER = Orient.instance().getProfiler();
+  protected static final OProfiler PROFILER = Oxygen.instance().getProfiler();
 
-  protected OrientDBInternal orientDB;
+  protected OxygenDBInternal orientDB;
   protected OStorageInfo storage;
   protected OSchemaShared schema;
   protected OSecurityInternal security;
@@ -106,7 +106,7 @@ public abstract class OSharedContext extends OListenerManger<OMetadataUpdateList
     return storage;
   }
 
-  public OrientDBInternal getOrientDB() {
+  public OxygenDBInternal getOrientDB() {
     return orientDB;
   }
 

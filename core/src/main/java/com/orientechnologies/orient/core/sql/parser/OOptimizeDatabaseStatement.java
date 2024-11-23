@@ -41,7 +41,7 @@ public class OOptimizeDatabaseStatement extends OSimpleExecStatement {
     result.setProperty("operation", "optimize databae");
 
     if (isOptimizeEdges()) {
-      String edges = optimizeEdges();
+      String edges = optimizeEdges(ctx.getDatabase());
       result.setProperty("optimizeEdges", edges);
     }
 
@@ -76,9 +76,7 @@ public class OOptimizeDatabaseStatement extends OSimpleExecStatement {
     return result;
   }
 
-  private String optimizeEdges() {
-    final ODatabaseSessionInternal db = getDatabase();
-
+  private String optimizeEdges(ODatabaseSessionInternal db) {
     long transformed = 0;
     final long totalEdges = db.countClass("E");
     long browsedEdges = 0;

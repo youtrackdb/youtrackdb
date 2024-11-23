@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientechnologies.com
+ *
  *
  */
 package com.orientechnologies.orient.server.distributed.impl.task;
@@ -31,8 +31,6 @@ import com.orientechnologies.orient.server.distributed.task.ORemoteTask;
  * <ul>
  *   <li>V2 (11/09/2017)
  * </ul>
- *
- * @author Luigi Dell'Aquila (l.dellaquila--at--orientdb.com)
  */
 public class ODefaultRemoteTaskFactoryV3 implements ORemoteTaskFactory {
 

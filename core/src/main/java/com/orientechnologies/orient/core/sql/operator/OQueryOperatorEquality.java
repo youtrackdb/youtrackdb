@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.operator;
@@ -31,8 +31,6 @@ import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemFieldAll;
 
 /**
  * Base equality operator. It's an abstract class able to compare the equality between two values.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OQueryOperatorEquality extends OQueryOperator {
 
@@ -97,7 +95,8 @@ public abstract class OQueryOperatorEquality extends OQueryOperator {
         return false;
       }
 
-      if (left.getDefinition().getRoot().startsWith(OSQLFilterItemFieldAll.NAME)) {
+      if (left.getDefinition().getRoot(iContext.getDatabase())
+          .startsWith(OSQLFilterItemFieldAll.NAME)) {
         // ALL VALUES
         for (int i = 0; i < left.getValues().length; ++i) {
           Object v = left.getValues()[i];
@@ -140,7 +139,8 @@ public abstract class OQueryOperatorEquality extends OQueryOperator {
         return false;
       }
 
-      if (right.getDefinition().getRoot().startsWith(OSQLFilterItemFieldAll.NAME)) {
+      if (right.getDefinition().getRoot(iContext.getDatabase())
+          .startsWith(OSQLFilterItemFieldAll.NAME)) {
         // ALL VALUES
         for (int i = 0; i < right.getValues().length; ++i) {
           Object v = right.getValues()[i];

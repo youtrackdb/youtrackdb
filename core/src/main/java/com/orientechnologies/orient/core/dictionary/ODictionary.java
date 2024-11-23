@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,17 +14,12 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.dictionary;
 
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 @SuppressWarnings({"unchecked", "DeprecatedIsStillUsed"})
 @Deprecated
@@ -37,33 +32,23 @@ public class ODictionary<T> {
   }
 
   public <RET extends T> RET get(final String iKey) {
-    final Optional<ORID> value;
-    try (final Stream<ORID> stream = index.getInternal().getRids(iKey)) {
-      value = stream.findAny();
-    }
-    return value.map(rid -> (RET) rid.getRecord()).orElse(null);
+    throw new UnsupportedOperationException();
   }
 
   public <RET extends T> RET get(final String iKey, final String fetchPlan) {
-    final Optional<ORID> value;
-    try (Stream<ORID> stream = index.getInternal().getRids(iKey)) {
-      value = stream.findAny();
-    }
-    return value
-        .map(rid -> (RET) ODatabaseRecordThreadLocal.instance().get().load(rid, fetchPlan))
-        .orElse(null);
+    throw new UnsupportedOperationException();
   }
 
   public void put(final String iKey, final Object iValue) {
-    index.put(iKey, (OIdentifiable) iValue);
+    throw new UnsupportedOperationException();
   }
 
   public boolean remove(final String iKey) {
-    return index.remove(iKey);
+    throw new UnsupportedOperationException();
   }
 
   public long size() {
-    return index.getInternal().size();
+    throw new UnsupportedOperationException();
   }
 
   public OIndex getIndex() {

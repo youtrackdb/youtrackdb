@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.index;
@@ -46,8 +46,6 @@ import java.util.stream.Stream;
 
 /**
  * Interface to handle index.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OIndexInternal extends OIndex {
 
@@ -68,9 +66,10 @@ public interface OIndexInternal extends OIndex {
   /**
    * Loads the index giving the configuration.
    *
+   * @param session
    * @param iConfig ODocument instance containing the configuration
    */
-  boolean loadFromConfiguration(ODocument iConfig);
+  boolean loadFromConfiguration(ODatabaseSessionInternal session, ODocument iConfig);
 
   /**
    * Saves the index configuration to disk.
@@ -83,17 +82,19 @@ public interface OIndexInternal extends OIndex {
   /**
    * Add given cluster to the list of clusters that should be automatically indexed.
    *
+   * @param session
    * @param iClusterName Cluster to add.
    * @return Current index instance.
    */
-  OIndex addCluster(final String iClusterName);
+  OIndex addCluster(ODatabaseSessionInternal session, final String iClusterName);
 
   /**
    * Remove given cluster from the list of clusters that should be automatically indexed.
    *
+   * @param session
    * @param iClusterName Cluster to remove.
    */
-  void removeCluster(final String iClusterName);
+  void removeCluster(ODatabaseSessionInternal session, final String iClusterName);
 
   /**
    * Indicates whether given index can be used to calculate result of
@@ -135,19 +136,20 @@ public interface OIndexInternal extends OIndex {
   /**
    * @return number of entries in the index.
    */
-  long size();
+  long size(ODatabaseSessionInternal session);
 
-  Stream<ORID> getRids(final Object key);
+  Stream<ORID> getRids(ODatabaseSessionInternal session, final Object key);
 
-  Stream<ORawPair<Object, ORID>> stream();
+  Stream<ORawPair<Object, ORID>> stream(ODatabaseSessionInternal session);
 
-  Stream<ORawPair<Object, ORID>> descStream();
+  Stream<ORawPair<Object, ORID>> descStream(ODatabaseSessionInternal session);
 
   Stream<Object> keyStream();
 
   /**
    * Returns stream which presents subset of index data between passed in keys.
    *
+   * @param session
    * @param fromKey       Lower border of index data.
    * @param fromInclusive Indicates whether lower border should be inclusive or exclusive.
    * @param toKey         Upper border of index data.
@@ -157,22 +159,26 @@ public interface OIndexInternal extends OIndex {
    * @return Cursor which presents subset of index data between passed in keys.
    */
   Stream<ORawPair<Object, ORID>> streamEntriesBetween(
-      Object fromKey, boolean fromInclusive, Object toKey, boolean toInclusive, boolean ascOrder);
+      ODatabaseSessionInternal session, Object fromKey, boolean fromInclusive, Object toKey,
+      boolean toInclusive, boolean ascOrder);
 
   /**
    * Returns stream which presents data associated with passed in keys.
    *
+   * @param session
    * @param keys         Keys data of which should be returned.
    * @param ascSortOrder Flag which determines whether data iterated by stream should be in
    *                     ascending or descending order.
    * @return stream which presents data associated with passed in keys.
    */
-  Stream<ORawPair<Object, ORID>> streamEntries(Collection<?> keys, boolean ascSortOrder);
+  Stream<ORawPair<Object, ORID>> streamEntries(ODatabaseSessionInternal session, Collection<?> keys,
+      boolean ascSortOrder);
 
   /**
    * Returns stream which presents subset of data which associated with key which is greater than
    * passed in key.
    *
+   * @param session
    * @param fromKey       Lower border of index data.
    * @param fromInclusive Indicates whether lower border should be inclusive or exclusive.
    * @param ascOrder      Flag which determines whether data iterated by stream should be in
@@ -181,12 +187,13 @@ public interface OIndexInternal extends OIndex {
    * passed in key.
    */
   Stream<ORawPair<Object, ORID>> streamEntriesMajor(
-      Object fromKey, boolean fromInclusive, boolean ascOrder);
+      ODatabaseSessionInternal session, Object fromKey, boolean fromInclusive, boolean ascOrder);
 
   /**
    * Returns stream which presents subset of data which associated with key which is less than
    * passed in key.
    *
+   * @param session
    * @param toKey       Upper border of index data.
    * @param toInclusive Indicates Indicates whether upper border should be inclusive or exclusive.
    * @param ascOrder    Flag which determines whether data iterated by stream should be in ascending
@@ -195,7 +202,7 @@ public interface OIndexInternal extends OIndex {
    * passed in key.
    */
   Stream<ORawPair<Object, ORID>> streamEntriesMinor(
-      Object toKey, boolean toInclusive, boolean ascOrder);
+      ODatabaseSessionInternal session, Object toKey, boolean toInclusive, boolean ascOrder);
 
   static OIdentifiable securityFilterOnRead(OIndex idx, OIdentifiable item) {
     if (idx.getDefinition() == null) {
@@ -344,7 +351,7 @@ public interface OIndexInternal extends OIndex {
                         !(x instanceof ODocument)
                             || ODocumentInternal.getPropertyAccess((ODocument) x) == null
                             || ODocumentInternal.getPropertyAccess((ODocument) x)
-                                .isReadable(indexProp))
+                            .isReadable(indexProp))
                 .map(x -> ((ORecord) x).getIdentity())
                 .collect(Collectors.toList());
       }
@@ -357,18 +364,21 @@ public interface OIndexInternal extends OIndex {
   Iterable<OTransactionIndexChangesPerKey.OTransactionIndexEntry> interpretTxKeyChanges(
       OTransactionIndexChangesPerKey changes);
 
-  void doPut(OAbstractPaginatedStorage storage, Object key, ORID rid)
+  void doPut(ODatabaseSessionInternal session, OAbstractPaginatedStorage storage, Object key,
+      ORID rid)
       throws OInvalidIndexEngineIdException;
 
-  boolean doRemove(OAbstractPaginatedStorage storage, Object key, ORID rid)
+  boolean doRemove(ODatabaseSessionInternal session, OAbstractPaginatedStorage storage, Object key,
+      ORID rid)
       throws OInvalidIndexEngineIdException;
 
   boolean doRemove(OAbstractPaginatedStorage storage, Object key)
       throws OInvalidIndexEngineIdException;
 
-  Stream<ORID> getRidsIgnoreTx(Object key);
+  Stream<ORID> getRidsIgnoreTx(ODatabaseSessionInternal session, Object key);
 
-  OIndex create(OIndexMetadata metadata, boolean rebuild, OProgressListener progressListener);
+  OIndex create(ODatabaseSessionInternal session, OIndexMetadata metadata, boolean rebuild,
+      OProgressListener progressListener);
 
   int getIndexId();
 }

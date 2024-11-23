@@ -23,7 +23,7 @@ import org.junit.After;
 import org.junit.Test;
 
 /**
- * Created by frank on 9/28/15.
+ *
  */
 public class VertexIndexTest {
 
@@ -73,7 +73,8 @@ public class VertexIndexTest {
   }
 
   @Test
-  public void name() throws Exception {}
+  public void name() throws Exception {
+  }
 
   @After
   public void deInit() {

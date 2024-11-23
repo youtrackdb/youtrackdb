@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql;
@@ -35,8 +35,6 @@ import java.util.Map;
 
 /**
  * SQL CREATE PROPERTY command: Creates a new property in the target class.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 @SuppressWarnings("unchecked")
 public class OCommandExecutorSQLDropProperty extends OCommandExecutorSQLAbstract
@@ -121,7 +119,7 @@ public class OCommandExecutorSQLDropProperty extends OCommandExecutorSQLAbstract
   /**
    * Execute the CREATE PROPERTY.
    */
-  public Object execute(final Map<Object, Object> iArgs) {
+  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
     if (fieldName == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not yet been parsed");
@@ -146,7 +144,7 @@ public class OCommandExecutorSQLDropProperty extends OCommandExecutorSQLAbstract
         final StringBuilder indexNames = new StringBuilder();
 
         boolean first = true;
-        for (final OIndex index : sourceClass.getClassInvolvedIndexes(fieldName)) {
+        for (final OIndex index : sourceClass.getClassInvolvedIndexes(database, fieldName)) {
           if (!first) {
             indexNames.append(", ");
           } else {
@@ -163,7 +161,7 @@ public class OCommandExecutorSQLDropProperty extends OCommandExecutorSQLAbstract
     }
 
     // REMOVE THE PROPERTY
-    sourceClass.dropProperty(fieldName);
+    sourceClass.dropProperty(database, fieldName);
 
     return null;
   }
@@ -194,7 +192,7 @@ public class OCommandExecutorSQLDropProperty extends OCommandExecutorSQLAbstract
     for (final OIndex oIndex :
         database.getMetadata().getIndexManagerInternal().getClassIndexes(database, className)) {
       if (OCollections.indexOf(
-              oIndex.getDefinition().getFields(), fieldName, new OCaseInsentiveComparator())
+          oIndex.getDefinition().getFields(), fieldName, new OCaseInsentiveComparator())
           > -1) {
         result.add(oIndex);
       }

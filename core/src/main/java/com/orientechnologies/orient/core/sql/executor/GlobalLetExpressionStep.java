@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.sql.parser.OExpression;
 import com.orientechnologies.orient.core.sql.parser.OIdentifier;
 
 /**
- * Created by luigidellaquila on 03/08/16.
+ *
  */
 public class GlobalLetExpressionStep extends AbstractExecutionStep {
 

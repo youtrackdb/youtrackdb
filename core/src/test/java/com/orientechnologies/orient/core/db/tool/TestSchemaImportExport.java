@@ -28,8 +28,8 @@ public class TestSchemaImportExport extends BaseMemoryDatabase {
         (ODatabaseSessionInternal)
             context.open(TestSchemaImportExport.class.getSimpleName(), "admin", "admin")) {
       OClass clazz = db.getMetadata().getSchema().createClass("Test");
-      clazz.createProperty("some", OType.STRING);
-      clazz.setCustom("testcustom", "test");
+      clazz.createProperty(db, "some", OType.STRING);
+      clazz.setCustom(db, "testcustom", "test");
       ODatabaseExport exp = new ODatabaseExport(db, output, new MockOutputListener());
       exp.exportDatabase();
     } finally {
@@ -71,7 +71,7 @@ public class TestSchemaImportExport extends BaseMemoryDatabase {
         (ODatabaseSessionInternal)
             context.open(TestSchemaImportExport.class.getSimpleName(), "admin", "admin")) {
       OClass clazz = db.getMetadata().getSchema().createClass("Test");
-      clazz.createProperty("bla", OType.STRING).setDefaultValue("something");
+      clazz.createProperty(db, "bla", OType.STRING).setDefaultValue(db, "something");
       ODatabaseExport exp = new ODatabaseExport(db, output, new MockOutputListener());
       exp.exportDatabase();
     } finally {
@@ -115,8 +115,8 @@ public class TestSchemaImportExport extends BaseMemoryDatabase {
         (ODatabaseSessionInternal)
             context.open(TestSchemaImportExport.class.getSimpleName(), "admin", "admin")) {
       OClass clazz = db.getMetadata().getSchema().createClass("Test");
-      clazz.addSuperClass(db.getMetadata().getSchema().getClass("ORestricted"));
-      clazz.addSuperClass(db.getMetadata().getSchema().getClass("OIdentity"));
+      clazz.addSuperClass(db, db.getMetadata().getSchema().getClass("ORestricted"));
+      clazz.addSuperClass(db, db.getMetadata().getSchema().getClass("OIdentity"));
 
       ODatabaseExport exp = new ODatabaseExport(db, output, new MockOutputListener());
       exp.exportDatabase();
@@ -148,6 +148,7 @@ public class TestSchemaImportExport extends BaseMemoryDatabase {
   private static final class MockOutputListener implements OCommandOutputListener {
 
     @Override
-    public void onMessage(String iText) {}
+    public void onMessage(String iText) {
+    }
   }
 }

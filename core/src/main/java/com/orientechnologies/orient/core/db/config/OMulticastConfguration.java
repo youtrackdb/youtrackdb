@@ -5,9 +5,10 @@ public class OMulticastConfguration {
   private boolean enabled = true;
   private String ip = "230.0.0.0";
   private int port = 4321;
-  private int[] discoveryPorts = new int[] {4321};
+  private int[] discoveryPorts = new int[]{4321};
 
-  public OMulticastConfguration() {}
+  public OMulticastConfguration() {
+  }
 
   protected OMulticastConfguration(boolean enabled, String ip, int port, int[] discoveryPorts) {
     this.enabled = enabled;

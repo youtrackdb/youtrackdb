@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
 import com.orientechnologies.orient.core.sql.executor.resultset.OProduceExecutionStream;
 
 /**
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ *
  */
 public class CreateRecordStep extends AbstractExecutionStep {
 

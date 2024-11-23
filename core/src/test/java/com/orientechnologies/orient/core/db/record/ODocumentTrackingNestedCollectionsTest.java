@@ -16,7 +16,7 @@ import java.util.Set;
 import org.junit.Test;
 
 /**
- * Created by tglman on 11/03/16.
+ *
  */
 public class ODocumentTrackingNestedCollectionsTest extends BaseMemoryDatabase {
 
@@ -75,6 +75,7 @@ public class ODocumentTrackingNestedCollectionsTest extends BaseMemoryDatabase {
     document.save(db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
 
+    db.begin();
     document = db.bindToSession(document);
     objects = document.field("objects");
     subObjects = (Set) objects.iterator().next();
@@ -87,6 +88,7 @@ public class ODocumentTrackingNestedCollectionsTest extends BaseMemoryDatabase {
     List<OMultiValueChangeEvent<Object, Object>> multiValueChangeEvents =
         nestedTimiline.getMultiValueChangeEvents();
     assertEquals("one", multiValueChangeEvents.get(0).getValue());
+    db.commit();
   }
 
   @Test
@@ -106,6 +108,7 @@ public class ODocumentTrackingNestedCollectionsTest extends BaseMemoryDatabase {
     document.save(db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
 
+    db.begin();
     document = db.bindToSession(document);
     objects = document.field("objects");
     subObjects = (List) objects.iterator().next();
@@ -119,6 +122,7 @@ public class ODocumentTrackingNestedCollectionsTest extends BaseMemoryDatabase {
     assertEquals("one", multiValueChangeEvents.get(0).getValue());
     assertEquals(2, multiValueChangeEvents.get(1).getKey());
     assertTrue(multiValueChangeEvents.get(1).getValue() instanceof ODocument);
+    db.commit();
   }
 
   @Test
@@ -137,6 +141,7 @@ public class ODocumentTrackingNestedCollectionsTest extends BaseMemoryDatabase {
     document.save(db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
 
+    db.begin();
     document = db.bindToSession(document);
     objects = document.field("objects");
     subObjects = (Map) objects.values().iterator().next();
@@ -150,5 +155,6 @@ public class ODocumentTrackingNestedCollectionsTest extends BaseMemoryDatabase {
     assertEquals("String", multiValueChangeEvents.get(0).getValue());
     assertEquals("two", multiValueChangeEvents.get(1).getKey());
     assertTrue(multiValueChangeEvents.get(1).getValue() instanceof ODocument);
+    db.commit();
   }
 }

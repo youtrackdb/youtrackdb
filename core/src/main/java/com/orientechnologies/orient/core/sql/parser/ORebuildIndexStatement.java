@@ -29,12 +29,12 @@ public class ORebuildIndexStatement extends OSimpleExecStatement {
     OResultInternal result = new OResultInternal();
     result.setProperty("operation", "rebuild index");
 
-    final ODatabaseSessionInternal database = getDatabase();
+    final ODatabaseSessionInternal database = ctx.getDatabase();
     if (all) {
       long totalIndexed = 0;
       for (OIndex idx : database.getMetadata().getIndexManagerInternal().getIndexes(database)) {
         if (idx.isAutomatic()) {
-          totalIndexed += idx.rebuild();
+          totalIndexed += idx.rebuild(database);
         }
       }
 
@@ -53,7 +53,7 @@ public class ORebuildIndexStatement extends OSimpleExecStatement {
                 + "' because it's manual and there aren't indications of what to index");
       }
 
-      long val = idx.rebuild();
+      long val = idx.rebuild(database);
       result.setProperty("totalIndexed", val);
     }
     return OExecutionStream.singleton(result);

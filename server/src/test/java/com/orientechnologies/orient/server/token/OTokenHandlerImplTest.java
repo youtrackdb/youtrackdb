@@ -41,7 +41,7 @@ public class OTokenHandlerImplTest extends BaseMemoryInternalDatabase {
     assertTrue(tok.getIsVerified());
 
     OUser user = tok.getUser(db);
-    assertEquals(user.getName(), original.getName());
+    assertEquals(user.getName(db), original.getName(db));
     boolean boole = handler.validateToken(tok, "open", db.getName());
     assertTrue(boole);
     assertTrue(tok.getIsValid());
@@ -73,7 +73,7 @@ public class OTokenHandlerImplTest extends BaseMemoryInternalDatabase {
   @Test
   public void testSerializeDeserializeWebPayload() throws Exception {
     OrientJwtPayload payload = new OrientJwtPayload();
-    String ptype = "OrientDB";
+    String ptype = "OxygenDB";
     payload.setAudience("audiance");
     payload.setExpiry(1L);
     payload.setIssuedAt(2L);
@@ -136,7 +136,7 @@ public class OTokenHandlerImplTest extends BaseMemoryInternalDatabase {
     assertTrue(tok.getIsVerified());
 
     OUser user = tok.getUser(db);
-    assertEquals(user.getName(), original.getName());
+    assertEquals(user.getName(db), original.getName(db));
     boolean boole = handler.validateBinaryToken(tok);
     assertTrue(boole);
     assertTrue(tok.getIsValid());

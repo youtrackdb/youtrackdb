@@ -19,7 +19,7 @@ package com.orientechnologies.orient.core.schedule;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDBInternal;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OValidationException;
@@ -36,32 +36,29 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Scheduler default implementation.
  *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
- * @author henryzhao81-at-gmail.com
  * @since Mar 28, 2013
  */
 public class OSchedulerImpl {
 
   private final ConcurrentHashMap<String, OScheduledEvent> events =
-      new ConcurrentHashMap<String, OScheduledEvent>();
+      new ConcurrentHashMap<>();
 
-  private final OrientDBInternal orientDB;
+  private final OxygenDBInternal orientDB;
 
-  public OSchedulerImpl(OrientDBInternal orientDB) {
+  public OSchedulerImpl(OxygenDBInternal orientDB) {
     this.orientDB = orientDB;
   }
 
-  public void scheduleEvent(final OScheduledEvent event) {
-    var db = event.getDocument().getDatabase();
+  public void scheduleEvent(ODatabaseSession session, final OScheduledEvent event) {
 
-    if (event.getDocument().getIdentity().isNew()) {
-      db.begin();
-      event.save();
-      db.commit();
+    if (event.getDocument(session).getIdentity().isNew()) {
+      session.begin();
+      event.save(session);
+      session.commit();
     }
 
-    if (events.putIfAbsent(event.getName(), event) == null) {
-      String database = db.getName();
+    if (events.putIfAbsent(event.getName(session), event) == null) {
+      String database = session.getName();
       event.schedule(database, "admin", orientDB);
     }
   }
@@ -75,39 +72,38 @@ public class OSchedulerImpl {
     return event;
   }
 
-  public void removeEvent(final String eventName) {
+  public void removeEvent(ODatabaseSessionInternal session, final String eventName) {
     OLogManager.instance().debug(this, "Removing scheduled event '%s'...", eventName);
 
     final OScheduledEvent event = removeEventInternal(eventName);
 
     if (event != null) {
       try {
-        ODatabaseSession.getActiveSession().load(event.getDocument().getIdentity());
+        ODatabaseSessionInternal.getActiveSession().load(event.getDocument(session).getIdentity());
       } catch (ORecordNotFoundException ignore) {
         // ALREADY DELETED, JUST RETURN
         return;
       }
 
       // RECORD EXISTS: DELETE THE EVENT RECORD
-      var db = event.getDocument().getDatabase();
-      db.begin();
-      event.getDocument().delete();
-      db.commit();
+      session.begin();
+      event.getDocument(session).delete();
+      session.commit();
     }
   }
 
-  public void updateEvent(final OScheduledEvent event) {
-    final OScheduledEvent oldEvent = events.remove(event.getName());
+  public void updateEvent(ODatabaseSessionInternal session, final OScheduledEvent event) {
+    final OScheduledEvent oldEvent = events.remove(event.getName(session));
     if (oldEvent != null) {
       oldEvent.interrupt();
     }
-    scheduleEvent(event);
+    scheduleEvent(session, event);
     OLogManager.instance()
         .debug(
             this,
             "Updated scheduled event '%s' rid=%s...",
             event,
-            event.getDocument().getIdentity());
+            event.getDocument(session).getIdentity());
   }
 
   public Map<String, OScheduledEvent> getEvents() {
@@ -118,16 +114,11 @@ public class OSchedulerImpl {
     return events.get(name);
   }
 
-  public void load() {
-    throw new UnsupportedOperationException();
-  }
-
   public void load(ODatabaseSessionInternal database) {
-
     if (database.getMetadata().getSchema().existsClass(OScheduledEvent.CLASS_NAME)) {
       final Iterable<ODocument> result = database.browseClass(OScheduledEvent.CLASS_NAME);
       for (ODocument d : result) {
-        scheduleEvent(new OScheduledEvent(d));
+        scheduleEvent(database, new OScheduledEvent(d, database));
       }
     }
   }
@@ -139,7 +130,7 @@ public class OSchedulerImpl {
     events.clear();
   }
 
-  public void create(ODatabaseSessionInternal database) {
+  public static void create(ODatabaseSessionInternal database) {
     if (database
         .getMetadata()
         .getImmutableSchemaSnapshot()
@@ -147,35 +138,35 @@ public class OSchedulerImpl {
       return;
     }
     final OClass f = database.getMetadata().getSchema().createClass(OScheduledEvent.CLASS_NAME);
-    f.createProperty(OScheduledEvent.PROP_NAME, OType.STRING, (OType) null, true)
-        .setMandatory(true)
-        .setNotNull(true);
-    f.createProperty(OScheduledEvent.PROP_RULE, OType.STRING, (OType) null, true)
-        .setMandatory(true)
-        .setNotNull(true);
-    f.createProperty(OScheduledEvent.PROP_ARGUMENTS, OType.EMBEDDEDMAP, (OType) null, true);
-    f.createProperty(OScheduledEvent.PROP_STATUS, OType.STRING, (OType) null, true);
-    f.createProperty(
+    f.createProperty(database, OScheduledEvent.PROP_NAME, OType.STRING, (OType) null, true)
+        .setMandatory(database, true)
+        .setNotNull(database, true);
+    f.createProperty(database, OScheduledEvent.PROP_RULE, OType.STRING, (OType) null, true)
+        .setMandatory(database, true)
+        .setNotNull(database, true);
+    f.createProperty(database, OScheduledEvent.PROP_ARGUMENTS, OType.EMBEDDEDMAP, (OType) null,
+        true);
+    f.createProperty(database, OScheduledEvent.PROP_STATUS, OType.STRING, (OType) null, true);
+    f.createProperty(database,
             OScheduledEvent.PROP_FUNC,
             OType.LINK,
-            database.getMetadata().getSchema().getClass(OFunction.CLASS_NAME),
-            true)
-        .setMandatory(true)
-        .setNotNull(true);
-    f.createProperty(OScheduledEvent.PROP_STARTTIME, OType.DATETIME, (OType) null, true);
+            database.getMetadata().getSchema().getClass(OFunction.CLASS_NAME), true)
+        .setMandatory(database, true)
+        .setNotNull(database, true);
+    f.createProperty(database, OScheduledEvent.PROP_STARTTIME, OType.DATETIME, (OType) null, true);
   }
 
-  public void initScheduleRecord(ODocument doc) {
+  public void initScheduleRecord(ODatabaseSessionInternal session, ODocument doc) {
     String name = doc.field(OScheduledEvent.PROP_NAME);
     final OScheduledEvent event = getEvent(name);
-    if (event != null && event.getDocument() != doc) {
+    if (event != null && event.getDocument(session) != doc) {
       throw new ODatabaseException(
           "Scheduled event with name '" + name + "' already exists in database");
     }
     doc.field(OScheduledEvent.PROP_STATUS, OScheduler.STATUS.STOPPED.name());
   }
 
-  public void handleUpdateSchedule(ODocument doc) {
+  public void handleUpdateSchedule(ODatabaseSessionInternal session, ODocument doc) {
     try {
       final String schedulerName = doc.field(OScheduledEvent.PROP_NAME);
       OScheduledEvent event = getEvent(schedulerName);
@@ -190,10 +181,10 @@ public class OSchedulerImpl {
 
         if (dirtyFields.contains(OScheduledEvent.PROP_RULE)) {
           // RULE CHANGED, STOP CURRENT EVENT AND RESCHEDULE IT
-          updateEvent(new OScheduledEvent(doc));
+          updateEvent(session, new OScheduledEvent(doc, session));
         } else {
           doc.field(OScheduledEvent.PROP_STATUS, OScheduler.STATUS.STOPPED.name());
-          event.fromStream(doc);
+          event.fromStream(session, doc);
         }
       }
 

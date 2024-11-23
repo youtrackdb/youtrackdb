@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 /**
- * Created by luigidellaquila on 21/02/17.
+ *
  */
 public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
 
@@ -61,7 +61,8 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
           }
 
           @Override
-          public void close(OCommandContext ctx) {}
+          public void close(OCommandContext ctx) {
+          }
         };
 
     return new OMultipleExecutionStream(res);

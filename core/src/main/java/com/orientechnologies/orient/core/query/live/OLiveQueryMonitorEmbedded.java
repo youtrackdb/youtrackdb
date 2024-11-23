@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 
 /**
- * Created by luigidellaquila on 15/06/17.
+ *
  */
 public class OLiveQueryMonitorEmbedded implements OLiveQueryMonitor {
 

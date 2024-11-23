@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql;
@@ -29,8 +29,6 @@ import java.util.Map;
 
 /**
  * SQL REMOVE INDEX command: Remove an index
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 @SuppressWarnings("unchecked")
 public class OCommandExecutorSQLRebuildIndex extends OCommandExecutorSQLAbstract
@@ -85,7 +83,7 @@ public class OCommandExecutorSQLRebuildIndex extends OCommandExecutorSQLAbstract
   /**
    * Execute the REMOVE INDEX.
    */
-  public Object execute(final Map<Object, Object> iArgs) {
+  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
     if (name == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
@@ -96,7 +94,7 @@ public class OCommandExecutorSQLRebuildIndex extends OCommandExecutorSQLAbstract
       long totalIndexed = 0;
       for (OIndex idx : database.getMetadata().getIndexManagerInternal().getIndexes(database)) {
         if (idx.isAutomatic()) {
-          totalIndexed += idx.rebuild();
+          totalIndexed += idx.rebuild(database);
         }
       }
 
@@ -115,7 +113,7 @@ public class OCommandExecutorSQLRebuildIndex extends OCommandExecutorSQLAbstract
                 + "' because it's manual and there aren't indications of what to index");
       }
 
-      return idx.rebuild();
+      return idx.rebuild(database);
     }
   }
 

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.network.protocol.http.command;
@@ -28,10 +28,8 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * Server based authenticated commands. Authenticates against the OrientDB server users found in
+ * Server based authenticated commands. Authenticates against the OxygenDB server users found in
  * configuration.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OServerCommandAuthenticatedServerAbstract extends OServerCommandAbstract {
 
@@ -105,7 +103,7 @@ public abstract class OServerCommandAuthenticatedServerAbstract extends OServerC
   }
 
   protected boolean checkGuestAccess() {
-    return server.getSecurity().isAuthorized(OServerConfiguration.GUEST_USER, resource);
+    return server.getSecurity().isAuthorized(null, OServerConfiguration.GUEST_USER, resource);
   }
 
   protected void sendNotAuthorizedResponse(

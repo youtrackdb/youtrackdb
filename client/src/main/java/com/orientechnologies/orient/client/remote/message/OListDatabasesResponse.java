@@ -2,6 +2,7 @@ package com.orientechnologies.orient.client.remote.message;
 
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
@@ -18,14 +19,16 @@ public class OListDatabasesResponse implements OBinaryResponse {
     this.databases = databases;
   }
 
-  public OListDatabasesResponse() {}
+  public OListDatabasesResponse() {
+  }
 
   @Override
-  public void write(OChannelDataOutput channel, int protocolVersion, ORecordSerializer serializer)
+  public void write(ODatabaseSessionInternal session, OChannelDataOutput channel,
+      int protocolVersion, ORecordSerializer serializer)
       throws IOException {
     final ODocument result = new ODocument();
     result.field("databases", databases);
-    byte[] toSend = serializer.toStream(result);
+    byte[] toSend = serializer.toStream(session, result);
     channel.writeBytes(toSend);
   }
 

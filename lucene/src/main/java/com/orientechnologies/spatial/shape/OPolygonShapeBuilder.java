@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,7 +9,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://www.orientdb.com
+ * <p>*
  */
 package com.orientechnologies.spatial.shape;
 
@@ -24,11 +22,15 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.locationtech.jts.geom.*;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.LineString;
+import org.locationtech.jts.geom.LinearRing;
+import org.locationtech.jts.geom.Polygon;
 import org.locationtech.spatial4j.shape.jts.JtsGeometry;
 
 /**
- * Created by enricorisa on 24/04/14.
+ *
  */
 public class OPolygonShapeBuilder extends OComplexShapeBuilder<JtsGeometry> {
 
@@ -47,11 +49,11 @@ public class OPolygonShapeBuilder extends OComplexShapeBuilder<JtsGeometry> {
 
     OSchema schema = db.getMetadata().getSchema();
     OClass polygon = schema.createAbstractClass(getName(), superClass(db));
-    polygon.createProperty(COORDINATES, OType.EMBEDDEDLIST, OType.EMBEDDEDLIST);
+    polygon.createProperty(db, COORDINATES, OType.EMBEDDEDLIST, OType.EMBEDDEDLIST);
 
     if (OGlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean()) {
       OClass polygonZ = schema.createAbstractClass(getName() + "Z", superClass(db));
-      polygonZ.createProperty(COORDINATES, OType.EMBEDDEDLIST, OType.EMBEDDEDLIST);
+      polygonZ.createProperty(db, COORDINATES, OType.EMBEDDEDLIST, OType.EMBEDDEDLIST);
     }
   }
 
@@ -150,12 +152,12 @@ public class OPolygonShapeBuilder extends OComplexShapeBuilder<JtsGeometry> {
                   poly ->
                       "("
                           + poly.stream()
-                              .map(
-                                  point ->
-                                      (point.stream()
-                                          .map(coord -> format(coord))
-                                          .collect(Collectors.joining(" "))))
-                              .collect(Collectors.joining(", "))
+                          .map(
+                              point ->
+                                  (point.stream()
+                                      .map(coord -> format(coord))
+                                      .collect(Collectors.joining(" "))))
+                          .collect(Collectors.joining(", "))
                           + ")")
               .collect(Collectors.joining(" "));
       return "POLYGON Z (" + result + ")";

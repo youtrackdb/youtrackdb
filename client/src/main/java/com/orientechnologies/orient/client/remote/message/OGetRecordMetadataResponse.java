@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,13 +14,14 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.client.remote.message;
 
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.storage.ORecordMetadata;
@@ -32,7 +33,8 @@ public class OGetRecordMetadataResponse implements OBinaryResponse {
 
   private ORecordMetadata metadata;
 
-  public OGetRecordMetadataResponse() {}
+  public OGetRecordMetadataResponse() {
+  }
 
   public OGetRecordMetadataResponse(ORecordMetadata metadata) {
     this.metadata = metadata;
@@ -45,7 +47,8 @@ public class OGetRecordMetadataResponse implements OBinaryResponse {
     metadata = new ORecordMetadata(recordId, version);
   }
 
-  public void write(OChannelDataOutput channel, int protocolVersion, ORecordSerializer serializer)
+  public void write(ODatabaseSessionInternal session, OChannelDataOutput channel,
+      int protocolVersion, ORecordSerializer serializer)
       throws IOException {
     channel.writeRID(metadata.getRecordId());
     channel.writeVersion(metadata.getVersion());

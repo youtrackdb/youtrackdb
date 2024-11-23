@@ -1,5 +1,5 @@
 #!/bin/sh
-# OrientDB Backup script
+# OxygenDB Backup script
 #
 # Copyright (c) Orient Technologies LTD (http://www.orientechnologies.com)
 

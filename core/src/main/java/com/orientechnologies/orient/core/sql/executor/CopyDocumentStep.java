@@ -2,7 +2,6 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 
@@ -12,8 +11,6 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
  *
  * <p>This is mainly used from statements that need to copy of the original data to save it
  * somewhere else, eg. INSERT ... FROM SELECT
- *
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class CopyDocumentStep extends AbstractExecutionStep {
 
@@ -30,15 +27,15 @@ public class CopyDocumentStep extends AbstractExecutionStep {
   }
 
   private static OResult mapResult(OResult result, OCommandContext ctx) {
-    OElement resultDoc;
+    ODocument resultDoc;
     if (result.isElement()) {
-      var docToCopy = result.toElement();
+      var docToCopy = (ODocument) result.toElement();
       resultDoc = docToCopy.copy();
       resultDoc.getIdentity().reset();
-      ((ODocument) resultDoc).setClassName(null);
+      resultDoc.setClassName(null);
       resultDoc.setDirty();
     } else {
-      resultDoc = result.toElement();
+      resultDoc = (ODocument) result.toElement();
     }
     return new OUpdatableResult(resultDoc);
   }

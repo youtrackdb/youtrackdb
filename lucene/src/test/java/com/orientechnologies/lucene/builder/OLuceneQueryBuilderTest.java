@@ -46,7 +46,8 @@ public class OLuceneQueryBuilderTest {
 
     final String invalidQuery = "+(song:private{}private)";
     final ODocument queryMetadata =
-        new ODocument().fromMap(Collections.singletonMap("reportQueryAs", "masked"));
+        new ODocument();
+    queryMetadata.fromMap(Collections.singletonMap("reportQueryAs", "masked"));
     try {
       builder.buildQuery(indexDef, invalidQuery, queryMetadata, new EnglishAnalyzer());
     } catch (ParseException e) {

@@ -10,7 +10,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by wolf4ood on 1/03/19.
+ *
  */
 public class RemoteGraphTXTest extends BaseServerMemoryDatabase {
 

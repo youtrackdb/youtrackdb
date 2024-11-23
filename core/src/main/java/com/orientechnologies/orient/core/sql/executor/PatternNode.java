@@ -5,7 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * Created by luigidellaquila on 28/07/15.
+ *
  */
 public class PatternNode {
 

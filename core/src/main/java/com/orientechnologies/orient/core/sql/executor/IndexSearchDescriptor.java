@@ -14,7 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Created by luigidellaquila on 26/07/16.
+ *
  */
 public class IndexSearchDescriptor {
 

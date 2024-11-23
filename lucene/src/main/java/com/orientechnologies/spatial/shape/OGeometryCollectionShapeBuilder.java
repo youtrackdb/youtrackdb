@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,7 +9,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://www.orientdb.com
+ * <p>*
  */
 package com.orientechnologies.spatial.shape;
 
@@ -28,7 +26,7 @@ import org.locationtech.spatial4j.shape.Shape;
 import org.locationtech.spatial4j.shape.ShapeCollection;
 
 /**
- * Created by Enrico Risa on 17/08/15.
+ *
  */
 public class OGeometryCollectionShapeBuilder extends OComplexShapeBuilder<ShapeCollection<Shape>> {
 
@@ -76,7 +74,7 @@ public class OGeometryCollectionShapeBuilder extends OComplexShapeBuilder<ShapeC
     OSchema schema = db.getMetadata().getSchema();
     OClass shape = superClass(db);
     OClass polygon = schema.createAbstractClass(getName(), shape);
-    polygon.createProperty("geometries", OType.EMBEDDEDLIST, shape);
+    polygon.createProperty(db, "geometries", OType.EMBEDDEDLIST, shape);
   }
 
   @Override

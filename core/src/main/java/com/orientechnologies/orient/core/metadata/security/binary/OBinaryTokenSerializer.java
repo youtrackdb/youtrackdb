@@ -41,11 +41,11 @@ public class OBinaryTokenSerializer implements OTokenMetaInfo {
 
   private OTokenPayloadDeserializer getForType(String type) {
     switch (type) {
-        // The "node" token is for backward compatibility for old distributed binary, may be removed
-        // if we do not support runtime compatibility with 3.1 or less
+      // The "node" token is for backward compatibility for old distributed binary, may be removed
+      // if we do not support runtime compatibility with 3.1 or less
       case "node":
         return new ODistributedBinaryTokenPayloadDeserializer();
-      case "OrientDB":
+      case "OxygenDB":
         return new OBinaryTokenPayloadDeserializer();
     }
     throw new ODatabaseException("Unknown payload type");
@@ -53,10 +53,10 @@ public class OBinaryTokenSerializer implements OTokenMetaInfo {
 
   public OBinaryTokenSerializer() {
     this(
-        new String[] {"plocal", "memory"},
-        new String[] {"dafault"},
-        new String[] {"HmacSHA256"},
-        new String[] {"OrientDB", "node"});
+        new String[]{"plocal", "memory"},
+        new String[]{"dafault"},
+        new String[]{"HmacSHA256"},
+        new String[]{"OxygenDB", "node"});
   }
 
   public Map<String, Byte> createMap(String[] entries) {

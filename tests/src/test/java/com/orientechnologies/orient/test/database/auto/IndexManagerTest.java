@@ -7,6 +7,7 @@ import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 import com.orientechnologies.common.listener.OProgressListener;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OCompositeIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
@@ -43,13 +44,13 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
     final OClass oClass = schema.createClass(CLASS_NAME);
 
-    oClass.createProperty("fOne", OType.INTEGER);
-    oClass.createProperty("fTwo", OType.STRING);
-    oClass.createProperty("fThree", OType.BOOLEAN);
-    oClass.createProperty("fFour", OType.INTEGER);
+    oClass.createProperty(database, "fOne", OType.INTEGER);
+    oClass.createProperty(database, "fTwo", OType.STRING);
+    oClass.createProperty(database, "fThree", OType.BOOLEAN);
+    oClass.createProperty(database, "fFour", OType.INTEGER);
 
-    oClass.createProperty("fSix", OType.STRING);
-    oClass.createProperty("fSeven", OType.STRING);
+    oClass.createProperty(database, "fSix", OType.STRING);
+    oClass.createProperty(database, "fSeven", OType.STRING);
   }
 
   @Test
@@ -62,13 +63,13 @@ public class IndexManagerTest extends DocumentDBBaseTest {
             "propertyone",
             OClass.INDEX_TYPE.UNIQUE.toString(),
             new OPropertyIndexDefinition(CLASS_NAME, "fOne", OType.INTEGER),
-            new int[] {database.getClusterIdByName(CLASS_NAME)},
+            new int[]{database.getClusterIdByName(CLASS_NAME)},
             null,
             null);
 
     assertEquals(result.getName(), "propertyone");
 
-    indexManager.reload();
+    indexManager.reload(database);
     assertEquals(
         database
             .getMetadata()
@@ -92,13 +93,12 @@ public class IndexManagerTest extends DocumentDBBaseTest {
                 Arrays.asList(
                     new OPropertyIndexDefinition(CLASS_NAME, "fOne", OType.INTEGER),
                     new OPropertyIndexDefinition(CLASS_NAME, "fTwo", OType.STRING))),
-            new int[] {database.getClusterIdByName(CLASS_NAME)},
+            new int[]{database.getClusterIdByName(CLASS_NAME)},
             null,
             null);
 
     assertEquals(result.getName(), "compositeone");
 
-    indexManager.reload();
     assertEquals(
         database
             .getMetadata()
@@ -124,7 +124,8 @@ public class IndexManagerTest extends DocumentDBBaseTest {
           }
 
           @Override
-          public void onCompletition(final Object iTask, final boolean iSucceed) {
+          public void onCompletition(ODatabaseSessionInternal session, final Object iTask,
+              final boolean iSucceed) {
             atomicInteger.incrementAndGet();
           }
         };
@@ -142,14 +143,13 @@ public class IndexManagerTest extends DocumentDBBaseTest {
                     new OPropertyIndexDefinition(CLASS_NAME, "fOne", OType.INTEGER),
                     new OPropertyIndexDefinition(CLASS_NAME, "fTwo", OType.STRING),
                     new OPropertyIndexDefinition(CLASS_NAME, "fThree", OType.BOOLEAN))),
-            new int[] {database.getClusterIdByName(CLASS_NAME)},
+            new int[]{database.getClusterIdByName(CLASS_NAME)},
             progressListener,
             null);
 
     assertEquals(result.getName(), "compositetwo");
     assertEquals(atomicInteger.get(), 2);
 
-    indexManager.reload();
     assertEquals(
         database
             .getMetadata()
@@ -161,9 +161,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testAreIndexedOneProperty() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -175,9 +175,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testAreIndexedDoesNotContainProperty() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -189,9 +189,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testAreIndexedTwoProperties() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -203,9 +203,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testAreIndexedThreeProperties() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -218,9 +218,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testAreIndexedThreePropertiesBrokenFiledNameCase() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -233,9 +233,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testAreIndexedThreePropertiesBrokenClassNameCase() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -249,9 +249,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testAreIndexedPropertiesNotFirst() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -263,9 +263,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testAreIndexedPropertiesMoreThanNeeded() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -278,9 +278,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testAreIndexedOnePropertyArrayParams() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -292,9 +292,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testAreIndexedDoesNotContainPropertyArrayParams() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -306,9 +306,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testAreIndexedTwoPropertiesArrayParams() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -320,9 +320,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testAreIndexedThreePropertiesArrayParams() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -334,9 +334,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testAreIndexedPropertiesNotFirstArrayParams() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -348,9 +348,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testAreIndexedPropertiesMoreThanNeededArrayParams() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -362,9 +362,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testGetClassInvolvedIndexesOnePropertyArrayParams() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -380,9 +380,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testGetClassInvolvedIndexesTwoPropertiesArrayParams() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -397,9 +397,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testGetClassInvolvedIndexesThreePropertiesArrayParams() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -413,9 +413,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testGetClassInvolvedIndexesNotInvolvedPropertiesArrayParams() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -428,9 +428,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testGetClassInvolvedIndexesPropertiesMorThanNeededArrayParams() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -444,9 +444,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testGetInvolvedIndexesPropertiesMorThanNeeded() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -460,9 +460,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testGetClassInvolvedIndexesNotExistingClass() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -475,9 +475,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testGetClassInvolvedIndexesOneProperty() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -494,9 +494,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testGetClassInvolvedIndexesOnePropertyBrokenClassNameCase() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -513,9 +513,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testGetClassInvolvedIndexesTwoProperties() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -530,9 +530,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testGetClassInvolvedIndexesThreeProperties() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -547,9 +547,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testGetClassInvolvedIndexesThreePropertiesBrokenFiledNameTest() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -564,9 +564,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testGetClassInvolvedIndexesNotInvolvedProperties() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -579,9 +579,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testGetClassInvolvedIndexesPropertiesMorThanNeeded() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -600,9 +600,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
     final OSchema schema = database.getMetadata().getSchema();
     final OClass oClass = schema.createClass(className);
 
-    oClass.createProperty("one", OType.STRING);
-    oClass.createProperty("two", OType.STRING);
-    oClass.createProperty("three", OType.STRING);
+    oClass.createProperty(database, "one", OType.STRING);
+    oClass.createProperty(database, "two", OType.STRING);
+    oClass.createProperty(database, "three", OType.STRING);
 
     indexManager.createIndex(
         database,
@@ -662,9 +662,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testGetClassIndexes() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -701,9 +701,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testGetClassIndexesBrokenClassNameCase() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -747,7 +747,7 @@ public class IndexManagerTest extends DocumentDBBaseTest {
         "anotherproperty",
         OClass.INDEX_TYPE.UNIQUE.toString(),
         new OPropertyIndexDefinition(CLASS_NAME, "fOne", OType.INTEGER),
-        new int[] {database.getClusterIdByName(CLASS_NAME)},
+        new int[]{database.getClusterIdByName(CLASS_NAME)},
         null,
         null);
 
@@ -764,7 +764,7 @@ public class IndexManagerTest extends DocumentDBBaseTest {
   public void testDropAllClassIndexes() {
     final OClass oClass =
         database.getMetadata().getSchema().createClass("indexManagerTestClassTwo");
-    oClass.createProperty("fOne", OType.INTEGER);
+    oClass.createProperty(database, "fOne", OType.INTEGER);
 
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
 
@@ -773,7 +773,7 @@ public class IndexManagerTest extends DocumentDBBaseTest {
         "twoclassproperty",
         OClass.INDEX_TYPE.UNIQUE.toString(),
         new OPropertyIndexDefinition("indexManagerTestClassTwo", "fOne", OType.INTEGER),
-        new int[] {database.getClusterIdByName("indexManagerTestClassTwo")},
+        new int[]{database.getClusterIdByName("indexManagerTestClassTwo")},
         null,
         null);
 
@@ -793,9 +793,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testGetClassIndex() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -807,9 +807,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testGetClassIndexBrokenClassNameCase() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -822,9 +822,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testGetClassIndexWrongIndexName() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();
@@ -835,9 +835,9 @@ public class IndexManagerTest extends DocumentDBBaseTest {
 
   @Test(
       dependsOnMethods = {
-        "createCompositeIndexTestWithListener",
-        "createCompositeIndexTestWithoutListener",
-        "testCreateOnePropertyIndexTest"
+          "createCompositeIndexTestWithListener",
+          "createCompositeIndexTestWithoutListener",
+          "testCreateOnePropertyIndexTest"
       })
   public void testGetClassIndexWrongClassName() {
     final OIndexManagerAbstract indexManager = database.getMetadata().getIndexManagerInternal();

@@ -10,7 +10,7 @@ import com.orientechnologies.orient.core.sql.OSQLEngine;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionFiltered;
 
 /**
- * Created by luigidellaquila on 03/01/17.
+ *
  */
 public abstract class OSQLFunctionMoveFiltered extends OSQLFunctionMove
     implements OSQLFunctionFiltered {

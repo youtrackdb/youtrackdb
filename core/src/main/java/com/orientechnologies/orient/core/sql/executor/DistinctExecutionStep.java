@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by luigidellaquila on 08/07/16.
+ *
  */
 public class DistinctExecutionStep extends AbstractExecutionStep {
 
@@ -82,7 +82,8 @@ public class DistinctExecutionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public void sendTimeout() {}
+  public void sendTimeout() {
+  }
 
   @Override
   public void close() {

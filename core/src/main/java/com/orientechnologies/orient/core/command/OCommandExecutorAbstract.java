@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.command;
@@ -40,8 +40,6 @@ import java.util.Set;
 
 /**
  * Abstract implementation of Executor Command interface.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 @SuppressWarnings("unchecked")
 public abstract class OCommandExecutorAbstract extends OBaseParser implements OCommandExecutor {
@@ -143,7 +141,7 @@ public abstract class OCommandExecutorAbstract extends OBaseParser implements OC
   }
 
   public OCommandDistributedReplicateRequest.DISTRIBUTED_RESULT_MGMT
-      getDistributedResultManagement() {
+  getDistributedResultManagement() {
     return OCommandDistributedReplicateRequest.DISTRIBUTED_RESULT_MGMT.CHECK_FOR_EQUALS;
   }
 

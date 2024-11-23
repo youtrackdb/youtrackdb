@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.plugin;
@@ -25,8 +25,6 @@ import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
 
 /**
  * Abstract class to make OServerHandler implementation easier.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OServerPluginAbstract implements OServerPlugin {
 
@@ -34,11 +32,13 @@ public abstract class OServerPluginAbstract implements OServerPlugin {
 
   @Override
   public void startup() {
-    if (!enabled) {}
+    if (!enabled) {
+    }
   }
 
   @Override
-  public void shutdown() {}
+  public void shutdown() {
+  }
 
   @Override
   public void sendShutdown() {
@@ -46,22 +46,28 @@ public abstract class OServerPluginAbstract implements OServerPlugin {
   }
 
   @Override
-  public void config(OServer oServer, OServerParameterConfiguration[] iParams) {}
+  public void config(OServer oServer, OServerParameterConfiguration[] iParams) {
+  }
 
   @Override
-  public void onClientConnection(final OClientConnection iConnection) {}
+  public void onClientConnection(final OClientConnection iConnection) {
+  }
 
   @Override
-  public void onClientDisconnection(final OClientConnection iConnection) {}
+  public void onClientDisconnection(final OClientConnection iConnection) {
+  }
 
   @Override
-  public void onBeforeClientRequest(final OClientConnection iConnection, final byte iRequestType) {}
+  public void onBeforeClientRequest(final OClientConnection iConnection, final byte iRequestType) {
+  }
 
   @Override
-  public void onAfterClientRequest(final OClientConnection iConnection, final byte iRequestType) {}
+  public void onAfterClientRequest(final OClientConnection iConnection, final byte iRequestType) {
+  }
 
   @Override
-  public void onClientError(final OClientConnection iConnection, final Throwable iThrowable) {}
+  public void onClientError(final OClientConnection iConnection, final Throwable iThrowable) {
+  }
 
   @Override
   public Object getContent(final String iURL) {

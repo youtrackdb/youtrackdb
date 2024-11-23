@@ -16,7 +16,7 @@ import com.orientechnologies.orient.core.metadata.schema.OSchemaEmbedded;
 import com.orientechnologies.orient.core.metadata.sequence.OSequenceLibraryImpl;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHook;
 import com.orientechnologies.orient.core.query.live.OLiveQueryHookV2;
-import com.orientechnologies.orient.core.record.ORecordAbstract;
+import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.schedule.OSchedulerImpl;
@@ -29,14 +29,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by tglman on 13/06/17.
+ *
  */
 public class OSharedContextEmbedded extends OSharedContext {
 
   protected Map<String, DistributedQueryContext> activeDistributedQueries;
   protected ViewManager viewManager;
 
-  public OSharedContextEmbedded(OStorage storage, OrientDBEmbedded orientDB) {
+  public OSharedContextEmbedded(OStorage storage, OxygenDBEmbedded orientDB) {
     this.orientDB = orientDB;
     this.storage = storage;
     init(storage);
@@ -49,7 +49,7 @@ public class OSharedContextEmbedded extends OSharedContext {
                 .getConfiguration()
                 .getContextConfiguration()
                 .getValueAsInteger(OGlobalConfiguration.DB_STRING_CAHCE_SIZE));
-    schema = new OSchemaEmbedded(this);
+    schema = new OSchemaEmbedded();
     security = orientDB.getSecuritySystem().newSecurity(storage.getName());
     indexManager = new OIndexManagerShared(storage);
     functionLibrary = new OFunctionLibraryImpl();
@@ -100,7 +100,7 @@ public class OSharedContextEmbedded extends OSharedContext {
         functionLibrary.load(database);
         scheduler.load(database);
         sequenceLibrary.load(database);
-        schema.onPostIndexManagement();
+        schema.onPostIndexManagement(database);
         viewManager.load();
         loaded = true;
       }
@@ -133,7 +133,7 @@ public class OSharedContextEmbedded extends OSharedContext {
 
   public synchronized void reload(ODatabaseSessionInternal database) {
     schema.reload(database);
-    indexManager.reload();
+    indexManager.reload(database);
     // The Immutable snapshot should be after index and schema that require and before everything
     // else that use it
     schema.forceSnapshot(database);
@@ -148,12 +148,13 @@ public class OSharedContextEmbedded extends OSharedContext {
     indexManager.create(database);
     security.create(database);
     functionLibrary.create(database);
-    sequenceLibrary.create(database);
+    OSequenceLibraryImpl.create(database);
     security.createClassTrigger(database);
-    scheduler.create(database);
+    OSchedulerImpl.create(database);
     schema.forceSnapshot(database);
 
     // CREATE BASE VERTEX AND EDGE CLASSES
+    schema.createClass(database, OElement.DEFAULT_CLASS_NAME);
     schema.createClass(database, "V");
     schema.createClass(database, "E");
 
@@ -188,8 +189,10 @@ public class OSharedContextEmbedded extends OSharedContext {
     this.load(database);
   }
 
-  public synchronized ODocument loadConfig(ODatabaseSessionInternal session, String name) {
-    return (ODocument)
+  public synchronized Map<String, Object> loadConfig(
+      ODatabaseSessionInternal session, String name) {
+    //noinspection unchecked
+    return (Map<String, Object>)
         OScenarioThreadLocal.executeAsDistributed(
             () -> {
               assert !session.getTransaction().isActive();
@@ -199,7 +202,7 @@ public class OSharedContextEmbedded extends OSharedContext {
                 ORecordId recordId = new ORecordId(id);
                 ODocument config = session.load(recordId);
                 ORecordInternal.setIdentity(config, new ORecordId(-1, -1));
-                return config;
+                return config.toMap();
               } else {
                 return null;
               }
@@ -210,7 +213,7 @@ public class OSharedContextEmbedded extends OSharedContext {
    * Store a configuration with a key, without checking eventual update version.
    */
   public synchronized void saveConfig(
-      ODatabaseSessionInternal session, String name, ODocument value) {
+      ODatabaseSessionInternal session, String name, Map<String, Object> value) {
     OScenarioThreadLocal.executeAsDistributed(
         () -> {
           assert !session.getTransaction().isActive();
@@ -218,7 +221,7 @@ public class OSharedContextEmbedded extends OSharedContext {
           String id = storage.getConfiguration().getProperty(propertyName);
           if (id != null) {
             ORecordId recordId = new ORecordId(id);
-            ORecordAbstract record;
+            ODocument record;
             try {
               record = session.load(recordId);
             } catch (ORecordNotFoundException rnfe) {
@@ -227,7 +230,7 @@ public class OSharedContextEmbedded extends OSharedContext {
             }
 
             var recordVersion = record.getVersion();
-            value.copyTo(record);
+            record.fromMap(value);
 
             ORecordInternal.setIdentity(record, recordId);
             ORecordInternal.setVersion(record, recordVersion);
@@ -238,7 +241,7 @@ public class OSharedContextEmbedded extends OSharedContext {
           } else {
             var record = new ODocument();
             ORecordInternal.unsetDirty(record);
-            value.copyTo(record);
+            record.fromMap(value);
             record.setDirty();
 
             ORID recordId =
@@ -249,12 +252,12 @@ public class OSharedContextEmbedded extends OSharedContext {
         });
   }
 
-  public ODocument loadDistributedConfig(ODatabaseSessionInternal session) {
+  public Map<String, Object> loadDistributedConfig(ODatabaseSessionInternal session) {
     return loadConfig(session, "ditributedConfig");
   }
 
   public void saveDistributedConfig(
-      ODatabaseSessionInternal session, String name, ODocument value) {
+      ODatabaseSessionInternal session, String name, Map<String, Object> value) {
     this.saveConfig(session, "ditributedConfig", value);
   }
 }

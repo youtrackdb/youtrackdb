@@ -17,8 +17,6 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
  *
  * <p>This step is used used in DELETE statement to make sure that you are not deleting vertices or
  * edges without passing for an explicit DELETE VERTEX/EDGE
- *
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public class CheckSafeDeleteStep extends AbstractExecutionStep {
 

@@ -2,15 +2,23 @@ package com.orientechnologies.orient.core.db.tool;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.*;
-import java.io.*;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
 public class ODatabaseImportSimpleCompatibilityTest {
 
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
 
   private ODatabaseSession importDatabase;
   private ODatabaseImport importer;
@@ -91,13 +99,15 @@ public class ODatabaseImportSimpleCompatibilityTest {
   private void setup(
       final String databaseName, final InputStream input, final OutputStream output) {
     final String importDbUrl = "embedded:target/import_" + this.getClass().getSimpleName();
-    orientDB =
+    oxygenDB =
         OCreateDatabaseUtil.createDatabase(
             databaseName, importDbUrl, OCreateDatabaseUtil.TYPE_MEMORY);
-    importDatabase = orientDB.open(databaseName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    importDatabase = oxygenDB.open(databaseName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     try {
-      importer = new ODatabaseImport((ODatabaseSessionInternal) importDatabase, input, iText -> {});
-      export = new ODatabaseExport((ODatabaseSessionInternal) importDatabase, output, iText -> {});
+      importer = new ODatabaseImport((ODatabaseSessionInternal) importDatabase, input, iText -> {
+      });
+      export = new ODatabaseExport((ODatabaseSessionInternal) importDatabase, output, iText -> {
+      });
     } catch (final IOException e) {
       e.printStackTrace();
     }
@@ -105,8 +115,8 @@ public class ODatabaseImportSimpleCompatibilityTest {
 
   private void tearDown(final String databaseName) {
     try {
-      orientDB.drop(databaseName);
-      orientDB.close();
+      oxygenDB.drop(databaseName);
+      oxygenDB.close();
     } catch (final Exception e) {
       System.out.println("Issues during teardown " + e.getMessage());
     }

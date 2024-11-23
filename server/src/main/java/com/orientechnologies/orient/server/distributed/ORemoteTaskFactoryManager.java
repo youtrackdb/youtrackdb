@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientechnologies.com
+ *
  *
  */
 package com.orientechnologies.orient.server.distributed;
@@ -23,8 +23,6 @@ import java.util.Collection;
 
 /**
  * Factory manager to handle multiple version of distributed protocols.
- *
- * @author Luca Garulli
  */
 public interface ORemoteTaskFactoryManager {
 

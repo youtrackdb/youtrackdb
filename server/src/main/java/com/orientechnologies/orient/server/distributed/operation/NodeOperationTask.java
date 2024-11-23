@@ -38,7 +38,8 @@ public class NodeOperationTask implements ORemoteTask {
     this.task = task;
   }
 
-  public NodeOperationTask() {}
+  public NodeOperationTask() {
+  }
 
   @Override
   public boolean hasResponse() {

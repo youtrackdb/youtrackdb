@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql;
@@ -25,6 +25,7 @@ import com.orientechnologies.orient.core.command.OCommandExecutor;
 import com.orientechnologies.orient.core.command.OCommandExecutorNotFoundException;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.filter.OSQLPredicate;
 import java.util.Map;
@@ -32,8 +33,6 @@ import java.util.Set;
 
 /**
  * SQL UPDATE command.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OCommandExecutorSQLDelegate extends OCommandExecutorSQLAbstract
     implements OCommandDistributedReplicateRequest {
@@ -76,8 +75,8 @@ public class OCommandExecutorSQLDelegate extends OCommandExecutorSQLAbstract
     return delegate.getDistributedTimeout();
   }
 
-  public Object execute(final Map<Object, Object> iArgs) {
-    return delegate.execute(iArgs);
+  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
+    return delegate.execute(iArgs, querySession);
   }
 
   @Override

@@ -8,13 +8,15 @@ import java.text.DecimalFormat;
 import javax.annotation.Nullable;
 
 /**
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ *
  */
 public abstract class AbstractExecutionStep implements OExecutionStepInternal {
 
   final OCommandContext ctx;
-  @Nullable protected OExecutionStepInternal prev = null;
-  @Nullable OExecutionStepInternal next = null;
+  @Nullable
+  protected OExecutionStepInternal prev = null;
+  @Nullable
+  OExecutionStepInternal next = null;
   protected boolean profilingEnabled;
 
   public AbstractExecutionStep(OCommandContext ctx, boolean profilingEnabled) {

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.index;
@@ -57,8 +57,6 @@ import java.util.stream.StreamSupport;
 
 /**
  * Abstract index implementation that supports multi-values for the same key.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OIndexMultiValues extends OIndexAbstract {
 
@@ -68,16 +66,16 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
 
   @Deprecated
   @Override
-  public Collection<ORID> get(Object key) {
+  public Collection<ORID> get(ODatabaseSessionInternal session, Object key) {
     final List<ORID> rids;
-    try (Stream<ORID> stream = getRids(key)) {
+    try (Stream<ORID> stream = getRids(session, key)) {
       rids = stream.collect(Collectors.toList());
     }
     return rids;
   }
 
   @Override
-  public Stream<ORID> getRidsIgnoreTx(Object key) {
+  public Stream<ORID> getRidsIgnoreTx(ODatabaseSessionInternal session, Object key) {
     final Object collatedKey = getCollatingValue(key);
     Stream<ORID> backedStream;
     acquireSharedLock();
@@ -88,7 +86,7 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
           if (apiVersion == 0) {
             //noinspection unchecked
             final Collection<ORID> values =
-                (Collection<ORID>) storage.getIndexValue(indexId, collatedKey);
+                (Collection<ORID>) storage.getIndexValue(session, indexId, collatedKey);
             if (values != null) {
               //noinspection resource
               stream = values.stream();
@@ -115,12 +113,11 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
   }
 
   @Override
-  public Stream<ORID> getRids(Object key) {
+  public Stream<ORID> getRids(ODatabaseSessionInternal session, Object key) {
     final Object collatedKey = getCollatingValue(key);
-    Stream<ORID> backedStream = getRidsIgnoreTx(key);
-    ODatabaseSessionInternal database = getDatabase();
+    Stream<ORID> backedStream = getRidsIgnoreTx(session, key);
     final OTransactionIndexChanges indexChanges =
-        database.getTransaction().getIndexChangesInternal(getName());
+        session.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return backedStream;
     }
@@ -138,7 +135,8 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
             txChanges.stream().map(OIdentifiable::getIdentity)));
   }
 
-  public OIndexMultiValues put(Object key, final OIdentifiable singleValue) {
+  public OIndexMultiValues put(ODatabaseSessionInternal session, Object key,
+      final OIdentifiable singleValue) {
     final ORID rid = singleValue.getIdentity();
 
     if (!rid.isValid()) {
@@ -153,26 +151,18 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
 
     key = getCollatingValue(key);
 
-    ODatabaseSessionInternal database = getDatabase();
-    if (database.getTransaction().isActive()) {
-      OTransaction singleTx = database.getTransaction();
-      singleTx.addIndexEntry(
-          this, super.getName(), OTransactionIndexChanges.OPERATION.PUT, key, singleValue);
-    } else {
-      database.begin();
-      OTransaction singleTx = database.getTransaction();
-      singleTx.addIndexEntry(
-          this, super.getName(), OTransactionIndexChanges.OPERATION.PUT, key, singleValue);
-      database.commit();
-    }
+    OTransaction singleTx = session.getTransaction();
+    singleTx.addIndexEntry(
+        this, super.getName(), OTransactionIndexChanges.OPERATION.PUT, key, singleValue);
     return this;
   }
 
   @Override
-  public void doPut(OAbstractPaginatedStorage storage, Object key, ORID rid)
+  public void doPut(ODatabaseSessionInternal session, OAbstractPaginatedStorage storage, Object key,
+      ORID rid)
       throws OInvalidIndexEngineIdException {
     if (apiVersion == 0) {
-      doPutV0(indexId, storage, im.getValueContainerAlgorithm(), getName(), key, rid);
+      doPutV0(session, indexId, storage, im.getValueContainerAlgorithm(), getName(), key, rid);
     } else if (apiVersion == 1) {
       doPutV1(storage, indexId, key, rid);
     } else {
@@ -186,7 +176,7 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
   }
 
   private static void doPutV0(
-      final int indexId,
+      ODatabaseSessionInternal session, final int indexId,
       final OAbstractPaginatedStorage storage,
       String valueContainerAlgorithm,
       String indexName,
@@ -198,7 +188,7 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
         new OMultivalueIndexKeyUpdaterImpl(
             identity, valueContainerAlgorithm, binaryFormatVersion, indexName);
 
-    storage.updateIndexEntry(indexId, key, creator);
+    storage.updateIndexEntry(session, indexId, key, creator);
   }
 
   private static void doPutV1(
@@ -208,25 +198,18 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
   }
 
   @Override
-  public boolean remove(Object key, final OIdentifiable value) {
+  public boolean remove(ODatabaseSessionInternal session, Object key, final OIdentifiable value) {
     key = getCollatingValue(key);
-
-    ODatabaseSessionInternal database = getDatabase();
-    if (database.getTransaction().isActive()) {
-      database.getTransaction().addIndexEntry(this, super.getName(), OPERATION.REMOVE, key, value);
-    } else {
-      database.begin();
-      database.getTransaction().addIndexEntry(this, super.getName(), OPERATION.REMOVE, key, value);
-      database.commit();
-    }
+    session.getTransaction().addIndexEntry(this, super.getName(), OPERATION.REMOVE, key, value);
     return true;
   }
 
   @Override
-  public boolean doRemove(OAbstractPaginatedStorage storage, Object key, ORID rid)
+  public boolean doRemove(ODatabaseSessionInternal session, OAbstractPaginatedStorage storage,
+      Object key, ORID rid)
       throws OInvalidIndexEngineIdException {
     if (apiVersion == 0) {
-      return doRemoveV0(indexId, storage, key, rid);
+      return doRemoveV0(session, indexId, storage, key, rid);
     }
 
     if (apiVersion == 1) {
@@ -237,21 +220,20 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
   }
 
   private static boolean doRemoveV0(
-      int indexId, OAbstractPaginatedStorage storage, Object key, OIdentifiable value)
+      ODatabaseSessionInternal session, int indexId, OAbstractPaginatedStorage storage, Object key,
+      OIdentifiable value)
       throws OInvalidIndexEngineIdException {
     Set<OIdentifiable> values;
     //noinspection unchecked
-    values = (Set<OIdentifiable>) storage.getIndexValue(indexId, key);
+    values = (Set<OIdentifiable>) storage.getIndexValue(session, indexId, key);
 
     if (values == null) {
       return false;
     }
 
     final OModifiableBoolean removed = new OModifiableBoolean(false);
-
     final OIndexKeyUpdater<Object> creator = new OMultivalueEntityRemover(value, removed);
-
-    storage.updateIndexEntry(indexId, key, creator);
+    storage.updateIndexEntry(session, indexId, key, creator);
 
     return removed.getValue();
   }
@@ -264,7 +246,8 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
 
   @Override
   public Stream<ORawPair<Object, ORID>> streamEntriesBetween(
-      Object fromKey, boolean fromInclusive, Object toKey, boolean toInclusive, boolean ascOrder) {
+      ODatabaseSessionInternal session, Object fromKey, boolean fromInclusive, Object toKey,
+      boolean toInclusive, boolean ascOrder) {
     fromKey = getCollatingValue(fromKey);
     toKey = getCollatingValue(toKey);
     Stream<ORawPair<Object, ORID>> stream;
@@ -275,14 +258,13 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
           stream =
               IndexStreamSecurityDecorator.decorateStream(
                   this,
-                  storage.iterateIndexEntriesBetween(
+                  storage.iterateIndexEntriesBetween(session,
                       indexId,
                       fromKey,
                       fromInclusive,
                       toKey,
                       toInclusive,
-                      ascOrder,
-                      MultiValuesTransformer.INSTANCE));
+                      ascOrder, MultiValuesTransformer.INSTANCE));
           break;
         } catch (OInvalidIndexEngineIdException ignore) {
           doReloadIndexEngine();
@@ -292,24 +274,20 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
       releaseSharedLock();
     }
 
-    ODatabaseSessionInternal database = getDatabase();
-
     final OTransactionIndexChanges indexChanges =
-        database.getTransaction().getIndexChangesInternal(getName());
+        session.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return stream;
     }
 
     final Stream<ORawPair<Object, ORID>> txStream;
     if (ascOrder) {
-      //noinspection resource
       txStream =
           StreamSupport.stream(
               new PureTxMultiValueBetweenIndexForwardSpliterator(
                   this, fromKey, fromInclusive, toKey, toInclusive, indexChanges),
               false);
     } else {
-      //noinspection resource
       txStream =
           StreamSupport.stream(
               new PureTxMultiValueBetweenIndexBackwardSplititerator(
@@ -327,7 +305,7 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
 
   @Override
   public Stream<ORawPair<Object, ORID>> streamEntriesMajor(
-      Object fromKey, boolean fromInclusive, boolean ascOrder) {
+      ODatabaseSessionInternal session, Object fromKey, boolean fromInclusive, boolean ascOrder) {
     fromKey = getCollatingValue(fromKey);
     Stream<ORawPair<Object, ORID>> stream;
     acquireSharedLock();
@@ -347,10 +325,9 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
     } finally {
       releaseSharedLock();
     }
-    ODatabaseSessionInternal database = getDatabase();
 
     final OTransactionIndexChanges indexChanges =
-        database.getTransaction().getIndexChangesInternal(getName());
+        session.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return stream;
     }
@@ -359,14 +336,12 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
 
     final Object lastKey = indexChanges.getLastKey();
     if (ascOrder) {
-      //noinspection resource
       txStream =
           StreamSupport.stream(
               new PureTxMultiValueBetweenIndexForwardSpliterator(
                   this, fromKey, fromInclusive, lastKey, true, indexChanges),
               false);
     } else {
-      //noinspection resource
       txStream =
           StreamSupport.stream(
               new PureTxMultiValueBetweenIndexBackwardSplititerator(
@@ -384,7 +359,7 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
 
   @Override
   public Stream<ORawPair<Object, ORID>> streamEntriesMinor(
-      Object toKey, boolean toInclusive, boolean ascOrder) {
+      ODatabaseSessionInternal session, Object toKey, boolean toInclusive, boolean ascOrder) {
     toKey = getCollatingValue(toKey);
     Stream<ORawPair<Object, ORID>> stream;
 
@@ -406,9 +381,8 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
       releaseSharedLock();
     }
 
-    ODatabaseSessionInternal database = getDatabase();
     final OTransactionIndexChanges indexChanges =
-        database.getTransaction().getIndexChangesInternal(getName());
+        session.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return stream;
     }
@@ -417,14 +391,12 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
 
     final Object firstKey = indexChanges.getFirstKey();
     if (ascOrder) {
-      //noinspection resource
       txStream =
           StreamSupport.stream(
               new PureTxMultiValueBetweenIndexForwardSpliterator(
                   this, firstKey, true, toKey, toInclusive, indexChanges),
               false);
     } else {
-      //noinspection resource
       txStream =
           StreamSupport.stream(
               new PureTxMultiValueBetweenIndexBackwardSplititerator(
@@ -441,7 +413,8 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> streamEntries(Collection<?> keys, boolean ascSortOrder) {
+  public Stream<ORawPair<Object, ORID>> streamEntries(ODatabaseSessionInternal session,
+      Collection<?> keys, boolean ascSortOrder) {
     final List<Object> sortedKeys = new ArrayList<>(keys);
     final Comparator<Object> comparator;
     if (ascSortOrder) {
@@ -454,14 +427,14 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
 
     Stream<ORawPair<Object, ORID>> stream =
         IndexStreamSecurityDecorator.decorateStream(
-            this, sortedKeys.stream().flatMap(this::streamForKey));
+            this, sortedKeys.stream().flatMap(key1 -> streamForKey(session, key1)));
 
-    ODatabaseSessionInternal database = getDatabase();
-    final OTransactionIndexChanges indexChanges =
-        database.getTransaction().getIndexChangesInternal(getName());
+    final OTransactionIndexChanges indexChanges = session.getTransaction()
+        .getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return stream;
     }
+
     Comparator<ORawPair<Object, ORID>> keyComparator;
     if (ascSortOrder) {
       keyComparator = AscComparator.INSTANCE;
@@ -493,7 +466,8 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
     return null;
   }
 
-  private Stream<ORawPair<Object, ORID>> streamForKey(Object key) {
+  private Stream<ORawPair<Object, ORID>> streamForKey(ODatabaseSessionInternal session,
+      Object key) {
     key = getCollatingValue(key);
 
     final Object entryKey = key;
@@ -503,7 +477,8 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
         try {
           if (apiVersion == 0) {
             //noinspection unchecked,resource
-            return Optional.ofNullable((Collection<ORID>) storage.getIndexValue(indexId, key))
+            return Optional.ofNullable(
+                    (Collection<ORID>) storage.getIndexValue(session, indexId, key))
                 .map((rids) -> rids.stream().map((rid) -> new ORawPair<>(entryKey, rid)))
                 .orElse(Stream.empty());
           } else if (apiVersion == 1) {
@@ -549,7 +524,7 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
     return new HashSet<>(result);
   }
 
-  public long size() {
+  public long size(ODatabaseSessionInternal session) {
     acquireSharedLock();
     long tot;
     try {
@@ -565,11 +540,10 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
       releaseSharedLock();
     }
 
-    ODatabaseSessionInternal database = getDatabase();
     final OTransactionIndexChanges indexChanges =
-        database.getTransaction().getIndexChanges(getName());
+        session.getTransaction().getIndexChanges(getName());
     if (indexChanges != null) {
-      try (Stream<ORawPair<Object, ORID>> stream = stream()) {
+      try (Stream<ORawPair<Object, ORID>> stream = stream(session)) {
         return stream.count();
       }
     }
@@ -578,7 +552,7 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> stream() {
+  public Stream<ORawPair<Object, ORID>> stream(ODatabaseSessionInternal session) {
     Stream<ORawPair<Object, ORID>> stream;
     acquireSharedLock();
     try {
@@ -596,9 +570,9 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
     } finally {
       releaseSharedLock();
     }
-    ODatabaseSessionInternal database = getDatabase();
+
     final OTransactionIndexChanges indexChanges =
-        database.getTransaction().getIndexChangesInternal(getName());
+        session.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return stream;
     }
@@ -665,7 +639,7 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
   }
 
   @Override
-  public Stream<ORawPair<Object, ORID>> descStream() {
+  public Stream<ORawPair<Object, ORID>> descStream(ODatabaseSessionInternal session) {
     Stream<ORawPair<Object, ORID>> stream;
     acquireSharedLock();
     try {
@@ -682,9 +656,9 @@ public abstract class OIndexMultiValues extends OIndexAbstract {
     } finally {
       releaseSharedLock();
     }
-    ODatabaseSessionInternal database = getDatabase();
+
     final OTransactionIndexChanges indexChanges =
-        database.getTransaction().getIndexChangesInternal(getName());
+        session.getTransaction().getIndexChangesInternal(getName());
     if (indexChanges == null) {
       return stream;
     }

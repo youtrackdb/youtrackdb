@@ -5,14 +5,14 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ *
  */
 public class ODropClusterStatementExecutionTest extends BaseMemoryDatabase {
 
   @Test
   public void testPlain() {
     String cluster = "testPlain";
-    db.getStorage().addCluster(cluster);
+    db.getStorage().addCluster(db, cluster);
 
     Assert.assertTrue(db.getClusterIdByName(cluster) > 0);
     OResultSet result = db.command("drop cluster " + cluster);
@@ -28,7 +28,7 @@ public class ODropClusterStatementExecutionTest extends BaseMemoryDatabase {
   @Test
   public void testDropClusterIfExists() {
     String cluster = "testDropClusterIfExists";
-    db.getStorage().addCluster(cluster);
+    db.getStorage().addCluster(db, cluster);
 
     Assert.assertTrue(db.getClusterIdByName(cluster) > 0);
     OResultSet result = db.command("drop cluster " + cluster + " IF EXISTS");

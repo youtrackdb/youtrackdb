@@ -5,7 +5,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by luigidellaquila on 04/11/16.
+ *
  */
 public class OResultSetTest {
 

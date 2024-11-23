@@ -21,26 +21,23 @@ public class ODocumentSerializerDeltaDistributed extends ODocumentSerializerDelt
     while (rootChanges-- > 0) {
       byte change = deserializeByte(bytes);
       switch (change) {
-        case CREATED:
-          {
-            ORecordId link = readOptimizedLink(bytes);
-            if (toUpdate != null) {
-              toUpdate.add(link);
-            }
-            break;
+        case CREATED: {
+          ORecordId link = readOptimizedLink(bytes);
+          if (toUpdate != null) {
+            toUpdate.add(link);
           }
-        case REPLACED:
-          {
-            break;
+          break;
+        }
+        case REPLACED: {
+          break;
+        }
+        case REMOVED: {
+          ORecordId link = readOptimizedLink(bytes);
+          if (toUpdate != null) {
+            toUpdate.remove(link);
           }
-        case REMOVED:
-          {
-            ORecordId link = readOptimizedLink(bytes);
-            if (toUpdate != null) {
-              toUpdate.remove(link);
-            }
-            break;
-          }
+          break;
+        }
       }
     }
     if (toUpdate != null) {

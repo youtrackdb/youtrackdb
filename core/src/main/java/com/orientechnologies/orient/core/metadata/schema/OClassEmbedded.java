@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.metadata.schema;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OArrays;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -21,7 +22,7 @@ import java.util.Locale;
 import java.util.concurrent.Callable;
 
 /**
- * Created by tglman on 14/06/17.
+ *
  */
 public class OClassEmbedded extends OClassImpl {
 
@@ -34,7 +35,7 @@ public class OClassEmbedded extends OClassImpl {
   }
 
   public OProperty addProperty(
-      final String propertyName,
+      ODatabaseSessionInternal session, final String propertyName,
       final OType type,
       final OType linkedType,
       final OClass linkedClass,
@@ -43,18 +44,17 @@ public class OClassEmbedded extends OClassImpl {
       throw new OSchemaException("Property type not defined.");
     }
 
-    if (propertyName == null || propertyName.length() == 0) {
+    if (propertyName == null || propertyName.isEmpty()) {
       throw new OSchemaException("Property name is null or empty");
     }
 
-    final ODatabaseSessionInternal database = getDatabase();
     validatePropertyName(propertyName);
-    if (database.getTransaction().isActive()) {
+    if (session.getTransaction().isActive()) {
       throw new OSchemaException(
           "Cannot create property '" + propertyName + "' inside a transaction");
     }
 
-    database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+    session.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
     if (linkedType != null) {
       OPropertyImpl.checkLinkTypeSupport(type);
@@ -64,31 +64,25 @@ public class OClassEmbedded extends OClassImpl {
       OPropertyImpl.checkSupportLinkedClass(type);
     }
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(session);
     try {
       return (OProperty)
-          OScenarioThreadLocal.executeAsDistributed(
-              new Callable<OProperty>() {
-                @Override
-                public OProperty call() throws Exception {
-                  return addPropertyInternal(propertyName, type, linkedType, linkedClass, unsafe);
-                }
-              });
+          (Callable<OProperty>) () -> addPropertyInternal(session, propertyName, type,
+              linkedType, linkedClass, unsafe);
 
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
   }
 
-  public OClassImpl setEncryption(final String iValue) {
-    final ODatabaseSessionInternal database = getDatabase();
-    database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  public OClassImpl setEncryption(ODatabaseSessionInternal session, final String iValue) {
+    session.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(session);
     try {
-      setEncryptionInternal(database, iValue);
+      setEncryptionInternal(session, iValue);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
     return this;
   }
@@ -101,20 +95,21 @@ public class OClassEmbedded extends OClassImpl {
   }
 
   @Override
-  public OClass setClusterSelection(final String value) {
-    final ODatabaseSessionInternal database = getDatabase();
+  public OClass setClusterSelection(ODatabaseSession session, final String value) {
+    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) session;
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(database);
     try {
-      setClusterSelectionInternal(value);
+      setClusterSelectionInternal(database, value);
       return this;
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(database);
     }
   }
 
-  public void setClusterSelectionInternal(final String clusterSelection) {
+  public void setClusterSelectionInternal(ODatabaseSessionInternal session,
+      final String clusterSelection) {
     // AVOID TO CHECK THIS IN LOCK TO AVOID RE-GENERATION OF IMMUTABLE SCHEMAS
     if (this.clusterSelection.getName().equals(clusterSelection))
     // NO CHANGES
@@ -122,73 +117,72 @@ public class OClassEmbedded extends OClassImpl {
       return;
     }
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(session);
     try {
       checkEmbedded();
 
       this.clusterSelection = owner.getClusterSelectionFactory().newInstance(clusterSelection);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
   }
 
-  public OClassImpl setCustom(final String name, final String value) {
-    final ODatabaseSessionInternal database = getDatabase();
+  public OClassImpl setCustom(ODatabaseSession session, final String name, final String value) {
+    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) session;
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(database);
     try {
-      setCustomInternal(name, value);
+      setCustomInternal(database, name, value);
       return this;
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(database);
     }
   }
 
-  public void clearCustom() {
-    final ODatabaseSessionInternal database = getDatabase();
+  public void clearCustom(ODatabaseSession session) {
+    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) session;
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(database);
     try {
-      clearCustomInternal();
-
+      clearCustomInternal(database);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(database);
     }
   }
 
-  protected void clearCustomInternal() {
-    acquireSchemaWriteLock();
+  protected void clearCustomInternal(ODatabaseSessionInternal session) {
+    acquireSchemaWriteLock(session);
     try {
       checkEmbedded();
 
       customFields = null;
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
   }
 
   @Override
-  public OClass setSuperClasses(final List<? extends OClass> classes) {
-    final ODatabaseSessionInternal database = getDatabase();
+  public OClass setSuperClasses(ODatabaseSession session, final List<? extends OClass> classes) {
+    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) session;
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
     if (classes != null) {
       List<OClass> toCheck = new ArrayList<OClass>(classes);
       toCheck.add(this);
       checkParametersConflict(toCheck);
     }
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(database);
     try {
-      setSuperClassesInternal(classes);
+      setSuperClassesInternal(database, classes);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(database);
     }
     return this;
   }
 
-  public OClass removeBaseClassInternal(final OClass baseClass) {
-    acquireSchemaWriteLock();
+  public OClass removeBaseClassInternal(ODatabaseSessionInternal session, final OClass baseClass) {
+    acquireSchemaWriteLock(session);
     try {
       checkEmbedded();
 
@@ -197,31 +191,31 @@ public class OClassEmbedded extends OClassImpl {
       }
 
       if (subclasses.remove(baseClass)) {
-        removePolymorphicClusterIds((OClassImpl) baseClass);
+        removePolymorphicClusterIds(session, (OClassImpl) baseClass);
       }
 
       return this;
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
   }
 
   @Override
-  public OClass addSuperClass(final OClass superClass) {
-    final ODatabaseSessionInternal database = getDatabase();
+  public OClass addSuperClass(ODatabaseSession session, final OClass superClass) {
+    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) session;
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
-    checkParametersConflict(superClass);
-    acquireSchemaWriteLock();
+    checkParametersConflict(database, superClass);
+    acquireSchemaWriteLock(database);
     try {
       addSuperClassInternal(database, superClass);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(database);
     }
     return this;
   }
 
   protected void addSuperClassInternal(ODatabaseSessionInternal database, final OClass superClass) {
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(database);
     try {
       final OClassImpl cls;
 
@@ -236,7 +230,7 @@ public class OClassEmbedded extends OClassImpl {
         // CHECK THE USER HAS UPDATE PRIVILEGE AGAINST EXTENDING CLASS
         final OSecurityUser user = database.getUser();
         if (user != null) {
-          user.allow(ORule.ResourceGeneric.CLASS, cls.getName(), ORole.PERMISSION_UPDATE);
+          user.allow(database, ORule.ResourceGeneric.CLASS, cls.getName(), ORole.PERMISSION_UPDATE);
         }
 
         if (superClasses.contains(superClass)) {
@@ -248,30 +242,31 @@ public class OClassEmbedded extends OClassImpl {
                   + "' as superclass");
         }
 
-        cls.addBaseClass(this);
+        cls.addBaseClass(database, this);
         superClasses.add(cls);
       }
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(database);
     }
   }
 
   @Override
-  public OClass removeSuperClass(OClass superClass) {
-    final ODatabaseSessionInternal database = getDatabase();
+  public OClass removeSuperClass(ODatabaseSession session, OClass superClass) {
+    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) session;
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(database);
     try {
-      removeSuperClassInternal(superClass);
+      removeSuperClassInternal(database, superClass);
 
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(database);
     }
     return this;
   }
 
-  protected void removeSuperClassInternal(final OClass superClass) {
-    acquireSchemaWriteLock();
+  protected void removeSuperClassInternal(ODatabaseSessionInternal session,
+      final OClass superClass) {
+    acquireSchemaWriteLock(session);
     try {
       final OClassImpl cls;
 
@@ -283,17 +278,18 @@ public class OClassEmbedded extends OClassImpl {
 
       if (superClasses.contains(cls)) {
         if (cls != null) {
-          cls.removeBaseClassInternal(this);
+          cls.removeBaseClassInternal(session, this);
         }
 
         superClasses.remove(superClass);
       }
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
   }
 
-  protected void setSuperClassesInternal(final List<? extends OClass> classes) {
+  protected void setSuperClassesInternal(ODatabaseSessionInternal session,
+      final List<? extends OClass> classes) {
     List<OClassImpl> newSuperClasses = new ArrayList<OClassImpl>();
     OClassImpl cls;
     for (OClass superClass : classes) {
@@ -316,20 +312,20 @@ public class OClassEmbedded extends OClassImpl {
     toRemoveList.removeAll(newSuperClasses);
 
     for (OClassImpl toRemove : toRemoveList) {
-      toRemove.removeBaseClassInternal(this);
+      toRemove.removeBaseClassInternal(session, this);
     }
     for (OClassImpl addTo : toAddList) {
-      addTo.addBaseClass(this);
+      addTo.addBaseClass(session, this);
     }
     superClasses.clear();
     superClasses.addAll(newSuperClasses);
   }
 
-  public OClass setName(final String name) {
+  public OClass setName(ODatabaseSession session, final String name) {
     if (getName().equals(name)) {
       return this;
     }
-    final ODatabaseSessionInternal database = getDatabase();
+    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) session;
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
     final Character wrongCharacter = OSchemaShared.checkClassNameIfValid(name);
     OClass oClass = database.getMetadata().getSchema().getClass(name);
@@ -339,6 +335,7 @@ public class OClassEmbedded extends OClassImpl {
               "Cannot rename class %s to %s. A Class with name %s exists", this.name, name, name);
       throw new OSchemaException(error);
     }
+    //noinspection ConstantValue
     if (wrongCharacter != null) {
       throw new OSchemaException(
           "Invalid class name found. Character '"
@@ -347,11 +344,11 @@ public class OClassEmbedded extends OClassImpl {
               + name
               + "'");
     }
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(database);
     try {
       setNameInternal(database, name);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(database);
     }
 
     return this;
@@ -359,43 +356,44 @@ public class OClassEmbedded extends OClassImpl {
 
   protected void setNameInternal(ODatabaseSessionInternal database, final String name) {
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(database);
     try {
       checkEmbedded();
       final String oldName = this.name;
       owner.changeClassName(database, this.name, name, this);
       this.name = name;
-      renameCluster(oldName, this.name);
+      renameCluster(database, oldName, this.name);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(database);
     }
   }
 
-  public void setDefaultClusterId(final int defaultClusterId) {
-    acquireSchemaWriteLock();
+  public void setDefaultClusterId(ODatabaseSession session, final int defaultClusterId) {
+    var sessionInternal = (ODatabaseSessionInternal) session;
+    acquireSchemaWriteLock(sessionInternal);
     try {
       checkEmbedded();
       this.defaultClusterId = defaultClusterId;
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(sessionInternal);
     }
   }
 
-  public OClass setShortName(String shortName) {
+  public OClass setShortName(ODatabaseSession session, String shortName) {
     if (shortName != null) {
       shortName = shortName.trim();
       if (shortName.isEmpty()) {
         shortName = null;
       }
     }
-    final ODatabaseSessionInternal database = getDatabase();
+    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) session;
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(database);
     try {
       setShortNameInternal(database, shortName);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(database);
     }
 
     return this;
@@ -404,7 +402,7 @@ public class OClassEmbedded extends OClassImpl {
   protected void setShortNameInternal(ODatabaseSessionInternal database, final String iShortName) {
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(database);
     try {
       checkEmbedded();
 
@@ -418,7 +416,7 @@ public class OClassEmbedded extends OClassImpl {
 
       this.shortName = iShortName;
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(database);
     }
   }
 
@@ -427,17 +425,17 @@ public class OClassEmbedded extends OClassImpl {
   }
 
   public OPropertyImpl addPropertyInternal(
-      final String name,
+      ODatabaseSessionInternal session, final String name,
       final OType type,
       final OType linkedType,
       final OClass linkedClass,
       final boolean unsafe) {
-    if (name == null || name.length() == 0) {
+    if (name == null || name.isEmpty()) {
       throw new OSchemaException("Found property name null");
     }
 
     if (!unsafe) {
-      checkPersistentPropertyType(getDatabase(), name, type, linkedClass);
+      checkPersistentPropertyType(session, name, type, linkedClass);
     }
 
     final OPropertyEmbedded prop;
@@ -451,7 +449,7 @@ public class OClassEmbedded extends OClassImpl {
       OPropertyImpl.checkSupportLinkedClass(type);
     }
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(session);
     try {
       checkEmbedded();
 
@@ -466,16 +464,16 @@ public class OClassEmbedded extends OClassImpl {
       properties.put(name, prop);
 
       if (linkedType != null) {
-        prop.setLinkedTypeInternal(linkedType);
+        prop.setLinkedTypeInternal(session, linkedType);
       } else if (linkedClass != null) {
-        prop.setLinkedClassInternal(linkedClass);
+        prop.setLinkedClassInternal(session, linkedClass);
       }
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
 
     if (prop != null && !unsafe) {
-      fireDatabaseMigration(getDatabase(), name, type);
+      fireDatabaseMigration(session, name, type);
     }
 
     return prop;
@@ -489,95 +487,97 @@ public class OClassEmbedded extends OClassImpl {
    * {@inheritDoc}
    */
   @Override
-  public OClass truncateCluster(String clusterName) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.CLASS, ORole.PERMISSION_DELETE, name);
+  public OClass truncateCluster(ODatabaseSession session, String clusterName) {
+    var database = (ODatabaseSessionInternal) session;
+    database.checkSecurity(ORule.ResourceGeneric.CLASS, ORole.PERMISSION_DELETE, name);
 
-    truncateClusterInternal(clusterName, getDatabase());
+    truncateClusterInternal(clusterName, database);
 
     return this;
   }
 
-  public OClass setStrictMode(final boolean isStrict) {
-    final ODatabaseSessionInternal database = getDatabase();
+  public OClass setStrictMode(ODatabaseSession session, final boolean isStrict) {
+    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) session;
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(database);
     try {
-      setStrictModeInternal(isStrict);
+      setStrictModeInternal(database, isStrict);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(database);
     }
 
     return this;
   }
 
-  protected void setStrictModeInternal(final boolean iStrict) {
-    getDatabase().checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  protected void setStrictModeInternal(ODatabaseSessionInternal session, final boolean iStrict) {
+    session.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(session);
     try {
       checkEmbedded();
 
       this.strictMode = iStrict;
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
   }
 
-  public OClass setDescription(String iDescription) {
+  public OClass setDescription(ODatabaseSession session, String iDescription) {
     if (iDescription != null) {
       iDescription = iDescription.trim();
       if (iDescription.isEmpty()) {
         iDescription = null;
       }
     }
-    final ODatabaseSessionInternal database = getDatabase();
+    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) session;
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(database);
     try {
-      setDescriptionInternal(iDescription);
+      setDescriptionInternal(database, iDescription);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(database);
     }
 
     return this;
   }
 
-  protected void setDescriptionInternal(final String iDescription) {
-    acquireSchemaWriteLock();
+  protected void setDescriptionInternal(ODatabaseSessionInternal session,
+      final String iDescription) {
+    acquireSchemaWriteLock(session);
     try {
       checkEmbedded();
       this.description = iDescription;
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
   }
 
-  public OClass addClusterId(final int clusterId) {
-    final ODatabaseSessionInternal database = getDatabase();
+  public OClass addClusterId(ODatabaseSession session, final int clusterId) {
+    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) session;
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
     if (isAbstract()) {
       throw new OSchemaException("Impossible to associate a cluster to an abstract class class");
     }
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(database);
     try {
       addClusterIdInternal(database, clusterId);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(database);
     }
     return this;
   }
 
-  public OClass removeClusterId(final int clusterId) {
-    return removeClusterId(clusterId, false);
+  public OClass removeClusterId(ODatabaseSession session, final int clusterId) {
+    return removeClusterId((ODatabaseSessionInternal) session, clusterId, false);
   }
 
-  public OClass removeClusterId(final int clusterId, boolean force) {
-    final ODatabaseSessionInternal database = getDatabase();
-    database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
+  public OClass removeClusterId(ODatabaseSessionInternal session, final int clusterId,
+      boolean force) {
+    session.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
     if (!force && clusterIds.length == 1 && clusterId == clusterIds[0]) {
       throw new ODatabaseException(
@@ -586,20 +586,19 @@ public class OClassEmbedded extends OClassImpl {
               + "' drop the class instead");
     }
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(session);
     try {
-      removeClusterIdInternal(database, clusterId);
+      removeClusterIdInternal(session, clusterId);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
 
     return this;
   }
 
-  protected OClass removeClusterIdInternal(
+  protected void removeClusterIdInternal(
       ODatabaseSessionInternal database, final int clusterToRemove) {
-
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(database);
     try {
       checkEmbedded();
 
@@ -625,7 +624,7 @@ public class OClassEmbedded extends OClassImpl {
         }
         clusterIds = newClusterIds;
 
-        removePolymorphicClusterId(clusterToRemove);
+        removePolymorphicClusterId(database, clusterToRemove);
       }
 
       if (defaultClusterId == clusterToRemove) {
@@ -636,23 +635,22 @@ public class OClassEmbedded extends OClassImpl {
         }
       }
 
-      ((OSchemaEmbedded) owner).removeClusterForClass(database, clusterToRemove, this);
+      ((OSchemaEmbedded) owner).removeClusterForClass(database, clusterToRemove);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(database);
     }
 
-    return this;
   }
 
-  public void dropProperty(final String propertyName) {
-    final ODatabaseSessionInternal database = getDatabase();
+  public void dropProperty(ODatabaseSession session, final String propertyName) {
+    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) session;
     if (database.getTransaction().isActive()) {
       throw new IllegalStateException("Cannot drop a property inside a transaction");
     }
 
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_DELETE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(database);
     try {
       if (!properties.containsKey(propertyName)) {
         throw new OSchemaException(
@@ -667,7 +665,7 @@ public class OClassEmbedded extends OClassImpl {
               });
 
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(database);
     }
   }
 
@@ -678,7 +676,7 @@ public class OClassEmbedded extends OClassImpl {
     }
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_DELETE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(database);
     try {
       checkEmbedded();
 
@@ -689,38 +687,38 @@ public class OClassEmbedded extends OClassImpl {
             "Property '" + iPropertyName + "' not found in class " + name + "'");
       }
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(database);
     }
   }
 
   @Override
-  public OClass addCluster(final String clusterNameOrId) {
-    final ODatabaseSessionInternal database = getDatabase();
+  public OClass addCluster(ODatabaseSession session, final String clusterNameOrId) {
+    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) session;
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
     if (isAbstract()) {
       throw new OSchemaException("Impossible to associate a cluster to an abstract class class");
     }
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(database);
     try {
       final int clusterId = owner.createClusterIfNeeded(database, clusterNameOrId);
       addClusterIdInternal(database, clusterId);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(database);
     }
 
     return this;
   }
 
-  public OClass setOverSize(final float overSize) {
-    final ODatabaseSessionInternal database = getDatabase();
+  public OClass setOverSize(ODatabaseSession session, final float overSize) {
+    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) session;
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(database);
     try {
       setOverSizeInternal(database, overSize);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(database);
     }
 
     return this;
@@ -728,32 +726,33 @@ public class OClassEmbedded extends OClassImpl {
 
   protected void setOverSizeInternal(ODatabaseSessionInternal database, final float overSize) {
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(database);
     try {
       checkEmbedded();
 
       this.overSize = overSize;
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(database);
     }
   }
 
-  public OClass setAbstract(boolean isAbstract) {
-    final ODatabaseSessionInternal database = getDatabase();
+  public OClass setAbstract(ODatabaseSession session, boolean isAbstract) {
+    final ODatabaseSessionInternal database = (ODatabaseSessionInternal) session;
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(database);
     try {
       setAbstractInternal(database, isAbstract);
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(database);
     }
 
     return this;
   }
 
-  protected void setCustomInternal(final String name, final String value) {
-    acquireSchemaWriteLock();
+  protected void setCustomInternal(ODatabaseSessionInternal session, final String name,
+      final String value) {
+    acquireSchemaWriteLock(session);
     try {
       checkEmbedded();
 
@@ -766,32 +765,32 @@ public class OClassEmbedded extends OClassImpl {
         customFields.put(name, value);
       }
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(session);
     }
   }
 
   protected void setAbstractInternal(ODatabaseSessionInternal database, final boolean isAbstract) {
     database.checkSecurity(ORule.ResourceGeneric.SCHEMA, ORole.PERMISSION_UPDATE);
 
-    acquireSchemaWriteLock();
+    acquireSchemaWriteLock(database);
     try {
       if (isAbstract) {
         // SWITCH TO ABSTRACT
         if (defaultClusterId != NOT_EXISTENT_CLUSTER_ID) {
           // CHECK
-          if (count() > 0) {
+          if (count(database) > 0) {
             throw new IllegalStateException(
                 "Cannot set the class as abstract because contains records.");
           }
 
-          tryDropCluster(defaultClusterId);
+          tryDropCluster(database, defaultClusterId);
           for (int clusterId : getClusterIds()) {
-            tryDropCluster(clusterId);
-            removePolymorphicClusterId(clusterId);
-            ((OSchemaEmbedded) owner).removeClusterForClass(database, clusterId, this);
+            tryDropCluster(database, clusterId);
+            removePolymorphicClusterId(database, clusterId);
+            ((OSchemaEmbedded) owner).removeClusterForClass(database, clusterId);
           }
 
-          setClusterIds(new int[] {NOT_EXISTENT_CLUSTER_ID});
+          setClusterIds(new int[]{NOT_EXISTENT_CLUSTER_ID});
 
           defaultClusterId = NOT_EXISTENT_CLUSTER_ID;
         }
@@ -810,7 +809,7 @@ public class OClassEmbedded extends OClassImpl {
         this.polymorphicClusterIds = Arrays.copyOf(clusterIds, clusterIds.length);
         for (OClass clazz : getAllSubclasses()) {
           if (clazz instanceof OClassImpl) {
-            addPolymorphicClusterIds((OClassImpl) clazz);
+            addPolymorphicClusterIds(database, (OClassImpl) clazz);
           } else {
             OLogManager.instance()
                 .warn(this, "Warning: cannot set polymorphic cluster IDs for class " + name);
@@ -820,21 +819,21 @@ public class OClassEmbedded extends OClassImpl {
 
       this.abstractClass = isAbstract;
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(database);
     }
   }
 
-  private void tryDropCluster(final int clusterId) {
-    if (name.toLowerCase(Locale.ENGLISH).equals(getDatabase().getClusterNameById(clusterId))) {
+  private void tryDropCluster(ODatabaseSessionInternal session, final int clusterId) {
+    if (name.toLowerCase(Locale.ENGLISH).equals(session.getClusterNameById(clusterId))) {
       // DROP THE DEFAULT CLUSTER CALLED WITH THE SAME NAME ONLY IF EMPTY
-      if (getDatabase().countClusterElements(clusterId) == 0) {
-        getDatabase().dropClusterInternal(clusterId);
+      if (session.countClusterElements(clusterId) == 0) {
+        session.dropClusterInternal(clusterId);
       }
     }
   }
 
-  protected OClass addClusterIdInternal(ODatabaseSessionInternal database, final int clusterId) {
-    acquireSchemaWriteLock();
+  protected void addClusterIdInternal(ODatabaseSessionInternal database, final int clusterId) {
+    acquireSchemaWriteLock(database);
     try {
       checkEmbedded();
 
@@ -844,7 +843,7 @@ public class OClassEmbedded extends OClassImpl {
         if (currId == clusterId)
         // ALREADY ADDED
         {
-          return this;
+          return;
         }
       }
 
@@ -852,20 +851,19 @@ public class OClassEmbedded extends OClassImpl {
       clusterIds[clusterIds.length - 1] = clusterId;
       Arrays.sort(clusterIds);
 
-      addPolymorphicClusterId(clusterId);
+      addPolymorphicClusterId(database, clusterId);
 
       if (defaultClusterId == NOT_EXISTENT_CLUSTER_ID) {
         defaultClusterId = clusterId;
       }
 
       ((OSchemaEmbedded) owner).addClusterForClass(database, clusterId, this);
-      return this;
     } finally {
-      releaseSchemaWriteLock();
+      releaseSchemaWriteLock(database);
     }
   }
 
-  protected void addPolymorphicClusterId(int clusterId) {
+  protected void addPolymorphicClusterId(ODatabaseSessionInternal session, int clusterId) {
     if (Arrays.binarySearch(polymorphicClusterIds, clusterId) >= 0) {
       return;
     }
@@ -874,25 +872,25 @@ public class OClassEmbedded extends OClassImpl {
     polymorphicClusterIds[polymorphicClusterIds.length - 1] = clusterId;
     Arrays.sort(polymorphicClusterIds);
 
-    addClusterIdToIndexes(clusterId);
+    addClusterIdToIndexes(session, clusterId);
 
     for (OClassImpl superClass : superClasses) {
-      ((OClassEmbedded) superClass).addPolymorphicClusterId(clusterId);
+      ((OClassEmbedded) superClass).addPolymorphicClusterId(session, clusterId);
     }
   }
 
-  protected void addClusterIdToIndexes(int iId) {
-    final String clusterName = getDatabase().getClusterNameById(iId);
+  protected void addClusterIdToIndexes(ODatabaseSessionInternal session, int iId) {
+    var clusterName = session.getClusterNameById(iId);
     final List<String> indexesToAdd = new ArrayList<String>();
 
-    for (OIndex index : getIndexes()) {
+    for (OIndex index : getIndexes(session)) {
       indexesToAdd.add(index.getName());
     }
 
     final OIndexManagerAbstract indexManager =
-        getDatabase().getMetadata().getIndexManagerInternal();
+        session.getMetadata().getIndexManagerInternal();
     for (String indexName : indexesToAdd) {
-      indexManager.addClusterToIndex(clusterName, indexName);
+      indexManager.addClusterToIndex(session, clusterName, indexName);
     }
   }
 }

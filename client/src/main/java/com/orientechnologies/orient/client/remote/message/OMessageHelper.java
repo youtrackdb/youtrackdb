@@ -6,8 +6,9 @@ import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.client.remote.OCollectionNetworkSerializer;
 import com.orientechnologies.orient.client.remote.message.tx.IndexChange;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.OSerializationException;
@@ -47,7 +48,8 @@ import java.util.UUID;
 public class OMessageHelper {
 
   public static void writeIdentifiable(
-      OChannelDataOutput channel, final OIdentifiable o, ORecordSerializer serializer)
+      ODatabaseSessionInternal session, OChannelDataOutput channel, final OIdentifiable o,
+      ORecordSerializer serializer)
       throws IOException {
     if (o == null) {
       channel.writeShort(OChannelBinaryProtocol.RECORD_NULL);
@@ -55,19 +57,20 @@ public class OMessageHelper {
       channel.writeShort(OChannelBinaryProtocol.RECORD_RID);
       channel.writeRID((ORID) o);
     } else {
-      writeRecord(channel, o.getRecord(), serializer);
+      writeRecord(session, channel, o.getRecord(), serializer);
     }
   }
 
   public static void writeRecord(
-      OChannelDataOutput channel, ORecord iRecord, ORecordSerializer serializer)
+      ODatabaseSessionInternal session, OChannelDataOutput channel, ORecordAbstract iRecord,
+      ORecordSerializer serializer)
       throws IOException {
     channel.writeShort((short) 0);
     channel.writeByte(ORecordInternal.getRecordType(iRecord));
     channel.writeRID(iRecord.getIdentity());
     channel.writeVersion(iRecord.getVersion());
     try {
-      final byte[] stream = getRecordBytes(iRecord, serializer);
+      final byte[] stream = getRecordBytes(session, iRecord, serializer);
       channel.writeBytes(stream);
     } catch (Exception e) {
       channel.writeBytes(null);
@@ -78,17 +81,17 @@ public class OMessageHelper {
     }
   }
 
-  public static byte[] getRecordBytes(final ORecord iRecord, ORecordSerializer serializer) {
-
+  public static byte[] getRecordBytes(ODatabaseSessionInternal session,
+      final ORecordAbstract iRecord, ORecordSerializer serializer) {
     final byte[] stream;
     String dbSerializerName = null;
     if (ODatabaseRecordThreadLocal.instance().getIfDefined() != null) {
-      dbSerializerName = (((ORecordAbstract) iRecord).getDatabase()).getSerializer().toString();
+      dbSerializerName = (iRecord.getSession()).getSerializer().toString();
     }
     if (ORecordInternal.getRecordType(iRecord) == ODocument.RECORD_TYPE
         && (dbSerializerName == null || !dbSerializerName.equals(serializer.toString()))) {
       ((ODocument) iRecord).deserializeFields();
-      stream = serializer.toStream(iRecord);
+      stream = serializer.toStream(session, iRecord);
     } else {
       stream = iRecord.toStream();
     }
@@ -414,8 +417,8 @@ public class OMessageHelper {
     final int version = network.readVersion();
     final byte[] content = network.readBytes();
 
-    ORecord record =
-        Orient.instance()
+    ORecordAbstract record =
+        Oxygen.instance()
             .getRecordFactoryManager()
             .newInstance(rec, rid, ODatabaseRecordThreadLocal.instance().getIfDefined());
     ORecordInternal.setVersion(record, version);
@@ -432,49 +435,55 @@ public class OMessageHelper {
   }
 
   private static void writeBlob(
-      OResult row, OChannelDataOutput channel, ORecordSerializer recordSerializer)
+      ODatabaseSessionInternal session, OResult row, OChannelDataOutput channel,
+      ORecordSerializer recordSerializer)
       throws IOException {
     channel.writeByte(OQueryResponse.RECORD_TYPE_BLOB);
-    writeIdentifiable(channel, row.getBlob().get(), recordSerializer);
+    writeIdentifiable(session, channel, row.getBlob().get(), recordSerializer);
   }
 
   private static void writeVertex(
-      OResult row, OChannelDataOutput channel, ORecordSerializer recordSerializer)
+      ODatabaseSessionInternal session, OResult row, OChannelDataOutput channel,
+      ORecordSerializer recordSerializer)
       throws IOException {
     channel.writeByte(OQueryResponse.RECORD_TYPE_VERTEX);
-    writeDocument(channel, row.getElement().get().getRecord(), recordSerializer);
+    writeDocument(session, channel, row.getElement().get().getRecord(), recordSerializer);
   }
 
   private static void writeElement(
-      OResult row, OChannelDataOutput channel, ORecordSerializer recordSerializer)
+      ODatabaseSessionInternal session, OResult row, OChannelDataOutput channel,
+      ORecordSerializer recordSerializer)
       throws IOException {
     channel.writeByte(OQueryResponse.RECORD_TYPE_ELEMENT);
-    writeDocument(channel, row.getElement().get().getRecord(), recordSerializer);
+    writeDocument(session, channel, row.getElement().get().getRecord(), recordSerializer);
   }
 
   private static void writeEdge(
-      OResult row, OChannelDataOutput channel, ORecordSerializer recordSerializer)
+      ODatabaseSessionInternal session, OResult row, OChannelDataOutput channel,
+      ORecordSerializer recordSerializer)
       throws IOException {
     channel.writeByte(OQueryResponse.RECORD_TYPE_EDGE);
-    writeDocument(channel, row.getElement().get().getRecord(), recordSerializer);
+    writeDocument(session, channel, row.getElement().get().getRecord(), recordSerializer);
   }
 
   private static void writeDocument(
-      OChannelDataOutput channel, ODocument doc, ORecordSerializer serializer) throws IOException {
-    writeIdentifiable(channel, doc, serializer);
+      ODatabaseSessionInternal session, OChannelDataOutput channel, ODocument doc,
+      ORecordSerializer serializer) throws IOException {
+    writeIdentifiable(session, channel, doc, serializer);
   }
 
   public static void writeResult(
-      OResult row, OChannelDataOutput channel, ORecordSerializer recordSerializer)
+      ODatabaseSessionInternal session, OResult row, OChannelDataOutput channel,
+      ORecordSerializer recordSerializer)
       throws IOException {
     if (row.isBlob()) {
-      writeBlob(row, channel, recordSerializer);
+      writeBlob(session, row, channel, recordSerializer);
     } else if (row.isVertex()) {
-      writeVertex(row, channel, recordSerializer);
+      writeVertex(session, row, channel, recordSerializer);
     } else if (row.isEdge()) {
-      writeEdge(row, channel, recordSerializer);
+      writeEdge(session, row, channel, recordSerializer);
     } else if (row.isElement()) {
-      writeElement(row, channel, recordSerializer);
+      writeElement(session, row, channel, recordSerializer);
     } else {
       writeProjection(row, channel);
     }

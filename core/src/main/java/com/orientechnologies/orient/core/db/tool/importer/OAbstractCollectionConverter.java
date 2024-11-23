@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.db.tool.importer;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 
 /**
- * Created by tglman on 28/07/17.
+ *
  */
 public abstract class OAbstractCollectionConverter<T> implements OValuesConverter<T> {
 

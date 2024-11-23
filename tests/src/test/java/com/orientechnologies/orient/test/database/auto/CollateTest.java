@@ -17,7 +17,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.testng.Assert;
 import org.testng.annotations.Parameters;
@@ -35,11 +34,11 @@ public class CollateTest extends DocumentDBBaseTest {
     final OSchema schema = database.getMetadata().getSchema();
     OClass clazz = schema.createClass("collateTest");
 
-    OProperty csp = clazz.createProperty("csp", OType.STRING);
-    csp.setCollate(ODefaultCollate.NAME);
+    OProperty csp = clazz.createProperty(database, "csp", OType.STRING);
+    csp.setCollate(database, ODefaultCollate.NAME);
 
-    OProperty cip = clazz.createProperty("cip", OType.STRING);
-    cip.setCollate(OCaseInsensitiveCollate.NAME);
+    OProperty cip = clazz.createProperty(database, "cip", OType.STRING);
+    cip.setCollate(database, OCaseInsensitiveCollate.NAME);
 
     for (int i = 0; i < 10; i++) {
       ODocument document = new ODocument("collateTest");
@@ -80,8 +79,8 @@ public class CollateTest extends DocumentDBBaseTest {
     final OSchema schema = database.getMetadata().getSchema();
     OClass clazz = schema.createClass("collateTestNotNull");
 
-    OProperty csp = clazz.createProperty("bar", OType.STRING);
-    csp.setCollate(OCaseInsensitiveCollate.NAME);
+    OProperty csp = clazz.createProperty(database, "bar", OType.STRING);
+    csp.setCollate(database, OCaseInsensitiveCollate.NAME);
 
     ODocument document = new ODocument("collateTestNotNull");
     document.field("bar", "baz");
@@ -114,14 +113,14 @@ public class CollateTest extends DocumentDBBaseTest {
     final OSchema schema = database.getMetadata().getSchema();
     OClass clazz = schema.createClass("collateIndexTest");
 
-    OProperty csp = clazz.createProperty("csp", OType.STRING);
-    csp.setCollate(ODefaultCollate.NAME);
+    OProperty csp = clazz.createProperty(database, "csp", OType.STRING);
+    csp.setCollate(database, ODefaultCollate.NAME);
 
-    OProperty cip = clazz.createProperty("cip", OType.STRING);
-    cip.setCollate(OCaseInsensitiveCollate.NAME);
+    OProperty cip = clazz.createProperty(database, "cip", OType.STRING);
+    cip.setCollate(database, OCaseInsensitiveCollate.NAME);
 
-    clazz.createIndex("collateIndexCSP", OClass.INDEX_TYPE.NOTUNIQUE, "csp");
-    clazz.createIndex("collateIndexCIP", OClass.INDEX_TYPE.NOTUNIQUE, "cip");
+    clazz.createIndex(database, "collateIndexCSP", OClass.INDEX_TYPE.NOTUNIQUE, "csp");
+    clazz.createIndex(database, "collateIndexCIP", OClass.INDEX_TYPE.NOTUNIQUE, "cip");
 
     for (int i = 0; i < 10; i++) {
       ODocument document = new ODocument("collateIndexTest");
@@ -149,7 +148,7 @@ public class CollateTest extends DocumentDBBaseTest {
     }
 
     @SuppressWarnings("deprecation")
-    ODocument explain = database.command(new OCommandSQL("explain " + query)).execute();
+    ODocument explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(explain.<Set<String>>field("involvedIndexes").contains("collateIndexCSP"));
 
     query = "select from collateIndexTest where cip = 'VaL'";
@@ -162,7 +161,7 @@ public class CollateTest extends DocumentDBBaseTest {
     }
 
     //noinspection deprecation
-    explain = database.command(new OCommandSQL("explain " + query)).execute();
+    explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(explain.<Set<String>>field("involvedIndexes").contains("collateIndexCIP"));
   }
 
@@ -170,10 +169,10 @@ public class CollateTest extends DocumentDBBaseTest {
     final OSchema schema = database.getMetadata().getSchema();
     OClass clazz = schema.createClass("collateWasChangedIndexTest");
 
-    OProperty cp = clazz.createProperty("cp", OType.STRING);
-    cp.setCollate(ODefaultCollate.NAME);
+    OProperty cp = clazz.createProperty(database, "cp", OType.STRING);
+    cp.setCollate(database, ODefaultCollate.NAME);
 
-    clazz.createIndex("collateWasChangedIndex", OClass.INDEX_TYPE.NOTUNIQUE, "cp");
+    clazz.createIndex(database, "collateWasChangedIndex", OClass.INDEX_TYPE.NOTUNIQUE, "cp");
 
     for (int i = 0; i < 10; i++) {
       ODocument document = new ODocument("collateWasChangedIndexTest");
@@ -199,12 +198,12 @@ public class CollateTest extends DocumentDBBaseTest {
     }
 
     @SuppressWarnings("deprecation")
-    ODocument explain = database.command(new OCommandSQL("explain " + query)).execute();
+    ODocument explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain.<Set<String>>field("involvedIndexes").contains("collateWasChangedIndex"));
 
     cp = clazz.getProperty("cp");
-    cp.setCollate(OCaseInsensitiveCollate.NAME);
+    cp.setCollate(database, OCaseInsensitiveCollate.NAME);
 
     query = "select from collateWasChangedIndexTest where cp = 'VaL'";
     //noinspection deprecation
@@ -216,7 +215,7 @@ public class CollateTest extends DocumentDBBaseTest {
     }
 
     //noinspection deprecation
-    explain = database.command(new OCommandSQL("explain " + query)).execute();
+    explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain.<Set<String>>field("involvedIndexes").contains("collateWasChangedIndex"));
   }
@@ -225,13 +224,14 @@ public class CollateTest extends DocumentDBBaseTest {
     final OSchema schema = database.getMetadata().getSchema();
     OClass clazz = schema.createClass("CompositeIndexQueryCSTest");
 
-    OProperty csp = clazz.createProperty("csp", OType.STRING);
-    csp.setCollate(ODefaultCollate.NAME);
+    OProperty csp = clazz.createProperty(database, "csp", OType.STRING);
+    csp.setCollate(database, ODefaultCollate.NAME);
 
-    OProperty cip = clazz.createProperty("cip", OType.STRING);
-    cip.setCollate(OCaseInsensitiveCollate.NAME);
+    OProperty cip = clazz.createProperty(database, "cip", OType.STRING);
+    cip.setCollate(database, OCaseInsensitiveCollate.NAME);
 
-    clazz.createIndex("collateCompositeIndexCS", OClass.INDEX_TYPE.NOTUNIQUE, "csp", "cip");
+    clazz.createIndex(database, "collateCompositeIndexCS", OClass.INDEX_TYPE.NOTUNIQUE, "csp",
+        "cip");
 
     for (int i = 0; i < 10; i++) {
       ODocument document = new ODocument("CompositeIndexQueryCSTest");
@@ -259,7 +259,7 @@ public class CollateTest extends DocumentDBBaseTest {
     }
 
     @SuppressWarnings("deprecation")
-    ODocument explain = database.command(new OCommandSQL("explain " + query)).execute();
+    ODocument explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain.<Set<String>>field("involvedIndexes").contains("collateCompositeIndexCS"));
 
@@ -274,7 +274,7 @@ public class CollateTest extends DocumentDBBaseTest {
     }
 
     //noinspection deprecation
-    explain = database.command(new OCommandSQL("explain " + query)).execute();
+    explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain.<Set<String>>field("involvedIndexes").contains("collateCompositeIndexCS"));
 
@@ -283,8 +283,9 @@ public class CollateTest extends DocumentDBBaseTest {
       final OIndex index = indexManager.getIndex(database, "collateCompositeIndexCS");
 
       final Collection<ORID> value;
-      try (Stream<ORID> stream = index.getInternal().getRids(new OCompositeKey("VAL", "VaL"))) {
-        value = stream.collect(Collectors.toList());
+      try (Stream<ORID> stream = index.getInternal()
+          .getRids(database, new OCompositeKey("VAL", "VaL"))) {
+        value = stream.toList();
       }
 
       Assert.assertEquals(value.size(), 5);
@@ -300,12 +301,12 @@ public class CollateTest extends DocumentDBBaseTest {
     final OSchema schema = database.getMetadata().getSchema();
     OClass clazz = schema.createClass("CompositeIndexQueryCollateWasChangedTest");
 
-    OProperty csp = clazz.createProperty("csp", OType.STRING);
-    csp.setCollate(ODefaultCollate.NAME);
+    OProperty csp = clazz.createProperty(database, "csp", OType.STRING);
+    csp.setCollate(database, ODefaultCollate.NAME);
 
-    clazz.createProperty("cip", OType.STRING);
+    clazz.createProperty(database, "cip", OType.STRING);
 
-    clazz.createIndex(
+    clazz.createIndex(database,
         "collateCompositeIndexCollateWasChanged", OClass.INDEX_TYPE.NOTUNIQUE, "csp", "cip");
 
     for (int i = 0; i < 10; i++) {
@@ -333,14 +334,14 @@ public class CollateTest extends DocumentDBBaseTest {
     }
 
     @SuppressWarnings("deprecation")
-    ODocument explain = database.command(new OCommandSQL("explain " + query)).execute();
+    ODocument explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
             .contains("collateCompositeIndexCollateWasChanged"));
 
     csp = clazz.getProperty("csp");
-    csp.setCollate(OCaseInsensitiveCollate.NAME);
+    csp.setCollate(database, OCaseInsensitiveCollate.NAME);
 
     query = "select from CompositeIndexQueryCollateWasChangedTest where csp = 'VaL'";
     //noinspection deprecation
@@ -352,7 +353,7 @@ public class CollateTest extends DocumentDBBaseTest {
     }
 
     //noinspection deprecation
-    explain = database.command(new OCommandSQL("explain " + query)).execute();
+    explain = database.command(new OCommandSQL("explain " + query)).execute(database);
     Assert.assertTrue(
         explain
             .<Set<String>>field("involvedIndexes")
@@ -363,8 +364,8 @@ public class CollateTest extends DocumentDBBaseTest {
     final OSchema schema = database.getMetadata().getSchema();
     OClass clazz = schema.createClass("collateTestViaSQL");
 
-    clazz.createProperty("csp", OType.STRING);
-    clazz.createProperty("cip", OType.STRING);
+    clazz.createProperty(database, "csp", OType.STRING);
+    clazz.createProperty(database, "cip", OType.STRING);
 
     //noinspection deprecation
     database
@@ -372,7 +373,7 @@ public class CollateTest extends DocumentDBBaseTest {
             new OCommandSQL(
                 "create index collateTestViaSQL.index on collateTestViaSQL (cip COLLATE CI)"
                     + " NOTUNIQUE"))
-        .execute();
+        .execute(database);
 
     for (int i = 0; i < 10; i++) {
       ODocument document = new ODocument("collateTestViaSQL");

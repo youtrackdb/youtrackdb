@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.index;
@@ -49,7 +49,8 @@ public class OPropertyMapIndexDefinition extends OPropertyIndexDefinition
 
   private INDEX_BY indexBy = INDEX_BY.KEY;
 
-  public OPropertyMapIndexDefinition() {}
+  public OPropertyMapIndexDefinition() {
+  }
 
   public OPropertyMapIndexDefinition(
       final String iClassName, final String iField, final OType iType, final INDEX_BY indexBy) {
@@ -143,7 +144,7 @@ public class OPropertyMapIndexDefinition extends OPropertyIndexDefinition
   }
 
   public Object createSingleValue(ODatabaseSessionInternal session, final Object... param) {
-    return OType.convert(refreshRid(session, param[0]), keyType.getDefaultJavaType());
+    return OType.convert(session, refreshRid(session, param[0]), keyType.getDefaultJavaType());
   }
 
   public void processChangeEvent(

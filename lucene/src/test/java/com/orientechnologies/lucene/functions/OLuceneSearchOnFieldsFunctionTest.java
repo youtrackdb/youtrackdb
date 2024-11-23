@@ -15,7 +15,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by frank on 15/01/2017.
+ *
  */
 public class OLuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
 
@@ -180,6 +180,6 @@ public class OLuceneSearchOnFieldsFunctionTest extends BaseLuceneTest {
 
     Map<String, Object> mdMap = new HashMap();
     mdMap.put("allowLeadingWildcard", true);
-    db.query(query, new Object[] {mdMap}).close();
+    db.query(query, new Object[]{mdMap}).close();
   }
 }

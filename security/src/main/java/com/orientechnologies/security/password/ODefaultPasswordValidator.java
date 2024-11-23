@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,11 +9,12 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://www.orientdb.com
+ * <p>*
  */
 package com.orientechnologies.security.password;
 
 import com.orientechnologies.common.log.OLogManager;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.security.OInvalidPasswordException;
 import com.orientechnologies.orient.core.security.OPasswordValidator;
@@ -24,8 +23,6 @@ import java.util.regex.Pattern;
 
 /**
  * Provides a default implementation for validating passwords.
- *
- * @author S. Colin Leister
  */
 public class ODefaultPasswordValidator implements OPasswordValidator {
 
@@ -45,7 +42,8 @@ public class ODefaultPasswordValidator implements OPasswordValidator {
   }
 
   // OSecurityComponent
-  public void config(final ODocument jsonConfig, OSecuritySystem security) {
+  public void config(ODatabaseSessionInternal session, final ODocument jsonConfig,
+      OSecuritySystem security) {
     try {
       if (jsonConfig.containsField("enabled")) {
         enabled = jsonConfig.field("enabled");
@@ -76,7 +74,8 @@ public class ODefaultPasswordValidator implements OPasswordValidator {
   }
 
   // OSecurityComponent
-  public void dispose() {}
+  public void dispose() {
+  }
 
   // OSecurityComponent
   public boolean isEnabled() {

@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OBasicServerCommandContext;
 import com.orientechnologies.orient.core.command.OServerCommandContext;
-import com.orientechnologies.orient.core.db.OrientDBInternal;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.executor.OSingleOpServerExecutionPlan;
@@ -14,8 +14,6 @@ import java.util.Map;
 /**
  * Superclass for SQL statements that are too simple to deserve an execution planner. All the
  * execution is delegated to the statement itself, with the execute(ctx) method.
- *
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
  */
 public abstract class OSimpleExecServerStatement extends OServerStatement {
 
@@ -30,7 +28,7 @@ public abstract class OSimpleExecServerStatement extends OServerStatement {
   public abstract OExecutionStream executeSimple(OServerCommandContext ctx);
 
   public OResultSet execute(
-      OrientDBInternal db,
+      OxygenDBInternal db,
       Object[] args,
       OServerCommandContext parentContext,
       boolean usePlanCache) {
@@ -52,7 +50,7 @@ public abstract class OSimpleExecServerStatement extends OServerStatement {
   }
 
   public OResultSet execute(
-      OrientDBInternal db, Map params, OServerCommandContext parentContext, boolean usePlanCache) {
+      OxygenDBInternal db, Map params, OServerCommandContext parentContext, boolean usePlanCache) {
     OBasicServerCommandContext ctx = new OBasicServerCommandContext();
     if (parentContext != null) {
       ctx.setParentWithoutOverridingChild(parentContext);

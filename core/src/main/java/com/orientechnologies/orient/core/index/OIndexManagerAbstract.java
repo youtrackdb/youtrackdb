@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.index;
@@ -30,8 +30,6 @@ import java.util.Set;
 
 /**
  * Abstract class to manage indexes.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OIndexManagerAbstract extends OCloseable {
 
@@ -67,23 +65,24 @@ public interface OIndexManagerAbstract extends OCloseable {
 
   void waitTillIndexRestore();
 
-  void removeClassPropertyIndex(OIndex idx);
+  void removeClassPropertyIndex(ODatabaseSessionInternal session, OIndex idx);
 
   void dropIndex(ODatabaseSessionInternal database, String iIndexName);
 
-  void reload();
+  void reload(ODatabaseSessionInternal session);
 
-  void addClusterToIndex(String clusterName, String indexName);
+  void addClusterToIndex(ODatabaseSessionInternal session, String clusterName, String indexName);
 
   void load(ODatabaseSessionInternal database);
 
-  void removeClusterFromIndex(String clusterName, String indexName);
+  void removeClusterFromIndex(ODatabaseSessionInternal session, String clusterName,
+      String indexName);
 
-  void save();
+  void save(ODatabaseSessionInternal session);
 
   void getClassRawIndexes(String name, Collection<OIndex> indexes2);
 
-  ODocument getConfiguration();
+  ODocument getConfiguration(ODatabaseSessionInternal session);
 
   String getDefaultClusterName();
 
@@ -120,9 +119,9 @@ public interface OIndexManagerAbstract extends OCloseable {
 
   boolean existsIndex(String iName);
 
-  ODocument getDocument();
+  ODocument getDocument(ODatabaseSessionInternal session);
 
-  ODocument toStream();
+  ODocument toStream(ODatabaseSessionInternal session);
 
   OIndex getRawIndex(String indexName);
 

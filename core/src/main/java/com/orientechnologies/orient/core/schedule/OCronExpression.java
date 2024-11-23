@@ -178,14 +178,11 @@ import java.util.TimeZone;
  *       determine which interpretation CronExpression chooses. An example would be "0 0 14-6 ? *
  *       FRI-MON".
  * </ul>
- *
- * @author Sharada Jambula, James House
- * @author Contributions from Mads Henderson
- * @author Refactoring from CronTrigger to CronExpression by Aaron Craven
  */
 public final class OCronExpression implements Serializable, Cloneable {
 
-  @Serial private static final long serialVersionUID = 12423409423L;
+  @Serial
+  private static final long serialVersionUID = 12423409423L;
 
   private static final int SECOND = 0;
   private static final int MINUTE = 1;
@@ -887,13 +884,15 @@ public final class OCronExpression implements Serializable, Cloneable {
   }
 
   private int skipWhiteSpace(int i, String s) {
-    for (; i < s.length() && (s.charAt(i) == ' ' || s.charAt(i) == '\t'); i++) {}
+    for (; i < s.length() && (s.charAt(i) == ' ' || s.charAt(i) == '\t'); i++) {
+    }
 
     return i;
   }
 
   private int findNextWhiteSpace(int i, String s) {
-    for (; i < s.length() && (s.charAt(i) != ' ' || s.charAt(i) != '\t'); i++) {}
+    for (; i < s.length() && (s.charAt(i) != ' ' || s.charAt(i) != '\t'); i++) {
+    }
 
     return i;
   }

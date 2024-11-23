@@ -16,7 +16,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 8/18/14
  */
 public class ReadersWriterSpinLockTst {

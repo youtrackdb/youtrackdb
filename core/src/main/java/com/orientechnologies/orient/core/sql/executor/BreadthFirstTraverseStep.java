@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Created by luigidellaquila on 26/10/16.
+ *
  */
 public class BreadthFirstTraverseStep extends AbstractTraverseStep {
 

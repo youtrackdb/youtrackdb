@@ -5,6 +5,7 @@ import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemote;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
@@ -15,7 +16,7 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * Created by tglman on 17/05/17.
+ *
  */
 public class OSubscribeLiveQueryRequest implements OBinaryRequest<OSubscribeLiveQueryResponse> {
 
@@ -35,17 +36,19 @@ public class OSubscribeLiveQueryRequest implements OBinaryRequest<OSubscribeLive
     this.namedParams = false;
   }
 
-  public OSubscribeLiveQueryRequest() {}
+  public OSubscribeLiveQueryRequest() {
+  }
 
   @Override
-  public void write(OChannelDataOutput network, OStorageRemoteSession session) throws IOException {
+  public void write(ODatabaseSessionInternal database, OChannelDataOutput network,
+      OStorageRemoteSession session) throws IOException {
     ORecordSerializerNetworkV37Client serializer = new ORecordSerializerNetworkV37Client();
     network.writeString(query);
     // params
     ODocument parms = new ODocument();
     parms.field("params", this.params);
 
-    byte[] bytes = OMessageHelper.getRecordBytes(parms, serializer);
+    byte[] bytes = OMessageHelper.getRecordBytes(database, parms, serializer);
     network.writeBytes(bytes);
     network.writeBoolean(namedParams);
   }

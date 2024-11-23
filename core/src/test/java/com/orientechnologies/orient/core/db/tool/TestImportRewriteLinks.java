@@ -5,11 +5,12 @@ import static com.orientechnologies.orient.core.db.tool.ODatabaseImport.EXPORT_I
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYPE;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -26,17 +27,17 @@ public class TestImportRewriteLinks {
 
   @Test
   public void testNestedLinkRewrite() {
-    try (final OrientDB orientDb =
+    try (final OxygenDB oxygenDb =
         OCreateDatabaseUtil.createDatabase(
             "testDB", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY)) {
       try (final ODatabaseSession session =
-          orientDb.open("testDB", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
+          oxygenDb.open("testDB", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
         final OSchema schema = session.getMetadata().getSchema();
 
         final OClass cls = schema.createClass(EXPORT_IMPORT_CLASS_NAME);
-        cls.createProperty("key", OType.STRING);
-        cls.createProperty("value", OType.STRING);
-        cls.createIndex(EXPORT_IMPORT_INDEX_NAME, OClass.INDEX_TYPE.DICTIONARY, "key");
+        cls.createProperty(session, "key", OType.STRING);
+        cls.createProperty(session, "value", OType.STRING);
+        cls.createIndex(session, EXPORT_IMPORT_INDEX_NAME, INDEX_TYPE.UNIQUE, "key");
 
         session.begin();
         new ODocument(EXPORT_IMPORT_CLASS_NAME)

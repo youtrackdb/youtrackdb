@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientechnologies.com
+ *
  *
  */
 package com.orientechnologies.orient.core.security.symmetrickey;
@@ -50,8 +50,6 @@ import java.util.Set;
  *
  * <p>This is used with embedded (non-server) databases, like so:
  * db.setProperty(ODatabase.OPTIONS.SECURITY.toString(), OSymmetricKeySecurity.class);
- *
- * @author S. Colin Leister
  */
 public class OSymmetricKeySecurity implements OSecurityInternal {
 
@@ -90,13 +88,13 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
               + username);
     }
 
-    if (user.getAccountStatus() != OSecurityUser.STATUSES.ACTIVE) {
+    if (user.getAccountStatus(session) != OSecurityUser.STATUSES.ACTIVE) {
       throw new OSecurityAccessException(
           dbName, "OSymmetricKeySecurity.authenticate() User '" + username + "' is not active");
     }
 
     try {
-      OUserSymmetricKeyConfig userConfig = new OUserSymmetricKeyConfig(user.getDocument());
+      OUserSymmetricKeyConfig userConfig = new OUserSymmetricKeyConfig(user.getDocument(session));
 
       OSymmetricKey sk = OSymmetricKey.fromConfig(userConfig);
 
@@ -371,5 +369,6 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
   }
 
   @Override
-  public void close() {}
+  public void close() {
+  }
 }

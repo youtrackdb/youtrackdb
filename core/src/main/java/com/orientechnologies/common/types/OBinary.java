@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,16 +14,16 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.common.types;
 
 /**
- * Binary wrapper to let to byte[] to be managed inside OrientDB where comparable is needed, like
+ * Binary wrapper to let to byte[] to be managed inside OxygenDB where comparable is needed, like
  * for indexes.
  *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
+ *
  * <p>Deprecated sice v2.2
  */
 @Deprecated

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.functions;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import java.util.List;
 
@@ -32,8 +33,6 @@ import java.util.List;
  *
  * <p>??? could it be possible to have a small piece of code here showing where to register a
  * function using services ???
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public interface OSQLFunction {
 
@@ -90,7 +89,7 @@ public interface OSQLFunction {
    *
    * @return String , function name, never null or empty.
    */
-  String getName();
+  String getName(ODatabaseSession session);
 
   /**
    * Minimum number of parameter this function must have.
@@ -104,7 +103,7 @@ public interface OSQLFunction {
    *
    * @return maximum number of parameters ??? -1 , negative or Integer.MAX_VALUE for unlimited ???
    */
-  int getMaxParams();
+  int getMaxParams(ODatabaseSession session);
 
   /**
    * Returns a convenient SQL String representation of the function.
@@ -119,7 +118,7 @@ public interface OSQLFunction {
    *
    * @return String , never null.
    */
-  String getSyntax();
+  String getSyntax(ODatabaseSession session);
 
   /**
    * Only called when function aggregates results after all records have been passed to the

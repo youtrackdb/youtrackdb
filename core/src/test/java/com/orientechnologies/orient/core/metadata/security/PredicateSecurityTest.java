@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.metadata.security;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.exception.OSecurityException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -24,15 +24,15 @@ import org.junit.Test;
 public class PredicateSecurityTest {
 
   private static final String DB_NAME = PredicateSecurityTest.class.getSimpleName();
-  private static OrientDB orient;
+  private static OxygenDB orient;
   private ODatabaseSessionInternal db;
 
   @BeforeClass
   public static void beforeClass() {
     orient =
-        new OrientDB(
+        new OxygenDB(
             "plocal:.",
-            OrientDBConfig.builder()
+            OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
   }
@@ -183,7 +183,7 @@ public class PredicateSecurityTest {
     OSecurityInternal security = db.getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
-    person.createProperty("name", OType.STRING);
+    person.createProperty(db, "name", OType.STRING);
     db.command("create index Person.name on Person (name) NOTUNIQUE");
 
     db.begin();
@@ -222,7 +222,7 @@ public class PredicateSecurityTest {
     OSecurityInternal security = db.getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
-    person.createProperty("name", OType.STRING);
+    person.createProperty(db, "name", OType.STRING);
     db.command("create index Person.name on Person (name) NOTUNIQUE");
 
     db.begin();
@@ -291,10 +291,12 @@ public class PredicateSecurityTest {
             });
 
     try {
+      db.begin();
       elem = db.bindToSession(elem);
       elem.setProperty("name", "baz");
       var elemToSave = elem;
-      db.executeInTx(() -> db.save(elemToSave));
+      db.save(elemToSave);
+      db.commit();
       Assert.fail();
     } catch (OSecurityException ex) {
     }
@@ -384,11 +386,12 @@ public class PredicateSecurityTest {
             });
 
     try {
+      db.begin();
       elem = db.bindToSession(elem);
       elem.setProperty("name", "bar");
       var elemToSave = elem;
-      db.executeInTx(() -> db.save(elemToSave));
-
+      db.save(elemToSave);
+      db.commit();
       Assert.fail();
     } catch (OSecurityException ex) {
     }
@@ -540,7 +543,7 @@ public class PredicateSecurityTest {
     OSecurityInternal security = db.getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
-    person.createProperty("name", OType.STRING);
+    person.createProperty(db, "name", OType.STRING);
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
@@ -578,7 +581,7 @@ public class PredicateSecurityTest {
     OSecurityInternal security = db.getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
-    person.createProperty("name", OType.STRING);
+    person.createProperty(db, "name", OType.STRING);
     db.command("create index Person.name on Person (name) NOTUNIQUE");
 
     db.begin();
@@ -621,7 +624,7 @@ public class PredicateSecurityTest {
     OSecurityInternal security = db.getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
-    person.createProperty("name", OType.STRING);
+    person.createProperty(db, "name", OType.STRING);
     db.command("create index Person.name on Person (name) NOTUNIQUE");
 
     db.begin();
@@ -653,11 +656,11 @@ public class PredicateSecurityTest {
 
     OIndex index = db.getMetadata().getIndexManager().getIndex("Person.name");
 
-    try (Stream<ORID> rids = index.getInternal().getRids("bar")) {
+    try (Stream<ORID> rids = index.getInternal().getRids(db, "bar")) {
       Assert.assertEquals(0, rids.count());
     }
 
-    try (Stream<ORID> rids = index.getInternal().getRids("foo")) {
+    try (Stream<ORID> rids = index.getInternal().getRids(db, "foo")) {
       Assert.assertEquals(1, rids.count());
     }
   }

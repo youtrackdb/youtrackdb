@@ -41,7 +41,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ *
  */
 public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
 
@@ -945,7 +945,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     OSchema schema = db.getMetadata().getSchema();
     OClass clazz = schema.createClass(className);
     if (clazz.getClusterIds().length < 2) {
-      clazz.addCluster("testFetchFromClustersNumberOrderByRidAsc_2");
+      clazz.addCluster(db, "testFetchFromClustersNumberOrderByRidAsc_2");
     }
     int targetCluster = clazz.getClusterIds()[0];
     String targetClusterName = db.getClusterNameById(targetCluster);
@@ -1153,8 +1153,8 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testFetchFromClassWithIndex() {
     String className = "testFetchFromClassWithIndex";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createIndex(className + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createIndex(db, className + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
@@ -1189,9 +1189,9 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     OGlobalConfiguration.INDEX_ALLOW_MANUAL_INDEXES.setValue(true);
     String className = "testFetchFromIndex";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
+    clazz.createProperty(db, "name", OType.STRING);
     String indexName = className + ".name";
-    clazz.createIndex(indexName, OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    clazz.createIndex(db, indexName, OClass.INDEX_TYPE.NOTUNIQUE, "name");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
@@ -1224,12 +1224,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testFetchFromIndexHierarchy() {
     String className = "testFetchFromIndexHierarchy";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createIndex(className + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createIndex(db, className + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
 
     String classNameExt = "testFetchFromIndexHierarchyExt";
     OClass clazzExt = db.getMetadata().getSchema().createClass(classNameExt, clazz);
-    clazzExt.createIndex(classNameExt + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    clazzExt.createIndex(db, classNameExt + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
 
     for (int i = 0; i < 5; i++) {
       db.begin();
@@ -1272,10 +1272,10 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testFetchFromClassWithIndexes() {
     String className = "testFetchFromClassWithIndexes";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
-    clazz.createIndex(className + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
-    clazz.createIndex(className + ".surname", OClass.INDEX_TYPE.NOTUNIQUE, "surname");
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
+    clazz.createIndex(db, className + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    clazz.createIndex(db, className + ".surname", OClass.INDEX_TYPE.NOTUNIQUE, "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
@@ -1316,10 +1316,10 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testFetchFromClassWithIndexes2() {
     String className = "testFetchFromClassWithIndexes2";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
-    clazz.createIndex(className + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
-    clazz.createIndex(className + ".surname", OClass.INDEX_TYPE.NOTUNIQUE, "surname");
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
+    clazz.createIndex(db, className + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    clazz.createIndex(db, className + ".surname", OClass.INDEX_TYPE.NOTUNIQUE, "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
@@ -1345,10 +1345,10 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testFetchFromClassWithIndexes3() {
     String className = "testFetchFromClassWithIndexes3";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
-    clazz.createIndex(className + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
-    clazz.createIndex(className + ".surname", OClass.INDEX_TYPE.NOTUNIQUE, "surname");
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
+    clazz.createIndex(db, className + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    clazz.createIndex(db, className + ".surname", OClass.INDEX_TYPE.NOTUNIQUE, "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
@@ -1384,10 +1384,10 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testFetchFromClassWithIndexes4() {
     String className = "testFetchFromClassWithIndexes4";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
-    clazz.createIndex(className + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
-    clazz.createIndex(className + ".surname", OClass.INDEX_TYPE.NOTUNIQUE, "surname");
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
+    clazz.createIndex(db, className + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    clazz.createIndex(db, className + ".surname", OClass.INDEX_TYPE.NOTUNIQUE, "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
@@ -1424,9 +1424,10 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testFetchFromClassWithIndexes5() {
     String className = "testFetchFromClassWithIndexes5";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
-    clazz.createIndex(className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name", "surname");
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
+    clazz.createIndex(db, className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name",
+        "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
@@ -1457,9 +1458,10 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testFetchFromClassWithIndexes6() {
     String className = "testFetchFromClassWithIndexes6";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
-    clazz.createIndex(className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name", "surname");
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
+    clazz.createIndex(db, className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name",
+        "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
@@ -1483,9 +1485,10 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testFetchFromClassWithIndexes7() {
     String className = "testFetchFromClassWithIndexes7";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
-    clazz.createIndex(className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name", "surname");
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
+    clazz.createIndex(db, className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name",
+        "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
@@ -1513,9 +1516,10 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testFetchFromClassWithIndexes8() {
     String className = "testFetchFromClassWithIndexes8";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
-    clazz.createIndex(className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name", "surname");
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
+    clazz.createIndex(db, className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name",
+        "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
@@ -1539,9 +1543,10 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testFetchFromClassWithIndexes9() {
     String className = "testFetchFromClassWithIndexes9";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
-    clazz.createIndex(className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name", "surname");
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
+    clazz.createIndex(db, className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name",
+        "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
@@ -1569,9 +1574,10 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testFetchFromClassWithIndexes10() {
     String className = "testFetchFromClassWithIndexes10";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
-    clazz.createIndex(className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name", "surname");
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
+    clazz.createIndex(db, className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name",
+        "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
@@ -1598,9 +1604,10 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testFetchFromClassWithIndexes11() {
     String className = "testFetchFromClassWithIndexes11";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
-    clazz.createIndex(className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name", "surname");
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
+    clazz.createIndex(db, className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name",
+        "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
@@ -1626,9 +1633,10 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testFetchFromClassWithIndexes12() {
     String className = "testFetchFromClassWithIndexes12";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
-    clazz.createIndex(className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name", "surname");
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
+    clazz.createIndex(db, className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name",
+        "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
@@ -1654,9 +1662,10 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testFetchFromClassWithIndexes13() {
     String className = "testFetchFromClassWithIndexes13";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
-    clazz.createIndex(className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name", "surname");
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
+    clazz.createIndex(db, className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name",
+        "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
@@ -1682,9 +1691,10 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testFetchFromClassWithIndexes14() {
     String className = "testFetchFromClassWithIndexes14";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
-    clazz.createIndex(className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name", "surname");
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
+    clazz.createIndex(db, className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name",
+        "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
@@ -1714,9 +1724,10 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testFetchFromClassWithIndexes15() {
     String className = "testFetchFromClassWithIndexes15";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
-    clazz.createIndex(className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name", "surname");
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
+    clazz.createIndex(db, className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE, "name",
+        "surname");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
@@ -1746,9 +1757,9 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testFetchFromClassWithHashIndexes1() {
     String className = "testFetchFromClassWithHashIndexes1";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
-    clazz.createIndex(
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
+    clazz.createIndex(db,
         className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "name", "surname");
 
     for (int i = 0; i < 10; i++) {
@@ -1781,9 +1792,9 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testFetchFromClassWithHashIndexes2() {
     String className = "testFetchFromClassWithHashIndexes2";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
-    clazz.createIndex(
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
+    clazz.createIndex(db,
         className + ".name_surname", OClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX, "name", "surname");
 
     for (int i = 0; i < 10; i++) {
@@ -1930,8 +1941,8 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testDistinct1() {
     String className = "testDistinct1";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
 
     for (int i = 0; i < 30; i++) {
       db.begin();
@@ -1958,8 +1969,8 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testDistinct2() {
     String className = "testDistinct2";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
 
     for (int i = 0; i < 30; i++) {
       db.begin();
@@ -2222,7 +2233,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
       db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("i", i);
-      doc.setProperty("iSeq", new int[] {i, 2 * i, 4 * i});
+      doc.setProperty("iSeq", new int[]{i, 2 * i, 4 * i});
       doc.save();
       db.commit();
     }
@@ -2261,7 +2272,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
       db.begin();
       ODocument doc = db.newInstance(className);
       doc.setProperty("i", i);
-      doc.setProperty("iSeq", new int[] {i, 2 * i, 4 * i});
+      doc.setProperty("iSeq", new int[]{i, 2 * i, 4 * i});
       doc.save();
       db.commit();
     }
@@ -2325,9 +2336,9 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     OClass childClass1 = db.getMetadata().getSchema().createClass(child1, parentClass);
     OClass childClass2 = db.getMetadata().getSchema().createClass(child2, parentClass);
 
-    parentClass.createProperty("name", OType.STRING);
-    childClass1.createIndex(child1 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
-    childClass2.createIndex(child2 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    parentClass.createProperty(db, "name", OType.STRING);
+    childClass1.createIndex(db, child1 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    childClass2.createIndex(db, child2 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
@@ -2367,9 +2378,9 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     OClass childClass1 = db.getMetadata().getSchema().createClass(child1, parentClass);
     OClass childClass2 = db.getMetadata().getSchema().createClass(child2, parentClass);
 
-    parentClass.createProperty("name", OType.STRING);
-    childClass1.createIndex(child1 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
-    childClass2.createIndex(child2 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    parentClass.createProperty(db, "name", OType.STRING);
+    childClass1.createIndex(db, child1 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    childClass2.createIndex(db, child2 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
@@ -2412,8 +2423,8 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     OClass childClass1 = db.getMetadata().getSchema().createClass(child1, parentClass);
     OClass childClass2 = db.getMetadata().getSchema().createClass(child2, parentClass);
 
-    parentClass.createProperty("name", OType.STRING);
-    childClass1.createIndex(child1 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    parentClass.createProperty(db, "name", OType.STRING);
+    childClass1.createIndex(db, child1 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
@@ -2457,9 +2468,9 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     OClass childClass1 = db.getMetadata().getSchema().createClass(child1, parentClass);
     OClass childClass2 = db.getMetadata().getSchema().createClass(child2, parentClass);
 
-    parentClass.createProperty("name", OType.STRING);
-    childClass1.createIndex(child1 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
-    childClass2.createIndex(child2 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    parentClass.createProperty(db, "name", OType.STRING);
+    childClass1.createIndex(db, child1 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    childClass2.createIndex(db, child2 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
 
     db.begin();
     ODocument parentdoc = db.newInstance(parent);
@@ -2515,10 +2526,10 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     OClass childClass2_1 = db.getMetadata().getSchema().createClass(child2_1, childClass2);
     OClass childClass2_2 = db.getMetadata().getSchema().createClass(child2_2, childClass2);
 
-    parentClass.createProperty("name", OType.STRING);
-    childClass1.createIndex(child1 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
-    childClass2_1.createIndex(child2_1 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
-    childClass2_2.createIndex(child2_2 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    parentClass.createProperty(db, "name", OType.STRING);
+    childClass1.createIndex(db, child1 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    childClass2_1.createIndex(db, child2_1 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    childClass2_2.createIndex(db, child2_2 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
@@ -2574,9 +2585,9 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     OClass childClass12 =
         db.getMetadata().getSchema().createClass(child12, childClass1, childClass2);
 
-    parentClass.createProperty("name", OType.STRING);
-    childClass1.createIndex(child1 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
-    childClass2.createIndex(child2 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    parentClass.createProperty(db, "name", OType.STRING);
+    childClass1.createIndex(db, child1 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
+    childClass2.createIndex(db, child2 + ".name", OClass.INDEX_TYPE.NOTUNIQUE, "name");
 
     for (int i = 0; i < 10; i++) {
       db.begin();
@@ -2623,8 +2634,8 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testIndexPlusSort1() {
     String className = "testIndexPlusSort1";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
     db.command(
             "create index "
                 + className
@@ -2671,8 +2682,8 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testIndexPlusSort2() {
     String className = "testIndexPlusSort2";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
     db.command(
             "create index "
                 + className
@@ -2719,8 +2730,8 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testIndexPlusSort3() {
     String className = "testIndexPlusSort3";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
     db.command(
             "create index "
                 + className
@@ -2768,8 +2779,8 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testIndexPlusSort4() {
     String className = "testIndexPlusSort4";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
     db.command(
             "create index "
                 + className
@@ -2817,9 +2828,9 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testIndexPlusSort5() {
     String className = "testIndexPlusSort5";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
-    clazz.createProperty("address", OType.STRING);
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
+    clazz.createProperty(db, "address", OType.STRING);
     db.command(
             "create index "
                 + className
@@ -2865,9 +2876,9 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testIndexPlusSort6() {
     String className = "testIndexPlusSort6";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
-    clazz.createProperty("address", OType.STRING);
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
+    clazz.createProperty(db, "address", OType.STRING);
     db.command(
             "create index "
                 + className
@@ -2913,9 +2924,9 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testIndexPlusSort7() {
     String className = "testIndexPlusSort7";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
-    clazz.createProperty("address", OType.STRING);
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
+    clazz.createProperty(db, "address", OType.STRING);
     db.command(
             "create index "
                 + className
@@ -2959,8 +2970,8 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testIndexPlusSort8() {
     String className = "testIndexPlusSort8";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
     db.command(
             "create index "
                 + className
@@ -3005,8 +3016,8 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testIndexPlusSort9() {
     String className = "testIndexPlusSort9";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
     db.command(
             "create index "
                 + className
@@ -3049,8 +3060,8 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testIndexPlusSort10() {
     String className = "testIndexPlusSort10";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
     db.command(
             "create index "
                 + className
@@ -3093,8 +3104,8 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testIndexPlusSort11() {
     String className = "testIndexPlusSort11";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
     db.command(
             "create index "
                 + className
@@ -3137,8 +3148,8 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testIndexPlusSort12() {
     String className = "testIndexPlusSort12";
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("name", OType.STRING);
-    clazz.createProperty("surname", OType.STRING);
+    clazz.createProperty(db, "name", OType.STRING);
+    clazz.createProperty(db, "surname", OType.STRING);
     db.command(
             "create index "
                 + className
@@ -3266,7 +3277,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
 
     db.begin();
     ODocument doc = db.newInstance(className);
-    doc.setProperty("name", new String[] {"a", "b", "c", "d"});
+    doc.setProperty("name", new String[]{"a", "b", "c", "d"});
     doc.save();
     db.commit();
 
@@ -3304,7 +3315,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
 
     db.begin();
     ODocument doc = db.newInstance(className);
-    doc.setProperty("name", new String[] {"a", "b", "c", "d"});
+    doc.setProperty("name", new String[]{"a", "b", "c", "d"});
     doc.save();
     db.commit();
 
@@ -3342,7 +3353,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
 
     db.begin();
     ODocument doc = db.newInstance(className);
-    doc.setProperty("name", new String[] {"a", "b", "c", "d"});
+    doc.setProperty("name", new String[]{"a", "b", "c", "d"});
     doc.save();
     db.commit();
 
@@ -3383,7 +3394,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
 
     db.begin();
     ODocument doc = db.newInstance(className);
-    doc.setProperty("name", new String[] {"a", "b", "c", "d"});
+    doc.setProperty("name", new String[]{"a", "b", "c", "d"});
     doc.save();
     db.commit();
 
@@ -3659,86 +3670,11 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   }
 
   @Test
-  public void testRidPagination1() {
-    String className = "testRidPagination1";
-    OClass clazz = db.createClassIfNotExist(className);
-    int[] clusterIds = new int[clazz.getClusterIds().length];
-    if (clusterIds.length < 3) {
-      return;
-    }
-    System.arraycopy(clazz.getClusterIds(), 0, clusterIds, 0, clusterIds.length);
-    Arrays.sort(clusterIds);
-
-    for (int i = 0; i < clusterIds.length; i++) {
-      db.begin();
-      OElement elem = db.newElement(className);
-      elem.setProperty("cid", clusterIds[i]);
-      elem.save(db.getClusterNameById(clusterIds[i]));
-      db.commit();
-    }
-
-    OResultSet result =
-        db.query("select from " + className + " where @rid >= #" + clusterIds[1] + ":0");
-    OExecutionPlan execPlan = result.getExecutionPlan().get();
-    for (OExecutionStep oExecutionStep : execPlan.getSteps()) {
-      if (oExecutionStep instanceof FetchFromClassExecutionStep) {
-        Assert.assertEquals(clusterIds.length, oExecutionStep.getSubSteps().size());
-        // clusters - 1 + fetch from tx...
-      }
-    }
-    int count = 0;
-    while (result.hasNext()) {
-      count++;
-      result.next();
-    }
-    result.close();
-    Assert.assertEquals(clusterIds.length - 1, count);
-  }
-
-  @Test
-  public void testRidPagination2() {
-    String className = "testRidPagination2";
-    OClass clazz = db.createClassIfNotExist(className);
-    int[] clusterIds = new int[clazz.getClusterIds().length];
-    if (clusterIds.length < 3) {
-      return;
-    }
-    System.arraycopy(clazz.getClusterIds(), 0, clusterIds, 0, clusterIds.length);
-    Arrays.sort(clusterIds);
-
-    for (int i = 0; i < clusterIds.length; i++) {
-      db.begin();
-      OElement elem = db.newElement(className);
-      elem.setProperty("cid", clusterIds[i]);
-      elem.save(db.getClusterNameById(clusterIds[i]));
-      db.commit();
-    }
-
-    Map<String, Object> params = new HashMap<>();
-    params.put("rid", new ORecordId(clusterIds[1], 0));
-    OResultSet result = db.query("select from " + className + " where @rid >= :rid", params);
-    OExecutionPlan execPlan = result.getExecutionPlan().get();
-    for (OExecutionStep oExecutionStep : execPlan.getSteps()) {
-      if (oExecutionStep instanceof FetchFromClassExecutionStep) {
-        Assert.assertEquals(clusterIds.length, oExecutionStep.getSubSteps().size());
-        // clusters - 1 + fetch from tx...
-      }
-    }
-    int count = 0;
-    while (result.hasNext()) {
-      count++;
-      result.next();
-    }
-    result.close();
-    Assert.assertEquals(clusterIds.length - 1, count);
-  }
-
-  @Test
   public void testContainsWithSubquery() {
     String className = "testContainsWithSubquery";
     db.createClassIfNotExist(className + 1);
     OClass clazz2 = db.createClassIfNotExist(className + 2);
-    clazz2.createProperty("tags", OType.EMBEDDEDLIST);
+    clazz2.createProperty(db, "tags", OType.EMBEDDEDLIST);
 
     db.begin();
     db.command("insert into " + className + 1 + "  set name = 'foo'");
@@ -3771,7 +3707,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testInWithSubquery";
     db.createClassIfNotExist(className + 1);
     OClass clazz2 = db.createClassIfNotExist(className + 2);
-    clazz2.createProperty("tags", OType.EMBEDDEDLIST);
+    clazz2.createProperty(db, "tags", OType.EMBEDDEDLIST);
 
     db.begin();
     db.command("insert into " + className + 1 + "  set name = 'foo'");
@@ -3803,7 +3739,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testContainsAny() {
     String className = "testContainsAny";
     OClass clazz = db.createClassIfNotExist(className);
-    clazz.createProperty("tags", OType.EMBEDDEDLIST, OType.STRING);
+    clazz.createProperty(db, "tags", OType.EMBEDDEDLIST, OType.STRING);
 
     db.begin();
     db.command("insert into " + className + "  set tags = ['foo', 'bar']");
@@ -3847,8 +3783,8 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testContainsAnyWithIndex() {
     String className = "testContainsAnyWithIndex";
     OClass clazz = db.createClassIfNotExist(className);
-    OProperty prop = clazz.createProperty("tags", OType.EMBEDDEDLIST, OType.STRING);
-    prop.createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
+    OProperty prop = clazz.createProperty(db, "tags", OType.EMBEDDEDLIST, OType.STRING);
+    prop.createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
 
     db.begin();
     db.command("insert into " + className + "  set tags = ['foo', 'bar']");
@@ -3907,7 +3843,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testContainsAll() {
     String className = "testContainsAll";
     OClass clazz = db.createClassIfNotExist(className);
-    clazz.createProperty("tags", OType.EMBEDDEDLIST, OType.STRING);
+    clazz.createProperty(db, "tags", OType.EMBEDDEDLIST, OType.STRING);
 
     db.begin();
     db.command("insert into " + className + "  set tags = ['foo', 'bar']");
@@ -3956,8 +3892,8 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testInWithIndex() {
     String className = "testInWithIndex";
     OClass clazz = db.createClassIfNotExist(className);
-    OProperty prop = clazz.createProperty("tag", OType.STRING);
-    prop.createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
+    OProperty prop = clazz.createProperty(db, "tag", OType.STRING);
+    prop.createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
 
     db.begin();
     db.command("insert into " + className + "  set tag = 'foo'");
@@ -4013,16 +3949,16 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className3 = "testIndexChain3";
 
     OClass clazz3 = db.createClassIfNotExist(className3);
-    OProperty prop = clazz3.createProperty("name", OType.STRING);
-    prop.createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
+    OProperty prop = clazz3.createProperty(db, "name", OType.STRING);
+    prop.createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
 
     OClass clazz2 = db.createClassIfNotExist(className2);
-    prop = clazz2.createProperty("next", OType.LINK, clazz3);
-    prop.createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
+    prop = clazz2.createProperty(db, "next", OType.LINK, clazz3);
+    prop.createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
 
     OClass clazz1 = db.createClassIfNotExist(className1);
-    prop = clazz1.createProperty("next", OType.LINK, clazz2);
-    prop.createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
+    prop = clazz1.createProperty(db, "next", OType.LINK, clazz2);
+    prop.createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
 
     db.begin();
     OElement elem3 = db.newElement(className3);
@@ -4062,16 +3998,16 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className3 = "testIndexChainWithContainsAny3";
 
     OClass clazz3 = db.createClassIfNotExist(className3);
-    OProperty prop = clazz3.createProperty("name", OType.STRING);
-    prop.createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
+    OProperty prop = clazz3.createProperty(db, "name", OType.STRING);
+    prop.createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
 
     OClass clazz2 = db.createClassIfNotExist(className2);
-    prop = clazz2.createProperty("next", OType.LINKSET, clazz3);
-    prop.createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
+    prop = clazz2.createProperty(db, "next", OType.LINKSET, clazz3);
+    prop.createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
 
     OClass clazz1 = db.createClassIfNotExist(className1);
-    prop = clazz1.createProperty("next", OType.LINKSET, clazz2);
-    prop.createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
+    prop = clazz1.createProperty(db, "next", OType.LINKSET, clazz2);
+    prop.createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
 
     db.begin();
     OElement elem3 = db.newElement(className3);
@@ -4160,7 +4096,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testMapByKeyIndex";
 
     OClass clazz1 = db.createClassIfNotExist(className);
-    OProperty prop = clazz1.createProperty("themap", OType.EMBEDDEDMAP);
+    OProperty prop = clazz1.createProperty(db, "themap", OType.EMBEDDEDMAP);
 
     db.command(
         "CREATE INDEX " + className + ".themap ON " + className + "(themap by key) NOTUNIQUE");
@@ -4193,8 +4129,8 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testMapByKeyIndexMultiple";
 
     OClass clazz1 = db.createClassIfNotExist(className);
-    clazz1.createProperty("themap", OType.EMBEDDEDMAP);
-    clazz1.createProperty("thestring", OType.STRING);
+    clazz1.createProperty(db, "themap", OType.EMBEDDEDMAP);
+    clazz1.createProperty(db, "thestring", OType.STRING);
 
     db.command(
         "CREATE INDEX "
@@ -4235,7 +4171,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testMapByValueIndex";
 
     OClass clazz1 = db.createClassIfNotExist(className);
-    OProperty prop = clazz1.createProperty("themap", OType.EMBEDDEDMAP, OType.STRING);
+    OProperty prop = clazz1.createProperty(db, "themap", OType.EMBEDDEDMAP, OType.STRING);
 
     db.command(
         "CREATE INDEX " + className + ".themap ON " + className + "(themap by value) NOTUNIQUE");
@@ -4268,7 +4204,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     String className = "testListOfMapsContains";
 
     OClass clazz1 = db.createClassIfNotExist(className);
-    clazz1.createProperty("thelist", OType.EMBEDDEDLIST, OType.EMBEDDEDMAP);
+    clazz1.createProperty(db, "thelist", OType.EMBEDDEDLIST, OType.EMBEDDEDMAP);
 
     db.begin();
     db.command("INSERT INTO " + className + " SET thelist = [{name:\"Jack\"}]").close();
@@ -4519,7 +4455,8 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
               }
 
               @Override
-              public void config(Object[] configuredParameters) {}
+              public void config(Object[] configuredParameters) {
+              }
 
               @Override
               public boolean aggregateResults() {
@@ -4532,7 +4469,7 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
               }
 
               @Override
-              public String getName() {
+              public String getName(ODatabaseSession session) {
                 return funcitonName;
               }
 
@@ -4542,12 +4479,12 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
               }
 
               @Override
-              public int getMaxParams() {
+              public int getMaxParams(ODatabaseSession session) {
                 return 0;
               }
 
               @Override
-              public String getSyntax() {
+              public String getSyntax(ODatabaseSession session) {
                 return "";
               }
 
@@ -4557,7 +4494,8 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
               }
 
               @Override
-              public void setResult(Object iResult) {}
+              public void setResult(Object iResult) {
+              }
 
               @Override
               public boolean shouldMergeDistributedResult() {
@@ -4599,8 +4537,8 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testSimpleRangeQueryWithIndexGTE() {
     final String className = "testSimpleRangeQueryWithIndexGTE";
     final OClass clazz = db.getMetadata().getSchema().getOrCreateClass(className);
-    final OProperty prop = clazz.createProperty("name", OType.STRING);
-    prop.createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
+    final OProperty prop = clazz.createProperty(db, "name", OType.STRING);
+    prop.createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
 
     for (int i = 0; i < 10; i++) {
       db.begin();
@@ -4624,8 +4562,8 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testSimpleRangeQueryWithIndexLTE() {
     final String className = "testSimpleRangeQueryWithIndexLTE";
     final OClass clazz = db.getMetadata().getSchema().getOrCreateClass(className);
-    final OProperty prop = clazz.createProperty("name", OType.STRING);
-    prop.createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
+    final OProperty prop = clazz.createProperty(db, "name", OType.STRING);
+    prop.createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
 
     for (int i = 0; i < 10; i++) {
       db.begin();
@@ -4649,9 +4587,9 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testSimpleRangeQueryWithOutIndex() {
     final String className = "testSimpleRangeQueryWithOutIndex";
     final OClass clazz = db.getMetadata().getSchema().getOrCreateClass(className);
-    final OProperty prop = clazz.createProperty("name", OType.STRING);
+    final OProperty prop = clazz.createProperty(db, "name", OType.STRING);
     // Hash Index skipped for range query
-    prop.createIndex(OClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX);
+    prop.createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE_HASH_INDEX);
 
     for (int i = 0; i < 10; i++) {
       db.begin();
@@ -4684,11 +4622,11 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
     OClass c = db.getMetadata().getSchema().createClass(classNamePrefix + "B");
     OClass d = db.getMetadata().getSchema().createClass(classNamePrefix + "D");
 
-    a.createProperty("b", OType.LINK, b).createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
-    b.createProperty("c", OType.LINK, c).createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
-    c.createProperty("d", OType.LINK, d).createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
-    c.createProperty("name", OType.STRING).createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
-    d.createProperty("name", OType.STRING).createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
+    a.createProperty(db, "b", OType.LINK, b).createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
+    b.createProperty(db, "c", OType.LINK, c).createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
+    c.createProperty(db, "d", OType.LINK, d).createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
+    c.createProperty(db, "name", OType.STRING).createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
+    d.createProperty(db, "name", OType.STRING).createIndex(db, OClass.INDEX_TYPE.NOTUNIQUE);
 
     db.begin();
     OElement dDoc = db.newElement(d.getName());
@@ -4921,62 +4859,62 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
   public void testAsSetKeepsOrderWithExpand() {
     // init classes
     db.activateOnCurrentThread();
-    ODatabaseSession ses = ODatabaseSession.getActiveSession();
-    var car = ses.createVertexClass("Car");
-    var engine = ses.createVertexClass("Engine");
-    var body = ses.createVertexClass("BodyType");
-    var eng = ses.createEdgeClass("eng");
-    var bt = ses.createEdgeClass("bt");
-    ses.begin();
 
-    var diesel = ses.newVertex(engine);
+    var car = db.createVertexClass("Car");
+    var engine = db.createVertexClass("Engine");
+    var body = db.createVertexClass("BodyType");
+    var eng = db.createEdgeClass("eng");
+    var bt = db.createEdgeClass("bt");
+    db.begin();
+
+    var diesel = db.newVertex(engine);
     diesel.setProperty("name", "diesel");
-    var gasoline = ses.newVertex(engine);
+    var gasoline = db.newVertex(engine);
     gasoline.setProperty("name", "gasoline");
-    var microwave = ses.newVertex(engine);
+    var microwave = db.newVertex(engine);
     microwave.setProperty("name", "EV");
 
-    var coupe = ses.newVertex(body);
+    var coupe = db.newVertex(body);
     coupe.setProperty("name", "coupe");
-    var suv = ses.newVertex(body);
+    var suv = db.newVertex(body);
     suv.setProperty("name", "suv");
-    ses.commit();
-    ses.begin();
+    db.commit();
+    db.begin();
     // fill data
-    var coupe1 = ses.newVertex(car);
+    var coupe1 = db.newVertex(car);
     coupe1.setProperty("name", "car1");
     coupe1.addEdge(gasoline, eng);
     coupe1.addEdge(coupe, bt);
     coupe1.save();
 
-    var coupe2 = ses.newVertex(car);
+    var coupe2 = db.newVertex(car);
     coupe2.setProperty("name", "car2");
     coupe2.addEdge(diesel, eng);
     coupe2.addEdge(coupe, bt);
     coupe2.save();
 
-    var mw1 = ses.newVertex(car);
+    var mw1 = db.newVertex(car);
     mw1.setProperty("name", "microwave1");
     mw1.addEdge(microwave, eng);
     mw1.addEdge(suv, bt);
     mw1.save();
 
-    var mw2 = ses.newVertex(car);
+    var mw2 = db.newVertex(car);
     mw2.setProperty("name", "microwave2");
     mw2.addEdge(microwave, eng);
     mw2.addEdge(suv, bt);
     mw2.save();
 
-    var hatch1 = ses.newVertex(car);
+    var hatch1 = db.newVertex(car);
     hatch1.setProperty("name", "hatch1");
     hatch1.addEdge(diesel, eng);
     hatch1.addEdge(suv, bt);
     hatch1.save();
-    ses.commit();
+    db.commit();
 
-    gasoline = ses.bindToSession(gasoline);
-    diesel = ses.bindToSession(diesel);
-    microwave = ses.bindToSession(microwave);
+    gasoline = db.bindToSession(gasoline);
+    diesel = db.bindToSession(diesel);
+    microwave = db.bindToSession(microwave);
 
     var identities =
         String.join(

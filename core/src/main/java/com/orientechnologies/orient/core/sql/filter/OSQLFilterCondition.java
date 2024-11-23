@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.filter;
@@ -26,6 +26,7 @@ import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
@@ -36,7 +37,7 @@ import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OImmutableSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.query.OQueryRuntimeValueMulti;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.BytesContainer;
@@ -59,8 +60,6 @@ import java.util.regex.Pattern;
 
 /**
  * Run-time query condition evaluator.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFilterCondition {
 
@@ -86,6 +85,7 @@ public class OSQLFilterCondition {
       final OIdentifiable iCurrentRecord,
       final ODocument iCurrentResult,
       final OCommandContext iContext) {
+    var db = iContext.getDatabase();
     boolean binaryEvaluation =
         operator != null
             && operator.isSupportingBinaryEvaluate()
@@ -95,7 +95,7 @@ public class OSQLFilterCondition {
     if (left instanceof OSQLQuery<?>)
     // EXECUTE SUB QUERIES ONLY ONCE
     {
-      left = ((OSQLQuery<?>) left).setContext(iContext).execute();
+      left = ((OSQLQuery<?>) left).setContext(iContext).execute(iContext.getDatabase());
     }
 
     Object l = evaluate(iCurrentRecord, iCurrentResult, left, iContext, binaryEvaluation);
@@ -107,7 +107,7 @@ public class OSQLFilterCondition {
     if (right instanceof OSQLQuery<?>)
     // EXECUTE SUB QUERIES ONLY ONCE
     {
-      right = ((OSQLQuery<?>) right).setContext(iContext).execute();
+      right = ((OSQLQuery<?>) right).setContext(iContext).execute(iContext.getDatabase());
     }
 
     Object r = evaluate(iCurrentRecord, iCurrentResult, right, iContext, binaryEvaluation);
@@ -125,7 +125,7 @@ public class OSQLFilterCondition {
           final BytesContainer bytes = new BytesContainer();
           ORecordSerializerBinary.INSTANCE
               .getCurrentSerializer()
-              .serializeValue(bytes, r, type, null, schema, null);
+              .serializeValue(db, bytes, r, type, null, schema, null);
           bytes.offset = 0;
           final OCollate collate =
               r instanceof OSQLFilterItemField
@@ -155,7 +155,7 @@ public class OSQLFilterCondition {
           final BytesContainer bytes = new BytesContainer();
           ORecordSerializerBinary.INSTANCE
               .getCurrentSerializer()
-              .serializeValue(bytes, l, type, null, schema, null);
+              .serializeValue(db, bytes, l, type, null, schema, null);
           bytes.offset = 0;
           final OCollate collate =
               l instanceof OSQLFilterItemField
@@ -183,7 +183,7 @@ public class OSQLFilterCondition {
       // no collate for regular expressions, otherwise quotes will result in no match
       final OCollate collate =
           operator instanceof OQueryOperatorMatches ? null : getCollate(iCurrentRecord);
-      final Object[] convertedValues = checkForConversion(iCurrentRecord, l, r, collate);
+      final Object[] convertedValues = checkForConversion(db, iCurrentRecord, l, r, collate);
       if (convertedValues != null) {
         l = convertedValues[0];
         r = convertedValues[1];
@@ -232,28 +232,28 @@ public class OSQLFilterCondition {
     return null;
   }
 
-  public ORID getBeginRidRange() {
+  public ORID getBeginRidRange(ODatabaseSession session) {
     if (operator == null) {
       if (left instanceof OSQLFilterCondition) {
-        return ((OSQLFilterCondition) left).getBeginRidRange();
+        return ((OSQLFilterCondition) left).getBeginRidRange(session);
       } else {
         return null;
       }
     }
 
-    return operator.getBeginRidRange(left, right);
+    return operator.getBeginRidRange(session, left, right);
   }
 
-  public ORID getEndRidRange() {
+  public ORID getEndRidRange(ODatabaseSession session) {
     if (operator == null) {
       if (left instanceof OSQLFilterCondition) {
-        return ((OSQLFilterCondition) left).getEndRidRange();
+        return ((OSQLFilterCondition) left).getEndRidRange(session);
       } else {
         return null;
       }
     }
 
-    return operator.getEndRidRange(left, right);
+    return operator.getEndRidRange(session, left, right);
   }
 
   public List<String> getInvolvedFields(final List<String> list) {
@@ -427,7 +427,8 @@ public class OSQLFilterCondition {
     try {
       if (iCurrentRecord != null) {
         iCurrentRecord = iCurrentRecord.getRecord();
-        if (((ORecord) iCurrentRecord).getInternalStatus() == ORecordElement.STATUS.NOT_LOADED) {
+        if (((ORecordAbstract) iCurrentRecord).getInternalStatus()
+            == ORecordElement.STATUS.NOT_LOADED) {
           var db = iContext.getDatabase();
           iCurrentRecord = db.bindToSession(iCurrentRecord);
         }
@@ -482,7 +483,7 @@ public class OSQLFilterCondition {
   }
 
   private Object[] checkForConversion(
-      final OIdentifiable o, Object l, Object r, final OCollate collate) {
+      ODatabaseSession session, final OIdentifiable o, Object l, Object r, final OCollate collate) {
     Object[] result = null;
 
     final Object oldL = l;
@@ -495,7 +496,7 @@ public class OSQLFilterCondition {
       if (l != oldL || r != oldR)
       // CHANGED
       {
-        result = new Object[] {l, r};
+        result = new Object[]{l, r};
       }
     }
 
@@ -503,7 +504,7 @@ public class OSQLFilterCondition {
       // DEFINED OPERATOR
       if ((oldR instanceof String && oldR.equals(OSQLHelper.DEFINED))
           || (oldL instanceof String && oldL.equals(OSQLHelper.DEFINED))) {
-        result = new Object[] {((OSQLFilterItemAbstract) this.left).getRoot(), r};
+        result = new Object[]{((OSQLFilterItemAbstract) this.left).getRoot(session), r};
       } else if ((oldR instanceof String && oldR.equals(OSQLHelper.NOT_NULL))
           || (oldL instanceof String && oldL.equals(OSQLHelper.NOT_NULL))) {
         // NOT_NULL OPERATOR
@@ -516,44 +517,44 @@ public class OSQLFilterCondition {
       {
         if (r instanceof Integer && !(l instanceof Number || l instanceof Collection)) {
           if (l instanceof String && ((String) l).indexOf('.') > -1) {
-            result = new Object[] {Float.valueOf((String) l).intValue(), r};
+            result = new Object[]{Float.valueOf((String) l).intValue(), r};
           } else if (l instanceof Date) {
-            result = new Object[] {((Date) l).getTime(), r};
+            result = new Object[]{((Date) l).getTime(), r};
           } else if (!(l instanceof OQueryRuntimeValueMulti)
               && !(l instanceof Collection<?>)
               && !l.getClass().isArray()
               && !(l instanceof Map)) {
-            result = new Object[] {getInteger(l), r};
+            result = new Object[]{getInteger(l), r};
           }
         } else if (l instanceof Integer && !(r instanceof Number || r instanceof Collection)) {
           if (r instanceof String && ((String) r).indexOf('.') > -1) {
-            result = new Object[] {l, Float.valueOf((String) r).intValue()};
+            result = new Object[]{l, Float.valueOf((String) r).intValue()};
           } else if (r instanceof Date) {
-            result = new Object[] {l, ((Date) r).getTime()};
+            result = new Object[]{l, ((Date) r).getTime()};
           } else if (!(r instanceof OQueryRuntimeValueMulti)
               && !(r instanceof Collection<?>)
               && !r.getClass().isArray()
               && !(r instanceof Map)) {
-            result = new Object[] {l, getInteger(r)};
+            result = new Object[]{l, getInteger(r)};
           }
         } else if (r instanceof Date && !(l instanceof Collection || l instanceof Date)) {
           // DATES
-          result = new Object[] {getDate(l), r};
+          result = new Object[]{getDate(l), r};
         } else if (l instanceof Date && !(r instanceof Collection || r instanceof Date)) {
           // DATES
-          result = new Object[] {l, getDate(r)};
+          result = new Object[]{l, getDate(r)};
         } else if (r instanceof Float && !(l instanceof Float || l instanceof Collection)) {
           // FLOATS
-          result = new Object[] {getFloat(l), r};
+          result = new Object[]{getFloat(l), r};
         } else if (l instanceof Float && !(r instanceof Float || r instanceof Collection)) {
           // FLOATS
-          result = new Object[] {l, getFloat(r)};
+          result = new Object[]{l, getFloat(r)};
         } else if (r instanceof ORID && l instanceof String && !oldL.equals(OSQLHelper.NOT_NULL)) {
           // RIDS
-          result = new Object[] {new ORecordId((String) l), r};
+          result = new Object[]{new ORecordId((String) l), r};
         } else if (l instanceof ORID && r instanceof String && !oldR.equals(OSQLHelper.NOT_NULL)) {
           // RIDS
-          result = new Object[] {l, new ORecordId((String) r)};
+          result = new Object[]{l, new ORecordId((String) r)};
         }
       }
     } catch (Exception ignore) {

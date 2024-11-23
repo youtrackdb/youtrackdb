@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -23,22 +26,29 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.io.IOException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-@Test(groups = "schema")
+@Test
 public class AbstractClassTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
-  public AbstractClassTest(boolean remote) {
-    super(remote);
+  public AbstractClassTest(@Optional Boolean remote) {
+    super(remote != null && remote);
+  }
+
+  @Override
+  protected OxygenDBConfig createConfig(OrientDBConfigBuilder builder) {
+    builder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
+    return builder.build();
   }
 
   @BeforeClass
   public void createSchema() throws IOException {
     OClass abstractPerson =
         database.getMetadata().getSchema().createAbstractClass("AbstractPerson");
-    abstractPerson.createProperty("name", OType.STRING);
+    abstractPerson.createProperty(database, "name", OType.STRING);
 
     Assert.assertTrue(abstractPerson.isAbstract());
     Assert.assertEquals(abstractPerson.getClusterIds().length, 1);

@@ -15,7 +15,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by tglman on 02/12/15.
+ *
  */
 public class TestNullLinkInCollection extends BaseMemoryDatabase {
 

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2016 OrientDB LTD (info(-at-)orientdb.com)
+
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,13 +14,14 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.security;
 
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDBInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
@@ -30,8 +31,6 @@ import java.util.Map;
 
 /**
  * Provides a basic interface for a modular security system.
- *
- * @author S. Colin Leister
  */
 public interface OSecuritySystem {
 
@@ -66,7 +65,7 @@ public interface OSecuritySystem {
   OSecurityUser getSystemUser(final String username, final String dbName);
 
   // Walks through the list of Authenticators.
-  boolean isAuthorized(final String username, final String resource);
+  boolean isAuthorized(ODatabaseSession session, final String username, final String resource);
 
   boolean isEnabled();
 
@@ -79,26 +78,24 @@ public interface OSecuritySystem {
   /**
    * Logs to the auditing service, if installed.
    *
-   * @param dbName May be null or empty.
-   * @param user   May be null or empty.
+   * @param session
+   * @param dbName  May be null or empty.
+   * @param user    May be null or empty.
    */
   void log(
-      final OAuditingOperation operation,
+      ODatabaseSessionInternal session, final OAuditingOperation operation,
       final String dbName,
       OSecurityUser user,
       final String message);
 
   void registerSecurityClass(final Class<?> cls);
 
-  void reload(final String cfgPath);
+  void reload(ODatabaseSessionInternal session, final ODocument jsonConfig);
 
-  void reload(final ODocument jsonConfig);
+  void reload(ODatabaseSessionInternal session, OSecurityUser user, final ODocument jsonConfig);
 
-  void reload(OSecurityUser user, final ODocument jsonConfig);
-
-  void reload(OSecurityUser user, final String jsonConfig);
-
-  void reloadComponent(OSecurityUser user, final String name, final ODocument jsonConfig);
+  void reloadComponent(ODatabaseSessionInternal session, OSecurityUser user, final String name,
+      final ODocument jsonConfig);
 
   void unregisterSecurityClass(final Class<?> cls);
 
@@ -126,24 +123,25 @@ public interface OSecuritySystem {
    * Some authenticators support maintaining a list of users and associated resources (and sometimes
    * passwords).
    */
-  OSecurityUser getUser(final String username);
+  OSecurityUser getUser(final String username, ODatabaseSessionInternal session);
 
-  void onAfterDynamicPlugins();
+  void onAfterDynamicPlugins(ODatabaseSessionInternal session);
 
-  default void onAfterDynamicPlugins(OSecurityUser user) {
-    onAfterDynamicPlugins();
+  default void onAfterDynamicPlugins(ODatabaseSessionInternal session, OSecurityUser user) {
+    onAfterDynamicPlugins(session);
   }
 
   OSecurityUser authenticateAndAuthorize(
-      String iUserName, String iPassword, String iResourceToCheck);
+      ODatabaseSessionInternal session, String iUserName, String iPassword,
+      String iResourceToCheck);
 
-  OSecurityUser authenticateServerUser(String username, String password);
+  OSecurityUser authenticateServerUser(ODatabaseSession session, String username, String password);
 
-  OSecurityUser getServerUser(String username);
+  OSecurityUser getServerUser(ODatabaseSessionInternal session, String username);
 
-  boolean isServerUserAuthorized(String username, String resource);
+  boolean isServerUserAuthorized(ODatabaseSession session, String username, String resource);
 
-  OrientDBInternal getContext();
+  OxygenDBInternal getContext();
 
   boolean existsUser(String defaultRootUser);
 

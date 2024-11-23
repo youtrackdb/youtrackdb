@@ -4,7 +4,7 @@ import static org.junit.Assert.assertNotNull;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -21,16 +21,16 @@ import org.junit.Test;
 
 public class ORecordLazyListTest {
 
-  private OrientDB orientDb;
+  private OxygenDB oxygenDb;
   private ODatabaseSession dbSession;
 
   @Before
   public void init() throws Exception {
-    orientDb =
+    oxygenDb =
         OCreateDatabaseUtil.createDatabase(
             ORecordLazyListTest.class.getSimpleName(), "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
     dbSession =
-        orientDb.open(
+        oxygenDb.open(
             ORecordLazyListTest.class.getSimpleName(),
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -40,16 +40,19 @@ public class ORecordLazyListTest {
   public void test() {
     OSchema schema = dbSession.getMetadata().getSchema();
     OClass mainClass = schema.createClass("MainClass");
-    mainClass.createProperty("name", OType.STRING);
-    OProperty itemsProp = mainClass.createProperty("items", OType.LINKLIST);
+    mainClass.createProperty(dbSession, "name", OType.STRING);
+    OProperty itemsProp = mainClass.createProperty(dbSession, "items", OType.LINKLIST);
     OClass itemClass = schema.createClass("ItemClass");
-    itemClass.createProperty("name", OType.STRING);
-    itemsProp.setLinkedClass(itemClass);
+    itemClass.createProperty(dbSession, "name", OType.STRING);
+    itemsProp.setLinkedClass(dbSession, itemClass);
 
     dbSession.begin();
-    ODocument doc1 = new ODocument(itemClass).field("name", "Doc1").save();
-    ODocument doc2 = new ODocument(itemClass).field("name", "Doc2").save();
-    ODocument doc3 = new ODocument(itemClass).field("name", "Doc3").save();
+    ODocument doc1 = new ODocument(itemClass).field("name", "Doc1");
+    doc1.save();
+    ODocument doc2 = new ODocument(itemClass).field("name", "Doc2");
+    doc2.save();
+    ODocument doc3 = new ODocument(itemClass).field("name", "Doc3");
+    doc3.save();
 
     ODocument mainDoc = new ODocument(mainClass).field("name", "Main Doc");
     mainDoc.field("items", Arrays.asList(doc1, doc2, doc3));
@@ -76,8 +79,8 @@ public class ORecordLazyListTest {
     if (dbSession != null) {
       dbSession.close();
     }
-    if (orientDb != null && dbSession != null) {
-      orientDb.drop(ORecordLazyListTest.class.getSimpleName());
+    if (oxygenDb != null && dbSession != null) {
+      oxygenDb.drop(ORecordLazyListTest.class.getSimpleName());
     }
   }
 }

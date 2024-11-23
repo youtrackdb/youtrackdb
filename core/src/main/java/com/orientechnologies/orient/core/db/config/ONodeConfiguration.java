@@ -12,7 +12,8 @@ public class ONodeConfiguration {
   private OMulticastConfguration multicast;
   private OUDPUnicastConfiguration udpUnicast;
 
-  protected ONodeConfiguration() {}
+  protected ONodeConfiguration() {
+  }
 
   protected ONodeConfiguration(
       String nodeName,

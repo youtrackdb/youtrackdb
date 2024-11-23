@@ -18,7 +18,8 @@ public class HookRegisterRemoveTest extends BaseMemoryDatabase {
         new ORecordHook() {
 
           @Override
-          public void onUnregister() {}
+          public void onUnregister() {
+          }
 
           @Override
           public RESULT onTrigger(TYPE iType, ORecord iRecord) {

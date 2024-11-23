@@ -6,8 +6,8 @@ import com.orientechnologies.orient.client.remote.message.MockChannel;
 import com.orientechnologies.orient.client.remote.message.OMessageHelper;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -26,20 +26,20 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by Enrico Risa on 06/06/2017.
+ *
  */
 public class OMessageHelperTest {
 
   @Test
   public void testOIdentifiable() throws IOException {
 
-    OrientDB orientDB = new OrientDB("embedded", OrientDBConfig.defaultConfig());
+    OxygenDB oxygenDB = new OxygenDB("embedded", OxygenDBConfig.defaultConfig());
 
-    orientDB.execute(
+    oxygenDB.execute(
         "create database testOIdentifiable memory users (admin identified by 'admin' role admin)");
 
     ODatabaseSessionInternal open =
-        (ODatabaseSessionInternal) orientDB.open("testOIdentifiable", "admin", "admin");
+        (ODatabaseSessionInternal) oxygenDB.open("testOIdentifiable", "admin", "admin");
     int id = open.getClusterIdByName("V");
     try {
       MockChannel channel = new MockChannel();
@@ -52,7 +52,7 @@ public class OMessageHelperTest {
       ORecordInternal.setIdentity(doc, new ORecordId(id, 1));
       ORecordInternal.setVersion(doc, 1);
 
-      OMessageHelper.writeIdentifiable(
+      OMessageHelper.writeIdentifiable(null,
           channel, doc, ORecordSerializerNetworkFactory.INSTANCE.current());
       channel.close();
 
@@ -69,7 +69,7 @@ public class OMessageHelperTest {
 
     } finally {
       open.close();
-      orientDB.close();
+      oxygenDB.close();
     }
   }
 
@@ -80,7 +80,7 @@ public class OMessageHelperTest {
     request.setType(ORecordOperation.UPDATED);
     request.setRecordType(ORecordOperation.UPDATED);
     request.setId(new ORecordId(25, 50));
-    request.setRecord(new byte[] {10, 20, 30});
+    request.setRecord(new byte[]{10, 20, 30});
     request.setVersion(100);
     request.setContentChanged(true);
 

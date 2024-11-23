@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -26,7 +26,7 @@ import com.orientechnologies.orient.core.serialization.OSerializableStream;
  * Extension of ORecordBytes that handle lazy serialization and converts temporary links (record id
  * in transactions) to finals.
  *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
+ *
  * <p>Depecraded since v2.2
  */
 @SuppressWarnings({"unchecked", "serial"})
@@ -35,7 +35,8 @@ public class ORecordBytesLazy extends ORecordBytes {
 
   private OSerializableStream serializableContent;
 
-  public ORecordBytesLazy() {}
+  public ORecordBytesLazy() {
+  }
 
   public ORecordBytesLazy(final OSerializableStream iSerializable) {
     this.serializableContent = iSerializable;

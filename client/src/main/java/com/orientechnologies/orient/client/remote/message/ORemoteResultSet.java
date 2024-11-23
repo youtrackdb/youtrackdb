@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import com.orientechnologies.orient.client.remote.db.document.ODatabaseDocumentRemote;
+import com.orientechnologies.orient.client.remote.db.document.ODatabaseSessionRemote;
 import com.orientechnologies.orient.core.db.document.OQueryDatabaseState;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
@@ -12,11 +12,11 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Created by luigidellaquila on 05/12/16.
+ *
  */
 public class ORemoteResultSet implements OResultSet {
 
-  private final ODatabaseDocumentRemote db;
+  private final ODatabaseSessionRemote db;
   private final String queryId;
   private List<OResult> currentPage;
   private Optional<OExecutionPlan> executionPlan;
@@ -24,7 +24,7 @@ public class ORemoteResultSet implements OResultSet {
   private boolean hasNextPage;
 
   public ORemoteResultSet(
-      ODatabaseDocumentRemote db,
+      ODatabaseSessionRemote db,
       String queryId,
       List<OResult> currentPage,
       Optional<OExecutionPlan> executionPlan,

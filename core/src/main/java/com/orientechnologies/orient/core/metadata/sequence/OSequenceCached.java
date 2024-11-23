@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2014 OrientDB LTD (info(at)orientdb.com)
+ *  *  Copyright 2014 OxygenDB LTD (info(at)orientdb.com)
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://www.orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.metadata.sequence;
@@ -27,7 +27,6 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import javax.annotation.Nonnull;
 
 /**
- * @author Matan Shukry (matanshukry@gmail.com)
  * @since 3/3/2015
  */
 public class OSequenceCached extends OSequence {

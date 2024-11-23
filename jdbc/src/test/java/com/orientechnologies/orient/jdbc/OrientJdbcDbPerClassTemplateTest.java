@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,7 +9,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://orientdb.com
+ * <p>*
  */
 package com.orientechnologies.orient.jdbc;
 
@@ -19,7 +17,7 @@ import static com.orientechnologies.orient.jdbc.OrientDbCreationHelper.createSch
 import static com.orientechnologies.orient.jdbc.OrientDbCreationHelper.loadDB;
 
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OxygenDB;
 import java.util.Properties;
 import javax.sql.DataSource;
 import org.assertj.db.type.DataSourceWithLetterCase;
@@ -33,10 +31,11 @@ public abstract class OrientJdbcDbPerClassTemplateTest {
 
   protected static OrientJdbcConnection conn;
   protected static ODatabaseSession db;
-  protected static OrientDB orientDB;
+  protected static OxygenDB oxygenDB;
   protected static DataSource ds;
 
-  @Rule public TestName name = new TestName();
+  @Rule
+  public TestName name = new TestName();
 
   @BeforeClass
   public static void prepareDatabase() throws Exception {
@@ -54,7 +53,7 @@ public abstract class OrientJdbcDbPerClassTemplateTest {
         new DataSourceWithLetterCase(
             ods, LetterCase.TABLE_DEFAULT, LetterCase.TABLE_DEFAULT, LetterCase.TABLE_DEFAULT);
     conn = (OrientJdbcConnection) ds.getConnection();
-    orientDB = conn.getOrientDB();
+    oxygenDB = conn.getOrientDB();
 
     db = ((OrientJdbcConnection) ds.getConnection()).getDatabase();
 
@@ -73,6 +72,6 @@ public abstract class OrientJdbcDbPerClassTemplateTest {
     if (conn != null && !conn.isClosed()) {
       conn.close();
     }
-    orientDB.close();
+    oxygenDB.close();
   }
 }

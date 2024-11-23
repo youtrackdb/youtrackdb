@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  * <p>
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -10,7 +10,7 @@
  * BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  * <p>
- * For more information: http://www.orientdb.com
+ * *
  */
 package com.orientechnologies.spatial;
 
@@ -33,7 +33,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by Enrico Risa on 07/10/15.
+ *
  */
 public class LuceneSpatialMemoryTest {
 
@@ -45,8 +45,8 @@ public class LuceneSpatialMemoryTest {
       try {
 
         OClass point = db.getMetadata().getSchema().createClass("Point");
-        point.createProperty("latitude", OType.DOUBLE);
-        point.createProperty("longitude", OType.DOUBLE);
+        point.createProperty(db, "latitude", OType.DOUBLE);
+        point.createProperty(db, "longitude", OType.DOUBLE);
 
         db.command("CREATE INDEX Point.ll ON Point(latitude,longitude) SPATIAL ENGINE LUCENE")
             .close();
@@ -82,8 +82,8 @@ public class LuceneSpatialMemoryTest {
     try {
 
       OClass point = db.getMetadata().getSchema().createClass("Point");
-      point.createProperty("latitude", OType.DOUBLE);
-      point.createProperty("longitude", OType.DOUBLE);
+      point.createProperty(db, "latitude", OType.DOUBLE);
+      point.createProperty(db, "longitude", OType.DOUBLE);
 
       db.command("CREATE INDEX Point.ll ON Point(latitude,longitude) SPATIAL ENGINE LUCENE")
           .close();
@@ -109,29 +109,29 @@ public class LuceneSpatialMemoryTest {
 
       OSpatialCompositeKey oSpatialCompositeKey =
           new OSpatialCompositeKey(
-                  new ArrayList<List<Number>>() {
-                    {
-                      add(
-                          new ArrayList<Number>() {
-                            {
-                              add(42.26531323615103);
-                              add(-83.71986351411135);
-                            }
-                          });
-                      add(
-                          new ArrayList<Number>() {
-                            {
-                              add(42.29239784478525);
-                              add(-83.7662120858887);
-                            }
-                          });
-                    }
-                  })
+              new ArrayList<List<Number>>() {
+                {
+                  add(
+                      new ArrayList<Number>() {
+                        {
+                          add(42.26531323615103);
+                          add(-83.71986351411135);
+                        }
+                      });
+                  add(
+                      new ArrayList<Number>() {
+                        {
+                          add(42.29239784478525);
+                          add(-83.7662120858887);
+                        }
+                      });
+                }
+              })
               .setOperation(SpatialOperation.IsWithin);
       OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Point.ll");
 
       Collection coll;
-      try (Stream<ORID> stream = index.getInternal().getRids(oSpatialCompositeKey)) {
+      try (Stream<ORID> stream = index.getInternal().getRids(db, oSpatialCompositeKey)) {
         coll = stream.collect(Collectors.toList());
       }
       Assert.assertEquals(1, coll.size());
@@ -160,8 +160,8 @@ public class LuceneSpatialMemoryTest {
     try {
 
       OClass point = db.getMetadata().getSchema().createClass("Point");
-      point.createProperty("latitude", OType.DOUBLE);
-      point.createProperty("longitude", OType.DOUBLE);
+      point.createProperty(db, "latitude", OType.DOUBLE);
+      point.createProperty(db, "longitude", OType.DOUBLE);
 
       db.command("CREATE INDEX Point.ll ON Point(latitude,longitude) SPATIAL ENGINE LUCENE")
           .close();
@@ -187,30 +187,30 @@ public class LuceneSpatialMemoryTest {
 
       OSpatialCompositeKey oSpatialCompositeKey =
           new OSpatialCompositeKey(
-                  new ArrayList<List<Number>>() {
-                    {
-                      add(
-                          new ArrayList<Number>() {
-                            {
-                              add(42.26531323615103);
-                              add(-83.71986351411135);
-                            }
-                          });
-                      add(
-                          new ArrayList<Number>() {
-                            {
-                              add(42.29239784478525);
-                              add(-83.7662120858887);
-                            }
-                          });
-                    }
-                  })
+              new ArrayList<List<Number>>() {
+                {
+                  add(
+                      new ArrayList<Number>() {
+                        {
+                          add(42.26531323615103);
+                          add(-83.71986351411135);
+                        }
+                      });
+                  add(
+                      new ArrayList<Number>() {
+                        {
+                          add(42.29239784478525);
+                          add(-83.7662120858887);
+                        }
+                      });
+                }
+              })
               .setOperation(SpatialOperation.IsWithin);
 
       OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Point.ll");
 
       Collection coll;
-      try (Stream<ORID> stream = index.getInternal().getRids(oSpatialCompositeKey)) {
+      try (Stream<ORID> stream = index.getInternal().getRids(db, oSpatialCompositeKey)) {
         coll = stream.collect(Collectors.toList());
       }
       Assert.assertEquals(1, coll.size());
@@ -228,7 +228,7 @@ public class LuceneSpatialMemoryTest {
 
       Assert.assertEquals(0, query.size());
 
-      try (Stream<ORID> stream = index.getInternal().getRids(oSpatialCompositeKey)) {
+      try (Stream<ORID> stream = index.getInternal().getRids(db, oSpatialCompositeKey)) {
         coll = stream.collect(Collectors.toList());
       }
 

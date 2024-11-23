@@ -5,7 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.*;
+import com.orientechnologies.orient.core.db.ODatabasePool;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.server.OServer;
@@ -35,7 +39,7 @@ public class OLuceneIndexCrashRestoreIT {
   private Process serverProcess;
   private List<String> names;
   private List<String> surnames;
-  private OrientDB orientdb;
+  private OxygenDB orientdb;
   private ODatabasePool databasePool;
   private static final String BUILD_DIRECTORY = "./target/testLuceneCrash";
 
@@ -46,7 +50,7 @@ public class OLuceneIndexCrashRestoreIT {
     spawnServer();
 
     orientdb =
-        new OrientDB("remote:localhost:3900", "root", "root", OrientDBConfig.defaultConfig());
+        new OxygenDB("remote:localhost:3900", "root", "root", OxygenDBConfig.defaultConfig());
     orientdb.execute(
         "create database testLuceneCrash plocal users (admin identified by 'admin' role admin)");
 
@@ -196,7 +200,7 @@ public class OLuceneIndexCrashRestoreIT {
     }
 
     orientdb =
-        new OrientDB("remote:localhost:3900", "root", "root", OrientDBConfig.defaultConfig());
+        new OxygenDB("remote:localhost:3900", "root", "root", OxygenDBConfig.defaultConfig());
     databasePool = new ODatabasePool(orientdb, "testLuceneCrash", "admin", "admin");
 
     // test query
@@ -261,7 +265,7 @@ public class OLuceneIndexCrashRestoreIT {
         "Create index Person.surname on Person(surname) FULLTEXT ENGINE LUCENE METADATA"
             + " {'default':'org.apache.lucene.analysis.core.KeywordAnalyzer',"
             + " 'unknownKey':'unknownValue'}");
-    db.getMetadata().getIndexManagerInternal().reload();
+    db.getMetadata().getIndexManagerInternal().reload(db);
 
     System.out.println(
         db.getMetadata()

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.filter;
@@ -25,6 +25,7 @@ import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
@@ -44,8 +45,6 @@ import java.util.Set;
 
 /**
  * Represent an object field as value in the query condition.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OSQLFilterItemField extends OSQLFilterItemAbstract {
 
@@ -62,7 +61,8 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
    */
   public class FieldChain {
 
-    private FieldChain() {}
+    private FieldChain() {
+    }
 
     public String getItemName(int fieldIndex) {
       if (fieldIndex == 0) {
@@ -103,8 +103,9 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
   }
 
   public OSQLFilterItemField(
-      final OBaseParser iQueryToParse, final String iName, final OClass iClass) {
-    super(iQueryToParse, iName);
+      ODatabaseSession session, final OBaseParser iQueryToParse, final String iName,
+      final OClass iClass) {
+    super(session, iQueryToParse, iName);
     collate = getCollateForField(iClass, iName);
     if (iClass != null) {
       collatePreset = true;
@@ -182,7 +183,7 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
         encryption);
   }
 
-  public String getRoot() {
+  public String getRoot(ODatabaseSession session) {
     return name;
   }
 

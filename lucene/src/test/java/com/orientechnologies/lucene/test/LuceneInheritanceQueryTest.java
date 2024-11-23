@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -27,11 +27,12 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by Enrico Risa on 10/08/15.
+ *
  */
 public class LuceneInheritanceQueryTest extends BaseLuceneTest {
 
-  public LuceneInheritanceQueryTest() {}
+  public LuceneInheritanceQueryTest() {
+  }
 
   @Test
   public void testQuery() {
@@ -49,8 +50,8 @@ public class LuceneInheritanceQueryTest extends BaseLuceneTest {
 
   protected void createSchema(ODatabaseSessionInternal db) {
     final OClass c1 = db.createVertexClass("C1");
-    c1.createProperty("name", OType.STRING);
-    c1.createIndex("C1.name", "FULLTEXT", null, null, "LUCENE", new String[] {"name"});
+    c1.createProperty(db, "name", OType.STRING);
+    c1.createIndex(db, "C1.name", "FULLTEXT", null, null, "LUCENE", new String[]{"name"});
 
     db.createClass("C2", "C1");
   }

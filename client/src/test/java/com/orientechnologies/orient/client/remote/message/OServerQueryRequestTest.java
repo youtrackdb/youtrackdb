@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by luigidellaquila on 14/12/16.
+ *
  */
 public class OServerQueryRequestTest {
 
@@ -21,18 +21,16 @@ public class OServerQueryRequestTest {
 
   @Test
   public void testWithPositionalParams() throws IOException {
-    Object[] params = new Object[] {1, "Foo"};
+    Object[] params = new Object[]{1, "Foo"};
     OServerQueryRequest request =
-        new OServerQueryRequest(
+        new OServerQueryRequest(null,
             "sql",
             "some random statement",
             params,
-            OServerQueryRequest.QUERY,
-            ORecordSerializerNetworkFactory.INSTANCE.current(),
-            123);
+            OServerQueryRequest.QUERY, ORecordSerializerNetworkFactory.INSTANCE.current(), 123);
 
     MockChannel channel = new MockChannel();
-    request.write(channel, null);
+    request.write(null, channel, null);
 
     channel.close();
 
@@ -54,16 +52,15 @@ public class OServerQueryRequestTest {
     params.put("foo", "bar");
     params.put("baz", 12);
     OServerQueryRequest request =
-        new OServerQueryRequest(
+        new OServerQueryRequest(null,
             "sql",
             "some random statement",
             params,
             OServerQueryRequest.QUERY,
-            ORecordSerializerNetworkFactory.INSTANCE.current(),
-            123);
+            ORecordSerializerNetworkFactory.INSTANCE.current(), 123);
 
     MockChannel channel = new MockChannel();
-    request.write(channel, null);
+    request.write(null, channel, null);
 
     channel.close();
 
@@ -81,16 +78,15 @@ public class OServerQueryRequestTest {
   public void testWithNoParams() throws IOException {
     Map<String, Object> params = null;
     OServerQueryRequest request =
-        new OServerQueryRequest(
+        new OServerQueryRequest(null,
             "sql",
             "some random statement",
             params,
             OServerQueryRequest.QUERY,
-            ORecordSerializerNetworkFactory.INSTANCE.current(),
-            123);
+            ORecordSerializerNetworkFactory.INSTANCE.current(), 123);
 
     MockChannel channel = new MockChannel();
-    request.write(channel, null);
+    request.write(null, channel, null);
 
     channel.close();
 

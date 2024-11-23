@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,14 +14,14 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.network.protocol.http;
 
 import com.orientechnologies.common.concur.lock.OLockException;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
@@ -74,7 +74,19 @@ import com.orientechnologies.orient.server.network.protocol.http.command.get.OSe
 import com.orientechnologies.orient.server.network.protocol.http.command.get.OServerCommandIsEnterprise;
 import com.orientechnologies.orient.server.network.protocol.http.command.options.OServerCommandOptions;
 import com.orientechnologies.orient.server.network.protocol.http.command.patch.OServerCommandPatchDocument;
-import com.orientechnologies.orient.server.network.protocol.http.command.post.*;
+import com.orientechnologies.orient.server.network.protocol.http.command.post.OServerCommandPostAuthToken;
+import com.orientechnologies.orient.server.network.protocol.http.command.post.OServerCommandPostBatch;
+import com.orientechnologies.orient.server.network.protocol.http.command.post.OServerCommandPostClass;
+import com.orientechnologies.orient.server.network.protocol.http.command.post.OServerCommandPostCommandGraph;
+import com.orientechnologies.orient.server.network.protocol.http.command.post.OServerCommandPostDatabase;
+import com.orientechnologies.orient.server.network.protocol.http.command.post.OServerCommandPostDocument;
+import com.orientechnologies.orient.server.network.protocol.http.command.post.OServerCommandPostImportRecords;
+import com.orientechnologies.orient.server.network.protocol.http.command.post.OServerCommandPostInstallDatabase;
+import com.orientechnologies.orient.server.network.protocol.http.command.post.OServerCommandPostKillDbConnection;
+import com.orientechnologies.orient.server.network.protocol.http.command.post.OServerCommandPostProperty;
+import com.orientechnologies.orient.server.network.protocol.http.command.post.OServerCommandPostServer;
+import com.orientechnologies.orient.server.network.protocol.http.command.post.OServerCommandPostServerCommand;
+import com.orientechnologies.orient.server.network.protocol.http.command.post.OServerCommandPostStudio;
 import com.orientechnologies.orient.server.network.protocol.http.command.put.OServerCommandPostConnection;
 import com.orientechnologies.orient.server.network.protocol.http.command.put.OServerCommandPutDocument;
 import com.orientechnologies.orient.server.network.protocol.http.command.put.OServerCommandPutIndex;
@@ -184,8 +196,8 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
 
     final String callbackF;
     if (server
-            .getContextConfiguration()
-            .getValueAsBoolean(OGlobalConfiguration.NETWORK_HTTP_JSONP_ENABLED)
+        .getContextConfiguration()
+        .getValueAsBoolean(OGlobalConfiguration.NETWORK_HTTP_JSONP_ENABLED)
         && request.getParameters() != null
         && request.getParameters().containsKey(OHttpUtils.CALLBACK_PARAMETER_NAME)) {
       callbackF = request.getParameters().get(OHttpUtils.CALLBACK_PARAMETER_NAME);
@@ -199,7 +211,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
             request.getHttpVersion(),
             additionalResponseHeaders,
             responseCharSet,
-            "OrientDB",
+            "OxygenDB",
             request.getSessionId(),
             callbackF,
             request.isKeepAlive(),
@@ -578,7 +590,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
     writeLine("Pragma: no-cache");
     writeLine("Date: " + new Date());
     writeLine("Content-Type: " + iContentType + "; charset=" + responseCharSet);
-    writeLine("Server: OrientDB");
+    writeLine("Server: OxygenDB");
     writeLine("Connection: " + (iKeepAlive ? "Keep-Alive" : "close"));
     if (getAdditionalResponseHeaders() != null) {
       for (String h : getAdditionalResponseHeaders()) {
@@ -850,9 +862,9 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
         // review this number: NETWORK_HTTP_MAX_CONTENT_LENGTH should refer to the body only...
         if (OGlobalConfiguration.NETWORK_HTTP_MAX_CONTENT_LENGTH.getValueAsInteger() > -1
             && requestContent.length()
-                >= 10000
-                    + OGlobalConfiguration.NETWORK_HTTP_MAX_CONTENT_LENGTH.getValueAsInteger()
-                        * 2) {
+            >= 10000
+            + OGlobalConfiguration.NETWORK_HTTP_MAX_CONTENT_LENGTH.getValueAsInteger()
+            * 2) {
           while (channel.inStream.available() > 0) {
             channel.read();
           }
@@ -904,7 +916,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
       readAllContent(request);
     } finally {
       if (connection.getStats().lastCommandReceived > -1) {
-        Orient.instance()
+        Oxygen.instance()
             .getProfiler()
             .stopChrono(
                 "server.network.requests",
@@ -956,7 +968,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
   }
 
   protected void connectionClosed() {
-    Orient.instance()
+    Oxygen.instance()
         .getProfiler()
         .updateCounter(
             "server.http." + listeningAddress + ".closed",
@@ -967,7 +979,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
   }
 
   protected void timeout() {
-    Orient.instance()
+    Oxygen.instance()
         .getProfiler()
         .updateCounter(
             "server.http." + listeningAddress + ".timeout",
@@ -978,7 +990,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
   }
 
   protected void connectionError() {
-    Orient.instance()
+    Oxygen.instance()
         .getProfiler()
         .updateCounter(
             "server.http." + listeningAddress + ".errors",

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql;
@@ -53,8 +53,6 @@ import java.util.Map;
 
 /**
  * SQL UPDATE command.
- *
- * @author Luca Garulli
  */
 public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
     implements OCommandDistributedReplicateRequest, OCommandResultListener {
@@ -72,7 +70,8 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
   private OSQLFilter compiledFilter;
   private boolean unsafe = false;
 
-  public OCommandExecutorSQLDelete() {}
+  public OCommandExecutorSQLDelete() {
+  }
 
   @SuppressWarnings("unchecked")
   public OCommandExecutorSQLDelete parse(final OCommandRequest iRequest) {
@@ -202,7 +201,7 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
     return ((ODeleteStatement) preParsedStatement).fromClause.toString();
   }
 
-  public Object execute(final Map<Object, Object> iArgs) {
+  public Object execute(final Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
     if (query == null && indexName == null) {
       throw new OCommandExecutionException(
           "Cannot execute the command because it has not been parsed yet");
@@ -218,7 +217,7 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
 
       Object prevLockValue = query.getContext().getVariable("$locking");
 
-      query.execute(iArgs);
+      query.execute(querySession, iArgs);
 
       query.getContext().setVariable("$locking", prevLockValue);
 
@@ -257,12 +256,12 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
       if (compiledFilter == null || compiledFilter.getRootCondition() == null) {
         if (returning.equalsIgnoreCase("COUNT")) {
           // RETURNS ONLY THE COUNT
-          final long total = index.size();
-          index.clear();
+          final long total = index.size(database);
+          index.clear(database);
           return total;
         } else {
           // RETURNS ALL THE DELETED RECORDS
-          Iterator<ORawPair<Object, ORID>> cursor = index.stream().iterator();
+          Iterator<ORawPair<Object, ORID>> cursor = index.stream(database).iterator();
 
           while (cursor.hasNext()) {
             final ORawPair<Object, ORID> entry = cursor.next();
@@ -273,7 +272,7 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
             }
           }
 
-          index.clear();
+          index.clear(database);
 
           return allDeletedRecords;
         }
@@ -307,9 +306,9 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
         final boolean result;
         if (value != VALUE_NOT_FOUND) {
           assert key != null;
-          result = index.remove(key, (OIdentifiable) value);
+          result = index.remove(database, key, (OIdentifiable) value);
         } else {
-          result = index.remove(key);
+          result = index.remove(database, key);
         }
 
         if (returning.equalsIgnoreCase("COUNT")) {
@@ -333,13 +332,13 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
   /**
    * Deletes the current record.
    */
-  public boolean result(final Object iRecord) {
+  public boolean result(ODatabaseSessionInternal querySession, final Object iRecord) {
     final ORecordAbstract record = ((OIdentifiable) iRecord).getRecord();
 
     if (record instanceof ODocument
         && compiledFilter != null
         && !Boolean.TRUE.equals(
-            this.compiledFilter.evaluate(record, (ODocument) record, getContext()))) {
+        this.compiledFilter.evaluate(record, (ODocument) record, getContext()))) {
       return true;
     }
     if (record.getIdentity().isValid()) {
@@ -385,7 +384,8 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
   }
 
   @Override
-  public void end() {}
+  public void end() {
+  }
 
   @Override
   public int getSecurityOperationType() {
@@ -442,7 +442,7 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
 
   @Override
   public OCommandDistributedReplicateRequest.DISTRIBUTED_EXECUTION_MODE
-      getDistributedExecutionMode() {
+  getDistributedExecutionMode() {
     return DISTRIBUTED_EXECUTION_MODE.LOCAL;
     // ALWAYS EXECUTE THE COMMAND LOCALLY BECAUSE THERE IS NO A DISTRIBUTED UNDO WITH SHARDING
     //

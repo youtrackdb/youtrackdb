@@ -4,10 +4,10 @@ import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentAbstract;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
+import com.orientechnologies.orient.core.db.document.ODatabaseSessionAbstract;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -35,13 +35,13 @@ public class TestNetworkSerializerIndipendency {
 
   @Test(expected = OStorageException.class)
   public void createCsvDatabaseConnectBinary() throws IOException {
-    ORecordSerializer prev = ODatabaseDocumentAbstract.getDefaultSerializer();
-    ODatabaseDocumentAbstract.setDefaultSerializer(ORecordSerializerSchemaAware2CSV.INSTANCE);
+    ORecordSerializer prev = ODatabaseSessionAbstract.getDefaultSerializer();
+    ODatabaseSessionAbstract.setDefaultSerializer(ORecordSerializerSchemaAware2CSV.INSTANCE);
     createDatabase();
 
     ODatabaseSessionInternal dbTx = null;
     try {
-      ODatabaseDocumentAbstract.setDefaultSerializer(ORecordSerializerBinary.INSTANCE);
+      ODatabaseSessionAbstract.setDefaultSerializer(ORecordSerializerBinary.INSTANCE);
       dbTx = new ODatabaseDocumentTx("remote:localhost/test");
       dbTx.open("admin", "admin");
       ODocument document = new ODocument();
@@ -60,7 +60,7 @@ public class TestNetworkSerializerIndipendency {
       }
 
       dropDatabase();
-      ODatabaseDocumentAbstract.setDefaultSerializer(prev);
+      ODatabaseSessionAbstract.setDefaultSerializer(prev);
     }
   }
 
@@ -78,13 +78,13 @@ public class TestNetworkSerializerIndipendency {
 
   @Test
   public void createBinaryDatabaseConnectCsv() throws IOException {
-    ORecordSerializer prev = ODatabaseDocumentAbstract.getDefaultSerializer();
-    ODatabaseDocumentAbstract.setDefaultSerializer(ORecordSerializerBinary.INSTANCE);
+    ORecordSerializer prev = ODatabaseSessionAbstract.getDefaultSerializer();
+    ODatabaseSessionAbstract.setDefaultSerializer(ORecordSerializerBinary.INSTANCE);
     createDatabase();
 
     ODatabaseSessionInternal dbTx = null;
     try {
-      ODatabaseDocumentAbstract.setDefaultSerializer(ORecordSerializerSchemaAware2CSV.INSTANCE);
+      ODatabaseSessionAbstract.setDefaultSerializer(ORecordSerializerSchemaAware2CSV.INSTANCE);
       dbTx = new ODatabaseDocumentTx("remote:localhost/test");
       dbTx.open("admin", "admin");
       dbTx.begin();
@@ -108,7 +108,7 @@ public class TestNetworkSerializerIndipendency {
       }
 
       dropDatabase();
-      ODatabaseDocumentAbstract.setDefaultSerializer(prev);
+      ODatabaseSessionAbstract.setDefaultSerializer(prev);
     }
   }
 
@@ -116,12 +116,12 @@ public class TestNetworkSerializerIndipendency {
   public void after() {
     server.shutdown();
 
-    Orient.instance().shutdown();
+    Oxygen.instance().shutdown();
     File directory = new File(server.getDatabaseDirectory());
     OFileUtils.deleteRecursively(directory);
-    ODatabaseDocumentAbstract.setDefaultSerializer(
+    ODatabaseSessionAbstract.setDefaultSerializer(
         ORecordSerializerFactory.instance().getFormat(ORecordSerializerBinary.NAME));
-    Orient.instance().startup();
+    Oxygen.instance().startup();
   }
 
   private void deleteDirectory(File iDirectory) {

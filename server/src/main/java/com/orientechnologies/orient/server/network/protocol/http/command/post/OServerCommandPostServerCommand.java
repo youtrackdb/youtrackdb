@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,18 +14,22 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.command.OServerCommandAuthenticatedServerAbstract;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class OServerCommandPostServerCommand extends OServerCommandAuthenticatedServerAbstract {
 
@@ -56,7 +60,8 @@ public class OServerCommandPostServerCommand extends OServerCommandAuthenticated
       // CONTENT REPLACES TEXT
       if (iRequest.getContent().startsWith("{")) {
         // JSON PAYLOAD
-        final ODocument doc = new ODocument().fromJSON(iRequest.getContent());
+        final ODocument doc = new ODocument();
+        doc.fromJSON(iRequest.getContent());
         text = doc.field("command");
         params = doc.field("parameters");
 
@@ -125,7 +130,7 @@ public class OServerCommandPostServerCommand extends OServerCommandAuthenticated
   protected OResultSet executeStatement(String language, String text, Object params) {
     OResultSet result;
 
-    OrientDB odb = this.server.getContext();
+    OxygenDB odb = this.server.getContext();
     if (params instanceof Map) {
       result = odb.execute(text, (Map) params);
     } else if (params instanceof Object[]) {

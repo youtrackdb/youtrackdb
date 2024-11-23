@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Created by luigidellaquila on 03/08/16.
+ *
  */
 public class GlobalLetQueryStep extends AbstractExecutionStep {
 

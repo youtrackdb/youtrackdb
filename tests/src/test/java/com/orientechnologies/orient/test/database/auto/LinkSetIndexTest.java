@@ -21,7 +21,6 @@ import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 3/28/14
  */
 @SuppressWarnings("deprecation")
@@ -37,9 +36,10 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     final OClass ridBagIndexTestClass =
         database.getMetadata().getSchema().createClass("LinkSetIndexTestClass");
 
-    ridBagIndexTestClass.createProperty("linkSet", OType.LINKSET);
+    ridBagIndexTestClass.createProperty(database, "linkSet", OType.LINKSET);
 
-    ridBagIndexTestClass.createIndex("linkSetIndex", OClass.INDEX_TYPE.NOTUNIQUE, "linkSet");
+    ridBagIndexTestClass.createIndex(database, "linkSetIndex", OClass.INDEX_TYPE.NOTUNIQUE,
+        "linkSet");
     database.close();
   }
 
@@ -62,7 +62,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     if (database.getStorage().isRemote()) {
       OIndex index =
           database.getMetadata().getIndexManagerInternal().getIndex(database, "linkSetIndex");
-      Assert.assertEquals(index.getInternal().size(), 0);
+      Assert.assertEquals(index.getInternal().size(database), 0);
     }
 
     database.close();
@@ -88,7 +88,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     OIndex index = getIndex("linkSetIndex");
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -131,7 +131,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     }
 
     OIndex index = getIndex("linkSetIndex");
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -177,7 +177,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     OIndex index = getIndex("linkSetIndex");
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -232,7 +232,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     }
 
     OIndex index = getIndex("linkSetIndex");
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -282,7 +282,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     database.rollback();
 
     OIndex index = getIndex("linkSetIndex");
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -331,7 +331,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     OIndex index = getIndex("linkSetIndex");
-    Assert.assertEquals(index.getInternal().size(), 3);
+    Assert.assertEquals(index.getInternal().size(database), 3);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -382,7 +382,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     }
 
     OIndex index = getIndex("linkSetIndex");
-    Assert.assertEquals(index.getInternal().size(), 3);
+    Assert.assertEquals(index.getInternal().size(database), 3);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -428,7 +428,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     database.rollback();
 
     OIndex index = getIndex("linkSetIndex");
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -474,7 +474,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     }
 
     OIndex index = getIndex("linkSetIndex");
-    Assert.assertEquals(index.getInternal().size(), 1);
+    Assert.assertEquals(index.getInternal().size(database), 1);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -514,7 +514,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     database.rollback();
 
     OIndex index = getIndex("linkSetIndex");
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -556,7 +556,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     OIndex index = getIndex("linkSetIndex");
-    Assert.assertEquals(index.getInternal().size(), 1);
+    Assert.assertEquals(index.getInternal().size(database), 1);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {
@@ -596,7 +596,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     OIndex index = getIndex("linkSetIndex");
-    Assert.assertEquals(index.getInternal().size(), 0);
+    Assert.assertEquals(index.getInternal().size(database), 0);
   }
 
   public void testIndexLinkSetRemoveInTx() {
@@ -629,7 +629,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     }
 
     OIndex index = getIndex("linkSetIndex");
-    Assert.assertEquals(index.getInternal().size(), 0);
+    Assert.assertEquals(index.getInternal().size(database), 0);
   }
 
   public void testIndexLinkSetRemoveInTxRollback() {
@@ -657,7 +657,7 @@ public class LinkSetIndexTest extends DocumentDBBaseTest {
     database.rollback();
 
     OIndex index = getIndex("linkSetIndex");
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(database), 2);
 
     Iterator<Object> keysIterator;
     try (Stream<Object> keyStream = index.getInternal().keyStream()) {

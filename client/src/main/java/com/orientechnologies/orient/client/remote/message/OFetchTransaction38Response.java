@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by tglman on 30/12/16.
+ *
  */
 public class OFetchTransaction38Response implements OBinaryResponse {
 
@@ -31,10 +31,11 @@ public class OFetchTransaction38Response implements OBinaryResponse {
   private List<ORecordOperation38Response> operations;
   private List<IndexChange> indexChanges;
 
-  public OFetchTransaction38Response() {}
+  public OFetchTransaction38Response() {
+  }
 
   public OFetchTransaction38Response(
-      int txId,
+      ODatabaseSessionInternal session, int txId,
       Iterable<ORecordOperation> operations,
       Map<String, OTransactionIndexChanges> indexChanges,
       Map<ORID, ORID> updatedRids,
@@ -48,26 +49,28 @@ public class OFetchTransaction38Response implements OBinaryResponse {
     for (ORecordOperation txEntry : operations) {
       ORecordOperation38Response request = new ORecordOperation38Response();
       request.setType(txEntry.type);
-      request.setVersion(txEntry.getRecord().getVersion());
+      request.setVersion(txEntry.record.getVersion());
       request.setId(txEntry.getRID());
       ORID oldID = updatedRids.get(txEntry.getRID());
       request.setOldId(oldID != null ? oldID : txEntry.getRID());
-      request.setRecordType(ORecordInternal.getRecordType(txEntry.getRecord()));
+      request.setRecordType(ORecordInternal.getRecordType(txEntry.record));
       if (txEntry.type == ORecordOperation.UPDATED
-          && txEntry.getRecord() instanceof ODocument doc) {
+          && txEntry.record instanceof ODocument doc) {
         var result =
-            database.getStorage().readRecord((ORecordId) doc.getIdentity(), false, false, null);
+            database.getStorage()
+                .readRecord(database, (ORecordId) doc.getIdentity(), false, false, null);
 
         ODocument docFromPersistence = new ODocument(doc.getIdentity());
         docFromPersistence.fromStream(result.buffer);
         request.setOriginal(
-            ORecordSerializerNetworkV37Client.INSTANCE.toStream(docFromPersistence));
+            ORecordSerializerNetworkV37Client.INSTANCE.toStream(session, docFromPersistence));
         ODocumentSerializerDelta delta = ODocumentSerializerDelta.instance();
         request.setRecord(delta.serializeDelta(doc));
       } else {
-        request.setRecord(ORecordSerializerNetworkV37Client.INSTANCE.toStream(txEntry.getRecord()));
+        request.setRecord(
+            ORecordSerializerNetworkV37Client.INSTANCE.toStream(session, txEntry.record));
       }
-      request.setContentChanged(ORecordInternal.isContentChanged(txEntry.getRecord()));
+      request.setContentChanged(ORecordInternal.isContentChanged(txEntry.record));
       netOperations.add(request);
     }
     this.operations = netOperations;
@@ -78,7 +81,8 @@ public class OFetchTransaction38Response implements OBinaryResponse {
   }
 
   @Override
-  public void write(OChannelDataOutput channel, int protocolVersion, ORecordSerializer serializer)
+  public void write(ODatabaseSessionInternal session, OChannelDataOutput channel,
+      int protocolVersion, ORecordSerializer serializer)
       throws IOException {
     channel.writeInt(txId);
 

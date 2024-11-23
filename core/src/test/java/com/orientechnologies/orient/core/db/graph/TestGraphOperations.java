@@ -11,7 +11,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by tglman on 20/02/17.
+ *
  */
 public class TestGraphOperations extends BaseMemoryDatabase {
 
@@ -22,9 +22,9 @@ public class TestGraphOperations extends BaseMemoryDatabase {
 
     OClass testLabel = db.createEdgeClass("TestLabel");
 
-    OProperty key = testLabel.createProperty("key", OType.STRING);
+    OProperty key = testLabel.createProperty(db, "key", OType.STRING);
 
-    key.createIndex(OClass.INDEX_TYPE.UNIQUE);
+    key.createIndex(db, OClass.INDEX_TYPE.UNIQUE);
 
     db.begin();
     OVertex vertex = db.newVertex("TestVertex");

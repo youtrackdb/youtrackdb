@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,10 +9,11 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://orientdb.com
+ * <p>*
  */
 package com.orientechnologies.orient.jdbc;
 
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,8 +27,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @author Roberto Franchini (CELI Srl - franchini@celi.it)
- * @author Salvatore Piccione (TXT e-solutions SpA - salvo.picci@gmail.com)
+ *
  */
 public class OrientBlob implements Blob {
 
@@ -50,11 +48,11 @@ public class OrientBlob implements Blob {
     for (OBlob binaryDataChunk : binaryDataChunks) {
       if (binaryDataChunk == null) {
         throw new IllegalArgumentException("The binary data chunks list cannot hold null chunks");
-      } else if (binaryDataChunk.getSize() == 0) {
+      } else if (((ORecordAbstract) binaryDataChunk).getSize() == 0) {
         throw new IllegalArgumentException("The binary data chunks list cannot hold empty chunks");
       } else {
 
-        this.binaryDataChunks.add(binaryDataChunk.toStream());
+        this.binaryDataChunks.add(((ORecordAbstract) binaryDataChunk).toStream());
       }
     }
     this.length = calculateLength();

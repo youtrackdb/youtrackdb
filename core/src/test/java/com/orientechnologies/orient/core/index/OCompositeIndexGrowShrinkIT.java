@@ -26,10 +26,10 @@ public class OCompositeIndexGrowShrinkIT extends BaseMemoryDatabase {
   public void testCompositeGrowShirnk() {
     final OSchema schema = db.getMetadata().getSchema();
     OClass clazz = schema.createClass("CompositeIndex");
-    clazz.createProperty("id", OType.INTEGER);
-    clazz.createProperty("bar", OType.INTEGER);
-    clazz.createProperty("tags", OType.EMBEDDEDLIST, OType.STRING);
-    clazz.createProperty("name", OType.STRING);
+    clazz.createProperty(db, "id", OType.INTEGER);
+    clazz.createProperty(db, "bar", OType.INTEGER);
+    clazz.createProperty(db, "tags", OType.EMBEDDEDLIST, OType.STRING);
+    clazz.createProperty(db, "name", OType.STRING);
 
     db.command(
             "create index CompositeIndex_id_tags_name on CompositeIndex (id, tags, name) NOTUNIQUE")
@@ -53,10 +53,10 @@ public class OCompositeIndexGrowShrinkIT extends BaseMemoryDatabase {
 
     final OSchema schema = db.getMetadata().getSchema();
     OClass clazz = schema.createClass("CompositeIndex");
-    clazz.createProperty("id", OType.INTEGER);
-    clazz.createProperty("bar", OType.INTEGER);
-    clazz.createProperty("tags", OType.EMBEDDEDLIST, OType.STRING);
-    clazz.createProperty("name", OType.STRING);
+    clazz.createProperty(db, "id", OType.INTEGER);
+    clazz.createProperty(db, "bar", OType.INTEGER);
+    clazz.createProperty(db, "tags", OType.EMBEDDEDLIST, OType.STRING);
+    clazz.createProperty(db, "name", OType.STRING);
 
     db.command(
             "create index CompositeIndex_id_tags_name on CompositeIndex (id, tags, name) NOTUNIQUE")

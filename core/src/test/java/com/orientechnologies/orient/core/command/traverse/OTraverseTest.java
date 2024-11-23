@@ -11,7 +11,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author Artem Orobets (enisher-at-gmail.com)
+ *
  */
 public class OTraverseTest extends BaseMemoryDatabase {
 

@@ -2,8 +2,8 @@ package com.orientechnologies.orient.server;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import java.io.File;
 import org.junit.After;
 import org.junit.Before;
@@ -13,8 +13,9 @@ import org.junit.rules.TestName;
 public class BaseServerMemoryDatabase {
 
   protected ODatabaseSessionInternal db;
-  protected OrientDB context;
-  @Rule public TestName name = new TestName();
+  protected OxygenDB context;
+  @Rule
+  public TestName name = new TestName();
   protected OServer server;
 
   @Before
@@ -27,7 +28,7 @@ public class BaseServerMemoryDatabase {
       throw new RuntimeException(e);
     }
 
-    context = new OrientDB("remote:localhost", "root", "root", OrientDBConfig.defaultConfig());
+    context = new OxygenDB("remote:localhost", "root", "root", OxygenDBConfig.defaultConfig());
     context
         .execute(
             "create database "

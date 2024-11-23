@@ -8,6 +8,7 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ORecordBytes;
@@ -111,9 +112,12 @@ public class ORecordAttribute extends SimpleNode {
               })
           .orElse(null);
     } else if (name.equals("@size")) {
-      return iCurrentRecord.getRecord().map(r -> r.toStream().length).orElse(null);
+      return iCurrentRecord
+          .getRecord()
+          .map(r -> ((ORecordAbstract) r).toStream().length)
+          .orElse(null);
     } else if (name.equals("@raw")) {
-      return iCurrentRecord.getRecord().map(r -> r.toStream()).orElse(null);
+      return iCurrentRecord.getRecord().map(r -> ((ORecordAbstract) r).toStream()).orElse(null);
     } else if (name.equals("@rid")) {
       return iCurrentRecord.getIdentity().orElse(null);
     }

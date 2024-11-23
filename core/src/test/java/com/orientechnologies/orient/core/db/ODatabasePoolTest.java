@@ -11,29 +11,29 @@ public class ODatabasePoolTest {
 
   @Test
   public void testPool() {
-    final OrientDB orientDb =
+    final OxygenDB oxygenDb =
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
     final ODatabasePool pool =
-        new ODatabasePool(orientDb, "test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        new ODatabasePool(oxygenDb, "test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     var db = (ODatabaseSessionInternal) pool.acquire();
     db.executeInTx(() -> db.save(new ODocument(), db.getClusterNameById(db.getDefaultClusterId())));
     db.close();
     pool.close();
-    orientDb.close();
+    oxygenDb.close();
   }
 
   @Test
   public void testPoolCloseTx() {
-    final OrientDB orientDb =
-        new OrientDB(
+    final OxygenDB oxygenDb =
+        new OxygenDB(
             "embedded:",
-            OrientDBConfig.builder()
+            OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.DB_POOL_MAX, 1)
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
 
-    if (!orientDb.exists("test")) {
-      orientDb.execute(
+    if (!oxygenDb.exists("test")) {
+      oxygenDb.execute(
           "create database "
               + "test"
               + " "
@@ -44,7 +44,7 @@ public class ODatabasePoolTest {
     }
 
     final ODatabasePool pool =
-        new ODatabasePool(orientDb, "test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        new ODatabasePool(oxygenDb, "test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     ODatabaseSessionInternal db = (ODatabaseSessionInternal) pool.acquire();
     db.createClass("Test");
     db.begin();
@@ -54,21 +54,21 @@ public class ODatabasePoolTest {
     assertEquals(db.countClass("Test"), 0);
     db.close();
     pool.close();
-    orientDb.close();
+    oxygenDb.close();
   }
 
   @Test
   public void testPoolDoubleClose() {
-    final OrientDB orientDb =
-        new OrientDB(
+    final OxygenDB oxygenDb =
+        new OxygenDB(
             "embedded:",
-            OrientDBConfig.builder()
+            OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.DB_POOL_MAX, 1)
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
 
-    if (!orientDb.exists("test")) {
-      orientDb.execute(
+    if (!oxygenDb.exists("test")) {
+      oxygenDb.execute(
           "create database "
               + "test"
               + " "
@@ -79,10 +79,10 @@ public class ODatabasePoolTest {
     }
 
     final ODatabasePool pool =
-        new ODatabasePool(orientDb, "test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        new ODatabasePool(oxygenDb, "test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     var db = pool.acquire();
     db.close();
     pool.close();
-    orientDb.close();
+    oxygenDb.close();
   }
 }

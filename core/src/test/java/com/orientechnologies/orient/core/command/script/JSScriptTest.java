@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.command.script;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBInternal;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.IOException;
@@ -21,17 +21,18 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 
 /**
- * Created by Enrico Risa on 27/01/17.
+ *
  */
 public class JSScriptTest {
 
-  @Rule public TestName name = new TestName();
+  @Rule
+  public TestName name = new TestName();
 
   @Test
   public void jsSimpleTest() {
-    final OrientDB orientDB =
+    final OxygenDB oxygenDB =
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    var db = orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db = oxygenDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     try {
       OResultSet resultSet = db.execute("javascript", "'foo'");
       Assert.assertTrue(resultSet.hasNext());
@@ -39,16 +40,16 @@ public class JSScriptTest {
       String ret = result.getProperty("value");
       Assert.assertEquals("foo", ret);
     } finally {
-      orientDB.drop("test");
+      oxygenDB.drop("test");
     }
-    orientDB.close();
+    oxygenDB.close();
   }
 
   @Test
   public void jsQueryTest() {
-    final OrientDB orientDB =
+    final OxygenDB oxygenDB =
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    var db = orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db = oxygenDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     try {
       String script = "db.query('select from OUser')";
       OResultSet resultSet = db.execute("javascript", script);
@@ -65,16 +66,16 @@ public class JSScriptTest {
               });
 
     } finally {
-      orientDB.drop("test");
+      oxygenDB.drop("test");
     }
-    orientDB.close();
+    oxygenDB.close();
   }
 
   @Test
   public void jsScriptTest() throws IOException {
-    final OrientDB orientDB =
+    final OxygenDB oxygenDB =
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    var db = orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db = oxygenDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     try {
       InputStream stream = ClassLoader.getSystemResourceAsStream("fixtures/scriptTest.js");
       OResultSet resultSet = db.execute("javascript", OIOUtils.readStreamAsString(stream));
@@ -93,16 +94,16 @@ public class JSScriptTest {
               });
 
     } finally {
-      orientDB.drop("test");
+      oxygenDB.drop("test");
     }
-    orientDB.close();
+    oxygenDB.close();
   }
 
   @Test
   public void jsScriptCountTest() throws IOException {
-    final OrientDB orientDB =
+    final OxygenDB oxygenDB =
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    var db = orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db = oxygenDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     try {
       InputStream stream = ClassLoader.getSystemResourceAsStream("fixtures/scriptCountTest.js");
       OResultSet resultSet = db.execute("javascript", OIOUtils.readStreamAsString(stream));
@@ -114,17 +115,17 @@ public class JSScriptTest {
       Number value = results.get(0).getProperty("value");
       Assert.assertEquals(1, value.intValue()); // no default users anymore, 'admin' created
     } finally {
-      orientDB.drop("test");
+      oxygenDB.drop("test");
     }
-    orientDB.close();
+    oxygenDB.close();
   }
 
   @Test
   public void jsSandboxTestWithJavaType() {
-    final OrientDB orientDB =
+    final OxygenDB oxygenDB =
         OCreateDatabaseUtil.createDatabase(
             name.getMethodName(), "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    var db = orientDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db = oxygenDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     try {
       final OResultSet result =
           db.execute(
@@ -138,19 +139,19 @@ public class JSScriptTest {
               : ClassNotFoundException.class,
           e.getCause().getClass());
     } finally {
-      orientDB.drop(name.getMethodName());
+      oxygenDB.drop(name.getMethodName());
     }
-    orientDB.close();
+    oxygenDB.close();
   }
 
   // @Test
   // THIS TEST WONT PASS WITH GRAALVM
   public void jsSandboxWithNativeTest() {
-    final OrientDB orientDB =
+    final OxygenDB oxygenDB =
         OCreateDatabaseUtil.createDatabase(
             name.getMethodName(), "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    var db = orientDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    OScriptManager scriptManager = OrientDBInternal.extract(orientDB).getScriptManager();
+    var db = oxygenDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    OScriptManager scriptManager = OxygenDBInternal.extract(oxygenDB).getScriptManager();
 
     try {
       scriptManager.addAllowedPackages(new HashSet<>(List.of("java.lang.System")));
@@ -160,8 +161,8 @@ public class JSScriptTest {
               "javascript", "var System = Java.type('java.lang.System'); System.nanoTime();");
       Assert.assertEquals(0, resultSet.stream().count());
     } finally {
-      orientDB.drop(name.getMethodName());
-      orientDB.close();
+      oxygenDB.drop(name.getMethodName());
+      oxygenDB.close();
 
       scriptManager.removeAllowedPackages(new HashSet<>(List.of("java.lang.System")));
     }
@@ -169,25 +170,25 @@ public class JSScriptTest {
 
   @Test
   public void jsSandboxWithMathTest() {
-    final OrientDB orientDB =
+    final OxygenDB oxygenDB =
         OCreateDatabaseUtil.createDatabase(
             name.getMethodName(), "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    var db = orientDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db = oxygenDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     try {
       OResultSet resultSet = db.execute("javascript", "Math.random()");
       Assert.assertEquals(1, resultSet.stream().count());
     } finally {
-      orientDB.drop(name.getMethodName());
-      orientDB.close();
+      oxygenDB.drop(name.getMethodName());
+      oxygenDB.close();
     }
   }
 
   @Test
   public void jsSandboxWithDB() {
-    final OrientDB orientDB =
+    final OxygenDB oxygenDB =
         OCreateDatabaseUtil.createDatabase(
             name.getMethodName(), "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    var db = orientDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db = oxygenDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     try {
       OResultSet resultSet =
           db.execute(
@@ -196,19 +197,19 @@ public class JSScriptTest {
                   + " elem.getProperty(\"name\")");
       Assert.assertEquals(1, resultSet.stream().count());
     } finally {
-      orientDB.drop(name.getMethodName());
-      orientDB.close();
+      oxygenDB.drop(name.getMethodName());
+      oxygenDB.close();
     }
   }
 
   @Test
   public void jsSandboxWithBigDecimal() {
-    final OrientDB orientDB =
+    final OxygenDB oxygenDB =
         OCreateDatabaseUtil.createDatabase(
             name.getMethodName(), "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    final OScriptManager scriptManager = OrientDBInternal.extract(orientDB).getScriptManager();
+    final OScriptManager scriptManager = OxygenDBInternal.extract(oxygenDB).getScriptManager();
     try (var db =
-        orientDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
+        oxygenDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
       scriptManager.addAllowedPackages(new HashSet<>(List.of("java.math.BigDecimal")));
 
       try (OResultSet resultSet =
@@ -241,18 +242,18 @@ public class JSScriptTest {
     } finally {
       scriptManager.removeAllowedPackages(
           new HashSet<>(Arrays.asList("java.math.BigDecimal", "java.math.*")));
-      orientDB.drop(name.getMethodName());
-      orientDB.close();
+      oxygenDB.drop(name.getMethodName());
+      oxygenDB.close();
     }
   }
 
   @Test
   public void jsSandboxWithOrient() {
-    final OrientDB orientDB =
+    final OxygenDB oxygenDB =
         OCreateDatabaseUtil.createDatabase(
             name.getMethodName(), "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
     try (var db =
-        orientDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
+        oxygenDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
       try (OResultSet resultSet =
           db.execute("javascript", "Orient.instance().getScriptManager().addAllowedPackages([])")) {
         Assert.assertEquals(1, resultSet.stream().count());
@@ -286,8 +287,8 @@ public class JSScriptTest {
             e.getCause().getClass());
       }
     } finally {
-      orientDB.drop(name.getMethodName());
-      orientDB.close();
+      oxygenDB.drop(name.getMethodName());
+      oxygenDB.close();
     }
   }
 }

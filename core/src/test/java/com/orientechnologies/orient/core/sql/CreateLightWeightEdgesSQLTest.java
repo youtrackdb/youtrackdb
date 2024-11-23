@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.concurrent.CountDownLatch;
@@ -16,11 +16,11 @@ import org.junit.Test;
 
 public class CreateLightWeightEdgesSQLTest {
 
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
 
   @Before
   public void before() {
-    orientDB =
+    oxygenDB =
         OCreateDatabaseUtil.createDatabase(
             CreateLightWeightEdgesSQLTest.class.getSimpleName(),
             "embedded:",
@@ -30,7 +30,7 @@ public class CreateLightWeightEdgesSQLTest {
   @Test
   public void test() {
     ODatabaseSession session =
-        orientDB.open(
+        oxygenDB.open(
             CreateLightWeightEdgesSQLTest.class.getSimpleName(),
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -55,7 +55,7 @@ public class CreateLightWeightEdgesSQLTest {
 
     ODatabasePool pool =
         new ODatabasePool(
-            orientDB,
+            oxygenDB,
             CreateLightWeightEdgesSQLTest.class.getSimpleName(),
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -77,24 +77,24 @@ public class CreateLightWeightEdgesSQLTest {
         .forEach(
             (i) -> {
               new Thread(
-                      () -> {
-                        try (ODatabaseSession session1 = pool.acquire()) {
-                          for (int j = 0; j < 100; j++) {
+                  () -> {
+                    try (ODatabaseSession session1 = pool.acquire()) {
+                      for (int j = 0; j < 100; j++) {
 
-                            try {
-                              session1.begin();
-                              session1.command(
-                                  "create edge e from (select from v where id=1) to (select from v"
-                                      + " where id=2) ");
-                              session1.commit();
-                            } catch (OConcurrentModificationException e) {
-                              // ignore
-                            }
-                          }
-                        } finally {
-                          latch.countDown();
+                        try {
+                          session1.begin();
+                          session1.command(
+                              "create edge e from (select from v where id=1) to (select from v"
+                                  + " where id=2) ");
+                          session1.commit();
+                        } catch (OConcurrentModificationException e) {
+                          // ignore
                         }
-                      })
+                      }
+                    } finally {
+                      latch.countDown();
+                    }
+                  })
                   .start();
             });
 
@@ -116,6 +116,6 @@ public class CreateLightWeightEdgesSQLTest {
 
   @After
   public void after() {
-    orientDB.close();
+    oxygenDB.close();
   }
 }

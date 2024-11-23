@@ -7,7 +7,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author Enrico Risa
+ *
  */
 public class HttpXRequestedWithXMLHttpRequestTest extends BaseHttpDatabaseTest {
 

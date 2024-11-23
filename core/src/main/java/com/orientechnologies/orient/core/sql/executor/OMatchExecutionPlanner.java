@@ -42,7 +42,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Created by luigidellaquila on 20/09/16.
+ *
  */
 public class OMatchExecutionPlanner {
 
@@ -424,7 +424,7 @@ public class OMatchExecutionPlanner {
       Set<PatternEdge> visitedEdges,
       Map<String, Set<String>> remainingDependencies,
       List<EdgeTraversal> resultingSchedule) {
-    // OrientDB requires the schedule to contain all edges present in the query, which is a stronger
+    // OxygenDB requires the schedule to contain all edges present in the query, which is a stronger
     // condition
     // than simply visiting all nodes in the query. Consider the following example query:
     //     MATCH {
@@ -856,7 +856,8 @@ public class OMatchExecutionPlanner {
     allAliases.addAll(aliasClusters.keySet());
     allAliases.addAll(aliasRids.keySet());
 
-    OSchema schema = ctx.getDatabase().getMetadata().getImmutableSchemaSnapshot();
+    var db = ctx.getDatabase();
+    OSchema schema = db.getMetadata().getImmutableSchemaSnapshot();
 
     Map<String, Long> result = new LinkedHashMap<String, Long>();
     for (String alias : allAliases) {
@@ -883,11 +884,10 @@ public class OMatchExecutionPlanner {
         if (filter != null) {
           upperBound = filter.estimate(oClass, this.threshold, ctx);
         } else {
-          upperBound = oClass.count();
+          upperBound = oClass.count(db);
         }
         result.put(alias, upperBound);
       } else if (clusterName != null) {
-        var db = ctx.getDatabase();
         if (!db.existsCluster(clusterName)) {
           throw new OCommandExecutionException("cluster not defined: " + clusterName);
         }

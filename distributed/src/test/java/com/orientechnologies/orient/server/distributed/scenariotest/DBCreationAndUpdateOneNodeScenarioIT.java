@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 OrientDB LTD (info--at--orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import org.junit.Test;
  * server1 - check the new db is present both on server2 and server3 - 5 threads write 100 records
  * on server1 - check consistency: db with all the records are consistent
  *
- * @author Gabriele Ponzi
  * @email <gabriele.ponzi--at--gmail.com>
  */
 public class DBCreationAndUpdateOneNodeScenarioIT extends AbstractScenarioTest {

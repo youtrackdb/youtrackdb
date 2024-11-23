@@ -1,6 +1,4 @@
 /**
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
- *
  * <p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License. You may obtain a copy of the License at
  *
@@ -11,7 +9,7 @@
  * express or implied. See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * <p>For more information: http://www.orientdb.com
+ * <p>*
  */
 package com.orientechnologies.security.auditing;
 
@@ -34,14 +32,18 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.security.OAuditingOperation;
 import com.orientechnologies.orient.core.security.OSecuritySystem;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Hook to audit database access.
- *
- * @author Luca Garulli
  */
 public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListener {
 
@@ -84,7 +86,8 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
     public boolean onDeleteEnabled = false;
     public String onDeleteMessage;
 
-    public OAuditingClassConfig() {}
+    public OAuditingClassConfig() {
+    }
 
     public OAuditingClassConfig(final ODocument cfg) {
       if (cfg.containsField("polymorphic")) {
@@ -252,19 +255,24 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
   }
 
   @Override
-  public void onCreate(ODatabaseSession iDatabase) {}
+  public void onCreate(ODatabaseSession iDatabase) {
+  }
 
   @Override
-  public void onDelete(ODatabaseSession iDatabase) {}
+  public void onDelete(ODatabaseSession iDatabase) {
+  }
 
   @Override
-  public void onOpen(ODatabaseSession iDatabase) {}
+  public void onOpen(ODatabaseSession iDatabase) {
+  }
 
   @Override
-  public void onBeforeTxBegin(ODatabaseSession iDatabase) {}
+  public void onBeforeTxBegin(ODatabaseSession iDatabase) {
+  }
 
   @Override
-  public void onBeforeTxRollback(ODatabaseSession iDatabase) {}
+  public void onBeforeTxRollback(ODatabaseSession iDatabase) {
+  }
 
   @Override
   public void onAfterTxRollback(ODatabaseSession iDatabase) {
@@ -275,7 +283,8 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
   }
 
   @Override
-  public void onBeforeTxCommit(ODatabaseSession iDatabase) {}
+  public void onBeforeTxCommit(ODatabaseSession iDatabase) {
+  }
 
   @Override
   public void onAfterTxCommit(ODatabaseSession iDatabase) {
@@ -293,10 +302,12 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
   }
 
   @Override
-  public void onClose(ODatabaseSession iDatabase) {}
+  public void onClose(ODatabaseSession iDatabase) {
+  }
 
   @Override
-  public void onBeforeCommand(OCommandRequestText iCommand, OCommandExecutor executor) {}
+  public void onBeforeCommand(OCommandRequestText iCommand, OCommandExecutor executor) {
+  }
 
   @Override
   public void onAfterCommand(
@@ -342,7 +353,7 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
       if (clazz.isOuser() && Arrays.asList(doc.getDirtyFields()).contains("password")) {
         String name = doc.getProperty("name");
         String message = String.format("The password for user '%s' has been changed", name);
-        log(OAuditingOperation.CHANGED_PWD, db.getName(), db.getUser(), message);
+        log(db, OAuditingOperation.CHANGED_PWD, db.getName(), db.getUser(), message);
       }
     }
     if (!onGlobalUpdate) {
@@ -376,11 +387,10 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
         final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
 
         final ODocument doc =
-            createLogDocument(
-                OAuditingOperation.COMMAND,
+            createLogDocument(db
+                , OAuditingOperation.COMMAND,
                 db.getName(),
-                db.getUser(),
-                formatCommandNote(command, cfg.message));
+                db.getUser(), formatCommandNote(command, cfg.message));
         auditingQueue.offer(doc);
       }
     }
@@ -464,7 +474,7 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
     final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
 
     final ODocument doc =
-        createLogDocument(operation, db.getName(), db.getUser(), formatNote(iRecord, note));
+        createLogDocument(db, operation, db.getName(), db.getUser(), formatNote(iRecord, note));
     doc.field("record", iRecord.getIdentity());
     if (changes != null) {
       doc.field("changes", changes, OType.EMBEDDED);
@@ -613,7 +623,7 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
 
     final OSecurityUser user = db.getUser();
 
-    final ODocument doc = createLogDocument(operation, db.getName(), user, note);
+    final ODocument doc = createLogDocument(db, operation, db.getName(), user, note);
 
     auditingQueue.offer(doc);
   }
@@ -633,17 +643,17 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
   }
 
   public void log(
-      final OAuditingOperation operation,
+      ODatabaseSessionInternal db, final OAuditingOperation operation,
       final String dbName,
       OSecurityUser user,
       final String message) {
     if (auditingQueue != null) {
-      auditingQueue.offer(createLogDocument(operation, dbName, user, message));
+      auditingQueue.offer(createLogDocument(db, operation, dbName, user, message));
     }
   }
 
-  private ODocument createLogDocument(
-      final OAuditingOperation operation,
+  private static ODocument createLogDocument(
+      ODatabaseSessionInternal session, final OAuditingOperation operation,
       final String dbName,
       OSecurityUser user,
       final String message) {
@@ -654,7 +664,7 @@ public class OAuditingHook extends ORecordHookAbstract implements ODatabaseListe
     doc.field("operation", operation.getByte());
 
     if (user != null) {
-      doc.field("user", user.getName());
+      doc.field("user", user.getName(session));
       doc.field("userType", user.getUserType());
     }
 

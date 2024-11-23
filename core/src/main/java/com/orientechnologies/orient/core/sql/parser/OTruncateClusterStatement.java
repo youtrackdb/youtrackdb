@@ -3,7 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentAbstract;
+import com.orientechnologies.orient.core.db.document.ODatabaseSessionAbstract;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -26,7 +26,7 @@ public class OTruncateClusterStatement extends ODDLStatement {
 
   @Override
   public OExecutionStream executeDDL(OCommandContext ctx) {
-    ODatabaseDocumentAbstract database = (ODatabaseDocumentAbstract) ctx.getDatabase();
+    ODatabaseSessionAbstract database = (ODatabaseSessionAbstract) ctx.getDatabase();
 
     Integer clusterId = null;
     if (clusterNumber != null) {

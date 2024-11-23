@@ -16,7 +16,7 @@ import com.orientechnologies.orient.core.sql.parser.OWhereClause;
 import java.util.List;
 
 /**
- * Created by luigidellaquila on 08/08/16.
+ *
  */
 public class ODeleteExecutionPlanner {
 

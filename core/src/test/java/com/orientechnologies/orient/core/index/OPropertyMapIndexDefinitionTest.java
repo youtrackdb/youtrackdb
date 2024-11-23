@@ -19,7 +19,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * @author LomakiA <a href="mailto:a.lomakin@orientechnologies.com">Andrey Lomakin</a>
  * @since 20.12.11
  */
 public class OPropertyMapIndexDefinitionTest extends BaseMemoryDatabase {

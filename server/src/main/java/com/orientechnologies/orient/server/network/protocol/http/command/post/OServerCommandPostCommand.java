@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
@@ -73,7 +73,8 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
       // CONTENT REPLACES TEXT
       if (iRequest.getContent().startsWith("{")) {
         // JSON PAYLOAD
-        final ODocument doc = new ODocument().fromJSON(iRequest.getContent());
+        final ODocument doc = new ODocument();
+        doc.fromJSON(iRequest.getContent());
         text = doc.field("command");
         params = doc.field("parameters");
         if (doc.containsField("mode")) {
@@ -129,7 +130,8 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
       List response = new ArrayList();
       TimerTask commandInterruptTimer = null;
       if (db.getConfiguration().getValueAsLong(OGlobalConfiguration.COMMAND_TIMEOUT) > 0
-          && !language.equalsIgnoreCase("sql")) {}
+          && !language.equalsIgnoreCase("sql")) {
+      }
       try {
         while (result.hasNext()) {
           if (limit >= 0 && i >= limit) {

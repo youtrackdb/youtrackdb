@@ -10,8 +10,6 @@ import com.orientechnologies.orient.core.sql.parser.OIndexIdentifier;
 
 /**
  * Returns the number of records contained in an index
- *
- * @author Luigi Dell'Aquila (luigi.dellaquila - at - gmail.com)
  */
 public class CountFromIndexStep extends AbstractExecutionStep {
 
@@ -48,7 +46,7 @@ public class CountFromIndexStep extends AbstractExecutionStep {
             .getIndexManagerInternal()
             .getIndex(database, target.getIndexName())
             .getInternal();
-    long size = idx.size();
+    long size = idx.size(database);
     OResultInternal result = new OResultInternal();
     result.setProperty(alias, size);
     return result;

@@ -19,7 +19,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ *
  */
 public class OTruncateClassStatementExecutionTest extends BaseMemoryInternalDatabase {
 
@@ -56,9 +56,9 @@ public class OTruncateClassStatementExecutionTest extends BaseMemoryInternalData
     result.close();
     Assert.assertTrue(set.containsAll(Arrays.asList(5, 6, 7, 8, 9, -1)));
 
-    Assert.assertEquals(index.getInternal().size(), 6);
+    Assert.assertEquals(index.getInternal().size(db), 6);
 
-    try (Stream<ORawPair<Object, ORID>> stream = index.getInternal().stream()) {
+    try (Stream<ORawPair<Object, ORID>> stream = index.getInternal().stream(db)) {
       stream.forEach(
           (entry) -> {
             Assert.assertTrue(set.contains((Integer) entry.first));
@@ -146,13 +146,13 @@ public class OTruncateClassStatementExecutionTest extends BaseMemoryInternalData
       final OIndexManagerAbstract indexManager = db.getMetadata().getIndexManagerInternal();
       final OIndex indexOne =
           indexManager.getIndex(db, "TestTruncateVertexClassSuperclassWithIndex_index");
-      Assert.assertEquals(2, indexOne.getInternal().size());
+      Assert.assertEquals(2, indexOne.getInternal().size(db));
 
       db.command("truncate class TestTruncateVertexClassSubclassWithIndex");
-      Assert.assertEquals(1, indexOne.getInternal().size());
+      Assert.assertEquals(1, indexOne.getInternal().size(db));
 
       db.command("truncate class TestTruncateVertexClassSuperclassWithIndex polymorphic");
-      Assert.assertEquals(0, indexOne.getInternal().size());
+      Assert.assertEquals(0, indexOne.getInternal().size(db));
     }
   }
 
@@ -167,8 +167,8 @@ public class OTruncateClassStatementExecutionTest extends BaseMemoryInternalData
   private OIndex getOrCreateIndex(OClass testClass) {
     OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "test_class_by_data");
     if (index == null) {
-      testClass.createProperty("data", OType.EMBEDDEDLIST, OType.INTEGER);
-      index = testClass.createIndex("test_class_by_data", OClass.INDEX_TYPE.UNIQUE, "data");
+      testClass.createProperty(db, "data", OType.EMBEDDEDLIST, OType.INTEGER);
+      index = testClass.createIndex(db, "test_class_by_data", OClass.INDEX_TYPE.UNIQUE, "data");
     }
     return index;
   }

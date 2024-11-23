@@ -6,7 +6,7 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.viewmanager.ViewCreationListener;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -28,25 +28,26 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 
 /**
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ *
  */
 public class OUpdateStatementExecutionTest {
 
-  @Rule public TestName name = new TestName();
+  @Rule
+  public TestName name = new TestName();
 
   private ODatabaseSessionInternal db;
 
   private String className;
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
 
   @Before
   public void before() {
-    orientDB =
+    oxygenDB =
         OCreateDatabaseUtil.createDatabase(
             name.getMethodName(), "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
     db =
         (ODatabaseSessionInternal)
-            orientDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+            oxygenDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     className = name.getMethodName();
     db.getMetadata().getSchema().createClass(className);
@@ -79,7 +80,7 @@ public class OUpdateStatementExecutionTest {
   public void after() {
     db.close();
 
-    orientDB.close();
+    oxygenDB.close();
   }
 
   @Test
@@ -579,7 +580,7 @@ public class OUpdateStatementExecutionTest {
     String className = "overridden" + this.className;
 
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("theProperty", OType.EMBEDDEDLIST);
+    clazz.createProperty(db, "theProperty", OType.EMBEDDEDLIST);
 
     db.begin();
     ODocument doc = db.newInstance(className);
@@ -619,7 +620,7 @@ public class OUpdateStatementExecutionTest {
   public void testRemove2() {
     String className = "overridden" + this.className;
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("theProperty", OType.EMBEDDEDLIST);
+    clazz.createProperty(db, "theProperty", OType.EMBEDDEDLIST);
 
     db.begin();
     ODocument doc = db.newInstance(className);
@@ -674,7 +675,7 @@ public class OUpdateStatementExecutionTest {
   public void testRemove3() {
     String className = "overriden" + this.className;
     OClass clazz = db.getMetadata().getSchema().createClass(className);
-    clazz.createProperty("theProperty", OType.EMBEDDED);
+    clazz.createProperty(db, "theProperty", OType.EMBEDDED);
 
     db.begin();
     ODocument doc = db.newInstance(className);

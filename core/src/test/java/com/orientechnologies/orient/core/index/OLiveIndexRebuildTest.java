@@ -36,9 +36,9 @@ public class OLiveIndexRebuildTest {
     database.create();
 
     final OClass clazz = database.getMetadata().getSchema().createClass(className);
-    clazz.createProperty(propertyName, OType.INTEGER);
+    clazz.createProperty(database, propertyName, OType.INTEGER);
 
-    clazz.createIndex(indexName, OClass.INDEX_TYPE.UNIQUE, propertyName);
+    clazz.createIndex(database, indexName, OClass.INDEX_TYPE.UNIQUE, propertyName);
 
     for (int i = 0; i < 1000000; i++) {
       ODocument document = new ODocument(className);
@@ -168,7 +168,7 @@ public class OLiveIndexRebuildTest {
         throw e;
       }
 
-      return new long[] {minInterval, maxInterval};
+      return new long[]{minInterval, maxInterval};
     }
   }
 }

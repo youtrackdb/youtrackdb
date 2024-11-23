@@ -15,7 +15,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * Created by frank on 20/09/2016.
+ *
  */
 public class OLuceneAllIndexTest extends BaseLuceneTest {
 

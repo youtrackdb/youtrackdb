@@ -61,7 +61,7 @@ public class WTinyLFUPolicyTest {
     }
 
     Assert.assertArrayEquals(
-        new OCacheEntry[] {cacheEntries[2], cacheEntries[1], cacheEntries[0]},
+        new OCacheEntry[]{cacheEntries[2], cacheEntries[1], cacheEntries[0]},
         toArray(wTinyLFU.eden()));
 
     wTinyLFU.onAccess(cacheEntries[1]);
@@ -77,7 +77,7 @@ public class WTinyLFUPolicyTest {
     }
 
     Assert.assertArrayEquals(
-        new OCacheEntry[] {cacheEntries[1], cacheEntries[2], cacheEntries[0]},
+        new OCacheEntry[]{cacheEntries[1], cacheEntries[2], cacheEntries[0]},
         toArray(wTinyLFU.eden()));
 
     wTinyLFU.onAccess(cacheEntries[1]);
@@ -92,7 +92,7 @@ public class WTinyLFUPolicyTest {
       Assert.assertFalse(protectionIterator.hasNext());
     }
     Assert.assertArrayEquals(
-        new OCacheEntry[] {cacheEntries[1], cacheEntries[2], cacheEntries[0]},
+        new OCacheEntry[]{cacheEntries[1], cacheEntries[2], cacheEntries[0]},
         toArray(wTinyLFU.eden()));
 
     wTinyLFU.onAccess(cacheEntries[0]);
@@ -108,7 +108,7 @@ public class WTinyLFUPolicyTest {
     }
 
     Assert.assertArrayEquals(
-        new OCacheEntry[] {cacheEntries[0], cacheEntries[1], cacheEntries[2]},
+        new OCacheEntry[]{cacheEntries[0], cacheEntries[1], cacheEntries[2]},
         toArray(wTinyLFU.eden()));
 
     Assert.assertEquals(3, cacheSize.get());
@@ -146,10 +146,10 @@ public class WTinyLFUPolicyTest {
     cacheSize.incrementAndGet();
     wTinyLFU.onAdd(cacheEntries[3]);
 
-    Assert.assertArrayEquals(new OCacheEntry[] {cacheEntries[0]}, toArray(wTinyLFU.probation()));
+    Assert.assertArrayEquals(new OCacheEntry[]{cacheEntries[0]}, toArray(wTinyLFU.probation()));
     Assert.assertFalse(wTinyLFU.protection().hasNext());
     Assert.assertArrayEquals(
-        new OCacheEntry[] {cacheEntries[3], cacheEntries[2], cacheEntries[1]},
+        new OCacheEntry[]{cacheEntries[3], cacheEntries[2], cacheEntries[1]},
         toArray(wTinyLFU.eden()));
 
     Assert.assertEquals(4, cacheSize.get());

@@ -13,8 +13,7 @@ public class Streams {
       Stream<T> streamOne, Stream<T> streamTwo, Comparator<? super T> comparator) {
     final SortedStreamSpliterator<T> spliterator =
         new SortedStreamSpliterator<>(streamOne.spliterator(), streamTwo.spliterator(), comparator);
-    @SuppressWarnings("resource")
-    final Stream<T> stream = StreamSupport.stream(spliterator, false);
+    @SuppressWarnings("resource") final Stream<T> stream = StreamSupport.stream(spliterator, false);
     return stream.onClose(composedClose(streamOne, streamTwo));
   }
 

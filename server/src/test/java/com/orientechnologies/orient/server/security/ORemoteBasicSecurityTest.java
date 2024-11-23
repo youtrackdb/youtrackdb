@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.server.OServer;
@@ -26,36 +26,36 @@ public class ORemoteBasicSecurityTest {
   @Before
   public void before()
       throws IOException,
-          InstantiationException,
-          InvocationTargetException,
-          NoSuchMethodException,
-          MBeanRegistrationException,
-          IllegalAccessException,
-          InstanceAlreadyExistsException,
-          NotCompliantMBeanException,
-          ClassNotFoundException,
-          MalformedObjectNameException {
+      InstantiationException,
+      InvocationTargetException,
+      NoSuchMethodException,
+      MBeanRegistrationException,
+      IllegalAccessException,
+      InstanceAlreadyExistsException,
+      NotCompliantMBeanException,
+      ClassNotFoundException,
+      MalformedObjectNameException {
     OGlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY.setValue(false);
     server = OServer.startFromClasspathConfig("abstract-orientdb-server-config.xml");
 
-    OrientDB orientDB =
-        new OrientDB("remote:localhost", "root", "root", OrientDBConfig.defaultConfig());
-    orientDB.execute(
+    OxygenDB oxygenDB =
+        new OxygenDB("remote:localhost", "root", "root", OxygenDBConfig.defaultConfig());
+    oxygenDB.execute(
         "create database test memory users (admin identified by 'admin' role admin, reader"
             + " identified by 'reader' role reader, writer identified by 'writer' role writer)");
-    try (ODatabaseSession session = orientDB.open("test", "admin", "admin")) {
+    try (ODatabaseSession session = oxygenDB.open("test", "admin", "admin")) {
       session.createClass("one");
       session.begin();
       session.save(new ODocument("one"));
       session.commit();
     }
-    orientDB.close();
+    oxygenDB.close();
   }
 
   @Test
   public void testCreateAndConnectWriter() {
     // CREATE A SEPARATE CONTEXT TO MAKE SURE IT LOAD STAFF FROM SCRATCH
-    try (OrientDB writerOrient = new OrientDB("remote:localhost", OrientDBConfig.defaultConfig())) {
+    try (OxygenDB writerOrient = new OxygenDB("remote:localhost", OxygenDBConfig.defaultConfig())) {
       try (ODatabaseSession writer = writerOrient.open("test", "writer", "writer")) {
         writer.begin();
         writer.save(new ODocument("one"));
@@ -70,7 +70,7 @@ public class ORemoteBasicSecurityTest {
   @Test
   public void testCreateAndConnectReader() {
     // CREATE A SEPARATE CONTEXT TO MAKE SURE IT LOAD STAFF FROM SCRATCH
-    try (OrientDB writerOrient = new OrientDB("remote:localhost", OrientDBConfig.defaultConfig())) {
+    try (OxygenDB writerOrient = new OxygenDB("remote:localhost", OxygenDBConfig.defaultConfig())) {
       try (ODatabaseSession writer = writerOrient.open("test", "reader", "reader")) {
         try (OResultSet rs = writer.query("select from one")) {
           assertEquals(rs.stream().count(), 1);

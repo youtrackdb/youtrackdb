@@ -28,8 +28,8 @@ public class SchemaIndexTest extends DocumentDBBaseTest {
     final OSchema schema = database.getMetadata().getSchema();
     final OClass superTest = schema.createClass("SchemaSharedIndexSuperTest");
     final OClass test = schema.createClass("SchemaIndexTest", superTest);
-    test.createProperty("prop1", OType.DOUBLE);
-    test.createProperty("prop2", OType.DOUBLE);
+    test.createProperty(database, "prop1", OType.DOUBLE);
+    test.createProperty(database, "prop2", OType.DOUBLE);
   }
 
   @AfterMethod
@@ -46,7 +46,7 @@ public class SchemaIndexTest extends DocumentDBBaseTest {
         .command(
             "CREATE INDEX SchemaSharedIndexCompositeIndex ON SchemaIndexTest (prop1, prop2) UNIQUE")
         .close();
-    database.getMetadata().getIndexManagerInternal().reload();
+    database.getMetadata().getIndexManagerInternal().reload(database);
     Assert.assertNotNull(
         database
             .getMetadata()
@@ -54,7 +54,7 @@ public class SchemaIndexTest extends DocumentDBBaseTest {
             .getIndex(database, "SchemaSharedIndexCompositeIndex"));
 
     database.getMetadata().getSchema().dropClass("SchemaIndexTest");
-    database.getMetadata().getIndexManagerInternal().reload();
+    database.getMetadata().getIndexManagerInternal().reload(database);
 
     Assert.assertNull(database.getMetadata().getSchema().getClass("SchemaIndexTest"));
     Assert.assertNotNull(database.getMetadata().getSchema().getClass("SchemaSharedIndexSuperTest"));
@@ -72,7 +72,6 @@ public class SchemaIndexTest extends DocumentDBBaseTest {
         .command(
             "CREATE INDEX SchemaSharedIndexCompositeIndex ON SchemaIndexTest (prop1, prop2) UNIQUE")
         .close();
-    database.getMetadata().getIndexManagerInternal().reload();
 
     try {
       database.getMetadata().getSchema().dropClass("SchemaSharedIndexSuperTest");
@@ -115,11 +114,11 @@ public class SchemaIndexTest extends DocumentDBBaseTest {
       polymorpicIdsPropagation = schema.createClass("polymorpicIdsPropagation");
     }
 
-    polymorpicIdsPropagation.setSuperClass(polymorpicIdsPropagationSuper);
-    polymorpicIdsPropagationSuper.setSuperClass(polymorpicIdsPropagationSuperSuper);
+    polymorpicIdsPropagation.setSuperClass(database, polymorpicIdsPropagationSuper);
+    polymorpicIdsPropagationSuper.setSuperClass(database, polymorpicIdsPropagationSuperSuper);
 
-    polymorpicIdsPropagationSuperSuper.createProperty("value", OType.STRING);
-    polymorpicIdsPropagationSuperSuper.createIndex(
+    polymorpicIdsPropagationSuperSuper.createProperty(database, "value", OType.STRING);
+    polymorpicIdsPropagationSuperSuper.createIndex(database,
         "PolymorpicIdsPropagationSuperSuperIndex", OClass.INDEX_TYPE.UNIQUE, "value");
 
     int counter = 0;
@@ -147,7 +146,7 @@ public class SchemaIndexTest extends DocumentDBBaseTest {
       counter++;
     }
 
-    polymorpicIdsPropagation.addCluster("polymorpicIdsPropagationSuperSuper2");
+    polymorpicIdsPropagation.addCluster(database, "polymorpicIdsPropagationSuperSuper2");
 
     assertContains(polymorpicIdsPropagationSuperSuper.getPolymorphicClusterIds(), clusterId2);
     assertContains(polymorpicIdsPropagationSuper.getPolymorphicClusterIds(), clusterId2);
@@ -161,7 +160,7 @@ public class SchemaIndexTest extends DocumentDBBaseTest {
       Assert.assertFalse(result.hasNext());
       Assert.assertEquals(doc.getProperty("@class"), "polymorpicIdsPropagation");
     }
-    polymorpicIdsPropagation.removeClusterId(clusterId2);
+    polymorpicIdsPropagation.removeClusterId(database, clusterId2);
 
     assertDoesNotContain(polymorpicIdsPropagationSuperSuper.getPolymorphicClusterIds(), clusterId2);
     assertDoesNotContain(polymorpicIdsPropagationSuper.getPolymorphicClusterIds(), clusterId2);
@@ -175,9 +174,10 @@ public class SchemaIndexTest extends DocumentDBBaseTest {
 
   public void testIndexWithNumberProperties() {
     OClass oclass = database.getMetadata().getSchema().createClass("SchemaIndexTest_numberclass");
-    oclass.createProperty("1", OType.STRING).setMandatory(false);
-    oclass.createProperty("2", OType.STRING).setMandatory(false);
-    oclass.createIndex("SchemaIndexTest_numberclass_1_2", OClass.INDEX_TYPE.UNIQUE, "1", "2");
+    oclass.createProperty(database, "1", OType.STRING).setMandatory(database, false);
+    oclass.createProperty(database, "2", OType.STRING).setMandatory(database, false);
+    oclass.createIndex(database, "SchemaIndexTest_numberclass_1_2", OClass.INDEX_TYPE.UNIQUE, "1",
+        "2");
 
     database.getMetadata().getSchema().dropClass(oclass.getName());
   }

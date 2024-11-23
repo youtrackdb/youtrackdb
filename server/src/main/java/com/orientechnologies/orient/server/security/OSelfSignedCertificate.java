@@ -23,7 +23,6 @@ import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 
 /**
- * @author Matteo Bollo (matteo.bollo-at-sap.com)
  * @since 24/02/2021
  * <p>Class developed to generate self-signed certificate
  */
@@ -218,20 +217,20 @@ public class OSelfSignedCertificate {
 
   public static void checkCertificate(X509Certificate cert, PublicKey publicKey, Date date)
       throws NoSuchProviderException,
-          CertificateException,
-          NoSuchAlgorithmException,
-          InvalidKeyException,
-          SignatureException {
+      CertificateException,
+      NoSuchAlgorithmException,
+      InvalidKeyException,
+      SignatureException {
     cert.checkValidity(date);
     cert.verify(publicKey);
   }
 
   public void checkThisCertificate()
       throws NoSuchAlgorithmException,
-          CertificateException,
-          NoSuchProviderException,
-          InvalidKeyException,
-          SignatureException {
+      CertificateException,
+      NoSuchProviderException,
+      InvalidKeyException,
+      SignatureException {
     checkCertificate(
         this.certificate, this.keyPair.getPublic(), new Date(System.currentTimeMillis()));
   }

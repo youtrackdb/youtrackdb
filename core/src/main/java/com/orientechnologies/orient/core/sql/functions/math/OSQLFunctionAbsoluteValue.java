@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.functions.math;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -30,8 +31,6 @@ import java.util.List;
  * Integer, Long, Double or a Float, or null. If null is passed in the result will be null.
  * Otherwise the result will be the mathematical absolute value of the argument passed in and will
  * be of the same type that was passed in.
- *
- * @author Michael MacFadden
  */
 public class OSQLFunctionAbsoluteValue extends OSQLFunctionMathAbstract {
 
@@ -77,7 +76,7 @@ public class OSQLFunctionAbsoluteValue extends OSQLFunctionMathAbstract {
     return false;
   }
 
-  public String getSyntax() {
+  public String getSyntax(ODatabaseSession session) {
     return "abs(<number>)";
   }
 

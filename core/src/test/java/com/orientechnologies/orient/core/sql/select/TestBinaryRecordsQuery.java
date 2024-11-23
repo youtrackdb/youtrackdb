@@ -13,7 +13,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by tglman on 15/04/16.
+ *
  */
 public class TestBinaryRecordsQuery extends BaseMemoryDatabase {
 

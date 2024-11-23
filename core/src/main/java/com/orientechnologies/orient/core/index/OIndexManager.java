@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.listener.OProgressListener;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.dictionary.ODictionary;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -29,7 +30,6 @@ import java.util.Set;
 /**
  * Manager of indexes.
  *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @deprecated Manual indexes are deprecated and will be removed
  */
 @Deprecated
@@ -192,7 +192,7 @@ public interface OIndexManager {
    * @return a document that used to store index configurations.
    */
   @Deprecated
-  ODocument getConfiguration();
+  ODocument getConfiguration(ODatabaseSession session);
 
   /**
    * Returns list of indexes that contain passed in fields names as their first keys. Order of
@@ -310,24 +310,26 @@ public interface OIndexManager {
    *
    * <p>IMPORTANT! Only for internal usage.
    *
+   * @param session
    * @param clusterName cluster to add.
    * @param indexName   name of index.
    */
   @SuppressWarnings("DeprecatedIsStillUsed")
   @Deprecated
-  void addClusterToIndex(String clusterName, String indexName);
+  void addClusterToIndex(ODatabaseSession session, String clusterName, String indexName);
 
   /**
    * Removes a cluster from tracked cluster list of specified index.
    *
    * <p>IMPORTANT! Only for internal usage.
    *
+   * @param session
    * @param clusterName cluster to remove.
    * @param indexName   name of index.
    */
   @SuppressWarnings("DeprecatedIsStillUsed")
   @Deprecated
-  void removeClusterFromIndex(String clusterName, String indexName);
+  void removeClusterFromIndex(ODatabaseSession session, String clusterName, String indexName);
 
   /**
    * Saves index manager data.
@@ -335,16 +337,17 @@ public interface OIndexManager {
    * <p>IMPORTANT! Only for internal usage.
    */
   @Deprecated
-  OIndexManager save();
+  OIndexManager save(ODatabaseSession session);
 
   /**
    * Removes index from class-property map.
    *
    * <p>IMPORTANT! Only for internal usage.
    *
-   * @param idx index to remove.
+   * @param session
+   * @param idx     index to remove.
    */
   @SuppressWarnings("DeprecatedIsStillUsed")
   @Deprecated
-  void removeClassPropertyIndex(OIndex idx);
+  void removeClassPropertyIndex(ODatabaseSession session, OIndex idx);
 }

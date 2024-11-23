@@ -17,7 +17,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ *
  */
 public class OCreateViewStatementExecutionTest extends BaseMemoryDatabase {
 

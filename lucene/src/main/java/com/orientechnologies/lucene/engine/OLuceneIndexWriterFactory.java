@@ -10,7 +10,7 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 
 /**
- * Created by frank on 05/01/2016.
+ *
  */
 public class OLuceneIndexWriterFactory {
 

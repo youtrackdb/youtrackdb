@@ -43,7 +43,7 @@ public class OCommandExecutorSQLTruncateTest extends BaseMemoryDatabase {
         .filter(oClass -> !oClass.getName().startsWith("OSecurity")) //
         .forEach(
             oClass -> {
-              if (oClass.count() > 0) {
+              if (oClass.count(db) > 0) {
                 db.command("truncate class " + oClass.getName() + " POLYMORPHIC UNSAFE").close();
               }
             });

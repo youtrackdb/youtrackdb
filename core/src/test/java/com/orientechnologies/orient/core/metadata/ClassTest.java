@@ -40,21 +40,21 @@ public class ClassTest extends BaseMemoryInternalDatabase {
     }
 
     String shortName = "shortname";
-    oClass.setShortName(shortName);
+    oClass.setShortName(db, shortName);
     assertEquals(shortName, oClass.getShortName());
     assertEquals(shortName, queryShortName());
 
     // FAILS, saves null value and stores "null" string (not null value) internally
     shortName = "null";
-    oClass.setShortName(shortName);
+    oClass.setShortName(db, shortName);
     assertEquals(shortName, oClass.getShortName());
     assertEquals(shortName, queryShortName());
 
-    oClass.setShortName(null);
+    oClass.setShortName(db, null);
     Assert.assertNull(oClass.getShortName());
     Assert.assertNull(queryShortName());
 
-    oClass.setShortName("");
+    oClass.setShortName(db, "");
     Assert.assertNull(oClass.getShortName());
     Assert.assertNull(queryShortName());
   }
@@ -66,7 +66,7 @@ public class ClassTest extends BaseMemoryInternalDatabase {
     Assert.assertNull(oClass.getShortName());
 
     String shortName = "shortName";
-    oClass.setShortName(shortName);
+    oClass.setShortName(db, shortName);
     assertEquals(shortName, oClass.getShortName());
     OClass shorted = schema.getClass(shortName);
     Assert.assertNotNull(shorted);
@@ -88,12 +88,12 @@ public class ClassTest extends BaseMemoryInternalDatabase {
     final OWriteCache writeCache = paginatedStorage.getWriteCache();
     Assert.assertTrue(writeCache.exists("classname" + OPaginatedCluster.DEF_EXTENSION));
 
-    oClass.setName("ClassNameNew");
+    oClass.setName(db, "ClassNameNew");
 
     assertFalse(writeCache.exists("classname" + OPaginatedCluster.DEF_EXTENSION));
     Assert.assertTrue(writeCache.exists("classnamenew" + OPaginatedCluster.DEF_EXTENSION));
 
-    oClass.setName("ClassName");
+    oClass.setName(db, "ClassName");
 
     assertFalse(writeCache.exists("classnamenew" + OPaginatedCluster.DEF_EXTENSION));
     Assert.assertTrue(writeCache.exists("classname" + OPaginatedCluster.DEF_EXTENSION));
@@ -106,7 +106,7 @@ public class ClassTest extends BaseMemoryInternalDatabase {
     OClass classTwo = schema.createClass("ClassTwo");
 
     final int clusterId = db.addCluster("classthree");
-    classTwo.addClusterId(clusterId);
+    classTwo.addClusterId(db, clusterId);
 
     db.begin();
     ODocument document = new ODocument("ClassTwo");
@@ -122,7 +122,7 @@ public class ClassTest extends BaseMemoryInternalDatabase {
     assertEquals(db.countClass("ClassTwo"), 2);
     assertEquals(db.countClass("ClassOne"), 1);
 
-    classOne.setName("ClassThree");
+    classOne.setName(db, "ClassThree");
 
     final OStorage storage = db.getStorage();
     final OAbstractPaginatedStorage paginatedStorage = (OAbstractPaginatedStorage) storage;
@@ -133,7 +133,7 @@ public class ClassTest extends BaseMemoryInternalDatabase {
     assertEquals(db.countClass("ClassTwo"), 2);
     assertEquals(db.countClass("ClassThree"), 1);
 
-    classOne.setName("ClassOne");
+    classOne.setName(db, "ClassOne");
     Assert.assertTrue(writeCache.exists("classone" + OPaginatedCluster.DEF_EXTENSION));
 
     assertEquals(db.countClass("ClassTwo"), 2);
@@ -144,9 +144,9 @@ public class ClassTest extends BaseMemoryInternalDatabase {
   public void testOClassAndOPropertyDescription() {
     final OSchema oSchema = db.getMetadata().getSchema();
     OClass oClass = oSchema.createClass("DescriptionTest");
-    OProperty oProperty = oClass.createProperty("property", OType.STRING);
-    oClass.setDescription("DescriptionTest-class-description");
-    oProperty.setDescription("DescriptionTest-property-description");
+    OProperty oProperty = oClass.createProperty(db, "property", OType.STRING);
+    oClass.setDescription(db, "DescriptionTest-class-description");
+    oProperty.setDescription(db, "DescriptionTest-property-description");
     assertEquals(oClass.getDescription(), "DescriptionTest-class-description");
     assertEquals(oProperty.getDescription(), "DescriptionTest-property-description");
     oClass = oSchema.getClass("DescriptionTest");

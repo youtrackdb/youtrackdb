@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,13 +14,14 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.db.record;
 
 import com.orientechnologies.common.collection.OLazyIterator;
 import com.orientechnologies.common.collection.OLazyIteratorListWrapper;
+import com.orientechnologies.common.util.OSizeable;
 import com.orientechnologies.orient.core.db.record.ORecordMultiValueHelper.MULTIVALUE_CONTENT_TYPE;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
@@ -35,11 +36,9 @@ import java.util.ListIterator;
  * Lazy implementation of ArrayList. It's bound to a source ORecord object to keep track of changes.
  * This avoid to call the makeDirty() by hand when the list is changed. It handles an internal
  * contentType to speed up some operations like conversion to/from record/links.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 @SuppressWarnings({"serial"})
-public class OList extends OTrackedList<OIdentifiable> implements OIdentifiableMultiValue {
+public class OList extends OTrackedList<OIdentifiable> implements OSizeable {
 
   protected ORecordMultiValueHelper.MULTIVALUE_CONTENT_TYPE contentType =
       MULTIVALUE_CONTENT_TYPE.EMPTY;
@@ -328,7 +327,7 @@ public class OList extends OTrackedList<OIdentifiable> implements OIdentifiableM
   }
 
   public boolean clearDeletedRecords() {
-    var db = getOwnerRecord().getDatabase();
+    var db = getOwnerRecord().getSession();
 
     boolean removed = false;
     Iterator<OIdentifiable> it = super.iterator();

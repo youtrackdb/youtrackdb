@@ -49,16 +49,20 @@ public class RemoteGraphLiveQueryTest extends BaseServerMemoryDatabase {
           }
 
           @Override
-          public void onError(ODatabaseSession database, OException exception) {}
+          public void onError(ODatabaseSession database, OException exception) {
+          }
 
           @Override
-          public void onEnd(ODatabaseSession database) {}
+          public void onEnd(ODatabaseSession database) {
+          }
 
           @Override
-          public void onDelete(ODatabaseSession database, OResult data) {}
+          public void onDelete(ODatabaseSession database, OResult data) {
+          }
 
           @Override
-          public void onCreate(ODatabaseSession database, OResult data) {}
+          public void onCreate(ODatabaseSession database, OResult data) {
+          }
         },
         new HashMap<String, String>());
 

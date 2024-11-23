@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.functions.graph;
@@ -33,8 +33,6 @@ import java.util.Set;
 
 /**
  * Abstract class to find paths between nodes using heuristic .
- *
- * @author Saeed Tabrizi (saeed a_t nowcando.com)
  */
 public abstract class OSQLFunctionHeuristicPathFinderAbstract extends OSQLFunctionMathAbstract {
 
@@ -53,8 +51,8 @@ public abstract class OSQLFunctionHeuristicPathFinderAbstract extends OSQLFuncti
   protected Boolean paramParallel = false;
   protected Boolean paramTieBreaker = true;
   protected Boolean paramEmptyIfMaxDepth = false;
-  protected String[] paramEdgeTypeNames = new String[] {};
-  protected String[] paramVertexAxisNames = new String[] {};
+  protected String[] paramEdgeTypeNames = new String[]{};
+  protected String[] paramVertexAxisNames = new String[]{};
   protected OVertex paramSourceVertex;
   protected OVertex paramDestinationVertex;
   protected HeuristicFormula paramHeuristicFormula = HeuristicFormula.MANHATAN;
@@ -333,7 +331,7 @@ public abstract class OSQLFunctionHeuristicPathFinderAbstract extends OSQLFuncti
 
   protected String[] stringArray(Object fromObject) {
     if (fromObject == null) {
-      return new String[] {};
+      return new String[]{};
     }
     if (fromObject instanceof String) {
       String[] arr = fromObject.toString().replace("},{", " ,").split(",");
@@ -343,7 +341,7 @@ public abstract class OSQLFunctionHeuristicPathFinderAbstract extends OSQLFuncti
       return ((String[]) fromObject);
     }
 
-    return new String[] {};
+    return new String[]{};
   }
 
   protected Boolean booleanOrDefault(Object fromObject, boolean defaultValue) {

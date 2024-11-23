@@ -4,8 +4,8 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.util.ORawPairObjectInteger;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
 import java.io.File;
@@ -34,7 +34,7 @@ public class BTreeTestIT {
 
   public static final String DB_NAME = "bTreeTest";
   public static final String DIR_NAME = "/globalBTreeTest";
-  private static OrientDB orientDB;
+  private static OxygenDB oxygenDB;
   private static BTree bTree;
   private static OAtomicOperationsManager atomicOperationsManager;
   private static OAbstractPaginatedStorage storage;
@@ -62,16 +62,16 @@ public class BTreeTestIT {
 
     OFileUtils.deleteRecursively(new File(buildDirectory));
 
-    orientDB = new OrientDB("plocal:" + buildDirectory, OrientDBConfig.defaultConfig());
+    oxygenDB = new OxygenDB("plocal:" + buildDirectory, OxygenDBConfig.defaultConfig());
 
-    if (orientDB.exists(DB_NAME)) {
-      orientDB.drop(DB_NAME);
+    if (oxygenDB.exists(DB_NAME)) {
+      oxygenDB.drop(DB_NAME);
     }
 
-    orientDB.execute(
+    oxygenDB.execute(
         "create database " + DB_NAME + " plocal users ( admin identified by 'admin' role admin)");
 
-    ODatabaseSession databaseSession = orientDB.open(DB_NAME, "admin", "admin");
+    ODatabaseSession databaseSession = oxygenDB.open(DB_NAME, "admin", "admin");
     storage = (OAbstractPaginatedStorage) ((ODatabaseSessionInternal) databaseSession).getStorage();
     atomicOperationsManager = storage.getAtomicOperationsManager();
     databaseSession.close();
@@ -79,8 +79,8 @@ public class BTreeTestIT {
 
   @AfterClass
   public static void afterClass() {
-    orientDB.drop(DB_NAME);
-    orientDB.close();
+    oxygenDB.drop(DB_NAME);
+    oxygenDB.close();
 
     OFileUtils.deleteRecursively(new File(buildDirectory));
   }

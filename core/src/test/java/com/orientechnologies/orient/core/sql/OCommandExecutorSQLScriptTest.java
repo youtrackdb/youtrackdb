@@ -35,7 +35,7 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
   @Test
   public void testQuery() throws Exception {
     String script = "begin\n" + "let $a = select from foo\n" + "commit\n" + "return $a\n";
-    List<ODocument> qResult = db.command(new OCommandScript("sql", script)).execute();
+    List<ODocument> qResult = db.command(new OCommandScript("sql", script)).execute(db);
 
     Assert.assertEquals(qResult.size(), 3);
   }
@@ -47,7 +47,7 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
             + "let $a = insert into V set test = 'sql script test'\n"
             + "commit retry 10\n"
             + "return $a\n";
-    ODocument qResult = db.command(new OCommandScript("sql", script)).execute();
+    ODocument qResult = db.command(new OCommandScript("sql", script)).execute(db);
 
     Assert.assertNotNull(qResult);
   }
@@ -59,7 +59,7 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
     script.append("let $a = insert into V set test = 'sql script test'\n");
     script.append("commit\n");
     script.append("return $a.toJSON()\n");
-    String qResult = db.command(new OCommandScript("sql", script.toString())).execute();
+    String qResult = db.command(new OCommandScript("sql", script.toString())).execute(db);
     Assert.assertNotNull(qResult);
 
     new ODocument().fromJSON(qResult);
@@ -67,7 +67,7 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
     script = new StringBuilder();
     script.append("let $a = select from V limit 2\n");
     script.append("return $a.toJSON()\n");
-    String result = db.command(new OCommandScript("sql", script.toString())).execute();
+    String result = db.command(new OCommandScript("sql", script.toString())).execute(db);
 
     Assert.assertNotNull(result);
     result = result.trim();
@@ -80,7 +80,7 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
   public void testSleep() throws Exception {
     long begin = System.currentTimeMillis();
 
-    db.command(new OCommandScript("sql", "sleep 500")).execute();
+    db.command(new OCommandScript("sql", "sleep 500")).execute(db);
 
     Assert.assertTrue(System.currentTimeMillis() - begin >= 500);
   }
@@ -88,25 +88,25 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
   @Test
   public void testConsoleLog() throws Exception {
     String script = "LET $a = 'log'\n" + "console.log 'This is a test of log for ${a}'";
-    db.command(new OCommandScript("sql", script)).execute();
+    db.command(new OCommandScript("sql", script)).execute(db);
   }
 
   @Test
   public void testConsoleOutput() throws Exception {
     String script = "LET $a = 'output'\n" + "console.output 'This is a test of log for ${a}'";
-    db.command(new OCommandScript("sql", script)).execute();
+    db.command(new OCommandScript("sql", script)).execute(db);
   }
 
   @Test
   public void testConsoleError() throws Exception {
     String script = "LET $a = 'error'\n" + "console.error 'This is a test of log for ${a}'";
-    db.command(new OCommandScript("sql", script)).execute();
+    db.command(new OCommandScript("sql", script)).execute(db);
   }
 
   @Test
   public void testReturnObject() throws Exception {
     Collection<Object> result =
-        db.command(new OCommandScript("sql", "return [{ a: 'b' }]")).execute();
+        db.command(new OCommandScript("sql", "return [{ a: 'b' }]")).execute(db);
 
     Assert.assertNotNull(result);
 
@@ -125,7 +125,7 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
             + "LET counter = SELECT count(*) FROM TestCounter;\n"
             + "UPDATE TestCounter INCREMENT weight = $counter[0].count RETURN AfTER @this;\n"
             + "commit;\n";
-    List<ODocument> qResult = db.command(new OCommandScript("sql", script)).execute();
+    List<ODocument> qResult = db.command(new OCommandScript("sql", script)).execute(db);
 
     assertThat(db.bindToSession(qResult.get(0)).<Long>field("weight")).isEqualTo(4L);
   }
@@ -155,7 +155,7 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
             + " return 'OK'\n"
             + "}\n"
             + "return 'FAIL'\n";
-    Object qResult = db.command(new OCommandScript("sql", script)).execute();
+    Object qResult = db.command(new OCommandScript("sql", script)).execute(db);
 
     Assert.assertNotNull(qResult);
     Assert.assertEquals(qResult, "OK");
@@ -170,7 +170,7 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
             + " return 'OK'\n"
             + "     }      \n"
             + "return 'FAIL'\n";
-    Object qResult = db.command(new OCommandScript("sql", script)).execute();
+    Object qResult = db.command(new OCommandScript("sql", script)).execute(db);
 
     Assert.assertNotNull(qResult);
     Assert.assertEquals(qResult, "OK");
@@ -183,7 +183,7 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
                 new OCommandScript(
                     "sql",
                     "let $a = select 1 as one; if($a[0].one = 1){return 'OK';}return 'FAIL';"))
-            .execute();
+            .execute(db);
     Assert.assertNotNull(qResult);
     Assert.assertEquals(qResult, "OK");
   }
@@ -200,7 +200,7 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
             + "  return 'OK'\n"
             + "}\n"
             + "return 'FAIL'\n";
-    Object qResult = db.command(new OCommandScript("sql", script)).execute();
+    Object qResult = db.command(new OCommandScript("sql", script)).execute(db);
 
     Assert.assertNotNull(qResult);
     Assert.assertEquals(qResult, "OK");
@@ -218,7 +218,7 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
             + "  return 'FAIL'\n"
             + "}\n"
             + "return 'OK'\n";
-    Object qResult = db.command(new OCommandScript("sql", script)).execute();
+    Object qResult = db.command(new OCommandScript("sql", script)).execute(db);
 
     Assert.assertNotNull(qResult);
     Assert.assertEquals(qResult, "OK");
@@ -233,7 +233,7 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
             + "  return $a\n"
             + "}\n"
             + "return 'FAIL'\n";
-    Object qResult = db.command(new OCommandScript("sql", script)).execute();
+    Object qResult = db.command(new OCommandScript("sql", script)).execute(db);
 
     Assert.assertNotNull(qResult);
     Assert.assertEquals(((List) qResult).size(), 3);
@@ -249,7 +249,7 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
             + "  return $b[0].ok\n"
             + "}\n"
             + "return 'FAIL'\n";
-    Object qResult = db.command(new OCommandScript("sql", script)).execute();
+    Object qResult = db.command(new OCommandScript("sql", script)).execute(db);
 
     Assert.assertNotNull(qResult);
     Assert.assertEquals(qResult, "OK");
@@ -260,7 +260,7 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
 
     String script =
         "let $a = select from foo limit 1\n" + "select from (traverse doesnotexist from $a)\n";
-    Iterable qResult = db.command(new OCommandScript("sql", script)).execute();
+    Iterable qResult = db.command(new OCommandScript("sql", script)).execute(db);
 
     Assert.assertNotNull(qResult);
     Iterator iterator = qResult.iterator();
@@ -279,7 +279,7 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
             + "let $b = select 'foo \\'; bar' as one\n"
             + "let $a = select \"foo ; bar\" as one\n"
             + "let $b = select \"foo \\\"; bar\" as one\n";
-    Object qResult = db.command(new OCommandScript("sql", script)).execute();
+    Object qResult = db.command(new OCommandScript("sql", script)).execute(db);
   }
 
   @Test
@@ -288,7 +288,7 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
     db.command("CREATE CLASS QuotedRegex2").close();
     String batch = "begin;INSERT INTO QuotedRegex2 SET regexp=\"'';\";commit;";
 
-    db.command(new OCommandScript(batch)).execute();
+    db.command(new OCommandScript(batch)).execute(db);
 
     List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>("SELECT FROM QuotedRegex2"));
     Assert.assertEquals(result.size(), 1);

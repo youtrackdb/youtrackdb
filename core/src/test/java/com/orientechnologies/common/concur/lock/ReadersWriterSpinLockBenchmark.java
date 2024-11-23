@@ -10,7 +10,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 8/19/14
  */
 public class ReadersWriterSpinLockBenchmark {

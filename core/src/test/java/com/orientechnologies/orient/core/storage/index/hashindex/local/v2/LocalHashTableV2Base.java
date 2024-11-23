@@ -12,7 +12,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Created by frank on 24/04/2016.
+ *
  */
 public abstract class LocalHashTableV2Base {
 

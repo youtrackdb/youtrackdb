@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.core.sql.functions.math;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.sql.filter.OSQLPredicate;
 import java.util.List;
@@ -13,8 +14,6 @@ import java.util.List;
  *
  * <p>Few examples: interval(43, 35, 5, 15, 50) = 3 interval(54, 25, 35, 45) = -1 interval(null, 5,
  * 50) = -1 interval(6, 6) = -1 interval(58, 60, 30, 65) = 0 interval(103, 54, 106, 98, 119) = 1
- *
- * @author Matan Shukry (matanshukry@gmail.com)
  */
 public class OSQLFunctionInterval extends OSQLFunctionMathAbstract {
 
@@ -58,7 +57,7 @@ public class OSQLFunctionInterval extends OSQLFunctionMathAbstract {
     return false;
   }
 
-  public String getSyntax() {
+  public String getSyntax(ODatabaseSession session) {
     return "interval(<field> [,<field>*])";
   }
 

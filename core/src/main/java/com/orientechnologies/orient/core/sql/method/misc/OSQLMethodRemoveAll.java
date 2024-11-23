@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  * Copyright 2013 Geomatys.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,7 +24,6 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 /**
  * Remove all the occurrences of elements from a collection.
  *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  * @see OSQLMethodRemove
  */
 public class OSQLMethodRemoveAll extends OAbstractSQLMethod {

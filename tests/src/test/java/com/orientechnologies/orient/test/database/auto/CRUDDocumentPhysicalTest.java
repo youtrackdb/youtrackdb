@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentAbstract;
+import com.orientechnologies.orient.core.db.document.ODatabaseSessionAbstract;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
@@ -188,20 +188,21 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
 
     @SuppressWarnings("deprecation")
     Set<OIndex> indexes =
-        database.getMetadata().getSchema().getClass("Profile").getProperty("nick").getIndexes();
+        database.getMetadata().getSchema().getClass("Profile").getProperty("nick")
+            .getIndexes(database);
 
     Assert.assertEquals(indexes.size(), 1);
 
     OIndex indexDefinition = indexes.iterator().next();
-    try (final Stream<ORID> stream = indexDefinition.getInternal().getRids("JayM1")) {
+    try (final Stream<ORID> stream = indexDefinition.getInternal().getRids(database, "JayM1")) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
 
-    try (final Stream<ORID> stream = indexDefinition.getInternal().getRids("JayM2")) {
+    try (final Stream<ORID> stream = indexDefinition.getInternal().getRids(database, "JayM2")) {
       Assert.assertFalse(stream.findAny().isPresent());
     }
 
-    try (Stream<ORID> stream = indexDefinition.getInternal().getRids("JayM3")) {
+    try (Stream<ORID> stream = indexDefinition.getInternal().getRids(database, "JayM3")) {
       Assert.assertTrue(stream.findAny().isPresent());
     }
   }
@@ -223,12 +224,13 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
 
     @SuppressWarnings("deprecation")
     Collection<OIndex> indexes =
-        database.getMetadata().getSchema().getClass("Profile").getProperty("name").getIndexes();
+        database.getMetadata().getSchema().getClass("Profile").getProperty("name")
+            .getIndexes(database);
     Assert.assertEquals(indexes.size(), 1);
 
     OIndex indexName = indexes.iterator().next();
     // We must get 2 records for "nameA".
-    try (Stream<ORID> stream = indexName.getInternal().getRids("Jack")) {
+    try (Stream<ORID> stream = indexName.getInternal().getRids(database, "Jack")) {
       Assert.assertEquals(stream.count(), 2);
     }
 
@@ -238,7 +240,7 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     database.commit();
 
     // We must get 1 record for "nameA".
-    try (Stream<ORID> stream = indexName.getInternal().getRids("Jack")) {
+    try (Stream<ORID> stream = indexName.getInternal().getRids(database, "Jack")) {
       Assert.assertEquals(stream.count(), 1);
     }
   }
@@ -251,7 +253,7 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     vDoc.field("nick", "MostFamousJack")
         .field("name", "Kiefer")
         .field("surname", "Sutherland")
-        .field("tag_list", new String[] {"actor", "myth"});
+        .field("tag_list", new String[]{"actor", "myth"});
     vDoc.save();
     database.commit();
 
@@ -261,7 +263,7 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
             .command(
                 new OSQLSynchQuery<ODocument>(
                     "select from Profile where name = 'Kiefer' and tag_list.size() > 0 "))
-            .execute();
+            .execute(database);
 
     Assert.assertEquals(result.size(), 1);
   }
@@ -308,7 +310,7 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     List<ODocument> result =
         database
             .command(new OSQLSynchQuery<ODocument>("select from Profile where name = 'Michael'"))
-            .execute();
+            .execute(database);
 
     Assert.assertEquals(result.size(), 1);
     ODocument dexter = result.get(0);
@@ -328,7 +330,7 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
                 new OSQLSynchQuery<ODocument>(
                     "select from Profile where tag_list contains 'actor' and tag_list contains"
                         + " 'test'"))
-            .execute();
+            .execute(database);
     Assert.assertEquals(result.size(), 1);
   }
 
@@ -360,10 +362,8 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
 
     final Map<String, HashMap<?, ?>> map3 = new HashMap<>();
     map2.put("map3", (HashMap<?, ?>) map3);
-
-    final ORecordId rid =
-        (ORecordId)
-            newDoc.save(database.getClusterNameById(database.getDefaultClusterId())).getIdentity();
+    newDoc.save(database.getClusterNameById(database.getDefaultClusterId()));
+    final ORecordId rid = (ORecordId) newDoc.getIdentity();
     database.commit();
 
     newDoc = database.bindToSession(newDoc);
@@ -391,7 +391,7 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     final OSQLSynchQuery<ODocument> query =
         new OSQLSynchQuery<>("select from Profile where name = ? and surname = ?");
     @SuppressWarnings("deprecation")
-    List<ODocument> result = database.command(query).execute("Barack", "Obama");
+    List<ODocument> result = database.command(query).execute(database, "Barack", "Obama");
 
     Assert.assertFalse(result.isEmpty());
   }
@@ -420,7 +420,7 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     addBarackObamaAndFollowers();
 
     @SuppressWarnings("deprecation")
-    List<ODocument> result = database.command(query).execute(params);
+    List<ODocument> result = database.command(query).execute(database, params);
     Assert.assertFalse(result.isEmpty());
   }
 
@@ -540,7 +540,8 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
   public void polymorphicQuery() {
     database.begin();
     final ORecordAbstract newAccount =
-        new ODocument("Account").field("name", "testInheritanceName").save();
+        new ODocument("Account").field("name", "testInheritanceName");
+    newAccount.save();
     database.commit();
 
     List<ODocument> superClassResult = executeQuery("select from Account");
@@ -593,7 +594,8 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
   public void nonPolymorphicQuery() {
     database.begin();
     final ORecordAbstract newAccount =
-        new ODocument("Account").field("name", "testInheritanceName").save();
+        new ODocument("Account").field("name", "testInheritanceName");
+    newAccount.save();
     database.commit();
 
     @SuppressWarnings("deprecation")
@@ -667,9 +669,9 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     bank.field("embedded", embedded, OType.EMBEDDED);
 
     ODocument[] embeddeds =
-        new ODocument[] {
-          database.<ODocument>newInstance("Account").field("name", "embedded2"),
-          database.<ODocument>newInstance("Account").field("name", "embedded3")
+        new ODocument[]{
+            database.<ODocument>newInstance("Account").field("name", "embedded2"),
+            database.<ODocument>newInstance("Account").field("name", "embedded3")
         };
     bank.field("embeddeds", embeddeds, OType.EMBEDDEDLIST);
 
@@ -678,9 +680,9 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     bank.field("linked", linked);
 
     ODocument[] linkeds =
-        new ODocument[] {
-          database.<ODocument>newInstance("Account").field("name", "linked2"),
-          database.<ODocument>newInstance("Account").field("name", "linked3")
+        new ODocument[]{
+            database.<ODocument>newInstance("Account").field("name", "linked2"),
+            database.<ODocument>newInstance("Account").field("name", "linked3")
         };
     bank.field("linkeds", linkeds, OType.LINKLIST);
 
@@ -724,8 +726,8 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
   }
 
   public void testSerialization() {
-    ORecordSerializer current = ODatabaseDocumentAbstract.getDefaultSerializer();
-    ODatabaseDocumentAbstract.setDefaultSerializer(ORecordSerializerSchemaAware2CSV.INSTANCE);
+    ORecordSerializer current = ODatabaseSessionAbstract.getDefaultSerializer();
+    ODatabaseSessionAbstract.setDefaultSerializer(ORecordSerializerSchemaAware2CSV.INSTANCE);
     ODatabaseSessionInternal oldDb = ODatabaseRecordThreadLocal.instance().get();
     ORecordSerializer dbser = oldDb.getSerializer();
     oldDb.setSerializer(ORecordSerializerSchemaAware2CSV.INSTANCE);
@@ -737,9 +739,9 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
             ORecordSerializerSchemaAware2CSV.INSTANCE.fromStream(
                 streamOrigin, new ODocument(), null);
     doc.field("out");
-    final byte[] streamDest = ORecordSerializerSchemaAware2CSV.INSTANCE.toStream(doc);
+    final byte[] streamDest = ORecordSerializerSchemaAware2CSV.INSTANCE.toStream(database, doc);
     Assert.assertEquals(streamOrigin, streamDest);
-    ODatabaseDocumentAbstract.setDefaultSerializer(current);
+    ODatabaseSessionAbstract.setDefaultSerializer(current);
     oldDb.setSerializer(dbser);
   }
 
@@ -770,10 +772,10 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
 
     OClass testClass1 = schema.createClass("testCreateEmbddedClass1");
     OClass testClass2 = schema.createClass("testCreateEmbddedClass2");
-    testClass2.createProperty("testClass1Property", OType.EMBEDDED, testClass1);
+    testClass2.createProperty(database, "testClass1Property", OType.EMBEDDED, testClass1);
 
     int clusterId = database.addCluster("testCreateEmbddedClass2" + SUFFIX);
-    schema.getClass("testCreateEmbddedClass2").addClusterId(clusterId);
+    schema.getClass("testCreateEmbddedClass2").addClusterId(database, clusterId);
 
     testClass1 = schema.getClass("testCreateEmbddedClass1");
     testClass2 = schema.getClass("testCreateEmbddedClass2");

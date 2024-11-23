@@ -4,7 +4,7 @@ import com.orientechnologies.lucene.collections.OLuceneCompositeKey;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 
 /**
- * Created by frank on 08/06/2017.
+ *
  */
 public class OLuceneKeyAndMetadata {
 

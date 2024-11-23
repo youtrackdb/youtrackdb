@@ -15,26 +15,26 @@ public class OCompositeIndexSQLInsertTest extends BaseMemoryDatabase {
     super.beforeTest();
     OSchema schema = db.getMetadata().getSchema();
     OClass book = schema.createClass("Book");
-    book.createProperty("author", OType.STRING);
-    book.createProperty("title", OType.STRING);
-    book.createProperty("publicationYears", OType.EMBEDDEDLIST, OType.INTEGER);
-    book.createIndex("books", "unique", "author", "title", "publicationYears");
+    book.createProperty(db, "author", OType.STRING);
+    book.createProperty(db, "title", OType.STRING);
+    book.createProperty(db, "publicationYears", OType.EMBEDDEDLIST, OType.INTEGER);
+    book.createIndex(db, "books", "unique", "author", "title", "publicationYears");
 
-    book.createProperty("nullKey1", OType.STRING);
+    book.createProperty(db, "nullKey1", OType.STRING);
     ODocument indexOptions = new ODocument();
     indexOptions.field("ignoreNullValues", true);
-    book.createIndex(
-        "indexignoresnulls", "NOTUNIQUE", null, indexOptions, new String[] {"nullKey1"});
+    book.createIndex(db,
+        "indexignoresnulls", "NOTUNIQUE", null, indexOptions, new String[]{"nullKey1"});
   }
 
   @Test
   public void testCompositeIndexWithRangeAndContains() {
     final OSchema schema = db.getMetadata().getSchema();
     OClass clazz = schema.createClass("CompositeIndexWithRangeAndConditions");
-    clazz.createProperty("id", OType.INTEGER);
-    clazz.createProperty("bar", OType.INTEGER);
-    clazz.createProperty("tags", OType.EMBEDDEDLIST, OType.STRING);
-    clazz.createProperty("name", OType.STRING);
+    clazz.createProperty(db, "id", OType.INTEGER);
+    clazz.createProperty(db, "bar", OType.INTEGER);
+    clazz.createProperty(db, "tags", OType.EMBEDDEDLIST, OType.STRING);
+    clazz.createProperty(db, "name", OType.STRING);
 
     db.command(
             "create index CompositeIndexWithRangeAndConditions_id_tags_name on"

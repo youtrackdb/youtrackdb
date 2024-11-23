@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.index;
@@ -29,15 +29,14 @@ import com.orientechnologies.orient.core.sql.OSQLEngine;
 
 /**
  * Abstract index definiton implementation.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public abstract class OAbstractIndexDefinition implements OIndexDefinition {
 
   protected OCollate collate = new ODefaultCollate();
   private boolean nullValuesIgnored = true;
 
-  protected OAbstractIndexDefinition() {}
+  protected OAbstractIndexDefinition() {
+  }
 
   public OCollate getCollate() {
     return collate;
@@ -93,9 +92,11 @@ public abstract class OAbstractIndexDefinition implements OIndexDefinition {
     nullValuesIgnored = value;
   }
 
-  protected void serializeToStream(ODocument document) {}
+  protected void serializeToStream(ODocument document) {
+  }
 
-  protected void serializeFromStream(ODocument document) {}
+  protected void serializeFromStream(ODocument document) {
+  }
 
   protected static <T> T refreshRid(ODatabaseSessionInternal session, T value) {
     if (value instanceof ORID rid) {

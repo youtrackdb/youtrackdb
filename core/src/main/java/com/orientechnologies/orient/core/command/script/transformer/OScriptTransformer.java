@@ -6,7 +6,7 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 
 /**
- * Created by Enrico Risa on 27/01/17.
+ *
  */
 public interface OScriptTransformer {
 

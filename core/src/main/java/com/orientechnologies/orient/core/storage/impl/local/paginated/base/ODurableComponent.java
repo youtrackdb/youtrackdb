@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -37,7 +37,6 @@ import javax.annotation.Nonnull;
  * consistently restored after system crash but results of last operations in small interval before
  * crash may be lost.
  *
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 8/27/13
  */
 public abstract class ODurableComponent extends OSharedResourceAbstract {

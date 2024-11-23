@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.tx;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OrientDB;
+import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -18,34 +18,34 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Created by tglman on 28/05/17.
+ *
  */
 public class IndexChangesQueryTest {
 
   public static final String CLASS_NAME = "idxTxAwareMultiValueGetEntriesTest";
   private static final String FIELD_NAME = "value";
   private static final String INDEX_NAME = "idxTxAwareMultiValueGetEntriesTestIndex";
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
   private ODatabaseSessionInternal database;
 
   @Before
   public void before() {
-    orientDB =
+    oxygenDB =
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
     database =
         (ODatabaseSessionInternal)
-            orientDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+            oxygenDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     final OSchema schema = database.getMetadata().getSchema();
     final OClass cls = schema.createClass(CLASS_NAME);
-    cls.createProperty(FIELD_NAME, OType.INTEGER);
-    cls.createIndex(INDEX_NAME, OClass.INDEX_TYPE.NOTUNIQUE, FIELD_NAME);
+    cls.createProperty(database, FIELD_NAME, OType.INTEGER);
+    cls.createIndex(database, INDEX_NAME, OClass.INDEX_TYPE.NOTUNIQUE, FIELD_NAME);
   }
 
   @After
   public void after() {
     database.close();
-    orientDB.close();
+    oxygenDB.close();
   }
 
   @Test
@@ -69,13 +69,13 @@ public class IndexChangesQueryTest {
 
     database.commit();
 
-    Assert.assertEquals(index.getInternal().size(), 2);
+    Assert.assertEquals(index.getInternal().size(database), 2);
     Assert.assertFalse((fetchCollectionFromIndex(index, 1)).isEmpty());
     Assert.assertFalse((fetchCollectionFromIndex(index, 2)).isEmpty());
   }
 
-  private static Collection<ORID> fetchCollectionFromIndex(OIndex index, int key) {
-    try (Stream<ORID> stream = index.getInternal().getRids(key)) {
+  private Collection<ORID> fetchCollectionFromIndex(OIndex index, int key) {
+    try (Stream<ORID> stream = index.getInternal().getRids(database, key)) {
       return stream.collect(Collectors.toList());
     }
   }
@@ -101,7 +101,7 @@ public class IndexChangesQueryTest {
 
     database.commit();
 
-    Assert.assertEquals(3, index.getInternal().size());
+    Assert.assertEquals(3, index.getInternal().size(database));
     Assert.assertEquals(2, (fetchCollectionFromIndex(index, 1)).size());
     Assert.assertEquals(1, (fetchCollectionFromIndex(index, 2)).size());
 
@@ -130,7 +130,7 @@ public class IndexChangesQueryTest {
 
     Assert.assertNull(database.getTransaction().getIndexChanges(INDEX_NAME));
 
-    Assert.assertEquals(3, index.getInternal().size());
+    Assert.assertEquals(3, index.getInternal().size(database));
     Assert.assertEquals(2, (fetchCollectionFromIndex(index, 1)).size());
     Assert.assertEquals(1, (fetchCollectionFromIndex(index, 2)).size());
   }

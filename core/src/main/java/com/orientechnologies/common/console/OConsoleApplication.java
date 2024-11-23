@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.common.console;
@@ -56,7 +56,7 @@ public class OConsoleApplication {
   public static final String ONLINE_HELP_URL =
       "https://raw.githubusercontent.com/orientechnologies/orientdb-docs/master/";
   public static final String ONLINE_HELP_EXT = ".md";
-  protected static final String[] COMMENT_PREFIXS = new String[] {"#", "--", "//"};
+  protected static final String[] COMMENT_PREFIXS = new String[]{"#", "--", "//"};
   protected final StringBuilder commandBuffer = new StringBuilder(2048);
   protected InputStream in = System.in; // System.in;
   protected PrintStream out = System.out;
@@ -85,8 +85,8 @@ public class OConsoleApplication {
           buffer.append(
               " <"
                   + ((com.orientechnologies.common.console.annotation.ConsoleParameter)
-                          m.getParameterAnnotations()[i][j])
-                      .name()
+                  m.getParameterAnnotations()[i][j])
+                  .name()
                   + ">");
         }
       }
@@ -288,8 +288,8 @@ public class OConsoleApplication {
 
           if (status == RESULT.EXIT
               || (status == RESULT.ERROR
-                      && !Boolean.parseBoolean(properties.get(OConsoleProperties.IGNORE_ERRORS)))
-                  && iBatchMode) {
+              && !Boolean.parseBoolean(properties.get(OConsoleProperties.IGNORE_ERRORS)))
+              && iBatchMode) {
             return false;
           }
         }
@@ -306,8 +306,8 @@ public class OConsoleApplication {
         final RESULT status = execute(commandBuffer.toString());
         if (status == RESULT.EXIT
             || (status == RESULT.ERROR
-                    && !Boolean.parseBoolean(properties.get(OConsoleProperties.IGNORE_ERRORS)))
-                && iBatchMode) {
+            && !Boolean.parseBoolean(properties.get(OConsoleProperties.IGNORE_ERRORS)))
+            && iBatchMode) {
           return false;
         }
       }
@@ -455,7 +455,7 @@ public class OConsoleApplication {
 
       // BUILD PARAMETERS
       if (ann != null && !ann.splitInWords()) {
-        methodArgs = new String[] {iCommand.substring(iCommand.indexOf(' ') + 1)};
+        methodArgs = new String[]{iCommand.substring(iCommand.indexOf(' ') + 1)};
       } else {
         final int actualParamCount = commandWords.length - commandWordCount;
         if (m.getParameterTypes().length > actualParamCount) {
@@ -758,7 +758,7 @@ public class OConsoleApplication {
               + " online documentation")
   public void help(
       @ConsoleParameter(name = "command", description = "Command to receive help")
-          String iCommand) {
+      String iCommand) {
     if (iCommand == null || iCommand.trim().isEmpty()) {
       // GENERIC HELP
       message("\nAVAILABLE COMMANDS:\n");
@@ -834,9 +834,11 @@ public class OConsoleApplication {
     return command.toString();
   }
 
-  protected void onBefore() {}
+  protected void onBefore() {
+  }
 
-  protected void onAfter() {}
+  protected void onAfter() {
+  }
 
   protected void onException(final Throwable throwable) {
     throwable.printStackTrace(err);

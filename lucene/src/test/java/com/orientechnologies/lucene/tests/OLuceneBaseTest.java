@@ -1,6 +1,6 @@
 /*
  *
- *  * Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  * Licensed under the Apache License, Version 2.0 (the "License");
  *  * you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@ import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import java.io.IOException;
 import java.io.InputStream;
 import org.junit.After;
@@ -33,15 +33,16 @@ import org.junit.Rule;
 import org.junit.rules.TestName;
 
 /**
- * Created by enricorisa on 19/09/14.
+ *
  */
 public abstract class OLuceneBaseTest {
 
-  @Rule public TestName name = new TestName();
+  @Rule
+  public TestName name = new TestName();
 
   protected ODatabaseSessionInternal db;
 
-  protected OrientDB orient;
+  protected OxygenDB orient;
   protected ODatabasePool pool;
 
   @Before
@@ -52,13 +53,13 @@ public abstract class OLuceneBaseTest {
   }
 
   protected void setupDatabase(String config) {
-    OrientDBConfig cfg =
-        OrientDBConfig.builder()
+    OxygenDBConfig cfg =
+        OxygenDBConfig.builder()
             .addAttribute(ODatabaseSession.ATTRIBUTES.MINIMUMCLUSTERS, 8)
             .build();
 
     if ("ci".equals(config) || "release".equals(config)) {
-      orient = new OrientDB("embedded:./target/databases/", cfg);
+      orient = new OxygenDB("embedded:./target/databases/", cfg);
       if (orient.exists(name.getMethodName())) {
         orient.drop(name.getMethodName());
       }
@@ -68,7 +69,7 @@ public abstract class OLuceneBaseTest {
           name.getMethodName());
 
     } else {
-      orient = new OrientDB("embedded:", cfg);
+      orient = new OxygenDB("embedded:", cfg);
       if (orient.exists(name.getMethodName())) {
         orient.drop(name.getMethodName());
       }

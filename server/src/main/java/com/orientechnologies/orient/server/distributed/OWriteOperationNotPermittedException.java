@@ -20,8 +20,6 @@ package com.orientechnologies.orient.server.distributed;
 
 /**
  * A non idempotent operation has been executed against a read only server (REPLICA).
- *
- * @author Luca Garulli (l.garulli--at--orientdb.com)
  */
 public class OWriteOperationNotPermittedException extends ODistributedException {
 

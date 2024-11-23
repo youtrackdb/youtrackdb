@@ -4,10 +4,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.Orient;
+import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OrientDB;
-import com.orientechnologies.orient.core.db.OrientDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import org.junit.After;
@@ -18,7 +18,7 @@ public class RemoteSimpleSchemaTest {
 
   private static final String SERVER_DIRECTORY = "./target/metadata-push";
   private OServer server;
-  private OrientDB orientDB;
+  private OxygenDB oxygenDB;
   private ODatabaseSession database;
 
   @Before
@@ -28,11 +28,11 @@ public class RemoteSimpleSchemaTest {
     server.startup(getClass().getResourceAsStream("orientdb-server-config.xml"));
     server.activate();
 
-    orientDB = new OrientDB("remote:localhost", "root", "root", OrientDBConfig.defaultConfig());
-    orientDB.execute(
+    oxygenDB = new OxygenDB("remote:localhost", "root", "root", OxygenDBConfig.defaultConfig());
+    oxygenDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         RemoteSimpleSchemaTest.class.getSimpleName());
-    database = orientDB.open(RemoteSimpleSchemaTest.class.getSimpleName(), "admin", "admin");
+    database = oxygenDB.open(RemoteSimpleSchemaTest.class.getSimpleName(), "admin", "admin");
   }
 
   @Test
@@ -63,11 +63,11 @@ public class RemoteSimpleSchemaTest {
   @After
   public void after() {
     database.close();
-    orientDB.close();
+    oxygenDB.close();
     server.shutdown();
 
-    Orient.instance().shutdown();
+    Oxygen.instance().shutdown();
     OFileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
-    Orient.instance().startup();
+    Oxygen.instance().startup();
   }
 }

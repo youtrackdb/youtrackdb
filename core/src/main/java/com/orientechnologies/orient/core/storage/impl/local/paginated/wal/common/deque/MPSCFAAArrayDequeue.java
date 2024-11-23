@@ -66,8 +66,7 @@ public final class MPSCFAAArrayDequeue<T> extends AtomicReference<Node<T>> {
 
       final int idx = head.deqidx++;
 
-      @SuppressWarnings("unchecked")
-      final T item = head.items.getAndSet(idx, (T) taken);
+      @SuppressWarnings("unchecked") final T item = head.items.getAndSet(idx, (T) taken);
       if (item == null) {
         continue;
       }

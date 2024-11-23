@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * @author Luigi Dell'Aquila (l.dellaquila-(at)-orientdb.com)
+ *
  */
 public class ODDLExecutionPlan implements OInternalExecutionPlan {
 
@@ -24,7 +24,8 @@ public class ODDLExecutionPlan implements OInternalExecutionPlan {
   }
 
   @Override
-  public void close() {}
+  public void close() {
+  }
 
   @Override
   public OCommandContext getContext() {

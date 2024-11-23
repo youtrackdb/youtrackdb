@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,18 +14,17 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
 package com.orientechnologies.orient.core.serialization.serializer.record.binary;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.OImmutableSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ORecordFlat;
@@ -61,7 +60,8 @@ public class ORecordSerializerNetwork implements ORecordSerializer {
   }
 
   @Override
-  public ORecord fromStream(final byte[] iSource, ORecord iRecord, final String[] iFields) {
+  public ORecordAbstract fromStream(
+      final byte[] iSource, ORecordAbstract iRecord, final String[] iFields) {
     if (iSource == null || iSource.length == 0) {
       return iRecord;
     }
@@ -97,7 +97,7 @@ public class ORecordSerializerNetwork implements ORecordSerializer {
   }
 
   @Override
-  public byte[] toStream(ORecord iSource) {
+  public byte[] toStream(ODatabaseSessionInternal session, ORecordAbstract iSource) {
     if (iSource instanceof OBlob) {
       return iSource.toStream();
     } else if (iSource instanceof ORecordFlat) {
@@ -109,20 +109,20 @@ public class ORecordSerializerNetwork implements ORecordSerializer {
       int pos = container.alloc(1);
       container.bytes[pos] = CURRENT_RECORD_VERSION;
       // SERIALIZE RECORD
-      serializerByVersion[CURRENT_RECORD_VERSION].serialize((ODocument) iSource, container);
+      serializerByVersion[CURRENT_RECORD_VERSION].serialize(session, (ODocument) iSource,
+          container);
 
       return container.fitBytes();
     }
   }
 
-  public byte[] serializeValue(Object value, OType type) {
-    ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
+  public byte[] serializeValue(ODatabaseSessionInternal db, Object value, OType type) {
     OImmutableSchema schema = null;
     if (db != null) {
       schema = db.getMetadata().getImmutableSchemaSnapshot();
     }
     BytesContainer bytes = new BytesContainer();
-    serializerByVersion[0].serializeValue(bytes, value, type, null, schema, null);
+    serializerByVersion[0].serializeValue(db, bytes, value, type, null, schema, null);
     return bytes.fitBytes();
   }
 

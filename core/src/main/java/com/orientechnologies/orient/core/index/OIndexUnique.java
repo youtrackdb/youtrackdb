@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,11 +14,12 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.index;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OInvalidIndexEngineIdException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValidator;
@@ -29,8 +30,6 @@ import com.orientechnologies.orient.core.tx.OTransactionIndexChangesPerKey;
 
 /**
  * Index implementation that allows only one value for a key.
- *
- * @author Luca Garulli (l.garulli--(at)--orientdb.com)
  */
 public class OIndexUnique extends OIndexOneValue {
 
@@ -47,7 +46,8 @@ public class OIndexUnique extends OIndexOneValue {
   }
 
   @Override
-  public void doPut(OAbstractPaginatedStorage storage, Object key, ORID rid)
+  public void doPut(ODatabaseSessionInternal session, OAbstractPaginatedStorage storage, Object key,
+      ORID rid)
       throws OInvalidIndexEngineIdException {
     storage.validatedPutIndexValue(indexId, key, rid, uniqueValidator);
   }

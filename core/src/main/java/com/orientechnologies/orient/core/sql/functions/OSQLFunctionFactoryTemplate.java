@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.core.sql.functions;
 
 import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import java.util.HashMap;
 import java.util.Locale;
@@ -8,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Created by frank on 25/05/2017.
+ *
  */
 public abstract class OSQLFunctionFactoryTemplate implements OSQLFunctionFactory {
 
@@ -18,8 +19,8 @@ public abstract class OSQLFunctionFactoryTemplate implements OSQLFunctionFactory
     functions = new HashMap<>();
   }
 
-  protected void register(final OSQLFunction function) {
-    functions.put(function.getName().toLowerCase(Locale.ENGLISH), function);
+  protected void register(ODatabaseSession session, final OSQLFunction function) {
+    functions.put(function.getName(session).toLowerCase(Locale.ENGLISH), function);
   }
 
   protected void register(String name, Object function) {

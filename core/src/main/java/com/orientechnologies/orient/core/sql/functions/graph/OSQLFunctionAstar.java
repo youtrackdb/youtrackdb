@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 package com.orientechnologies.orient.core.sql.functions.graph;
@@ -51,8 +51,6 @@ import java.util.Set;
  * options.
  *
  * <p>If property is not defined in edge or is null, distance between vertexes are 0 .
- *
- * @author Saeed Tabrizi (saeed a_t nowcando.com)
  */
 public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
 
@@ -244,7 +242,7 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
     if (additionalParams == null) {
       return;
     }
-    Map<String, Object> mapParams = null;
+    Map<String, ?> mapParams = null;
     if (additionalParams instanceof Map) {
       mapParams = (Map) additionalParams;
     } else if (additionalParams instanceof OIdentifiable) {
@@ -280,7 +278,7 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
           ctx.paramHeuristicFormula =
               HeuristicFormula.valueOf(
                   stringOrDefault(
-                          mapParams.get(OSQLFunctionAstar.PARAM_HEURISTIC_FORMULA), "MANHATAN")
+                      mapParams.get(OSQLFunctionAstar.PARAM_HEURISTIC_FORMULA), "MANHATAN")
                       .toUpperCase(Locale.ENGLISH));
         } else {
           ctx.paramHeuristicFormula =
@@ -293,12 +291,12 @@ public class OSQLFunctionAstar extends OSQLFunctionHeuristicPathFinderAbstract {
     }
   }
 
-  public String getSyntax() {
+  public String getSyntax(ODatabaseSession session) {
     return "astar(<sourceVertex>, <destinationVertex>, <weightEdgeFieldName>, [<options>]) \n"
-               + " // options  : {direction:\"OUT\",edgeTypeNames:[] , vertexAxisNames:[] ,"
-               + " parallel : false ,"
-               + " tieBreaker:true,maxDepth:99999,dFactor:1.0,customHeuristicFormula:'custom_Function_Name_here'"
-               + "  }";
+        + " // options  : {direction:\"OUT\",edgeTypeNames:[] , vertexAxisNames:[] ,"
+        + " parallel : false ,"
+        + " tieBreaker:true,maxDepth:99999,dFactor:1.0,customHeuristicFormula:'custom_Function_Name_here'"
+        + "  }";
   }
 
   @Override

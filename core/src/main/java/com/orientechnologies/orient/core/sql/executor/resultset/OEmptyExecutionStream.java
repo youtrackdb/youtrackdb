@@ -18,5 +18,6 @@ public class OEmptyExecutionStream implements OExecutionStream {
   }
 
   @Override
-  public void close(OCommandContext ctx) {}
+  public void close(OCommandContext ctx) {
+  }
 }

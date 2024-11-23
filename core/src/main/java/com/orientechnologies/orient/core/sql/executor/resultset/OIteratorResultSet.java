@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Created by luigidellaquila on 07/07/16.
+ *
  */
 public class OIteratorResultSet implements OResultSet {
 
@@ -44,7 +44,8 @@ public class OIteratorResultSet implements OResultSet {
   }
 
   @Override
-  public void close() {}
+  public void close() {
+  }
 
   @Override
   public Optional<OExecutionPlan> getExecutionPlan() {

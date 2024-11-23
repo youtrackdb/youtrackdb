@@ -19,7 +19,7 @@ import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import java.util.Set;
 
 /**
- * @author Johann Sorel (Geomatys)
+ *
  */
 public interface OSQLMethodFactory {
 

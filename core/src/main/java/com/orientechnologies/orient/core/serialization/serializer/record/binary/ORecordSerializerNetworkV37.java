@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -27,6 +27,7 @@ import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.common.serialization.types.OUUIDSerializer;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.OMap;
@@ -44,7 +45,7 @@ import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -86,7 +87,8 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
   private static final long MILLISEC_PER_DAY = 86400000;
   public static final ORecordSerializerNetworkV37 INSTANCE = new ORecordSerializerNetworkV37();
 
-  public ORecordSerializerNetworkV37() {}
+  public ORecordSerializerNetworkV37() {
+  }
 
   public void deserializePartial(
       final ODocument document, final BytesContainer bytes, final String[] iFields) {
@@ -887,12 +889,12 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
     return toCalendar.getTimeInMillis();
   }
 
-  public ORecord fromStream(byte[] iSource, ORecord record) {
+  public ORecordAbstract fromStream(byte[] iSource, ORecordAbstract record) {
     return fromStream(iSource, record, null);
   }
 
   @Override
-  public ORecord fromStream(byte[] iSource, ORecord iRecord, String[] iFields) {
+  public ORecordAbstract fromStream(byte[] iSource, ORecordAbstract iRecord, String[] iFields) {
     if (iSource == null || iSource.length == 0) {
       return iRecord;
     }
@@ -933,7 +935,7 @@ public class ORecordSerializerNetworkV37 implements ORecordSerializer {
   }
 
   @Override
-  public byte[] toStream(ORecord iSource) {
+  public byte[] toStream(ODatabaseSessionInternal session, ORecordAbstract iSource) {
     if (iSource instanceof OBlob) {
       return iSource.toStream();
     } else {

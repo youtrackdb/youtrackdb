@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2010-2016 OrientDB LTD (http://orientdb.com)
+ *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *  * For more information: http://orientdb.com
+ *
  *
  */
 
@@ -29,7 +29,6 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.base.ODura
 import java.io.IOException;
 
 /**
- * @author Andrey Lomakin (a.lomakin-at-orientdb.com)
  * @since 5/14/14
  */
 public class OHashTableDirectory extends ODurableComponent {
@@ -125,8 +124,7 @@ public class OHashTableDirectory extends ODurableComponent {
       }
 
       if (nodeIndex < ODirectoryFirstPage.NODES_PER_PAGE) {
-        @SuppressWarnings("UnnecessaryLocalVariable")
-        final int localNodeIndex = nodeIndex;
+        @SuppressWarnings("UnnecessaryLocalVariable") final int localNodeIndex = nodeIndex;
 
         firstPage.setMaxLeftChildDepth(localNodeIndex, maxLeftChildDepth);
         firstPage.setMaxRightChildDepth(localNodeIndex, maxRightChildDepth);
