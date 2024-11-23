@@ -66,9 +66,8 @@ public class OClassEmbedded extends OClassImpl {
 
     acquireSchemaWriteLock(session);
     try {
-      return (OProperty)
-          (Callable<OProperty>) () -> addPropertyInternal(session, propertyName, type,
-              linkedType, linkedClass, unsafe);
+      return addPropertyInternal(session, propertyName, type,
+          linkedType, linkedClass, unsafe);
 
     } finally {
       releaseSchemaWriteLock(session);

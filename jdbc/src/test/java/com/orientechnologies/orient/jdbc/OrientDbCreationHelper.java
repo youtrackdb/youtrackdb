@@ -271,7 +271,7 @@ public class OrientDbCreationHelper {
     OClass author = schema.createClass("Author");
 
     author.createProperty(db, "uuid", OType.LONG).createIndex(db, INDEX_TYPE.UNIQUE);
-    author.createProperty(db, "name", OType.STRING).setMin("3");
+    author.createProperty(db, "name", OType.STRING).setMin(db, "3");
     author.createProperty(db, "rating", OType.DOUBLE);
     author.createProperty(db, "articles", OType.LINKLIST, article);
 

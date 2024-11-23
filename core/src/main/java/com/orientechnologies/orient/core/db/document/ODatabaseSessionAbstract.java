@@ -1920,7 +1920,7 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
       currentDatabase = databaseDocumentTx.internal;
     }
 
-    return currentDatabase != this;
+    return currentDatabase == this;
   }
 
   public IntSet getBlobClusterIds() {

@@ -505,7 +505,7 @@ public abstract class OPropertyImpl implements OProperty {
         }
         break;
       case MIN:
-        setMin(stringValue);
+        setMin(session, stringValue);
         break;
       case MANDATORY:
         setMandatory(session, Boolean.parseBoolean(stringValue));
@@ -526,7 +526,7 @@ public abstract class OPropertyImpl implements OProperty {
         setNotNull(session, Boolean.parseBoolean(stringValue));
         break;
       case REGEXP:
-        setRegexp(stringValue);
+        setRegexp(session, stringValue);
         break;
       case TYPE:
         setType(session, OType.valueOf(stringValue.toUpperCase(Locale.ENGLISH)));

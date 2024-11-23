@@ -348,7 +348,7 @@ public class OCommandExecutorSQLCreateProperty extends OCommandExecutorSQLAbstra
     }
 
     if (min != null) {
-      internalProp.setMin(min);
+      internalProp.setMin(database, min);
     }
 
     if (defaultValue != null) {

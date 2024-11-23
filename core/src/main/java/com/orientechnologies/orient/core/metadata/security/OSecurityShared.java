@@ -988,8 +988,8 @@ public class OSecurityShared implements OSecurityInternal {
           .setMandatory(database, true)
           .setNotNull(database, true)
           .setCollate(database, "ci")
-          .setMin("1")
-          .setRegexp("\\S+(.*\\S+)*");
+          .setMin(database, "1")
+          .setRegexp(database, "\\S+(.*\\S+)*");
       userClass.createIndex(database, "OUser.name", INDEX_TYPE.UNIQUE, ONullOutputListener.INSTANCE,
           "name");
     } else {
@@ -1129,8 +1129,8 @@ public class OSecurityShared implements OSecurityInternal {
                 .createProperty(session, "name", OType.STRING)
                 .setMandatory(session, true)
                 .setNotNull(session, true)
-                .setMin("1")
-                .setRegexp("\\S+(.*\\S+)*");
+                .setMin(session, "1")
+                .setRegexp(session, "\\S+(.*\\S+)*");
       }
 
       if (userClass.getInvolvedIndexes(session, "name") == null) {

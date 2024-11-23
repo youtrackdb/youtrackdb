@@ -38,7 +38,7 @@ public class ClassIteratorTest extends BaseMemoryDatabase {
         .createProperty(db, "First", OType.STRING)
         .setMandatory(db, true)
         .setNotNull(db, true)
-        .setMin("1");
+        .setMin(db, "1");
 
     // Insert some data
     names = new HashSet<String>();

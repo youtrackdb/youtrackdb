@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.metadata.schema;
 
 import static org.junit.Assert.assertEquals;
 
+import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.OMap;
@@ -191,6 +192,8 @@ public class TestOTypeDetection {
 
   @Test
   public void testOTypeFromValueInternal() {
+    ODatabaseRecordThreadLocal.instance().remove();
+
     Map<String, ORecordId> linkmap = new HashMap<String, ORecordId>();
     linkmap.put("some", new OEmptyRecordId());
     assertEquals(OType.LINKMAP, OType.getTypeByValue(linkmap));

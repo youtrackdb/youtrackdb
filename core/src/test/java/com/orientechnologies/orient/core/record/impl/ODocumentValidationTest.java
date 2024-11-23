@@ -401,36 +401,36 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     db.commit();
 
     OClass clazz = db.getMetadata().getSchema().createClass("Validation");
-    clazz.createProperty(db, "int", OType.INTEGER).setMin("11");
-    clazz.createProperty(db, "long", OType.LONG).setMin("11");
-    clazz.createProperty(db, "float", OType.FLOAT).setMin("11");
+    clazz.createProperty(db, "int", OType.INTEGER).setMin(db, "11");
+    clazz.createProperty(db, "long", OType.LONG).setMin(db, "11");
+    clazz.createProperty(db, "float", OType.FLOAT).setMin(db, "11");
     // clazz.createProperty("boolean", OType.BOOLEAN) //no meaning
-    clazz.createProperty(db, "binary", OType.BINARY).setMin("11");
-    clazz.createProperty(db, "byte", OType.BYTE).setMin("11");
+    clazz.createProperty(db, "binary", OType.BINARY).setMin(db, "11");
+    clazz.createProperty(db, "byte", OType.BYTE).setMin(db, "11");
     Calendar cal = Calendar.getInstance();
     cal.add(Calendar.HOUR, cal.get(Calendar.HOUR) == 11 ? 0 : 1);
     SimpleDateFormat format = db.getStorage().getConfiguration().getDateFormatInstance();
-    clazz.createProperty(db, "date", OType.DATE).setMin(format.format(cal.getTime()));
+    clazz.createProperty(db, "date", OType.DATE).setMin(db, format.format(cal.getTime()));
     cal = Calendar.getInstance();
     cal.add(Calendar.HOUR, 1);
     format = db.getStorage().getConfiguration().getDateTimeFormatInstance();
-    clazz.createProperty(db, "datetime", OType.DATETIME).setMin(format.format(cal.getTime()));
+    clazz.createProperty(db, "datetime", OType.DATETIME).setMin(db, format.format(cal.getTime()));
 
-    clazz.createProperty(db, "decimal", OType.DECIMAL).setMin("11");
-    clazz.createProperty(db, "double", OType.DOUBLE).setMin("11");
-    clazz.createProperty(db, "short", OType.SHORT).setMin("11");
-    clazz.createProperty(db, "string", OType.STRING).setMin("11");
+    clazz.createProperty(db, "decimal", OType.DECIMAL).setMin(db, "11");
+    clazz.createProperty(db, "double", OType.DOUBLE).setMin(db, "11");
+    clazz.createProperty(db, "short", OType.SHORT).setMin(db, "11");
+    clazz.createProperty(db, "string", OType.STRING).setMin(db, "11");
     // clazz.createProperty("link", OType.LINK) no meaning
     // clazz.createProperty("embedded", OType.EMBEDDED) no meaning
 
-    clazz.createProperty(db, "embeddedList", OType.EMBEDDEDLIST).setMin("1");
-    clazz.createProperty(db, "embeddedSet", OType.EMBEDDEDSET).setMin("1");
-    clazz.createProperty(db, "embeddedMap", OType.EMBEDDEDMAP).setMin("1");
+    clazz.createProperty(db, "embeddedList", OType.EMBEDDEDLIST).setMin(db, "1");
+    clazz.createProperty(db, "embeddedSet", OType.EMBEDDEDSET).setMin(db, "1");
+    clazz.createProperty(db, "embeddedMap", OType.EMBEDDEDMAP).setMin(db, "1");
 
-    clazz.createProperty(db, "linkList", OType.LINKLIST).setMin("1");
-    clazz.createProperty(db, "linkSet", OType.LINKSET).setMin("1");
-    clazz.createProperty(db, "linkMap", OType.LINKMAP).setMin("1");
-    clazz.createProperty(db, "linkBag", OType.LINKBAG).setMin("1");
+    clazz.createProperty(db, "linkList", OType.LINKLIST).setMin(db, "1");
+    clazz.createProperty(db, "linkSet", OType.LINKSET).setMin(db, "1");
+    clazz.createProperty(db, "linkMap", OType.LINKMAP).setMin(db, "1");
+    clazz.createProperty(db, "linkBag", OType.LINKBAG).setMin(db, "1");
 
     ODocument d = new ODocument(clazz);
     d.field("int", 11);
@@ -566,7 +566,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
   @Test
   public void testRegExpValidation() {
     OClass clazz = db.getMetadata().getSchema().createClass("Validation");
-    clazz.createProperty(db, "string", OType.STRING).setRegexp("[^Z]*");
+    clazz.createProperty(db, "string", OType.STRING).setRegexp(db, "[^Z]*");
 
     ODocument d = new ODocument(clazz);
     d.field("string", "yeah");

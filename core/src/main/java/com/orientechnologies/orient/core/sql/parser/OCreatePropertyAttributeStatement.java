@@ -87,7 +87,7 @@ public class OCreatePropertyAttributeStatement extends SimpleNode {
       } else if (attrName.equalsIgnoreCase("max")) {
         internalProp.setMax(db, "" + attrValue);
       } else if (attrName.equalsIgnoreCase("min")) {
-        internalProp.setMin("" + attrValue);
+        internalProp.setMin(db, "" + attrValue);
       } else if (attrName.equalsIgnoreCase("default")) {
         if (this.settingValue == null) {
           throw new OCommandExecutionException("");
@@ -96,7 +96,7 @@ public class OCreatePropertyAttributeStatement extends SimpleNode {
       } else if (attrName.equalsIgnoreCase("collate")) {
         internalProp.setCollate(db, "" + attrValue);
       } else if (attrName.equalsIgnoreCase("regexp")) {
-        internalProp.setRegexp("" + attrValue);
+        internalProp.setRegexp(db, "" + attrValue);
       } else {
         throw new OCommandExecutionException("Invalid attribute definition: '" + attrName + "'");
       }

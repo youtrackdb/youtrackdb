@@ -45,14 +45,14 @@ public class OPointShapeBuilder extends OShapeBuilder<Point> {
     OSchema schema = db.getMetadata().getSchema();
     OClass point = schema.createAbstractClass(NAME, superClass(db));
     OProperty coordinates = point.createProperty(db, COORDINATES, OType.EMBEDDEDLIST, OType.DOUBLE);
-    coordinates.setMin("2");
+    coordinates.setMin(db, "2");
     coordinates.setMax(db, "2");
 
     if (OGlobalConfiguration.SPATIAL_ENABLE_DIRECT_WKT_READER.getValueAsBoolean()) {
       OClass pointz = schema.createAbstractClass(NAME + "Z", superClass(db));
       OProperty coordinatesz = pointz.createProperty(db, COORDINATES, OType.EMBEDDEDLIST,
           OType.DOUBLE);
-      coordinatesz.setMin("3");
+      coordinatesz.setMin(db, "3");
       coordinatesz.setMax(db, "3");
     }
   }

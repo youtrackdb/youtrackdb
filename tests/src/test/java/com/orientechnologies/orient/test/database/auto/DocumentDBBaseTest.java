@@ -401,24 +401,27 @@ public abstract class DocumentDBBaseTest extends BaseTest<ODatabaseSessionIntern
     var addressCls = createAddressClass();
     var cls = database.createClass("Profile");
     cls.createProperty(database, "nick", OType.STRING)
-        .setMin("3")
+        .setMin(database, "3")
         .setMax(database, "30")
         .createIndex(OClass.INDEX_TYPE.UNIQUE, new ODocument().field("ignoreNullValues", true));
     cls.createProperty(database, "followings", OType.LINKSET, cls);
     cls.createProperty(database, "followers", OType.LINKSET, cls);
     cls.createProperty(database, "name", OType.STRING)
-        .setMin("3")
+        .setMin(database, "3")
         .setMax(database, "30")
         .createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
 
-    cls.createProperty(database, "surname", OType.STRING).setMin("3").setMax(database, "30");
+    cls.createProperty(database, "surname", OType.STRING).setMin(database, "3")
+        .setMax(database, "30");
     cls.createProperty(database, "location", OType.LINK, addressCls);
     cls.createProperty(database, "hash", OType.LONG);
     cls.createProperty(database, "invitedBy", OType.LINK, cls);
     cls.createProperty(database, "value", OType.INTEGER);
 
-    cls.createProperty(database, "registeredOn", OType.DATETIME).setMin("2010-01-01 00:00:00");
-    cls.createProperty(database, "lastAccessOn", OType.DATETIME).setMin("2010-01-01 00:00:00");
+    cls.createProperty(database, "registeredOn", OType.DATETIME)
+        .setMin(database, "2010-01-01 00:00:00");
+    cls.createProperty(database, "lastAccessOn", OType.DATETIME)
+        .setMin(database, "2010-01-01 00:00:00");
     cls.createProperty(database, "photo", OType.TRANSIENT);
   }
 
@@ -487,8 +490,9 @@ public abstract class DocumentDBBaseTest extends BaseTest<ODatabaseSessionIntern
     OClass whiz = database.getMetadata().getSchema().createClass("Whiz", 1, (OClass[]) null);
     whiz.createProperty(database, "id", OType.INTEGER);
     whiz.createProperty(database, "account", OType.LINK, account);
-    whiz.createProperty(database, "date", OType.DATE).setMin("2010-01-01");
-    whiz.createProperty(database, "text", OType.STRING).setMandatory(database, true).setMin("1")
+    whiz.createProperty(database, "date", OType.DATE).setMin(database, "2010-01-01");
+    whiz.createProperty(database, "text", OType.STRING).setMandatory(database, true)
+        .setMin(database, "1")
         .setMax(database, "140");
     whiz.createProperty(database, "replyTo", OType.LINK, account);
   }

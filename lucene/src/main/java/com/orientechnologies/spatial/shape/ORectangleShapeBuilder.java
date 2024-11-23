@@ -45,8 +45,8 @@ public class ORectangleShapeBuilder extends OShapeBuilder<Rectangle> {
     OClass rectangle = schema.createAbstractClass(NAME, superClass(db));
     OProperty coordinates = rectangle.createProperty(db, COORDINATES, OType.EMBEDDEDLIST,
         OType.DOUBLE);
-    coordinates.setMin("4");
-    coordinates.setMin("4");
+    coordinates.setMin(db, "4");
+    coordinates.setMin(db, "4");
   }
 
   @Override

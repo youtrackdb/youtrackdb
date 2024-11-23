@@ -161,7 +161,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
           prop.setNotNull(db, "on".equals(fields.get("notNull")));
         }
         if (fields.get("min") != null) {
-          prop.setMin(fields.get("min"));
+          prop.setMin(db, fields.get("min"));
         }
         if (fields.get("max") != null) {
           prop.setMax(db, fields.get("max"));

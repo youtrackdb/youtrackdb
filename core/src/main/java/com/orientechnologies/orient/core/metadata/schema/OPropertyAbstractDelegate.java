@@ -140,7 +140,7 @@ public class OPropertyAbstractDelegate implements OProperty {
 
   @Override
   public OProperty setMin(ODatabaseSession session, final String min) {
-    delegate.setMin(min);
+    delegate.setMin(session, min);
     return this;
   }
 
@@ -241,7 +241,7 @@ public class OPropertyAbstractDelegate implements OProperty {
 
   @Override
   public OProperty setRegexp(ODatabaseSession session, final String regexp) {
-    delegate.setRegexp(regexp);
+    delegate.setRegexp(session, regexp);
     return this;
   }
 

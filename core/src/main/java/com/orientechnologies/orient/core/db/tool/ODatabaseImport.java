@@ -1024,7 +1024,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
     prop.setNotNull(database, notNull);
 
     if (min != null) {
-      prop.setMin(min);
+      prop.setMin(database, min);
     }
     if (max != null) {
       prop.setMax(database, max);
@@ -1039,7 +1039,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
       prop.setCollate(database, collate);
     }
     if (regexp != null) {
-      prop.setRegexp(regexp);
+      prop.setRegexp(database, regexp);
     }
     if (defaultValue != null) {
       prop.setDefaultValue(database, value);

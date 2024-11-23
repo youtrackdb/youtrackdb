@@ -114,15 +114,6 @@ public interface OProperty extends Comparable<OProperty> {
   String getMin();
 
   /**
-   * @param min can be null
-   * @return this property
-   * @see OProperty#getMin()
-   */
-  default OProperty setMin(String min) {
-    return setMin(min);
-  }
-
-  /**
    * @param session
    * @param min     can be null
    * @return this property
@@ -304,10 +295,6 @@ public interface OProperty extends Comparable<OProperty> {
   boolean isIndexed(ODatabaseSession session);
 
   String getRegexp();
-
-  default OProperty setRegexp(String regexp) {
-    return setRegexp(regexp);
-  }
 
   OProperty setRegexp(ODatabaseSession session, String regexp);
 

@@ -351,10 +351,11 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     OClass edge = database.getMetadata().getSchema().createClass("MyEdge", 1);
     profile
         .createProperty(database, "name", OType.STRING)
-        .setMin("3")
+        .setMin(database, "3")
         .setMax(database, "30")
         .createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
-    profile.createProperty(database, "surname", OType.STRING).setMin("3").setMax(database, "30");
+    profile.createProperty(database, "surname", OType.STRING).setMin(database, "3")
+        .setMax(database, "30");
     profile.createProperty(database, "in", OType.LINKSET, edge);
     profile.createProperty(database, "out", OType.LINKSET, edge);
     edge.createProperty(database, "in", OType.LINK, profile);
