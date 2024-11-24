@@ -55,7 +55,7 @@ public class OrientJdbcConnection implements Connection {
   private boolean autoCommit;
   private ODatabaseSession.STATUS status;
 
-  private final boolean orientDBisPrivate;
+  private final boolean oxygenDBisPrivate;
 
   public OrientJdbcConnection(final String jdbcdDUrl, final Properties info) {
 
@@ -89,7 +89,7 @@ public class OrientJdbcConnection implements Connection {
 
     database = oxygenDB.open(connUrl.getDbName(), username, password);
 
-    orientDBisPrivate = true;
+    oxygenDBisPrivate = true;
     status = ODatabaseSession.STATUS.OPEN;
   }
 
@@ -97,7 +97,7 @@ public class OrientJdbcConnection implements Connection {
     this.database = database;
     this.oxygenDB = oxygenDB;
     this.info = info;
-    orientDBisPrivate = false;
+    oxygenDBisPrivate = false;
     status = ODatabaseSession.STATUS.OPEN;
   }
 
@@ -146,7 +146,7 @@ public class OrientJdbcConnection implements Connection {
       database.close();
       database = null;
     }
-    if (orientDBisPrivate) {
+    if (oxygenDBisPrivate) {
 
       oxygenDB.close();
     }

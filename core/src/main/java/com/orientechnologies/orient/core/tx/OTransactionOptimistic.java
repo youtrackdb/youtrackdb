@@ -21,6 +21,7 @@
 package com.orientechnologies.orient.core.tx;
 
 import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
@@ -774,7 +775,15 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
 
       if (sentToServer || !recordOperations.isEmpty() || !indexEntries.isEmpty()) {
         database.internalCommit(this);
+
+        try {
+          database.afterCommitOperations();
+        } catch (Exception e) {
+          OLogManager.instance().error(this,
+              "Error during after commit callback invocation", e);
+        }
       }
+
     } catch (Exception e) {
       rollback(true, 0);
       throw e;
@@ -1262,7 +1271,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
             database.getSharedContext().getFunctionLibrary().droppedFunction(doc);
             database
                 .getSharedContext()
-                .getOrientDB()
+                .getOxygenDB()
                 .getScriptManager()
                 .close(database.getName());
           }

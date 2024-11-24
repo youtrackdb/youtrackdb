@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class OrientDBConfigBuilder {
+public class OxygenDBConfigBuilder {
 
   private OContextConfiguration configurations = new OContextConfiguration();
   private final Map<ATTRIBUTES, Object> attributes = new HashMap<>();
@@ -45,37 +45,37 @@ public class OrientDBConfigBuilder {
   private OSecurityConfig securityConfig;
   private final List<OGlobalUser> users = new ArrayList<OGlobalUser>();
 
-  public OrientDBConfigBuilder fromGlobalMap(Map<OGlobalConfiguration, Object> values) {
+  public OxygenDBConfigBuilder fromGlobalMap(Map<OGlobalConfiguration, Object> values) {
     for (Map.Entry<OGlobalConfiguration, Object> entry : values.entrySet()) {
       addConfig(entry.getKey(), entry.getValue());
     }
     return this;
   }
 
-  public OrientDBConfigBuilder fromMap(Map<String, Object> values) {
+  public OxygenDBConfigBuilder fromMap(Map<String, Object> values) {
     for (Map.Entry<String, Object> entry : values.entrySet()) {
       configurations.setValue(entry.getKey(), entry.getValue());
     }
     return this;
   }
 
-  public OrientDBConfigBuilder addListener(ODatabaseListener listener) {
+  public OxygenDBConfigBuilder addListener(ODatabaseListener listener) {
     listeners.add(listener);
     return this;
   }
 
-  public OrientDBConfigBuilder addConfig(
+  public OxygenDBConfigBuilder addConfig(
       final OGlobalConfiguration configuration, final Object value) {
     configurations.setValue(configuration, value);
     return this;
   }
 
-  public OrientDBConfigBuilder addAttribute(final ATTRIBUTES attribute, final Object value) {
+  public OxygenDBConfigBuilder addAttribute(final ATTRIBUTES attribute, final Object value) {
     attributes.put(attribute, value);
     return this;
   }
 
-  public OrientDBConfigBuilder setClassLoader(ClassLoader classLoader) {
+  public OxygenDBConfigBuilder setClassLoader(ClassLoader classLoader) {
     this.classLoader = classLoader;
     return this;
   }
@@ -84,7 +84,7 @@ public class OrientDBConfigBuilder {
     return nodeConfigurationBuilder;
   }
 
-  public OrientDBConfigBuilder setSecurityConfig(OSecurityConfig securityConfig) {
+  public OxygenDBConfigBuilder setSecurityConfig(OSecurityConfig securityConfig) {
     this.securityConfig = securityConfig;
     return this;
   }
@@ -100,12 +100,12 @@ public class OrientDBConfigBuilder {
         users);
   }
 
-  public OrientDBConfigBuilder fromContext(final OContextConfiguration contextConfiguration) {
+  public OxygenDBConfigBuilder fromContext(final OContextConfiguration contextConfiguration) {
     configurations = contextConfiguration;
     return this;
   }
 
-  public OrientDBConfigBuilder addGlobalUser(
+  public OxygenDBConfigBuilder addGlobalUser(
       final String user, final String password, final String resource) {
     users.add(new OGlobalUserImpl(user, password, resource));
     return this;

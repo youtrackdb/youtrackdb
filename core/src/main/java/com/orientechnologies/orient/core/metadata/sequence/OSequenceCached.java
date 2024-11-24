@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2014 OxygenDB LTD (info(at)orientdb.com)
+ *  *  Copyright OxygenDB
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -55,7 +55,14 @@ public class OSequenceCached extends OSequence {
     var currentParams = params;
     db.executeInTx(
         () -> {
-          var boundDocument = db.bindToSession(document);
+          ODocument boundDocument;
+
+          if (document.isNotBound(db)) {
+            boundDocument = db.bindToSession(document);
+          } else {
+            boundDocument = document;
+          }
+
           setCacheSize(boundDocument, currentParams.cacheSize);
           cacheStart = cacheEnd = 0L;
           allocateCache(

@@ -548,13 +548,14 @@ public class OInsertStatementExecutionTest extends BaseMemoryDatabase {
   public void testInsertIndexTest() {
     db.command("CREATE INDEX testInsert UNIQUE STRING ");
 
+    db.begin();
     try (OResultSet insert = db.command("INSERT INTO index:testInsert set key='one', rid=#5:0")) {
       assertEquals((long) insert.next().getProperty("count"), 1L);
       assertFalse(insert.hasNext());
     }
+    db.commit();
 
     try (OResultSet result = db.query("SELECT FROM index:testInsert ")) {
-
       OResult item = result.next();
       assertEquals(item.getProperty("key"), "one");
       assertEquals(item.getProperty("rid"), new ORecordId(5, 0));

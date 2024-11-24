@@ -16,6 +16,7 @@
 
 package com.orientechnologies.orient.test.database.auto;
 
+import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandPredicate;
 import com.orientechnologies.orient.core.command.traverse.OTraverse;
@@ -319,10 +320,13 @@ public class TraverseTest extends DocumentDBBaseTest {
   @Test
   public void traverseAPIandSQLIterating() {
     int cycles = 0;
+    var context = new OBasicCommandContext();
+    context.setDatabase(database);
+
     for (OIdentifiable id :
         new OTraverse()
             .target(database.browseClass("Movie").iterator())
-            .predicate(new OSQLPredicate(database, "$depth <= 2"))) {
+            .predicate(new OSQLPredicate(context, "$depth <= 2"))) {
       cycles++;
     }
     Assert.assertTrue(cycles > 0);

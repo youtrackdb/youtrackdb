@@ -1736,8 +1736,12 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
   public Iterator<OIdentifiable> iterator(ODatabaseSessionInternal querySession,
       Map<Object, Object> iArgs) {
     if (context == null) {
-      context = new OBasicCommandContext();
+      var context = new OBasicCommandContext();
+      context.setDatabase(querySession);
+
+      this.context = context;
     }
+
     Object result = execute(iArgs, querySession);
     return ((Iterable) result).iterator();
   }

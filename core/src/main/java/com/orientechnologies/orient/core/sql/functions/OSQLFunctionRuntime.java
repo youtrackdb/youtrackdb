@@ -22,9 +22,11 @@ package com.orientechnologies.orient.core.sql.functions;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.parser.OBaseParser;
+import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandExecutorNotFoundException;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
@@ -40,6 +42,7 @@ import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemField;
 import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemVariable;
 import com.orientechnologies.orient.core.sql.filter.OSQLPredicate;
 import java.util.List;
+import javax.annotation.Nonnull;
 
 /**
  * Wraps function managing the binding of parameters.
@@ -50,7 +53,7 @@ public class OSQLFunctionRuntime extends OSQLFilterItemAbstract {
   public Object[] configuredParameters;
   public Object[] runtimeParameters;
 
-  public OSQLFunctionRuntime(ODatabaseSession session, final OBaseParser iQueryToParse,
+  public OSQLFunctionRuntime(ODatabaseSessionInternal session, final OBaseParser iQueryToParse,
       final String iText) {
     super(session, iQueryToParse, iText);
   }
@@ -79,7 +82,7 @@ public class OSQLFunctionRuntime extends OSQLFilterItemAbstract {
       final Object iThis,
       final OIdentifiable iCurrentRecord,
       final Object iCurrentResult,
-      final OCommandContext iContext) {
+      @Nonnull final OCommandContext iContext) {
     // RESOLVE VALUES USING THE CURRENT RECORD
     for (int i = 0; i < configuredParameters.length; ++i) {
       runtimeParameters[i] = configuredParameters[i];
@@ -104,7 +107,7 @@ public class OSQLFunctionRuntime extends OSQLFilterItemAbstract {
         } catch (OCommandExecutorNotFoundException ignore) {
           // TRY WITH SIMPLE CONDITION
           final String text = ((OCommandSQL) configuredParameters[i]).getText();
-          final OSQLPredicate pred = new OSQLPredicate(iContext.getDatabase(), text);
+          final OSQLPredicate pred = new OSQLPredicate(iContext, text);
           runtimeParameters[i] =
               pred.evaluate(
                   iCurrentRecord instanceof ORecord ? iCurrentRecord : null,
@@ -155,8 +158,11 @@ public class OSQLFunctionRuntime extends OSQLFilterItemAbstract {
     return transformValue(iCurrentRecord, iContext, functionResult);
   }
 
-  public Object getResult() {
-    return transformValue(null, null, function.getResult());
+  public Object getResult(ODatabaseSessionInternal session) {
+    var context = new OBasicCommandContext();
+    context.setDatabase(session);
+
+    return transformValue(null, context, function.getResult());
   }
 
   public void setResult(final Object iValue) {
@@ -179,15 +185,17 @@ public class OSQLFunctionRuntime extends OSQLFilterItemAbstract {
     return function.getName(session);
   }
 
-  public OSQLFunctionRuntime setParameters(final Object[] iParameters, final boolean iEvaluate) {
+  public OSQLFunctionRuntime setParameters(@Nonnull OCommandContext context,
+      final Object[] iParameters, final boolean iEvaluate) {
     this.configuredParameters = new Object[iParameters.length];
+
     for (int i = 0; i < iParameters.length; ++i) {
       this.configuredParameters[i] = iParameters[i];
 
       if (iEvaluate) {
         if (iParameters[i] != null) {
           if (iParameters[i] instanceof String) {
-            final Object v = OSQLHelper.parseValue(null, null, iParameters[i].toString(), null);
+            final Object v = OSQLHelper.parseValue(null, null, iParameters[i].toString(), context);
             if (v == OSQLHelper.VALUE_NOT_PARSED
                 || (OMultiValue.isMultiValue(v)
                 && OMultiValue.getFirstValue(v) == OSQLHelper.VALUE_NOT_PARSED)) {
@@ -229,7 +237,8 @@ public class OSQLFunctionRuntime extends OSQLFilterItemAbstract {
   }
 
   @Override
-  protected void setRoot(final OBaseParser iQueryToParse, final String iText) {
+  protected void setRoot(ODatabaseSessionInternal session, final OBaseParser iQueryToParse,
+      final String iText) {
     final int beginParenthesis = iText.indexOf('(');
 
     // SEARCH FOR THE FUNCTION
@@ -248,6 +257,9 @@ public class OSQLFunctionRuntime extends OSQLFilterItemAbstract {
       this.configuredParameters[i] = funcParamsText.get(i);
     }
 
-    setParameters(configuredParameters, true);
+    var context = new OBasicCommandContext();
+    context.setDatabase(session);
+
+    setParameters(context, configuredParameters, true);
   }
 }

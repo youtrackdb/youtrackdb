@@ -23,9 +23,11 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.parser.OBaseParser;
 import com.orientechnologies.common.util.OPair;
+import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OImmutableClass;
@@ -50,6 +52,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nonnull;
 
 /**
  * SQL Helper class
@@ -65,7 +68,7 @@ public class OSQLHelper {
   private static final ClassLoader orientClassLoader =
       OSQLFilterItemAbstract.class.getClassLoader();
 
-  public static Object parseDefaultValue(ODatabaseSession session, ODocument iRecord,
+  public static Object parseDefaultValue(ODatabaseSessionInternal session, ODocument iRecord,
       final String iWord) {
     final Object v = OSQLHelper.parseValue(iWord, null);
 
@@ -76,7 +79,10 @@ public class OSQLHelper {
     // TRY TO PARSE AS FUNCTION
     final OSQLFunctionRuntime func = OSQLHelper.getFunction(session, null, iWord);
     if (func != null) {
-      return func.execute(iRecord, iRecord, null, null);
+      var context = new OBasicCommandContext();
+      context.setDatabase(session);
+
+      return func.execute(iRecord, iRecord, null, context);
     }
 
     // PARSE AS FIELD
@@ -146,7 +152,7 @@ public class OSQLHelper {
         Object key = OStringSerializerHelper.decode(parseValue(parts.get(0), iContext).toString());
         Object value = parseValue(parts.get(1), iContext);
         if (VALUE_NOT_PARSED == value) {
-          value = new OSQLPredicate(iContext.getDatabase(), parts.get(1)).evaluate(iContext);
+          value = new OSQLPredicate(iContext, parts.get(1)).evaluate(iContext);
         }
         if (value instanceof String) {
           value = OStringSerializerHelper.decode(value.toString());
@@ -244,7 +250,7 @@ public class OSQLHelper {
       final OSQLPredicate iSQLFilter,
       final OBaseParser iCommand,
       final String iWord,
-      final OCommandContext iContext) {
+      @Nonnull final OCommandContext iContext) {
     if (iWord.charAt(0) == OStringSerializerHelper.PARAMETER_POSITIONAL
         || iWord.charAt(0) == OStringSerializerHelper.PARAMETER_NAMED) {
       if (iSQLFilter != null) {
@@ -295,7 +301,7 @@ public class OSQLHelper {
     return new OSQLFilterItemField(iContext.getDatabase(), iCommand, iWord, null);
   }
 
-  public static OSQLFunctionRuntime getFunction(ODatabaseSession session,
+  public static OSQLFunctionRuntime getFunction(ODatabaseSessionInternal session,
       final OBaseParser iCommand, final String iWord) {
     final int separator = iWord.indexOf('.');
     final int beginParenthesis = iWord.indexOf(OStringSerializerHelper.EMBEDDED_BEGIN);

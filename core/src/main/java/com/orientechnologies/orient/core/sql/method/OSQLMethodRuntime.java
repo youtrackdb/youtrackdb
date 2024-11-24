@@ -22,9 +22,11 @@ package com.orientechnologies.orient.core.sql.method;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.parser.OBaseParser;
+import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandExecutorNotFoundException;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
@@ -52,7 +54,7 @@ public class OSQLMethodRuntime extends OSQLFilterItemAbstract
   public Object[] configuredParameters;
   public Object[] runtimeParameters;
 
-  public OSQLMethodRuntime(ODatabaseSession session, final OBaseParser iQueryToParse,
+  public OSQLMethodRuntime(ODatabaseSessionInternal session, final OBaseParser iQueryToParse,
       final String iText) {
     super(session, iQueryToParse, iText);
   }
@@ -122,7 +124,7 @@ public class OSQLMethodRuntime extends OSQLFilterItemAbstract
             } catch (OCommandExecutorNotFoundException ignore) {
               // TRY WITH SIMPLE CONDITION
               final String text = ((OCommandSQL) configuredParameters[i]).getText();
-              final OSQLPredicate pred = new OSQLPredicate(iContext.getDatabase(), text);
+              final OSQLPredicate pred = new OSQLPredicate(iContext, text);
               runtimeParameters[i] =
                   pred.evaluate(
                       iCurrentRecord instanceof ORecord ? iCurrentRecord : null,
@@ -192,7 +194,8 @@ public class OSQLMethodRuntime extends OSQLFilterItemAbstract
   }
 
   @Override
-  protected void setRoot(final OBaseParser iQueryToParse, final String iText) {
+  protected void setRoot(ODatabaseSessionInternal session, final OBaseParser iQueryToParse,
+      final String iText) {
     final int beginParenthesis = iText.indexOf('(');
 
     // SEARCH FOR THE FUNCTION
@@ -211,18 +214,22 @@ public class OSQLMethodRuntime extends OSQLFilterItemAbstract
       this.configuredParameters[i] = funcParamsText.get(i);
     }
 
-    setParameters(configuredParameters, true);
+    setParameters(session, configuredParameters, true);
   }
 
-  public OSQLMethodRuntime setParameters(final Object[] iParameters, final boolean iEvaluate) {
+  public OSQLMethodRuntime setParameters(ODatabaseSessionInternal session,
+      final Object[] iParameters, final boolean iEvaluate) {
     if (iParameters != null) {
+      var context = new OBasicCommandContext();
+      context.setDatabase(session);
+
       this.configuredParameters = new Object[iParameters.length];
       for (int i = 0; i < iParameters.length; ++i) {
         this.configuredParameters[i] = iParameters[i];
 
         if (iParameters[i] != null) {
           if (iParameters[i] instanceof String && !iParameters[i].toString().startsWith("[")) {
-            final Object v = OSQLHelper.parseValue(null, null, iParameters[i].toString(), null);
+            final Object v = OSQLHelper.parseValue(null, null, iParameters[i].toString(), context);
             if (v == OSQLHelper.VALUE_NOT_PARSED
                 || (OMultiValue.isMultiValue(v)
                 && OMultiValue.getFirstValue(v) == OSQLHelper.VALUE_NOT_PARSED)) {

@@ -18,11 +18,13 @@ package com.orientechnologies.orient.core.schedule;
 
 import com.orientechnologies.common.concur.ONeedRetryException;
 import com.orientechnologies.common.log.OLogManager;
+import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.script.OCommandScriptException;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.tool.ODatabaseExportException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
@@ -31,11 +33,13 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.schedule.OScheduler.STATUS;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
 import java.text.ParseException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import javax.annotation.Nonnull;
 
 /**
  * Represents an instance of a scheduled event.
@@ -111,8 +115,15 @@ public class OScheduledEvent extends ODocumentWrapper {
     return getDocument(session).field(PROP_STATUS);
   }
 
-  public Map<Object, Object> getArguments(ODatabaseSession session) {
-    return getDocument(session).field(PROP_ARGUMENTS);
+  @Nonnull
+  public Map<String, Object> getArguments(ODatabaseSession session) {
+    var value = getDocument(session).<Map<String, Object>>getProperty(PROP_ARGUMENTS);
+
+    if (value == null) {
+      return Collections.emptyMap();
+    }
+
+    return value;
   }
 
   public Date getStartTime(ODatabaseSession session) {
@@ -123,12 +134,18 @@ public class OScheduledEvent extends ODocumentWrapper {
     return this.running.get();
   }
 
-  public OScheduledEvent schedule(String database, String user, OxygenDBInternal orientDB) {
+  public OScheduledEvent schedule(String database, String user, OxygenDBInternal oxygenDB) {
     if (isRunning()) {
       interrupt();
     }
-    ScheduledTimerTask task = new ScheduledTimerTask(this, database, user, orientDB);
+
+    if (!getIdentity().isPersistent()) {
+      throw new ODatabaseExportException("Cannot schedule an unsaved event");
+    }
+
+    ScheduledTimerTask task = new ScheduledTimerTask(this, database, user, oxygenDB);
     task.schedule();
+
     timer = task;
     return this;
   }
@@ -192,14 +209,14 @@ public class OScheduledEvent extends ODocumentWrapper {
     private final OScheduledEvent event;
     private final String database;
     private final String user;
-    private final OxygenDBInternal orientDB;
+    private final OxygenDBInternal oxygenDB;
 
     private ScheduledTimerTask(
-        OScheduledEvent event, String database, String user, OxygenDBInternal orientDB) {
+        OScheduledEvent event, String database, String user, OxygenDBInternal oxygenDB) {
       this.event = event;
       this.database = database;
       this.user = user;
-      this.orientDB = orientDB;
+      this.oxygenDB = oxygenDB;
     }
 
     public void schedule() {
@@ -208,13 +225,13 @@ public class OScheduledEvent extends ODocumentWrapper {
         Date now = new Date();
         long time = event.cron.getNextValidTimeAfter(now).getTime();
         long delay = time - now.getTime();
-        orientDB.scheduleOnce(this, delay);
+        oxygenDB.scheduleOnce(this, delay);
       }
     }
 
     @Override
     public void run() {
-      orientDB.execute(
+      oxygenDB.execute(
           database,
           user,
           db -> {
@@ -271,7 +288,7 @@ public class OScheduledEvent extends ODocumentWrapper {
       } finally {
         if (event.timer != null) {
           // RE-SCHEDULE THE NEXT EVENT
-          event.schedule(database, user, orientDB);
+          event.schedule(database, user, oxygenDB);
         }
       }
     }
@@ -339,7 +356,11 @@ public class OScheduledEvent extends ODocumentWrapper {
     private void executeEventFunction(ODatabaseSession session) {
       Object result = null;
       try {
-        result = event.function.execute(session, event.getArguments(session));
+        var context = new OBasicCommandContext();
+        context.setDatabase((ODatabaseSessionInternal) session);
+
+        result = session.computeInTx(
+            () -> event.function.executeInContext(context, event.getArguments(session)));
       } finally {
         OLogManager.instance()
             .info(

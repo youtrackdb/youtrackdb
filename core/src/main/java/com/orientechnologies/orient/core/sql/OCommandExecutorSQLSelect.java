@@ -119,6 +119,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
+import javax.annotation.Nonnull;
 
 /**
  * Executes the SQL SELECT statement. the parse() method compiles the query and builds the meta
@@ -314,7 +315,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
       if (parserGetLastWord().equalsIgnoreCase(KEYWORD_FROM)) {
         // FROM
         parsedTarget =
-            OSQLEngine.getInstance()
+            OSQLEngine
                 .parseTarget(
                     parserText.substring(parserGetCurrentPosition(), endPosition), getContext());
         parserSetCurrentPosition(
@@ -334,7 +335,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
           if (!w.isEmpty()) {
             if (w.equals(KEYWORD_WHERE)) {
               compiledFilter =
-                  OSQLEngine.getInstance()
+                  OSQLEngine
                       .parseCondition(
                           parserText.substring(parserGetCurrentPosition(), endPosition),
                           getContext(),
@@ -1483,7 +1484,8 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
     return true;
   }
 
-  private void mergeRangeConditionsToBetweenOperators(ODatabaseSession session, OSQLFilter filter) {
+  private void mergeRangeConditionsToBetweenOperators(ODatabaseSessionInternal session,
+      OSQLFilter filter) {
     OSQLFilterCondition condition = filter.getRootCondition();
 
     OSQLFilterCondition newCondition = convertToBetweenClause(session, condition);
@@ -1496,7 +1498,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
     mergeRangeConditionsToBetweenOperators(session, condition);
   }
 
-  private void mergeRangeConditionsToBetweenOperators(ODatabaseSession session,
+  private void mergeRangeConditionsToBetweenOperators(ODatabaseSessionInternal session,
       OSQLFilterCondition condition) {
     if (condition == null) {
       return;
@@ -1527,7 +1529,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
     }
   }
 
-  private OSQLFilterCondition convertToBetweenClause(ODatabaseSession session,
+  private OSQLFilterCondition convertToBetweenClause(ODatabaseSessionInternal session,
       final OSQLFilterCondition condition) {
     if (condition == null) {
       return null;
@@ -1880,7 +1882,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
             ODatabaseRecordThreadLocal.instance().remove();
           };
 
-      jobs.add(db.getSharedContext().getOrientDB().execute(job));
+      jobs.add(db.getSharedContext().getOxygenDB().execute(job));
     }
 
     final int maxQueueSize =
@@ -2769,7 +2771,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
           if (expandTarget instanceof OSQLFilterItem) {
             fieldValue = ((OSQLFilterItem) expandTarget).getValue(id.getRecord(), null, context);
           } else if (expandTarget instanceof OSQLFunctionRuntime) {
-            fieldValue = ((OSQLFunctionRuntime) expandTarget).getResult();
+            fieldValue = ((OSQLFunctionRuntime) expandTarget).getResult(context.getDatabase());
           } else {
             fieldValue = expandTarget.toString();
           }
@@ -3094,7 +3096,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
     }
   }
 
-  private void handleGroupBy(final OCommandContext iContext) {
+  private void handleGroupBy(@Nonnull final OCommandContext iContext) {
     if (aggregate && tempResult == null) {
 
       final long startGroupBy = System.currentTimeMillis();
@@ -3104,7 +3106,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
 
         for (Entry<Object, ORuntimeResult> g : groupedResult.entrySet()) {
           if (g.getKey() != null || (groupedResult.size() == 1 && groupByFields == null)) {
-            final ODocument doc = g.getValue().getResult();
+            final ODocument doc = g.getValue().getResult(iContext.getDatabase());
             if (doc != null) {
               ((List<OIdentifiable>) tempResult).add(doc);
             }

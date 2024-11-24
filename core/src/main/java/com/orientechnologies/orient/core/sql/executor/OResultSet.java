@@ -4,6 +4,7 @@ import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.OVertex;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Spliterator;
@@ -69,6 +70,11 @@ public interface OResultSet extends Spliterator<OResult>, Iterator<OResult>, Aut
     return StreamSupport.stream(this, false).onClose(() -> this.close());
   }
 
+  default List<OResult> toList() {
+    return stream().toList();
+  }
+
+
   /**
    * Returns the result set as a stream of elements (filters only the results that are elements -
    * where the isElement() method returns true). IMPORTANT: the stream consumes the result set!
@@ -107,6 +113,10 @@ public interface OResultSet extends Spliterator<OResult>, Iterator<OResult>, Aut
             },
             false)
         .onClose(() -> this.close());
+  }
+
+  default List<OElement> toElementList() {
+    return elementStream().toList();
   }
 
   /**
@@ -149,6 +159,10 @@ public interface OResultSet extends Spliterator<OResult>, Iterator<OResult>, Aut
         .onClose(() -> this.close());
   }
 
+  default List<OVertex> toVertexList() {
+    return vertexStream().toList();
+  }
+
   /**
    * Returns the result set as a stream of vertices (filters only the results that are edges - where
    * the isEdge() method returns true). IMPORTANT: the stream consumes the result set!
@@ -187,5 +201,9 @@ public interface OResultSet extends Spliterator<OResult>, Iterator<OResult>, Aut
             },
             false)
         .onClose(() -> this.close());
+  }
+
+  default List<OEdge> toEdgeList() {
+    return edgeStream().toList();
   }
 }

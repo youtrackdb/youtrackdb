@@ -54,7 +54,7 @@ public class OJsr223ScriptExecutor extends OAbstractScriptExecutor {
     preExecute(database, script, params);
 
     final OScriptManager scriptManager =
-        database.getSharedContext().getOrientDB().getScriptManager();
+        database.getSharedContext().getOxygenDB().getScriptManager();
     CompiledScript compiledScript = null;
 
     final ScriptEngine scriptEngine =
@@ -106,7 +106,7 @@ public class OJsr223ScriptExecutor extends OAbstractScriptExecutor {
 
     db.checkSecurity(ORule.ResourceGeneric.FUNCTION, ORole.PERMISSION_READ, f.getName(db));
 
-    final OScriptManager scriptManager = db.getSharedContext().getOrientDB().getScriptManager();
+    final OScriptManager scriptManager = db.getSharedContext().getOxygenDB().getScriptManager();
 
     final ScriptEngine scriptEngine =
         scriptManager.acquireDatabaseEngine(db.getName(), f.getLanguage(db));

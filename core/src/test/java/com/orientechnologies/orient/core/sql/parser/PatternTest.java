@@ -1,5 +1,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
+import com.orientechnologies.orient.core.command.OBasicCommandContext;
+import com.orientechnologies.orient.core.command.OCommandContext;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,6 +19,7 @@ public class PatternTest extends OParserTestAbstract {
     OrientSql parser = getParserFor(query);
     try {
       OMatchStatement stm = (OMatchStatement) parser.parse();
+      stm.setContext(getContext());
       stm.buildPatterns();
       Pattern pattern = stm.pattern;
       Assert.assertEquals(0, pattern.getNumOfEdges());
@@ -34,6 +37,7 @@ public class PatternTest extends OParserTestAbstract {
     OrientSql parser = getParserFor(query);
     try {
       OMatchStatement stm = (OMatchStatement) parser.parse();
+      stm.setContext(getContext());
       stm.buildPatterns();
       Pattern pattern = stm.pattern;
       Assert.assertEquals(0, pattern.getNumOfEdges());
@@ -66,6 +70,7 @@ public class PatternTest extends OParserTestAbstract {
     OrientSql parser = getParserFor(query);
     try {
       OMatchStatement stm = (OMatchStatement) parser.parse();
+      stm.setContext(getContext());
       stm.buildPatterns();
       Pattern pattern = stm.pattern;
       Assert.assertEquals(4, pattern.getNumOfEdges());
@@ -88,5 +93,12 @@ public class PatternTest extends OParserTestAbstract {
     } catch (ParseException e) {
       Assert.fail();
     }
+  }
+
+  private OCommandContext getContext() {
+    var ctx = new OBasicCommandContext();
+    ctx.setDatabase(db);
+
+    return ctx;
   }
 }

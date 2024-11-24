@@ -348,7 +348,7 @@ public abstract class OCommandExecutorSQLResultsetAbstract extends OCommandExecu
     return true;
   }
 
-  protected void parseLet(ODatabaseSession session) {
+  protected void parseLet(ODatabaseSessionInternal session) {
     let = new LinkedHashMap<String, Object>();
 
     boolean stop = false;
@@ -517,7 +517,7 @@ public abstract class OCommandExecutorSQLResultsetAbstract extends OCommandExecu
             }
           } else {
             if (letValue instanceof String) {
-              OSQLPredicate pred = new OSQLPredicate(session, ((String) letValue).trim());
+              OSQLPredicate pred = new OSQLPredicate(getContext(), ((String) letValue).trim());
               varValue = pred.evaluate(iRecord, (ODocument) iRecord, context);
             } else {
               varValue = letValue;

@@ -23,6 +23,7 @@ import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OValidationException;
+import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -40,26 +41,22 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class OSchedulerImpl {
 
+  private static final String RIDS_OF_EVENTS_TO_RESCHEDULE_KEY =
+      OSchedulerImpl.class.getName() + ".ridsOfEventsToReschedule";
+
   private final ConcurrentHashMap<String, OScheduledEvent> events =
       new ConcurrentHashMap<>();
 
-  private final OxygenDBInternal orientDB;
+  private final OxygenDBInternal oxygenDB;
 
   public OSchedulerImpl(OxygenDBInternal orientDB) {
-    this.orientDB = orientDB;
+    this.oxygenDB = orientDB;
   }
 
   public void scheduleEvent(ODatabaseSession session, final OScheduledEvent event) {
-
-    if (event.getDocument(session).getIdentity().isNew()) {
-      session.begin();
-      event.save(session);
-      session.commit();
-    }
-
     if (events.putIfAbsent(event.getName(session), event) == null) {
       String database = session.getName();
-      event.schedule(database, "admin", orientDB);
+      event.schedule(database, "admin", oxygenDB);
     }
   }
 
@@ -141,6 +138,8 @@ public class OSchedulerImpl {
     f.createProperty(database, OScheduledEvent.PROP_NAME, OType.STRING, (OType) null, true)
         .setMandatory(database, true)
         .setNotNull(database, true);
+    f.createIndex(database, OScheduledEvent.PROP_NAME + "Index", OClass.INDEX_TYPE.UNIQUE,
+        OScheduledEvent.PROP_NAME);
     f.createProperty(database, OScheduledEvent.PROP_RULE, OType.STRING, (OType) null, true)
         .setMandatory(database, true)
         .setNotNull(database, true);
@@ -166,14 +165,14 @@ public class OSchedulerImpl {
     doc.field(OScheduledEvent.PROP_STATUS, OScheduler.STATUS.STOPPED.name());
   }
 
-  public void handleUpdateSchedule(ODatabaseSessionInternal session, ODocument doc) {
+  public void preHandleUpdateScheduleInTx(ODatabaseSessionInternal session, ODocument doc) {
     try {
       final String schedulerName = doc.field(OScheduledEvent.PROP_NAME);
       OScheduledEvent event = getEvent(schedulerName);
 
       if (event != null) {
         // UPDATED EVENT
-        final Set<String> dirtyFields = new HashSet<String>(Arrays.asList(doc.getDirtyFields()));
+        final Set<String> dirtyFields = new HashSet<>(Arrays.asList(doc.getDirtyFields()));
 
         if (dirtyFields.contains(OScheduledEvent.PROP_NAME)) {
           throw new OValidationException("Scheduled event cannot change name");
@@ -181,13 +180,39 @@ public class OSchedulerImpl {
 
         if (dirtyFields.contains(OScheduledEvent.PROP_RULE)) {
           // RULE CHANGED, STOP CURRENT EVENT AND RESCHEDULE IT
-          updateEvent(session, new OScheduledEvent(doc, session));
-        } else {
-          doc.field(OScheduledEvent.PROP_STATUS, OScheduler.STATUS.STOPPED.name());
-          event.fromStream(session, doc);
+          var tx = session.getTransaction();
+
+          @SuppressWarnings("unchecked")
+          Set<ORID> rids = (Set<ORID>) tx.getCustomData(RIDS_OF_EVENTS_TO_RESCHEDULE_KEY);
+          if (rids == null) {
+            rids = new HashSet<>();
+            tx.setCustomData(RIDS_OF_EVENTS_TO_RESCHEDULE_KEY, rids);
+          }
+
+          rids.add(doc.getIdentity());
         }
       }
+    } catch (Exception ex) {
+      OLogManager.instance().error(this, "Error on updating scheduled event", ex);
+    }
+  }
 
+  public void postHandleUpdateScheduleAfterTxCommit(ODatabaseSessionInternal session,
+      ODocument doc) {
+    try {
+      var tx = session.getTransaction();
+      @SuppressWarnings("unchecked")
+      Set<ORID> rids = (Set<ORID>) tx.getCustomData(RIDS_OF_EVENTS_TO_RESCHEDULE_KEY);
+
+      if (rids != null && rids.contains(doc.getIdentity())) {
+        final String schedulerName = doc.field(OScheduledEvent.PROP_NAME);
+        OScheduledEvent event = getEvent(schedulerName);
+
+        if (event != null) {
+          // RULE CHANGED, STOP CURRENT EVENT AND RESCHEDULE IT
+          updateEvent(session, new OScheduledEvent(doc, session));
+        }
+      }
     } catch (Exception ex) {
       OLogManager.instance().error(this, "Error on updating scheduled event", ex);
     }

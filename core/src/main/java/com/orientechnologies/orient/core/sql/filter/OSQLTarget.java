@@ -183,7 +183,7 @@ public class OSQLTarget extends OBaseParser {
       final OCommandExecutorSQLResultsetDelegate executor =
           (OCommandExecutorSQLResultsetDelegate)
               db.getSharedContext()
-                  .getOrientDB()
+                  .getOxygenDB()
                   .getScriptManager()
                   .getCommandManager()
                   .getExecutor(subCommand);

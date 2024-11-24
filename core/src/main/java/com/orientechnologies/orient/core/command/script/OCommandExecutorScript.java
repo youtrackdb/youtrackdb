@@ -212,7 +212,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
       final String language, final OCommandContext iContext, final Map<Object, Object> iArgs) {
     ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
 
-    final OScriptManager scriptManager = db.getSharedContext().getOrientDB().getScriptManager();
+    final OScriptManager scriptManager = db.getSharedContext().getOxygenDB().getScriptManager();
     CompiledScript compiledScript = request.getCompiledScript();
 
     final ScriptEngine scriptEngine = scriptManager.acquireDatabaseEngine(db.getName(), language);
@@ -517,7 +517,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
     String cmd = lastCommand;
     cmd = cmd.trim().substring(2); // remove IF
     cmd = cmd.trim().substring(0, cmd.trim().length() - 1); // remove {
-    OSQLFilter condition = OSQLEngine.getInstance().parseCondition(cmd, getContext(), "IF");
+    OSQLFilter condition = OSQLEngine.parseCondition(cmd, getContext(), "IF");
     Object result = null;
     try {
       result = condition.evaluate(null, null, getContext());
@@ -647,7 +647,8 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
     } else if (iValue.startsWith("(") && iValue.endsWith(")")) {
       lastResult = executeCommand(iValue, db);
     } else {
-      lastResult = new OSQLPredicate(db, iValue).evaluate(context);
+      var context = getContext();
+      lastResult = new OSQLPredicate(getContext(), iValue).evaluate(context);
     }
     // END OF THE SCRIPT
     return lastResult;

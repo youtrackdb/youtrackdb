@@ -20,7 +20,6 @@
 package com.orientechnologies.orient.core.record;
 
 import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -43,6 +42,7 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.WeakHashMap;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 @SuppressWarnings({"unchecked"})
 public abstract class ORecordAbstract implements ORecord, ORecordElement, OSerializableStream {
@@ -318,6 +318,11 @@ public abstract class ORecordAbstract implements ORecord, ORecordElement, OSeria
     return session;
   }
 
+  @Nullable
+  protected ODatabaseSessionInternal getSessionIfDefined() {
+    return session;
+  }
+
   public void save() {
     getSession().save(this);
   }
@@ -495,9 +500,6 @@ public abstract class ORecordAbstract implements ORecord, ORecordElement, OSeria
     }
   }
 
-  protected static ODatabaseSessionInternal getDatabaseIfDefinedInternal() {
-    return ODatabaseRecordThreadLocal.instance().getIfDefined();
-  }
 
   void addIdentityChangeListener(OIdentityChangeListener identityChangeListener) {
     if (newIdentityChangeListeners == null) {
@@ -534,7 +536,7 @@ public abstract class ORecordAbstract implements ORecord, ORecordElement, OSeria
       throw new ODatabaseException(createNotBoundToSessionMessage());
     }
 
-    assert session != null && session.validateIfActive() : createNotBoundToSessionMessage();
+    assert session == null || session.validateIfActive() : createNotBoundToSessionMessage();
   }
 
   private String createNotBoundToSessionMessage() {

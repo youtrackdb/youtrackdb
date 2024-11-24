@@ -36,10 +36,13 @@ public class OCheckIndexToolTest extends BaseMemoryInternalDatabase {
       db.commit();
     }
 
+    db.begin();
     OIndex idx = db.getMetadata().getIndexManagerInternal().getIndex(db, "Foo.name");
     Object key = idx.getDefinition().createValue(db, "a");
     idx.remove(db, key, rid);
+    db.commit();
 
+    db.begin();
     OResultSet result = db.query("SELECT FROM Foo");
     Assert.assertEquals(N_RECORDS + 1, result.stream().count());
 
@@ -49,6 +52,8 @@ public class OCheckIndexToolTest extends BaseMemoryInternalDatabase {
     tool.setOutputListener(System.out::println);
 
     tool.run();
+    db.commit();
+
     Assert.assertEquals(1, tool.getTotalErrors());
   }
 

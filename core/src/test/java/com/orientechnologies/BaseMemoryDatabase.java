@@ -3,9 +3,9 @@ package com.orientechnologies;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDBConfigBuilder;
 import java.io.File;
 import org.junit.After;
 import org.junit.Before;
@@ -42,7 +42,7 @@ public class BaseMemoryDatabase {
     this.db = (ODatabaseSessionInternal) context.open(this.databaseName, user, password);
   }
 
-  protected OxygenDBConfig createConfig(OrientDBConfigBuilder builder) {
+  protected OxygenDBConfig createConfig(OxygenDBConfigBuilder builder) {
     return builder.build();
   }
 

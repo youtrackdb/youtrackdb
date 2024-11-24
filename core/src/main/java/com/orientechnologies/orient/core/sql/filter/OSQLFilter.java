@@ -26,6 +26,7 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.Locale;
+import javax.annotation.Nonnull;
 
 /**
  * Parsed query. It's built once a query is parsed.
@@ -33,14 +34,13 @@ import java.util.Locale;
 public class OSQLFilter extends OSQLPredicate implements OCommandPredicate {
 
   public OSQLFilter(
-      final String iText, final OCommandContext iContext, final String iFilterKeyword) {
-    super();
+      final String iText, @Nonnull final OCommandContext iContext, final String iFilterKeyword) {
+    super(iContext);
 
     if (iText == null) {
       throw new IllegalArgumentException("Filter expression is null");
     }
 
-    context = iContext;
     parserText = iText;
     parserTextUpperCase = iText.toUpperCase(Locale.ENGLISH);
 

@@ -1415,7 +1415,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse executeQueryNextPage(OQueryNextPageRequest request) {
     ODatabaseSessionInternal database = connection.getDatabase();
-    OxygenDBInternal orientDB = database.getSharedContext().getOrientDB();
+    OxygenDBInternal orientDB = database.getSharedContext().getOxygenDB();
     OLocalResultSetLifecycleDecorator rs =
         (OLocalResultSetLifecycleDecorator) database.getActiveQuery(request.getQueryId());
 

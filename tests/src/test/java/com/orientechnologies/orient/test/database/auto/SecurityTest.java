@@ -17,8 +17,8 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDBConfigBuilder;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
 import com.orientechnologies.orient.core.exception.OSecurityException;
 import com.orientechnologies.orient.core.exception.OValidationException;
@@ -51,7 +51,7 @@ public class SecurityTest extends DocumentDBBaseTest {
   }
 
   @Override
-  protected OxygenDBConfig createConfig(OrientDBConfigBuilder builder) {
+  protected OxygenDBConfig createConfig(OxygenDBConfigBuilder builder) {
     builder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
     return builder.build();
   }

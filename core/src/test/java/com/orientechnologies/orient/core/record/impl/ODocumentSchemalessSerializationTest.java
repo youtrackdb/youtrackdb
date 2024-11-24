@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.BaseMemoryDatabase;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.document.ODatabaseSessionAbstract;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -34,7 +33,6 @@ public class ODocumentSchemalessSerializationTest extends BaseMemoryDatabase {
     serializer = new ORecordSerializerSchemaAware2CSV();
     defaultSerializer = ODatabaseSessionAbstract.getDefaultSerializer();
     ODatabaseSessionAbstract.setDefaultSerializer(serializer);
-    ODatabaseRecordThreadLocal.instance().remove();
   }
 
   @After
@@ -229,7 +227,7 @@ public class ODocumentSchemalessSerializationTest extends BaseMemoryDatabase {
     ODocument embedded = new ODocument();
     embedded.field("name", "test");
     embedded.field("surname", "something");
-    document.field("embed", embedded);
+    document.field("embed", embedded, OType.EMBEDDED);
 
     byte[] res = serializer.toStream(db, document);
     ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});

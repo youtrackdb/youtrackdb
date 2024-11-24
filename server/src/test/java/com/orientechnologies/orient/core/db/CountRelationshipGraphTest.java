@@ -11,14 +11,14 @@ import org.junit.Test;
 
 public class CountRelationshipGraphTest extends AbstractRemoteTest {
 
-  private OxygenDB orientdb;
+  private OxygenDB oxygenDB;
   private int old;
 
   public void setup() throws Exception {
     old = OGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger();
     OGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(-1);
     super.setup();
-    orientdb =
+    oxygenDB =
         new OxygenDB(
             "remote:localhost",
             "root",
@@ -35,7 +35,7 @@ public class CountRelationshipGraphTest extends AbstractRemoteTest {
 
   @Test
   public void test() throws Exception {
-    ODatabaseSession g = orientdb.open(name.getMethodName(), "admin", "admin");
+    ODatabaseSession g = oxygenDB.open(name.getMethodName(), "admin", "admin");
     g.begin();
     OVertex vertex1 = g.newVertex("V");
     vertex1.save();
@@ -93,7 +93,7 @@ public class CountRelationshipGraphTest extends AbstractRemoteTest {
 
     g.close();
 
-    g = orientdb.open(name.getMethodName(), "admin", "admin");
+    g = oxygenDB.open(name.getMethodName(), "admin", "admin");
     vertex1 = g.load(vertex1.getIdentity());
     vertex2 = g.load(vertex2.getIdentity());
 

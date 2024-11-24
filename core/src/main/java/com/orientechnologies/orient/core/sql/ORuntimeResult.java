@@ -22,6 +22,7 @@ package com.orientechnologies.orient.core.sql;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.common.util.OResettable;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.id.ORID;
@@ -44,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import javax.annotation.Nonnull;
 
 /**
  * Handles runtime results.
@@ -281,7 +283,8 @@ public class ORuntimeResult {
   }
 
   public static ODocument getResult(
-      final ODocument iValue, final Map<String, Object> iProjections) {
+      ODatabaseSessionInternal session, final ODocument iValue,
+      final Map<String, Object> iProjections) {
     if (iValue != null) {
 
       boolean canExcludeResult = false;
@@ -293,7 +296,7 @@ public class ORuntimeResult {
           if (v instanceof OSQLFunctionRuntime f) {
             canExcludeResult = f.filterResult();
 
-            Object fieldValue = f.getResult();
+            Object fieldValue = f.getResult(session);
 
             if (fieldValue != null) {
               iValue.field(projection.getKey(), fieldValue);
@@ -317,9 +320,9 @@ public class ORuntimeResult {
   public static ODocument getProjectionResult(
       final int iId,
       final Map<String, Object> iProjections,
-      final OCommandContext iContext,
+      @Nonnull final OCommandContext iContext,
       final OIdentifiable iRecord) {
-    return ORuntimeResult.getResult(
+    return ORuntimeResult.getResult(iContext.getDatabase(),
         ORuntimeResult.applyRecord(
             ORuntimeResult.createProjectionDocument(iId), iProjections, iContext, iRecord),
         iProjections);
@@ -342,8 +345,8 @@ public class ORuntimeResult {
     value.field(iName, iValue);
   }
 
-  public ODocument getResult() {
-    return getResult(value, projections);
+  public ODocument getResult(ODatabaseSessionInternal session) {
+    return getResult(session, value, projections);
   }
 
   public Object getFieldValue() {

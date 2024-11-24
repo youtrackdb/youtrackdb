@@ -21,6 +21,7 @@ package com.orientechnologies.orient.core.sql.filter;
 
 import com.orientechnologies.common.parser.OBaseParser;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
 
@@ -33,7 +34,7 @@ public class OSQLFilterItemFieldAny extends OSQLFilterItemFieldMultiAbstract {
   public static final String FULL_NAME = "ANY()";
 
   public OSQLFilterItemFieldAny(
-      ODatabaseSession session, final OSQLPredicate iQueryCompiled, final String iName,
+      ODatabaseSessionInternal session, final OSQLPredicate iQueryCompiled, final String iName,
       final OClass iClass) {
     super(session, iQueryCompiled, iName, iClass, OStringSerializerHelper.getParameters(iName));
   }
@@ -44,6 +45,7 @@ public class OSQLFilterItemFieldAny extends OSQLFilterItemFieldMultiAbstract {
   }
 
   @Override
-  protected void setRoot(final OBaseParser iQueryToParse, final String iRoot) {
+  protected void setRoot(ODatabaseSessionInternal session, final OBaseParser iQueryToParse,
+      final String iRoot) {
   }
 }

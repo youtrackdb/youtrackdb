@@ -24,6 +24,7 @@ import com.orientechnologies.common.parser.OBaseParser;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandPredicate;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
@@ -44,6 +45,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nonnull;
 
 /**
  * Parses text in SQL format and build a tree of conditions.
@@ -55,13 +57,18 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
   protected List<String> recordTransformed;
   protected List<OSQLFilterItemParameter> parameterItems;
   protected int braces;
+
+  @Nonnull
   protected OCommandContext context;
 
-  public OSQLPredicate() {
+  public OSQLPredicate(@Nonnull OCommandContext context) {
+    this.context = context;
   }
 
-  public OSQLPredicate(ODatabaseSession session, final String iText) {
-    text(session, iText);
+  public OSQLPredicate(@Nonnull OCommandContext context, final String iText) {
+    this.context = context;
+
+    text(context.getDatabase(), iText);
   }
 
   protected void throwSyntaxErrorException(final String iText) {
@@ -87,7 +94,7 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
     return result.toString();
   }
 
-  public OSQLPredicate text(ODatabaseSession session, final String iText) {
+  public OSQLPredicate text(ODatabaseSessionInternal session, final String iText) {
     if (iText == null) {
       throw new OCommandSQLParsingException("Query text is null");
     }
@@ -138,7 +145,7 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
     return rootCondition.evaluate(iRecord, iCurrentResult, iContext);
   }
 
-  protected Object extractConditions(ODatabaseSession session,
+  protected Object extractConditions(ODatabaseSessionInternal session,
       final OSQLFilterCondition iParentCondition) {
     final int oldPosition = parserGetCurrentPosition();
     parserNextWord(true, " )=><,\r\n");
@@ -191,7 +198,7 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
     return currentCondition;
   }
 
-  protected OSQLFilterCondition extractCondition(ODatabaseSession session) {
+  protected OSQLFilterCondition extractCondition(ODatabaseSessionInternal session) {
 
     if (!parserSkipWhiteSpaces())
     // END OF TEXT
@@ -306,7 +313,8 @@ public class OSQLPredicate extends OBaseParser implements OCommandPredicate {
     return op;
   }
 
-  private Object extractConditionItem(ODatabaseSession session, final boolean iAllowOperator,
+  private Object extractConditionItem(ODatabaseSessionInternal session,
+      final boolean iAllowOperator,
       final int iExpectedWords) {
     final Object[] result = new Object[iExpectedWords];
 

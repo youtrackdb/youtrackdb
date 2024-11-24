@@ -17,6 +17,7 @@ import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -154,7 +155,8 @@ public class OSchedulerTest {
       OFunction func = createFunction(db);
       db.begin();
       db.command(
-              "insert into oschedule set name = 'test', function = ?, rule = \"0/1 * * * * ?\"",
+              "insert into oschedule set name = 'test',"
+                  + " function = ?, rule = \"0/1 * * * * ?\", arguments = {\"note\": \"test\"}",
               func.getId(db))
           .close();
       db.commit();
@@ -174,7 +176,8 @@ public class OSchedulerTest {
         try {
           db.begin();
           db.command(
-                  "update oschedule set rule = \"0/2 * * * * ?\" where name = 'test'", func.getId(db))
+                  "update oschedule set rule = \"0/2 * * * * ?\", function = ? where name = 'test'",
+                  func.getId(db))
               .close();
           db.commit();
           break;
@@ -234,17 +237,17 @@ public class OSchedulerTest {
   private void createLogEvent(ODatabaseSession db) {
     OFunction func = createFunction(db);
 
-    Map<Object, Object> args = new HashMap<>();
-    args.put("note", "test");
-    db.getMetadata()
-        .getScheduler()
-        .scheduleEvent(db,
-            new OScheduledEventBuilder()
-                .setName(db, "test")
-                .setRule(db, "0/1 * * * * ?")
-                .setFunction(db, func)
-                .setArguments(db, args)
-                .build(db));
+    db.executeInTx(() -> {
+      Map<Object, Object> args = new HashMap<>();
+      args.put("note", "test");
+
+      new OScheduledEventBuilder()
+          .setName(db, "test")
+          .setRule(db, "0/1 * * * * ?")
+          .setFunction(db, func)
+          .setArguments(db, args)
+          .build(db);
+    });
   }
 
   private OFunction createFunction(ODatabaseSession db) {
@@ -264,9 +267,12 @@ public class OSchedulerTest {
   }
 
   private Long getLogCounter(final ODatabaseSession db) {
-    OResult result =
-        db.query("select count(*) as count from scheduler_log").stream().findFirst().get();
-    return result.getProperty("count");
+    OResultSet resultSet =
+        db.query("select count(*) as count from scheduler_log where note = 'test'");
+    OResult result = resultSet.stream().findFirst().orElseThrow();
+    var count = result.<Long>getProperty("count");
+    resultSet.close();
+    return count;
   }
 
   private static class TestScheduleDatabaseFactory implements ODatabaseThreadLocalFactory {

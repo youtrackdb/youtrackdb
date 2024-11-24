@@ -39,7 +39,7 @@ public class OLuceneIndexCrashRestoreIT {
   private Process serverProcess;
   private List<String> names;
   private List<String> surnames;
-  private OxygenDB orientdb;
+  private OxygenDB oxygenDB;
   private ODatabasePool databasePool;
   private static final String BUILD_DIRECTORY = "./target/testLuceneCrash";
 
@@ -49,12 +49,12 @@ public class OLuceneIndexCrashRestoreIT {
     idGen = new AtomicLong();
     spawnServer();
 
-    orientdb =
+    oxygenDB =
         new OxygenDB("remote:localhost:3900", "root", "root", OxygenDBConfig.defaultConfig());
-    orientdb.execute(
+    oxygenDB.execute(
         "create database testLuceneCrash plocal users (admin identified by 'admin' role admin)");
 
-    databasePool = new ODatabasePool(orientdb, "testLuceneCrash", "admin", "admin");
+    databasePool = new ODatabasePool(oxygenDB, "testLuceneCrash", "admin", "admin");
 
     // names to be used for person to be indexed
     names =
@@ -180,7 +180,7 @@ public class OLuceneIndexCrashRestoreIT {
     System.out.println("All loaders done");
 
     databasePool.close();
-    orientdb.close();
+    oxygenDB.close();
 
     // now we start embedded
     System.out.println("START AGAIN");
@@ -199,9 +199,9 @@ public class OLuceneIndexCrashRestoreIT {
       TimeUnit.SECONDS.sleep(1);
     }
 
-    orientdb =
+    oxygenDB =
         new OxygenDB("remote:localhost:3900", "root", "root", OxygenDBConfig.defaultConfig());
-    databasePool = new ODatabasePool(orientdb, "testLuceneCrash", "admin", "admin");
+    databasePool = new ODatabasePool(oxygenDB, "testLuceneCrash", "admin", "admin");
 
     // test query
     db = (ODatabaseSessionInternal) databasePool.acquire();

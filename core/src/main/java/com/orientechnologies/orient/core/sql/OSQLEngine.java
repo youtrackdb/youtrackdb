@@ -66,6 +66,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nonnull;
 
 public class OSQLEngine {
 
@@ -551,12 +552,13 @@ public class OSQLEngine {
     return null;
   }
 
-  public OSQLFilter parseCondition(
-      final String iText, final OCommandContext iContext, final String iFilterKeyword) {
+  public static OSQLFilter parseCondition(
+      final String iText, @Nonnull final OCommandContext iContext, final String iFilterKeyword) {
+    assert iContext != null;
     return new OSQLFilter(iText, iContext, iFilterKeyword);
   }
 
-  public OSQLTarget parseTarget(final String iText, final OCommandContext iContext) {
+  public static OSQLTarget parseTarget(final String iText, final OCommandContext iContext) {
     return new OSQLTarget(iText, iContext);
   }
 

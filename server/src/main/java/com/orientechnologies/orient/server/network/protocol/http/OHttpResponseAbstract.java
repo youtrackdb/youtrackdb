@@ -500,7 +500,7 @@ public abstract class OHttpResponseAbstract implements OHttpResponse {
           } else if (entry instanceof OIdentifiable identifiable) {
             try {
               ORecord rec = identifiable.getRecord();
-              if (rec.getIdentity().isValid() && rec.isUnloaded()) {
+              if (rec.isNotBound(databaseDocumentInternal)) {
                 rec = databaseDocumentInternal.bindToSession(rec);
               }
 

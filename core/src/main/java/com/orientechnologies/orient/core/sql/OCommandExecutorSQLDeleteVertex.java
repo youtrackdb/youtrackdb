@@ -322,7 +322,7 @@ public class OCommandExecutorSQLDeleteVertex extends OCommandExecutorSQLAbstract
       final OCommandExecutor executor =
           database
               .getSharedContext()
-              .getOrientDB()
+              .getOxygenDB()
               .getScriptManager()
               .getCommandManager()
               .getExecutor((OCommandRequestInternal) query);

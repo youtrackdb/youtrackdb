@@ -22,9 +22,9 @@ import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDBConfigBuilder;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExport;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
@@ -139,7 +139,7 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
     final File exportPath = new File(localTesPath, "export.json.gz");
 
     final OxygenDBConfig config =
-        new OrientDBConfigBuilder()
+        new OxygenDBConfigBuilder()
             .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, true)
             .build();
     try (final OxygenDB oxygenDB = new OxygenDB("embedded:" + localTesPath.getPath(), config)) {

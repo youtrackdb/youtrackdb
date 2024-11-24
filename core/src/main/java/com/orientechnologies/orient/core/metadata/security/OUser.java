@@ -99,7 +99,7 @@ public class OUser extends OIdentity implements OSecurityUser {
     if (password == null) {
       throw new OSecurityException("User '" + iDocument.field("name") + "' has no password");
     }
-    OSecuritySystem security = session.getSharedContext().getOrientDB().getSecuritySystem();
+    OSecuritySystem security = session.getSharedContext().getOxygenDB().getSecuritySystem();
     security.validatePassword(name, password);
 
     if (!password.startsWith("{")) {

@@ -150,7 +150,7 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
                     : "";
 
             compiledFilter =
-                OSQLEngine.getInstance().parseCondition(where, getContext(), KEYWORD_WHERE);
+                OSQLEngine.parseCondition(where, getContext(), KEYWORD_WHERE);
             break;
 
           } else if (temp.equals(KEYWORD_BATCH)) {
@@ -488,7 +488,7 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
       final OCommandExecutor executor =
           getDatabase()
               .getSharedContext()
-              .getOrientDB()
+              .getOxygenDB()
               .getScriptManager()
               .getCommandManager()
               .getExecutor((OCommandRequestInternal) query);

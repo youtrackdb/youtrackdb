@@ -103,7 +103,7 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
   }
 
   public OSQLFilterItemField(
-      ODatabaseSession session, final OBaseParser iQueryToParse, final String iName,
+      ODatabaseSessionInternal session, final OBaseParser iQueryToParse, final String iName,
       final OClass iClass) {
     super(session, iQueryToParse, iName);
     collate = getCollateForField(iClass, iName);
@@ -187,7 +187,8 @@ public class OSQLFilterItemField extends OSQLFilterItemAbstract {
     return name;
   }
 
-  public void setRoot(final OBaseParser iQueryToParse, final String iRoot) {
+  public void setRoot(ODatabaseSessionInternal session, final OBaseParser iQueryToParse,
+      final String iRoot) {
     if (isStringLiteral(iRoot)) {
       this.stringValue = OIOUtils.getStringContent(iRoot);
     }

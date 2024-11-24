@@ -3,9 +3,9 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDBConfigBuilder;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.server.OServer;
 import java.util.Locale;
@@ -72,7 +72,7 @@ public abstract class BaseTest<T extends ODatabaseSessionInternal> {
       }
 
       if (oxygenDB == null) {
-        var builder = new OrientDBConfigBuilder();
+        var builder = new OxygenDBConfigBuilder();
         if (remoteDB) {
           oxygenDB =
               new OxygenDB("remote:localhost", "root", SERVER_PASSWORD, createConfig(builder));
@@ -208,7 +208,7 @@ public abstract class BaseTest<T extends ODatabaseSessionInternal> {
     return (ODatabaseSessionInternal) oxygenDB.open(dbName, "admin", "admin");
   }
 
-  protected OxygenDBConfig createConfig(OrientDBConfigBuilder builder) {
+  protected OxygenDBConfig createConfig(OxygenDBConfigBuilder builder) {
     builder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "SILENT");
     return builder.build();
   }

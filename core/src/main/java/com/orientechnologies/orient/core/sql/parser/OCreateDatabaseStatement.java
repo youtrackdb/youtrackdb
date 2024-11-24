@@ -6,8 +6,8 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OServerCommandContext;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDBConfigBuilder;
 import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -65,7 +65,7 @@ public class OCreateDatabaseStatement extends OSimpleExecServerStatement {
       result.setProperty("existing", true);
     } else {
       try {
-        OrientDBConfigBuilder configBuilder = OxygenDBConfig.builder();
+        OxygenDBConfigBuilder configBuilder = OxygenDBConfig.builder();
 
         if (config != null) {
           configBuilder = mapOrientDBConfig(this.config, ctx, configBuilder);
@@ -104,8 +104,8 @@ public class OCreateDatabaseStatement extends OSimpleExecServerStatement {
     return OExecutionStream.singleton(result);
   }
 
-  private OrientDBConfigBuilder mapOrientDBConfig(
-      OJson config, OServerCommandContext ctx, OrientDBConfigBuilder builder) {
+  private OxygenDBConfigBuilder mapOrientDBConfig(
+      OJson config, OServerCommandContext ctx, OxygenDBConfigBuilder builder) {
     Map<String, Object> configMap = config.toMap(new OResultInternal(), ctx);
     Object globalConfig = configMap.get("config");
     if (globalConfig != null && globalConfig instanceof Map) {

@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.sql.filter;
 
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.query.OQueryRuntimeValueMulti;
@@ -40,7 +40,7 @@ public abstract class OSQLFilterItemFieldMultiAbstract extends OSQLFilterItemAbs
   private final List<OCollate> collates = new ArrayList<OCollate>();
 
   public OSQLFilterItemFieldMultiAbstract(
-      ODatabaseSession session, final OSQLPredicate iQueryCompiled,
+      ODatabaseSessionInternal session, final OSQLPredicate iQueryCompiled,
       final String iName,
       final OClass iClass,
       final List<String> iNames) {

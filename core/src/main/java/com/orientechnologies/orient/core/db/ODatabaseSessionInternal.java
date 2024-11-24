@@ -1074,4 +1074,6 @@ public interface ODatabaseSessionInternal extends ODatabaseSession {
 
   @Override
   OMetadataInternal getMetadata();
+
+  void afterCommitOperations();
 }

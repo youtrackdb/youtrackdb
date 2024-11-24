@@ -272,7 +272,7 @@ public class OClassTrigger {
     }
 
     final OScriptManager scriptManager =
-        database.getSharedContext().getOrientDB().getScriptManager();
+        database.getSharedContext().getOxygenDB().getScriptManager();
 
     final ScriptEngine scriptEngine =
         scriptManager.acquireDatabaseEngine(database.getName(), func.getLanguage(database));

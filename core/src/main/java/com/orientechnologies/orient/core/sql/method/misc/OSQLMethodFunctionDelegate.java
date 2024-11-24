@@ -55,7 +55,7 @@ public class OSQLMethodFunctionDelegate extends OAbstractSQLMethod {
       final Object ioResult,
       final Object[] iParams) {
 
-    func.setParameters(iParams, false);
+    func.setParameters(iContext, iParams, false);
 
     return func.execute(iThis, iCurrentRecord, ioResult, iContext);
   }

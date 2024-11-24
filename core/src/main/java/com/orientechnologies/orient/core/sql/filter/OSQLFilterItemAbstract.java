@@ -26,6 +26,7 @@ import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -41,6 +42,7 @@ import com.orientechnologies.orient.core.sql.method.misc.OSQLMethodFunctionDeleg
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import javax.annotation.Nonnull;
 
 /**
  * Represents an object field as value in the query condition.
@@ -52,7 +54,7 @@ public abstract class OSQLFilterItemAbstract implements OSQLFilterItem {
   protected OSQLFilterItemAbstract() {
   }
 
-  public OSQLFilterItemAbstract(ODatabaseSession session, final OBaseParser iQueryToParse,
+  public OSQLFilterItemAbstract(ODatabaseSessionInternal session, final OBaseParser iQueryToParse,
       final String iText) {
     final List<String> parts =
         OStringSerializerHelper.smartSplit(
@@ -68,7 +70,7 @@ public abstract class OSQLFilterItemAbstract implements OSQLFilterItem {
             false,
             OCommonConst.EMPTY_CHAR_ARRAY);
 
-    setRoot(iQueryToParse, parts.get(0));
+    setRoot(session, iQueryToParse, parts.get(0));
 
     if (parts.size() > 1) {
       operationsChain = new ArrayList<OPair<OSQLMethodRuntime, Object[]>>();
@@ -175,7 +177,7 @@ public abstract class OSQLFilterItemAbstract implements OSQLFilterItem {
   public abstract String getRoot(ODatabaseSession session);
 
   public Object transformValue(
-      final OIdentifiable iRecord, final OCommandContext iContext, Object ioResult) {
+      final OIdentifiable iRecord, @Nonnull final OCommandContext iContext, Object ioResult) {
     if (ioResult != null && operationsChain != null) {
       // APPLY OPERATIONS FOLLOWING THE STACK ORDER
       OSQLMethodRuntime method = null;
@@ -184,7 +186,7 @@ public abstract class OSQLFilterItemAbstract implements OSQLFilterItem {
         method = op.getKey();
 
         // DON'T PASS THE CURRENT RECORD TO FORCE EVALUATING TEMPORARY RESULT
-        method.setParameters(op.getValue(), true);
+        method.setParameters(iContext.getDatabase(), op.getValue(), true);
 
         ioResult = method.execute(ioResult, iRecord, ioResult, iContext);
       }
@@ -238,7 +240,8 @@ public abstract class OSQLFilterItemAbstract implements OSQLFilterItem {
     return super.toString();
   }
 
-  protected abstract void setRoot(OBaseParser iQueryToParse, final String iRoot);
+  protected abstract void setRoot(ODatabaseSessionInternal session, OBaseParser iQueryToParse,
+      final String iRoot);
 
   protected OCollate getCollateForField(final OClass iClass, final String iFieldName) {
     if (iClass != null) {

@@ -21,6 +21,7 @@ package com.orientechnologies.orient.core.command;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
@@ -447,6 +448,7 @@ public class OBasicCommandContext implements OCommandContext {
 
   public ODatabaseSessionInternal getDatabase() {
     if (database != null) {
+      assert database.validateIfActive() : "Current session is not active on given thread";
       return database;
     }
 
@@ -455,9 +457,10 @@ public class OBasicCommandContext implements OCommandContext {
     }
 
     if (database == null) {
-      database = ODatabaseSessionInternal.getActiveSession();
+      throw new ODatabaseException("No database found in current SQL execution context");
     }
 
+    assert database.validateIfActive() : "Current session is not active on given thread";
     return database;
   }
 

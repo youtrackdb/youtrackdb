@@ -2,10 +2,11 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import static org.junit.Assert.fail;
 
+import com.orientechnologies.BaseMemoryDatabase;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
-public abstract class OParserTestAbstract {
+public abstract class OParserTestAbstract extends BaseMemoryDatabase {
 
   protected SimpleNode checkRightSyntax(String query) {
     SimpleNode result = checkSyntax(query, true);

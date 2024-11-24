@@ -24,6 +24,7 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
@@ -70,6 +71,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import javax.annotation.Nonnull;
 
 /**
  * Helper class to manage documents.
@@ -280,13 +282,16 @@ public class ODocumentHelper {
 
   public static <RET> RET getFieldValue(ODatabaseSessionInternal session, Object value,
       final String iFieldName) {
-    return getFieldValue(session, value, iFieldName, null);
+    var context = new OBasicCommandContext();
+    context.setDatabase(session);
+
+    return getFieldValue(session, value, iFieldName, context);
   }
 
   @SuppressWarnings("unchecked")
   public static <RET> RET getFieldValue(
       ODatabaseSessionInternal session, Object value, final String iFieldName,
-      final OCommandContext iContext) {
+      @Nonnull final OCommandContext iContext) {
     if (value == null) {
       return null;
     }
@@ -565,7 +570,7 @@ public class ODocumentHelper {
 
           } else {
             // CONDITION
-            OSQLPredicate pred = new OSQLPredicate(session, indexAsString);
+            OSQLPredicate pred = new OSQLPredicate(iContext, indexAsString);
             final HashSet<Object> values = new LinkedHashSet<Object>();
 
             for (Object v : OMultiValue.getMultiValueIterable(value)) {

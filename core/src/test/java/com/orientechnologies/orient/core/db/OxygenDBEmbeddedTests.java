@@ -24,7 +24,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -115,9 +114,9 @@ public class OxygenDBEmbeddedTests {
           IntStream.range(0, 19)
               .boxed()
               .map(i -> CompletableFuture.runAsync(acquirer))
-              .collect(Collectors.toList());
+              .toList();
 
-      futures.forEach(cf -> cf.join());
+      futures.forEach(CompletableFuture::join);
 
       pool.close();
     }
@@ -126,10 +125,10 @@ public class OxygenDBEmbeddedTests {
   @Test
   public void testListDatabases() {
     OxygenDB oxygenDb = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
-    assertEquals(oxygenDb.list().size(), 0);
+    assertEquals(0, oxygenDb.list().size());
     oxygenDb.create("test", ODatabaseType.MEMORY);
     List<String> databases = oxygenDb.list();
-    assertEquals(databases.size(), 1);
+    assertEquals(1, databases.size());
     assertTrue(databases.contains("test"));
     oxygenDb.close();
   }
@@ -137,10 +136,10 @@ public class OxygenDBEmbeddedTests {
   @Test
   public void testListDatabasesPersistent() {
     OxygenDB oxygenDb = new OxygenDB("embedded:./target/listTest", OxygenDBConfig.defaultConfig());
-    assertEquals(oxygenDb.list().size(), 0);
+    assertEquals(0, oxygenDb.list().size());
     oxygenDb.create("testListDatabase", ODatabaseType.PLOCAL);
     List<String> databases = oxygenDb.list();
-    assertEquals(databases.size(), 1);
+    assertEquals(1, databases.size());
     assertTrue(databases.contains("testListDatabase"));
     oxygenDb.drop("testListDatabase");
     oxygenDb.close();
@@ -150,20 +149,20 @@ public class OxygenDBEmbeddedTests {
   public void testRegisterDatabase() {
     final OxygenDB orient = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
     orient.execute("create system user admin identified by 'admin' role root");
-    final OxygenDBEmbedded orientDb = (OxygenDBEmbedded) orient.getInternal();
-    assertEquals(orientDb.listDatabases("", "").size(), 0);
-    orientDb.initCustomStorage("database1", "./target/databases/database1", "", "");
-    try (final ODatabaseSession db = orientDb.open("database1", "admin", "admin")) {
+    final OxygenDBEmbedded oxygenDB = (OxygenDBEmbedded) orient.getInternal();
+    assertEquals(0, oxygenDB.listDatabases("", "").size());
+    oxygenDB.initCustomStorage("database1", "./target/databases/database1", "", "");
+    try (final ODatabaseSession db = oxygenDB.open("database1", "admin", "admin")) {
       assertEquals("database1", db.getName());
     }
-    orientDb.initCustomStorage("database2", "./target/databases/database2", "", "");
+    oxygenDB.initCustomStorage("database2", "./target/databases/database2", "", "");
 
-    try (final ODatabaseSession db = orientDb.open("database2", "admin", "admin")) {
+    try (final ODatabaseSession db = oxygenDB.open("database2", "admin", "admin")) {
       assertEquals("database2", db.getName());
     }
-    orientDb.drop("database1", null, null);
-    orientDb.drop("database2", null, null);
-    orientDb.close();
+    oxygenDB.drop("database1", null, null);
+    oxygenDB.drop("database2", null, null);
+    oxygenDB.close();
   }
 
   @Test
@@ -492,7 +491,7 @@ public class OxygenDBEmbeddedTests {
   }
 
   @Test
-  public void testOrientDBDatabaseOnlyMemory() {
+  public void testOxygenDBDatabaseOnlyMemory() {
     final OxygenDB oxygenDb =
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
     final var db =
@@ -504,7 +503,7 @@ public class OxygenDBEmbeddedTests {
   }
 
   @Test(expected = ODatabaseException.class)
-  public void testOrientDBDatabaseOnlyMemoryFailPlocal() {
+  public void testOxygenDBDatabaseOnlyMemoryFailPlocal() {
     try (OxygenDB oxygenDb =
         new OxygenDB(
             "embedded:",
@@ -516,7 +515,7 @@ public class OxygenDBEmbeddedTests {
   }
 
   @Test
-  public void createForceCloseOpen() throws InterruptedException {
+  public void createForceCloseOpen() {
     try (final OxygenDB oxygenDB =
         OCreateDatabaseUtil.createDatabase(
             "testCreateForceCloseOpen", "embedded:./target/", OCreateDatabaseUtil.TYPE_PLOCAL)) {
@@ -580,9 +579,7 @@ public class OxygenDBEmbeddedTests {
           internal.execute(
               "testExecutor",
               "admin",
-              (session) -> {
-                return !session.isClosed() || session.getUser() != null;
-              });
+              (session) -> !session.isClosed() || session.getUser() != null);
 
       assertTrue(result.get());
     }
@@ -597,9 +594,7 @@ public class OxygenDBEmbeddedTests {
       Future<Boolean> result =
           internal.executeNoAuthorizationAsync(
               "testExecutorNoAuthorization",
-              (session) -> {
-                return !session.isClosed() || session.getUser() == null;
-              });
+              (session) -> !session.isClosed() || session.getUser() == null);
 
       assertTrue(result.get());
     }

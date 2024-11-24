@@ -427,7 +427,8 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
                 if (resultset != null && resultset.hasNext()) {
                   return new OImmutableUser(session,
                       0,
-                      new OSystemUser(resultset.next().getElement().get().getRecord(), dbName));
+                      new OSystemUser((ODatabaseSessionInternal) session,
+                          resultset.next().getElement().orElseThrow().getRecord(), dbName));
                 }
                 return null;
               },

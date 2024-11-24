@@ -181,13 +181,13 @@ public interface ODatabaseSession extends AutoCloseable {
    * record, usage of passed in instance is prohibited.
    * <p>
    * Method throws {@link ORecordNotFoundException} if record does not exist in database or if
-   * record rid is temporary. To avoid the last exception use {@link OIdentifiable#getIdentity()}
-   * and {@link ORID#isPersistent()} checks before calling this method.
+   * record rid is temporary.
    * <p/>
    * You can verify if record already bound to the session by calling
    * {@link ORecord#isNotBound(ODatabaseSession)} method.
    * <p/>
-   * Records with temporary RIDs are not allowed to be bound to the session and can be accepted from
+   *
+   * Records with temporary RIDs are not allowed to be bound to the session and can not be accepted from
    * the outside of the transaction boundaries.
    *
    * @param identifiable Record or rid to bind to the session, passed in instance is
@@ -196,6 +196,7 @@ public interface ODatabaseSession extends AutoCloseable {
    * @return Bounded instance of given record.
    * @throws ORecordNotFoundException if record does not exist in database
    * @throws ODatabaseException       if the record rid is temporary
+   *
    * @see ORecord#isNotBound(ODatabaseSession)
    * @see OIdentifiable#getIdentity()
    * @see ORID#isPersistent()

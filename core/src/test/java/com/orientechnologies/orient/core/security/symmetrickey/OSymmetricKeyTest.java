@@ -2,13 +2,14 @@ package com.orientechnologies.orient.core.security.symmetrickey;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import org.junit.Test;
 
 /**
  *
  */
-public class OSymmetricKeyTest {
+public class OSymmetricKeyTest extends BaseMemoryDatabase {
 
   private void command(ODatabaseSession db, String sql, Object... params) {
     db.command(sql, params).close();

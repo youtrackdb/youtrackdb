@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.db.record;
 
 import static org.junit.Assert.assertEquals;
 
+import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.document.ODatabaseSessionAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
@@ -19,7 +20,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class DocumentJavaSerializationTest {
+public class DocumentJavaSerializationTest extends BaseMemoryDatabase {
 
   private String previousSerializerConf;
   private ORecordSerializer previousSerializerInstance;

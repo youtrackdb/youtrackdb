@@ -30,13 +30,13 @@ import org.apache.commons.lang.ArrayUtils;
  *
  * <pre>
  * <code>
- * try(OxygenDB orientDb = OxygenDB.remote("localhost","root","root") {
- *  orientDb.createIfNotExists("test",ODatabaseType.PLOCAL, "superuser", "password", "admin",
+ * try(OxygenDB oxygenDB = OxygenDB.remote("localhost","root","root") {
+ *  oxygenDB.createIfNotExists("test",ODatabaseType.PLOCAL, "superuser", "password", "admin",
  *  "writer" , "password2", "writer");
- *  try(ODatabaseDocument session = orientDb.open("test","superuser","password")) {
+ *  try(ODatabaseDocument session = oxygenDB.open("test","superuser","password")) {
  *     session.createClass("MyClass");
  *   }
- *  try(ODatabaseDocument session = orientDb.open("test","writer","password2")) {
+ *  try(ODatabaseDocument session = oxygenDB.open("test","writer","password2")) {
  *     //...
  *  }
  * }
@@ -47,14 +47,14 @@ import org.apache.commons.lang.ArrayUtils;
  *
  * <pre>
  * <code>
- * try(OxygenDB orientDb = OxygenDB.embedded("./databases/")) {
- *  orientDb.createIfNotExists("test",ODatabaseType.PLOCAL, "superuser", "password", "admin",
+ * try(OxygenDB oxygenDB = OxygenDB.embedded("./databases/")) {
+ *  oxygenDB.createIfNotExists("test",ODatabaseType.PLOCAL, "superuser", "password", "admin",
  *  "writer" , "password2", "writer");
- *   try(ODatabaseDocument session = orientDb.open("test","superuser","password")) {
+ *   try(ODatabaseDocument session = oxygenDB.open("test","superuser","password")) {
  *     session.createClass("MyClass");
  *   }
  *
- *   try(ODatabaseDocument session = orientDb.open("test","writer","password2")) {
+ *   try(ODatabaseDocument session = oxygenDB.open("test","writer","password2")) {
  *     //...
  *   }
  * }
@@ -65,15 +65,15 @@ import org.apache.commons.lang.ArrayUtils;
  *
  * <pre>
  * <code>
- * tru(OxygenDB orientDb = ...) {
- *  if(!orientDb.exists("one")) {
- *     orientDb.create("one",ODatabaseType.PLOCAL, "superuser", "password", "admin", "writer,
+ * tru(OxygenDB oxygenDB = ...) {
+ *  if(!oxygenDB.exists("one")) {
+ *     oxygenDB.create("one",ODatabaseType.PLOCAL, "superuser", "password", "admin", "writer,
  *     "password2", "writer");
  *  }
- *  if(orientDb.exists("two")) {
- *    orientDb.drop("two");
+ *  if(oxygenDB.exists("two")) {
+ *    oxygenDB.drop("two");
  *  }
- *  List<tString> databases = orientDb.list();
+ *  List<tString> databases = oxygenDB.list();
  *  assertEquals(databases.size(),1);
  *  assertEquals(databases.get("0"),"one");
  * }
@@ -97,7 +97,7 @@ public class OxygenDB implements AutoCloseable {
   private String serverPassword;
 
   /**
-   * Create a new OrientDb instance for an embedded deployment with default configuration. For in
+   * Create a new OxygenDB instance for an embedded deployment with default configuration. For in
    * memory database use any directory name, for example "mydb"
    *
    * @param directoryPath the directory where the database are stored
@@ -107,7 +107,7 @@ public class OxygenDB implements AutoCloseable {
   }
 
   /**
-   * Create a new OrientDb instance for a embedded deployment with custom configuration. For in
+   * Create a new OxygenDB instance for a embedded deployment with custom configuration. For in
    * memory database use any directory name, for example "mydb"
    *
    * @param directoryPath the directory where the database are stored
@@ -118,7 +118,7 @@ public class OxygenDB implements AutoCloseable {
   }
 
   /**
-   * Create a new OrientDb instance for a remote deployment with default configuration.
+   * Create a new OxygenDB instance for a remote deployment with default configuration.
    *
    * @param url            the url for the database server for example "localhost" or
    *                       "localhost:2424"
@@ -131,7 +131,7 @@ public class OxygenDB implements AutoCloseable {
   }
 
   /**
-   * Create a new OrientDb instance for a remote deployment with custom configuration.
+   * Create a new OxygenDB instance for a remote deployment with custom configuration.
    *
    * @param url            the url for the database server for example "localhost" or
    *                       "localhost:2424"
@@ -142,18 +142,18 @@ public class OxygenDB implements AutoCloseable {
    */
   public static OxygenDB remote(
       String url, String serverUser, String serverPassword, OxygenDBConfig config) {
-    var orientdb =
+    var oxygenDB =
         new OxygenDB(
             OxygenDBInternal.remote(url.substring(url.indexOf(':') + 1).split("[,;]"), config));
 
-    orientdb.serverUser = serverUser;
-    orientdb.serverPassword = serverPassword;
+    oxygenDB.serverUser = serverUser;
+    oxygenDB.serverPassword = serverPassword;
 
-    return orientdb;
+    return oxygenDB;
   }
 
   /**
-   * Create a new OrientDb instance for a specific environment
+   * Create a new OxygenDB instance for a specific environment
    *
    * <p>possible kind of urls 'embedded','remote', for the case of remote and distributed can be
    * specified multiple nodes using comma.
@@ -162,11 +162,11 @@ public class OxygenDB implements AutoCloseable {
    *
    * <pre>
    * <code>
-   * OxygenDB orientDb = new OxygenDB("remote:localhost");
-   * ODatabaseDocument session = orientDb.open("test","admin","admin");
+   * OxygenDB oxygenDB = new OxygenDB("remote:localhost");
+   * ODatabaseDocument session = oxygenDB.open("test","admin","admin");
    * //...
    * session.close();
-   * orientDb.close();
+   * oxygenDB.close();
    * </code>
    * </pre>
    *
@@ -174,11 +174,11 @@ public class OxygenDB implements AutoCloseable {
    *
    * <pre>
    * <code>
-   * OxygenDB orientDb = new OxygenDB("embedded:./databases/");
-   * ODatabaseDocument session = orientDb.open("test","admin","admin");
+   * OxygenDB oxygenDB = new OxygenDB("embedded:./databases/");
+   * ODatabaseDocument session = oxygenDB.open("test","admin","admin");
    * //...
    * session.close();
-   * orientDb.close();
+   * oxygenDB.close();
    * </code>
    * </pre>
    *
@@ -195,7 +195,7 @@ public class OxygenDB implements AutoCloseable {
   }
 
   /**
-   * Create a new OrientDb instance for a specific environment
+   * Create a new OxygenDB instance for a specific environment
    *
    * <p>possible kind of urls 'embedded','remote', for the case of remote and distributed can be
    * specified multiple nodes using comma.
@@ -204,12 +204,12 @@ public class OxygenDB implements AutoCloseable {
    *
    * <pre>
    * <code>
-   * OxygenDB orientDb = new OxygenDB("remote:localhost","root","root");
-   * orientDb.create("test",ODatabaseType.PLOCAL);
-   * ODatabaseDocument session = orientDb.open("test","admin","admin");
+   * OxygenDB oxygenDB = new OxygenDB("remote:localhost","root","root");
+   * oxygenDB.create("test",ODatabaseType.PLOCAL);
+   * ODatabaseDocument session = oxygenDB.open("test","admin","admin");
    * //...
    * session.close();
-   * orientDb.close();
+   * oxygenDB.close();
    * </code>
    * </pre>
    *
@@ -217,12 +217,12 @@ public class OxygenDB implements AutoCloseable {
    *
    * <pre>
    * <code>
-   * OxygenDB orientDb = new OxygenDB("embedded:./databases/",null,null);
-   * orientDb.create("test",ODatabaseType.MEMORY);
-   * ODatabaseDocument session = orientDb.open("test","admin","admin");
+   * OxygenDB oxygenDB = new OxygenDB("embedded:./databases/",null,null);
+   * oxygenDB.create("test",ODatabaseType.MEMORY);
+   * ODatabaseDocument session = oxygenDB.open("test","admin","admin");
    * //...
    * session.close();
-   * orientDb.close();
+   * oxygenDB.close();
    * </code>
    * </pre>
    *
@@ -310,7 +310,7 @@ public class OxygenDB implements AutoCloseable {
    *
    * <p>For example:
    *
-   * <p>{@code orientDB.create("test", ODatabaseType.PLOCAL, "user1", "password1", "admin",
+   * <p>{@code oxygenDB.create("test", ODatabaseType.PLOCAL, "user1", "password1", "admin",
    * "user2", "password2", "reader"); }
    *
    * <p>The predefined roles are:
@@ -373,7 +373,7 @@ public class OxygenDB implements AutoCloseable {
    *
    * <p>For example:
    *
-   * <p>{@code orientDB.createIfNotExists("test", ODatabaseType.PLOCAL, "user1", "password1",
+   * <p>{@code oxygenDB.createIfNotExists("test", ODatabaseType.PLOCAL, "user1", "password1",
    * "admin", "user2", "password2", "reader"); }
    *
    * @param database        database name

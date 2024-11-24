@@ -8,7 +8,6 @@ import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.viewmanager.ViewCreationListener;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -16,7 +15,6 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.metadata.schema.OViewConfig;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.OVertex;
@@ -34,7 +32,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
 import java.util.stream.Stream;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -4047,48 +4044,6 @@ public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
           result.getExecutionPlan().get().getSteps().stream()
               .anyMatch(x -> x instanceof FetchFromIndexStep));
     }
-  }
-
-  @Test
-  public void testQueryView() throws InterruptedException {
-    String className = "testQueryView_Class";
-    String viewName = "testQueryView_View";
-    db.createClass(className);
-
-    for (int i = 0; i < 10; i++) {
-      db.begin();
-      OElement elem = db.newElement(className);
-      elem.setProperty("counter", i);
-      elem.save();
-      db.commit();
-    }
-
-    OViewConfig cfg = new OViewConfig(viewName, "SELECT FROM " + className);
-    final CountDownLatch latch = new CountDownLatch(1);
-    db.getMetadata()
-        .getSchema()
-        .createView(
-            cfg,
-            new ViewCreationListener() {
-
-              @Override
-              public void afterCreate(ODatabaseSession database, String viewName) {
-                latch.countDown();
-              }
-
-              @Override
-              public void onError(String viewName, Exception exception) {
-                latch.countDown();
-              }
-            });
-
-    latch.await();
-
-    OResultSet result = db.query("SELECT FROM " + viewName);
-    int count =
-        result.stream().map(x -> (Integer) x.getProperty("counter")).reduce((x, y) -> x + y).get();
-    Assert.assertEquals(45, count);
-    result.close();
   }
 
   @Test

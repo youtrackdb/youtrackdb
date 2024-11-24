@@ -87,7 +87,7 @@ public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbs
       int endPosition = parserText.length();
 
       parsedTarget =
-          OSQLEngine.getInstance()
+          OSQLEngine
               .parseTarget(parserText.substring(pos, endPosition), getContext());
 
       if (parsedTarget.parserIsEnded()) {
@@ -109,7 +109,7 @@ public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbs
             || parserGetLastWord().equalsIgnoreCase(KEYWORD_WHILE)) {
 
           compiledFilter =
-              OSQLEngine.getInstance()
+              OSQLEngine
                   .parseCondition(
                       parserText.substring(parserGetCurrentPosition(), endPosition),
                       getContext(),

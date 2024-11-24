@@ -125,7 +125,7 @@ public class OxygenDBRemote implements OxygenDBInternal {
     timer = new Timer("Remote background operations timer", true);
     connectionManager =
         new ORemoteConnectionManager(this.configurations.getConfigurations(), timer);
-    oxygen.addOrientDB(this);
+    oxygen.addOxygenDB(this);
     cachedPoolFactory = createCachedDatabasePoolFactory(this.configurations);
     urls = new ORemoteURLs(hosts, this.configurations.getConfigurations());
     int size =
@@ -478,7 +478,7 @@ public class OxygenDBRemote implements OxygenDBInternal {
 
   @Override
   public void removeShutdownHook() {
-    oxygen.removeOrientDB(this);
+    oxygen.removeOxygenDB(this);
   }
 
   @Override

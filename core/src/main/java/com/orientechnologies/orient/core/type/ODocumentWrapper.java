@@ -22,6 +22,7 @@ package com.orientechnologies.orient.core.type;
 import com.orientechnologies.orient.core.annotation.ODocumentInstance;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.io.Serializable;
 
@@ -70,25 +71,23 @@ public class ODocumentWrapper implements Serializable {
   }
 
   public ODocument getDocument(ODatabaseSession session) {
-    if (document != null && document.isUnloaded()) {
-      var id = document.getIdentity();
-      if (id != null && id.isValid()) {
-        document = session.bindToSession(document);
-      }
+    if (document != null && document.isNotBound(session)) {
+      document = session.bindToSession(document);
     }
 
     return document;
   }
 
   public void setDocument(ODatabaseSessionInternal session, ODocument document) {
-    if (document != null && document.isUnloaded()) {
-      var id = document.getIdentity();
-      if (id != null && id.isValid()) {
-        document = session.bindToSession(document);
-      }
+    if (document != null && document.isNotBound(session)) {
+      document = session.bindToSession(document);
     }
 
     this.document = document;
+  }
+
+  public ORID getIdentity() {
+    return document.getIdentity();
   }
 
   @Override

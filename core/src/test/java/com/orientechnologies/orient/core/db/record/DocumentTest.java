@@ -22,7 +22,6 @@ package com.orientechnologies.orient.core.db.record;
 
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
-import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.Map;
@@ -101,7 +100,9 @@ public class DocumentTest extends BaseMemoryDatabase {
 
     doc.field("amount", 300);
 
-    OCommandContext context = new OBasicCommandContext().setVariable("vat", 20);
+    OBasicCommandContext context = new OBasicCommandContext();
+    context.setVariable("vat", 20);
+    context.setDatabase(db);
     Number amountPlusVat = (Number) doc.eval("amount * (100 + $vat) / 100", context);
 
     Assert.assertEquals(amountPlusVat.longValue(), 360L);

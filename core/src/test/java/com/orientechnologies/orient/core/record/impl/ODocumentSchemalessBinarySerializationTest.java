@@ -7,7 +7,6 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
@@ -161,7 +160,6 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void testSimpleLiteralArray() {
-    ODatabaseRecordThreadLocal.instance().remove();
     ODocument document = new ODocument();
     String[] strings = new String[3];
     strings[0] = "a";
@@ -256,7 +254,6 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void testSimpleLiteralList() {
-    ODatabaseRecordThreadLocal.instance().remove();
     ODocument document = new ODocument();
     List<String> strings = new ArrayList<String>();
     strings.add("a");
@@ -672,7 +669,7 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
   public void testDocumentWithCostum() {
     boolean old = OGlobalConfiguration.DB_CUSTOM_SUPPORT.getValueAsBoolean();
     OGlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(true);
-    ODatabaseRecordThreadLocal.instance().remove();
+
     ODocument document = new ODocument();
     document.field("test", "test");
     document.field("custom", new Custom());
@@ -744,8 +741,6 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
 
   @Test(expected = ClassCastException.class)
   public void testLinkListOfWrongData() {
-    ODatabaseRecordThreadLocal.instance().remove();
-
     ODocument document = new ODocument();
 
     List<Object> linkList = new ArrayList<Object>();

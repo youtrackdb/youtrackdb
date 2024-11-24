@@ -1,17 +1,20 @@
 package com.orientechnologies.orient.core.sql.filter;
 
+import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.sql.OIndexSearchResult;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class OFilterOptimizerTest {
+public class OFilterOptimizerTest extends BaseMemoryDatabase {
 
   private final OFilterOptimizer optimizer = new OFilterOptimizer();
 
   @Test
   public void testOptimizeFullOptimization() throws Exception {
-    final OSQLFilter filter = OSQLEngine.getInstance().parseCondition("a = 3", null, "WHERE");
+    final OSQLFilter filter = OSQLEngine.parseCondition("a = 3", new OBasicCommandContext(),
+        "WHERE");
 
     final OSQLFilterCondition condition = filter.getRootCondition();
 
@@ -29,7 +32,7 @@ public class OFilterOptimizerTest {
   @Test
   public void testOptimizeFullOptimizationComplex() throws Exception {
     final OSQLFilter filter =
-        OSQLEngine.getInstance().parseCondition("a = 3 and b = 4", null, "WHERE");
+        OSQLEngine.parseCondition("a = 3 and b = 4", new OBasicCommandContext(), "WHERE");
 
     final OSQLFilterCondition condition = filter.getRootCondition();
 
@@ -60,7 +63,7 @@ public class OFilterOptimizerTest {
   @Test
   public void testOptimizePartialOptimization() throws Exception {
     final OSQLFilter filter =
-        OSQLEngine.getInstance().parseCondition("a = 3 and b > 5", null, "WHERE");
+        OSQLEngine.parseCondition("a = 3 and b > 5", new OBasicCommandContext(), "WHERE");
 
     final OSQLFilterCondition condition = filter.getRootCondition();
 
@@ -79,7 +82,8 @@ public class OFilterOptimizerTest {
   @Test
   public void testOptimizePartialOptimizationMethod() throws Exception {
     final OSQLFilter filter =
-        OSQLEngine.getInstance().parseCondition("a = 3 and b.asFloat() > 3.14", null, "WHERE");
+        OSQLEngine.parseCondition("a = 3 and b.asFloat() > 3.14", new OBasicCommandContext(),
+            "WHERE");
 
     final OSQLFilterCondition condition = filter.getRootCondition();
 

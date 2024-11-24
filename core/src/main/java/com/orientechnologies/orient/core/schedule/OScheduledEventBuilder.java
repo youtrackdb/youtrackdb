@@ -64,7 +64,9 @@ public class OScheduledEventBuilder extends ODocumentWrapper {
   }
 
   public OScheduledEvent build(ODatabaseSession session) {
-    return new OScheduledEvent(getDocument(session), session);
+    var event = new OScheduledEvent(getDocument(session), session);
+    event.save(session);
+    return event;
   }
 
   public String toString() {

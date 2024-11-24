@@ -36,6 +36,7 @@ import com.orientechnologies.orient.core.type.ODocumentWrapper;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nonnull;
 
 /**
  * Stored function. It contains language and code to execute as a function. The execute() takes
@@ -164,7 +165,7 @@ public class OFunction extends ODocumentWrapper {
     OScriptExecutor executor =
         database
             .getSharedContext()
-            .getOrientDB()
+            .getOxygenDB()
             .getScriptManager()
             .getCommandManager()
             .getScriptExecutor(getLanguage(database));
@@ -172,17 +173,13 @@ public class OFunction extends ODocumentWrapper {
     return executor.executeFunction(iContext, getName(database), args);
   }
 
-  @Deprecated
-  public Object executeInContext(OCommandContext iContext, final Map<String, Object> iArgs) {
-    if (iContext == null) {
-      iContext = new OBasicCommandContext();
-    }
-
+  public Object executeInContext(@Nonnull OCommandContext iContext,
+      @Nonnull final Map<String, Object> iArgs) {
     ODatabaseSessionInternal database = iContext.getDatabase();
     // CONVERT PARAMETERS IN A MAP
     final Map<Object, Object> args = new LinkedHashMap<Object, Object>();
 
-    if (iArgs.size() > 0) {
+    if (!iArgs.isEmpty()) {
       // PRESERVE THE ORDER FOR PARAMETERS (ARE USED AS POSITIONAL)
       final List<String> params = getParameters(database);
       for (String p : params) {
@@ -198,7 +195,7 @@ public class OFunction extends ODocumentWrapper {
     OScriptExecutor executor =
         database
             .getSharedContext()
-            .getOrientDB()
+            .getOxygenDB()
             .getScriptManager()
             .getCommandManager()
             .getScriptExecutor(getLanguage(database));
@@ -220,7 +217,7 @@ public class OFunction extends ODocumentWrapper {
         OScriptExecutor executor =
             session
                 .getSharedContext()
-                .getOrientDB()
+                .getOxygenDB()
                 .getScriptManager()
                 .getCommandManager()
                 .getScriptExecutor(getLanguage(session));

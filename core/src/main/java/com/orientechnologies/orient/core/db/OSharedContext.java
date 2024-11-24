@@ -31,7 +31,7 @@ public abstract class OSharedContext extends OListenerManger<OMetadataUpdateList
 
   protected static final OProfiler PROFILER = Oxygen.instance().getProfiler();
 
-  protected OxygenDBInternal orientDB;
+  protected OxygenDBInternal oxygenDB;
   protected OStorageInfo storage;
   protected OSchemaShared schema;
   protected OSecurityInternal security;
@@ -106,8 +106,8 @@ public abstract class OSharedContext extends OListenerManger<OMetadataUpdateList
     return storage;
   }
 
-  public OxygenDBInternal getOrientDB() {
-    return orientDB;
+  public OxygenDBInternal getOxygenDB() {
+    return oxygenDB;
   }
 
   public void setStorage(OStorage storage) {

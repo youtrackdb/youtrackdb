@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright 2015 OxygenDB LTD (info(-at-)orientdb.com)
+ *  *  Copyright OxygenDB
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -26,8 +26,6 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
 
 /**
  * Document entry. Used by ODocument.
- *
- * @since 2.1
  */
 public class ODocumentEntry {
 

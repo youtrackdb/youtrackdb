@@ -647,7 +647,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
   public OResultSet query(String query, Object[] args) {
     checkOpenness();
     checkIfActive();
-    getSharedContext().getOrientDB().startCommand(Optional.empty());
+    getSharedContext().getOxygenDB().startCommand(Optional.empty());
     try {
       preQueryStart();
       OStatement statement = OSQLEngine.parse(query, this);
@@ -661,7 +661,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
       return result;
     } finally {
       cleanQueryState();
-      getSharedContext().getOrientDB().endCommand();
+      getSharedContext().getOxygenDB().endCommand();
     }
   }
 
@@ -669,7 +669,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
   public OResultSet query(String query, Map args) {
     checkOpenness();
     checkIfActive();
-    getSharedContext().getOrientDB().startCommand(Optional.empty());
+    getSharedContext().getOxygenDB().startCommand(Optional.empty());
     preQueryStart();
     try {
       OStatement statement = OSQLEngine.parse(query, this);
@@ -683,7 +683,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
       return result;
     } finally {
       cleanQueryState();
-      getSharedContext().getOrientDB().endCommand();
+      getSharedContext().getOxygenDB().endCommand();
     }
   }
 
@@ -692,7 +692,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
     checkOpenness();
     checkIfActive();
 
-    getSharedContext().getOrientDB().startCommand(Optional.empty());
+    getSharedContext().getOxygenDB().startCommand(Optional.empty());
     preQueryStart();
     try {
       OStatement statement = OSQLEngine.parse(query, this);
@@ -713,7 +713,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
       return result;
     } finally {
       cleanQueryState();
-      getSharedContext().getOrientDB().endCommand();
+      getSharedContext().getOxygenDB().endCommand();
     }
   }
 
@@ -722,7 +722,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
     checkOpenness();
     checkIfActive();
 
-    getSharedContext().getOrientDB().startCommand(Optional.empty());
+    getSharedContext().getOxygenDB().startCommand(Optional.empty());
     try {
       preQueryStart();
 
@@ -746,7 +746,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
       return result;
     } finally {
       cleanQueryState();
-      getSharedContext().getOrientDB().endCommand();
+      getSharedContext().getOxygenDB().endCommand();
     }
   }
 
@@ -757,12 +757,12 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
     if (!"sql".equalsIgnoreCase(language)) {
       checkSecurity(ORule.ResourceGeneric.COMMAND, ORole.PERMISSION_EXECUTE, language);
     }
-    getSharedContext().getOrientDB().startCommand(Optional.empty());
+    getSharedContext().getOxygenDB().startCommand(Optional.empty());
     try {
       preQueryStart();
       OScriptExecutor executor =
           getSharedContext()
-              .getOrientDB()
+              .getOxygenDB()
               .getScriptManager()
               .getCommandManager()
               .getScriptExecutor(language);
@@ -779,7 +779,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
       return result;
     } finally {
       cleanQueryState();
-      getSharedContext().getOrientDB().endCommand();
+      getSharedContext().getOxygenDB().endCommand();
     }
   }
 
@@ -810,12 +810,12 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
     if (!"sql".equalsIgnoreCase(language)) {
       checkSecurity(ORule.ResourceGeneric.COMMAND, ORole.PERMISSION_EXECUTE, language);
     }
-    getSharedContext().getOrientDB().startCommand(Optional.empty());
+    getSharedContext().getOxygenDB().startCommand(Optional.empty());
     try {
       preQueryStart();
       OScriptExecutor executor =
           sharedContext
-              .getOrientDB()
+              .getOxygenDB()
               .getScriptManager()
               .getCommandManager()
               .getScriptExecutor(language);
@@ -833,14 +833,14 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
       return result;
     } finally {
       cleanQueryState();
-      getSharedContext().getOrientDB().endCommand();
+      getSharedContext().getOxygenDB().endCommand();
     }
   }
 
   public OLocalResultSetLifecycleDecorator query(OExecutionPlan plan, Map<Object, Object> params) {
     checkOpenness();
     checkIfActive();
-    getSharedContext().getOrientDB().startCommand(Optional.empty());
+    getSharedContext().getOxygenDB().startCommand(Optional.empty());
     try {
       preQueryStart();
       OBasicCommandContext ctx = new OBasicCommandContext();
@@ -854,7 +854,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
       return decorator;
     } finally {
       cleanQueryState();
-      getSharedContext().getOrientDB().endCommand();
+      getSharedContext().getOxygenDB().endCommand();
     }
   }
 
@@ -994,7 +994,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
       OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
       if (clazz != null) {
         if (clazz.isScheduler()) {
-          getSharedContext().getScheduler().handleUpdateSchedule(this, doc);
+          getSharedContext().getScheduler().preHandleUpdateScheduleInTx(this, doc);
           changed = true;
         }
         if (clazz.isOuser()) {
@@ -1139,6 +1139,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
   public void afterCreateOperations(final OIdentifiable id) {
     if (id instanceof ODocument doc) {
       final OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
+
       if (clazz != null) {
         OClassIndexManager.checkIndexesAfterCreate(doc, this);
         if (clazz.isFunction()) {
@@ -1147,22 +1148,15 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
         if (clazz.isOuser() || clazz.isOrole() || clazz.isSecurityPolicy()) {
           sharedContext.getSecurity().incrementVersion(this);
         }
-        if (clazz.isSequence()) {
-          ((OSequenceLibraryProxy) getMetadata().getSequenceLibrary())
-              .getDelegate()
-              .onSequenceCreated(this, doc);
-        }
-        if (clazz.isScheduler()) {
-          getMetadata().getScheduler().scheduleEvent(this, new OScheduledEvent(doc, this));
-        }
         if (clazz.isTriggered()) {
           OClassTrigger.onRecordAfterCreate(doc, this);
         }
-        getSharedContext().getViewManager().recordAdded(clazz, doc, this);
       }
+
       OLiveQueryHook.addOp(doc, ORecordOperation.CREATED, this);
       OLiveQueryHookV2.addOp(doc, ORecordOperation.CREATED, this);
     }
+
     callbackHooks(ORecordHook.TYPE.AFTER_CREATE, id);
   }
 
@@ -1171,20 +1165,17 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
       OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
       if (clazz != null) {
         OClassIndexManager.checkIndexesAfterUpdate((ODocument) id, this);
-        if (clazz.isFunction()) {
-          this.getSharedContext().getFunctionLibrary().updatedFunction(doc);
-        }
+
         if (clazz.isOuser() || clazz.isOrole() || clazz.isSecurityPolicy()) {
           sharedContext.getSecurity().incrementVersion(this);
         }
+
         if (clazz.isTriggered()) {
           OClassTrigger.onRecordAfterUpdate(doc, this);
         }
 
-        getSharedContext().getViewManager().recordUpdated(clazz, doc, this);
       }
-      OLiveQueryHook.addOp(doc, ORecordOperation.UPDATED, this);
-      OLiveQueryHookV2.addOp(doc, ORecordOperation.UPDATED, this);
+
     }
     callbackHooks(ORecordHook.TYPE.AFTER_UPDATE, id);
   }
@@ -1246,7 +1237,6 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
             return true;
           }
         }
-
         try {
           checkSecurity(ORule.ResourceGeneric.CLASS, ORole.PERMISSION_READ, clazz.getName());
         } catch (OSecurityException e) {
@@ -1266,8 +1256,48 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
   }
 
   @Override
-  protected void afterCommitOperations() {
+  public void afterCommitOperations() {
+    for (var operation : currentTx.getRecordOperations()) {
+      if (operation.type == ORecordOperation.CREATED) {
+        var record = operation.record;
+
+        if (record instanceof ODocument doc) {
+          OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
+
+          if (clazz != null) {
+            if (clazz.isSequence()) {
+              ((OSequenceLibraryProxy) getMetadata().getSequenceLibrary())
+                  .getDelegate()
+                  .onSequenceCreated(this, doc);
+            }
+
+            if (clazz.isScheduler()) {
+              getMetadata().getScheduler().scheduleEvent(this, new OScheduledEvent(doc, this));
+            }
+          }
+        }
+      } else if (operation.type == ORecordOperation.UPDATED) {
+        var record = operation.record;
+
+        if (record instanceof ODocument doc) {
+          OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(this, doc);
+          if (clazz != null) {
+            if (clazz.isFunction()) {
+              this.getSharedContext().getFunctionLibrary().updatedFunction(doc);
+            }
+            if (clazz.isScheduler()) {
+              getSharedContext().getScheduler().postHandleUpdateScheduleAfterTxCommit(this, doc);
+            }
+          }
+
+          OLiveQueryHook.addOp(doc, ORecordOperation.UPDATED, this);
+          OLiveQueryHookV2.addOp(doc, ORecordOperation.UPDATED, this);
+        }
+      }
+    }
+
     super.afterCommitOperations();
+
     OLiveQueryHook.notifyForTxChanges(this);
     OLiveQueryHookV2.notifyForTxChanges(this);
   }

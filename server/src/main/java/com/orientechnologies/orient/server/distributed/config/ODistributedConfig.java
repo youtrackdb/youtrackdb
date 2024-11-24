@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.server.distributed.config;
 
 import com.orientechnologies.orient.core.config.OContextConfiguration;
-import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDBConfigBuilder;
 import com.orientechnologies.orient.core.db.config.OMulticastConfguration;
 import com.orientechnologies.orient.core.db.config.ONodeConfigurationBuilder;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
@@ -68,7 +68,7 @@ public class ODistributedConfig {
   public static OxygenDBConfig buildConfig(
       OContextConfiguration contextConfiguration, OServerDistributedConfiguration distributed) {
 
-    OrientDBConfigBuilder builder = OxygenDBConfig.builder().fromContext(contextConfiguration);
+    OxygenDBConfigBuilder builder = OxygenDBConfig.builder().fromContext(contextConfiguration);
 
     ONodeConfigurationBuilder nodeConfigurationBuilder = builder.getNodeConfigurationBuilder();
 

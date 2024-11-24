@@ -31,9 +31,9 @@ import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OSystemDatabase;
-import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDBConfigBuilder;
 import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTxInternal;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
@@ -208,7 +208,7 @@ public class OServer {
   /**
    * Set the preferred {@link ClassLoader} used to load extensions.
    *
-   * @since 2.1
+   * 
    */
   public void setExtensionClassLoader(/* @Nullable */ final ClassLoader extensionClassLoader) {
     this.extensionClassLoader = extensionClassLoader;
@@ -217,7 +217,7 @@ public class OServer {
   /**
    * Get the preferred {@link ClassLoader} used to load extensions.
    *
-   * @since 2.1
+   * 
    */
   /* @Nullable */
   public ClassLoader getExtensionClassLoader() {
@@ -392,7 +392,7 @@ public class OServer {
       databaseDirectory += "/";
     }
 
-    OrientDBConfigBuilder builder = OxygenDBConfig.builder();
+    OxygenDBConfigBuilder builder = OxygenDBConfig.builder();
     for (OServerUserConfiguration user : serverCfg.getUsers()) {
       builder.addGlobalUser(user.getName(), user.getPassword(), user.getResources());
     }

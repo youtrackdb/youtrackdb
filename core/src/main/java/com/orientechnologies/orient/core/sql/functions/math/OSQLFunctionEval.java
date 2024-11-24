@@ -27,6 +27,7 @@ import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.filter.OSQLPredicate;
 import java.util.List;
+import javax.annotation.Nonnull;
 
 /**
  * Evaluates a complex expression.
@@ -46,12 +47,12 @@ public class OSQLFunctionEval extends OSQLFunctionMathAbstract {
       final OIdentifiable iRecord,
       final Object iCurrentResult,
       final Object[] iParams,
-      OCommandContext iContext) {
+      @Nonnull OCommandContext iContext) {
     if (iParams.length < 1) {
       throw new OCommandExecutionException("invalid ");
     }
     if (predicate == null) {
-      predicate = new OSQLPredicate(iContext.getDatabase(), String.valueOf(iParams[0]));
+      predicate = new OSQLPredicate(iContext, String.valueOf(iParams[0]));
     }
 
     final ODocument currentResult =

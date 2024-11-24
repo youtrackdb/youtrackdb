@@ -497,13 +497,10 @@ public class OResultInternal implements OResult {
 
     if (identifiable instanceof OElement elem) {
       if (elem.isUnloaded()) {
-        var id = elem.getIdentity();
-        if (id != null && id.isValid()) {
-          try {
-            identifiable = ODatabaseSessionInternal.getActiveSession().bindToSession(elem);
-          } catch (ORecordNotFoundException rnf) {
-            identifiable = null;
-          }
+        try {
+          identifiable = ODatabaseSessionInternal.getActiveSession().bindToSession(elem);
+        } catch (ORecordNotFoundException rnf) {
+          identifiable = null;
         }
       }
 

@@ -25,29 +25,29 @@ public class OCachedDatabasePoolFactoryImpl implements OCachedDatabasePoolFactor
 
   private volatile boolean closed;
   private final ConcurrentLinkedHashMap<String, ODatabasePoolInternal> poolCache;
-  private final OxygenDBInternal orientDB;
+  private final OxygenDBInternal oxygenDB;
   private final long timeout;
 
   /**
-   * @param orientDB instance of {@link OxygenDB} which will be used for create new database pools
+   * @param oxygenDB instance of {@link OxygenDB} which will be used for create new database pools
    *                 {@link ODatabasePoolInternal}
    * @param capacity capacity of pool cache, by default is 100
    * @param timeout  timeout in milliseconds which means that every timeout will be executed task
    *                 for clean up cache from closed pools
    */
-  public OCachedDatabasePoolFactoryImpl(OxygenDBInternal orientDB, int capacity, long timeout) {
+  public OCachedDatabasePoolFactoryImpl(OxygenDBInternal oxygenDB, int capacity, long timeout) {
     poolCache =
         new ConcurrentLinkedHashMap.Builder<String, ODatabasePoolInternal>()
             .maximumWeightedCapacity(capacity)
             .listener((identity, databasePool) -> databasePool.close())
             .build();
-    this.orientDB = orientDB;
+    this.oxygenDB = oxygenDB;
     this.timeout = timeout;
     scheduleCleanUpCache(createCleanUpTask());
   }
 
   protected void scheduleCleanUpCache(TimerTask task) {
-    orientDB.schedule(task, timeout, timeout);
+    oxygenDB.schedule(task, timeout, timeout);
   }
 
   private TimerTask createCleanUpTask() {
@@ -107,7 +107,7 @@ public class OCachedDatabasePoolFactoryImpl implements OCachedDatabasePoolFactor
     if (parentConfig != null) {
       config.setParent(parentConfig);
     }
-    pool = new ODatabasePoolImpl(orientDB, database, username, password, config);
+    pool = new ODatabasePoolImpl(oxygenDB, database, username, password, config);
 
     poolCache.put(key, pool);
 

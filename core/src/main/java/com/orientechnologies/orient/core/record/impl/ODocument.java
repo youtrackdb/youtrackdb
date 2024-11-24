@@ -26,6 +26,7 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OCommonConst;
+import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
@@ -1640,7 +1641,10 @@ public class ODocument extends ORecordAbstract
   public Object eval(final String iExpression) {
     checkForBinding();
 
-    return eval(iExpression, null);
+    var context = new OBasicCommandContext();
+    context.setDatabase(getSession());
+
+    return eval(iExpression, context);
   }
 
   /**
@@ -1653,10 +1657,15 @@ public class ODocument extends ORecordAbstract
    * @return The result of expression
    * @throws OQueryParsingException in case the expression is not valid
    */
-  public Object eval(final String iExpression, final OCommandContext iContext) {
+  public Object eval(final String iExpression, @Nonnull final OCommandContext iContext) {
     checkForBinding();
 
-    return new OSQLPredicate(getSession(), iExpression).evaluate(this, null, iContext);
+    if (iContext.getDatabase() != getSession()) {
+      throw new ODatabaseException(
+          "The context is bound to a different database instance, use the context from the same database instance");
+    }
+
+    return new OSQLPredicate(iContext, iExpression).evaluate(this, null, iContext);
   }
 
   /**
@@ -3142,7 +3151,7 @@ public class ODocument extends ORecordAbstract
 
       checkForFields();
 
-      var session = getSession();
+      var session = getSessionIfDefined();
       if (session != null && !session.isClosed()) {
         final String clsName = getClassName();
         if (clsName != null) {
@@ -3956,8 +3965,9 @@ public class ODocument extends ORecordAbstract
   }
 
   private void fetchClassName() {
-    final ODatabaseSessionInternal database = getDatabaseIfDefinedInternal();
-    if (recordId != null && database != null) {
+    final ODatabaseSessionInternal database = getSession();
+
+    if (recordId != null) {
       if (recordId.getClusterId() >= 0) {
         final OSchema schema = database.getMetadata().getImmutableSchemaSnapshot();
         if (schema != null) {

@@ -36,8 +36,8 @@ public class OSharedContextEmbedded extends OSharedContext {
   protected Map<String, DistributedQueryContext> activeDistributedQueries;
   protected ViewManager viewManager;
 
-  public OSharedContextEmbedded(OStorage storage, OxygenDBEmbedded orientDB) {
-    this.orientDB = orientDB;
+  public OSharedContextEmbedded(OStorage storage, OxygenDBEmbedded oxygenDB) {
+    this.oxygenDB = oxygenDB;
     this.storage = storage;
     init(storage);
   }
@@ -50,10 +50,10 @@ public class OSharedContextEmbedded extends OSharedContext {
                 .getContextConfiguration()
                 .getValueAsInteger(OGlobalConfiguration.DB_STRING_CAHCE_SIZE));
     schema = new OSchemaEmbedded();
-    security = orientDB.getSecuritySystem().newSecurity(storage.getName());
+    security = oxygenDB.getSecuritySystem().newSecurity(storage.getName());
     indexManager = new OIndexManagerShared(storage);
     functionLibrary = new OFunctionLibraryImpl();
-    scheduler = new OSchedulerImpl(orientDB);
+    scheduler = new OSchedulerImpl(oxygenDB);
     sequenceLibrary = new OSequenceLibraryImpl();
     liveQueryOps = new OLiveQueryHook.OLiveQueryOps();
     liveQueryOpsV2 = new OLiveQueryHookV2.OLiveQueryOps();
@@ -82,7 +82,7 @@ public class OSharedContextEmbedded extends OSharedContext {
               }
             });
 
-    this.viewManager = new ViewManager(orientDB, storage.getName());
+    this.viewManager = new ViewManager(oxygenDB, storage.getName());
   }
 
   public synchronized void load(ODatabaseSessionInternal database) {

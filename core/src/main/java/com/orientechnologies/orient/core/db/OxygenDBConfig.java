@@ -90,8 +90,8 @@ public class OxygenDBConfig {
     return new OxygenDBConfig();
   }
 
-  public static OrientDBConfigBuilder builder() {
-    return new OrientDBConfigBuilder();
+  public static OxygenDBConfigBuilder builder() {
+    return new OxygenDBConfigBuilder();
   }
 
   public Set<ODatabaseListener> getListeners() {

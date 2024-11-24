@@ -57,7 +57,7 @@ import java.util.stream.Collectors;
 
 public class ViewManager {
 
-  private final OxygenDBInternal orientDB;
+  private final OxygenDBInternal oxygenDB;
   private final String dbName;
   private boolean viewsExist = false;
 
@@ -88,12 +88,12 @@ public class ViewManager {
   private volatile boolean closed = false;
 
   public ViewManager(OxygenDBInternal orientDb, String dbName) {
-    this.orientDB = orientDb;
+    this.oxygenDB = orientDb;
     this.dbName = dbName;
   }
 
   protected void init() {
-    orientDB.executeNoAuthorizationAsync(
+    oxygenDB.executeNoAuthorizationAsync(
         dbName,
         (db) -> {
           // do this to make sure that the storage is already initialized and so is the shared
@@ -150,7 +150,7 @@ public class ViewManager {
             if (closed) {
               return;
             }
-            orientDB.executeNoAuthorizationAsync(
+            oxygenDB.executeNoAuthorizationAsync(
                 dbName,
                 (db) -> {
                   ViewManager.this.updateViews(db);
@@ -158,7 +158,7 @@ public class ViewManager {
                 });
           }
         };
-    this.orientDB.schedule(timerTask, 1000, 1000);
+    this.oxygenDB.schedule(timerTask, 1000, 1000);
   }
 
   private void updateViews(ODatabaseSessionInternal db) {
@@ -520,7 +520,7 @@ public class ViewManager {
   }
 
   public void updateViewAsync(String name, ViewCreationListener listener) {
-    orientDB.executeNoAuthorizationAsync(
+    oxygenDB.executeNoAuthorizationAsync(
         dbName,
         (databaseSession) -> {
           if (!buildOnThisNode(

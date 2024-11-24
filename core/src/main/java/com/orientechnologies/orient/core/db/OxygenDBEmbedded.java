@@ -166,7 +166,7 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
 
     OMemoryAndLocalPaginatedEnginesInitializer.INSTANCE.initialize();
 
-    oxygen.addOrientDB(this);
+    oxygen.addOxygenDB(this);
     executor = newExecutor();
     ioExecutor = newIoExecutor();
     String timerName;
@@ -1091,7 +1091,7 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
   }
 
   public void removeShutdownHook() {
-    oxygen.removeOrientDB(this);
+    oxygen.removeOxygenDB(this);
   }
 
   public synchronized Collection<OStorage> getStorages() {

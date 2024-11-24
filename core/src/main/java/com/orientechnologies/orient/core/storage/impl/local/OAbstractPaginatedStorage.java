@@ -4038,7 +4038,7 @@ public abstract class OAbstractPaginatedStorage
         try {
           final OCommandExecutor executor =
               db.getSharedContext()
-                  .getOrientDB()
+                  .getOxygenDB()
                   .getScriptManager()
                   .getCommandManager()
                   .getExecutor(command);

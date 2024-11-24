@@ -6,12 +6,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.orient.core.OCreateDatabaseUtil;
+import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.OSerializationException;
@@ -21,7 +17,6 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.serialization.ODocumentSerializable;
-import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ODocumentSerializerDelta;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -38,1685 +33,1247 @@ import java.util.Set;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
-public class ODocumentSerializerDeltaTest {
-
-  private static final String dbName = ODocumentTest.class.getSimpleName();
-  private static final String defaultDbAdminCredentials = "admin";
+public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
 
   @Test
   public void testGetFromOriginalSimpleDelta() {
-    ODatabaseSession db = null;
-    OxygenDB odb = null;
-    try {
-      odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    OClass claz = db.createClassIfNotExist("TestClass");
 
-      OClass claz = db.createClassIfNotExist("TestClass");
+    db.begin();
+    ODocument doc = new ODocument(claz);
+    String fieldName = "testField";
+    String constantFieldName = "constantField";
+    String originalValue = "orValue";
+    String testValue = "testValue";
+    String removeField = "removeField";
 
-      db.begin();
-      ODocument doc = new ODocument(claz);
-      String fieldName = "testField";
-      String constantFieldName = "constantField";
-      String originalValue = "orValue";
-      String testValue = "testValue";
-      String removeField = "removeField";
+    doc.setProperty(fieldName, originalValue);
+    doc.setProperty(constantFieldName, "someValue");
+    doc.setProperty(removeField, "removeVal");
 
-      doc.setProperty(fieldName, originalValue);
-      doc.setProperty(constantFieldName, "someValue");
-      doc.setProperty(removeField, "removeVal");
+    doc = db.save(doc);
+    db.commit();
 
-      doc = db.save(doc);
-      db.commit();
+    db.begin();
+    doc = db.bindToSession(doc);
+    ODocument originalDoc = doc.copy();
 
-      db.begin();
-      doc = db.bindToSession(doc);
-      ODocument originalDoc = doc.copy();
-
-      doc.setProperty(fieldName, testValue);
-      doc.removeProperty(removeField);
-      // test serialization/deserialization
-      ODocumentSerializerDelta delta = ODocumentSerializerDelta.instance();
-      byte[] bytes = delta.serializeDelta(doc);
-      delta.deserializeDelta(bytes, originalDoc);
-      assertEquals(testValue, originalDoc.field(fieldName));
-      assertNull(originalDoc.field(removeField));
-      db.rollback();
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
-      }
-    }
+    doc.setProperty(fieldName, testValue);
+    doc.removeProperty(removeField);
+    // test serialization/deserialization
+    ODocumentSerializerDelta delta = ODocumentSerializerDelta.instance();
+    byte[] bytes = delta.serializeDelta(doc);
+    delta.deserializeDelta(bytes, originalDoc);
+    assertEquals(testValue, originalDoc.field(fieldName));
+    assertNull(originalDoc.field(removeField));
+    db.rollback();
   }
 
   @Test
   public void testGetFromNestedDelta() {
-    ODatabaseSession db = null;
-    OxygenDB odb = null;
-    try {
-      odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    OClass claz = db.createClassIfNotExist("TestClass");
 
-      OClass claz = db.createClassIfNotExist("TestClass");
+    db.begin();
+    ODocument doc = new ODocument(claz);
+    ODocument nestedDoc = new ODocumentEmbedded(claz.getName());
+    String fieldName = "testField";
+    String constantFieldName = "constantField";
+    String originalValue = "orValue";
+    String testValue = "testValue";
+    String nestedDocField = "nestedField";
 
-      db.begin();
-      ODocument doc = new ODocument(claz);
-      ODocument nestedDoc = new ODocumentEmbedded(claz.getName());
-      String fieldName = "testField";
-      String constantFieldName = "constantField";
-      String originalValue = "orValue";
-      String testValue = "testValue";
-      String nestedDocField = "nestedField";
+    nestedDoc.setProperty(fieldName, originalValue);
+    nestedDoc.setProperty(constantFieldName, "someValue1");
 
-      nestedDoc.setProperty(fieldName, originalValue);
-      nestedDoc.setProperty(constantFieldName, "someValue1");
+    doc.setProperty(constantFieldName, "someValue2");
+    doc.setProperty(nestedDocField, nestedDoc);
 
-      doc.setProperty(constantFieldName, "someValue2");
-      doc.setProperty(nestedDocField, nestedDoc);
+    ODocument originalDoc = new ODocument();
+    originalDoc.setProperty(constantFieldName, "someValue2");
+    originalDoc.setProperty(nestedDocField, nestedDoc);
 
-      ODocument originalDoc = new ODocument();
-      originalDoc.setProperty(constantFieldName, "someValue2");
-      originalDoc.setProperty(nestedDocField, nestedDoc);
+    doc = db.save(doc);
+    db.commit();
 
-      doc = db.save(doc);
-      db.commit();
+    db.begin();
+    doc = db.bindToSession(doc);
+    nestedDoc = doc.field(nestedDocField);
+    nestedDoc.setProperty(fieldName, testValue);
 
-      db.begin();
-      doc = db.bindToSession(doc);
-      nestedDoc = doc.field(nestedDocField);
-      nestedDoc.setProperty(fieldName, testValue);
+    doc.setProperty(nestedDocField, nestedDoc);
 
-      doc.setProperty(nestedDocField, nestedDoc);
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
-      ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
-
-      byte[] bytes = serializerDelta.serializeDelta(doc);
-      // test serialization/deserialization
-      originalDoc = db.bindToSession(originalDoc);
-      serializerDelta.deserializeDelta(bytes, originalDoc);
-      nestedDoc = originalDoc.field(nestedDocField);
-      assertEquals(nestedDoc.field(fieldName), testValue);
-      db.rollback();
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
-      }
-    }
+    byte[] bytes = serializerDelta.serializeDelta(doc);
+    // test serialization/deserialization
+    originalDoc = db.bindToSession(originalDoc);
+    serializerDelta.deserializeDelta(bytes, originalDoc);
+    nestedDoc = originalDoc.field(nestedDocField);
+    assertEquals(nestedDoc.field(fieldName), testValue);
+    db.rollback();
   }
 
   @Test
   public void testListDelta() {
-    ODatabaseSession db = null;
-    OxygenDB odb = null;
-    try {
-      odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    OClass claz = db.createClassIfNotExist("TestClass");
 
-      OClass claz = db.createClassIfNotExist("TestClass");
+    db.begin();
+    ODocument doc = new ODocument(claz);
 
-      db.begin();
-      ODocument doc = new ODocument(claz);
+    String fieldName = "testField";
+    List<String> originalValue = new ArrayList<>();
+    originalValue.add("one");
+    originalValue.add("two");
+    originalValue.add("toRemove");
 
-      String fieldName = "testField";
-      List<String> originalValue = new ArrayList<>();
-      originalValue.add("one");
-      originalValue.add("two");
-      originalValue.add("toRemove");
+    doc.setProperty(fieldName, originalValue);
 
-      doc.setProperty(fieldName, originalValue);
+    doc = db.save(doc);
+    db.commit();
 
-      doc = db.save(doc);
-      db.commit();
+    db.begin();
+    doc = db.bindToSession(doc);
+    ODocument originalDoc = doc.copy();
 
-      db.begin();
-      doc = db.bindToSession(doc);
-      ODocument originalDoc = doc.copy();
+    List<String> newArray = doc.field(fieldName);
+    newArray.set(1, "three");
+    newArray.remove("toRemove");
 
-      List<String> newArray = doc.field(fieldName);
-      newArray.set(1, "three");
-      newArray.remove("toRemove");
+    // test serialization/deserialization
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
-      // test serialization/deserialization
-      ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
+    byte[] bytes = serializerDelta.serializeDelta(doc);
+    serializerDelta.deserializeDelta(bytes, originalDoc);
 
-      byte[] bytes = serializerDelta.serializeDelta(doc);
-      serializerDelta.deserializeDelta(bytes, originalDoc);
-
-      List<?> checkList = originalDoc.getProperty(fieldName);
-      assertEquals("three", checkList.get(1));
-      assertFalse(checkList.contains("toRemove"));
-      db.rollback();
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
-      }
-    }
+    List<?> checkList = originalDoc.getProperty(fieldName);
+    assertEquals("three", checkList.get(1));
+    assertFalse(checkList.contains("toRemove"));
+    db.rollback();
   }
 
   @Test
   public void testSetDelta() {
-    ODatabaseSession db = null;
-    OxygenDB odb = null;
-    try {
-      odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    OClass claz = db.createClassIfNotExist("TestClass");
 
-      OClass claz = db.createClassIfNotExist("TestClass");
+    ODocument doc = new ODocument(claz);
 
-      ODocument doc = new ODocument(claz);
+    String fieldName = "testField";
+    Set<String> originalValue = new HashSet<>();
+    originalValue.add("one");
+    originalValue.add("toRemove");
 
-      String fieldName = "testField";
-      Set<String> originalValue = new HashSet<>();
-      originalValue.add("one");
-      originalValue.add("toRemove");
+    db.begin();
+    doc.setProperty(fieldName, originalValue);
+    doc = db.save(doc);
+    db.commit();
 
-      db.begin();
-      doc.setProperty(fieldName, originalValue);
-      doc = db.save(doc);
-      db.commit();
+    db.begin();
+    doc = db.bindToSession(doc);
+    ODocument originalDoc = doc.copy();
 
-      db.begin();
-      doc = db.bindToSession(doc);
-      ODocument originalDoc = doc.copy();
+    Set<String> newArray = doc.field(fieldName);
+    newArray.add("three");
+    newArray.remove("toRemove");
 
-      Set<String> newArray = doc.field(fieldName);
-      newArray.add("three");
-      newArray.remove("toRemove");
+    // test serialization/deserialization
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
-      // test serialization/deserialization
-      ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
+    byte[] bytes = serializerDelta.serializeDelta(doc);
+    serializerDelta.deserializeDelta(bytes, originalDoc);
 
-      byte[] bytes = serializerDelta.serializeDelta(doc);
-      serializerDelta.deserializeDelta(bytes, originalDoc);
-
-      Set<String> checkSet = originalDoc.field(fieldName);
-      assertTrue(checkSet.contains("three"));
-      assertFalse(checkSet.contains("toRemove"));
-      db.rollback();
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
-      }
-    }
+    Set<String> checkSet = originalDoc.field(fieldName);
+    assertTrue(checkSet.contains("three"));
+    assertFalse(checkSet.contains("toRemove"));
+    db.rollback();
   }
 
   @Test
   public void testSetOfSetsDelta() {
-    ODatabaseSession db = null;
-    OxygenDB odb = null;
-    try {
-      odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    OClass claz = db.createClassIfNotExist("TestClass");
 
-      OClass claz = db.createClassIfNotExist("TestClass");
-
-      db.begin();
-      ODocument doc = new ODocument(claz);
-      String fieldName = "testField";
-      Set<Set<String>> originalValue = new HashSet<>();
-      for (int i = 0; i < 2; i++) {
-        Set<String> containedSet = new HashSet<>();
-        containedSet.add("one");
-        containedSet.add("two");
-        originalValue.add(containedSet);
-      }
-
-      doc.setProperty(fieldName, originalValue);
-
-      doc = db.save(doc);
-      db.commit();
-
-      db.begin();
-      doc = db.bindToSession(doc);
-      ODocument originalDoc = doc.copy();
-
-      @SuppressWarnings("unchecked")
-      Set<String> newSet = ((Set<Set<String>>) doc.getProperty(fieldName)).iterator().next();
-      newSet.add("three");
-
-      // test serialization/deserialization
-      ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
-
-      byte[] bytes = serializerDelta.serializeDelta(doc);
-      serializerDelta.deserializeDelta(bytes, originalDoc);
-
-      Set<Set<String>> checkSet = originalDoc.field(fieldName);
-      assertTrue(checkSet.iterator().next().contains("three"));
-      db.rollback();
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
-      }
+    db.begin();
+    ODocument doc = new ODocument(claz);
+    String fieldName = "testField";
+    Set<Set<String>> originalValue = new HashSet<>();
+    for (int i = 0; i < 2; i++) {
+      Set<String> containedSet = new HashSet<>();
+      containedSet.add("one");
+      containedSet.add("two");
+      originalValue.add(containedSet);
     }
+
+    doc.setProperty(fieldName, originalValue);
+
+    doc = db.save(doc);
+    db.commit();
+
+    db.begin();
+    doc = db.bindToSession(doc);
+    ODocument originalDoc = doc.copy();
+
+    @SuppressWarnings("unchecked")
+    Set<String> newSet = ((Set<Set<String>>) doc.getProperty(fieldName)).iterator().next();
+    newSet.add("three");
+
+    // test serialization/deserialization
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
+
+    byte[] bytes = serializerDelta.serializeDelta(doc);
+    serializerDelta.deserializeDelta(bytes, originalDoc);
+
+    Set<Set<String>> checkSet = originalDoc.field(fieldName);
+    assertTrue(checkSet.iterator().next().contains("three"));
+    db.rollback();
   }
 
   @Test
   public void testListOfListsDelta() {
-    ODatabaseSession db = null;
-    OxygenDB odb = null;
-    try {
-      odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
-      OClass claz = db.createClassIfNotExist("TestClass");
+    OClass claz = db.createClassIfNotExist("TestClass");
 
-      db.begin();
-      ODocument doc = new ODocument(claz);
-      String fieldName = "testField";
-      List<List<String>> originalValue = new ArrayList<>();
-      for (int i = 0; i < 2; i++) {
-        List<String> containedList = new ArrayList<>();
-        containedList.add("one");
-        containedList.add("two");
+    db.begin();
+    ODocument doc = new ODocument(claz);
+    String fieldName = "testField";
+    List<List<String>> originalValue = new ArrayList<>();
+    for (int i = 0; i < 2; i++) {
+      List<String> containedList = new ArrayList<>();
+      containedList.add("one");
+      containedList.add("two");
 
-        originalValue.add(containedList);
-      }
-
-      doc.setProperty(fieldName, originalValue);
-
-      doc = db.save(doc);
-      db.commit();
-
-      db.begin();
-      doc = db.bindToSession(doc);
-      ODocument originalDoc = doc.copy();
-
-      @SuppressWarnings("unchecked")
-      List<String> newList = ((List<List<String>>) doc.field(fieldName)).get(0);
-      newList.set(1, "three");
-
-      // test serialization/deserialization
-      ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
-
-      byte[] bytes = serializerDelta.serializeDelta(doc);
-      serializerDelta.deserializeDelta(bytes, originalDoc);
-
-      List<List<String>> checkList = originalDoc.field(fieldName);
-      assertEquals("three", checkList.get(0).get(1));
-      db.rollback();
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
-      }
+      originalValue.add(containedList);
     }
+
+    doc.setProperty(fieldName, originalValue);
+
+    doc = db.save(doc);
+    db.commit();
+
+    db.begin();
+    doc = db.bindToSession(doc);
+    ODocument originalDoc = doc.copy();
+
+    @SuppressWarnings("unchecked")
+    List<String> newList = ((List<List<String>>) doc.field(fieldName)).get(0);
+    newList.set(1, "three");
+
+    // test serialization/deserialization
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
+
+    byte[] bytes = serializerDelta.serializeDelta(doc);
+    serializerDelta.deserializeDelta(bytes, originalDoc);
+
+    List<List<String>> checkList = originalDoc.field(fieldName);
+    assertEquals("three", checkList.get(0).get(1));
+    db.rollback();
   }
 
   @Test
   public void testListOfDocsDelta() {
-    ODatabaseSession db = null;
-    OxygenDB odb = null;
-    try {
-      odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    String fieldName = "testField";
 
-      String fieldName = "testField";
+    OClass claz = db.createClassIfNotExist("TestClass");
 
-      OClass claz = db.createClassIfNotExist("TestClass");
+    db.begin();
+    ODocument doc = new ODocument(claz);
 
-      db.begin();
-      ODocument doc = new ODocument(claz);
-
-      String constantField = "constField";
-      String constValue = "ConstValue";
-      String variableField = "varField";
-      List<ODocument> originalValue = new ArrayList<>();
-      for (int i = 0; i < 2; i++) {
-        ODocument containedDoc = new ODocumentEmbedded();
-        containedDoc.setProperty(constantField, constValue);
-        containedDoc.setProperty(variableField, "one" + i);
-        originalValue.add(containedDoc);
-      }
-
-      doc.setProperty(fieldName, originalValue);
-
-      doc = db.save(doc);
-      db.commit();
-
-      db.begin();
-      doc = db.bindToSession(doc);
-      ODocument originalDoc = doc.copy();
-
-      @SuppressWarnings("unchecked")
-      ODocument testDoc = ((List<ODocument>) doc.getProperty(fieldName)).get(1);
-      testDoc.setProperty(variableField, "two");
-
-      // test serialization/deserialization
-      ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
-
-      byte[] bytes = serializerDelta.serializeDelta(doc);
-      serializerDelta.deserializeDelta(bytes, originalDoc);
-
-      List<ODocument> checkList = originalDoc.field(fieldName);
-      ODocument checkDoc = checkList.get(1);
-      assertEquals(checkDoc.field(constantField), constValue);
-      assertEquals(checkDoc.field(variableField), "two");
-      db.rollback();
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
-      }
+    String constantField = "constField";
+    String constValue = "ConstValue";
+    String variableField = "varField";
+    List<ODocument> originalValue = new ArrayList<>();
+    for (int i = 0; i < 2; i++) {
+      ODocument containedDoc = new ODocumentEmbedded();
+      containedDoc.setProperty(constantField, constValue);
+      containedDoc.setProperty(variableField, "one" + i);
+      originalValue.add(containedDoc);
     }
+
+    doc.setProperty(fieldName, originalValue);
+
+    doc = db.save(doc);
+    db.commit();
+
+    db.begin();
+    doc = db.bindToSession(doc);
+    ODocument originalDoc = doc.copy();
+
+    @SuppressWarnings("unchecked")
+    ODocument testDoc = ((List<ODocument>) doc.getProperty(fieldName)).get(1);
+    testDoc.setProperty(variableField, "two");
+
+    // test serialization/deserialization
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
+
+    byte[] bytes = serializerDelta.serializeDelta(doc);
+    serializerDelta.deserializeDelta(bytes, originalDoc);
+
+    List<ODocument> checkList = originalDoc.field(fieldName);
+    ODocument checkDoc = checkList.get(1);
+    assertEquals(checkDoc.field(constantField), constValue);
+    assertEquals(checkDoc.field(variableField), "two");
+    db.rollback();
   }
 
   @Test
   public void testListOfListsOfDocumentDelta() {
-    ODatabaseSession db = null;
-    OxygenDB odb = null;
-    try {
-      odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    OClass claz = db.createClassIfNotExist("TestClass");
 
-      OClass claz = db.createClassIfNotExist("TestClass");
+    String constantField = "constField";
+    String constValue = "ConstValue";
+    String variableField = "varField";
 
-      String constantField = "constField";
-      String constValue = "ConstValue";
-      String variableField = "varField";
-
-      db.begin();
-      ODocument doc = new ODocument(claz);
-      String fieldName = "testField";
-      List<List<ODocument>> originalValue = new ArrayList<>();
-      for (int i = 0; i < 2; i++) {
-        List<ODocument> containedList = new ArrayList<>();
-        ODocument d1 = new ODocument();
-        d1.setProperty(constantField, constValue);
-        d1.setProperty(variableField, "one");
-        ODocument d2 = new ODocument();
-        d2.setProperty(constantField, constValue);
-        containedList.add(d1);
-        containedList.add(d2);
-        originalValue.add(containedList);
-      }
-
-      doc.setProperty(fieldName, originalValue);
-
-      doc = db.save(doc);
-      db.commit();
-
-      db.begin();
-      doc = db.bindToSession(doc);
-      ODocument originalDoc = doc.copy();
-
-      originalValue = doc.getProperty(fieldName);
-      ODocument d1 = originalValue.get(0).get(0);
-      d1.setProperty(variableField, "two");
-
-      // test serialization/deserialization
-      ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
-
-      byte[] bytes = serializerDelta.serializeDelta(doc);
-      serializerDelta.deserializeDelta(bytes, originalDoc);
-
-      List<List<ODocument>> checkList = originalDoc.field(fieldName);
-      assertEquals("two", checkList.get(0).get(0).field(variableField));
-      db.rollback();
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
-      }
+    db.begin();
+    ODocument doc = new ODocument(claz);
+    String fieldName = "testField";
+    List<List<ODocument>> originalValue = new ArrayList<>();
+    for (int i = 0; i < 2; i++) {
+      List<ODocument> containedList = new ArrayList<>();
+      ODocument d1 = new ODocument();
+      d1.setProperty(constantField, constValue);
+      d1.setProperty(variableField, "one");
+      ODocument d2 = new ODocument();
+      d2.setProperty(constantField, constValue);
+      containedList.add(d1);
+      containedList.add(d2);
+      originalValue.add(containedList);
     }
+
+    doc.setProperty(fieldName, originalValue);
+
+    doc = db.save(doc);
+    db.commit();
+
+    db.begin();
+    doc = db.bindToSession(doc);
+    ODocument originalDoc = doc.copy();
+
+    originalValue = doc.getProperty(fieldName);
+    ODocument d1 = originalValue.get(0).get(0);
+    d1.setProperty(variableField, "two");
+
+    // test serialization/deserialization
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
+
+    byte[] bytes = serializerDelta.serializeDelta(doc);
+    serializerDelta.deserializeDelta(bytes, originalDoc);
+
+    List<List<ODocument>> checkList = originalDoc.field(fieldName);
+    assertEquals("two", checkList.get(0).get(0).field(variableField));
+    db.rollback();
   }
 
   @Test
   public void testListOfListsOfListDelta() {
-    ODatabaseSession db = null;
-    OxygenDB odb = null;
-    try {
-      odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    OClass claz = db.createClassIfNotExist("TestClass");
 
-      OClass claz = db.createClassIfNotExist("TestClass");
-
-      db.begin();
-      ODocument doc = new ODocument(claz);
-      String fieldName = "testField";
-      List<List<List<String>>> originalValue = new ArrayList<>();
-      for (int i = 0; i < 2; i++) {
-        List<List<String>> containedList = new ArrayList<>();
-        for (int j = 0; j < 2; j++) {
-          List<String> innerList = new ArrayList<>();
-          innerList.add("el1" + j + i);
-          innerList.add("el2" + j + i);
-          containedList.add(innerList);
-        }
-        originalValue.add(containedList);
+    db.begin();
+    ODocument doc = new ODocument(claz);
+    String fieldName = "testField";
+    List<List<List<String>>> originalValue = new ArrayList<>();
+    for (int i = 0; i < 2; i++) {
+      List<List<String>> containedList = new ArrayList<>();
+      for (int j = 0; j < 2; j++) {
+        List<String> innerList = new ArrayList<>();
+        innerList.add("el1" + j + i);
+        innerList.add("el2" + j + i);
+        containedList.add(innerList);
       }
-
-      doc.setProperty(fieldName, originalValue);
-
-      doc = db.save(doc);
-      db.commit();
-
-      db.begin();
-      doc = db.bindToSession(doc);
-      ODocument originalDoc = doc.copy();
-
-      @SuppressWarnings("unchecked")
-      List<String> innerList = ((List<List<List<String>>>) doc.field(fieldName)).get(0).get(0);
-      innerList.set(0, "changed");
-
-      // test serialization/deserialization
-      ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
-
-      byte[] bytes = serializerDelta.serializeDelta(doc);
-      serializerDelta.deserializeDelta(bytes, originalDoc);
-
-      List<List<List<String>>> checkList = originalDoc.field(fieldName);
-      assertEquals("changed", checkList.get(0).get(0).get(0));
-      db.rollback();
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
-      }
+      originalValue.add(containedList);
     }
+
+    doc.setProperty(fieldName, originalValue);
+
+    doc = db.save(doc);
+    db.commit();
+
+    db.begin();
+    doc = db.bindToSession(doc);
+    ODocument originalDoc = doc.copy();
+
+    @SuppressWarnings("unchecked")
+    List<String> innerList = ((List<List<List<String>>>) doc.field(fieldName)).get(0).get(0);
+    innerList.set(0, "changed");
+
+    // test serialization/deserialization
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
+
+    byte[] bytes = serializerDelta.serializeDelta(doc);
+    serializerDelta.deserializeDelta(bytes, originalDoc);
+
+    List<List<List<String>>> checkList = originalDoc.field(fieldName);
+    assertEquals("changed", checkList.get(0).get(0).get(0));
+    db.rollback();
   }
 
   @Test
   public void testListOfDocsWithList() {
-    ODatabaseSession db = null;
-    OxygenDB odb = null;
-    try {
-      odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    String fieldName = "testField";
 
-      String fieldName = "testField";
+    OClass claz = db.createClassIfNotExist("TestClass");
 
-      OClass claz = db.createClassIfNotExist("TestClass");
+    db.begin();
+    ODocument doc = new ODocument(claz);
 
-      db.begin();
-      ODocument doc = new ODocument(claz);
+    String constantField = "constField";
+    String constValue = "ConstValue";
+    String variableField = "varField";
 
-      String constantField = "constField";
-      String constValue = "ConstValue";
-      String variableField = "varField";
-
-      List<ODocument> originalValue = new ArrayList<>();
-      for (int i = 0; i < 2; i++) {
-        ODocument containedDoc = new ODocumentEmbedded();
-        containedDoc.setProperty(constantField, constValue);
-        List<String> listField = new ArrayList<>();
-        for (int j = 0; j < 2; j++) {
-          listField.add("Some" + j);
-        }
-        containedDoc.setProperty(variableField, listField);
-        originalValue.add(containedDoc);
+    List<ODocument> originalValue = new ArrayList<>();
+    for (int i = 0; i < 2; i++) {
+      ODocument containedDoc = new ODocumentEmbedded();
+      containedDoc.setProperty(constantField, constValue);
+      List<String> listField = new ArrayList<>();
+      for (int j = 0; j < 2; j++) {
+        listField.add("Some" + j);
       }
-
-      doc.setProperty(fieldName, originalValue);
-
-      doc = db.save(doc);
-      db.commit();
-
-      db.begin();
-      doc = db.bindToSession(doc);
-      ODocument originalDoc = doc.copy();
-
-      @SuppressWarnings("unchecked")
-      ODocument testDoc = ((List<ODocument>) doc.field(fieldName)).get(1);
-      List<String> currentList = testDoc.field(variableField);
-      currentList.set(0, "changed");
-      // test serialization/deserialization
-      ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
-
-      byte[] bytes = serializerDelta.serializeDelta(doc);
-      serializerDelta.deserializeDelta(bytes, originalDoc);
-
-      List<ODocument> checkList = originalDoc.field(fieldName);
-      ODocument checkDoc = checkList.get(1);
-      List<String> checkInnerList = checkDoc.field(variableField);
-      assertEquals("changed", checkInnerList.get(0));
-      db.rollback();
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
-      }
+      containedDoc.setProperty(variableField, listField);
+      originalValue.add(containedDoc);
     }
+
+    doc.setProperty(fieldName, originalValue);
+
+    doc = db.save(doc);
+    db.commit();
+
+    db.begin();
+    doc = db.bindToSession(doc);
+    ODocument originalDoc = doc.copy();
+
+    @SuppressWarnings("unchecked")
+    ODocument testDoc = ((List<ODocument>) doc.field(fieldName)).get(1);
+    List<String> currentList = testDoc.field(variableField);
+    currentList.set(0, "changed");
+    // test serialization/deserialization
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
+
+    byte[] bytes = serializerDelta.serializeDelta(doc);
+    serializerDelta.deserializeDelta(bytes, originalDoc);
+
+    List<ODocument> checkList = originalDoc.field(fieldName);
+    ODocument checkDoc = checkList.get(1);
+    List<String> checkInnerList = checkDoc.field(variableField);
+    assertEquals("changed", checkInnerList.get(0));
+    db.rollback();
   }
 
   @Test
   public void testListAddDelta() {
-    ODatabaseSession db = null;
-    OxygenDB odb = null;
-    try {
-      odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    OClass claz = db.createClassIfNotExist("TestClass");
 
-      OClass claz = db.createClassIfNotExist("TestClass");
+    db.begin();
+    ODocument doc = new ODocument(claz);
 
-      db.begin();
-      ODocument doc = new ODocument(claz);
+    String fieldName = "testField";
+    List<String> originalValue = new ArrayList<>();
+    originalValue.add("one");
+    originalValue.add("two");
+    doc.setProperty(fieldName, originalValue);
 
-      String fieldName = "testField";
-      List<String> originalValue = new ArrayList<>();
-      originalValue.add("one");
-      originalValue.add("two");
-      doc.setProperty(fieldName, originalValue);
+    doc = db.save(doc);
+    db.commit();
 
-      doc = db.save(doc);
-      db.commit();
+    db.begin();
+    doc = db.bindToSession(doc);
+    ODocument originalDoc = doc.copy();
 
-      db.begin();
-      doc = db.bindToSession(doc);
-      ODocument originalDoc = doc.copy();
+    List<String> newArray = doc.field(fieldName);
+    newArray.add("three");
 
-      List<String> newArray = doc.field(fieldName);
-      newArray.add("three");
+    // test serialization/deserialization
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
-      // test serialization/deserialization
-      ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
+    byte[] bytes = serializerDelta.serializeDelta(doc);
+    serializerDelta.deserializeDelta(bytes, originalDoc);
 
-      byte[] bytes = serializerDelta.serializeDelta(doc);
-      serializerDelta.deserializeDelta(bytes, originalDoc);
-
-      List<String> checkList = originalDoc.field(fieldName);
-      assertEquals(3, checkList.size());
-      db.rollback();
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
-      }
-    }
+    List<String> checkList = originalDoc.field(fieldName);
+    assertEquals(3, checkList.size());
+    db.rollback();
   }
 
   @Test
   public void testListOfListAddDelta() {
-    ODatabaseSession db = null;
-    OxygenDB odb = null;
-    try {
-      odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    OClass claz = db.createClassIfNotExist("TestClass");
 
-      OClass claz = db.createClassIfNotExist("TestClass");
+    db.begin();
+    ODocument doc = new ODocument(claz);
 
-      db.begin();
-      ODocument doc = new ODocument(claz);
-
-      String fieldName = "testField";
-      List<List<String>> originalList = new ArrayList<>();
-      for (int i = 0; i < 2; i++) {
-        List<String> nestedList = new ArrayList<>();
-        nestedList.add("one");
-        nestedList.add("two");
-        originalList.add(nestedList);
-      }
-
-      doc.setProperty(fieldName, originalList);
-
-      doc = db.save(doc);
-      db.commit();
-
-      // Deep Copy is not working in this case, use toStream/fromStream as workaround.
-      // ODocument originalDoc = doc.copy();
-      ODocument originalDoc = new ODocument();
-      ORecordInternal.unsetDirty(originalDoc);
-
-      db.begin();
-      doc = db.bindToSession(doc);
-      originalDoc.fromStream(doc.toStream());
-
-      @SuppressWarnings("unchecked")
-      List<String> newArray = ((List<List<String>>) doc.field(fieldName)).get(0);
-      newArray.add("three");
-
-      // test serialization/deserialization
-      ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
-
-      byte[] bytes = serializerDelta.serializeDelta(doc);
-      serializerDelta.deserializeDelta(bytes, originalDoc);
-
-      List<List<String>> rootList = originalDoc.field(fieldName);
-      List<String> checkList = rootList.get(0);
-      assertEquals(3, checkList.size());
-      db.rollback();
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
-      }
+    String fieldName = "testField";
+    List<List<String>> originalList = new ArrayList<>();
+    for (int i = 0; i < 2; i++) {
+      List<String> nestedList = new ArrayList<>();
+      nestedList.add("one");
+      nestedList.add("two");
+      originalList.add(nestedList);
     }
+
+    doc.setProperty(fieldName, originalList);
+
+    doc = db.save(doc);
+    db.commit();
+
+    // Deep Copy is not working in this case, use toStream/fromStream as workaround.
+    // ODocument originalDoc = doc.copy();
+    ODocument originalDoc = new ODocument();
+    ORecordInternal.unsetDirty(originalDoc);
+
+    db.begin();
+    doc = db.bindToSession(doc);
+    originalDoc.fromStream(doc.toStream());
+
+    @SuppressWarnings("unchecked")
+    List<String> newArray = ((List<List<String>>) doc.field(fieldName)).get(0);
+    newArray.add("three");
+
+    // test serialization/deserialization
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
+
+    byte[] bytes = serializerDelta.serializeDelta(doc);
+    serializerDelta.deserializeDelta(bytes, originalDoc);
+
+    List<List<String>> rootList = originalDoc.field(fieldName);
+    List<String> checkList = rootList.get(0);
+    assertEquals(3, checkList.size());
+    db.rollback();
   }
 
   @Test
   public void testListRemoveDelta() {
-    ODatabaseSession db = null;
-    OxygenDB odb = null;
-    try {
-      odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    OClass claz = db.createClassIfNotExist("TestClass");
 
-      OClass claz = db.createClassIfNotExist("TestClass");
+    db.begin();
+    ODocument doc = new ODocument(claz);
 
-      db.begin();
-      ODocument doc = new ODocument(claz);
+    String fieldName = "testField";
+    List<String> originalValue = new ArrayList<>();
+    originalValue.add("one");
+    originalValue.add("two");
+    originalValue.add("three");
 
-      String fieldName = "testField";
-      List<String> originalValue = new ArrayList<>();
-      originalValue.add("one");
-      originalValue.add("two");
-      originalValue.add("three");
+    doc.setProperty(fieldName, originalValue);
 
-      doc.setProperty(fieldName, originalValue);
+    doc = db.save(doc);
+    db.commit();
 
-      doc = db.save(doc);
-      db.commit();
+    db.begin();
+    doc = db.bindToSession(doc);
+    ODocument originalDoc = doc.copy();
 
-      db.begin();
-      doc = db.bindToSession(doc);
-      ODocument originalDoc = doc.copy();
+    List<String> newArray = doc.field(fieldName);
+    newArray.remove(0);
+    newArray.remove(0);
 
-      List<String> newArray = doc.field(fieldName);
-      newArray.remove(0);
-      newArray.remove(0);
+    // test serialization/deserialization
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
-      // test serialization/deserialization
-      ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
+    byte[] bytes = serializerDelta.serializeDelta(doc);
+    serializerDelta.deserializeDelta(bytes, originalDoc);
 
-      byte[] bytes = serializerDelta.serializeDelta(doc);
-      serializerDelta.deserializeDelta(bytes, originalDoc);
-
-      List<String> checkList = originalDoc.field(fieldName);
-      assertEquals("three", checkList.get(0));
-      db.rollback();
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
-      }
-    }
+    List<String> checkList = originalDoc.field(fieldName);
+    assertEquals("three", checkList.get(0));
+    db.rollback();
   }
 
   @Test
   public void testAddDocFieldDelta() {
-    ODatabaseSession db = null;
-    OxygenDB odb = null;
-    try {
-      odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    OClass claz = db.createClassIfNotExist("TestClass");
 
-      OClass claz = db.createClassIfNotExist("TestClass");
+    db.begin();
+    ODocument doc = new ODocument(claz);
+    String fieldName = "testField";
+    String constantFieldName = "constantField";
+    String testValue = "testValue";
 
-      db.begin();
-      ODocument doc = new ODocument(claz);
-      String fieldName = "testField";
-      String constantFieldName = "constantField";
-      String testValue = "testValue";
+    doc.setProperty(constantFieldName + "1", "someValue1");
+    doc.setProperty(constantFieldName, "someValue");
 
-      doc.setProperty(constantFieldName + "1", "someValue1");
-      doc.setProperty(constantFieldName, "someValue");
+    doc = db.save(doc);
+    db.commit();
 
-      doc = db.save(doc);
-      db.commit();
+    db.begin();
+    doc = db.bindToSession(doc);
+    ODocument originalDoc = doc.copy();
 
-      db.begin();
-      doc = db.bindToSession(doc);
-      ODocument originalDoc = doc.copy();
+    doc.setProperty(fieldName, testValue);
 
-      doc.setProperty(fieldName, testValue);
+    // test serialization/deserialization
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
-      // test serialization/deserialization
-      ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
-
-      byte[] bytes = serializerDelta.serializeDelta(doc);
-      serializerDelta.deserializeDelta(bytes, originalDoc);
-      assertEquals(testValue, originalDoc.field(fieldName));
-      db.rollback();
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
-      }
-    }
+    byte[] bytes = serializerDelta.serializeDelta(doc);
+    serializerDelta.deserializeDelta(bytes, originalDoc);
+    assertEquals(testValue, originalDoc.field(fieldName));
+    db.rollback();
   }
 
   @Test
   public void testRemoveCreateDocFieldDelta() {
-    ODatabaseSession db = null;
-    OxygenDB odb = null;
-    try {
-      odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    OClass claz = db.createClassIfNotExist("TestClass");
 
-      OClass claz = db.createClassIfNotExist("TestClass");
+    ODocument doc = new ODocument(claz);
+    String fieldName = "testField";
+    String constantFieldName = "constantField";
+    String testValue = "testValue";
 
-      ODocument doc = new ODocument(claz);
-      String fieldName = "testField";
-      String constantFieldName = "constantField";
-      String testValue = "testValue";
+    db.begin();
+    doc.setProperty(fieldName, testValue);
+    doc.setProperty(constantFieldName, "someValue");
 
-      db.begin();
-      doc.setProperty(fieldName, testValue);
-      doc.setProperty(constantFieldName, "someValue");
+    doc = db.save(doc);
+    db.commit();
 
-      doc = db.save(doc);
-      db.commit();
+    db.begin();
+    doc = db.bindToSession(doc);
+    ODocument originalDoc = doc.copy();
 
-      db.begin();
-      doc = db.bindToSession(doc);
-      ODocument originalDoc = doc.copy();
+    doc.removeProperty(fieldName);
+    doc.setProperty("other", "new");
 
-      doc.removeProperty(fieldName);
-      doc.setProperty("other", "new");
+    // test serialization/deserialization
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
-      // test serialization/deserialization
-      ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
+    byte[] bytes = serializerDelta.serializeDelta(doc);
+    serializerDelta.deserializeDelta(bytes, originalDoc);
 
-      byte[] bytes = serializerDelta.serializeDelta(doc);
-      serializerDelta.deserializeDelta(bytes, originalDoc);
-
-      assertFalse(originalDoc.hasProperty(fieldName));
-      assertEquals(originalDoc.getProperty("other"), "new");
-      db.rollback();
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
-      }
-    }
+    assertFalse(originalDoc.hasProperty(fieldName));
+    assertEquals(originalDoc.getProperty("other"), "new");
+    db.rollback();
   }
 
   @Test
   public void testRemoveNestedDocFieldDelta() {
-    ODatabaseSession db = null;
-    OxygenDB odb = null;
-    try {
-      odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    String nestedFieldName = "nested";
 
-      String nestedFieldName = "nested";
+    OClass claz = db.createClassIfNotExist("TestClass");
+    claz.createProperty(db, nestedFieldName, OType.EMBEDDED);
 
-      OClass claz = db.createClassIfNotExist("TestClass");
-      claz.createProperty(db, nestedFieldName, OType.EMBEDDED);
+    db.begin();
+    ODocument doc = new ODocument(claz);
+    String fieldName = "testField";
+    String constantFieldName = "constantField";
+    String testValue = "testValue";
 
-      db.begin();
-      ODocument doc = new ODocument(claz);
-      String fieldName = "testField";
-      String constantFieldName = "constantField";
-      String testValue = "testValue";
+    doc.setProperty(fieldName, testValue);
+    doc.setProperty(constantFieldName, "someValue");
 
-      doc.setProperty(fieldName, testValue);
-      doc.setProperty(constantFieldName, "someValue");
+    ODocument rootDoc = new ODocument(claz);
+    rootDoc.setProperty(nestedFieldName, doc);
 
-      ODocument rootDoc = new ODocument(claz);
-      rootDoc.setProperty(nestedFieldName, doc);
+    rootDoc = db.save(rootDoc);
+    db.commit();
 
-      rootDoc = db.save(rootDoc);
-      db.commit();
+    db.begin();
+    rootDoc = db.bindToSession(rootDoc);
+    ODocument originalDoc = rootDoc.copy();
 
-      db.begin();
-      rootDoc = db.bindToSession(rootDoc);
-      ODocument originalDoc = rootDoc.copy();
+    doc = rootDoc.field(nestedFieldName);
+    doc.removeProperty(fieldName);
 
-      doc = rootDoc.field(nestedFieldName);
-      doc.removeProperty(fieldName);
+    // test serialization/deserialization
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
-      // test serialization/deserialization
-      ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
+    byte[] bytes = serializerDelta.serializeDelta(rootDoc);
+    serializerDelta.deserializeDelta(bytes, originalDoc);
 
-      byte[] bytes = serializerDelta.serializeDelta(rootDoc);
-      serializerDelta.deserializeDelta(bytes, originalDoc);
-
-      ODocument nested = originalDoc.field(nestedFieldName);
-      assertFalse(nested.hasProperty(fieldName));
-      db.rollback();
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
-      }
-    }
+    ODocument nested = originalDoc.field(nestedFieldName);
+    assertFalse(nested.hasProperty(fieldName));
+    db.rollback();
   }
 
   @Test
   public void testRemoveFieldListOfDocsDelta() {
-    ODatabaseSession db = null;
-    OxygenDB odb = null;
-    try {
-      odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    String fieldName = "testField";
 
-      String fieldName = "testField";
+    OClass claz = db.createClassIfNotExist("TestClass");
 
-      OClass claz = db.createClassIfNotExist("TestClass");
+    db.begin();
+    ODocument doc = new ODocument(claz);
 
-      db.begin();
-      ODocument doc = new ODocument(claz);
-
-      String constantField = "constField";
-      String constValue = "ConstValue";
-      String variableField = "varField";
-      List<ODocument> originalValue = new ArrayList<>();
-      for (int i = 0; i < 2; i++) {
-        ODocument containedDoc = new ODocument();
-        containedDoc.setProperty(constantField, constValue);
-        containedDoc.setProperty(variableField, "one" + i);
-        originalValue.add(containedDoc);
-      }
-
-      doc.setProperty(fieldName, originalValue);
-
-      doc = db.save(doc);
-      db.commit();
-
-      db.begin();
-      doc = db.bindToSession(doc);
-      ODocument originalDoc = doc.copy();
-
-      @SuppressWarnings("unchecked")
-      ODocument testDoc = ((List<OIdentifiable>) doc.field(fieldName)).get(1).getRecord();
-      testDoc.removeProperty(variableField);
-      // test serialization/deserialization
-      ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
-
-      byte[] bytes = serializerDelta.serializeDelta(doc);
-      serializerDelta.deserializeDelta(bytes, originalDoc);
-
-      List<OIdentifiable> checkList = originalDoc.field(fieldName);
-      ODocument checkDoc = checkList.get(1).getRecord();
-      assertEquals(checkDoc.field(constantField), constValue);
-      assertFalse(checkDoc.hasProperty(variableField));
-      db.rollback();
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
-      }
+    String constantField = "constField";
+    String constValue = "ConstValue";
+    String variableField = "varField";
+    List<ODocument> originalValue = new ArrayList<>();
+    for (int i = 0; i < 2; i++) {
+      ODocument containedDoc = new ODocument();
+      containedDoc.setProperty(constantField, constValue);
+      containedDoc.setProperty(variableField, "one" + i);
+      originalValue.add(containedDoc);
     }
+
+    doc.setProperty(fieldName, originalValue);
+
+    doc = db.save(doc);
+    db.commit();
+
+    db.begin();
+    doc = db.bindToSession(doc);
+    ODocument originalDoc = doc.copy();
+
+    @SuppressWarnings("unchecked")
+    ODocument testDoc = ((List<OIdentifiable>) doc.field(fieldName)).get(1).getRecord();
+    testDoc.removeProperty(variableField);
+    // test serialization/deserialization
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
+
+    byte[] bytes = serializerDelta.serializeDelta(doc);
+    serializerDelta.deserializeDelta(bytes, originalDoc);
+
+    List<OIdentifiable> checkList = originalDoc.field(fieldName);
+    ODocument checkDoc = checkList.get(1).getRecord();
+    assertEquals(checkDoc.field(constantField), constValue);
+    assertFalse(checkDoc.hasProperty(variableField));
+    db.rollback();
   }
 
   @Test
   public void testUpdateEmbeddedMapDelta() {
-    ODatabaseSession db = null;
-    OxygenDB odb = null;
-    try {
-      odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    OClass claz = db.createClassIfNotExist("TestClass");
 
-      OClass claz = db.createClassIfNotExist("TestClass");
+    db.begin();
+    ODocument doc = new ODocument(claz);
+    String fieldName = "testField";
+    Map<String, String> mapValue = new HashMap<>();
+    mapValue.put("first", "one");
+    mapValue.put("second", "two");
 
-      db.begin();
-      ODocument doc = new ODocument(claz);
-      String fieldName = "testField";
-      Map<String, String> mapValue = new HashMap<>();
-      mapValue.put("first", "one");
-      mapValue.put("second", "two");
+    doc.setProperty(fieldName, mapValue, OType.EMBEDDEDMAP);
 
-      doc.setProperty(fieldName, mapValue, OType.EMBEDDEDMAP);
+    doc = db.save(doc);
+    db.commit();
 
-      doc = db.save(doc);
-      db.commit();
+    db.begin();
+    doc = db.bindToSession(doc);
+    ODocument originalDoc = doc.copy();
 
-      db.begin();
-      doc = db.bindToSession(doc);
-      ODocument originalDoc = doc.copy();
+    Map<String, String> containedMap = doc.field(fieldName);
+    containedMap.put("first", "changed");
 
-      Map<String, String> containedMap = doc.field(fieldName);
-      containedMap.put("first", "changed");
+    // test serialization/deserialization
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
-      // test serialization/deserialization
-      ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
+    byte[] bytes = serializerDelta.serializeDelta(doc);
+    serializerDelta.deserializeDelta(bytes, originalDoc);
 
-      byte[] bytes = serializerDelta.serializeDelta(doc);
-      serializerDelta.deserializeDelta(bytes, originalDoc);
-
-      containedMap = originalDoc.field(fieldName);
-      assertEquals("changed", containedMap.get("first"));
-      db.rollback();
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
-      }
-    }
+    containedMap = originalDoc.field(fieldName);
+    assertEquals("changed", containedMap.get("first"));
+    db.rollback();
   }
 
   @Test
   public void testUpdateListOfEmbeddedMapDelta() {
-    ODatabaseSession db = null;
-    OxygenDB odb = null;
-    try {
-      odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    OClass claz = db.createClassIfNotExist("TestClass");
 
-      OClass claz = db.createClassIfNotExist("TestClass");
-
-      db.begin();
-      ODocument doc = new ODocument(claz);
-      String fieldName = "testField";
-      List<Map<String, String>> originalValue = new ArrayList<>();
-      for (int i = 0; i < 2; i++) {
-        Map<String, String> mapValue = new HashMap<>();
-        mapValue.put("first", "one");
-        mapValue.put("second", "two");
-        originalValue.add(mapValue);
-      }
-
-      doc.setProperty(fieldName, originalValue, OType.EMBEDDEDLIST);
-
-      doc = db.save(doc);
-      db.commit();
-
-      db.begin();
-      doc = db.bindToSession(doc);
-      ODocument originalDoc = doc.copy();
-
-      @SuppressWarnings("unchecked")
-      Map<String, String> containedMap = ((List<Map<String, String>>) doc.field(fieldName)).get(0);
-      containedMap.put("first", "changed");
-      // test serialization/deserialization
-      ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
-
-      byte[] bytes = serializerDelta.serializeDelta(doc);
-      serializerDelta.deserializeDelta(bytes, originalDoc);
-
-      //noinspection unchecked
-      containedMap = ((List<Map<String, String>>) originalDoc.field(fieldName)).get(0);
-      assertEquals("changed", containedMap.get("first"));
-      //noinspection unchecked
-      containedMap = ((List<Map<String, String>>) originalDoc.field(fieldName)).get(1);
-      assertEquals("one", containedMap.get("first"));
-      db.rollback();
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
-      }
+    db.begin();
+    ODocument doc = new ODocument(claz);
+    String fieldName = "testField";
+    List<Map<String, String>> originalValue = new ArrayList<>();
+    for (int i = 0; i < 2; i++) {
+      Map<String, String> mapValue = new HashMap<>();
+      mapValue.put("first", "one");
+      mapValue.put("second", "two");
+      originalValue.add(mapValue);
     }
+
+    doc.setProperty(fieldName, originalValue, OType.EMBEDDEDLIST);
+
+    doc = db.save(doc);
+    db.commit();
+
+    db.begin();
+    doc = db.bindToSession(doc);
+    ODocument originalDoc = doc.copy();
+
+    @SuppressWarnings("unchecked")
+    Map<String, String> containedMap = ((List<Map<String, String>>) doc.field(fieldName)).get(0);
+    containedMap.put("first", "changed");
+    // test serialization/deserialization
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
+
+    byte[] bytes = serializerDelta.serializeDelta(doc);
+    serializerDelta.deserializeDelta(bytes, originalDoc);
+
+    //noinspection unchecked
+    containedMap = ((List<Map<String, String>>) originalDoc.field(fieldName)).get(0);
+    assertEquals("changed", containedMap.get("first"));
+    //noinspection unchecked
+    containedMap = ((List<Map<String, String>>) originalDoc.field(fieldName)).get(1);
+    assertEquals("one", containedMap.get("first"));
+    db.rollback();
   }
 
   @Test
   public void testUpdateDocInMapDelta() {
-    ODatabaseSession db = null;
-    OxygenDB odb = null;
-    try {
-      odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    OClass claz = db.createClassIfNotExist("TestClass");
 
-      OClass claz = db.createClassIfNotExist("TestClass");
+    db.begin();
+    ODocument doc = new ODocument(claz);
+    String fieldName = "testField";
+    Map<String, ODocument> mapValue = new HashMap<>();
+    ODocument d1 = new ODocument();
+    d1.setProperty("f1", "v1");
+    mapValue.put("first", d1);
+    ODocument d2 = new ODocument();
+    d2.setProperty("f2", "v2");
+    mapValue.put("second", d2);
+    doc.setProperty(fieldName, mapValue, OType.EMBEDDEDMAP);
 
-      db.begin();
-      ODocument doc = new ODocument(claz);
-      String fieldName = "testField";
-      Map<String, ODocument> mapValue = new HashMap<>();
-      ODocument d1 = new ODocument();
-      d1.setProperty("f1", "v1");
-      mapValue.put("first", d1);
-      ODocument d2 = new ODocument();
-      d2.setProperty("f2", "v2");
-      mapValue.put("second", d2);
-      doc.setProperty(fieldName, mapValue, OType.EMBEDDEDMAP);
+    doc = db.save(doc);
+    db.commit();
 
-      doc = db.save(doc);
-      db.commit();
+    db.begin();
+    doc = db.bindToSession(doc);
+    ODocument originalDoc = doc.copy();
 
-      db.begin();
-      doc = db.bindToSession(doc);
-      ODocument originalDoc = doc.copy();
+    Map<String, ODocument> containedMap = doc.field(fieldName);
+    ODocument changeDoc = containedMap.get("first");
+    changeDoc.setProperty("f1", "changed");
 
-      Map<String, ODocument> containedMap = doc.field(fieldName);
-      ODocument changeDoc = containedMap.get("first");
-      changeDoc.setProperty("f1", "changed");
+    // test serialization/deserialization
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
-      // test serialization/deserialization
-      ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
-
-      byte[] bytes = serializerDelta.serializeDelta(doc);
-      serializerDelta.deserializeDelta(bytes, originalDoc);
-      containedMap = originalDoc.field(fieldName);
-      ODocument containedDoc = containedMap.get("first");
-      assertEquals("changed", containedDoc.field("f1"));
-      db.rollback();
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
-      }
-    }
+    byte[] bytes = serializerDelta.serializeDelta(doc);
+    serializerDelta.deserializeDelta(bytes, originalDoc);
+    containedMap = originalDoc.field(fieldName);
+    ODocument containedDoc = containedMap.get("first");
+    assertEquals("changed", containedDoc.field("f1"));
+    db.rollback();
   }
 
   @Test
   public void testListOfMapsUpdateDelta() {
-    ODatabaseSession db = null;
-    OxygenDB odb = null;
-    try {
-      odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    OClass claz = db.createClassIfNotExist("TestClass");
 
-      OClass claz = db.createClassIfNotExist("TestClass");
+    db.begin();
+    ODocument doc = new ODocument(claz);
+    String fieldName = "testField";
+    List<Map> originalList = new ArrayList<>();
+    List<Map> copyList = new ArrayList<>();
 
-      db.begin();
-      ODocument doc = new ODocument(claz);
-      String fieldName = "testField";
-      List<Map> originalList = new ArrayList<>();
-      List<Map> copyList = new ArrayList<>();
+    Map<String, String> mapValue1 = new HashMap<>();
+    mapValue1.put("first", "one");
+    mapValue1.put("second", "two");
+    originalList.add(mapValue1);
+    Map<String, String> mapValue1Copy = new HashMap<>(mapValue1);
+    copyList.add(mapValue1Copy);
 
-      Map<String, String> mapValue1 = new HashMap<>();
-      mapValue1.put("first", "one");
-      mapValue1.put("second", "two");
-      originalList.add(mapValue1);
-      Map<String, String> mapValue1Copy = new HashMap<>(mapValue1);
-      copyList.add(mapValue1Copy);
+    Map<String, String> mapValue2 = new HashMap<>();
+    mapValue2.put("third", "three");
+    mapValue2.put("forth", "four");
+    originalList.add(mapValue2);
+    Map<String, String> mapValue2Copy = new HashMap<>(mapValue2);
+    copyList.add(mapValue2Copy);
 
-      Map<String, String> mapValue2 = new HashMap<>();
-      mapValue2.put("third", "three");
-      mapValue2.put("forth", "four");
-      originalList.add(mapValue2);
-      Map<String, String> mapValue2Copy = new HashMap<>(mapValue2);
-      copyList.add(mapValue2Copy);
+    doc.field(fieldName, originalList);
 
-      doc.field(fieldName, originalList);
+    doc = db.save(doc);
+    db.commit();
 
-      doc = db.save(doc);
-      db.commit();
+    db.begin();
+    doc = db.bindToSession(doc);
+    ODocument originalDoc = doc.copy();
 
-      db.begin();
-      doc = db.bindToSession(doc);
-      ODocument originalDoc = doc.copy();
+    Map<String, String> containedMap = (Map<String, String>) ((List) doc.field(fieldName)).get(0);
+    containedMap.put("first", "changed");
+    // test serialization/deserialization
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
-      Map<String, String> containedMap = (Map<String, String>) ((List) doc.field(fieldName)).get(0);
-      containedMap.put("first", "changed");
-      // test serialization/deserialization
-      ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
+    byte[] bytes = serializerDelta.serializeDelta(doc);
+    serializerDelta.deserializeDelta(bytes, originalDoc);
 
-      byte[] bytes = serializerDelta.serializeDelta(doc);
-      serializerDelta.deserializeDelta(bytes, originalDoc);
-
-      containedMap = (Map<String, String>) ((List) originalDoc.field(fieldName)).get(0);
-      assertEquals("changed", containedMap.get("first"));
-      db.rollback();
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
-      }
-    }
+    containedMap = (Map<String, String>) ((List) originalDoc.field(fieldName)).get(0);
+    assertEquals("changed", containedMap.get("first"));
+    db.rollback();
   }
 
   @Test
   public void testRidbagsUpdateDeltaAddWithCopy() {
-    ODatabaseSession db = null;
-    OxygenDB odb = null;
-    try {
-      odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    OClass claz = db.createClassIfNotExist("TestClass");
 
-      OClass claz = db.createClassIfNotExist("TestClass");
+    db.begin();
+    ODocument doc = new ODocument(claz);
+    String fieldName = "testField";
 
-      db.begin();
-      ODocument doc = new ODocument(claz);
-      String fieldName = "testField";
+    ODocument first = new ODocument(claz);
+    first = db.save(first);
+    ODocument second = new ODocument(claz);
+    second = db.save(second);
 
-      ODocument first = new ODocument(claz);
-      first = db.save(first);
-      ODocument second = new ODocument(claz);
-      second = db.save(second);
+    ORidBag ridBag = new ORidBag();
+    ridBag.add(first);
+    ridBag.add(second);
+    doc.field(fieldName, ridBag, OType.LINKBAG);
+    doc = db.save(doc);
 
-      ORidBag ridBag = new ORidBag();
-      ridBag.add(first);
-      ridBag.add(second);
-      doc.field(fieldName, ridBag, OType.LINKBAG);
-      doc = db.save(doc);
+    ODocument originalDoc = doc;
+    doc.save();
 
-      ODocument originalDoc = doc;
-      doc.save();
+    ODocument third = new ODocument(claz);
+    third = db.save(third);
+    db.commit();
 
-      ODocument third = new ODocument(claz);
-      third = db.save(third);
-      db.commit();
+    db.begin();
+    first = db.bindToSession(first);
+    second = db.bindToSession(second);
+    third = db.bindToSession(third);
 
-      db.begin();
-      first = db.bindToSession(first);
-      second = db.bindToSession(second);
-      third = db.bindToSession(third);
+    ridBag = new ORidBag();
+    ridBag.add(first);
+    ridBag.add(second);
+    ridBag.add(third);
 
-      ridBag = new ORidBag();
-      ridBag.add(first);
-      ridBag.add(second);
-      ridBag.add(third);
+    doc = db.bindToSession(doc);
+    doc.field(fieldName, ridBag, OType.LINKBAG);
+    // test serialization/deserialization
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
-      doc = db.bindToSession(doc);
-      doc.field(fieldName, ridBag, OType.LINKBAG);
-      // test serialization/deserialization
-      ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
+    byte[] bytes = serializerDelta.serializeDelta(doc);
+    originalDoc = db.bindToSession(originalDoc);
+    serializerDelta.deserializeDelta(bytes, originalDoc);
 
-      byte[] bytes = serializerDelta.serializeDelta(doc);
-      originalDoc = db.bindToSession(originalDoc);
-      serializerDelta.deserializeDelta(bytes, originalDoc);
-
-      ORidBag mergedRidbag = originalDoc.field(fieldName);
-      assertEquals(ridBag, mergedRidbag);
-      db.rollback();
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
-      }
-    }
+    ORidBag mergedRidbag = originalDoc.field(fieldName);
+    assertEquals(ridBag, mergedRidbag);
+    db.rollback();
   }
 
   @Test
   public void testRidbagsUpdateDeltaRemoveWithCopy() {
-    ODatabaseSession db = null;
-    OxygenDB odb = null;
-    try {
-      odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    OClass claz = db.createClassIfNotExist("TestClass");
 
-      OClass claz = db.createClassIfNotExist("TestClass");
+    ODocument doc = new ODocument(claz);
+    String fieldName = "testField";
 
-      ODocument doc = new ODocument(claz);
-      String fieldName = "testField";
+    db.begin();
+    ODocument first = new ODocument(claz);
+    first = db.save(first);
+    ODocument second = new ODocument(claz);
+    second = db.save(second);
+    ODocument third = new ODocument(claz);
+    third = db.save(third);
+    db.commit();
 
-      db.begin();
-      ODocument first = new ODocument(claz);
-      first = db.save(first);
-      ODocument second = new ODocument(claz);
-      second = db.save(second);
-      ODocument third = new ODocument(claz);
-      third = db.save(third);
-      db.commit();
+    db.begin();
+    first = db.bindToSession(first);
+    second = db.bindToSession(second);
+    third = db.bindToSession(third);
 
-      db.begin();
-      first = db.bindToSession(first);
-      second = db.bindToSession(second);
-      third = db.bindToSession(third);
+    ORidBag ridBag = new ORidBag();
+    ridBag.add(first);
+    ridBag.add(second);
+    ridBag.add(third);
 
-      ORidBag ridBag = new ORidBag();
-      ridBag.add(first);
-      ridBag.add(second);
-      ridBag.add(third);
+    doc.field(fieldName, ridBag, OType.LINKBAG);
+    doc = db.save(doc);
+    db.commit();
 
-      doc.field(fieldName, ridBag, OType.LINKBAG);
-      doc = db.save(doc);
-      db.commit();
+    db.begin();
+    first = db.bindToSession(first);
+    second = db.bindToSession(second);
+    doc = db.bindToSession(doc);
 
-      db.begin();
-      first = db.bindToSession(first);
-      second = db.bindToSession(second);
-      doc = db.bindToSession(doc);
+    ODocument originalDoc = doc.copy();
 
-      ODocument originalDoc = doc.copy();
+    ridBag = new ORidBag();
+    ridBag.add(first);
+    ridBag.add(second);
+    doc.field(fieldName, ridBag, OType.LINKBAG);
 
-      ridBag = new ORidBag();
-      ridBag.add(first);
-      ridBag.add(second);
-      doc.field(fieldName, ridBag, OType.LINKBAG);
+    // test serialization/deserialization
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
-      // test serialization/deserialization
-      ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
+    byte[] bytes = serializerDelta.serializeDelta(doc);
+    serializerDelta.deserializeDelta(bytes, originalDoc);
 
-      byte[] bytes = serializerDelta.serializeDelta(doc);
-      serializerDelta.deserializeDelta(bytes, originalDoc);
-
-      ORidBag mergedRidbag = originalDoc.field(fieldName);
-      assertEquals(ridBag, mergedRidbag);
-      db.rollback();
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
-      }
-    }
+    ORidBag mergedRidbag = originalDoc.field(fieldName);
+    assertEquals(ridBag, mergedRidbag);
+    db.rollback();
   }
 
   @Test
   public void testRidbagsUpdateDeltaAdd() {
-    ODatabaseSession db = null;
-    OxygenDB odb = null;
-    try {
-      odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    OClass claz = db.createClassIfNotExist("TestClass");
 
-      OClass claz = db.createClassIfNotExist("TestClass");
+    db.begin();
+    ODocument doc = new ODocument(claz);
+    String fieldName = "testField";
 
-      db.begin();
-      ODocument doc = new ODocument(claz);
-      String fieldName = "testField";
+    ODocument first = new ODocument(claz);
+    first = db.save(first);
+    ODocument second = new ODocument(claz);
+    second = db.save(second);
 
-      ODocument first = new ODocument(claz);
-      first = db.save(first);
-      ODocument second = new ODocument(claz);
-      second = db.save(second);
+    ORidBag ridBag = new ORidBag();
+    ridBag.add(first);
+    ridBag.add(second);
+    doc.field(fieldName, ridBag, OType.LINKBAG);
+    doc = db.save(doc);
+    db.commit();
 
-      ORidBag ridBag = new ORidBag();
-      ridBag.add(first);
-      ridBag.add(second);
-      doc.field(fieldName, ridBag, OType.LINKBAG);
-      doc = db.save(doc);
-      db.commit();
+    doc = db.bindToSession(doc);
+    ODocument originalDoc = doc.copy();
 
-      doc = db.bindToSession(doc);
-      ODocument originalDoc = doc.copy();
+    db.begin();
+    ODocument third = new ODocument(claz);
+    third = db.save(third);
+    db.commit();
 
-      db.begin();
-      ODocument third = new ODocument(claz);
-      third = db.save(third);
-      db.commit();
+    db.begin();
+    doc = db.bindToSession(doc);
+    third = db.bindToSession(third);
 
-      db.begin();
-      doc = db.bindToSession(doc);
-      third = db.bindToSession(third);
+    ridBag = doc.getProperty(fieldName);
+    ridBag.add(third);
 
-      ridBag = doc.getProperty(fieldName);
-      ridBag.add(third);
+    // test serialization/deserialization
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
-      // test serialization/deserialization
-      ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
+    byte[] bytes = serializerDelta.serializeDelta(doc);
+    serializerDelta.deserializeDelta(bytes, originalDoc);
 
-      byte[] bytes = serializerDelta.serializeDelta(doc);
-      serializerDelta.deserializeDelta(bytes, originalDoc);
-
-      ORidBag mergedRidbag = originalDoc.field(fieldName);
-      assertEquals(ridBag, mergedRidbag);
-      db.rollback();
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
-      }
-    }
+    ORidBag mergedRidbag = originalDoc.field(fieldName);
+    assertEquals(ridBag, mergedRidbag);
+    db.rollback();
   }
 
   @Test
   public void testRidbagsUpdateDeltaRemove() {
-    ODatabaseSession db = null;
-    OxygenDB odb = null;
-    try {
-      odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    OClass claz = db.createClassIfNotExist("TestClass");
 
-      OClass claz = db.createClassIfNotExist("TestClass");
+    db.begin();
+    ODocument doc = new ODocument(claz);
+    String fieldName = "testField";
 
-      db.begin();
-      ODocument doc = new ODocument(claz);
-      String fieldName = "testField";
+    ODocument first = new ODocument(claz);
+    first = db.save(first);
+    ODocument second = new ODocument(claz);
+    second = db.save(second);
+    ODocument third = new ODocument(claz);
+    third = db.save(third);
 
-      ODocument first = new ODocument(claz);
-      first = db.save(first);
-      ODocument second = new ODocument(claz);
-      second = db.save(second);
-      ODocument third = new ODocument(claz);
-      third = db.save(third);
+    ORidBag ridBag = new ORidBag();
+    ridBag.add(first);
+    ridBag.add(second);
+    ridBag.add(third);
+    doc.field(fieldName, ridBag, OType.LINKBAG);
+    doc = db.save(doc);
+    db.commit();
 
-      ORidBag ridBag = new ORidBag();
-      ridBag.add(first);
-      ridBag.add(second);
-      ridBag.add(third);
-      doc.field(fieldName, ridBag, OType.LINKBAG);
-      doc = db.save(doc);
-      db.commit();
+    db.begin();
+    doc = db.bindToSession(doc);
+    ODocument originalDoc = doc.copy();
+    ridBag = doc.getProperty(fieldName);
+    ridBag.remove(third);
 
-      db.begin();
-      doc = db.bindToSession(doc);
-      ODocument originalDoc = doc.copy();
-      ridBag = doc.getProperty(fieldName);
-      ridBag.remove(third);
+    // test serialization/deserialization
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
-      // test serialization/deserialization
-      ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
+    byte[] bytes = serializerDelta.serializeDelta(doc);
+    serializerDelta.deserializeDelta(bytes, originalDoc);
 
-      byte[] bytes = serializerDelta.serializeDelta(doc);
-      serializerDelta.deserializeDelta(bytes, originalDoc);
-
-      ORidBag mergedRidbag = originalDoc.field(fieldName);
-      assertEquals(ridBag, mergedRidbag);
-      db.rollback();
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
-      }
-    }
+    ORidBag mergedRidbag = originalDoc.field(fieldName);
+    assertEquals(ridBag, mergedRidbag);
+    db.rollback();
   }
 
   @Test
   public void testRidbagsUpdateDeltaChangeWithCopy() {
-    ODatabaseSession db = null;
-    OxygenDB odb = null;
-    try {
-      odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    OClass claz = db.createClassIfNotExist("TestClass");
 
-      OClass claz = db.createClassIfNotExist("TestClass");
+    db.begin();
+    ODocument doc = new ODocument(claz);
+    String fieldName = "testField";
 
-      db.begin();
-      ODocument doc = new ODocument(claz);
-      String fieldName = "testField";
+    ODocument first = new ODocument(claz);
+    first = db.save(first);
+    ODocument second = new ODocument(claz);
+    second = db.save(second);
+    ODocument third = new ODocument(claz);
+    third = db.save(third);
 
-      ODocument first = new ODocument(claz);
-      first = db.save(first);
-      ODocument second = new ODocument(claz);
-      second = db.save(second);
-      ODocument third = new ODocument(claz);
-      third = db.save(third);
+    ORidBag ridBag = new ORidBag();
+    ridBag.add(first);
+    ridBag.add(second);
+    ridBag.add(third);
+    doc.field(fieldName, ridBag, OType.LINKBAG);
+    doc = db.save(doc);
+    db.commit();
 
-      ORidBag ridBag = new ORidBag();
-      ridBag.add(first);
-      ridBag.add(second);
-      ridBag.add(third);
-      doc.field(fieldName, ridBag, OType.LINKBAG);
-      doc = db.save(doc);
-      db.commit();
+    db.begin();
+    doc = db.bindToSession(doc);
+    ODocument originalDoc = doc.copy();
 
-      db.begin();
-      doc = db.bindToSession(doc);
-      ODocument originalDoc = doc.copy();
+    ridBag = new ORidBag();
+    ridBag.add(first);
+    ridBag.add(third);
+    doc.field(fieldName, ridBag, OType.LINKBAG);
 
-      ridBag = new ORidBag();
-      ridBag.add(first);
-      ridBag.add(third);
-      doc.field(fieldName, ridBag, OType.LINKBAG);
+    // test serialization/deserialization
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
-      // test serialization/deserialization
-      ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
+    byte[] bytes = serializerDelta.serializeDelta(doc);
+    serializerDelta.deserializeDelta(bytes, originalDoc);
 
-      byte[] bytes = serializerDelta.serializeDelta(doc);
-      serializerDelta.deserializeDelta(bytes, originalDoc);
-
-      ORidBag mergedRidbag = originalDoc.field(fieldName);
-      assertEquals(ridBag, mergedRidbag);
-      db.rollback();
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
-      }
-    }
+    ORidBag mergedRidbag = originalDoc.field(fieldName);
+    assertEquals(ridBag, mergedRidbag);
+    db.rollback();
   }
 
   @Test
   public void testDeltaNullValues() {
-    ODatabaseSession db = null;
-    OxygenDB odb = null;
-    try {
-      odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    OClass claz = db.createClassIfNotExist("TestClass");
 
-      OClass claz = db.createClassIfNotExist("TestClass");
+    db.begin();
+    ODocument doc = new ODocument(claz);
+    doc.setProperty("one", "value");
+    doc.setProperty("list", List.of("test"));
+    doc.setProperty("set", new HashSet<>(List.of("test")));
+    Map<String, String> map = new HashMap<>();
+    map.put("two", "value");
+    doc.setProperty("map", map);
+    OIdentifiable link = db.save(new ODocument("testClass"));
+    doc.setProperty("linkList", Collections.singletonList(link));
+    doc.setProperty("linkSet", new HashSet<>(Collections.singletonList(link)));
+    Map<String, OIdentifiable> linkMap = new HashMap<>();
+    linkMap.put("two", link);
+    doc.setProperty("linkMap", linkMap);
+    doc = db.save(doc);
+    db.commit();
 
-      db.begin();
-      ODocument doc = new ODocument(claz);
-      doc.setProperty("one", "value");
-      doc.setProperty("list", List.of("test"));
-      doc.setProperty("set", new HashSet<>(List.of("test")));
-      Map<String, String> map = new HashMap<>();
-      map.put("two", "value");
-      doc.setProperty("map", map);
-      OIdentifiable link = db.save(new ODocument("testClass"));
-      doc.setProperty("linkList", Collections.singletonList(link));
-      doc.setProperty("linkSet", new HashSet<>(Collections.singletonList(link)));
-      Map<String, OIdentifiable> linkMap = new HashMap<>();
-      linkMap.put("two", link);
-      doc.setProperty("linkMap", linkMap);
-      doc = db.save(doc);
-      db.commit();
+    db.begin();
+    doc = db.bindToSession(doc);
+    ODocument originalDoc = doc.copy();
+    doc.setProperty("one", null);
+    ((List<String>) doc.getProperty("list")).add(null);
+    ((Set<String>) doc.getProperty("set")).add(null);
+    ((Map<String, String>) doc.getProperty("map")).put("nullValue", null);
+    ((List<OIdentifiable>) doc.getProperty("linkList")).add(null);
+    ((Set<OIdentifiable>) doc.getProperty("linkSet")).add(null);
+    ((Map<String, OIdentifiable>) doc.getProperty("linkMap")).put("nullValue", null);
+    // test serialization/deserialization
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
-      db.begin();
-      doc = db.bindToSession(doc);
-      ODocument originalDoc = doc.copy();
-      doc.setProperty("one", null);
-      ((List<String>) doc.getProperty("list")).add(null);
-      ((Set<String>) doc.getProperty("set")).add(null);
-      ((Map<String, String>) doc.getProperty("map")).put("nullValue", null);
-      ((List<OIdentifiable>) doc.getProperty("linkList")).add(null);
-      ((Set<OIdentifiable>) doc.getProperty("linkSet")).add(null);
-      ((Map<String, OIdentifiable>) doc.getProperty("linkMap")).put("nullValue", null);
-      // test serialization/deserialization
-      ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
-
-      byte[] bytes = serializerDelta.serializeDelta(doc);
-      serializerDelta.deserializeDelta(bytes, originalDoc);
-      assertTrue(((List) originalDoc.getProperty("list")).contains(null));
-      assertTrue(((Set) originalDoc.getProperty("set")).contains(null));
-      assertTrue(((Map) originalDoc.getProperty("map")).containsKey("nullValue"));
-      assertTrue(((List) originalDoc.getProperty("linkList")).contains(null));
-      assertTrue(((Set) originalDoc.getProperty("linkSet")).contains(null));
-      assertTrue(((Map) originalDoc.getProperty("linkMap")).containsKey("nullValue"));
-      db.rollback();
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
-      }
-    }
+    byte[] bytes = serializerDelta.serializeDelta(doc);
+    serializerDelta.deserializeDelta(bytes, originalDoc);
+    assertTrue(((List) originalDoc.getProperty("list")).contains(null));
+    assertTrue(((Set) originalDoc.getProperty("set")).contains(null));
+    assertTrue(((Map) originalDoc.getProperty("map")).containsKey("nullValue"));
+    assertTrue(((List) originalDoc.getProperty("linkList")).contains(null));
+    assertTrue(((Set) originalDoc.getProperty("linkSet")).contains(null));
+    assertTrue(((Map) originalDoc.getProperty("linkMap")).containsKey("nullValue"));
+    db.rollback();
   }
 
   @Test
   public void testDeltaLinkAllCases() {
-    ODatabaseSession db = null;
-    OxygenDB odb = null;
-    try {
-      odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    OClass claz = db.createClassIfNotExist("TestClass");
 
-      OClass claz = db.createClassIfNotExist("TestClass");
+    db.begin();
+    ODocument doc = new ODocument(claz);
+    OIdentifiable link = db.save(new ODocument("testClass"));
+    var link1 = db.save(new ODocument("testClass"));
+    doc.setProperty("linkList", Arrays.asList(link, link1, link1));
+    doc.setProperty("linkSet", new HashSet<>(Arrays.asList(link, link1)));
+    Map<String, OIdentifiable> linkMap = new HashMap<>();
+    linkMap.put("one", link);
+    linkMap.put("two", link1);
+    linkMap.put("three", link1);
+    doc.setProperty("linkMap", linkMap);
+    doc = db.save(doc);
 
-      db.begin();
-      ODocument doc = new ODocument(claz);
-      OIdentifiable link = db.save(new ODocument("testClass"));
-      var link1 = db.save(new ODocument("testClass"));
-      doc.setProperty("linkList", Arrays.asList(link, link1, link1));
-      doc.setProperty("linkSet", new HashSet<>(Arrays.asList(link, link1)));
-      Map<String, OIdentifiable> linkMap = new HashMap<>();
-      linkMap.put("one", link);
-      linkMap.put("two", link1);
-      linkMap.put("three", link1);
-      doc.setProperty("linkMap", linkMap);
-      doc = db.save(doc);
+    ODocument link2 = db.save(new ODocument("testClass"));
+    db.commit();
 
-      ODocument link2 = db.save(new ODocument("testClass"));
-      db.commit();
+    db.begin();
+    doc = db.bindToSession(doc);
+    ODocument originalDoc = doc.copy();
+    link2 = db.bindToSession(link2);
+    link1 = db.bindToSession(link1);
 
-      db.begin();
-      doc = db.bindToSession(doc);
-      ODocument originalDoc = doc.copy();
-      link2 = db.bindToSession(link2);
-      link1 = db.bindToSession(link1);
+    ((List<OIdentifiable>) doc.getProperty("linkList")).set(1, link2);
+    ((List<OIdentifiable>) doc.getProperty("linkList")).remove(link1);
+    ((List<OIdentifiable>) doc.getProperty("linkList")).add(link2);
+    ((Set<OIdentifiable>) doc.getProperty("linkSet")).add(link2);
+    ((Set<OIdentifiable>) doc.getProperty("linkSet")).remove(link1);
+    ((Map<String, OIdentifiable>) doc.getProperty("linkMap")).put("new", link2);
+    ((Map<String, OIdentifiable>) doc.getProperty("linkMap")).put("three", link2);
+    ((Map<String, OIdentifiable>) doc.getProperty("linkMap")).remove("two");
+    // test serialization/deserialization
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
-      ((List<OIdentifiable>) doc.getProperty("linkList")).set(1, link2);
-      ((List<OIdentifiable>) doc.getProperty("linkList")).remove(link1);
-      ((List<OIdentifiable>) doc.getProperty("linkList")).add(link2);
-      ((Set<OIdentifiable>) doc.getProperty("linkSet")).add(link2);
-      ((Set<OIdentifiable>) doc.getProperty("linkSet")).remove(link1);
-      ((Map<String, OIdentifiable>) doc.getProperty("linkMap")).put("new", link2);
-      ((Map<String, OIdentifiable>) doc.getProperty("linkMap")).put("three", link2);
-      ((Map<String, OIdentifiable>) doc.getProperty("linkMap")).remove("two");
-      // test serialization/deserialization
-      ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
-
-      byte[] bytes = serializerDelta.serializeDelta(doc);
-      serializerDelta.deserializeDelta(bytes, originalDoc);
-      assertFalse(((List) originalDoc.getProperty("linkList")).contains(link1));
-      assertTrue(((List) originalDoc.getProperty("linkList")).contains(link2));
-      assertEquals(((List) originalDoc.getProperty("linkList")).get(1), link2);
-      assertTrue(((Set) originalDoc.getProperty("linkSet")).contains(link2));
-      assertFalse(((Set) originalDoc.getProperty("linkSet")).contains(link1));
-      assertEquals(((Map) originalDoc.getProperty("linkMap")).get("new"), link2);
-      assertEquals(((Map) originalDoc.getProperty("linkMap")).get("three"), link2);
-      assertTrue(((Map) originalDoc.getProperty("linkMap")).containsKey("one"));
-      assertFalse(((Map) originalDoc.getProperty("linkMap")).containsKey("two"));
-      db.rollback();
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
-      }
-    }
+    byte[] bytes = serializerDelta.serializeDelta(doc);
+    serializerDelta.deserializeDelta(bytes, originalDoc);
+    assertFalse(((List) originalDoc.getProperty("linkList")).contains(link1));
+    assertTrue(((List) originalDoc.getProperty("linkList")).contains(link2));
+    assertEquals(((List) originalDoc.getProperty("linkList")).get(1), link2);
+    assertTrue(((Set) originalDoc.getProperty("linkSet")).contains(link2));
+    assertFalse(((Set) originalDoc.getProperty("linkSet")).contains(link1));
+    assertEquals(((Map) originalDoc.getProperty("linkMap")).get("new"), link2);
+    assertEquals(((Map) originalDoc.getProperty("linkMap")).get("three"), link2);
+    assertTrue(((Map) originalDoc.getProperty("linkMap")).containsKey("one"));
+    assertFalse(((Map) originalDoc.getProperty("linkMap")).containsKey("two"));
+    db.rollback();
   }
 
   @Test
   public void testDeltaAllCasesMap() {
-    ODatabaseSession db = null;
-    OxygenDB odb = null;
-    try {
-      odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    OClass claz = db.createClassIfNotExist("TestClass");
 
-      OClass claz = db.createClassIfNotExist("TestClass");
+    db.begin();
+    ODocument doc = new ODocument(claz);
+    Map<String, String> map = new HashMap<>();
+    map.put("two", "value");
+    doc.setProperty("map", map);
+    Map<String, String> map1 = new HashMap<>();
+    map1.put("two", "value");
+    map1.put("one", "other");
+    Map<String, Map<String, String>> mapNested = new HashMap<>();
+    Map<String, String> nested = new HashMap<>();
+    nested.put("one", "value");
+    mapNested.put("nest", nested);
+    doc.setProperty("mapNested", mapNested);
+    doc.setProperty("map1", map1);
+    Map<String, OElement> mapEmbedded = new HashMap<>();
+    OElement embedded = db.newElement();
+    embedded.setProperty("other", 1);
+    mapEmbedded.put("first", embedded);
+    doc.setProperty("mapEmbedded", mapEmbedded, OType.EMBEDDEDMAP);
+    doc = db.save(doc);
+    db.commit();
 
-      db.begin();
-      ODocument doc = new ODocument(claz);
-      Map<String, String> map = new HashMap<>();
-      map.put("two", "value");
-      doc.setProperty("map", map);
-      Map<String, String> map1 = new HashMap<>();
-      map1.put("two", "value");
-      map1.put("one", "other");
-      Map<String, Map<String, String>> mapNested = new HashMap<>();
-      Map<String, String> nested = new HashMap<>();
-      nested.put("one", "value");
-      mapNested.put("nest", nested);
-      doc.setProperty("mapNested", mapNested);
-      doc.setProperty("map1", map1);
-      Map<String, OElement> mapEmbedded = new HashMap<>();
-      OElement embedded = db.newElement();
-      embedded.setProperty("other", 1);
-      mapEmbedded.put("first", embedded);
-      doc.setProperty("mapEmbedded", mapEmbedded, OType.EMBEDDEDMAP);
-      doc = db.save(doc);
-      db.commit();
+    db.begin();
+    doc = db.bindToSession(doc);
+    ODocument originalDoc = doc.copy();
+    OElement embedded1 = db.newElement();
+    embedded1.setProperty("other", 1);
+    ((Map<String, OElement>) doc.getProperty("mapEmbedded")).put("newDoc", embedded1);
+    ((Map<String, String>) doc.getProperty("map")).put("value", "other");
+    ((Map<String, String>) doc.getProperty("map")).put("two", "something");
+    ((Map<String, String>) doc.getProperty("map1")).remove("one");
+    ((Map<String, String>) doc.getProperty("map1")).put("two", "something");
+    ((Map<String, Map<String, String>>) doc.getProperty("mapNested"))
+        .get("nest")
+        .put("other", "value");
+    // test serialization/deserialization
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
-      db.begin();
-      doc = db.bindToSession(doc);
-      ODocument originalDoc = doc.copy();
-      OElement embedded1 = db.newElement();
-      embedded1.setProperty("other", 1);
-      ((Map<String, OElement>) doc.getProperty("mapEmbedded")).put("newDoc", embedded1);
-      ((Map<String, String>) doc.getProperty("map")).put("value", "other");
-      ((Map<String, String>) doc.getProperty("map")).put("two", "something");
-      ((Map<String, String>) doc.getProperty("map1")).remove("one");
-      ((Map<String, String>) doc.getProperty("map1")).put("two", "something");
-      ((Map<String, Map<String, String>>) doc.getProperty("mapNested"))
-          .get("nest")
-          .put("other", "value");
-      // test serialization/deserialization
-      ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
-
-      byte[] bytes = serializerDelta.serializeDelta(doc);
-      serializerDelta.deserializeDelta(bytes, originalDoc);
-      assertNotNull(((Map) originalDoc.getProperty("mapEmbedded")).get("newDoc"));
-      assertEquals(
-          ((Map<String, OElement>) originalDoc.getProperty("mapEmbedded"))
-              .get("newDoc")
-              .getProperty("other"),
-          Integer.valueOf(1));
-      assertEquals(((Map) originalDoc.getProperty("map")).get("value"), "other");
-      assertEquals(((Map) originalDoc.getProperty("map")).get("two"), "something");
-      assertEquals(((Map) originalDoc.getProperty("map1")).get("two"), "something");
-      assertNull(((Map) originalDoc.getProperty("map1")).get("one"));
-      assertEquals(
-          ((Map<String, Map<String, String>>) originalDoc.getProperty("mapNested"))
-              .get("nest")
-              .get("other"),
-          "value");
-      db.rollback();
-    } finally {
-      if (db != null) {
-        db.close();
-      }
-      if (odb != null) {
-        odb.drop(dbName);
-        odb.close();
-      }
-    }
+    byte[] bytes = serializerDelta.serializeDelta(doc);
+    serializerDelta.deserializeDelta(bytes, originalDoc);
+    assertNotNull(((Map) originalDoc.getProperty("mapEmbedded")).get("newDoc"));
+    assertEquals(
+        ((Map<String, OElement>) originalDoc.getProperty("mapEmbedded"))
+            .get("newDoc")
+            .getProperty("other"),
+        Integer.valueOf(1));
+    assertEquals(((Map) originalDoc.getProperty("map")).get("value"), "other");
+    assertEquals(((Map) originalDoc.getProperty("map")).get("two"), "something");
+    assertEquals(((Map) originalDoc.getProperty("map1")).get("two"), "something");
+    assertNull(((Map) originalDoc.getProperty("map1")).get("one"));
+    assertEquals(
+        ((Map<String, Map<String, String>>) originalDoc.getProperty("mapNested"))
+            .get("nest")
+            .get("other"),
+        "value");
+    db.rollback();
   }
 
   @Test
   public void testSimpleSerialization() {
-    ODatabaseRecordThreadLocal.instance().remove();
     ODocument document = new ODocument();
 
     document.field("name", "name");
@@ -1789,7 +1346,6 @@ public class ODocumentSerializerDeltaTest {
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void testSimpleLiteralArray() {
-    ODatabaseRecordThreadLocal.instance().remove();
     ODocument document = new ODocument();
     String[] strings = new String[3];
     strings[0] = "a";
@@ -1886,7 +1442,6 @@ public class ODocumentSerializerDeltaTest {
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void testSimpleLiteralList() {
-    ODatabaseRecordThreadLocal.instance().remove();
     ODocument document = new ODocument();
     List<String> strings = new ArrayList<String>();
     strings.add("a");
@@ -1979,7 +1534,6 @@ public class ODocumentSerializerDeltaTest {
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void testSimpleLiteralSet() throws InterruptedException {
-    ODatabaseRecordThreadLocal.instance().remove();
     ODocument document = new ODocument();
     Set<String> strings = new HashSet<String>();
     strings.add("a");
@@ -2074,42 +1628,35 @@ public class ODocumentSerializerDeltaTest {
 
   @Test
   public void testLinkCollections() {
-    try (OxygenDB ctx = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig())) {
-      ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
-      try (var db = ctx.open("test", "admin", "adminpwd")) {
-        ODocument document = new ODocument();
-        Set<ORecordId> linkSet = new HashSet<ORecordId>();
-        linkSet.add(new ORecordId(10, 20));
-        linkSet.add(new ORecordId(10, 21));
-        linkSet.add(new ORecordId(10, 22));
-        linkSet.add(new ORecordId(11, 22));
-        document.field("linkSet", linkSet, OType.LINKSET);
+    ODocument document = new ODocument();
+    Set<ORecordId> linkSet = new HashSet<ORecordId>();
+    linkSet.add(new ORecordId(10, 20));
+    linkSet.add(new ORecordId(10, 21));
+    linkSet.add(new ORecordId(10, 22));
+    linkSet.add(new ORecordId(11, 22));
+    document.field("linkSet", linkSet, OType.LINKSET);
 
-        List<ORecordId> linkList = new ArrayList<ORecordId>();
-        linkList.add(new ORecordId(10, 20));
-        linkList.add(new ORecordId(10, 21));
-        linkList.add(new ORecordId(10, 22));
-        linkList.add(new ORecordId(11, 22));
-        document.field("linkList", linkList, OType.LINKLIST);
+    List<ORecordId> linkList = new ArrayList<ORecordId>();
+    linkList.add(new ORecordId(10, 20));
+    linkList.add(new ORecordId(10, 21));
+    linkList.add(new ORecordId(10, 22));
+    linkList.add(new ORecordId(11, 22));
+    document.field("linkList", linkList, OType.LINKLIST);
 
-        ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
-        byte[] res = serializerDelta.serialize(document);
-        ODocument extr = new ODocument();
-        serializerDelta.deserialize(res, extr);
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
+    byte[] res = serializerDelta.serialize(document);
+    ODocument extr = new ODocument();
+    serializerDelta.deserialize(res, extr);
 
-        assertEquals(extr.fields(), document.fields());
-        assertEquals(
-            ((Set<?>) extr.field("linkSet")).size(), ((Set<?>) document.field("linkSet")).size());
-        assertTrue(((Set<?>) extr.field("linkSet")).containsAll(document.field("linkSet")));
-        assertEquals(extr.<Object>field("linkList"), document.field("linkList"));
-      }
-      ctx.drop("test");
-    }
+    assertEquals(extr.fields(), document.fields());
+    assertEquals(
+        ((Set<?>) extr.field("linkSet")).size(), ((Set<?>) document.field("linkSet")).size());
+    assertTrue(((Set<?>) extr.field("linkSet")).containsAll(document.field("linkSet")));
+    assertEquals(extr.<Object>field("linkList"), document.field("linkList"));
   }
 
   @Test
   public void testSimpleEmbeddedDoc() {
-    ODatabaseRecordThreadLocal.instance().remove();
     ODocument document = new ODocument();
     ODocument embedded = new ODocument();
     embedded.field("name", "test");
@@ -2130,7 +1677,6 @@ public class ODocumentSerializerDeltaTest {
 
   @Test
   public void testSimpleMapStringLiteral() {
-    ODatabaseRecordThreadLocal.instance().remove();
     ODocument document = new ODocument();
 
     Map<String, String> mapString = new HashMap<String, String>();
@@ -2194,7 +1740,6 @@ public class ODocumentSerializerDeltaTest {
 
   @Test
   public void testlistOfList() {
-    ODatabaseRecordThreadLocal.instance().remove();
     ODocument document = new ODocument();
     List<List<String>> list = new ArrayList<List<String>>();
     List<String> ls = new ArrayList<String>();
@@ -2214,7 +1759,6 @@ public class ODocumentSerializerDeltaTest {
 
   @Test
   public void testArrayOfArray() {
-    ODatabaseRecordThreadLocal.instance().remove();
     ODocument document = new ODocument();
     String[][] array = new String[1][];
     String[] ls = new String[2];
@@ -2238,8 +1782,6 @@ public class ODocumentSerializerDeltaTest {
 
   @Test
   public void testEmbeddedListOfEmbeddedMap() {
-    ODatabaseRecordThreadLocal.instance().remove();
-
     ODocument document = new ODocument();
     List<Map<String, String>> coll = new ArrayList<Map<String, String>>();
     Map<String, String> map = new HashMap<String, String>();
@@ -2261,8 +1803,6 @@ public class ODocumentSerializerDeltaTest {
 
   @Test
   public void testMapOfEmbeddedDocument() {
-    ODatabaseRecordThreadLocal.instance().remove();
-
     ODocument document = new ODocument();
 
     ODocument embeddedInMap = new ODocument();
@@ -2288,52 +1828,40 @@ public class ODocumentSerializerDeltaTest {
   @Test
   public void testMapOfLink() {
     // needs a database because of the lazy loading
-    try (OxygenDB ctx = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig())) {
-      ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
-      try (var db = ctx.open("test", "admin", "adminpwd")) {
-        ODocument document = new ODocument();
+    ODocument document = new ODocument();
 
-        Map<String, OIdentifiable> map = new HashMap<String, OIdentifiable>();
-        map.put("link", new ORecordId(0, 0));
-        document.field("map", map, OType.LINKMAP);
+    Map<String, OIdentifiable> map = new HashMap<String, OIdentifiable>();
+    map.put("link", new ORecordId(0, 0));
+    document.field("map", map, OType.LINKMAP);
 
-        ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
-        byte[] res = serializerDelta.serialize(document);
-        ODocument extr = new ODocument();
-        serializerDelta.deserialize(res, extr);
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
+    byte[] res = serializerDelta.serialize(document);
+    ODocument extr = new ODocument();
+    serializerDelta.deserialize(res, extr);
 
-        assertEquals(extr.fields(), document.fields());
-        assertEquals(extr.<Object>field("map"), document.field("map"));
-      }
-      ctx.drop("test");
-    }
+    assertEquals(extr.fields(), document.fields());
+    assertEquals(extr.<Object>field("map"), document.field("map"));
   }
 
   @Test
   public void testDocumentSimple() {
-    try (OxygenDB ctx = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig())) {
-      ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
-      try (var db = ctx.open("test", "admin", "adminpwd")) {
-        ODocument document = new ODocument("TestClass");
-        document.field("test", "test");
-        ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
-        byte[] res = serializerDelta.serialize(document);
-        ODocument extr = new ODocument();
-        serializerDelta.deserialize(res, extr);
+    ODocument document = new ODocument("TestClass");
+    document.field("test", "test");
+    ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
+    byte[] res = serializerDelta.serialize(document);
+    ODocument extr = new ODocument();
+    serializerDelta.deserialize(res, extr);
 
-        //      assertEquals(extr.getClassName(), document.getClassName());
-        assertEquals(extr.fields(), document.fields());
-        assertEquals(extr.<Object>field("test"), document.field("test"));
-      }
-      ctx.drop("test");
-    }
+    //      assertEquals(extr.getClassName(), document.getClassName());
+    assertEquals(extr.fields(), document.fields());
+    assertEquals(extr.<Object>field("test"), document.field("test"));
   }
 
   @Test
   public void testDocumentWithCostum() {
     boolean old = OGlobalConfiguration.DB_CUSTOM_SUPPORT.getValueAsBoolean();
     OGlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(true);
-    ODatabaseRecordThreadLocal.instance().remove();
+
     ODocument document = new ODocument();
     document.field("test", "test");
     document.field("custom", new ODocumentSchemalessBinarySerializationTest.Custom());
@@ -2352,7 +1880,6 @@ public class ODocumentSerializerDeltaTest {
 
   @Test
   public void testDocumentWithCostumDocument() {
-    ODatabaseRecordThreadLocal.instance().remove();
     ODocument document = new ODocument();
     document.field("test", "test");
     document.field("custom", new ODocumentSchemalessBinarySerializationTest.CustomDocument());
@@ -2370,8 +1897,6 @@ public class ODocumentSerializerDeltaTest {
 
   @Test(expected = OSerializationException.class)
   public void testSetOfWrongData() {
-    ODatabaseRecordThreadLocal.instance().remove();
-
     ODocument document = new ODocument();
 
     Set<Object> embeddedSet = new HashSet<Object>();
@@ -2384,8 +1909,6 @@ public class ODocumentSerializerDeltaTest {
 
   @Test(expected = OSerializationException.class)
   public void testListOfWrongData() {
-    ODatabaseRecordThreadLocal.instance().remove();
-
     ODocument document = new ODocument();
 
     List<Object> embeddedList = new ArrayList<Object>();
@@ -2398,8 +1921,6 @@ public class ODocumentSerializerDeltaTest {
 
   @Test(expected = OSerializationException.class)
   public void testMapOfWrongData() {
-    ODatabaseRecordThreadLocal.instance().remove();
-
     ODocument document = new ODocument();
 
     Map<String, Object> embeddedMap = new HashMap<String, Object>();
@@ -2412,8 +1933,6 @@ public class ODocumentSerializerDeltaTest {
 
   @Test(expected = ClassCastException.class)
   public void testLinkSetOfWrongData() {
-    ODatabaseRecordThreadLocal.instance().remove();
-
     ODocument document = new ODocument();
 
     Set<Object> linkSet = new HashSet<Object>();
@@ -2426,8 +1945,6 @@ public class ODocumentSerializerDeltaTest {
 
   @Test(expected = ClassCastException.class)
   public void testLinkListOfWrongData() {
-    ODatabaseRecordThreadLocal.instance().remove();
-
     ODocument document = new ODocument();
 
     List<Object> linkList = new ArrayList<Object>();
@@ -2440,8 +1957,6 @@ public class ODocumentSerializerDeltaTest {
 
   @Test(expected = ClassCastException.class)
   public void testLinkMapOfWrongData() {
-    ODatabaseRecordThreadLocal.instance().remove();
-
     ODocument document = new ODocument();
 
     Map<String, Object> linkMap = new HashMap<String, Object>();
@@ -2454,8 +1969,6 @@ public class ODocumentSerializerDeltaTest {
 
   @Test(expected = OSerializationException.class)
   public void testFieldWrongData() {
-    ODatabaseRecordThreadLocal.instance().remove();
-
     ODocument document = new ODocument();
 
     document.field("wrongData", new WrongData());
@@ -2466,9 +1979,6 @@ public class ODocumentSerializerDeltaTest {
 
   @Test
   public void testCollectionOfEmbeddedDocument() {
-
-    ODatabaseRecordThreadLocal.instance().remove();
-
     ODocument document = new ODocument();
 
     ODocument embeddedInList = new ODocument();
@@ -2598,7 +2108,6 @@ public class ODocumentSerializerDeltaTest {
 
   @Test
   public void testListOfMapsWithNull() {
-    ODatabaseRecordThreadLocal.instance().remove();
     ODocument document = new ODocument();
 
     List lista = new ArrayList<>();
@@ -2619,32 +2128,6 @@ public class ODocumentSerializerDeltaTest {
 
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field("list"), document.field("list"));
-  }
-
-  public static class Custom implements OSerializableStream {
-
-    byte[] bytes = new byte[10];
-
-    @Override
-    public OSerializableStream fromStream(byte[] iStream) throws OSerializationException {
-      bytes = iStream;
-      return this;
-    }
-
-    @Override
-    public byte[] toStream() throws OSerializationException {
-      for (int i = 0; i < bytes.length; i++) {
-        bytes[i] = (byte) i;
-      }
-      return bytes;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      return obj != null
-          && obj instanceof ODocumentSchemalessBinarySerializationTest.Custom
-          && Arrays.equals(bytes, ((ODocumentSchemalessBinarySerializationTest.Custom) obj).bytes);
-    }
   }
 
   public static class CustomDocument implements ODocumentSerializable {

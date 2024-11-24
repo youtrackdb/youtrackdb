@@ -1634,8 +1634,7 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
       throw e;
     }
 
-    // WAKE UP LISTENERS
-    afterCommitOperations();
+
     return true;
   }
 
@@ -1662,7 +1661,7 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
     }
   }
 
-  protected void afterCommitOperations() {
+  public void afterCommitOperations() {
     for (ODatabaseListener listener : browseListeners()) {
       try {
         listener.onAfterTxCommit(this);

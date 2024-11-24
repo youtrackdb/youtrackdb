@@ -4,21 +4,17 @@ import static com.orientechnologies.orient.core.sql.executor.ExecutionPlanPrintU
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.viewmanager.ViewCreationListener;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.metadata.schema.OViewConfig;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Assert;
@@ -745,56 +741,6 @@ public class OUpdateStatementExecutionTest {
       Assert.assertNotNull(item);
       Assert.assertEquals(2, ((Map) item.getProperty("tagsMap")).size());
       Assert.assertFalse(((Map) item.getProperty("tagsMap")).containsKey("bar"));
-    }
-    Assert.assertFalse(result.hasNext());
-    result.close();
-  }
-
-  @Test
-  public void testUpdateView() throws InterruptedException {
-
-    String viewName = "testUpdateViewView";
-    OViewConfig cfg = new OViewConfig(viewName, "SELECT FROM " + className);
-    cfg.setUpdatable(true);
-    cfg.setOriginRidField("origin");
-    CountDownLatch latch = new CountDownLatch(1);
-    db.getMetadata()
-        .getSchema()
-        .createView(
-            cfg,
-            new ViewCreationListener() {
-              @Override
-              public void afterCreate(ODatabaseSession database, String viewName) {
-                latch.countDown();
-              }
-
-              @Override
-              public void onError(String viewName, Exception exception) {
-                latch.countDown();
-              }
-            });
-    latch.await();
-
-    db.begin();
-    db.command("UPDATE " + viewName + " SET aNewProp = \"newPropValue\"").close();
-    db.commit();
-
-    OResultSet result = db.query("SELECT aNewProp FROM " + viewName);
-    for (int i = 0; i < 10; i++) {
-      Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
-      Assert.assertNotNull(item);
-      Assert.assertEquals("newPropValue", item.getProperty("aNewProp"));
-    }
-    Assert.assertFalse(result.hasNext());
-    result.close();
-
-    result = db.query("SELECT aNewProp FROM " + className);
-    for (int i = 0; i < 10; i++) {
-      Assert.assertTrue(result.hasNext());
-      OResult item = result.next();
-      Assert.assertNotNull(item);
-      Assert.assertEquals("newPropValue", item.getProperty("aNewProp"));
     }
     Assert.assertFalse(result.hasNext());
     result.close();

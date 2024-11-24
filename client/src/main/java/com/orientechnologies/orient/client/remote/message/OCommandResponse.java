@@ -152,7 +152,7 @@ public final class OCommandResponse implements OBinaryResponse {
           listener.result(session, result);
         }
         if (identifiable instanceof ORecord record) {
-          if (record.isNotBound(session) && record.getIdentity().isPersistent()) {
+          if (record.isNotBound(session)) {
             identifiable = session.bindToSession(record);
           }
         }

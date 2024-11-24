@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
+import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.index.OCompositeKeySerializer;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
@@ -19,7 +20,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import org.junit.Test;
 
-public class OCompositeKeyTest {
+public class OCompositeKeyTest extends BaseMemoryDatabase {
 
   @Test
   public void testEqualSameKeys() {

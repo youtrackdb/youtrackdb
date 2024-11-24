@@ -40,6 +40,7 @@ import com.orientechnologies.orient.client.remote.db.document.ODatabaseSessionRe
 import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.OSignalHandler;
 import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.command.script.OCommandExecutorScript;
 import com.orientechnologies.orient.core.command.script.OCommandScript;
@@ -49,9 +50,9 @@ import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDBConfigBuilder;
 import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.tool.OBonsaiTreeRepair;
@@ -353,7 +354,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     final Map<String, String> omap = parseCommandOptions(options);
 
     urlConnection = OURLHelper.parseNew(databaseURL);
-    OrientDBConfigBuilder config = OxygenDBConfig.builder();
+    OxygenDBConfigBuilder config = OxygenDBConfig.builder();
 
     ODatabaseType type;
     if (storageType != null) {
@@ -1287,7 +1288,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       return;
     }
 
-    final Object result = new OSQLPredicate(currentDatabase, iText).evaluate(currentRecord, null,
+    var context = new OBasicCommandContext();
+    context.setDatabase(currentDatabase);
+
+    final Object result = new OSQLPredicate(context, iText).evaluate(currentRecord, null,
         null);
 
     if (result != null) {
@@ -1322,7 +1326,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       return;
     }
 
-    final Object result = new OSQLPredicate(currentDatabase, iText).evaluate(currentRecord, null,
+    var context = new OBasicCommandContext();
+    context.setDatabase(currentDatabase);
+
+    final Object result = new OSQLPredicate(context, iText).evaluate(currentRecord, null,
         null);
     if (result != null) {
       out.println("\n" + result);

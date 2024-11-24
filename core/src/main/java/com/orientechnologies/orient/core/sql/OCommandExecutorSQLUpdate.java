@@ -216,7 +216,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
         if (additionalStatement.equals(OCommandExecutorSQLAbstract.KEYWORD_WHERE)
             || additionalStatement.equals(OCommandExecutorSQLAbstract.KEYWORD_LIMIT)) {
           compiledFilter =
-              OSQLEngine.getInstance()
+              OSQLEngine
                   .parseCondition(
                       parserText.substring(parserGetCurrentPosition()),
                       getContext(),

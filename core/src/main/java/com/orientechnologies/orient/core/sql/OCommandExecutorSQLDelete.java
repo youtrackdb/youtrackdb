@@ -121,7 +121,7 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
               unsafe = true;
             } else if (word.equalsIgnoreCase(KEYWORD_WHERE)) {
               compiledFilter =
-                  OSQLEngine.getInstance()
+                  OSQLEngine
                       .parseCondition(
                           parserText.substring(parserGetCurrentPosition()),
                           getContext(),
@@ -152,7 +152,7 @@ public class OCommandExecutorSQLDelete extends OCommandExecutorSQLAbstract
               unsafe = true;
             } else if (word.equalsIgnoreCase(KEYWORD_WHERE)) {
               compiledFilter =
-                  OSQLEngine.getInstance()
+                  OSQLEngine
                       .parseCondition(
                           parserText.substring(parserGetCurrentPosition()),
                           getContext(),

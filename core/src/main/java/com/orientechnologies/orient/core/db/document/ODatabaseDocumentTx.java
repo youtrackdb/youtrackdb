@@ -17,9 +17,9 @@ import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.OSharedContext;
-import com.orientechnologies.orient.core.db.OrientDBConfigBuilder;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDBConfigBuilder;
 import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -305,6 +305,12 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   public OMetadataInternal getMetadata() {
     checkOpenness();
     return internal.getMetadata();
+  }
+
+  @Override
+  public void afterCommitOperations() {
+    checkOpenness();
+    internal.afterCommitOperations();
   }
 
   @Override
@@ -1310,7 +1316,7 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
         pars.put(par.getKey().getKey(), par.getValue());
       }
     }
-    OrientDBConfigBuilder builder = OxygenDBConfig.builder();
+    OxygenDBConfigBuilder builder = OxygenDBConfig.builder();
     final String connectionStrategy =
         pars != null
             ? (String) pars.get(OGlobalConfiguration.CLIENT_CONNECTION_STRATEGY.getKey())

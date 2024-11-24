@@ -948,7 +948,7 @@ public class Oxygen extends OListenerManger<OOrientListener> {
     }
   }
 
-  public void addOrientDB(OxygenDBInternal internal) {
+  public void addOxygenDB(OxygenDBInternal internal) {
     engineLock.writeLock().lock();
     try {
       runningInstances.add(internal);
@@ -957,7 +957,7 @@ public class Oxygen extends OListenerManger<OOrientListener> {
     }
   }
 
-  public void removeOrientDB(OxygenDBInternal internal) {
+  public void removeOxygenDB(OxygenDBInternal internal) {
     engineLock.writeLock().lock();
     try {
       runningInstances.remove(internal);
