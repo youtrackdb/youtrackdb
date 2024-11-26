@@ -23,6 +23,7 @@ import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.OExecutionStep;
 import java.util.Map;
+import javax.annotation.Nonnull;
 
 /**
  * Basic interface for commands. Manages the context variables during execution.
@@ -89,7 +90,10 @@ public interface OCommandContext {
    */
   void merge(OCommandContext iContext);
 
+  @Nonnull
   ODatabaseSessionInternal getDatabase();
+
+  void setDatabase(ODatabaseSessionInternal database);
 
   void declareScriptVariable(String varName);
 

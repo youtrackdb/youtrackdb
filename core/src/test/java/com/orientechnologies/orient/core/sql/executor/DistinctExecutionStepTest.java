@@ -17,7 +17,9 @@ public class DistinctExecutionStepTest extends BaseMemoryDatabase {
 
   @Test
   public void test() {
-    OCommandContext ctx = new OBasicCommandContext();
+    var ctx = new OBasicCommandContext();
+    ctx.setDatabase(db);
+
     DistinctExecutionStep step = new DistinctExecutionStep(ctx, false);
 
     AbstractExecutionStep prev =

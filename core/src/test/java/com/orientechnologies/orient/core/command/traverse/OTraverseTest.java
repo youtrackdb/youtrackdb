@@ -82,7 +82,7 @@ public class OTraverseTest extends BaseMemoryDatabase {
             db.bindToSession(c3a),
             db.bindToSession(c3b));
 
-    final List<OIdentifiable> results = traverse.execute();
+    final List<OIdentifiable> results = traverse.execute(db);
 
     compareTraverseResults(expectedResult, results);
   }
@@ -144,7 +144,7 @@ public class OTraverseTest extends BaseMemoryDatabase {
             db.bindToSession(c3a),
             db.bindToSession(c3b));
 
-    final List<OIdentifiable> results = traverse.execute();
+    final List<OIdentifiable> results = traverse.execute(db);
 
     compareTraverseResults(expectedResult, results);
   }

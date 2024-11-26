@@ -34,6 +34,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
+import javax.annotation.Nonnull;
 
 /**
  * Basic implementation of OCommandContext interface that stores variables in a map. Supports
@@ -301,7 +302,7 @@ public class OBasicCommandContext implements OCommandContext {
       if (child != null) {
         // REMOVE IT
         child.setParent(null);
-        ((OBasicCommandContext) child).setDatabase(null);
+        child.setDatabase(null);
 
         child = null;
       }
@@ -309,7 +310,7 @@ public class OBasicCommandContext implements OCommandContext {
       // ADD IT
       child = iContext;
       iContext.setParent(this);
-      ((OBasicCommandContext) child).setDatabase(database);
+      child.setDatabase(database);
     }
 
     return this;
@@ -446,9 +447,9 @@ public class OBasicCommandContext implements OCommandContext {
     return this.uniqueResult.add(toAdd);
   }
 
-  public ODatabaseSessionInternal getDatabase() {
+  public @Nonnull ODatabaseSessionInternal getDatabase() {
     if (database != null) {
-      assert database.validateIfActive() : "Current session is not active on given thread";
+      assert database.validateIfActive() : "Current SQL session is not active on given thread";
       return database;
     }
 
@@ -460,15 +461,16 @@ public class OBasicCommandContext implements OCommandContext {
       throw new ODatabaseException("No database found in current SQL execution context");
     }
 
-    assert database.validateIfActive() : "Current session is not active on given thread";
+    assert database.validateIfActive() : "Current SQL session is not active on given thread";
     return database;
   }
+
 
   public void setDatabase(ODatabaseSessionInternal database) {
     this.database = database;
 
     if (child != null) {
-      ((OBasicCommandContext) child).setDatabase(database);
+      child.setDatabase(database);
     }
   }
 

@@ -22,6 +22,7 @@ package com.orientechnologies.orient.core.command.traverse;
 import com.orientechnologies.orient.core.command.OCommand;
 import com.orientechnologies.orient.core.command.OCommandExecutorAbstract;
 import com.orientechnologies.orient.core.command.OCommandPredicate;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import java.util.ArrayList;
@@ -56,11 +57,14 @@ public class OTraverse implements OCommand, Iterable<OIdentifiable>, Iterator<OI
    *
    * @see com.orientechnologies.orient.core.command.OCommand#execute()
    */
-  public List<OIdentifiable> execute() {
-    final List<OIdentifiable> result = new ArrayList<OIdentifiable>();
+  public List<OIdentifiable> execute(ODatabaseSessionInternal session) {
+    context.setDatabase(session);
+    final List<OIdentifiable> result = new ArrayList<>();
+
     while (hasNext()) {
       result.add(next());
     }
+
     return result;
   }
 

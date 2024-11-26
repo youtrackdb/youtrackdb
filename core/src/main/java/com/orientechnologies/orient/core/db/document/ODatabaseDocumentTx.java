@@ -566,10 +566,6 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
     return internal.newElement(className);
   }
 
-  public boolean isUseLightweightEdges() {
-    return internal.isUseLightweightEdges();
-  }
-
   public void setUseLightweightEdges(boolean b) {
     internal.setUseLightweightEdges(b);
   }

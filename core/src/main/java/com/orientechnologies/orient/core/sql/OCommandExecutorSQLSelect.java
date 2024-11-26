@@ -293,6 +293,8 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
    * Compile the filter conditions only the first time.
    */
   public OCommandExecutorSQLSelect parse(final OCommandRequest iRequest) {
+    this.context = iRequest.getContext();
+
     final OCommandRequestText textRequest = (OCommandRequestText) iRequest;
     String queryText = textRequest.getText();
     String originalQuery = queryText;
@@ -302,7 +304,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
 
       super.parse(iRequest);
 
-      initContext();
+      initContext(iRequest.getContext());
 
       final int pos = parseProjections();
       if (pos == -1) {
@@ -1681,15 +1683,9 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
     return null;
   }
 
-  public void initContext() {
-    if (context == null) {
-      context = new OBasicCommandContext();
-    }
-    if (context.getDatabase() == null) {
-      ((OBasicCommandContext) context).setDatabase(getDatabase());
-    }
-
+  public void initContext(@Nonnull OCommandContext context) {
     metricRecorder.setContext(context);
+    this.context = context;
   }
 
   private boolean fetchFromTarget(final Iterator<? extends OIdentifiable> iTarget) {
@@ -1856,7 +1852,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
                 localDatabase = db.copy();
 
                 localDatabase.activateOnCurrentThread();
-                ((OBasicCommandContext) threadContext).setDatabase(localDatabase);
+                threadContext.setDatabase(localDatabase);
 
                 // CREATE A SNAPSHOT TO AVOID DEADLOCKS
                 db.getMetadata().getSchema().makeSnapshot();

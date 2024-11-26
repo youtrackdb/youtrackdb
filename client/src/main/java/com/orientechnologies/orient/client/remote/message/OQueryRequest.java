@@ -81,7 +81,7 @@ public final class OQueryRequest implements OBinaryRequest<OQueryResponse> {
     this.language = language;
     this.statement = iCommand;
     this.params = namedParams;
-    ODocument parms = new ODocument();
+    ODocument parms = new ODocument(session);
     parms.field("params", this.params);
 
     paramsBytes = OMessageHelper.getRecordBytes(session, parms, serializer);

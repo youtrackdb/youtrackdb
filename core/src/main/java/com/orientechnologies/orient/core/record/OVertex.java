@@ -200,31 +200,6 @@ public interface OVertex extends OElement {
   Iterable<OVertex> getVertices(ODirection direction, OClass... label);
 
   /**
-   * Deletes an edge between this vertex and the specified vertex. This method can be used only to
-   * delete edges without any label specified.
-   *
-   * @param to the vertex to which the edge is connected
-   */
-  void deleteEdge(OVertex to);
-
-  /**
-   * Deletes an edge between this vertex and the specified vertex with the given label.
-   *
-   * @param to    the vertex to which the edge is connected
-   * @param label the label of the edge to delete
-   * @throws IllegalArgumentException if the label is not an edge class
-   */
-  void deleteEdge(OVertex to, String label);
-
-  /**
-   * Deletes an edge between this vertex and the specified vertex with the given label.
-   *
-   * @param to    the vertex to which the edge is connected
-   * @param label the label of the edge to delete
-   */
-  void deleteEdge(OVertex to, OClass label);
-
-  /**
    * Adds an edge between the current vertex and the specified vertex. Edge will be created without
    * any specific label. It is recommended to use labeled edges instead.
    *

@@ -3355,17 +3355,17 @@ public class ODocument extends ORecordAbstract
   }
 
   protected OImmutableClass getImmutableSchemaClass() {
-    return getImmutableSchemaClass(getSession());
+    return getImmutableSchemaClass(getSessionIfDefined());
   }
 
-  protected OImmutableClass getImmutableSchemaClass(@Nonnull ODatabaseSessionInternal database) {
+  protected OImmutableClass getImmutableSchemaClass(@Nullable ODatabaseSessionInternal database) {
     if (immutableClazz == null) {
       if (className == null) {
         fetchClassName();
       }
 
       if (className != null) {
-        if (!database.isClosed()) {
+        if (database != null && !database.isClosed()) {
           final OSchema immutableSchema = database.getMetadata().getImmutableSchemaSnapshot();
           if (immutableSchema == null) {
             return null;
@@ -3965,15 +3965,17 @@ public class ODocument extends ORecordAbstract
   }
 
   private void fetchClassName() {
-    final ODatabaseSessionInternal database = getSession();
+    final ODatabaseSessionInternal database = getSessionIfDefined();
 
-    if (recordId != null) {
-      if (recordId.getClusterId() >= 0) {
-        final OSchema schema = database.getMetadata().getImmutableSchemaSnapshot();
-        if (schema != null) {
-          OClass clazz = schema.getClassByClusterId(recordId.getClusterId());
-          if (clazz != null) {
-            className = clazz.getName();
+    if (database != null && !database.isClosed()) {
+      if (recordId != null) {
+        if (recordId.getClusterId() >= 0) {
+          final OSchema schema = database.getMetadata().getImmutableSchemaSnapshot();
+          if (schema != null) {
+            OClass clazz = schema.getClassByClusterId(recordId.getClusterId());
+            if (clazz != null) {
+              className = clazz.getName();
+            }
           }
         }
       }

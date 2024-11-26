@@ -2,6 +2,7 @@ package com.orientechnologies.orient.client.remote.message;
 
 import static org.junit.Assert.assertEquals;
 
+import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.common.exception.OErrorCode;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
@@ -16,7 +17,7 @@ import org.junit.Test;
 /**
  *
  */
-public class OLiveQueryMessagesTests {
+public class OLiveQueryMessagesTests extends BaseMemoryDatabase {
 
   @Test
   public void testRequestWriteRead() throws IOException {

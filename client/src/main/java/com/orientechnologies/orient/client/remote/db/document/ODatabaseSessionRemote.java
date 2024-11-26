@@ -1033,9 +1033,7 @@ public class ODatabaseSessionRemote extends ODatabaseSessionAbstract {
     if (currentTx.isActive()) {
       return (OTransactionOptimisticClient) currentTx;
     } else {
-      currentTx = new OTransactionOptimisticClient(this);
-      currentTx.begin();
-      return (OTransactionOptimisticClient) currentTx;
+      throw new ODatabaseException("No active transaction found");
     }
   }
 

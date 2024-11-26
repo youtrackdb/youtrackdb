@@ -11,6 +11,7 @@ import com.orientechnologies.common.comparator.ODefaultComparator;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
@@ -34,7 +35,8 @@ public class ORemoteTransactionMessagesTest extends BaseMemoryDatabase {
   @Test
   public void testBeginTransactionEmptyWriteRead() throws IOException {
     MockChannel channel = new MockChannel();
-    OBeginTransactionRequest request = new OBeginTransactionRequest(db, 0, false, true, null, null);
+    OBeginTransactionRequest request = new OBeginTransactionRequest(db, 0, false,
+        true, null, null);
     request.write(db, channel, null);
     channel.close();
     OBeginTransactionRequest readRequest = new OBeginTransactionRequest();
@@ -67,20 +69,20 @@ public class ORemoteTransactionMessagesTest extends BaseMemoryDatabase {
     OBeginTransactionRequest readRequest = new OBeginTransactionRequest();
     readRequest.read(channel, 0, ORecordSerializerNetworkFactory.INSTANCE.current());
     assertTrue(readRequest.isUsingLog());
-    assertEquals(readRequest.getOperations().size(), 1);
-    assertEquals(readRequest.getTxId(), 0);
-    assertEquals(readRequest.getIndexChanges().size(), 1);
-    assertEquals(readRequest.getIndexChanges().get(0).getName(), "some");
+    assertEquals(1, readRequest.getOperations().size());
+    assertEquals(0, readRequest.getTxId());
+    assertEquals(1, readRequest.getIndexChanges().size());
+    assertEquals("some", readRequest.getIndexChanges().get(0).getName());
     OTransactionIndexChanges val = readRequest.getIndexChanges().get(0).getKeyChanges();
     assertFalse(val.cleared);
-    assertEquals(val.changesPerKey.size(), 1);
+    assertEquals(1, val.changesPerKey.size());
     OTransactionIndexChangesPerKey entryChange = val.changesPerKey.firstEntry().getValue();
-    assertEquals(entryChange.key, "key");
-    assertEquals(entryChange.size(), 2);
-    assertEquals(entryChange.getEntriesAsList().get(0).getValue(), new ORecordId(1, 2));
-    assertEquals(entryChange.getEntriesAsList().get(0).getOperation(), OPERATION.PUT);
-    assertEquals(entryChange.getEntriesAsList().get(1).getValue(), new ORecordId(2, 2));
-    assertEquals(entryChange.getEntriesAsList().get(1).getOperation(), OPERATION.REMOVE);
+    assertEquals("key", entryChange.key);
+    assertEquals(2, entryChange.size());
+    assertEquals(new ORecordId(1, 2), entryChange.getEntriesAsList().get(0).getValue());
+    assertEquals(OPERATION.PUT, entryChange.getEntriesAsList().get(0).getOperation());
+    assertEquals(new ORecordId(2, 2), entryChange.getEntriesAsList().get(1).getValue());
+    assertEquals(OPERATION.REMOVE, entryChange.getEntriesAsList().get(1).getOperation());
   }
 
   @Test
@@ -106,20 +108,20 @@ public class ORemoteTransactionMessagesTest extends BaseMemoryDatabase {
     OCommit37Request readRequest = new OCommit37Request();
     readRequest.read(channel, 0, ORecordSerializerNetworkFactory.INSTANCE.current());
     assertTrue(readRequest.isUsingLog());
-    assertEquals(readRequest.getOperations().size(), 1);
-    assertEquals(readRequest.getTxId(), 0);
-    assertEquals(readRequest.getIndexChanges().size(), 1);
-    assertEquals(readRequest.getIndexChanges().get(0).getName(), "some");
+    assertEquals(1, readRequest.getOperations().size());
+    assertEquals(0, readRequest.getTxId());
+    assertEquals(1, readRequest.getIndexChanges().size());
+    assertEquals("some", readRequest.getIndexChanges().get(0).getName());
     OTransactionIndexChanges val = readRequest.getIndexChanges().get(0).getKeyChanges();
     assertFalse(val.cleared);
-    assertEquals(val.changesPerKey.size(), 1);
+    assertEquals(1, val.changesPerKey.size());
     OTransactionIndexChangesPerKey entryChange = val.changesPerKey.firstEntry().getValue();
-    assertEquals(entryChange.key, "key");
-    assertEquals(entryChange.size(), 2);
-    assertEquals(entryChange.getEntriesAsList().get(0).getValue(), new ORecordId(1, 2));
-    assertEquals(entryChange.getEntriesAsList().get(0).getOperation(), OPERATION.PUT);
-    assertEquals(entryChange.getEntriesAsList().get(1).getValue(), new ORecordId(2, 2));
-    assertEquals(entryChange.getEntriesAsList().get(1).getOperation(), OPERATION.REMOVE);
+    assertEquals("key", entryChange.key);
+    assertEquals(2, entryChange.size());
+    assertEquals(new ORecordId(1, 2), entryChange.getEntriesAsList().get(0).getValue());
+    assertEquals(OPERATION.PUT, entryChange.getEntriesAsList().get(0).getOperation());
+    assertEquals(new ORecordId(2, 2), entryChange.getEntriesAsList().get(1).getValue());
+    assertEquals(OPERATION.REMOVE, entryChange.getEntriesAsList().get(1).getOperation());
   }
 
   @Test
@@ -142,19 +144,19 @@ public class ORemoteTransactionMessagesTest extends BaseMemoryDatabase {
     OCommit37Response readResponse = new OCommit37Response();
     readResponse.read(channel, null);
 
-    assertEquals(readResponse.getUpdatedRids().size(), 2);
+    assertEquals(2, readResponse.getUpdatedRids().size());
 
-    assertEquals(readResponse.getUpdatedRids().get(0).first(), new ORecordId(10, 30));
-    assertEquals(readResponse.getUpdatedRids().get(0).second(), new ORecordId(10, 20));
+    assertEquals(new ORecordId(10, 30), readResponse.getUpdatedRids().get(0).first());
+    assertEquals(new ORecordId(10, 20), readResponse.getUpdatedRids().get(0).second());
 
-    assertEquals(readResponse.getUpdatedRids().get(1).first(), new ORecordId(10, 31));
-    assertEquals(readResponse.getUpdatedRids().get(1).second(), new ORecordId(10, 21));
+    assertEquals(new ORecordId(10, 31), readResponse.getUpdatedRids().get(1).first());
+    assertEquals(new ORecordId(10, 21), readResponse.getUpdatedRids().get(1).second());
 
-    assertEquals(readResponse.getCollectionChanges().size(), 1);
+    assertEquals(1, readResponse.getCollectionChanges().size());
     assertNotNull(readResponse.getCollectionChanges().get(val));
-    assertEquals(readResponse.getCollectionChanges().get(val).getFileId(), 10);
-    assertEquals(readResponse.getCollectionChanges().get(val).getRootPointer().getPageIndex(), 30);
-    assertEquals(readResponse.getCollectionChanges().get(val).getRootPointer().getPageOffset(), 40);
+    assertEquals(10, readResponse.getCollectionChanges().get(val).getFileId());
+    assertEquals(30, readResponse.getCollectionChanges().get(val).getRootPointer().getPageIndex());
+    assertEquals(40, readResponse.getCollectionChanges().get(val).getRootPointer().getPageOffset());
   }
 
   @Test
@@ -170,7 +172,7 @@ public class ORemoteTransactionMessagesTest extends BaseMemoryDatabase {
     readRequest.read(channel, 0, ORecordSerializerNetworkFactory.INSTANCE.current());
     assertTrue(readRequest.isUsingLog());
     assertNull(readRequest.getOperations());
-    assertEquals(readRequest.getTxId(), 0);
+    assertEquals(0, readRequest.getTxId());
     assertNull(readRequest.getIndexChanges());
   }
 
@@ -179,10 +181,17 @@ public class ORemoteTransactionMessagesTest extends BaseMemoryDatabase {
 
     List<ORecordOperation> operations = new ArrayList<>();
     operations.add(new ORecordOperation(new ODocument(), ORecordOperation.CREATED));
+    var docOne = new ODocument();
+    ORecordInternal.setIdentity(docOne, new ORecordId(10, 2));
+
+    var docTwo = new ODocument();
+    ORecordInternal.setIdentity(docTwo, new ORecordId(10, 1));
+
     operations.add(
-        new ORecordOperation(new ODocument(new ORecordId(10, 2)), ORecordOperation.UPDATED));
+        new ORecordOperation(docOne, ORecordOperation.UPDATED));
     operations.add(
-        new ORecordOperation(new ODocument(new ORecordId(10, 1)), ORecordOperation.DELETED));
+        new ORecordOperation(docTwo, ORecordOperation.DELETED));
+
     Map<String, OTransactionIndexChanges> changes = new HashMap<>();
     OTransactionIndexChanges change = new OTransactionIndexChanges();
     change.cleared = false;
@@ -203,26 +212,26 @@ public class ORemoteTransactionMessagesTest extends BaseMemoryDatabase {
     OFetchTransactionResponse readResponse = new OFetchTransactionResponse();
     readResponse.read(channel, null);
 
-    assertEquals(readResponse.getOperations().size(), 3);
-    assertEquals(readResponse.getOperations().get(0).getType(), ORecordOperation.CREATED);
+    assertEquals(3, readResponse.getOperations().size());
+    assertEquals(ORecordOperation.CREATED, readResponse.getOperations().get(0).getType());
     assertNotNull(readResponse.getOperations().get(0).getRecord());
-    assertEquals(readResponse.getOperations().get(1).getType(), ORecordOperation.UPDATED);
+    assertEquals(ORecordOperation.UPDATED, readResponse.getOperations().get(1).getType());
     assertNotNull(readResponse.getOperations().get(1).getRecord());
-    assertEquals(readResponse.getOperations().get(2).getType(), ORecordOperation.DELETED);
+    assertEquals(ORecordOperation.DELETED, readResponse.getOperations().get(2).getType());
     assertNotNull(readResponse.getOperations().get(2).getRecord());
-    assertEquals(readResponse.getTxId(), 10);
-    assertEquals(readResponse.getIndexChanges().size(), 1);
-    assertEquals(readResponse.getIndexChanges().get(0).getName(), "some");
+    assertEquals(10, readResponse.getTxId());
+    assertEquals(1, readResponse.getIndexChanges().size());
+    assertEquals("some", readResponse.getIndexChanges().get(0).getName());
     OTransactionIndexChanges val = readResponse.getIndexChanges().get(0).getKeyChanges();
     assertFalse(val.cleared);
-    assertEquals(val.changesPerKey.size(), 1);
+    assertEquals(1, val.changesPerKey.size());
     OTransactionIndexChangesPerKey entryChange = val.changesPerKey.firstEntry().getValue();
-    assertEquals(entryChange.key, "key");
-    assertEquals(entryChange.size(), 2);
-    assertEquals(entryChange.getEntriesAsList().get(0).getValue(), new ORecordId(1, 2));
-    assertEquals(entryChange.getEntriesAsList().get(0).getOperation(), OPERATION.PUT);
-    assertEquals(entryChange.getEntriesAsList().get(1).getValue(), new ORecordId(2, 2));
-    assertEquals(entryChange.getEntriesAsList().get(1).getOperation(), OPERATION.REMOVE);
+    assertEquals("key", entryChange.key);
+    assertEquals(2, entryChange.size());
+    assertEquals(new ORecordId(1, 2), entryChange.getEntriesAsList().get(0).getValue());
+    assertEquals(OPERATION.PUT, entryChange.getEntriesAsList().get(0).getOperation());
+    assertEquals(new ORecordId(2, 2), entryChange.getEntriesAsList().get(1).getValue());
+    assertEquals(OPERATION.REMOVE, entryChange.getEntriesAsList().get(1).getOperation());
   }
 
   @Test
@@ -255,26 +264,26 @@ public class ORemoteTransactionMessagesTest extends BaseMemoryDatabase {
     OFetchTransaction38Response readResponse = new OFetchTransaction38Response();
     readResponse.read(channel, null);
 
-    assertEquals(readResponse.getOperations().size(), 3);
-    assertEquals(readResponse.getOperations().get(0).getType(), ORecordOperation.CREATED);
+    assertEquals(3, readResponse.getOperations().size());
+    assertEquals(ORecordOperation.CREATED, readResponse.getOperations().get(0).getType());
     assertNotNull(readResponse.getOperations().get(0).getRecord());
-    assertEquals(readResponse.getOperations().get(1).getType(), ORecordOperation.UPDATED);
+    assertEquals(ORecordOperation.UPDATED, readResponse.getOperations().get(1).getType());
     assertNotNull(readResponse.getOperations().get(1).getRecord());
-    assertEquals(readResponse.getOperations().get(2).getType(), ORecordOperation.DELETED);
+    assertEquals(ORecordOperation.DELETED, readResponse.getOperations().get(2).getType());
     assertNotNull(readResponse.getOperations().get(2).getRecord());
-    assertEquals(readResponse.getTxId(), 10);
-    assertEquals(readResponse.getIndexChanges().size(), 1);
-    assertEquals(readResponse.getIndexChanges().get(0).getName(), "some");
+    assertEquals(10, readResponse.getTxId());
+    assertEquals(1, readResponse.getIndexChanges().size());
+    assertEquals("some", readResponse.getIndexChanges().get(0).getName());
     OTransactionIndexChanges val = readResponse.getIndexChanges().get(0).getKeyChanges();
     assertFalse(val.cleared);
-    assertEquals(val.changesPerKey.size(), 1);
+    assertEquals(1, val.changesPerKey.size());
     OTransactionIndexChangesPerKey entryChange = val.changesPerKey.firstEntry().getValue();
-    assertEquals(entryChange.key, "key");
-    assertEquals(entryChange.size(), 2);
-    assertEquals(entryChange.getEntriesAsList().get(0).getValue(), new ORecordId(1, 2));
-    assertEquals(entryChange.getEntriesAsList().get(0).getOperation(), OPERATION.PUT);
-    assertEquals(entryChange.getEntriesAsList().get(1).getValue(), new ORecordId(2, 2));
-    assertEquals(entryChange.getEntriesAsList().get(1).getOperation(), OPERATION.REMOVE);
+    assertEquals("key", entryChange.key);
+    assertEquals(2, entryChange.size());
+    assertEquals(new ORecordId(1, 2), entryChange.getEntriesAsList().get(0).getValue());
+    assertEquals(OPERATION.PUT, entryChange.getEntriesAsList().get(0).getOperation());
+    assertEquals(new ORecordId(2, 2), entryChange.getEntriesAsList().get(1).getValue());
+    assertEquals(OPERATION.REMOVE, entryChange.getEntriesAsList().get(1).getOperation());
   }
 
   @Test
@@ -302,18 +311,18 @@ public class ORemoteTransactionMessagesTest extends BaseMemoryDatabase {
         new OFetchTransactionResponse(db, 10, operations, changes, new HashMap<>());
     readResponse.read(channel, null);
 
-    assertEquals(readResponse.getTxId(), 10);
-    assertEquals(readResponse.getIndexChanges().size(), 1);
-    assertEquals(readResponse.getIndexChanges().get(0).getName(), "some");
+    assertEquals(10, readResponse.getTxId());
+    assertEquals(1, readResponse.getIndexChanges().size());
+    assertEquals("some", readResponse.getIndexChanges().get(0).getName());
     OTransactionIndexChanges val = readResponse.getIndexChanges().get(0).getKeyChanges();
     assertTrue(val.cleared);
-    assertEquals(val.changesPerKey.size(), 1);
+    assertEquals(1, val.changesPerKey.size());
     OTransactionIndexChangesPerKey entryChange = val.changesPerKey.firstEntry().getValue();
-    assertEquals(entryChange.key, "key");
-    assertEquals(entryChange.size(), 2);
-    assertEquals(entryChange.getEntriesAsList().get(0).getValue(), new ORecordId(1, 2));
-    assertEquals(entryChange.getEntriesAsList().get(0).getOperation(), OPERATION.PUT);
-    assertEquals(entryChange.getEntriesAsList().get(1).getValue(), new ORecordId(2, 2));
-    assertEquals(entryChange.getEntriesAsList().get(1).getOperation(), OPERATION.REMOVE);
+    assertEquals("key", entryChange.key);
+    assertEquals(2, entryChange.size());
+    assertEquals(new ORecordId(1, 2), entryChange.getEntriesAsList().get(0).getValue());
+    assertEquals(OPERATION.PUT, entryChange.getEntriesAsList().get(0).getOperation());
+    assertEquals(new ORecordId(2, 2), entryChange.getEntriesAsList().get(1).getValue());
+    assertEquals(OPERATION.REMOVE, entryChange.getEntriesAsList().get(1).getOperation());
   }
 }

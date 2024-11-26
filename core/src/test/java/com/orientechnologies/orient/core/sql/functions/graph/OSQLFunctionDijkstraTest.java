@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OVertex;
@@ -80,9 +81,12 @@ public class OSQLFunctionDijkstraTest {
     v1 = graph.bindToSession(v1);
     v4 = graph.bindToSession(v4);
 
+    var context = new OBasicCommandContext();
+    context.setDatabase((ODatabaseSessionInternal) graph);
+
     final List<OVertex> result =
         functionDijkstra.execute(
-            null, null, null, new Object[]{v1, v4, "'weight'"}, new OBasicCommandContext());
+            null, null, null, new Object[]{v1, v4, "'weight'"}, context);
 
     assertEquals(4, result.size());
     assertEquals(v1, result.get(0));

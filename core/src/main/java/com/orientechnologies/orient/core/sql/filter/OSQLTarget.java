@@ -21,6 +21,7 @@ package com.orientechnologies.orient.core.sql.filter;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.parser.OBaseParser;
+import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
@@ -187,6 +188,11 @@ public class OSQLTarget extends OBaseParser {
                   .getScriptManager()
                   .getCommandManager()
                   .getExecutor(subCommand);
+      executor.setContext(context);
+      var commandContext = new OBasicCommandContext();
+      context.setChild(commandContext);
+
+      subCommand.setContext(commandContext);
       executor.setProgressListener(subCommand.getProgressListener());
       executor.parse(subCommand);
       OCommandContext childContext = executor.getContext();

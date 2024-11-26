@@ -42,6 +42,7 @@ import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandExecutor;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
@@ -4043,6 +4044,8 @@ public abstract class OAbstractPaginatedStorage
                   .getCommandManager()
                   .getExecutor(command);
           // COPY THE CONTEXT FROM THE REQUEST
+          var context = (OBasicCommandContext) command.getContext();
+          context.setDatabase(db);
           executor.setContext(command.getContext());
           executor.setProgressListener(command.getProgressListener());
           executor.parse(command);

@@ -34,6 +34,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import javax.annotation.Nonnull;
 
 /**
  * SQL asynchronous query. When executed the caller does not wait for the execution, rather the
@@ -250,7 +251,7 @@ public class OSQLNonBlockingQuery<T extends Object> extends OSQLQuery<T>
   }
 
   @Override
-  public <RET> RET execute(ODatabaseSessionInternal querySession, final Object... iArgs) {
+  public <RET> RET execute(@Nonnull ODatabaseSessionInternal querySession, final Object... iArgs) {
     final ONonBlockingQueryFuture future = new ONonBlockingQueryFuture();
 
     ODatabaseSessionInternal currentThreadLocal =

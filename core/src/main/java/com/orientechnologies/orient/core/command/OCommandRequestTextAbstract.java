@@ -19,7 +19,6 @@
  */
 package com.orientechnologies.orient.core.command;
 
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OExecutionThreadLocal;
 import com.orientechnologies.orient.core.exception.OSerializationException;
@@ -34,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import javax.annotation.Nonnull;
 
 /**
  * Text based Command Request abstract class.
@@ -59,13 +59,18 @@ public abstract class OCommandRequestTextAbstract extends OCommandRequestAbstrac
    * Delegates the execution to the configured command executor.
    */
   @SuppressWarnings("unchecked")
-  public <RET> RET execute(ODatabaseSessionInternal querySession, final Object... iArgs) {
+  public <RET> RET execute(@Nonnull ODatabaseSessionInternal querySession, final Object... iArgs) {
     setParameters(iArgs);
 
     OExecutionThreadLocal.INSTANCE.get().onAsyncReplicationOk = onAsyncReplicationOk;
     OExecutionThreadLocal.INSTANCE.get().onAsyncReplicationError = onAsyncReplicationError;
 
-    return (RET) ODatabaseRecordThreadLocal.instance().get().getStorage()
+    if (context == null) {
+      context = new OBasicCommandContext();
+    }
+
+    context.setDatabase(querySession);
+    return (RET) querySession.getStorage()
         .command(querySession, this);
   }
 

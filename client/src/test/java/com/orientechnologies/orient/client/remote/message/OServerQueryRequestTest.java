@@ -1,23 +1,17 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
  *
  */
-public class OServerQueryRequestTest {
-
-  @Before
-  public void before() {
-    ODatabaseRecordThreadLocal.instance().remove();
-  }
+public class OServerQueryRequestTest extends BaseMemoryDatabase {
 
   @Test
   public void testWithPositionalParams() throws IOException {

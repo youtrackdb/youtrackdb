@@ -364,6 +364,8 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
   @Override
   public Object execute(Map<Object, Object> iArgs, ODatabaseSessionInternal querySession) {
     this.context.setInputParameters(iArgs);
+    this.context.setDatabase(querySession);
+
     return execute(this.request, this.context, this.progressListener);
   }
 

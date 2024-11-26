@@ -1,29 +1,22 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
  *
  */
-public class OQueryRequestTest {
-
-  @Before
-  public void before() {
-    ODatabaseRecordThreadLocal.instance().remove();
-  }
-
+public class OQueryRequestTest extends BaseMemoryDatabase {
   @Test
   public void testWithPositionalParams() throws IOException {
     Object[] params = new Object[]{1, "Foo"};
     OQueryRequest request =
-        new OQueryRequest(null,
+        new OQueryRequest(db,
             "sql",
             "select from Foo where a = ?",
             params,
@@ -52,7 +45,7 @@ public class OQueryRequestTest {
     params.put("foo", "bar");
     params.put("baz", 12);
     OQueryRequest request =
-        new OQueryRequest(null,
+        new OQueryRequest(db,
             "sql",
             "select from Foo where a = ?",
             params,
@@ -78,7 +71,7 @@ public class OQueryRequestTest {
   public void testWithNoParams() throws IOException {
     Map<String, Object> params = null;
     OQueryRequest request =
-        new OQueryRequest(null,
+        new OQueryRequest(db,
             "sql",
             "select from Foo where a = ?",
             params,

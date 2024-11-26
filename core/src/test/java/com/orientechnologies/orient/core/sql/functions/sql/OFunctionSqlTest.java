@@ -41,9 +41,12 @@ public class OFunctionSqlTest extends BaseMemoryDatabase {
     function.save(db);
     db.commit();
 
-    Object result = function.executeInContext(new OBasicCommandContext(), "Enrico");
+    var context = new OBasicCommandContext();
+    context.setDatabase(db);
 
-    Assert.assertEquals(((OLegacyResultSet) result).size(), 1);
+    Object result = function.executeInContext(context, "Enrico");
+
+    Assert.assertEquals(1, ((OLegacyResultSet<?>) result).size());
   }
 
   @Test
@@ -88,7 +91,10 @@ public class OFunctionSqlTest extends BaseMemoryDatabase {
     function1.save(db);
     db.commit();
 
-    Object result = function.executeInContext(new OBasicCommandContext(), "Enrico");
-    Assert.assertEquals(((OLegacyResultSet) result).size(), 1);
+    var context = new OBasicCommandContext();
+    context.setDatabase(db);
+
+    Object result = function.executeInContext(context, "Enrico");
+    Assert.assertEquals(1, ((OLegacyResultSet) result).size());
   }
 }

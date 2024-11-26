@@ -31,7 +31,6 @@ import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestInternal;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
@@ -1196,7 +1195,7 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
       throw new IllegalArgumentException(type + " is not an edge class");
     }
 
-    return addEdgeInternal(from, to, type, false, false);
+    return addEdgeInternal(from, to, type, true);
   }
 
   @Override
@@ -1206,7 +1205,7 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
       throw new IllegalArgumentException(className + " is not an edge class");
     }
 
-    return addEdgeInternal(from, to, className, false, true);
+    return addEdgeInternal(from, to, className, false);
   }
 
   @Override
@@ -1218,23 +1217,22 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
   }
 
   private OEdgeInternal addEdgeInternal(
-      final OVertex currentVertex,
+      final OVertex toVertex,
       final OVertex inVertex,
       String className,
-      boolean forceRegular,
-      boolean forceLightweight) {
-    Objects.requireNonNull(currentVertex, "From vertex is null");
+      boolean isRegular) {
+    Objects.requireNonNull(toVertex, "From vertex is null");
     Objects.requireNonNull(inVertex, "To vertex is null");
 
-    OEdgeInternal edge = null;
-    ODocument outDocument = null;
-    ODocument inDocument = null;
-    boolean outDocumentModified = false;
+    OEdgeInternal edge;
+    ODocument outDocument;
+    ODocument inDocument;
 
-    if (checkDeletedInTx(currentVertex)) {
+    boolean outDocumentModified = false;
+    if (checkDeletedInTx(toVertex)) {
       throw new ORecordNotFoundException(
-          currentVertex.getIdentity(),
-          "The vertex " + currentVertex.getIdentity() + " has been deleted");
+          toVertex.getIdentity(),
+          "The vertex " + toVertex.getIdentity() + " has been deleted");
     }
 
     if (checkDeletedInTx(inVertex)) {
@@ -1243,10 +1241,10 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
     }
 
     try {
-      outDocument = currentVertex.getRecord();
+      outDocument = toVertex.getRecord();
     } catch (ORecordNotFoundException e) {
       throw new IllegalArgumentException(
-          "source vertex is invalid (rid=" + currentVertex.getIdentity() + ")");
+          "source vertex is invalid (rid=" + toVertex.getIdentity() + ")");
     }
 
     try {
@@ -1256,21 +1254,19 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
           "source vertex is invalid (rid=" + inVertex.getIdentity() + ")");
     }
 
-    @SuppressWarnings("UnnecessaryLocalVariable")
-    OVertex to = inVertex;
-    @SuppressWarnings("UnnecessaryLocalVariable")
-    OVertex from = currentVertex;
-
     OSchema schema = getMetadata().getImmutableSchemaSnapshot();
     final OClass edgeType = schema.getClass(className);
+
+    if (edgeType == null) {
+      throw new IllegalArgumentException("Class " + className + " does not exist");
+    }
+
     className = edgeType.getName();
 
-    var useLightweightEdges = forceLightweight || isUseLightweightEdges();
     var createLightweightEdge =
-        useLightweightEdges
-            && !forceRegular
+        !isRegular
             && (edgeType.isAbstract() || className.equals(OEdgeInternal.CLASS_NAME));
-    if (useLightweightEdges && !createLightweightEdge) {
+    if (!isRegular && !createLightweightEdge) {
       throw new IllegalArgumentException(
           "Cannot create lightweight edge for class " + className + " because it is not abstract");
     }
@@ -1279,12 +1275,12 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
     final String inFieldName = OVertex.getEdgeLinkFieldName(ODirection.IN, className);
 
     if (createLightweightEdge) {
-      edge = newLightweightEdge(className, from, to);
-      OVertexInternal.createLink(from.getRecord(), to.getRecord(), outFieldName);
-      OVertexInternal.createLink(to.getRecord(), from.getRecord(), inFieldName);
+      edge = newLightweightEdge(className, toVertex, inVertex);
+      OVertexInternal.createLink(toVertex.getRecord(), inVertex.getRecord(), outFieldName);
+      OVertexInternal.createLink(inVertex.getRecord(), toVertex.getRecord(), inFieldName);
     } else {
       edge = newEdgeInternal(className);
-      edge.setPropertyInternal(OEdgeInternal.DIRECTION_OUT, currentVertex.getRecord());
+      edge.setPropertyInternal(OEdgeInternal.DIRECTION_OUT, toVertex.getRecord());
       edge.setPropertyInternal(OEdge.DIRECTION_IN, inDocument.getRecord());
 
       if (!outDocumentModified) {
@@ -1634,7 +1630,6 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
       throw e;
     }
 
-
     return true;
   }
 
@@ -1951,16 +1946,6 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
     return sharedContext;
   }
 
-  public boolean isUseLightweightEdges() {
-    final List<OStorageEntryConfiguration> custom =
-        (List<OStorageEntryConfiguration>) this.get(ATTRIBUTES.CUSTOM);
-    for (OStorageEntryConfiguration c : custom) {
-      if (c.name.equals("useLightweightEdges")) {
-        return Boolean.parseBoolean(c.value);
-      }
-    }
-    return false;
-  }
 
   public void setUseLightweightEdges(boolean b) {
     this.setCustom("useLightweightEdges", b);
@@ -1980,7 +1965,7 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
       throw new IllegalArgumentException(iClassName + " is not an edge class");
     }
 
-    return addEdgeInternal(from, to, iClassName, true, false);
+    return addEdgeInternal(from, to, iClassName, true);
   }
 
   public synchronized void queryStarted(String id, OQueryDatabaseState state) {

@@ -18,7 +18,6 @@ import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.OEdge;
-import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.OVertex;
@@ -837,54 +836,6 @@ public interface OVertexInternal extends OVertex, OElementInternal {
     return label;
   }
 
-  @Override
-  default void deleteEdge(OVertex to, String label) {
-    var db = getBaseDocument().getSession();
-    var schema = db.getMetadata().getImmutableSchemaSnapshot();
-    OClass cl = schema.getClass(label);
-
-    if (cl == null || !cl.isEdgeType()) {
-      throw new IllegalArgumentException(label + " is not an edge class");
-    }
-
-    deleteEdge(to, cl);
-  }
-
-  @Override
-  default void deleteEdge(OVertex to) {
-    deleteEdge(to, OEdgeInternal.CLASS_NAME);
-  }
-
-  default void deleteEdge(OVertex to, OClass cls) {
-    var label = cls.getName();
-    var outFieldName = OVertex.getEdgeLinkFieldName(ODirection.OUT, label);
-    var inFieldName = OVertex.getEdgeLinkFieldName(ODirection.IN, label);
-
-    var from = getBaseDocument();
-    var db = from.getSession();
-    var outLink = from.getPropertyInternal(outFieldName);
-
-    var toInternal = (OVertexInternal) to;
-    var inLink = toInternal.getPropertyInternal(inFieldName);
-
-    if (inLink instanceof OIdentifiable edgeId && inLink.equals(outLink)) {
-      // record edge
-      assert db.getMetadata()
-          .getSchema()
-          .getClassByClusterId(edgeId.getIdentity().getClusterId())
-          .isEdgeType();
-
-      var edge = edgeId.<OElement>getRecord().toEdge();
-      // edge removal will cause detachments of links for vertices so we
-      // should not do anything else it will be done automatically.
-      edge.delete();
-
-      return;
-    }
-
-    removeVertexLink(from, outFieldName, outLink, label, to);
-    removeVertexLink(toInternal.getBaseDocument(), inFieldName, inLink, label, getIdentity());
-  }
 
   private static void removeVertexLink(
       OElementInternal vertex,

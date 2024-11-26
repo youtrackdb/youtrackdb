@@ -21,6 +21,7 @@ package com.orientechnologies.orient.core.command;
 
 import com.orientechnologies.orient.core.command.OCommandContext.TIMEOUT_STRATEGY;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import javax.annotation.Nonnull;
 
 /**
  * Generic GOF command pattern implementation. Execute a command passing the optional arguments
@@ -28,7 +29,7 @@ import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
  */
 public interface OCommandRequest {
 
-  <RET> RET execute(ODatabaseSessionInternal querySession, Object... iArgs);
+  <RET> RET execute(@Nonnull ODatabaseSessionInternal querySession, Object... iArgs);
 
   /**
    * This api is deprecated use sql keyword "LIMIT" instead

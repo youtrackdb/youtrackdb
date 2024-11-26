@@ -204,8 +204,6 @@ public interface ODatabaseSessionInternal extends ODatabaseSession {
     throw new UnsupportedOperationException();
   }
 
-  boolean isUseLightweightEdges();
-
   /**
    * Creates a new lightweight edge with the specified class name, starting vertex, and ending
    * vertex.

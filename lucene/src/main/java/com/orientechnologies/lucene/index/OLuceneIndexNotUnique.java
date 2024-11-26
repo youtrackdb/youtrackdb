@@ -341,20 +341,22 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
 
   @Override
   public long size(ODatabaseSessionInternal session) {
-    while (true) {
-      try {
-        return storage.callIndexEngine(
-            false,
-            indexId,
-            engine -> {
-              OTransaction transaction = session.getTransaction();
-              OLuceneIndexEngine indexEngine = (OLuceneIndexEngine) engine;
-              return indexEngine.sizeInTx(getTransactionChanges(transaction));
-            });
-      } catch (OInvalidIndexEngineIdException e) {
-        doReloadIndexEngine();
+    return session.computeInTx(() -> {
+      while (true) {
+        try {
+          return storage.callIndexEngine(
+              false,
+              indexId,
+              engine -> {
+                OTransaction transaction = session.getTransaction();
+                OLuceneIndexEngine indexEngine = (OLuceneIndexEngine) engine;
+                return indexEngine.sizeInTx(getTransactionChanges(transaction));
+              });
+        } catch (OInvalidIndexEngineIdException e) {
+          doReloadIndexEngine();
+        }
       }
-    }
+    });
   }
 
   @Override

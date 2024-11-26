@@ -123,7 +123,6 @@ public class ODocumentTransactionalValidationTest extends BaseMemoryInternalData
     db.commit();
     db.begin();
     vrt.getEdges(ODirection.OUT, edgeClass).forEach(OElement::delete);
-    vrt.deleteEdge(link, edgeClass);
     vrt.save();
     db.commit();
   }

@@ -140,7 +140,7 @@ public class TraverseTest extends DocumentDBBaseTest {
 
   public void traverseAPIAllFromActorNoWhere() {
     List<OIdentifiable> result1 =
-        new OTraverse().fields("*").target(tomCruise.getIdentity()).execute();
+        new OTraverse().fields("*").target(tomCruise.getIdentity()).execute(database);
     Assert.assertEquals(result1.size(), totalElements);
   }
 

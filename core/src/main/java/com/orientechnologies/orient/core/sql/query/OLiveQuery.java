@@ -29,6 +29,7 @@ import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
+import javax.annotation.Nonnull;
 
 /**
  * SQL live query. <br>
@@ -57,7 +58,7 @@ public class OLiveQuery<T> extends OSQLSynchQuery<T> {
   }
 
   @Override
-  public <RET> RET execute(ODatabaseSessionInternal querySession, Object... iArgs) {
+  public <RET> RET execute(@Nonnull ODatabaseSessionInternal querySession, Object... iArgs) {
     ODatabaseSessionInternal database = ODatabaseRecordThreadLocal.instance().get();
     if (database.isRemote()) {
       BackwardOLiveQueryResultListener listener = new BackwardOLiveQueryResultListener();

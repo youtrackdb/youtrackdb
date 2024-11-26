@@ -39,7 +39,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends BaseMemoryDatabase {
         db.query("select sequence('Sequence1').next() as val").stream()
             .map(OResult::toElement)
             .collect(Collectors.toList());
-    assertEquals(results.size(), 1);
+    assertEquals(1, results.size());
     for (OElement result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(1L);
     }
@@ -47,7 +47,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends BaseMemoryDatabase {
         db.query("select sequence('Sequence1').next() as val").stream()
             .map(OResult::toElement)
             .collect(Collectors.toList());
-    assertEquals(results.size(), 1);
+    assertEquals(1, results.size());
     for (OElement result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(2L);
     }
@@ -55,7 +55,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends BaseMemoryDatabase {
         db.query("select sequence('Sequence1').next() as val").stream()
             .map(OResult::toElement)
             .collect(Collectors.toList());
-    assertEquals(results.size(), 1);
+    assertEquals(1, results.size());
     for (OElement result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(3L);
     }
@@ -69,7 +69,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends BaseMemoryDatabase {
         db.query("select sequence('SequenceIncrement').next() as val").stream()
             .map(OResult::toElement)
             .collect(Collectors.toList());
-    assertEquals(results.size(), 1);
+    assertEquals(1, results.size());
     for (OElement result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(3L);
     }
@@ -77,7 +77,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends BaseMemoryDatabase {
         db.query("select sequence('SequenceIncrement').next() as val").stream()
             .map(OResult::toElement)
             .collect(Collectors.toList());
-    assertEquals(results.size(), 1);
+    assertEquals(1, results.size());
     for (OElement result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(6L);
     }
@@ -85,7 +85,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends BaseMemoryDatabase {
         db.query("select sequence('SequenceIncrement').next() as val").stream()
             .map(OResult::toElement)
             .collect(Collectors.toList());
-    assertEquals(results.size(), 1);
+    assertEquals(1, results.size());
     for (OElement result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(9L);
     }
@@ -99,7 +99,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends BaseMemoryDatabase {
         db.query("select sequence('SequenceStart').next() as val").stream()
             .map(OResult::toElement)
             .collect(Collectors.toList());
-    assertEquals(results.size(), 1);
+    assertEquals(1, results.size());
     for (OElement result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(4L);
     }
@@ -107,7 +107,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends BaseMemoryDatabase {
         db.query("select sequence('SequenceStart').next() as val").stream()
             .map(OResult::toElement)
             .collect(Collectors.toList());
-    assertEquals(results.size(), 1);
+    assertEquals(1, results.size());
     for (OElement result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(5L);
     }
@@ -115,7 +115,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends BaseMemoryDatabase {
         db.query("select sequence('SequenceStart').next() as val").stream()
             .map(OResult::toElement)
             .collect(Collectors.toList());
-    assertEquals(results.size(), 1);
+    assertEquals(1, results.size());
     for (OElement result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(6L);
     }
@@ -129,7 +129,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends BaseMemoryDatabase {
         db.query("select sequence('SequenceStartIncrement').next() as val").stream()
             .map(OResult::toElement)
             .collect(Collectors.toList());
-    assertEquals(results.size(), 1);
+    assertEquals(1, results.size());
     for (OElement result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(13L);
     }
@@ -137,7 +137,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends BaseMemoryDatabase {
         db.query("select sequence('SequenceStartIncrement').next() as val").stream()
             .map(OResult::toElement)
             .collect(Collectors.toList());
-    assertEquals(results.size(), 1);
+    assertEquals(1, results.size());
     for (OElement result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(23L);
     }
@@ -145,7 +145,7 @@ public class OCommandExecutorSQLCreateSequenceTest extends BaseMemoryDatabase {
         db.query("select sequence('SequenceStartIncrement').next() as val").stream()
             .map(OResult::toElement)
             .collect(Collectors.toList());
-    assertEquals(results.size(), 1);
+    assertEquals(1, results.size());
     for (OElement result : results) {
       assertThat(result.<Long>getProperty("val")).isEqualTo(33L);
     }

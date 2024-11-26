@@ -309,7 +309,8 @@ public abstract class ORecordAbstract implements ORecord, ORecordElement, OSeria
 
   @Nonnull
   public ODatabaseSessionInternal getSession() {
-    assert session != null && session.validateIfActive() : createNotBoundToSessionMessage();
+    assert !recordId.isValid()
+        || session != null && session.validateIfActive() : createNotBoundToSessionMessage();
 
     if (session == null) {
       throw new ODatabaseException(createNotBoundToSessionMessage());
@@ -320,6 +321,8 @@ public abstract class ORecordAbstract implements ORecord, ORecordElement, OSeria
 
   @Nullable
   protected ODatabaseSessionInternal getSessionIfDefined() {
+    assert !recordId.isValid() || session == null ||
+        session.validateIfActive() : createNotBoundToSessionMessage();
     return session;
   }
 

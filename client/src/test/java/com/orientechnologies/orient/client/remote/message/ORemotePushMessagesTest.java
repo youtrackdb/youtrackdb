@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.client.remote.message.push.OStorageConfigurationPayload;
 import com.orientechnologies.orient.core.config.OStorageClusterConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
@@ -23,7 +24,7 @@ import org.junit.Test;
 /**
  *
  */
-public class ORemotePushMessagesTest {
+public class ORemotePushMessagesTest extends BaseMemoryDatabase {
 
   @Test
   public void testDistributedConfig() throws IOException {
@@ -37,9 +38,9 @@ public class ORemotePushMessagesTest {
 
     OPushDistributedConfigurationRequest readRequest = new OPushDistributedConfigurationRequest();
     readRequest.read(channel);
-    assertEquals(readRequest.getHosts().size(), 2);
-    assertEquals(readRequest.getHosts().get(0), "one");
-    assertEquals(readRequest.getHosts().get(1), "two");
+    assertEquals(2, readRequest.getHosts().size());
+    assertEquals("one", readRequest.getHosts().get(0));
+    assertEquals("two", readRequest.getHosts().get(1));
   }
 
   @Test
@@ -48,14 +49,15 @@ public class ORemotePushMessagesTest {
     OxygenDB oxygenDB = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
     oxygenDB.execute("create database test memory users (admin identified by 'admin' role admin)");
     ODatabaseSession session = oxygenDB.open("test", "admin", "admin");
+
+    session.begin();
     ODocument schema =
         ((ODatabaseSessionInternal) session).getSharedContext().getSchema().toStream();
-    session.close();
-    oxygenDB.close();
     MockChannel channel = new MockChannel();
-
     OPushSchemaRequest request = new OPushSchemaRequest(schema);
     request.write((ODatabaseSessionInternal) session, channel);
+    session.commit();
+
     channel.close();
 
     OPushSchemaRequest readRequest = new OPushSchemaRequest();
@@ -65,24 +67,27 @@ public class ORemotePushMessagesTest {
 
   @Test
   public void testIndexManager() throws IOException {
+    try (OxygenDB oxygenDB = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig())) {
+      oxygenDB.execute(
+          "create database test memory users (admin identified by 'admin' role admin)");
+      try (ODatabaseSession session = oxygenDB.open("test", "admin", "admin")) {
+        session.begin();
+        ODocument schema =
+            ((ODatabaseSessionInternal) session).getSharedContext().getIndexManager()
+                .toStream((ODatabaseSessionInternal) session);
 
-    OxygenDB oxygenDB = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
-    oxygenDB.execute("create database test memory users (admin identified by 'admin' role admin)");
-    ODatabaseSession session = oxygenDB.open("test", "admin", "admin");
-    ODocument schema =
-        ((ODatabaseSessionInternal) session).getSharedContext().getIndexManager()
-            .toStream((ODatabaseSessionInternal) session);
-    session.close();
-    oxygenDB.close();
-    MockChannel channel = new MockChannel();
+        MockChannel channel = new MockChannel();
 
-    OPushIndexManagerRequest request = new OPushIndexManagerRequest(schema);
-    request.write(null, channel);
-    channel.close();
+        OPushIndexManagerRequest request = new OPushIndexManagerRequest(schema);
+        request.write(null, channel);
+        channel.close();
+        session.commit();
 
-    OPushIndexManagerRequest readRequest = new OPushIndexManagerRequest();
-    readRequest.read(channel);
-    assertNotNull(readRequest.getIndexManager());
+        OPushIndexManagerRequest readRequest = new OPushIndexManagerRequest();
+        readRequest.read(channel);
+        assertNotNull(readRequest.getIndexManager());
+      }
+    }
   }
 
   @Test
@@ -174,7 +179,7 @@ public class ORemotePushMessagesTest {
     responseRead.read(channel, null);
 
     assertTrue(responseRead.getResponse() instanceof OSubscribeLiveQueryResponse);
-    assertEquals(((OSubscribeLiveQueryResponse) responseRead.getResponse()).getMonitorId(), 10);
+    assertEquals(10, ((OSubscribeLiveQueryResponse) responseRead.getResponse()).getMonitorId());
   }
 
   @Test
@@ -186,6 +191,6 @@ public class ORemotePushMessagesTest {
     OUnsubscribeRequest readRequest = new OUnsubscribeRequest();
     readRequest.read(channel, 0, null);
     assertEquals(
-        ((OUnsubscribeLiveQueryRequest) readRequest.getUnsubscribeRequest()).getMonitorId(), 10);
+        10, ((OUnsubscribeLiveQueryRequest) readRequest.getUnsubscribeRequest()).getMonitorId());
   }
 }

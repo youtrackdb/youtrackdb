@@ -12,8 +12,11 @@ public class OFilterOptimizerTest extends BaseMemoryDatabase {
   private final OFilterOptimizer optimizer = new OFilterOptimizer();
 
   @Test
-  public void testOptimizeFullOptimization() throws Exception {
-    final OSQLFilter filter = OSQLEngine.parseCondition("a = 3", new OBasicCommandContext(),
+  public void testOptimizeFullOptimization() {
+    var context = new OBasicCommandContext();
+    context.setDatabase(db);
+
+    final OSQLFilter filter = OSQLEngine.parseCondition("a = 3", context,
         "WHERE");
 
     final OSQLFilterCondition condition = filter.getRootCondition();
@@ -30,9 +33,12 @@ public class OFilterOptimizerTest extends BaseMemoryDatabase {
   }
 
   @Test
-  public void testOptimizeFullOptimizationComplex() throws Exception {
+  public void testOptimizeFullOptimizationComplex() {
+    var context = new OBasicCommandContext();
+    context.setDatabase(db);
+
     final OSQLFilter filter =
-        OSQLEngine.parseCondition("a = 3 and b = 4", new OBasicCommandContext(), "WHERE");
+        OSQLEngine.parseCondition("a = 3 and b = 4", context, "WHERE");
 
     final OSQLFilterCondition condition = filter.getRootCondition();
 
@@ -61,9 +67,12 @@ public class OFilterOptimizerTest extends BaseMemoryDatabase {
   }
 
   @Test
-  public void testOptimizePartialOptimization() throws Exception {
+  public void testOptimizePartialOptimization() {
+    var context = new OBasicCommandContext();
+    context.setDatabase(db);
+
     final OSQLFilter filter =
-        OSQLEngine.parseCondition("a = 3 and b > 5", new OBasicCommandContext(), "WHERE");
+        OSQLEngine.parseCondition("a = 3 and b > 5", context, "WHERE");
 
     final OSQLFilterCondition condition = filter.getRootCondition();
 
@@ -80,9 +89,12 @@ public class OFilterOptimizerTest extends BaseMemoryDatabase {
   }
 
   @Test
-  public void testOptimizePartialOptimizationMethod() throws Exception {
+  public void testOptimizePartialOptimizationMethod() {
+    var context = new OBasicCommandContext();
+    context.setDatabase(db);
+
     final OSQLFilter filter =
-        OSQLEngine.parseCondition("a = 3 and b.asFloat() > 3.14", new OBasicCommandContext(),
+        OSQLEngine.parseCondition("a = 3 and b.asFloat() > 3.14", context,
             "WHERE");
 
     final OSQLFilterCondition condition = filter.getRootCondition();
