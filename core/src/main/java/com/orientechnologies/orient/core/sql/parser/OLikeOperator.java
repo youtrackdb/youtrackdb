@@ -6,6 +6,7 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.query.OQueryHelper;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexFinder.Operation;
 import java.util.Map;
+import java.util.function.Function;
 
 public class OLikeOperator extends SimpleNode implements OBinaryCompareOperator {
 
@@ -19,13 +20,17 @@ public class OLikeOperator extends SimpleNode implements OBinaryCompareOperator 
 
   @Override
   public boolean execute(Object iLeft, Object iRight) {
-    if (OMultiValue.isMultiValue(iLeft) || OMultiValue.isMultiValue(iRight)) {
+    if (OMultiValue.isMultiValue(iRight)) {
       return false;
     }
-
     if (iLeft == null || iRight == null) {
       return false;
     }
+
+    if (OMultiValue.isMultiValue(iLeft)){
+      return OMultiValue.contains(iLeft, item -> OQueryHelper.like(item.toString(), iRight.toString()));
+    }
+
     return OQueryHelper.like(iLeft.toString(), iRight.toString());
   }
 
