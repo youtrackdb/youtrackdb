@@ -24,7 +24,7 @@ public class AbstractRemoteTest {
   @Before
   public void setup() throws Exception {
 
-    System.setProperty("ORIENTDB_HOME", SERVER_DIRECTORY);
+    System.setProperty("OXYGENDB_HOME", SERVER_DIRECTORY);
 
     InputStream stream =
         ClassLoader.getSystemResourceAsStream("abstract-orientdb-server-config.xml");

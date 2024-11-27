@@ -92,7 +92,7 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
         };
     server.startup();
 
-    System.setProperty("ORIENTDB_HOME", tempFolder.getAbsolutePath());
+    System.setProperty("OXYGENDB_HOME", tempFolder.getAbsolutePath());
 
     String path = tempFolder.getAbsolutePath() + File.separator + "databases";
     oxygenDB = server.getContext();

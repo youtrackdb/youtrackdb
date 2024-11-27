@@ -13,9 +13,9 @@ public class SystemUsersTest {
   public void test() {
     final String buildDirectory = System.getProperty("buildDirectory", ".");
     System.setProperty(
-        "ORIENTDB_HOME", buildDirectory + File.separator + SystemUsersTest.class.getSimpleName());
+        "OXYGENDB_HOME", buildDirectory + File.separator + SystemUsersTest.class.getSimpleName());
 
-    OLogManager.instance().info(this, "ORIENTDB_HOME: " + System.getProperty("ORIENTDB_HOME"));
+    OLogManager.instance().info(this, "OXYGENDB_HOME: " + System.getProperty("OXYGENDB_HOME"));
 
     OxygenDB orient =
         new OxygenDB(

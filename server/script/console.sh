@@ -19,9 +19,9 @@ done
 # Get standard environment variables
 PRGDIR=`dirname "$PRG"`
 
-# Only set ORIENTDB_HOME if not already set
-[ -f "$ORIENTDB_HOME"/lib/orientdb-tools-@VERSION@.jar ] || ORIENTDB_HOME=`cd "$PRGDIR/.." ; pwd`
-export ORIENTDB_HOME
+# Only set OXYGENDB_HOME if not already set
+[ -f "$ORIENTDB_HOME"/lib/orientdb-tools-@VERSION@.jar ] || OXYGENDB_HOME=`cd "$PRGDIR/.." ; pwd`
+export OXYGENDB_HOME
 
 
 # Set JavaHome if it exists

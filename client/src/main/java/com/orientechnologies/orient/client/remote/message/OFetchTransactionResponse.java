@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  */
 public class OFetchTransactionResponse implements OBinaryResponse {
 
-  private int txId;
+  private long txId;
   private List<ORecordOperationRequest> operations;
   private List<IndexChange> indexChanges;
 
@@ -33,7 +33,7 @@ public class OFetchTransactionResponse implements OBinaryResponse {
   }
 
   public OFetchTransactionResponse(
-      ODatabaseSessionInternal session, int txId,
+      ODatabaseSessionInternal session, long txId,
       Iterable<ORecordOperation> operations,
       Map<String, OTransactionIndexChanges> indexChanges,
       Map<ORID, ORID> updatedRids) {
@@ -69,7 +69,7 @@ public class OFetchTransactionResponse implements OBinaryResponse {
   public void write(ODatabaseSessionInternal session, OChannelDataOutput channel,
       int protocolVersion, ORecordSerializer serializer)
       throws IOException {
-    channel.writeInt(txId);
+    channel.writeLong(txId);
 
     for (ORecordOperationRequest txEntry : operations) {
       writeTransactionEntry(channel, txEntry, serializer);
@@ -156,7 +156,7 @@ public class OFetchTransactionResponse implements OBinaryResponse {
     return entry;
   }
 
-  public int getTxId() {
+  public long getTxId() {
     return txId;
   }
 

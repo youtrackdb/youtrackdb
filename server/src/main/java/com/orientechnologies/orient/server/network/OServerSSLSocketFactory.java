@@ -88,7 +88,7 @@ public class OServerSSLSocketFactory extends OServerSocketFactory {
     if (!keyStoreFile.isAbsolute()) {
       keyStoreFile =
           new File(
-              OSystemVariableResolver.resolveSystemVariables("${ORIENTDB_HOME}"), keyStorePath);
+              OSystemVariableResolver.resolveSystemVariables("${OXYGENDB_HOME}"), keyStorePath);
     }
 
     if (trustStorePath != null) {
@@ -96,7 +96,7 @@ public class OServerSSLSocketFactory extends OServerSocketFactory {
       if (!trustStoreFile.isAbsolute()) {
         trustStoreFile =
             new File(
-                OSystemVariableResolver.resolveSystemVariables("${ORIENTDB_HOME}"), trustStorePath);
+                OSystemVariableResolver.resolveSystemVariables("${OXYGENDB_HOME}"), trustStorePath);
       }
     }
   }

@@ -1537,7 +1537,8 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   }
 
   private static OTransactionOptimisticServer doExecuteBeginTransaction(
-      int txId, ODatabaseSessionInternal database, List<ORecordOperationRequest> recordOperations) {
+      long txId, ODatabaseSessionInternal database,
+      List<ORecordOperationRequest> recordOperations) {
     database.begin(new OTransactionOptimisticServer(database, txId));
     var serverTransaction = (OTransactionOptimisticServer) database.getTransaction();
 

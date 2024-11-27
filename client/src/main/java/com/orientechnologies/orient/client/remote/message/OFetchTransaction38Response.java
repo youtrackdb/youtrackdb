@@ -27,7 +27,7 @@ import java.util.Map;
  */
 public class OFetchTransaction38Response implements OBinaryResponse {
 
-  private int txId;
+  private long txId;
   private List<ORecordOperation38Response> operations;
   private List<IndexChange> indexChanges;
 
@@ -35,7 +35,7 @@ public class OFetchTransaction38Response implements OBinaryResponse {
   }
 
   public OFetchTransaction38Response(
-      ODatabaseSessionInternal session, int txId,
+      ODatabaseSessionInternal session, long txId,
       Iterable<ORecordOperation> operations,
       Map<String, OTransactionIndexChanges> indexChanges,
       Map<ORID, ORID> updatedRids,
@@ -84,7 +84,7 @@ public class OFetchTransaction38Response implements OBinaryResponse {
   public void write(ODatabaseSessionInternal session, OChannelDataOutput channel,
       int protocolVersion, ORecordSerializer serializer)
       throws IOException {
-    channel.writeInt(txId);
+    channel.writeLong(txId);
 
     for (ORecordOperation38Response txEntry : operations) {
       writeTransactionEntry(channel, txEntry, serializer);
@@ -173,7 +173,7 @@ public class OFetchTransaction38Response implements OBinaryResponse {
     return entry;
   }
 
-  public int getTxId() {
+  public long getTxId() {
     return txId;
   }
 

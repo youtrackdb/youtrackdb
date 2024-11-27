@@ -99,10 +99,12 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -671,28 +673,17 @@ public class ODocument extends ORecordAbstract
       throw new IllegalArgumentException("Field name is empty");
     }
 
-    switch (name) {
-      case ODocumentHelper.ATTRIBUTE_CLASS -> {
-        setClassName(value.toString());
-        return;
-      }
-      case ODocumentHelper.ATTRIBUTE_RID -> {
-        recordId.fromString(value.toString());
-        return;
-      }
-      case ODocumentHelper.ATTRIBUTE_VERSION -> {
-        if (value != null) {
-          int v;
-
-          if (value instanceof Number) {
-            v = ((Number) value).intValue();
-          } else {
-            v = Integer.parseInt(value.toString());
-          }
-
-          recordVersion = v;
+    final char begin = name.charAt(0);
+    if (begin == '@') {
+      switch (name.toLowerCase(Locale.ROOT)) {
+        case ODocumentHelper.ATTRIBUTE_CLASS -> {
+          setClassName(value.toString());
+          return;
         }
-        return;
+        case ODocumentHelper.ATTRIBUTE_RID -> throw new ODatabaseException(
+            "Attribute " + ODocumentHelper.ATTRIBUTE_RID + " is read-only");
+        case ODocumentHelper.ATTRIBUTE_VERSION -> throw new ODatabaseException(
+            "Attribute " + ODocumentHelper.ATTRIBUTE_VERSION + " is read-only");
       }
     }
 
@@ -718,7 +709,8 @@ public class ODocument extends ORecordAbstract
 
     OType fieldType = deriveFieldType(name, entry, type);
     if (value != null && fieldType != null) {
-      value = ODocumentHelper.convertField(getSession(), this, name, fieldType, null, value);
+      value = ODocumentHelper.convertField(getSessionIfDefined(), this, name, fieldType, null,
+          value);
     } else {
       if (value instanceof Enum) {
         value = value.toString();
@@ -726,6 +718,7 @@ public class ODocument extends ORecordAbstract
     }
 
     if (knownProperty)
+
     // CHECK IF IS REALLY CHANGED
     {
       if (value == null) {
@@ -761,7 +754,8 @@ public class ODocument extends ORecordAbstract
       }
     }
 
-    if (oldValue instanceof ORidBag ridBag) {
+    if (oldValue instanceof
+        ORidBag ridBag) {
       ridBag.setOwner(null);
     } else {
       if (oldValue instanceof ODocument) {
@@ -836,7 +830,13 @@ public class ODocument extends ORecordAbstract
       setClassName(null);
     } else {
       if (ODocumentHelper.ATTRIBUTE_RID.equalsIgnoreCase(name)) {
-        recordId = new OEmptyRecordId();
+        throw new ODatabaseException(
+            "Attribute " + ODocumentHelper.ATTRIBUTE_RID + " is read-only");
+      } else if (ODocumentHelper.ATTRIBUTE_VERSION.equalsIgnoreCase(name)) {
+        if (ODocumentHelper.ATTRIBUTE_VERSION.equalsIgnoreCase(name)) {
+          throw new ODatabaseException(
+              "Attribute " + ODocumentHelper.ATTRIBUTE_VERSION + " is read-only");
+        }
       }
     }
 
@@ -1739,7 +1739,7 @@ public class ODocument extends ORecordAbstract
   public <RET> RET field(final String iFieldName, final OType iFieldType) {
     checkForBinding();
 
-    var session = getSession();
+    var session = getSessionIfDefined();
     RET value = field(iFieldName);
     OType original;
     if (iFieldType != null && iFieldType != (original = fieldType(iFieldName))) {
@@ -3886,6 +3886,34 @@ public class ODocument extends ORecordAbstract
     // GET THE DEFAULT ONE
     {
       recordFormat = ODatabaseSessionAbstract.getDefaultSerializer();
+    }
+
+    if (fields != null) {
+      var processedRecords = Collections.newSetFromMap(new IdentityHashMap<>());
+
+      for (ODocumentEntry entry : fields.values()) {
+        if (entry.value instanceof ORecordAbstract recordAbstract) {
+          if (processedRecords.add(recordAbstract)) {
+            recordAbstract.setup(db);
+          }
+        } else if (entry.value instanceof Collection<?> collection) {
+          for (var item : collection) {
+            if (item instanceof ORecordAbstract recordAbstract) {
+              if (processedRecords.add(recordAbstract)) {
+                recordAbstract.setup(db);
+              }
+            }
+          }
+        } else if (entry.value instanceof Map<?, ?> map) {
+          for (var item : map.values()) {
+            if (item instanceof ORecordAbstract recordAbstract) {
+              if (processedRecords.add(recordAbstract)) {
+                recordAbstract.setup(db);
+              }
+            }
+          }
+        }
+      }
     }
   }
 

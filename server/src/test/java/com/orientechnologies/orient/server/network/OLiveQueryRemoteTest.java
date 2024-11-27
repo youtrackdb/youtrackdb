@@ -72,8 +72,7 @@ public class OLiveQueryRemoteTest {
     Oxygen.instance().startup();
   }
 
-  class MyLiveQueryListener implements OLiveQueryResultListener {
-
+  static class MyLiveQueryListener implements OLiveQueryResultListener {
     public CountDownLatch latch;
     public CountDownLatch ended = new CountDownLatch(1);
 
@@ -134,6 +133,7 @@ public class OLiveQueryRemoteTest {
 
     db.getMetadata().getSchema().createClass("test");
     db.getMetadata().getSchema().createClass("test2");
+
     MyLiveQueryListener listener = new MyLiveQueryListener(new CountDownLatch(2));
 
     OLiveQueryMonitor monitor = db.live("select from test", listener);
@@ -156,10 +156,10 @@ public class OLiveQueryRemoteTest {
     db.command("insert into test set name = 'foo', surname = 'baz'");
     db.commit();
 
-    Assert.assertEquals(listener.ops.size(), 2);
+    Assert.assertEquals(2, listener.ops.size());
     for (OResult doc : listener.ops) {
-      Assert.assertEquals(doc.getProperty("@class"), "test");
-      Assert.assertEquals(doc.getProperty("name"), "foo");
+      Assert.assertEquals("test", doc.getProperty("@class"));
+      Assert.assertEquals("foo", doc.getProperty("name"));
       ORID rid = doc.getProperty("@rid");
       Assert.assertTrue(rid.isPersistent());
     }
@@ -244,7 +244,7 @@ public class OLiveQueryRemoteTest {
         });
 
     Integer integer = future.get();
-    Assert.assertEquals(integer.intValue(), liveMatch);
+    Assert.assertEquals(liveMatch, integer.intValue());
   }
 
   @Test
@@ -271,10 +271,10 @@ public class OLiveQueryRemoteTest {
 
     Assert.assertTrue(listener.latch.await(1, TimeUnit.MINUTES));
 
-    Assert.assertEquals(listener.ops.size(), txSize);
+    Assert.assertEquals(txSize, listener.ops.size());
     for (OResult doc : listener.ops) {
-      Assert.assertEquals(doc.getProperty("@class"), "test");
-      Assert.assertEquals(doc.getProperty("name"), "foo");
+      Assert.assertEquals("test", doc.getProperty("@class"));
+      Assert.assertEquals("foo", doc.getProperty("name"));
       ORID rid = doc.getProperty("@rid");
       Assert.assertTrue(rid.isPersistent());
     }

@@ -182,9 +182,9 @@ public interface OTransaction {
   /**
    * @return this transaction ID as seen by the client of this transaction.
    */
-  default int getClientTransactionId() {
+  default long getClientTransactionId() {
     return getId();
   }
 
-  int getId();
+  long getId();
 }

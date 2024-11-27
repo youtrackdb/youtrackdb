@@ -863,7 +863,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
 
         configDoc.field(section, sectionDoc);
         String configFile =
-            OSystemVariableResolver.resolveSystemVariables("${ORIENTDB_HOME}/config/security.json");
+            OSystemVariableResolver.resolveSystemVariables("${OXYGENDB_HOME}/config/security.json");
 
         String ssf = OGlobalConfiguration.SERVER_SECURITY_FILE.getValueAsString();
         if (ssf != null) {
@@ -879,7 +879,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     }
   }
 
-  // "${ORIENTDB_HOME}/config/security.json"
+  // "${OXYGENDB_HOME}/config/security.json"
   private ODocument loadConfig(final String cfgPath) {
     ODocument securityDoc = null;
 

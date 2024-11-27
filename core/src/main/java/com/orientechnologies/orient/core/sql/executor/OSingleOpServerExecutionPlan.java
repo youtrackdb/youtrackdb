@@ -1,6 +1,5 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.orient.core.command.OBasicServerCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OServerCommandContext;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
@@ -60,7 +59,7 @@ public class OSingleOpServerExecutionPlan implements OInternalExecutionPlan {
     return false;
   }
 
-  public OExecutionStream executeInternal(OBasicServerCommandContext ctx)
+  public OExecutionStream executeInternal()
       throws OCommandExecutionException {
     if (executed) {
       throw new OCommandExecutionException(

@@ -45,9 +45,9 @@ public class AutomaticBackupTest {
 
   public AutomaticBackupTest() throws IllegalArgumentException, SecurityException {
 
-    // SET THE ORIENTDB_HOME DIRECTORY TO CHECK JSON FILE CREATION
+    // SET THE OXYGENDB_HOME DIRECTORY TO CHECK JSON FILE CREATION
     tempDirectory = new File("target/testhome").getAbsolutePath();
-    System.setProperty("ORIENTDB_HOME", tempDirectory);
+    System.setProperty("OXYGENDB_HOME", tempDirectory);
 
     server =
         new OServer(false) {
@@ -91,7 +91,7 @@ public class AutomaticBackupTest {
     final File f =
         new File(
             OSystemVariableResolver.resolveSystemVariables(
-                "${ORIENTDB_HOME}/config/automatic-backup.json"));
+                "${OXYGENDB_HOME}/config/automatic-backup.json"));
     if (f.exists()) {
       f.delete();
     }

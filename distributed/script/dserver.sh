@@ -44,9 +44,9 @@ done
 # Get standard environment variables
 PRGDIR=`dirname "$PRG"`
 
-# Only set ORIENTDB_HOME if not already set
-[ -f "$ORIENTDB_HOME"/bin/server.sh ] || ORIENTDB_HOME=`cd "$PRGDIR/.." ; pwd`
-export ORIENTDB_HOME
+# Only set OXYGENDB_HOME if not already set
+[ -f "$ORIENTDB_HOME"/bin/server.sh ] || OXYGENDB_HOME=`cd "$PRGDIR/.." ; pwd`
+export OXYGENDB_HOME
 cd "$ORIENTDB_HOME/bin"
 
 if [ ! -f "${CONFIG_FILE}" ]

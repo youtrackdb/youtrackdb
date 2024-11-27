@@ -75,7 +75,7 @@ public class OServerPluginManager implements OService {
     boolean dynamic = true;
     boolean loadAtStartup = true;
     directory =
-        OSystemVariableResolver.resolveSystemVariables("${ORIENTDB_HOME}", ".") + "/plugins/";
+        OSystemVariableResolver.resolveSystemVariables("${OXYGENDB_HOME}", ".") + "/plugins/";
 
     if (server.getConfiguration() != null && server.getConfiguration().properties != null) {
       for (OServerEntryConfiguration p : server.getConfiguration().properties) {
@@ -318,7 +318,7 @@ public class OServerPluginManager implements OService {
   }
 
   private void updatePlugins() {
-    // load plugins.directory from server configuration or default to $ORIENTDB_HOME/plugins
+    // load plugins.directory from server configuration or default to $OXYGENDB_HOME/plugins
     final File pluginsDirectory = new File(directory);
     if (!pluginsDirectory.exists()) {
       pluginsDirectory.mkdirs();

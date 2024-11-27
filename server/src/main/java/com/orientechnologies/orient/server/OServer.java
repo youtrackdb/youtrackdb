@@ -85,7 +85,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class OServer {
 
-  private static final String ROOT_PASSWORD_VAR = "ORIENTDB_ROOT_PASSWORD";
+  private static final String ROOT_PASSWORD_VAR = "OXYGENDB_ROOT_PASSWORD";
   private static ThreadGroup threadGroup;
   private static final Map<String, OServer> distributedServers =
       new ConcurrentHashMap<String, OServer>();
@@ -1033,7 +1033,7 @@ public class OServer {
       return;
     }
 
-    // ORIENTDB_ROOT_PASSWORD ENV OR JVM SETTING
+    // OXYGENDB_ROOT_PASSWORD ENV OR JVM SETTING
     String rootPassword = OSystemVariableResolver.resolveVariable(ROOT_PASSWORD_VAR);
 
     if (rootPassword != null) {
@@ -1081,7 +1081,7 @@ public class OServer {
               "$ANSI{yellow | To avoid this message set the environment variable or JVM     |}"));
       System.out.println(
           OAnsiCode.format(
-              "$ANSI{yellow | setting ORIENTDB_ROOT_PASSWORD to the root password to use.   |}"));
+              "$ANSI{yellow | setting OXYGENDB_ROOT_PASSWORD to the root password to use.   |}"));
       System.out.println(
           OAnsiCode.format(
               "$ANSI{yellow +---------------------------------------------------------------+}"));
@@ -1144,7 +1144,7 @@ public class OServer {
       OLogManager.instance()
           .info(
               this,
-              "Found ORIENTDB_ROOT_PASSWORD variable, using this value as root's password",
+              "Found OXYGENDB_ROOT_PASSWORD variable, using this value as root's password",
               rootPassword);
     }
 

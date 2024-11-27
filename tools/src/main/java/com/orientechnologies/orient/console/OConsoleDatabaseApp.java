@@ -616,7 +616,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
     final long begin = System.currentTimeMillis();
 
-    final int txId = currentDatabase.getTransaction().getId();
+    final long txId = currentDatabase.getTransaction().getId();
     currentDatabase.commit();
 
     message(
@@ -638,7 +638,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
     final long begin = System.currentTimeMillis();
 
-    final int txId = currentDatabase.getTransaction().getId();
+    final long txId = currentDatabase.getTransaction().getId();
     currentDatabase.rollback();
     message(
         "\nTransaction "

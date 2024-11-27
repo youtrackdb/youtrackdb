@@ -225,7 +225,7 @@ public class OxygenDBRemote implements OxygenDBInternal {
       create += String.format("{\"config\":{%s}}", String.join(",", entries));
     }
 
-    executeServerStatement(create, null, user, password, parameters);
+    executeServerStatementNamedParams(create, user, password, parameters).close();
   }
 
   public ODatabaseSessionRemotePooled poolOpen(
@@ -426,7 +426,7 @@ public class OxygenDBRemote implements OxygenDBInternal {
     synchronized (this) {
       // SHUTDOWN ENGINES AVOID OTHER OPENS
       open = false;
-      this.sharedContexts.values().forEach(x -> x.close());
+      this.sharedContexts.values().forEach(OSharedContext::close);
       storagesCopy = new ArrayList<>(storages.values());
     }
 
@@ -587,8 +587,7 @@ public class OxygenDBRemote implements OxygenDBInternal {
   }
 
   @Override
-  public OResultSet executeServerStatement(
-      String statement, ODatabaseSessionInternal session, String user, String pw,
+  public OResultSet executeServerStatementPositionalParams(String statement, String user, String pw,
       Object... params) {
     int recordsPerPage =
         getContextConfiguration()
@@ -597,7 +596,7 @@ public class OxygenDBRemote implements OxygenDBInternal {
       recordsPerPage = 100;
     }
     OServerQueryRequest request =
-        new OServerQueryRequest(session,
+        new OServerQueryRequest(
             "sql",
             statement,
             params,
@@ -605,20 +604,17 @@ public class OxygenDBRemote implements OxygenDBInternal {
             ORecordSerializerNetworkV37Client.INSTANCE, recordsPerPage);
 
     OServerQueryResponse response = connectAndSend(null, user, pw, request);
-    ORemoteResultSet rs =
-        new ORemoteResultSet(
-            null,
-            response.getQueryId(),
-            response.getResult(),
-            response.getExecutionPlan(),
-            response.getQueryStats(),
-            response.isHasNextPage());
-    return rs;
+    return new ORemoteResultSet(
+        null,
+        response.getQueryId(),
+        response.getResult(),
+        response.getExecutionPlan(),
+        response.getQueryStats(),
+        response.isHasNextPage());
   }
 
   @Override
-  public OResultSet executeServerStatement(
-      ODatabaseSessionInternal session, String statement, String user, String pw,
+  public OResultSet executeServerStatementNamedParams(String statement, String user, String pw,
       Map<String, Object> params) {
     int recordsPerPage =
         getContextConfiguration()
@@ -627,24 +623,21 @@ public class OxygenDBRemote implements OxygenDBInternal {
       recordsPerPage = 100;
     }
     OServerQueryRequest request =
-        new OServerQueryRequest(session,
-            "sql",
+        new OServerQueryRequest("sql",
             statement,
             params,
             OServerQueryRequest.COMMAND,
             ORecordSerializerNetworkV37Client.INSTANCE, recordsPerPage);
 
     OServerQueryResponse response = connectAndSend(null, user, pw, request);
-    ORemoteResultSet rs =
-        new ORemoteResultSet(
-            null,
-            response.getQueryId(),
-            response.getResult(),
-            response.getExecutionPlan(),
-            response.getQueryStats(),
-            response.isHasNextPage());
 
-    return rs;
+    return new ORemoteResultSet(
+        null,
+        response.getQueryId(),
+        response.getResult(),
+        response.getExecutionPlan(),
+        response.getQueryStats(),
+        response.isHasNextPage());
   }
 
   public OContextConfiguration getContextConfiguration() {
@@ -756,8 +749,7 @@ public class OxygenDBRemote implements OxygenDBInternal {
             "Cannot connect to the remote server/database '" + url + "'",
             newSession);
 
-        T result = operation.execute(newSession);
-        return result;
+        return operation.execute(newSession);
       } catch (IOException | OTokenSecurityException e) {
         retry--;
         if (retry == 0) {

@@ -16,19 +16,19 @@ import java.io.IOException;
  */
 public class OFetchTransaction38Request implements OBinaryRequest<OFetchTransaction38Response> {
 
-  private int txId;
+  private long txId;
 
   public OFetchTransaction38Request() {
   }
 
-  public OFetchTransaction38Request(int txId) {
+  public OFetchTransaction38Request(long txId) {
     this.txId = txId;
   }
 
   @Override
   public void write(ODatabaseSessionInternal database, OChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
-    network.writeInt(txId);
+    network.writeLong(txId);
   }
 
   @Override
@@ -57,7 +57,7 @@ public class OFetchTransaction38Request implements OBinaryRequest<OFetchTransact
     return "Fetch Transaction";
   }
 
-  public int getTxId() {
+  public long getTxId() {
     return txId;
   }
 }

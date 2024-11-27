@@ -186,9 +186,7 @@ public class OPushManager implements OMetadataUpdateListener {
               }
             }
             if (clients != null) {
-              Iterator<WeakReference<ONetworkProtocolBinary>> iter = clients.iterator();
-              while (iter.hasNext()) {
-                WeakReference<ONetworkProtocolBinary> ref = iter.next();
+              for (WeakReference<ONetworkProtocolBinary> ref : clients) {
                 ONetworkProtocolBinary protocolBinary = ref.get();
                 if (protocolBinary != null) {
                   try {

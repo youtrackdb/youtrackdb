@@ -23,14 +23,14 @@ import java.util.Map;
 
 public class OBeginTransactionRequest implements OBinaryRequest<OBeginTransactionResponse> {
 
-  private int txId;
+  private long txId;
   private boolean usingLog;
   private boolean hasContent;
   private List<ORecordOperationRequest> operations;
   private List<IndexChange> indexChanges;
 
   public OBeginTransactionRequest(
-      ODatabaseSessionInternal session, int txId,
+      ODatabaseSessionInternal session, long txId,
       boolean hasContent,
       boolean usingLog,
       Iterable<ORecordOperation> operations,
@@ -75,7 +75,7 @@ public class OBeginTransactionRequest implements OBinaryRequest<OBeginTransactio
     // from 3.0 the the serializer is bound to the protocol
     ORecordSerializerNetworkV37Client serializer = ORecordSerializerNetworkV37Client.INSTANCE;
 
-    network.writeInt(txId);
+    network.writeLong(txId);
     network.writeBoolean(hasContent);
     network.writeBoolean(usingLog);
     if (hasContent) {
@@ -146,7 +146,7 @@ public class OBeginTransactionRequest implements OBinaryRequest<OBeginTransactio
     return indexChanges;
   }
 
-  public int getTxId() {
+  public long getTxId() {
     return txId;
   }
 

@@ -17,7 +17,7 @@ public class OServerQueryRequestTest extends BaseMemoryDatabase {
   public void testWithPositionalParams() throws IOException {
     Object[] params = new Object[]{1, "Foo"};
     OServerQueryRequest request =
-        new OServerQueryRequest(null,
+        new OServerQueryRequest(
             "sql",
             "some random statement",
             params,
@@ -46,7 +46,7 @@ public class OServerQueryRequestTest extends BaseMemoryDatabase {
     params.put("foo", "bar");
     params.put("baz", 12);
     OServerQueryRequest request =
-        new OServerQueryRequest(null,
+        new OServerQueryRequest(
             "sql",
             "some random statement",
             params,
@@ -72,7 +72,7 @@ public class OServerQueryRequestTest extends BaseMemoryDatabase {
   public void testWithNoParams() throws IOException {
     Map<String, Object> params = null;
     OServerQueryRequest request =
-        new OServerQueryRequest(null,
+        new OServerQueryRequest(
             "sql",
             "some random statement",
             params,

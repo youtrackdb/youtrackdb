@@ -87,7 +87,7 @@ public class LuceneAutomaticBackupRestoreTest {
     OFileUtils.deleteRecursively(tempFolder);
     Assert.assertTrue(tempFolder.mkdirs());
 
-    System.setProperty("ORIENTDB_HOME", tempFolder.getCanonicalPath());
+    System.setProperty("OXYGENDB_HOME", tempFolder.getCanonicalPath());
 
     String path = tempFolder.getCanonicalPath() + File.separator + "databases";
     server =

@@ -70,13 +70,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class OTransactionOptimistic extends OTransactionAbstract implements OTransactionInternal {
 
-  private static final AtomicInteger txSerial = new AtomicInteger();
+  private static final AtomicLong txSerial = new AtomicLong();
 
   // order of updates is critical during synchronization of remote transactions
   protected LinkedHashMap<ORID, ORID> txGeneratedRealRecordIdMap = new LinkedHashMap<>();
@@ -86,9 +86,11 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
   protected HashMap<ORID, List<OTransactionRecordIndexOperation>> recordIndexOperations =
       new HashMap<>();
 
-  protected int id;
+  protected long id;
   protected int newRecordsPositionsGenerator = -2;
   private final HashMap<String, Object> userData = new HashMap<>();
+
+  public int serverBeginCount = 0;
 
   @Nullable
   private OTxMetadataHolder metadata = null;
@@ -106,7 +108,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     this.id = txSerial.incrementAndGet();
   }
 
-  protected OTransactionOptimistic(final ODatabaseSessionInternal iDatabase, int id) {
+  protected OTransactionOptimistic(final ODatabaseSessionInternal iDatabase, long id) {
     super(iDatabase);
     this.id = id;
   }
@@ -1119,7 +1121,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     this.sentToServer = sentToServer;
   }
 
-  public int getId() {
+  public long getId() {
     return id;
   }
 
@@ -1294,7 +1296,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     }
   }
 
-  protected int getTxStartCounter() {
+  public int getTxStartCounter() {
     return txStartCounter;
   }
 }

@@ -30,8 +30,8 @@ public class OServerTest {
   @Before
   public void setUp() throws Exception {
     OLogManager.instance().setConsoleLevel(Level.OFF.getName());
-    prevPassword = System.setProperty("ORIENTDB_ROOT_PASSWORD", "rootPassword");
-    prevOrientHome = System.setProperty("ORIENTDB_HOME", "./target/testhome");
+    prevPassword = System.setProperty("OXYGENDB_ROOT_PASSWORD", "rootPassword");
+    prevOrientHome = System.setProperty("OXYGENDB_HOME", "./target/testhome");
 
     conf = new OServerConfiguration();
 
@@ -53,10 +53,10 @@ public class OServerTest {
     OFileUtils.deleteRecursively(new File("./target/testhome"));
 
     if (prevOrientHome != null) {
-      System.setProperty("ORIENTDB_HOME", prevOrientHome);
+      System.setProperty("OXYGENDB_HOME", prevOrientHome);
     }
     if (prevPassword != null) {
-      System.setProperty("ORIENTDB_ROOT_PASSWORD", prevPassword);
+      System.setProperty("OXYGENDB_ROOT_PASSWORD", prevPassword);
     }
 
     Oxygen.instance().startup();

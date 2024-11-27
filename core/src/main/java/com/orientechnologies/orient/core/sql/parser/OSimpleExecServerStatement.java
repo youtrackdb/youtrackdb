@@ -46,7 +46,7 @@ public abstract class OSimpleExecServerStatement extends OServerStatement {
     ctx.setInputParameters(params);
     OSingleOpServerExecutionPlan executionPlan =
         (OSingleOpServerExecutionPlan) createExecutionPlan(ctx, false);
-    return new OExecutionResultSet(executionPlan.executeInternal(ctx), ctx, executionPlan);
+    return new OExecutionResultSet(executionPlan.executeInternal(), ctx, executionPlan);
   }
 
   public OResultSet execute(
@@ -59,7 +59,7 @@ public abstract class OSimpleExecServerStatement extends OServerStatement {
     ctx.setInputParameters(params);
     OSingleOpServerExecutionPlan executionPlan =
         (OSingleOpServerExecutionPlan) createExecutionPlan(ctx, false);
-    return new OExecutionResultSet(executionPlan.executeInternal(ctx), ctx, executionPlan);
+    return new OExecutionResultSet(executionPlan.executeInternal(), ctx, executionPlan);
   }
 
   public OInternalExecutionPlan createExecutionPlan(

@@ -159,7 +159,7 @@ public class ODatabaseHelper {
 
   @Deprecated
   protected static String getServerRootPassword(final String iDirectory) throws IOException {
-    String passwd = System.getProperty("ORIENTDB_ROOT_PASSWORD");
+    String passwd = System.getProperty("OXYGENDB_ROOT_PASSWORD");
     if (passwd != null) {
       return passwd;
     }

@@ -392,9 +392,11 @@ public abstract class OSchemaShared implements OCloseable {
   public void reload(ODatabaseSessionInternal database) {
     lock.writeLock().lock();
     try {
-      identity = new ORecordId(database.getStorageInfo().getConfiguration().getSchemaRecordId());
       database.executeInTx(
           () -> {
+            identity = new ORecordId(
+                database.getStorageInfo().getConfiguration().getSchemaRecordId());
+
             ODocument document = database.load(identity);
             fromStream(database, document);
             forceSnapshot(database);
@@ -995,9 +997,12 @@ public abstract class OSchemaShared implements OCloseable {
         });
 
     forceSnapshot(database);
-    for (OMetadataUpdateListener listener : database.getSharedContext().browseListeners()) {
-      listener.onSchemaUpdate(database, database.getName(), this);
-    }
+    database.executeInTx(() -> {
+      for (OMetadataUpdateListener listener : database.getSharedContext().browseListeners()) {
+        listener.onSchemaUpdate(database, database.getName(), this);
+      }
+    });
+
   }
 
   protected void addClusterClassMap(final OClass cls) {

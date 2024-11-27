@@ -352,19 +352,6 @@ public class ODatabaseSessionRemote extends ODatabaseSessionAbstract {
   }
 
   @Override
-  public int begin() {
-    final int counter = super.begin();
-
-    var optimistic = (OTransactionOptimistic) this.currentTx;
-    storage.beginTransaction(this, optimistic);
-
-    optimistic.resetChangesTracking();
-    optimistic.setSentToServer(true);
-
-    return counter;
-  }
-
-  @Override
   public OResultSet query(String query, Object... args) {
     checkOpenness();
     checkAndSendTransaction();
@@ -501,12 +488,12 @@ public class ODatabaseSessionRemote extends ODatabaseSessionAbstract {
     throw new UnsupportedOperationException();
   }
 
-  public static void updateSchema(ODatabaseSessionInternal session, OStorageRemote storage,
+  public static void updateSchema(OStorageRemote storage,
       ODocument schema) {
     //    storage.get
     OSharedContext shared = storage.getSharedContext();
     if (shared != null) {
-      ((OSchemaRemote) shared.getSchema()).update(session, schema);
+      ((OSchemaRemote) shared.getSchema()).update(null, schema);
     }
   }
 

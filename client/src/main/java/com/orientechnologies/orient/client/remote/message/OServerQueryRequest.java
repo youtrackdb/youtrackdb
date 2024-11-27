@@ -49,7 +49,7 @@ public final class OServerQueryRequest implements OBinaryRequest<OServerQueryRes
   private boolean namedParams;
 
   public OServerQueryRequest(
-      ODatabaseSessionInternal session, String language,
+      String language,
       String iCommand,
       Object[] positionalParams,
       byte operationType,
@@ -60,19 +60,14 @@ public final class OServerQueryRequest implements OBinaryRequest<OServerQueryRes
     params = OStorageRemote.paramsArrayToParamsMap(positionalParams);
     namedParams = false;
     this.serializer = serializer;
-    //    this.recordsPerPage = recordsPerPage;
-    //    if (this.recordsPerPage <= 0) {
-    //      this.recordsPerPage = 100;
-    //    }
     this.operationType = operationType;
     ODocument parms = new ODocument();
     parms.field("params", this.params);
 
-    paramsBytes = OMessageHelper.getRecordBytes(session, parms, serializer);
+    paramsBytes = OMessageHelper.getRecordBytes(null, parms, serializer);
   }
 
-  public OServerQueryRequest(
-      ODatabaseSessionInternal session, String language,
+  public OServerQueryRequest(String language,
       String iCommand,
       Map<String, Object> namedParams,
       byte operationType,
@@ -84,7 +79,7 @@ public final class OServerQueryRequest implements OBinaryRequest<OServerQueryRes
     ODocument parms = new ODocument();
     parms.field("params", this.params);
 
-    paramsBytes = OMessageHelper.getRecordBytes(session, parms, serializer);
+    paramsBytes = OMessageHelper.getRecordBytes(null, parms, serializer);
     this.namedParams = true;
     this.serializer = serializer;
     this.recordsPerPage = recordsPerPage;
@@ -169,7 +164,7 @@ public final class OServerQueryRequest implements OBinaryRequest<OServerQueryRes
     return namedParams;
   }
 
-  public Map getNamedParameters() {
+  public Map<String, Object> getNamedParameters() {
     return getParams();
   }
 

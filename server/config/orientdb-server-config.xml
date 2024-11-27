@@ -27,8 +27,8 @@
         <!-- <parameter name="nodeName" value="europe1" /> -->
         <parameter name="enabled" value="${distributed}"/>
         <parameter name="configuration.db.default"
-          value="${ORIENTDB_HOME}/config/default-distributed-db-config.json"/>
-        <parameter name="configuration.hazelcast" value="${ORIENTDB_HOME}/config/hazelcast.xml"/>
+          value="${OXYGENDB_HOME}/config/default-distributed-db-config.json"/>
+        <parameter name="configuration.hazelcast" value="${OXYGENDB_HOME}/config/hazelcast.xml"/>
       </parameters>
     </handler>
     <!-- JMX SERVER, TO TURN ON SET THE 'ENABLED' PARAMETER TO 'true' -->
@@ -43,7 +43,7 @@
       <parameters>
         <parameter name="enabled" value="false"/>
         <!-- LOCATION OF JSON CONFIGURATION FILE -->
-        <parameter name="config" value="${ORIENTDB_HOME}/config/automatic-backup.json"/>
+        <parameter name="config" value="${OXYGENDB_HOME}/config/automatic-backup.json"/>
       </parameters>
     </handler>
     <!-- SERVER SIDE SCRIPT INTERPRETER. WARNING, THIS CAN BE A SECURITY HOLE BECAUSE MALICIOUS CODE COULD BE INJECTED.
@@ -61,7 +61,7 @@
     <handler class="com.orientechnologies.orient.server.handler.OCustomSQLFunctionPlugin">
       <parameters>
         <!-- LOCATION OF JSON CONFIGURATION FILE -->
-        <parameter name="config" value="${ORIENTDB_HOME}/config/custom-sql-functions.json"/>
+        <parameter name="config" value="${OXYGENDB_HOME}/config/custom-sql-functions.json"/>
       </parameters>
     </handler>
 

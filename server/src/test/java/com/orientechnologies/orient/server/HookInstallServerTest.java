@@ -101,14 +101,14 @@ public class HookInstallServerTest {
     OPartitionedDatabasePool pool =
         new OPartitionedDatabasePool("remote:localhost/test", "admin", "admin");
     for (int i = 0; i < 10; i++) {
-      var some = pool.acquire();
-      try {
+      var id = i;
+      try (var some = pool.acquire()) {
         some.createClassIfNotExist("Test");
-        some.begin();
-        some.save(new ODocument("Test").field("entry", i));
-        some.commit();
-      } finally {
-        some.close();
+
+        some.executeInTx(() -> {
+          some.save(new ODocument("Test").field("entry", id));
+          some.commit();
+        });
       }
     }
     pool.close();

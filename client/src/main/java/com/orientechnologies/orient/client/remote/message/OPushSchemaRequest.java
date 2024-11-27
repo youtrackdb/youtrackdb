@@ -2,8 +2,10 @@ package com.orientechnologies.orient.client.remote.message;
 
 import static com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol.REQUEST_PUSH_SCHEMA;
 
+import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.client.remote.ORemotePushHandler;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37Client;
@@ -25,7 +27,14 @@ public class OPushSchemaRequest implements OBinaryPushRequest<OBinaryPushRespons
   @Override
   public void write(ODatabaseSessionInternal session, OChannelDataOutput channel)
       throws IOException {
-    channel.writeBytes(ORecordSerializerNetworkV37.INSTANCE.toStream(session, schema));
+    session.executeInTx(() -> {
+      try {
+        channel.writeBytes(ORecordSerializerNetworkV37.INSTANCE.toStream(session, schema));
+      } catch (IOException e) {
+        throw OException.wrapException(new ODatabaseException("Error on sending schema updates"),
+            e);
+      }
+    });
   }
 
   @Override
@@ -37,7 +46,7 @@ public class OPushSchemaRequest implements OBinaryPushRequest<OBinaryPushRespons
   @Override
   public OBinaryPushResponse execute(ODatabaseSessionInternal session,
       ORemotePushHandler pushHandler) {
-    return pushHandler.executeUpdateSchema(session, this);
+    return pushHandler.executeUpdateSchema(this);
   }
 
   @Override

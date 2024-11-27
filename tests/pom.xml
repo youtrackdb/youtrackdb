@@ -185,7 +185,7 @@
               <systemPropertyVariables>
                 <orientdb.config.file>target/test-classes/orientdb-server-config.xml
                 </orientdb.config.file>
-                <ORIENTDB_HOME>${project.build.directory}/remote-server</ORIENTDB_HOME>
+                <OXYGENDB_HOME>${project.build.directory}/remote-server</OXYGENDB_HOME>
               </systemPropertyVariables>
               <suiteXmlFiles>
                 <suiteXmlFile>

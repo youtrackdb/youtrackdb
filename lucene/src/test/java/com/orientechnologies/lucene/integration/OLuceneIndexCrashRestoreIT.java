@@ -102,7 +102,7 @@ public class OLuceneIndexCrashRestoreIT {
             "-classpath",
             System.getProperty("java.class.path"),
             "-DmutexFile=" + mutexFile.getAbsolutePath(),
-            "-DORIENTDB_HOME=" + BUILD_DIRECTORY,
+            "-DOXYGENDB_HOME=" + BUILD_DIRECTORY,
             RemoteDBRunner.class.getName());
 
     processBuilder.inheritIO();

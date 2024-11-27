@@ -4,6 +4,7 @@ import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.server.OServer;
 import org.junit.After;
@@ -46,7 +47,18 @@ public class LuceneCreateIndexIntegrationTest {
   public void testCreateIndexJavaAPI() {
     final ODatabaseSession session =
         remote.open("LuceneCreateIndexIntegrationTest", "admin", "admin");
-    final OClass person = session.getMetadata().getSchema().getClass("Person");
+    OClass person = session.getMetadata().getSchema().getClass("Person");
+
+    if (person == null) {
+      person = session.getMetadata().getSchema().createClass("Person");
+    }
+    if (!person.existsProperty("name")) {
+      person.createProperty(session, "name", OType.STRING);
+    }
+    if (!person.existsProperty("surname")) {
+      person.createProperty(session, "surname", OType.STRING);
+    }
+
     person.createIndex(session,
         "Person.firstName_lastName",
         "FULLTEXT",

@@ -1200,8 +1200,7 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
     return scriptManager;
   }
 
-  public OResultSet executeServerStatement(
-      ODatabaseSessionInternal session, String script, String username, String pw,
+  public OResultSet executeServerStatementNamedParams(String script, String username, String pw,
       Map<String, Object> args) {
     OServerStatement statement = OSQLEngine.parseServerStatement(script, this);
     OResultSet original = statement.execute(this, args, true);
@@ -1222,8 +1221,8 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
     return result;
   }
 
-  public OResultSet executeServerStatement(
-      String script, ODatabaseSessionInternal session, String username, String pw, Object... args) {
+  public OResultSet executeServerStatementPositionalParams(
+      String script, String username, String pw, Object... args) {
     OServerStatement statement = OSQLEngine.parseServerStatement(script, this);
     OResultSet original = statement.execute(this, args, true);
     OLocalResultSetLifecycleDecorator result;

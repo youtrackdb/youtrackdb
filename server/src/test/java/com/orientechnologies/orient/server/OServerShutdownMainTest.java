@@ -32,8 +32,8 @@ public class OServerShutdownMainTest {
   public void startupOServer() throws Exception {
 
     OLogManager.instance().setConsoleLevel(Level.OFF.getName());
-    prevPassword = System.setProperty("ORIENTDB_ROOT_PASSWORD", "rootPassword");
-    prevOrientHome = System.setProperty("ORIENTDB_HOME", "./target/testhome");
+    prevPassword = System.setProperty("OXYGENDB_ROOT_PASSWORD", "rootPassword");
+    prevOrientHome = System.setProperty("OXYGENDB_HOME", "./target/testhome");
 
     OServerConfiguration conf = new OServerConfiguration();
     conf.network = new OServerNetworkConfiguration();
@@ -65,10 +65,10 @@ public class OServerShutdownMainTest {
     Oxygen.instance().startup();
 
     if (prevOrientHome != null) {
-      System.setProperty("ORIENTDB_HOME", prevOrientHome);
+      System.setProperty("OXYGENDB_HOME", prevOrientHome);
     }
     if (prevPassword != null) {
-      System.setProperty("ORIENTDB_ROOT_PASSWORD", prevPassword);
+      System.setProperty("OXYGENDB_ROOT_PASSWORD", prevPassword);
     }
   }
 

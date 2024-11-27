@@ -51,7 +51,7 @@ public class OrientdbEdgeIT {
   private static OServer server;
 
   static {
-    System.setProperty("ORIENTDB_ROOT_PASSWORD", "root");
+    System.setProperty("OXYGENDB_ROOT_PASSWORD", "root");
   }
 
   public OrientdbEdgeIT() {

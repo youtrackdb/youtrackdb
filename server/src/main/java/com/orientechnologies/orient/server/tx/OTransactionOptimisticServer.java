@@ -34,7 +34,7 @@ import java.util.Map;
  */
 public class OTransactionOptimisticServer extends OTransactionOptimistic {
 
-  public OTransactionOptimisticServer(ODatabaseSessionInternal database, int txId) {
+  public OTransactionOptimisticServer(ODatabaseSessionInternal database, long txId) {
     super(database, txId);
   }
 

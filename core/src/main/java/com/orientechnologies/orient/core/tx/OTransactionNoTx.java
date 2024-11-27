@@ -201,7 +201,7 @@ public class OTransactionNoTx extends OTransactionAbstract {
     return null;
   }
 
-  public int getId() {
+  public long getId() {
     return 0;
   }
 

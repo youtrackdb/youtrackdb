@@ -46,7 +46,7 @@ public class OMailPlugin extends OServerPluginAbstract
 
   private final Map<String, OMailProfile> profiles = new HashMap<String, OMailProfile>();
 
-  private final String configFile = "${ORIENTDB_HOME}/config/mail.json";
+  private final String configFile = "${OXYGENDB_HOME}/config/mail.json";
 
   public OMailPlugin() {
   }

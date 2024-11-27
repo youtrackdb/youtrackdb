@@ -12,7 +12,7 @@ import java.util.Map;
 public class ORebeginTransaction38Request extends OBeginTransaction38Request {
 
   public ORebeginTransaction38Request(
-      ODatabaseSessionInternal session, int txId,
+      ODatabaseSessionInternal session, long txId,
       boolean usingLong,
       Iterable<ORecordOperation> operations,
       Map<String, OTransactionIndexChanges> changes) {

@@ -24,7 +24,6 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.profiler.OProfiler;
 import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.Oxygen;
-import com.orientechnologies.orient.core.engine.local.OEngineLocalPaginated;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerBinary;
 import com.orientechnologies.orient.core.storage.OChecksumMode;
@@ -40,7 +39,7 @@ import java.util.logging.Level;
  * Keeps all configuration settings. At startup assigns the configuration values by reading system
  * properties.
  */
-public enum OGlobalConfiguration { // ENVIRONMENT
+public enum OGlobalConfiguration {
   ENVIRONMENT_DUMP_CFG_AT_STARTUP(
       "environment.dumpCfgAtStartup",
       "Dumps the configuration during application startup",
@@ -1672,15 +1671,9 @@ public enum OGlobalConfiguration { // ENVIRONMENT
       String.class,
       null),
 
-  CLOUD_BASE_URL(
-      "cloud.base.url",
-      "The base URL of the cloud endpoint for requests",
-      String.class,
-      "cloud.orientdb.com"),
-
   SPATIAL_ENABLE_DIRECT_WKT_READER(
       "spatial.enableDirectWktReader",
-      "Enable direct usage of WKTReader for additional dimention info",
+      "Enable direct usage of WKTReader for additional dimension info",
       Boolean.class,
       false),
 
@@ -2051,21 +2044,6 @@ public enum OGlobalConfiguration { // ENVIRONMENT
 
   public String getDescription() {
     return description;
-  }
-
-  private static class OCacheSizeChangeCallback implements OConfigurationChangeCallback {
-
-    @Override
-    public void change(Object currentValue, Object newValue) {
-      final Oxygen oxygen = Oxygen.instance();
-      if (oxygen != null) {
-        final OEngineLocalPaginated engineLocalPaginated =
-            (OEngineLocalPaginated) oxygen.getEngineIfRunning(OEngineLocalPaginated.NAME);
-        if (engineLocalPaginated != null) {
-          engineLocalPaginated.changeCacheSize(((Integer) (newValue)) * 1024L * 1024L);
-        }
-      }
-    }
   }
 
   private static class OProfileEnabledChangeCallbac implements OConfigurationChangeCallback {

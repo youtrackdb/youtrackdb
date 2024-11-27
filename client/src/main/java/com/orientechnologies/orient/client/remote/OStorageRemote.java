@@ -2225,11 +2225,10 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
     return null;
   }
 
-  public OBinaryPushResponse executeUpdateSchema(ODatabaseSessionInternal session,
-      OPushSchemaRequest request) {
+  public OBinaryPushResponse executeUpdateSchema(OPushSchemaRequest request) {
     ODocument schema = request.getSchema();
     ORecordInternal.setIdentity(schema, new ORecordId(configuration.getSchemaRecordId()));
-    ODatabaseSessionRemote.updateSchema(session, this, schema);
+    ODatabaseSessionRemote.updateSchema(this, schema);
     return null;
   }
 

@@ -52,12 +52,13 @@ public class ORemotePushMessagesTest extends BaseMemoryDatabase {
 
     session.begin();
     ODocument schema =
-        ((ODatabaseSessionInternal) session).getSharedContext().getSchema().toStream();
+        ((ODatabaseSessionInternal) session).getSharedContext().getSchema().toStream().copy();
+    session.commit();
+
+
     MockChannel channel = new MockChannel();
     OPushSchemaRequest request = new OPushSchemaRequest(schema);
     request.write((ODatabaseSessionInternal) session, channel);
-    session.commit();
-
     channel.close();
 
     OPushSchemaRequest readRequest = new OPushSchemaRequest();

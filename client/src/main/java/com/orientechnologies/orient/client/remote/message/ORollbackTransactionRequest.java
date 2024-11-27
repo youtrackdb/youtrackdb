@@ -16,19 +16,19 @@ import java.io.IOException;
  */
 public class ORollbackTransactionRequest implements OBinaryRequest<ORollbackTransactionResponse> {
 
-  private int txId;
+  private long txId;
 
   public ORollbackTransactionRequest() {
   }
 
-  public ORollbackTransactionRequest(int id) {
+  public ORollbackTransactionRequest(long id) {
     this.txId = id;
   }
 
   @Override
   public void write(ODatabaseSessionInternal database, OChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
-    network.writeInt(txId);
+    network.writeLong(txId);
   }
 
   @Override

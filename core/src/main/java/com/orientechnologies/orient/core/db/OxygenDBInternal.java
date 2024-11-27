@@ -89,7 +89,7 @@ public interface OxygenDBInternal extends AutoCloseable, OSchedulerInternal {
     OxygenDBInternal factory;
 
     try {
-      String className = "com.orientechnologies.orient.client.remote.OrientDBRemote";
+      String className = "com.orientechnologies.orient.client.remote.OxygenDBRemote";
       ClassLoader loader;
       if (configuration != null) {
         loader = configuration.getClassLoader();
@@ -372,14 +372,13 @@ public interface OxygenDBInternal extends AutoCloseable, OSchedulerInternal {
     throw new UnsupportedOperationException();
   }
 
-  default OResultSet executeServerStatement(
-      ODatabaseSessionInternal session, String script, String user, String pw,
+  default OResultSet executeServerStatementNamedParams(String script, String user, String pw,
       Map<String, Object> params) {
     throw new UnsupportedOperationException();
   }
 
-  default OResultSet executeServerStatement(
-      String script, ODatabaseSessionInternal session, String user, String pw, Object... params) {
+  default OResultSet executeServerStatementPositionalParams(String script, String user, String pw,
+      Object... params) {
     throw new UnsupportedOperationException();
   }
 

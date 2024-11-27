@@ -520,11 +520,12 @@ public class OxygenDB implements AutoCloseable {
   }
 
   public OResultSet execute(String script, Map<String, Object> params) {
-    return internal.executeServerStatement(script, null, serverUser, serverPassword, params);
+    return internal.executeServerStatementNamedParams(script, serverUser, serverPassword, params);
   }
 
   public OResultSet execute(String script, Object... params) {
-    return internal.executeServerStatement(script, null, serverUser, serverPassword, params);
+    return internal.executeServerStatementPositionalParams(script, serverUser, serverPassword,
+        params);
   }
 
   OxygenDBInternal getInternal() {

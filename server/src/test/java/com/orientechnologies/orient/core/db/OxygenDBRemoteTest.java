@@ -29,7 +29,6 @@ import org.junit.Test;
  *
  */
 public class OxygenDBRemoteTest {
-
   private static final String SERVER_DIRECTORY = "./target/dbfactory";
   private OServer server;
 
@@ -54,6 +53,7 @@ public class OxygenDBRemoteTest {
             .addConfig(OGlobalConfiguration.DB_CACHED_POOL_CAPACITY, 2)
             .addConfig(OGlobalConfiguration.DB_CACHED_POOL_CLEAN_UP_TIMEOUT, 300_000)
             .build();
+
     factory = new OxygenDB("remote:localhost", "root", "root", config);
   }
 
@@ -178,7 +178,7 @@ public class OxygenDBRemoteTest {
 
             OResultSet res = db.query("SELECT * FROM OUser");
 
-            assertEquals(res.stream().count(), 3);
+            assertEquals(3, res.stream().count());
 
           } finally {
 
@@ -200,10 +200,10 @@ public class OxygenDBRemoteTest {
 
   @Test
   public void testListDatabases() {
-    assertEquals(factory.list().size(), 0);
+    assertEquals(0, factory.list().size());
     factory.execute("create database test memory users (admin identified by 'admin' role admin)");
     List<String> databases = factory.list();
-    assertEquals(databases.size(), 1);
+    assertEquals(1, databases.size());
     assertTrue(databases.contains("test"));
   }
 
@@ -216,7 +216,7 @@ public class OxygenDBRemoteTest {
             .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
             .build());
     try (ODatabaseSession session = factory.open("noUser", "root", "root")) {
-      assertEquals(session.query("select from OUser").stream().count(), 0);
+      assertEquals(0, session.query("select from OUser").stream().count());
     }
   }
 
@@ -229,7 +229,7 @@ public class OxygenDBRemoteTest {
             .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, true)
             .build());
     try (ODatabaseSession session = factory.open("noUser", "root", "root")) {
-      assertEquals(session.query("select from OUser").stream().count(), 3);
+      assertEquals(3, session.query("select from OUser").stream().count());
     }
   }
 

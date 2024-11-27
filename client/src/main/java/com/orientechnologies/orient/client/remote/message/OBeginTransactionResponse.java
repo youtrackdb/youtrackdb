@@ -11,15 +11,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- *
- */
 public class OBeginTransactionResponse implements OBinaryResponse {
 
-  private int txId;
+  private long txId;
   private Map<ORID, ORID> updatedIds;
 
-  public OBeginTransactionResponse(int txId, Map<ORID, ORID> updatedIds) {
+  public OBeginTransactionResponse(long txId, Map<ORID, ORID> updatedIds) {
     this.txId = txId;
     this.updatedIds = updatedIds;
   }
@@ -31,7 +28,7 @@ public class OBeginTransactionResponse implements OBinaryResponse {
   public void write(ODatabaseSessionInternal session, OChannelDataOutput channel,
       int protocolVersion, ORecordSerializer serializer)
       throws IOException {
-    channel.writeInt(txId);
+    channel.writeLong(txId);
     channel.writeInt(updatedIds.size());
     for (Map.Entry<ORID, ORID> ids : updatedIds.entrySet()) {
       channel.writeRID(ids.getKey());
@@ -51,7 +48,7 @@ public class OBeginTransactionResponse implements OBinaryResponse {
     }
   }
 
-  public int getTxId() {
+  public long getTxId() {
     return txId;
   }
 

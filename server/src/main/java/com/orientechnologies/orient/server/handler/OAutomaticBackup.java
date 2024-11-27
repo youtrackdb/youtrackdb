@@ -74,7 +74,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
     EXPORT
   }
 
-  private String configFile = "${ORIENTDB_HOME}/config/automatic-backup.json";
+  private String configFile = "${OXYGENDB_HOME}/config/automatic-backup.json";
   private Date firstTime = null;
   private long delay = -1;
   private int bufferSize = 1048576;

@@ -868,7 +868,7 @@ public class ODocumentHelper {
       return null;
     }
 
-    if (iFieldName.length() > 0) {
+    if (!iFieldName.isEmpty()) {
       final char begin = iFieldName.charAt(0);
       if (begin == '@') {
         // RETURN AN ATTRIBUTE

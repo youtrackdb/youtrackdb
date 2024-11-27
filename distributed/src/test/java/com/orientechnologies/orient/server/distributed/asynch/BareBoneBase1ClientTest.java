@@ -82,7 +82,7 @@ public abstract class BareBoneBase1ClientTest extends TestCase {
   protected BareBonesServer dbServer(String dbDirectory, String databaseName, String dbConfigName) {
     BareBonesServer dbServer = new BareBonesServer();
     dbServer.deleteRecursively(new File(dbDirectory));
-    System.setProperty("ORIENTDB_HOME", dbDirectory);
+    System.setProperty("OXYGENDB_HOME", dbDirectory);
     dbServer.start(CONFIG_DIR, dbConfigName);
     if (databaseName != null) {
       dbServer.createDB(databaseName);

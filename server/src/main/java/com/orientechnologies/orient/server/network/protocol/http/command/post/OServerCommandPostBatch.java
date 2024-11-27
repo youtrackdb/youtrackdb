@@ -85,14 +85,9 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
 
     iRequest.getData().commandInfo = "Execute multiple requests in one shot";
 
-    ODatabaseSessionInternal db = null;
-
     ODocument batch = null;
-
     Object lastResult = null;
-
-    try {
-      db = getProfiledDatabaseInstance(iRequest);
+    try (ODatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
 
       if (db.getTransaction().isActive()) {
         // TEMPORARY PATCH TO UNDERSTAND WHY UNDER HIGH LOAD TX IS NOT COMMITTED AFTER BATCH. MAYBE
@@ -254,10 +249,6 @@ public class OServerCommandPostBatch extends OServerCommandDocumentAbstract {
         throw e;
       }
 
-    } finally {
-      if (db != null) {
-        db.close();
-      }
     }
     return false;
   }

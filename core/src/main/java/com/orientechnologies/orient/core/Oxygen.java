@@ -68,7 +68,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Oxygen extends OListenerManger<OOrientListener> {
 
-  public static final String OXYGENDB_HOME = "ORIENTDB_HOME";
+  public static final String OXYGENDB_HOME = "OXYGENDB_HOME";
   public static final String URL_SYNTAX =
       "<engine>:<db-type>:<db-name>[?<db-param>=<db-value>[&]]*";
 

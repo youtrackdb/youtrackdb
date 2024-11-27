@@ -44,6 +44,7 @@ import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 import java.util.UUID;
+import javax.annotation.Nullable;
 
 public class OMessageHelper {
 
@@ -81,7 +82,7 @@ public class OMessageHelper {
     }
   }
 
-  public static byte[] getRecordBytes(ODatabaseSessionInternal session,
+  public static byte[] getRecordBytes(@Nullable ODatabaseSessionInternal session,
       final ORecordAbstract iRecord, ORecordSerializer serializer) {
     final byte[] stream;
     String dbSerializerName = null;

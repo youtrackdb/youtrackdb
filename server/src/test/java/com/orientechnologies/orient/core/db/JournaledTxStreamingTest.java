@@ -97,7 +97,7 @@ public class JournaledTxStreamingTest {
 
   //  @Test
   public void testStreaming() throws IOException {
-    Deque<Integer> txs = new ArrayDeque<>();
+    Deque<Long> txs = new ArrayDeque<>();
 
     for (int i = 0; i < ITERATIONS; ++i) {
       db.begin();
@@ -138,14 +138,14 @@ public class JournaledTxStreamingTest {
     String javaExec = System.getProperty("java.home") + "/bin/java";
     javaExec = new File(javaExec).getCanonicalPath();
 
-    System.setProperty("ORIENTDB_HOME", buildDir.getCanonicalPath());
+    System.setProperty("OXYGENDB_HOME", buildDir.getCanonicalPath());
 
     ProcessBuilder processBuilder =
         new ProcessBuilder(
             javaExec,
             "-classpath",
             System.getProperty("java.class.path"),
-            "-DORIENTDB_HOME=" + buildDir.getCanonicalPath(),
+            "-DOXYGENDB_HOME=" + buildDir.getCanonicalPath(),
             "-DmutexFile=" + mutexFile.getCanonicalPath(),
             "-Dstorage.internal.journaled.tx.streaming.port=3600",
             RemoteDBRunner.class.getName());
