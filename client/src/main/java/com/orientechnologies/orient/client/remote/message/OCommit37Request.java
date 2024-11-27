@@ -26,7 +26,7 @@ import java.util.Map;
  */
 public class OCommit37Request implements OBinaryRequest<OCommit37Response> {
 
-  private int txId;
+  private long txId;
   private boolean hasContent;
   private boolean usingLog;
   private List<ORecordOperationRequest> operations;
@@ -36,7 +36,7 @@ public class OCommit37Request implements OBinaryRequest<OCommit37Response> {
   }
 
   public OCommit37Request(
-      ODatabaseSessionInternal session, int txId,
+      ODatabaseSessionInternal session, long txId,
       boolean hasContent,
       boolean usingLong,
       Iterable<ORecordOperation> operations,
@@ -76,7 +76,7 @@ public class OCommit37Request implements OBinaryRequest<OCommit37Response> {
       OStorageRemoteSession session) throws IOException {
     // from 3.0 the the serializer is bound to the protocol
     ORecordSerializerNetworkV37Client serializer = ORecordSerializerNetworkV37Client.INSTANCE;
-    network.writeInt(txId);
+    network.writeLong(txId);
     network.writeBoolean(hasContent);
     network.writeBoolean(usingLog);
     if (hasContent) {
@@ -96,7 +96,7 @@ public class OCommit37Request implements OBinaryRequest<OCommit37Response> {
   @Override
   public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
       throws IOException {
-    txId = channel.readInt();
+    txId = channel.readLong();
     hasContent = channel.readBoolean();
     usingLog = channel.readBoolean();
     if (hasContent) {
@@ -137,7 +137,7 @@ public class OCommit37Request implements OBinaryRequest<OCommit37Response> {
     return "Commit";
   }
 
-  public int getTxId() {
+  public long getTxId() {
     return txId;
   }
 

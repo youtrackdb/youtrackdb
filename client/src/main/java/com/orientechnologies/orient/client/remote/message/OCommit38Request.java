@@ -110,7 +110,7 @@ public class OCommit38Request implements OBinaryRequest<OCommit37Response> {
   @Override
   public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
       throws IOException {
-    txId = channel.readInt();
+    txId = channel.readLong();
     hasContent = channel.readBoolean();
     usingLog = channel.readBoolean();
     if (hasContent) {

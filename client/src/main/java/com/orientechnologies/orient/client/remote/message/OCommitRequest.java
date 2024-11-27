@@ -37,7 +37,7 @@ import java.util.List;
 
 public final class OCommitRequest implements OBinaryRequest<OCommitResponse> {
 
-  private int txId;
+  private long txId;
   private boolean usingLong;
   private List<ORecordOperationRequest> operations;
   private ODocument indexChanges;
@@ -49,7 +49,7 @@ public final class OCommitRequest implements OBinaryRequest<OCommitResponse> {
   public void write(ODatabaseSessionInternal database, OChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
     ORecordSerializer serializer = ODatabaseRecordThreadLocal.instance().get().getSerializer();
-    network.writeInt(txId);
+    network.writeLong(txId);
     network.writeBoolean(usingLong);
 
     for (ORecordOperationRequest txEntry : operations) {
@@ -67,9 +67,10 @@ public final class OCommitRequest implements OBinaryRequest<OCommitResponse> {
   @Override
   public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
       throws IOException {
-    txId = channel.readInt();
+    txId = channel.readLong();
     usingLong = channel.readBoolean();
     operations = new ArrayList<>();
+
     byte hasEntry;
     do {
       hasEntry = channel.readByte();
@@ -100,7 +101,7 @@ public final class OCommitRequest implements OBinaryRequest<OCommitResponse> {
     return operations;
   }
 
-  public int getTxId() {
+  public long getTxId() {
     return txId;
   }
 
