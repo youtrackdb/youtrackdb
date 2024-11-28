@@ -22,7 +22,7 @@ public class OSleepStatement extends OSimpleExecStatement {
 
   @Override
   public OExecutionStream executeSimple(OCommandContext ctx) {
-    OResultInternal item = new OResultInternal();
+    OResultInternal item = new OResultInternal(ctx.getDatabase());
     item.setProperty("operation", "sleep");
     try {
       Thread.sleep(millis.getValue().intValue());

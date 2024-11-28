@@ -58,7 +58,8 @@ public class CheckSafeDeleteStepTest extends TestUtilsFixture {
             if (!done) {
               for (int i = 0; i < 10; i++) {
                 result.add(
-                    new OResultInternal(new ODocument(i % 2 == 0 ? simpleClassName : className)));
+                    new OResultInternal(db,
+                        new ODocument(i % 2 == 0 ? simpleClassName : className)));
               }
               done = true;
             }
@@ -86,7 +87,7 @@ public class CheckSafeDeleteStepTest extends TestUtilsFixture {
             List<OResult> result = new ArrayList<>();
             if (!done) {
               for (int i = 0; i < 10; i++) {
-                result.add(new OResultInternal(new ODocument(createClassInstance().getName())));
+                result.add(new OResultInternal(db, new ODocument(createClassInstance().getName())));
               }
               done = true;
             }

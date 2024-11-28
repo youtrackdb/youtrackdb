@@ -61,7 +61,7 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
       }
     }
     if (iThis instanceof OIdentifiable) {
-      iThis = new OResultInternal((OIdentifiable) iThis);
+      iThis = new OResultInternal(ctx.getDatabase(), (OIdentifiable) iThis);
     }
     OResult result = (OResult) iThis;
 

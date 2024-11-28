@@ -3,6 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -71,8 +72,8 @@ public class ORecordAttribute extends SimpleNode {
     this.name = name;
   }
 
-  public OResult serialize() {
-    OResultInternal result = new OResultInternal();
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("name", name);
     return result;
   }

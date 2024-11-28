@@ -23,11 +23,11 @@ public class EmptyDataGeneratorStep extends AbstractExecutionStep {
       prev.start(ctx).close(ctx);
     }
 
-    return new OProduceExecutionStream(this::create).limit(size);
+    return new OProduceExecutionStream(EmptyDataGeneratorStep::create).limit(size);
   }
 
-  private OResult create(OCommandContext ctx) {
-    OResultInternal result = new OResultInternal();
+  private static OResult create(OCommandContext ctx) {
+    OResultInternal result = new OResultInternal(ctx.getDatabase());
     ctx.setVariable("$current", result);
     return result;
   }

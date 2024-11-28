@@ -350,6 +350,7 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
 
   @Override
   public Object returnOriginalState(
+      ODatabaseSessionInternal session,
       List<OMultiValueChangeEvent<OIdentifiable, OIdentifiable>> multiValueChangeEvents) {
     final OEmbeddedRidBag reverted = new OEmbeddedRidBag();
     for (OIdentifiable identifiable : this) {

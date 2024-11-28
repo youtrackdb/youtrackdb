@@ -18,7 +18,7 @@ public class OPushFunctionsRequest implements OBinaryPushRequest<OBinaryPushResp
   }
 
   @Override
-  public void read(OChannelDataInput network) throws IOException {
+  public void read(ODatabaseSessionInternal db, OChannelDataInput network) throws IOException {
   }
 
   @Override

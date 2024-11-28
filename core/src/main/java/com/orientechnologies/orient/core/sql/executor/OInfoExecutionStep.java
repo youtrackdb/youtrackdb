@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +48,7 @@ public class OInfoExecutionStep implements OExecutionStep {
   }
 
   @Override
-  public OResult toResult() {
+  public OResult toResult(ODatabaseSessionInternal db) {
     return null;
   }
 

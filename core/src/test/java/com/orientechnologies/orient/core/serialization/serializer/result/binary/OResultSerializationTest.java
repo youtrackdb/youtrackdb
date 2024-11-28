@@ -3,6 +3,8 @@ package com.orientechnologies.orient.core.serialization.serializer.result.binary
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
@@ -24,7 +26,7 @@ import org.junit.Test;
 /**
  *
  */
-public class OResultSerializationTest {
+public class OResultSerializationTest extends BaseMemoryDatabase {
 
   protected OResultSerializerNetwork serializer;
 
@@ -41,8 +43,8 @@ public class OResultSerializationTest {
   public void testSimpleSerialization() {
     try (var orientDB = new OxygenDB("memory", OxygenDBConfig.defaultConfig())) {
       orientDB.createIfNotExists("test", ODatabaseType.MEMORY, "admin", "admin", "admin");
-      try (var ignore = orientDB.open("test", "admin", "admin")) {
-        OResultInternal document = new OResultInternal();
+      try (var db = (ODatabaseSessionInternal) orientDB.open("test", "admin", "admin")) {
+        OResultInternal document = new OResultInternal(db);
 
         document.setProperty("name", "name");
         document.setProperty("age", 20);
@@ -56,7 +58,7 @@ public class OResultSerializationTest {
         document.setProperty("date", new Date());
         document.setProperty("recordId", new ORecordId(10, 10));
 
-        OResultInternal extr = serializeDeserialize(document);
+        OResultInternal extr = serializeDeserialize(db, document);
 
         assertEquals(extr.getPropertyNames(), document.getPropertyNames());
         assertEquals(extr.<String>getProperty("name"), document.getProperty("name"));
@@ -72,19 +74,20 @@ public class OResultSerializationTest {
     }
   }
 
-  private OResultInternal serializeDeserialize(OResultInternal document) {
+  private OResultInternal serializeDeserialize(ODatabaseSessionInternal db,
+      OResultInternal document) {
     BytesContainer bytes = new BytesContainer();
     serializer.serialize(document, bytes);
     bytes.offset = 0;
-    return serializer.deserialize(bytes);
+    return serializer.deserialize(db, bytes);
   }
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void testSimpleLiteralList() {
 
-    OResultInternal document = new OResultInternal();
-    List<String> strings = new ArrayList<String>();
+    OResultInternal document = new OResultInternal(db);
+    List<String> strings = new ArrayList<>();
     strings.add("a");
     strings.add("b");
     strings.add("c");
@@ -158,7 +161,7 @@ public class OResultSerializationTest {
     listMixed.add(null);
     document.setProperty("listMixed", listMixed);
 
-    OResult extr = serializeDeserialize(document);
+    OResult extr = serializeDeserialize(db, document);
 
     assertEquals(extr.getPropertyNames(), document.getPropertyNames());
     assertEquals(extr.<String>getProperty("listStrings"), document.getProperty("listStrings"));
@@ -172,7 +175,7 @@ public class OResultSerializationTest {
 
   @Test
   public void testSimpleMapStringLiteral() {
-    OResultInternal document = new OResultInternal();
+    OResultInternal document = new OResultInternal(db);
 
     Map<String, String> mapString = new HashMap<String, String>();
     mapString.put("key", "value");
@@ -214,7 +217,7 @@ public class OResultSerializationTest {
     bytesMap.put("key1", (byte) 11);
     document.setProperty("bytesMap", bytesMap);
 
-    OResult extr = serializeDeserialize(document);
+    OResult extr = serializeDeserialize(db, document);
 
     assertEquals(extr.getPropertyNames(), document.getPropertyNames());
     assertEquals(extr.<String>getProperty("mapString"), document.getProperty("mapString"));
@@ -227,13 +230,13 @@ public class OResultSerializationTest {
 
   @Test
   public void testSimpleEmbeddedDoc() {
-    OResultInternal document = new OResultInternal();
-    OResultInternal embedded = new OResultInternal();
+    OResultInternal document = new OResultInternal(db);
+    OResultInternal embedded = new OResultInternal(db);
     embedded.setProperty("name", "test");
     embedded.setProperty("surname", "something");
     document.setProperty("embed", embedded);
 
-    OResult extr = serializeDeserialize(document);
+    OResult extr = serializeDeserialize(db, document);
 
     assertEquals(document.getPropertyNames(), extr.getPropertyNames());
     OResult emb = extr.getProperty("embed");
@@ -245,16 +248,16 @@ public class OResultSerializationTest {
   @Test
   public void testMapOfEmbeddedDocument() {
 
-    OResultInternal document = new OResultInternal();
+    OResultInternal document = new OResultInternal(db);
 
-    OResultInternal embeddedInMap = new OResultInternal();
+    OResultInternal embeddedInMap = new OResultInternal(db);
     embeddedInMap.setProperty("name", "test");
     embeddedInMap.setProperty("surname", "something");
     Map<String, OResult> map = new HashMap<String, OResult>();
     map.put("embedded", embeddedInMap);
     document.setProperty("map", map);
 
-    OResult extr = serializeDeserialize(document);
+    OResult extr = serializeDeserialize(db, document);
 
     Map<String, OResult> mapS = extr.getProperty("map");
     assertEquals(1, mapS.size());
@@ -267,9 +270,9 @@ public class OResultSerializationTest {
   @Test
   public void testCollectionOfEmbeddedDocument() {
 
-    OResultInternal document = new OResultInternal();
+    OResultInternal document = new OResultInternal(db);
 
-    OResultInternal embeddedInList = new OResultInternal();
+    OResultInternal embeddedInList = new OResultInternal(db);
     embeddedInList.setProperty("name", "test");
     embeddedInList.setProperty("surname", "something");
 
@@ -277,7 +280,7 @@ public class OResultSerializationTest {
     embeddedList.add(embeddedInList);
     document.setProperty("embeddedList", embeddedList);
 
-    OResultInternal embeddedInSet = new OResultInternal();
+    OResultInternal embeddedInSet = new OResultInternal(db);
     embeddedInSet.setProperty("name", "test1");
     embeddedInSet.setProperty("surname", "something2");
 
@@ -285,7 +288,7 @@ public class OResultSerializationTest {
     embeddedSet.add(embeddedInSet);
     document.setProperty("embeddedSet", embeddedSet);
 
-    OResult extr = serializeDeserialize(document);
+    OResult extr = serializeDeserialize(db, document);
 
     List<OResult> ser = extr.getProperty("embeddedList");
     assertEquals(1, ser.size());
@@ -304,7 +307,7 @@ public class OResultSerializationTest {
 
   @Test
   public void testMetadataSerialization() {
-    OResultInternal document = new OResultInternal();
+    OResultInternal document = new OResultInternal(db);
 
     document.setProperty("name", "foo");
 
@@ -318,7 +321,7 @@ public class OResultSerializationTest {
     document.setMetadata("alive", true);
     document.setMetadata("date", new Date());
 
-    OResultInternal extr = serializeDeserialize(document);
+    OResultInternal extr = serializeDeserialize(db, document);
 
     assertEquals(extr.getPropertyNames(), document.getPropertyNames());
     assertEquals(extr.<String>getProperty("foo"), document.getProperty("foo"));

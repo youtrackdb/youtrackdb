@@ -221,7 +221,7 @@ public class TrackedSetTest extends BaseMemoryDatabase {
 
     Assert.assertEquals(
         original,
-        trackedSet.returnOriginalState(
+        trackedSet.returnOriginalState(db,
             (List) trackedSet.getTimeLine().getMultiValueChangeEvents()));
   }
 

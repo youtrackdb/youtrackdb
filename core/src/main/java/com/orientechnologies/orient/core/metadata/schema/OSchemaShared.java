@@ -54,6 +54,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import javax.annotation.Nonnull;
 
 /**
  * Shared schema class. It's shared by all the database instances that point to the same storage.
@@ -798,10 +799,10 @@ public abstract class OSchemaShared implements OCloseable {
   /**
    * Binds POJO to ODocument.
    */
-  public ODocument toStream() {
+  public ODocument toStream(@Nonnull ODatabaseSessionInternal db) {
     lock.readLock().lock();
     try {
-      ODocument document = ODatabaseSessionInternal.getActiveSession().load(identity);
+      ODocument document = db.load(identity);
       document.field("schemaVersion", CURRENT_VERSION_NUMBER);
 
       // This steps is needed because in classes there are duplicate due to aliases
@@ -989,7 +990,7 @@ public abstract class OSchemaShared implements OCloseable {
           @Override
           public Object call() {
             database.begin();
-            ODocument document = toStream();
+            ODocument document = toStream(database);
             database.save(document, OMetadataDefault.CLUSTER_INTERNAL_NAME);
             database.commit();
             return null;

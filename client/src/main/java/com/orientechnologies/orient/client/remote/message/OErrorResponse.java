@@ -25,7 +25,8 @@ public class OErrorResponse implements OBinaryResponse {
   }
 
   @Override
-  public void read(OChannelDataInput network, OStorageRemoteSession session) throws IOException {
+  public void read(ODatabaseSessionInternal db, OChannelDataInput network,
+      OStorageRemoteSession session) throws IOException {
     messages = new HashMap<>();
     while (network.readByte() == 1) {
       String key = network.readString();

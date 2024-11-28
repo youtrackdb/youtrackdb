@@ -30,7 +30,8 @@ public class OGetGlobalConfigurationRequest
   }
 
   @Override
-  public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
+  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+      ORecordSerializer serializer)
       throws IOException {
     key = channel.readString();
   }

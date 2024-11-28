@@ -43,6 +43,7 @@ public class FilterNotMatchPatternStep extends AbstractExecutionStep {
 
   private OSelectExecutionPlan createExecutionPlan(OResult nextItem, OCommandContext ctx) {
     OSelectExecutionPlan plan = new OSelectExecutionPlan(ctx);
+    var db = ctx.getDatabase();
     plan.chain(
         new AbstractExecutionStep(ctx, profilingEnabled) {
 
@@ -52,7 +53,7 @@ public class FilterNotMatchPatternStep extends AbstractExecutionStep {
           }
 
           private OResult copy(OResult nextItem) {
-            OResultInternal result = new OResultInternal();
+            OResultInternal result = new OResultInternal(db);
             for (String prop : nextItem.getPropertyNames()) {
               result.setProperty(prop, nextItem.getProperty(prop));
             }

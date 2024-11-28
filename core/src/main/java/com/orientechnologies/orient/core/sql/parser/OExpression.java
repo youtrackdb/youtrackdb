@@ -4,6 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -617,23 +618,23 @@ public class OExpression extends SimpleNode {
     this.arrayConcatExpression = arrayConcatExpression;
   }
 
-  public OResult serialize() {
-    OResultInternal result = new OResultInternal();
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("singleQuotes", singleQuotes);
     result.setProperty("doubleQuotes", doubleQuotes);
     result.setProperty("isNull", isNull);
 
     if (rid != null) {
-      result.setProperty("rid", rid.serialize());
+      result.setProperty("rid", rid.serialize(db));
     }
     if (mathExpression != null) {
-      result.setProperty("mathExpression", mathExpression.serialize());
+      result.setProperty("mathExpression", mathExpression.serialize(db));
     }
     if (arrayConcatExpression != null) {
-      result.setProperty("arrayConcatExpression", arrayConcatExpression.serialize());
+      result.setProperty("arrayConcatExpression", arrayConcatExpression.serialize(db));
     }
     if (json != null) {
-      result.setProperty("json", json.serialize());
+      result.setProperty("json", json.serialize(db));
     }
     result.setProperty("booleanValue", booleanValue);
     return result;

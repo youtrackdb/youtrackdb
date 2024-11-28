@@ -99,7 +99,8 @@ public class ORecordSerializerBinaryTest {
     doc = db.bindToSession(doc);
     byte[] serializedDoc = serializer.toStream((ODatabaseSessionInternal) db, doc);
     OResultBinary docBinary =
-        (OResultBinary) serializer.getBinaryResult(db, serializedDoc, new ORecordId(-1, -1));
+        (OResultBinary) serializer.getBinaryResult((ODatabaseSessionInternal) db, serializedDoc,
+            new ORecordId(-1, -1));
     Integer value = docBinary.getProperty("TestPropAny");
     Assert.assertEquals(setValue, value);
   }
@@ -111,7 +112,8 @@ public class ORecordSerializerBinaryTest {
     doc.setProperty("TestField", setValue);
     byte[] serializedDoc = serializer.toStream((ODatabaseSessionInternal) db, doc);
     OResultBinary docBinary =
-        (OResultBinary) serializer.getBinaryResult(db, serializedDoc, new ORecordId(-1, -1));
+        (OResultBinary) serializer.getBinaryResult((ODatabaseSessionInternal) db, serializedDoc,
+            new ORecordId(-1, -1));
     Integer value = docBinary.getProperty("TestField");
     Assert.assertEquals(setValue, value);
   }
@@ -151,7 +153,8 @@ public class ORecordSerializerBinaryTest {
     root = db.bindToSession(root);
     byte[] rootBytes = serializer.toStream((ODatabaseSessionInternal) db, root);
     OResultBinary docBinary =
-        (OResultBinary) serializer.getBinaryResult(db, rootBytes, new ORecordId(-1, -1));
+        (OResultBinary) serializer.getBinaryResult((ODatabaseSessionInternal) db, rootBytes,
+            new ORecordId(-1, -1));
     OResultBinary embeddedBytesViaGet = docBinary.getProperty("TestEmbedded");
     Set<String> fieldNames = embeddedBytesViaGet.getPropertyNames();
     Assert.assertTrue(fieldNames.contains("TestField"));
@@ -184,7 +187,8 @@ public class ORecordSerializerBinaryTest {
     // skip serializer version
     embeddedNativeBytes = Arrays.copyOfRange(embeddedNativeBytes, 1, embeddedNativeBytes.length);
     OResultBinary resBinary =
-        (OResultBinary) serializer.getBinaryResult(db, rootBytes, new ORecordId(-1, -1));
+        (OResultBinary) serializer.getBinaryResult((ODatabaseSessionInternal) db, rootBytes,
+            new ORecordId(-1, -1));
     OResultBinary embeddedBytesViaGet = resBinary.getProperty("TestEmbedded");
     byte[] deserializedBytes =
         Arrays.copyOfRange(
@@ -223,7 +227,8 @@ public class ORecordSerializerBinaryTest {
     byte[] rootBytes = serializer.toStream((ODatabaseSessionInternal) db, root);
 
     OResultBinary docBinary =
-        (OResultBinary) serializer.getBinaryResult(db, rootBytes, new ORecordId(-1, -1));
+        (OResultBinary) serializer.getBinaryResult((ODatabaseSessionInternal) db, rootBytes,
+            new ORecordId(-1, -1));
     OResultBinary embeddedBytesViaGet = docBinary.getProperty("TestEmbedded");
 
     Integer testValue = embeddedBytesViaGet.getProperty("TestField");
@@ -249,7 +254,8 @@ public class ORecordSerializerBinaryTest {
     root = db.bindToSession(root);
     byte[] rootBytes = serializer.toStream((ODatabaseSessionInternal) db, root);
     OResultBinary docBinary =
-        (OResultBinary) serializer.getBinaryResult(db, rootBytes, new ORecordId(-1, -1));
+        (OResultBinary) serializer.getBinaryResult((ODatabaseSessionInternal) db, rootBytes,
+            new ORecordId(-1, -1));
     OResultBinary embeddedBytesViaGet = docBinary.getProperty("TestEmbedded");
     OResultBinary embeddedLKevel2BytesViaGet = embeddedBytesViaGet.getProperty("TestEmbedded");
     Integer testValue = embeddedLKevel2BytesViaGet.getProperty("InnerTestFields");
@@ -275,7 +281,8 @@ public class ORecordSerializerBinaryTest {
 
     byte[] rootBytes = serializer.toStream((ODatabaseSessionInternal) db, root);
     OResultBinary docBinary =
-        (OResultBinary) serializer.getBinaryResult(db, rootBytes, new ORecordId(-1, -1));
+        (OResultBinary) serializer.getBinaryResult((ODatabaseSessionInternal) db, rootBytes,
+            new ORecordId(-1, -1));
     List<Object> embeddedListFieldValue = docBinary.getProperty("TestEmbeddedList");
     OResultBinary embeddedListElementBytes = (OResultBinary) embeddedListFieldValue.get(0);
     Integer deserializedValue = embeddedListElementBytes.getProperty("InnerTestFields");
@@ -304,7 +311,8 @@ public class ORecordSerializerBinaryTest {
     byte[] rootBytes = serializer.toStream((ODatabaseSessionInternal) db, root);
 
     OResultBinary docBinary =
-        (OResultBinary) serializer.getBinaryResult(db, rootBytes, new ORecordId(-1, -1));
+        (OResultBinary) serializer.getBinaryResult((ODatabaseSessionInternal) db, rootBytes,
+            new ORecordId(-1, -1));
     Map deserializedMap = docBinary.getProperty("TestEmbeddedMap");
     OResultBinary firstValDeserialized = (OResultBinary) deserializedMap.get("first");
     Integer deserializedValue = firstValDeserialized.getProperty("InnerTestFields");

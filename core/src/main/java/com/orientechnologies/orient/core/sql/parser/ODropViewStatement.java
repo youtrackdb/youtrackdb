@@ -55,7 +55,7 @@ public class ODropViewStatement extends ODDLStatement {
 
     schema.dropView(name.getStringValue());
 
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("operation", "drop view");
     result.setProperty("viewName", name.getStringValue());
     return OExecutionStream.singleton(result);

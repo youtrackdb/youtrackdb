@@ -422,11 +422,11 @@ public class OBinaryCondition extends OBooleanExpression {
     return result;
   }
 
-  public OResult serialize() {
-    OResultInternal result = new OResultInternal();
-    result.setProperty("left", left.serialize());
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
+    result.setProperty("left", left.serialize(db));
     result.setProperty("operator", operator.getClass().getName());
-    result.setProperty("right", right.serialize());
+    result.setProperty("right", right.serialize(db));
     return result;
   }
 

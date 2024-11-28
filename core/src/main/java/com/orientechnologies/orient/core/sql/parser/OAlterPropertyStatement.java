@@ -50,7 +50,7 @@ public class OAlterPropertyStatement extends ODDLStatement {
           "Property " + propertyName.getStringValue() + " not found on class " + clazz);
     }
 
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("class", className.getStringValue());
     result.setProperty("property", propertyName.getStringValue());
 

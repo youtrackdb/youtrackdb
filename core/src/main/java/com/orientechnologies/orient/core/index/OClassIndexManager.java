@@ -172,7 +172,7 @@ public class OClassIndexManager {
               @SuppressWarnings("rawtypes") final OTrackedMultiValue fieldValue = iRecord.field(
                   multiValueField);
               @SuppressWarnings("unchecked") final Object restoredMultiValue =
-                  fieldValue.returnOriginalState(
+                  fieldValue.returnOriginalState(session,
                       multiValueChangeTimeLine.getMultiValueChangeEvents());
 
               origValues.add(indexDefinition.getMultiValueDefinitionIndex(), restoredMultiValue);
@@ -305,7 +305,7 @@ public class OClassIndexManager {
             @SuppressWarnings("rawtypes") final OTrackedMultiValue fieldValue = iRecord.field(
                 multiValueField);
             @SuppressWarnings("unchecked") final Object restoredMultiValue =
-                fieldValue.returnOriginalState(
+                fieldValue.returnOriginalState(session,
                     multiValueChangeTimeLine.getMultiValueChangeEvents());
             origValues.add(indexDefinition.getMultiValueDefinitionIndex(), restoredMultiValue);
           } else if (dirtyFields.contains(multiValueField)) {
@@ -363,7 +363,8 @@ public class OClassIndexManager {
       if (multiValueChangeTimeLine != null) {
         final OTrackedMultiValue fieldValue = iRecord.field(indexField);
         final Object restoredMultiValue =
-            fieldValue.returnOriginalState(multiValueChangeTimeLine.getMultiValueChangeEvents());
+            fieldValue.returnOriginalState(session,
+                multiValueChangeTimeLine.getMultiValueChangeEvents());
         origValue = indexDefinition.createValue(session, restoredMultiValue);
       } else {
         origValue = indexDefinition.createValue(session, iRecord.getOriginalValue(indexField));

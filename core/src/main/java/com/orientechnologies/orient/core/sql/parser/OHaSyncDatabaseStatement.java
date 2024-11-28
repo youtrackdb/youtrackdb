@@ -29,7 +29,7 @@ public class OHaSyncDatabaseStatement extends OSimpleExecStatement {
 
     try {
       boolean result = database.sync(force, !full);
-      OResultInternal r = new OResultInternal();
+      OResultInternal r = new OResultInternal(database);
       r.setProperty("result", result);
       return OExecutionStream.singleton(r);
     } catch (Exception e) {

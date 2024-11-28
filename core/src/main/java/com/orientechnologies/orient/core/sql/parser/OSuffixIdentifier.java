@@ -6,6 +6,7 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.util.OResettable;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
@@ -158,7 +159,7 @@ public class OSuffixIdentifier extends SimpleNode {
 
   public Object execute(Map iCurrentRecord, OCommandContext ctx) {
     if (star) {
-      OResultInternal result = new OResultInternal();
+      OResultInternal result = new OResultInternal(ctx.getDatabase());
       if (iCurrentRecord != null) {
         for (Map.Entry<Object, Object> x : ((Map<Object, Object>) iCurrentRecord).entrySet()) {
           result.setProperty("" + x.getKey(), x.getValue());
@@ -424,13 +425,13 @@ public class OSuffixIdentifier extends SimpleNode {
     }
   }
 
-  public OResult serialize() {
-    OResultInternal result = new OResultInternal();
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
     if (identifier != null) {
-      result.setProperty("identifier", identifier.serialize());
+      result.setProperty("identifier", identifier.serialize(db));
     }
     if (recordAttribute != null) {
-      result.setProperty("recordAttribute", recordAttribute.serialize());
+      result.setProperty("recordAttribute", recordAttribute.serialize(db));
     }
     result.setProperty("star", star);
     return result;

@@ -38,7 +38,7 @@ public final class OExpireResultSet implements OExecutionStream {
     if (System.currentTimeMillis() > expiryTime) {
       fail();
       if (timedOut) {
-        return new OResultInternal();
+        return new OResultInternal(ctx.getDatabase());
       }
     }
     return internal.next(ctx);

@@ -29,7 +29,7 @@ public class OPushStorageConfigurationRequest implements OBinaryPushRequest<OBin
   }
 
   @Override
-  public void read(OChannelDataInput network) throws IOException {
+  public void read(ODatabaseSessionInternal db, OChannelDataInput network) throws IOException {
     payload.read(network);
   }
 

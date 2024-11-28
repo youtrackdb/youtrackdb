@@ -23,11 +23,12 @@ public class CreateRecordStep extends AbstractExecutionStep {
       prev.start(ctx).close(ctx);
     }
 
-    return new OProduceExecutionStream(this::produce).limit(total);
+    return new OProduceExecutionStream(CreateRecordStep::produce).limit(total);
   }
 
-  private OResult produce(OCommandContext ctx) {
-    return new OUpdatableResult(ctx.getDatabase().newInstance());
+  private static OResult produce(OCommandContext ctx) {
+    var db = ctx.getDatabase();
+    return new OUpdatableResult(db, db.newInstance());
   }
 
   @Override

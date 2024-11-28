@@ -483,7 +483,7 @@ public class HelperClasses {
     OVarIntSerializer.write(bytes, id.getClusterPosition());
   }
 
-  public static ORidBag readRidbag(BytesContainer bytes) {
+  public static ORidBag readRidbag(ODatabaseSessionInternal session, BytesContainer bytes) {
     byte configByte = OByteSerializer.INSTANCE.deserialize(bytes.bytes, bytes.offset++);
     boolean isEmbedded = (configByte & 1) != 0;
 
@@ -492,7 +492,7 @@ public class HelperClasses {
 
     ORidBag ridbag = null;
     if (isEmbedded) {
-      ridbag = new ORidBag();
+      ridbag = new ORidBag(session);
       int size = OVarIntSerializer.readAsInteger(bytes);
       ridbag.getDelegate().setSize(size);
       for (int i = 0; i < size; i++) {
@@ -521,7 +521,7 @@ public class HelperClasses {
         changes.put(recId, change);
       }
 
-      ridbag = new ORidBag(pointer, changes, uuid);
+      ridbag = new ORidBag(session, pointer, changes, uuid);
       ridbag.getDelegate().setSize(-1);
     }
     return ridbag;

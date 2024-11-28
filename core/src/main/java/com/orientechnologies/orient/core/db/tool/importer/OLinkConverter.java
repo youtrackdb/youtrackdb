@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.db.tool.importer;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
 import com.orientechnologies.orient.core.id.ORID;
@@ -18,7 +19,7 @@ public final class OLinkConverter implements OValuesConverter<OIdentifiable> {
   }
 
   @Override
-  public OIdentifiable convert(OIdentifiable value) {
+  public OIdentifiable convert(ODatabaseSessionInternal db, OIdentifiable value) {
     final ORID rid = value.getIdentity();
     if (!rid.isPersistent()) {
       return value;

@@ -21,7 +21,6 @@
 package com.orientechnologies.orient.core.serialization.serializer.record.binary;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
@@ -86,7 +85,8 @@ public class ORecordSerializerBinary implements ORecordSerializer {
 
   @Override
   public ORecordAbstract fromStream(
-      final byte[] iSource, ORecordAbstract iRecord, final String[] iFields) {
+      ODatabaseSessionInternal db, final byte[] iSource, ORecordAbstract iRecord,
+      final String[] iFields) {
     if (iSource == null || iSource.length == 0) {
       return iRecord;
     }
@@ -104,9 +104,10 @@ public class ORecordSerializerBinary implements ORecordSerializer {
 
     try {
       if (iFields != null && iFields.length > 0) {
-        serializerByVersion[iSource[0]].deserializePartial((ODocument) iRecord, container, iFields);
+        serializerByVersion[iSource[0]].deserializePartial(db, (ODocument) iRecord, container,
+            iFields);
       } else {
-        serializerByVersion[iSource[0]].deserialize((ODocument) iRecord, container);
+        serializerByVersion[iSource[0]].deserialize(db, (ODocument) iRecord, container);
       }
     } catch (RuntimeException e) {
       OLogManager.instance()
@@ -143,7 +144,8 @@ public class ORecordSerializerBinary implements ORecordSerializer {
   }
 
   @Override
-  public String[] getFieldNames(ODocument reference, final byte[] iSource) {
+  public String[] getFieldNames(ODatabaseSessionInternal db, ODocument reference,
+      final byte[] iSource) {
     if (iSource == null || iSource.length == 0) {
       return new String[0];
     }
@@ -172,7 +174,7 @@ public class ORecordSerializerBinary implements ORecordSerializer {
     return NAME;
   }
 
-  public OResult getBinaryResult(ODatabaseSession db, byte[] bytes, ORecordId id) {
+  public OResult getBinaryResult(ODatabaseSessionInternal db, byte[] bytes, ORecordId id) {
     ODocumentSerializer serializer = getSerializer(bytes[0]);
     return new OResultBinary(db, bytes, 1, bytes.length, serializer, id);
   }

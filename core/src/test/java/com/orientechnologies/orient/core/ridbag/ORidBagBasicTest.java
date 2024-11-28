@@ -50,7 +50,7 @@ public class ORidBagBasicTest extends BaseMemoryDatabase {
     try {
       OVertex record = db.newVertex();
       List<Object> valueList = new ArrayList<>();
-      valueList.add(new ORidBag());
+      valueList.add(new ORidBag(db));
       record.setProperty("emb", valueList);
       db.save(record);
       fail("Should not be possible to save a ridbag in a list");
@@ -61,7 +61,7 @@ public class ORidBagBasicTest extends BaseMemoryDatabase {
     try {
       OVertex record = db.newVertex();
       Set<Object> valueSet = new HashSet<>();
-      valueSet.add(new ORidBag());
+      valueSet.add(new ORidBag(db));
       record.setProperty("emb", valueSet);
       db.save(record);
       fail("Should not be possible to save a ridbag in a set");
@@ -72,7 +72,7 @@ public class ORidBagBasicTest extends BaseMemoryDatabase {
     try {
       OVertex record = db.newVertex();
       Map<String, Object> valueSet = new HashMap<>();
-      valueSet.put("key", new ORidBag());
+      valueSet.put("key", new ORidBag(db));
       record.setProperty("emb", valueSet);
       db.save(record);
       fail("Should not be possible to save a ridbag in a set");
@@ -84,7 +84,7 @@ public class ORidBagBasicTest extends BaseMemoryDatabase {
       OVertex record = db.newVertex();
       Map<String, Object> valueSet = new HashMap<>();
       OElement nested = db.newElement();
-      nested.setProperty("bag", new ORidBag());
+      nested.setProperty("bag", new ORidBag(db));
       valueSet.put("key", nested);
       record.setProperty("emb", valueSet);
       db.save(record);
@@ -97,7 +97,7 @@ public class ORidBagBasicTest extends BaseMemoryDatabase {
       OVertex record = db.newVertex();
       List<Object> valueList = new ArrayList<>();
       OElement nested = db.newElement();
-      nested.setProperty("bag", new ORidBag());
+      nested.setProperty("bag", new ORidBag(db));
       valueList.add(nested);
       record.setProperty("emb", valueList);
       db.save(record);
@@ -110,7 +110,7 @@ public class ORidBagBasicTest extends BaseMemoryDatabase {
       OVertex record = db.newVertex();
       Set<Object> valueSet = new HashSet<>();
       OElement nested = db.newElement();
-      nested.setProperty("bag", new ORidBag());
+      nested.setProperty("bag", new ORidBag(db));
       valueSet.add(nested);
       record.setProperty("emb", valueSet);
       db.save(record);
@@ -122,7 +122,7 @@ public class ORidBagBasicTest extends BaseMemoryDatabase {
     try {
       OVertex record = db.newVertex();
       OElement nested = db.newElement();
-      nested.setProperty("bag", new ORidBag());
+      nested.setProperty("bag", new ORidBag(db));
       record.setProperty("emb", nested);
       db.save(record);
       fail("Should not be possible to save a ridbag in a set");

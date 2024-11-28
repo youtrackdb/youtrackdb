@@ -147,14 +147,15 @@ public class ODocumentSerializerDelta {
     }
   }
 
-  public void deserialize(byte[] content, ODocument toFill) {
+  public void deserialize(ODatabaseSessionInternal session, byte[] content, ODocument toFill) {
     BytesContainer bytesContainer = new BytesContainer(content);
-    deserialize(toFill, bytesContainer);
+    deserialize(session, toFill, bytesContainer);
   }
 
-  private void deserialize(final ODocument document, final BytesContainer bytes) {
+  private void deserialize(ODatabaseSessionInternal session, final ODocument document,
+      final BytesContainer bytes) {
     final String className = readString(bytes);
-    if (className.length() != 0) {
+    if (!className.isEmpty()) {
       ODocumentInternal.fillClassNameIfNeeded(document, className);
     }
 
@@ -169,33 +170,34 @@ public class ODocumentSerializerDelta {
       if (type == null) {
         value = null;
       } else {
-        value = deserializeValue(bytes, type, document);
+        value = deserializeValue(session, bytes, type, document);
       }
       document.setPropertyInternal(fieldName, value, type);
     }
   }
 
-  public void deserializeDelta(byte[] content, ODocument toFill) {
+  public void deserializeDelta(ODatabaseSessionInternal session, byte[] content, ODocument toFill) {
     BytesContainer bytesContainer = new BytesContainer(content);
-    deserializeDelta(bytesContainer, toFill);
+    deserializeDelta(session, bytesContainer, toFill);
   }
 
-  public void deserializeDelta(BytesContainer bytes, ODocument toFill) {
+  public void deserializeDelta(ODatabaseSessionInternal session, BytesContainer bytes,
+      ODocument toFill) {
     final String className = readString(bytes);
-    if (className.length() != 0 && toFill != null) {
+    if (!className.isEmpty() && toFill != null) {
       ODocumentInternal.fillClassNameIfNeeded(toFill, className);
     }
     long count = OVarIntSerializer.readAsLong(bytes);
     while (count-- > 0) {
       switch (deserializeByte(bytes)) {
         case CREATED:
-          deserializeFullEntry(bytes, toFill);
+          deserializeFullEntry(session, bytes, toFill);
           break;
         case REPLACED:
-          deserializeFullEntry(bytes, toFill);
+          deserializeFullEntry(session, bytes, toFill);
           break;
         case CHANGED:
-          deserializeDeltaEntry(bytes, toFill);
+          deserializeDeltaEntry(session, bytes, toFill);
           break;
         case REMOVED:
           String property = readString(bytes);
@@ -207,7 +209,8 @@ public class ODocumentSerializerDelta {
     }
   }
 
-  private void deserializeDeltaEntry(BytesContainer bytes, ODocument toFill) {
+  private void deserializeDeltaEntry(ODatabaseSessionInternal session, BytesContainer bytes,
+      ODocument toFill) {
     String name = readString(bytes);
     OType type = readNullableType(bytes);
     Object toUpdate;
@@ -216,22 +219,23 @@ public class ODocumentSerializerDelta {
     } else {
       toUpdate = null;
     }
-    deserializeDeltaValue(bytes, type, toUpdate);
+    deserializeDeltaValue(session, bytes, type, toUpdate);
   }
 
-  private void deserializeDeltaValue(BytesContainer bytes, OType type, Object toUpdate) {
+  private void deserializeDeltaValue(ODatabaseSessionInternal session, BytesContainer bytes,
+      OType type, Object toUpdate) {
     switch (type) {
       case EMBEDDEDLIST:
-        deserializeDeltaEmbeddedList(bytes, (OTrackedList) toUpdate);
+        deserializeDeltaEmbeddedList(session, bytes, (OTrackedList) toUpdate);
         break;
       case EMBEDDEDSET:
-        deserializeDeltaEmbeddedSet(bytes, (OTrackedSet) toUpdate);
+        deserializeDeltaEmbeddedSet(session, bytes, (OTrackedSet) toUpdate);
         break;
       case EMBEDDEDMAP:
-        deserializeDeltaEmbeddedMap(bytes, (OTrackedMap) toUpdate);
+        deserializeDeltaEmbeddedMap(session, bytes, (OTrackedMap) toUpdate);
         break;
       case EMBEDDED:
-        deserializeDelta(bytes, ((ORecord) toUpdate).getRecord());
+        deserializeDelta(session, bytes, ((ORecord) toUpdate).getRecord());
         break;
       case LINKLIST:
         deserializeDeltaLinkList(bytes, (OList) toUpdate);
@@ -370,7 +374,8 @@ public class ODocumentSerializerDelta {
     }
   }
 
-  private void deserializeDeltaEmbeddedMap(BytesContainer bytes, OTrackedMap toUpdate) {
+  private void deserializeDeltaEmbeddedMap(ODatabaseSessionInternal session, BytesContainer bytes,
+      OTrackedMap toUpdate) {
     long rootChanges = OVarIntSerializer.readAsLong(bytes);
     while (rootChanges-- > 0) {
       byte change = deserializeByte(bytes);
@@ -380,7 +385,7 @@ public class ODocumentSerializerDelta {
           OType type = readNullableType(bytes);
           Object value;
           if (type != null) {
-            value = deserializeValue(bytes, type, toUpdate);
+            value = deserializeValue(session, bytes, type, toUpdate);
           } else {
             value = null;
           }
@@ -394,7 +399,7 @@ public class ODocumentSerializerDelta {
           OType type = readNullableType(bytes);
           Object value;
           if (type != null) {
-            value = deserializeValue(bytes, type, toUpdate);
+            value = deserializeValue(session, bytes, type, toUpdate);
           } else {
             value = null;
           }
@@ -423,11 +428,12 @@ public class ODocumentSerializerDelta {
         nested = null;
       }
       OType type = readNullableType(bytes);
-      deserializeDeltaValue(bytes, type, nested);
+      deserializeDeltaValue(session, bytes, type, nested);
     }
   }
 
-  private void deserializeDeltaEmbeddedSet(BytesContainer bytes, OTrackedSet toUpdate) {
+  private void deserializeDeltaEmbeddedSet(ODatabaseSessionInternal session, BytesContainer bytes,
+      OTrackedSet toUpdate) {
     long rootChanges = OVarIntSerializer.readAsLong(bytes);
     while (rootChanges-- > 0) {
       byte change = deserializeByte(bytes);
@@ -436,7 +442,7 @@ public class ODocumentSerializerDelta {
           OType type = readNullableType(bytes);
           Object value;
           if (type != null) {
-            value = deserializeValue(bytes, type, toUpdate);
+            value = deserializeValue(session, bytes, type, toUpdate);
           } else {
             value = null;
           }
@@ -451,7 +457,7 @@ public class ODocumentSerializerDelta {
           OType type = readNullableType(bytes);
           Object value;
           if (type != null) {
-            value = deserializeValue(bytes, type, toUpdate);
+            value = deserializeValue(session, bytes, type, toUpdate);
           } else {
             value = null;
           }
@@ -478,11 +484,12 @@ public class ODocumentSerializerDelta {
         nested = null;
       }
 
-      deserializeDeltaValue(bytes, type, nested);
+      deserializeDeltaValue(session, bytes, type, nested);
     }
   }
 
-  private void deserializeDeltaEmbeddedList(BytesContainer bytes, OTrackedList toUpdate) {
+  private void deserializeDeltaEmbeddedList(ODatabaseSessionInternal session, BytesContainer bytes,
+      OTrackedList toUpdate) {
     long rootChanges = OVarIntSerializer.readAsLong(bytes);
     while (rootChanges-- > 0) {
       byte change = deserializeByte(bytes);
@@ -491,7 +498,7 @@ public class ODocumentSerializerDelta {
           OType type = readNullableType(bytes);
           Object value;
           if (type != null) {
-            value = deserializeValue(bytes, type, toUpdate);
+            value = deserializeValue(session, bytes, type, toUpdate);
           } else {
             value = null;
           }
@@ -505,7 +512,7 @@ public class ODocumentSerializerDelta {
           OType type = readNullableType(bytes);
           Object value;
           if (type != null) {
-            value = deserializeValue(bytes, type, toUpdate);
+            value = deserializeValue(session, bytes, type, toUpdate);
           } else {
             value = null;
           }
@@ -535,16 +542,17 @@ public class ODocumentSerializerDelta {
         nested = null;
       }
       OType type = readNullableType(bytes);
-      deserializeDeltaValue(bytes, type, nested);
+      deserializeDeltaValue(session, bytes, type, nested);
     }
   }
 
-  private void deserializeFullEntry(BytesContainer bytes, ODocument toFill) {
+  private void deserializeFullEntry(ODatabaseSessionInternal session, BytesContainer bytes,
+      ODocument toFill) {
     String name = readString(bytes);
     OType type = readNullableType(bytes);
     Object value;
     if (type != null) {
-      value = deserializeValue(bytes, type, toFill);
+      value = deserializeValue(session, bytes, type, toFill);
     } else {
       value = null;
     }
@@ -1201,7 +1209,8 @@ public class ODocumentSerializerDelta {
     return fullPos;
   }
 
-  public Object deserializeValue(BytesContainer bytes, OType type, ORecordElement owner) {
+  public Object deserializeValue(ODatabaseSessionInternal session, BytesContainer bytes, OType type,
+      ORecordElement owner) {
     Object value = null;
     switch (type) {
       case INTEGER:
@@ -1240,7 +1249,7 @@ public class ODocumentSerializerDelta {
         break;
       case EMBEDDED:
         value = new ODocumentEmbedded();
-        deserialize((ODocument) value, bytes);
+        deserialize(session, (ODocument) value, bytes);
         if (((ODocument) value).containsField(ODocumentSerializable.CLASS_NAME)) {
           String className = ((ODocument) value).field(ODocumentSerializable.CLASS_NAME);
           try {
@@ -1257,10 +1266,10 @@ public class ODocumentSerializerDelta {
 
         break;
       case EMBEDDEDSET:
-        value = readEmbeddedSet(bytes, owner);
+        value = readEmbeddedSet(session, bytes, owner);
         break;
       case EMBEDDEDLIST:
-        value = readEmbeddedList(bytes, owner);
+        value = readEmbeddedList(session, bytes, owner);
         break;
       case LINKSET:
         value = readLinkSet(bytes, owner);
@@ -1275,17 +1284,17 @@ public class ODocumentSerializerDelta {
         value = readOptimizedLink(bytes);
         break;
       case LINKMAP:
-        value = readLinkMap(bytes, owner);
+        value = readLinkMap(session, bytes, owner);
         break;
       case EMBEDDEDMAP:
-        value = readEmbeddedMap(bytes, owner);
+        value = readEmbeddedMap(session, bytes, owner);
         break;
       case DECIMAL:
         value = ODecimalSerializer.INSTANCE.deserialize(bytes.bytes, bytes.offset);
         bytes.skip(ODecimalSerializer.INSTANCE.getObjectSize(bytes.bytes, bytes.offset));
         break;
       case LINKBAG:
-        ORidBag bag = readRidBag(bytes);
+        ORidBag bag = readRidBag(session, bytes);
         bag.setOwner(owner);
         value = bag;
         break;
@@ -1312,7 +1321,8 @@ public class ODocumentSerializerDelta {
     return value;
   }
 
-  private Collection<?> readEmbeddedList(final BytesContainer bytes, final ORecordElement owner) {
+  private Collection<?> readEmbeddedList(ODatabaseSessionInternal session,
+      final BytesContainer bytes, final ORecordElement owner) {
     OTrackedList<Object> found = new OTrackedList<>(owner);
     final int items = OVarIntSerializer.readAsInteger(bytes);
     for (int i = 0; i < items; i++) {
@@ -1320,13 +1330,14 @@ public class ODocumentSerializerDelta {
       if (itemType == null) {
         found.addInternal(null);
       } else {
-        found.addInternal(deserializeValue(bytes, itemType, found));
+        found.addInternal(deserializeValue(session, bytes, itemType, found));
       }
     }
     return found;
   }
 
-  private Collection<?> readEmbeddedSet(final BytesContainer bytes, final ORecordElement owner) {
+  private Collection<?> readEmbeddedSet(ODatabaseSessionInternal session,
+      final BytesContainer bytes, final ORecordElement owner) {
     OTrackedSet<Object> found = new OTrackedSet<>(owner);
     final int items = OVarIntSerializer.readAsInteger(bytes);
     for (int i = 0; i < items; i++) {
@@ -1334,7 +1345,7 @@ public class ODocumentSerializerDelta {
       if (itemType == null) {
         found.addInternal(null);
       } else {
-        found.addInternal(deserializeValue(bytes, itemType, found));
+        found.addInternal(deserializeValue(session, bytes, itemType, found));
       }
     }
     return found;
@@ -1369,12 +1380,12 @@ public class ODocumentSerializerDelta {
   }
 
   private Map<Object, OIdentifiable> readLinkMap(
-      final BytesContainer bytes, final ORecordElement owner) {
+      ODatabaseSessionInternal session, final BytesContainer bytes, final ORecordElement owner) {
     int size = OVarIntSerializer.readAsInteger(bytes);
     OMap result = new OMap(owner);
     while ((size--) > 0) {
       OType keyType = readOType(bytes, false);
-      Object key = deserializeValue(bytes, keyType, result);
+      Object key = deserializeValue(session, bytes, keyType, result);
       OIdentifiable value = readOptimizedLink(bytes);
       if (value.equals(NULL_RECORD_ID)) {
         result.putInternal(key, null);
@@ -1386,7 +1397,8 @@ public class ODocumentSerializerDelta {
     return result;
   }
 
-  private Object readEmbeddedMap(final BytesContainer bytes, final ORecordElement owner) {
+  private Object readEmbeddedMap(ODatabaseSessionInternal session, final BytesContainer bytes,
+      final ORecordElement owner) {
     int size = OVarIntSerializer.readAsInteger(bytes);
     final OTrackedMap result = new OTrackedMap<Object>(owner);
     while ((size--) > 0) {
@@ -1394,14 +1406,14 @@ public class ODocumentSerializerDelta {
       OType valType = readNullableType(bytes);
       Object value = null;
       if (valType != null) {
-        value = deserializeValue(bytes, valType, result);
+        value = deserializeValue(session, bytes, valType, result);
       }
       result.putInternal(key, value);
     }
     return result;
   }
 
-  private ORidBag readRidBag(BytesContainer bytes) {
+  private ORidBag readRidBag(ODatabaseSessionInternal session, BytesContainer bytes) {
     UUID uuid = OUUIDSerializer.INSTANCE.deserialize(bytes.bytes, bytes.offset);
     bytes.skip(OUUIDSerializer.UUID_SIZE);
     if (uuid.getMostSignificantBits() == -1 && uuid.getLeastSignificantBits() == -1) {
@@ -1410,7 +1422,7 @@ public class ODocumentSerializerDelta {
     byte b = bytes.bytes[bytes.offset];
     bytes.skip(1);
     if (b == 1) {
-      ORidBag bag = new ORidBag(uuid);
+      ORidBag bag = new ORidBag(session, uuid);
       int size = OVarIntSerializer.readAsInteger(bytes);
       for (int i = 0; i < size; i++) {
         OIdentifiable id = readOptimizedLink(bytes);
@@ -1442,7 +1454,7 @@ public class ODocumentSerializerDelta {
         pointer =
             new OBonsaiCollectionPointer(fileId, new OBonsaiBucketPointer(pageIndex, pageOffset));
       }
-      return new ORidBag(pointer, changes, uuid);
+      return new ORidBag(session, pointer, changes, uuid);
     }
   }
 

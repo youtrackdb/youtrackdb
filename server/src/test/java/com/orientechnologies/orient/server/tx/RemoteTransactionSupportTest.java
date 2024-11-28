@@ -351,7 +351,7 @@ public class RemoteTransactionSupportTest extends BaseServerMemoryDatabase {
     OElement v1 = db.newElement("SomeTx");
     OElement v2 = db.newElement("SomeTx");
     db.save(v2);
-    ORidBag ridbag = new ORidBag();
+    ORidBag ridbag = new ORidBag(db);
     ridbag.add(v2.getIdentity());
     v1.setProperty("rids", ridbag);
     db.save(v1);

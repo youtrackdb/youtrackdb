@@ -37,7 +37,7 @@ public class ODropIndexStatement extends ODDLStatement {
     if (all) {
       for (OIndex idx : idxMgr.getIndexes(db)) {
         db.getMetadata().getIndexManagerInternal().dropIndex(db, idx.getName());
-        OResultInternal result = new OResultInternal();
+        OResultInternal result = new OResultInternal(db);
         result.setProperty("operation", "drop index");
         result.setProperty("clusterName", idx.getName());
         rs.add(result);
@@ -48,7 +48,7 @@ public class ODropIndexStatement extends ODDLStatement {
         throw new OCommandExecutionException("Index not found: " + name.getValue());
       }
       idxMgr.dropIndex(db, name.getValue());
-      OResultInternal result = new OResultInternal();
+      OResultInternal result = new OResultInternal(db);
       result.setProperty("operation", "drop index");
       result.setProperty("indexName", name.getValue());
       rs.add(result);

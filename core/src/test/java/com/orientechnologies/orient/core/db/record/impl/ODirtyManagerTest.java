@@ -200,7 +200,7 @@ public class ODirtyManagerTest extends BaseMemoryDatabase {
   public void testRidBag() {
     ODocument doc = new ODocument();
     doc.field("test", "ddd");
-    ORidBag bag = new ORidBag();
+    ORidBag bag = new ORidBag(db);
     ODocument doc1 = new ODocument();
     bag.add(doc1);
     doc.field("bag", bag);
@@ -382,7 +382,7 @@ public class ODirtyManagerTest extends BaseMemoryDatabase {
 
     Map<String, ODocument> embeddedMap = new HashMap<String, ODocument>();
     ODocument embeddedMapDoc = new ODocument();
-    ORidBag embeddedMapDocRidBag = new ORidBag();
+    ORidBag embeddedMapDocRidBag = new ORidBag(db);
     ODocument link = new ODocument();
     embeddedMapDocRidBag.add(link);
     embeddedMapDoc.field("ridBag", embeddedMapDocRidBag);

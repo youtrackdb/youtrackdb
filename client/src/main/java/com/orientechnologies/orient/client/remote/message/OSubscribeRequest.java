@@ -36,11 +36,12 @@ public class OSubscribeRequest implements OBinaryRequest<OSubscribeResponse> {
   }
 
   @Override
-  public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
+  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+      ORecordSerializer serializer)
       throws IOException {
     pushMessage = channel.readByte();
     pushRequest = createBinaryRequest(pushMessage);
-    pushRequest.read(channel, protocolVersion, serializer);
+    pushRequest.read(db, channel, protocolVersion, serializer);
   }
 
   private OBinaryRequest<? extends OBinaryResponse> createBinaryRequest(byte message) {

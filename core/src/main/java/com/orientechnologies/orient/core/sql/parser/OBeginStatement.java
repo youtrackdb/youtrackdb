@@ -19,8 +19,9 @@ public class OBeginStatement extends OSimpleExecStatement {
 
   @Override
   public OExecutionStream executeSimple(OCommandContext ctx) {
-    ctx.getDatabase().begin();
-    OResultInternal item = new OResultInternal();
+    var db = ctx.getDatabase();
+    db.begin();
+    OResultInternal item = new OResultInternal(db);
     item.setProperty("operation", "begin");
     return OExecutionStream.singleton(item);
   }

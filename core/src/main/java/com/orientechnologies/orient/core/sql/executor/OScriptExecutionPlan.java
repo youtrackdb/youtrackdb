@@ -4,6 +4,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -101,15 +102,16 @@ public class OScriptExecutionPlan implements OInternalExecutionPlan {
   }
 
   @Override
-  public OResult toResult() {
-    OResultInternal result = new OResultInternal();
+  public OResult toResult(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("type", "ScriptExecutionPlan");
     result.setProperty("javaType", getClass().getName());
     result.setProperty("cost", getCost());
     result.setProperty("prettyPrint", prettyPrint(0, 2));
     result.setProperty(
         "steps",
-        steps == null ? null : steps.stream().map(x -> x.toResult()).collect(Collectors.toList()));
+        steps == null ? null
+            : steps.stream().map(x -> x.toResult(db)).collect(Collectors.toList()));
     return result;
   }
 

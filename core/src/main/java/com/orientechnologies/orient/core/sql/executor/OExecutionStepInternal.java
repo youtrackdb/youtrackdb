@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -81,7 +82,7 @@ public interface OExecutionStepInternal extends OExecutionStep {
     // do nothing
   }
 
-  default OResult serialize() {
+  default OResult serialize(ODatabaseSessionInternal db) {
     throw new UnsupportedOperationException();
   }
 
@@ -89,21 +90,22 @@ public interface OExecutionStepInternal extends OExecutionStep {
     throw new UnsupportedOperationException();
   }
 
-  static OResultInternal basicSerialize(OExecutionStepInternal step) {
-    OResultInternal result = new OResultInternal();
+  static OResultInternal basicSerialize(ODatabaseSessionInternal db,
+      OExecutionStepInternal step) {
+    OResultInternal result = new OResultInternal(db);
     result.setProperty(OInternalExecutionPlan.JAVA_TYPE, step.getClass().getName());
-    if (step.getSubSteps() != null && step.getSubSteps().size() > 0) {
+    if (step.getSubSteps() != null && !step.getSubSteps().isEmpty()) {
       List<OResult> serializedSubsteps = new ArrayList<>();
       for (OExecutionStep substep : step.getSubSteps()) {
-        serializedSubsteps.add(((OExecutionStepInternal) substep).serialize());
+        serializedSubsteps.add(((OExecutionStepInternal) substep).serialize(db));
       }
       result.setProperty("subSteps", serializedSubsteps);
     }
 
-    if (step.getSubExecutionPlans() != null && step.getSubExecutionPlans().size() > 0) {
+    if (step.getSubExecutionPlans() != null && !step.getSubExecutionPlans().isEmpty()) {
       List<OResult> serializedSubPlans = new ArrayList<>();
       for (OExecutionPlan substep : step.getSubExecutionPlans()) {
-        serializedSubPlans.add(((OInternalExecutionPlan) substep).serialize());
+        serializedSubPlans.add(((OInternalExecutionPlan) substep).serialize(db));
       }
       result.setProperty("subExecutionPlans", serializedSubPlans);
     }

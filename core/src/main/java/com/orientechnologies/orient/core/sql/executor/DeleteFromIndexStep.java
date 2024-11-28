@@ -111,7 +111,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
   }
 
   private OResult readResult(ODatabaseSessionInternal session, ORawPair<Object, ORID> entry) {
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(session);
     ORID value = entry.second;
     index.remove(session, entry.first, value);
     return result;
@@ -119,7 +119,7 @@ public class DeleteFromIndexStep extends AbstractExecutionStep {
 
   private boolean filter(ORawPair<Object, ORID> entry, OCommandContext ctx) {
     if (ridCondition != null) {
-      OResultInternal res = new OResultInternal();
+      OResultInternal res = new OResultInternal(ctx.getDatabase());
       res.setProperty("rid", entry.second);
       return ridCondition.evaluate(res, ctx);
     } else {

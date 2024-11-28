@@ -29,7 +29,7 @@ public class OImmutableUser implements OSecurityUser {
   private final ORID rid;
   private final String userType;
 
-  public OImmutableUser(ODatabaseSession session, long version, OSecurityUser user) {
+  public OImmutableUser(ODatabaseSessionInternal session, long version, OSecurityUser user) {
     this.version = version;
     this.name = user.getName(session);
     this.password = user.getPassword(session);

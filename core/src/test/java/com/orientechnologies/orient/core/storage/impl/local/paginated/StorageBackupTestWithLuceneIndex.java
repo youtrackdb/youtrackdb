@@ -95,7 +95,7 @@ public class StorageBackupTestWithLuceneIndex {
     final OStorage storage = db.getStorage();
     db.close();
 
-    storage.close(true);
+    storage.close(db, true);
 
     OFileUtils.deleteRecursively(new File(backedUpDbDirectory));
 
@@ -106,7 +106,7 @@ public class StorageBackupTestWithLuceneIndex {
     final OStorage backupStorage = backedUpDb.getStorage();
     backedUpDb.close();
 
-    backupStorage.close(true);
+    backupStorage.close(db, true);
 
     var orientDB = new OxygenDB("embedded:" + buildDirectory, OxygenDBConfig.defaultConfig());
     final ODatabaseCompare compare =
@@ -167,7 +167,7 @@ public class StorageBackupTestWithLuceneIndex {
     final OStorage storage = db.getStorage();
     db.close();
 
-    storage.close(true);
+    storage.close(db, true);
 
     final String backedUpDbDirectory =
         buildDirectory
@@ -183,7 +183,7 @@ public class StorageBackupTestWithLuceneIndex {
     final OStorage backupStorage = backedUpDb.getStorage();
     backedUpDb.close();
 
-    backupStorage.close(true);
+    backupStorage.close(db, true);
 
     var orientDB = new OxygenDB("embedded:" + buildDirectory, OxygenDBConfig.defaultConfig());
     final ODatabaseCompare compare =

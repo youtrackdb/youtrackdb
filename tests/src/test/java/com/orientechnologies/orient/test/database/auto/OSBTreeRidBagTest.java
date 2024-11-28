@@ -112,7 +112,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     final int clusterIdOne = database.addCluster("clusterOne");
 
     ODocument docClusterOne = new ODocument();
-    ORidBag ridBagClusterOne = new ORidBag();
+    ORidBag ridBagClusterOne = new ORidBag(database);
     docClusterOne.field("ridBag", ridBagClusterOne);
 
     database.begin();
@@ -158,7 +158,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     HashSet<ODocument> expectedResult = new HashSet<ODocument>();
     expectedResult.addAll(Arrays.asList(scuti, scorpii));
 
-    ORidBag bag = new ORidBag();
+    ORidBag bag = new ORidBag(database);
     bag.add(scuti);
     bag.add(cygni);
     bag.add(scorpii);
@@ -202,7 +202,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
 
     ODocument doc = new ODocument();
 
-    ORidBag bag = new ORidBag();
+    ORidBag bag = new ORidBag(database);
     bag.add(doc_1);
     bag.add(doc_2);
     bag.add(doc_3);
@@ -262,7 +262,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     OGlobalConfiguration.SBTREEBOSAI_FREE_SPACE_REUSE_TRIGGER.setValue(Float.MIN_VALUE);
 
     ODocument realDoc = new ODocument();
-    ORidBag realDocRidBag = new ORidBag();
+    ORidBag realDocRidBag = new ORidBag(database);
     realDoc.field("ridBag", realDocRidBag);
 
     for (int i = 0; i < 10; i++) {
@@ -320,7 +320,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
 
   private ODocument crateTestDeleteDoc(ODocument realDoc) {
     ODocument testDocument = new ODocument();
-    ORidBag highLevelRidBag = new ORidBag();
+    ORidBag highLevelRidBag = new ORidBag(database);
     testDocument.field("ridBag", highLevelRidBag);
     realDoc = database.bindToSession(realDoc);
     testDocument.field("realDoc", realDoc);

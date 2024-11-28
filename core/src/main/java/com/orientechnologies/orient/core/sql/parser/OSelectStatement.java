@@ -491,40 +491,40 @@ public class OSelectStatement extends OStatement {
     this.noCache = noCache;
   }
 
-  public OResult serialize() {
-    OResultInternal result = (OResultInternal) super.serialize();
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = (OResultInternal) super.serialize(db);
     if (target != null) {
-      result.setProperty("target", target.serialize());
+      result.setProperty("target", target.serialize(db));
     }
     if (projection != null) {
-      result.setProperty("projection", projection.serialize());
+      result.setProperty("projection", projection.serialize(db));
     }
     if (whereClause != null) {
-      result.setProperty("whereClause", whereClause.serialize());
+      result.setProperty("whereClause", whereClause.serialize(db));
     }
     if (groupBy != null) {
-      result.setProperty("groupBy", groupBy.serialize());
+      result.setProperty("groupBy", groupBy.serialize(db));
     }
     if (orderBy != null) {
-      result.setProperty("orderBy", orderBy.serialize());
+      result.setProperty("orderBy", orderBy.serialize(db));
     }
     if (unwind != null) {
-      result.setProperty("unwind", unwind.serialize());
+      result.setProperty("unwind", unwind.serialize(db));
     }
     if (skip != null) {
-      result.setProperty("skip", skip.serialize());
+      result.setProperty("skip", skip.serialize(db));
     }
     if (limit != null) {
-      result.setProperty("limit", limit.serialize());
+      result.setProperty("limit", limit.serialize(db));
     }
     if (fetchPlan != null) {
-      result.setProperty("fetchPlan", fetchPlan.serialize());
+      result.setProperty("fetchPlan", fetchPlan.serialize(db));
     }
     if (letClause != null) {
-      result.setProperty("letClause", letClause.serialize());
+      result.setProperty("letClause", letClause.serialize(db));
     }
     if (timeout != null) {
-      result.setProperty("timeout", timeout.serialize());
+      result.setProperty("timeout", timeout.serialize(db));
     }
     result.setProperty("parallel", parallel);
     result.setProperty("noCache", noCache);

@@ -55,7 +55,7 @@ public class ODropPropertyStatement extends ODDLStatement {
       if (force) {
         for (final OIndex index : indexes) {
           database.getMetadata().getIndexManager().dropIndex(index.getName());
-          OResultInternal result = new OResultInternal();
+          OResultInternal result = new OResultInternal(database);
           result.setProperty("operation", "cascade drop index");
           result.setProperty("indexName", index.getName());
           rs.add(result);
@@ -84,7 +84,7 @@ public class ODropPropertyStatement extends ODDLStatement {
     // REMOVE THE PROPERTY
     sourceClass.dropProperty(database, propertyName.getStringValue());
 
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(database);
     result.setProperty("operation", "drop property");
     result.setProperty("className", className.getStringValue());
     result.setProperty("propertyname", propertyName.getStringValue());

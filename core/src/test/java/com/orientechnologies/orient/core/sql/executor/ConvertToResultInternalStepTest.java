@@ -24,6 +24,7 @@ public class ConvertToResultInternalStepTest extends TestUtilsFixture {
   @Test
   public void shouldConvertUpdatableResult() {
     OCommandContext context = new OBasicCommandContext();
+    context.setDatabase(db);
     ConvertToResultInternalStep step = new ConvertToResultInternalStep(context, false);
     AbstractExecutionStep previous =
         new AbstractExecutionStep(context, false) {
@@ -38,7 +39,7 @@ public class ConvertToResultInternalStepTest extends TestUtilsFixture {
                 document.setProperty(STRING_PROPERTY, RandomStringUtils.randomAlphanumeric(10));
                 document.setProperty(INTEGER_PROPERTY, new Random().nextInt());
                 documents.add(document);
-                OUpdatableResult item = new OUpdatableResult(document);
+                OUpdatableResult item = new OUpdatableResult(db, document);
                 result.add(item);
               }
               done = true;

@@ -8,6 +8,7 @@ import com.orientechnologies.orient.client.remote.message.OLiveQueryPushRequest;
 import com.orientechnologies.orient.client.remote.message.live.OLiveQueryResult;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -63,7 +64,7 @@ public class ORemoteLiveQueryPushTest {
   private ORemoteConnectionManager connectionManager;
 
   @Mock
-  private ODatabaseSession database;
+  private ODatabaseSessionInternal database;
 
   @Before
   public void before() throws IOException {
@@ -83,17 +84,20 @@ public class ORemoteLiveQueryPushTest {
     MockLiveListener mock = new MockLiveListener();
     storage.registerLiveListener(10, new OLiveQueryClientListener(database, mock));
     List<OLiveQueryResult> events = new ArrayList<>();
-    events.add(new OLiveQueryResult(OLiveQueryResult.CREATE_EVENT, new OResultInternal(), null));
+    events.add(
+        new OLiveQueryResult(OLiveQueryResult.CREATE_EVENT, new OResultInternal(database), null));
     events.add(
         new OLiveQueryResult(
-            OLiveQueryResult.UPDATE_EVENT, new OResultInternal(), new OResultInternal()));
-    events.add(new OLiveQueryResult(OLiveQueryResult.DELETE_EVENT, new OResultInternal(), null));
+            OLiveQueryResult.UPDATE_EVENT, new OResultInternal(database),
+            new OResultInternal(database)));
+    events.add(
+        new OLiveQueryResult(OLiveQueryResult.DELETE_EVENT, new OResultInternal(database), null));
 
     OLiveQueryPushRequest request =
         new OLiveQueryPushRequest(10, OLiveQueryPushRequest.END, events);
     request.execute(null, storage);
-    assertEquals(mock.countCreate, 1);
-    assertEquals(mock.countUpdate, 1);
-    assertEquals(mock.countDelete, 1);
+    assertEquals(1, mock.countCreate);
+    assertEquals(1, mock.countUpdate);
+    assertEquals(1, mock.countDelete);
   }
 }

@@ -38,13 +38,13 @@ public class OMessageHelperTest {
     oxygenDB.execute(
         "create database testOIdentifiable memory users (admin identified by 'admin' role admin)");
 
-    ODatabaseSessionInternal open =
+    ODatabaseSessionInternal db =
         (ODatabaseSessionInternal) oxygenDB.open("testOIdentifiable", "admin", "admin");
-    int id = open.getClusterIdByName("V");
+    int id = db.getClusterIdByName("V");
     try {
       MockChannel channel = new MockChannel();
       ODocument doc = new ODocument();
-      ORidBag bags = new ORidBag();
+      ORidBag bags = new ORidBag(db);
       bags.add(new ORecordId(id, 0));
       doc.field("bag", bags);
 
@@ -58,7 +58,7 @@ public class OMessageHelperTest {
 
       ODocument newDoc =
           (ODocument)
-              OMessageHelper.readIdentifiable(
+              OMessageHelper.readIdentifiable(db,
                   channel, ORecordSerializerNetworkFactory.INSTANCE.current());
 
       assertThat(newDoc.getClassName()).isEqualTo("Test");
@@ -68,7 +68,7 @@ public class OMessageHelperTest {
       assertThat(dirtyManager.getNewRecords()).isNull();
 
     } finally {
-      open.close();
+      db.close();
       oxygenDB.close();
     }
   }

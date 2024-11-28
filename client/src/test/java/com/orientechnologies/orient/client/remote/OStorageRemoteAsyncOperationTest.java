@@ -6,6 +6,7 @@ import static org.junit.Assert.fail;
 
 import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.binary.OChannelBinaryAsynchClient;
+import com.orientechnologies.orient.client.remote.db.document.ODatabaseSessionRemote;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -59,7 +60,8 @@ public class OStorageRemoteAsyncOperationTest {
             null) {
           @Override
           public <T> T baseNetworkOperation(
-              OStorageRemoteOperation<T> operation, String errorMessage, int retry) {
+              ODatabaseSessionRemote remoteSession, OStorageRemoteOperation<T> operation,
+              String errorMessage, int retry) {
             try {
               return operation.execute(channel, session);
             } catch (IOException e) {
@@ -91,7 +93,8 @@ public class OStorageRemoteAsyncOperationTest {
 
           @Override
           public void read(
-              OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
+              ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+              ORecordSerializer serializer)
               throws IOException {
           }
 
@@ -118,7 +121,8 @@ public class OStorageRemoteAsyncOperationTest {
           public OBinaryResponse createResponse() {
             return new OBinaryResponse() {
               @Override
-              public void read(OChannelDataInput network, OStorageRemoteSession session)
+              public void read(ODatabaseSessionInternal db, OChannelDataInput network,
+                  OStorageRemoteSession session)
                   throws IOException {
                 assertEquals(status.status, "write");
                 status.status = "read";
@@ -161,7 +165,8 @@ public class OStorageRemoteAsyncOperationTest {
 
           @Override
           public void read(
-              OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
+              ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+              ORecordSerializer serializer)
               throws IOException {
           }
 
@@ -189,7 +194,8 @@ public class OStorageRemoteAsyncOperationTest {
 
             return new OBinaryResponse() {
               @Override
-              public void read(OChannelDataInput network, OStorageRemoteSession session)
+              public void read(ODatabaseSessionInternal db, OChannelDataInput network,
+                  OStorageRemoteSession session)
                   throws IOException {
                 fail();
               }
@@ -235,7 +241,8 @@ public class OStorageRemoteAsyncOperationTest {
 
           @Override
           public void read(
-              OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
+              ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+              ORecordSerializer serializer)
               throws IOException {
           }
 
@@ -262,7 +269,8 @@ public class OStorageRemoteAsyncOperationTest {
           public OBinaryResponse createResponse() {
             return new OBinaryResponse() {
               @Override
-              public void read(OChannelDataInput network, OStorageRemoteSession session)
+              public void read(ODatabaseSessionInternal db, OChannelDataInput network,
+                  OStorageRemoteSession session)
                   throws IOException {
                 try {
                   if (callBackWait.await(10, TimeUnit.MILLISECONDS)) {

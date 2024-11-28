@@ -3,6 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.record.OElement;
@@ -78,8 +79,8 @@ public class ONestedProjection extends SimpleNode {
   }
 
   private Object apply(OExpression expression, OResult elem, OCommandContext ctx, int recursion) {
-    OResultInternal result = new OResultInternal();
-    if (starItem != null || includeItems.size() == 0) {
+    OResultInternal result = new OResultInternal(ctx.getDatabase());
+    if (starItem != null || includeItems.isEmpty()) {
       for (String property : elem.getPropertyNames()) {
         if (isExclude(property)) {
           continue;
@@ -89,7 +90,7 @@ public class ONestedProjection extends SimpleNode {
             convert(tryExpand(expression, property, elem.getProperty(property), ctx, recursion)));
       }
     }
-    if (includeItems.size() > 0) {
+    if (!includeItems.isEmpty()) {
       // TODO manage wildcards!
       for (ONestedProjectionItem item : includeItems) {
         String alias =
@@ -141,7 +142,7 @@ public class ONestedProjection extends SimpleNode {
         return input;
       }
     }
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(ctx.getDatabase());
     if (starItem != null || includeItems.isEmpty()) {
       for (String property : elem.getPropertyNames()) {
         if (isExclude(property)) {
@@ -172,7 +173,7 @@ public class ONestedProjection extends SimpleNode {
 
   private Object apply(
       OExpression expression, Map<String, Object> input, OCommandContext ctx, int recursion) {
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(ctx.getDatabase());
 
     if (starItem != null || includeItems.size() == 0) {
       for (String property : input.keySet()) {
@@ -184,15 +185,15 @@ public class ONestedProjection extends SimpleNode {
             convert(tryExpand(expression, property, input.get(property), ctx, recursion)));
       }
     }
-    if (includeItems.size() > 0) {
+    if (!includeItems.isEmpty()) {
       // TODO manage wildcards!
       for (ONestedProjectionItem item : includeItems) {
         String alias =
             item.alias != null
                 ? item.alias.getStringValue()
                 : item.expression.getDefaultAlias().getStringValue();
-        OResultInternal elem = new OResultInternal();
-        input.entrySet().forEach(x -> elem.setProperty(x.getKey(), x.getValue()));
+        OResultInternal elem = new OResultInternal(ctx.getDatabase());
+        input.forEach(elem::setProperty);
         Object value = item.expression.execute(elem, ctx);
         if (item.expansion != null) {
           value = item.expand(expression, alias, value, ctx, recursion - 1);
@@ -315,20 +316,24 @@ public class ONestedProjection extends SimpleNode {
     return value;
   }
 
-  public OResult serialize() {
-    OResultInternal result = new OResultInternal();
+  public OResult serialize(ODatabaseSessionInternal database) {
+    OResultInternal result = new OResultInternal(database);
     if (includeItems != null) {
       result.setProperty(
           "includeItems",
-          includeItems.stream().map(x -> x.serialize()).collect(Collectors.toList()));
+          includeItems.stream()
+              .map(oNestedProjectionItem -> oNestedProjectionItem.serialize(database))
+              .collect(Collectors.toList()));
     }
     if (excludeItems != null) {
       result.setProperty(
           "excludeItems",
-          excludeItems.stream().map(x -> x.serialize()).collect(Collectors.toList()));
+          excludeItems.stream()
+              .map(oNestedProjectionItem -> oNestedProjectionItem.serialize(database))
+              .collect(Collectors.toList()));
     }
     if (starItem != null) {
-      result.setProperty("starItem", starItem.serialize());
+      result.setProperty("starItem", starItem.serialize(database));
     }
     result.setProperty("recursion", recursion);
     return result;

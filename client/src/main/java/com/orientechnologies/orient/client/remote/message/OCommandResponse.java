@@ -27,7 +27,6 @@ import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.client.remote.SimpleValueFetchPlanCommandListener;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.OCommandResultListener;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OStorageException;
@@ -278,7 +277,8 @@ public final class OCommandResponse implements OBinaryResponse {
   }
 
   @Override
-  public void read(OChannelDataInput network, OStorageRemoteSession session) throws IOException {
+  public void read(ODatabaseSessionInternal db, OChannelDataInput network,
+      OStorageRemoteSession session) throws IOException {
     ORecordSerializer serializer = ORecordSerializerNetworkV37Client.INSTANCE;
     try {
       // Collection of prefetched temporary record (nested projection record), to refer for avoid
@@ -292,7 +292,7 @@ public final class OCommandResponse implements OBinaryResponse {
         // ASYNCH: READ ONE RECORD AT TIME
         while ((status = network.readByte()) > 0) {
           final ORecordAbstract record =
-              (ORecordAbstract) OMessageHelper.readIdentifiable(network, serializer);
+              (ORecordAbstract) OMessageHelper.readIdentifiable(db, network, serializer);
           if (record == null) {
             continue;
           }
@@ -390,7 +390,7 @@ public final class OCommandResponse implements OBinaryResponse {
 
   private Object readSynchResult(
       final OChannelDataInput network,
-      final ODatabaseSession database,
+      final ODatabaseSessionInternal database,
       List<ORecord> temporaryResults)
       throws IOException {
     ORecordSerializer serializer = ORecordSerializerNetworkV37Client.INSTANCE;
@@ -403,7 +403,7 @@ public final class OCommandResponse implements OBinaryResponse {
         break;
 
       case 'r':
-        result = OMessageHelper.readIdentifiable(network, serializer);
+        result = OMessageHelper.readIdentifiable(database, network, serializer);
         if (result instanceof ORecordAbstract record) {
           var cachedRecord = database.getLocalCache().findRecord(record.getIdentity());
           if (cachedRecord != record) {
@@ -422,7 +422,8 @@ public final class OCommandResponse implements OBinaryResponse {
         Collection<OIdentifiable> coll =
             type == 's' ? new HashSet<>(tot) : new OBasicLegacyResultSet<>(tot);
         for (int i = 0; i < tot; ++i) {
-          final OIdentifiable resultItem = OMessageHelper.readIdentifiable(network, serializer);
+          final OIdentifiable resultItem = OMessageHelper.readIdentifiable(database, network,
+              serializer);
           if (resultItem instanceof ORecordAbstract record) {
             var rid = record.getIdentity();
             var cacheRecord = database.getLocalCache().findRecord(rid);
@@ -447,7 +448,8 @@ public final class OCommandResponse implements OBinaryResponse {
         coll = new OBasicLegacyResultSet<OIdentifiable>();
         byte status;
         while ((status = network.readByte()) > 0) {
-          final OIdentifiable record = OMessageHelper.readIdentifiable(network, serializer);
+          final OIdentifiable record = OMessageHelper.readIdentifiable(database, network,
+              serializer);
           if (record == null) {
             continue;
           }
@@ -472,7 +474,7 @@ public final class OCommandResponse implements OBinaryResponse {
         result = coll;
         break;
       case 'w':
-        final OIdentifiable record = OMessageHelper.readIdentifiable(network, serializer);
+        final OIdentifiable record = OMessageHelper.readIdentifiable(database, network, serializer);
         // ((ODocument) record).setLazyLoad(false);
         result = ((ODocument) record).field("result");
         break;
@@ -486,7 +488,7 @@ public final class OCommandResponse implements OBinaryResponse {
     byte status;
     while ((status = network.readByte()) > 0) {
       ORecordAbstract record =
-          (ORecordAbstract) OMessageHelper.readIdentifiable(network, serializer);
+          (ORecordAbstract) OMessageHelper.readIdentifiable(database, network, serializer);
       if (record != null && status == 2) {
         // PUT IN THE CLIENT LOCAL CACHE
         var cachedRecord = database.getLocalCache().findRecord(record.getIdentity());

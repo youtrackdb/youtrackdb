@@ -149,8 +149,9 @@ public class OSQLSynchQuery<T extends Object> extends OSQLAsynchQuery<T>
   }
 
   @Override
-  protected void queryFromStream(final OMemoryStream buffer, ORecordSerializer serializer) {
-    super.queryFromStream(buffer, serializer);
+  protected void queryFromStream(ODatabaseSessionInternal db, final OMemoryStream buffer,
+      ORecordSerializer serializer) {
+    super.queryFromStream(db, buffer, serializer);
 
     final String rid = buffer.getAsString();
     if ("".equals(rid)) {
@@ -160,7 +161,7 @@ public class OSQLSynchQuery<T extends Object> extends OSQLAsynchQuery<T>
     }
 
     final byte[] serializedPrevParams = buffer.getAsByteArray();
-    previousQueryParams = deserializeQueryParameters(serializedPrevParams, serializer);
+    previousQueryParams = deserializeQueryParameters(db, serializedPrevParams, serializer);
   }
 
   private void resetNextRIDIfParametersWereChanged(final Map<Object, Object> queryParams) {

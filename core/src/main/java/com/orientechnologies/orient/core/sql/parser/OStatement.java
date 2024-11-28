@@ -147,8 +147,8 @@ public class OStatement extends SimpleNode {
     return null;
   }
 
-  public OResult serialize() {
-    OResultInternal result = new OResultInternal();
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("__class", getClass().getName());
     return result;
   }

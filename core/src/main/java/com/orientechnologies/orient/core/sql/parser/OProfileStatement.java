@@ -74,7 +74,7 @@ public class OProfileStatement extends OStatement {
     }
     ODatabaseStats dbStats = db.getStats();
     OExplainResultSet result =
-        new OExplainResultSet(
+        new OExplainResultSet(db,
             rs.getExecutionPlan()
                 .orElseThrow(
                     () -> new OCommandExecutionException("Cannot profile command: " + statement)),
@@ -108,7 +108,7 @@ public class OProfileStatement extends OStatement {
     }
     ODatabaseStats dbStats = db.getStats();
     OExplainResultSet result =
-        new OExplainResultSet(
+        new OExplainResultSet(db,
             rs.getExecutionPlan()
                 .orElseThrow(
                     () -> new OCommandExecutionException("Cannot profile command: " + statement)),

@@ -388,7 +388,7 @@ public class OScheduledEvent extends ODocumentWrapper {
       }
     }
 
-    private boolean isEventAlreadyExecuted(ODatabaseSession session) {
+    private boolean isEventAlreadyExecuted(@Nonnull ODatabaseSession session) {
       final ORecord rec;
       try {
         rec = event.getDocument(session).getIdentity().getRecord();
@@ -396,7 +396,7 @@ public class OScheduledEvent extends ODocumentWrapper {
         return true;
       }
 
-      final ODocument updated = ODatabaseSessionInternal.getActiveSession().load(rec.getIdentity());
+      final ODocument updated = session.load(rec.getIdentity());
       final Long currentExecutionId = updated.field(PROP_EXEC_ID);
       if (currentExecutionId == null) {
         return false;

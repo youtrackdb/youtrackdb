@@ -76,7 +76,7 @@ public class OSchedulerImpl {
 
     if (event != null) {
       try {
-        ODatabaseSessionInternal.getActiveSession().load(event.getDocument(session).getIdentity());
+        session.load(event.getDocument(session).getIdentity());
       } catch (ORecordNotFoundException ignore) {
         // ALREADY DELETED, JUST RETURN
         return;

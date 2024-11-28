@@ -12,6 +12,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.client.remote.OStorageRemote;
+import com.orientechnologies.orient.client.remote.db.document.ODatabaseSessionRemote;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -194,11 +195,12 @@ public class MultipleDBTest extends DocumentDBBaseTest {
     }
   }
 
-  private String getDbId(ODatabaseSessionInternal tx) {
-    if (tx.getStorage() instanceof OStorageRemote) {
-      return tx.getURL() + " - sessionId: " + ((OStorageRemote) tx.getStorage()).getSessionId();
+  private static String getDbId(ODatabaseSessionInternal db) {
+    if (db.getStorage() instanceof OStorageRemote) {
+      return db.getURL() + " - sessionId: " + ((OStorageRemote) db.getStorage()).getSessionId(
+          (ODatabaseSessionRemote) db);
     } else {
-      return tx.getURL();
+      return db.getURL();
     }
   }
 }

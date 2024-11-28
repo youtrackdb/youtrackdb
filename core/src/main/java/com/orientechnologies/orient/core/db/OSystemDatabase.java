@@ -221,6 +221,7 @@ public class OSystemDatabase {
     }
   }
 
+
   public boolean exists() {
     return context.exists(SYSTEM_DB_NAME, null, null);
   }

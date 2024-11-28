@@ -24,6 +24,7 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.serialization.types.ODecimalSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSerializationException;
@@ -68,8 +69,8 @@ public class OResultSerializerNetwork {
   public OResultSerializerNetwork() {
   }
 
-  public OResultInternal deserialize(final BytesContainer bytes) {
-    final OResultInternal document = new OResultInternal();
+  public OResultInternal deserialize(ODatabaseSessionInternal db, final BytesContainer bytes) {
+    final OResultInternal document = new OResultInternal(db);
     String fieldName;
     OType type;
     int size = OVarIntSerializer.readAsInteger(bytes);
@@ -84,7 +85,7 @@ public class OResultSerializerNetwork {
       if (type == null) {
         document.setProperty(fieldName, null);
       } else {
-        final Object value = deserializeValue(bytes, type);
+        final Object value = deserializeValue(db, bytes, type);
         document.setProperty(fieldName, value);
       }
     }
@@ -101,7 +102,7 @@ public class OResultSerializerNetwork {
       if (type == null) {
         document.setMetadata(fieldName, null);
       } else {
-        final Object value = deserializeValue(bytes, type);
+        final Object value = deserializeValue(db, bytes, type);
         document.setMetadata(fieldName, value);
       }
     }
@@ -186,7 +187,7 @@ public class OResultSerializerNetwork {
     }
   }
 
-  public Object deserializeValue(BytesContainer bytes, OType type) {
+  public Object deserializeValue(ODatabaseSessionInternal db, BytesContainer bytes, OType type) {
     Object value = null;
     switch (type) {
       case INTEGER:
@@ -224,13 +225,13 @@ public class OResultSerializerNetwork {
         value = new Date(savedTime);
         break;
       case EMBEDDED:
-        value = deserialize(bytes);
+        value = deserialize(db, bytes);
         break;
       case EMBEDDEDSET:
-        value = readEmbeddedCollection(bytes, new LinkedHashSet<>());
+        value = readEmbeddedCollection(db, bytes, new LinkedHashSet<>());
         break;
       case EMBEDDEDLIST:
-        value = readEmbeddedCollection(bytes, new ArrayList<>());
+        value = readEmbeddedCollection(db, bytes, new ArrayList<>());
         break;
       case LINKSET:
         value = readLinkCollection(bytes, new LinkedHashSet<>());
@@ -245,10 +246,10 @@ public class OResultSerializerNetwork {
         value = readOptimizedLink(bytes);
         break;
       case LINKMAP:
-        value = readLinkMap(bytes);
+        value = readLinkMap(db, bytes);
         break;
       case EMBEDDEDMAP:
-        value = readEmbeddedMap(bytes);
+        value = readEmbeddedMap(db, bytes);
         break;
       case DECIMAL:
         value = ODecimalSerializer.INSTANCE.deserialize(bytes.bytes, bytes.offset);
@@ -287,12 +288,13 @@ public class OResultSerializerNetwork {
     return newValue;
   }
 
-  private Map<Object, OIdentifiable> readLinkMap(final BytesContainer bytes) {
+  private Map<Object, OIdentifiable> readLinkMap(ODatabaseSessionInternal db,
+      final BytesContainer bytes) {
     int size = OVarIntSerializer.readAsInteger(bytes);
     Map<Object, OIdentifiable> result = new HashMap<>();
     while ((size--) > 0) {
       OType keyType = readOType(bytes);
-      Object key = deserializeValue(bytes, keyType);
+      Object key = deserializeValue(db, bytes, keyType);
       ORecordId value = readOptimizedLink(bytes);
       if (value.equals(NULL_RECORD_ID)) {
         result.put(key, null);
@@ -303,7 +305,7 @@ public class OResultSerializerNetwork {
     return result;
   }
 
-  private Map readEmbeddedMap(final BytesContainer bytes) {
+  private Map readEmbeddedMap(ODatabaseSessionInternal db, final BytesContainer bytes) {
     int size = OVarIntSerializer.readAsInteger(bytes);
     final Map document = new LinkedHashMap();
     String fieldName;
@@ -318,7 +320,7 @@ public class OResultSerializerNetwork {
       if (type == null) {
         document.put(fieldName, null);
       } else {
-        final Object value = deserializeValue(bytes, type);
+        final Object value = deserializeValue(db, bytes, type);
         document.put(fieldName, value);
       }
     }
@@ -345,14 +347,14 @@ public class OResultSerializerNetwork {
   }
 
   private Collection<?> readEmbeddedCollection(
-      final BytesContainer bytes, final Collection<Object> found) {
+      ODatabaseSessionInternal db, final BytesContainer bytes, final Collection<Object> found) {
     final int items = OVarIntSerializer.readAsInteger(bytes);
     for (int i = 0; i < items; i++) {
       OType itemType = readOType(bytes);
       if (itemType == null) {
         found.add(null);
       } else {
-        found.add(deserializeValue(bytes, itemType));
+        found.add(deserializeValue(db, bytes, itemType));
       }
     }
     return found;
@@ -657,9 +659,10 @@ public class OResultSerializerNetwork {
     channel.writeBytes(bytes.fitBytes());
   }
 
-  public OResultInternal fromStream(OChannelDataInput channel) throws IOException {
+  public OResultInternal fromStream(ODatabaseSessionInternal db, OChannelDataInput channel)
+      throws IOException {
     BytesContainer bytes = new BytesContainer();
     bytes.bytes = channel.readBytes();
-    return this.deserialize(bytes);
+    return this.deserialize(db, bytes);
   }
 }

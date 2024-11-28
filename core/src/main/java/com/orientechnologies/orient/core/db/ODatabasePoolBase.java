@@ -95,17 +95,17 @@ public abstract class ODatabasePoolBase extends Thread {
                     final String iKey,
                     final Object[] iAdditionalArgs,
                     final ODatabaseSession iValue) {
+                  var session = (ODatabaseSessionInternal) iValue;
                   if (((ODatabasePooled) iValue).isUnderlyingOpen()) {
                     ((ODatabasePooled) iValue).reuse(owner, iAdditionalArgs);
-                    if (((ODatabaseSessionInternal) iValue).getStorage().isClosed())
+                    if (session.getStorage().isClosed(session))
                     // STORAGE HAS BEEN CLOSED: REOPEN IT
                     {
-                      ((ODatabaseSessionInternal) iValue)
+                      (session)
                           .getStorage()
-                          .open(
+                          .open(session,
                               (String) iAdditionalArgs[0],
-                              (String) iAdditionalArgs[1],
-                              new OContextConfiguration());
+                              (String) iAdditionalArgs[1], new OContextConfiguration());
                     } else if (!iValue.getUser()
                         .checkPassword(iValue, (String) iAdditionalArgs[1])) {
                       throw new OSecurityAccessException(

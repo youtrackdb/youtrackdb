@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.db.tool.importer;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODocumentFieldVisitor;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 
@@ -15,7 +16,8 @@ public final class OLinksRewriter implements ODocumentFieldVisitor {
   }
 
   @Override
-  public Object visitField(OType type, OType linkedType, Object value) {
+  public Object visitField(ODatabaseSessionInternal db, OType type, OType linkedType,
+      Object value) {
     boolean oldAutoConvertValue = false;
 
     final OValuesConverter valuesConverter =
@@ -24,7 +26,7 @@ public final class OLinksRewriter implements ODocumentFieldVisitor {
       return value;
     }
 
-    final Object newValue = valuesConverter.convert(value);
+    final Object newValue = valuesConverter.convert(db, value);
 
     // this code intentionally uses == instead of equals, in such case we may distinguish rids which
     // already contained in

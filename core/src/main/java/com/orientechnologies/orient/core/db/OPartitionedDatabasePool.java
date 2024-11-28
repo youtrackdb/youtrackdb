@@ -488,7 +488,7 @@ public class OPartitionedDatabasePool extends OOrientListenerAbstract {
 
         // if connection is lost and storage is closed as result we should not put closed connection
         // back to the pool
-        if (!storage.isClosed()) {
+        if (!storage.isClosed(this)) {
           activateOnCurrentThread();
           super.internal.internalClose(true);
 

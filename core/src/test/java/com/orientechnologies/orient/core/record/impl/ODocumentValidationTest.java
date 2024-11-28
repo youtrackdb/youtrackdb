@@ -342,7 +342,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     cont1.put("one", new ORecordId(30, 30));
     cont1.put("two", new ORecordId(30, 30));
     d.field("linkMap", cont1);
-    ORidBag bag1 = new ORidBag();
+    ORidBag bag1 = new ORidBag(db);
     bag1.add(new ORecordId(40, 30));
     bag1.add(new ORecordId(40, 33));
     d.field("linkBag", bag1);
@@ -386,7 +386,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     cont3.put("three", new ORecordId(30, 30));
     checkField(d, "linkMap", cont3);
 
-    ORidBag bag2 = new ORidBag();
+    ORidBag bag2 = new ORidBag(db);
     bag2.add(new ORecordId(40, 30));
     bag2.add(new ORecordId(40, 33));
     bag2.add(new ORecordId(40, 31));
@@ -459,7 +459,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     HashMap<String, ORecordId> map1 = new HashMap<String, ORecordId>();
     map1.put("some", new ORecordId(40, 50));
     d.field("linkMap", map1);
-    ORidBag bag1 = new ORidBag();
+    ORidBag bag1 = new ORidBag(db);
     bag1.add(new ORecordId(40, 50));
     d.field("linkBag", bag1);
     d.validate();
@@ -484,7 +484,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     checkField(d, "linkList", new ArrayList<ORecordId>());
     checkField(d, "linkSet", new HashSet<ORecordId>());
     checkField(d, "linkMap", new HashMap<String, ORecordId>());
-    checkField(d, "linkBag", new ORidBag());
+    checkField(d, "linkBag", new ORidBag(db));
   }
 
   @Test
@@ -648,7 +648,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     checkField(d, "linkSet", new HashSet<ODocument>(List.of(new ODocument(clazz))));
     checkField(d, "embeddedList", List.of(new ODocument(clazz)));
     checkField(d, "embeddedSet", List.of(new ODocument(clazz)));
-    ORidBag bag = new ORidBag();
+    ORidBag bag = new ORidBag(db);
     bag.add(new ODocument(clazz));
     checkField(d, "linkBag", bag);
     Map<String, ODocument> map2 = new HashMap<String, ODocument>();
@@ -671,7 +671,7 @@ public class ODocumentValidationTest extends BaseMemoryInternalDatabase {
     d.field("linkList", list);
     Set<ODocument> set = new HashSet<ODocument>(list);
     d.field("linkSet", set);
-    d.field("linkBag", new ORidBag());
+    d.field("linkBag", new ORidBag(db));
 
     Map<String, ODocument> map = new HashMap<String, ODocument>();
     map.put("a", new ODocument(clazz1));

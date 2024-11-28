@@ -135,7 +135,7 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
       scriptManager.bindContextVariables(null, bindings, database, null, params);
 
       Value result = ctx.eval(language, script);
-      OResultSet transformedResult = transformer.toResultSet(result);
+      OResultSet transformedResult = transformer.toResultSet(database, result);
       scriptManager.unbind(null, bindings, null, null);
       return transformedResult;
 

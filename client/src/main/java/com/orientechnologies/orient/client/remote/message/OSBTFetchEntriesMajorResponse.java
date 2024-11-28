@@ -56,7 +56,8 @@ public class OSBTFetchEntriesMajorResponse<K, V> implements OBinaryResponse {
   }
 
   @Override
-  public void read(OChannelDataInput network, OStorageRemoteSession session) throws IOException {
+  public void read(ODatabaseSessionInternal db, OChannelDataInput network,
+      OStorageRemoteSession session) throws IOException {
     byte[] stream = network.readBytes();
     int offset = 0;
     final int count = OIntegerSerializer.INSTANCE.deserializeLiteral(stream, 0);

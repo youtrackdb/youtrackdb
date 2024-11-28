@@ -53,11 +53,7 @@ public class OServerCommandGetQuery extends OServerCommandAuthenticatedDbAbstrac
     iRequest.getData().commandInfo = "Query";
     iRequest.getData().commandDetail = text;
 
-    ODatabaseSessionInternal db = null;
-
-    try {
-      db = getProfiledDatabaseInstance(iRequest);
-
+    try (ODatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
       OStatement stm = OServerCommandPostCommand.parseStatement("SQL", text, db);
       OResultSet result = db.query(text);
       limit = OServerCommandPostCommand.getLimitFromStatement(stm, limit);
@@ -79,7 +75,7 @@ public class OServerCommandGetQuery extends OServerCommandAuthenticatedDbAbstrac
 
       result
           .getExecutionPlan()
-          .ifPresent(x -> additionalContent.put("executionPlan", x.toResult().toElement()));
+          .ifPresent(x -> additionalContent.put("executionPlan", x.toResult(db).toElement()));
 
       result.close();
 
@@ -90,10 +86,6 @@ public class OServerCommandGetQuery extends OServerCommandAuthenticatedDbAbstrac
 
       iResponse.writeRecords(response, fetchPlan, null, accept, additionalContent, db);
 
-    } finally {
-      if (db != null) {
-        db.close();
-      }
     }
 
     return false;

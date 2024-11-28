@@ -28,7 +28,7 @@ public class OProfileStorageStatement extends OSimpleExecStatement {
   // new execution logic
   @Override
   public OExecutionStream executeSimple(OCommandContext ctx) {
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(ctx.getDatabase());
     result.setProperty("operation", "optimize database");
 
     return OExecutionStream.singleton(result);

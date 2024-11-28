@@ -102,7 +102,7 @@ public class OrientJdbcStatement implements Statement {
     sql = mayCleanForSpark(sqlCommand);
 
     if (sql.equalsIgnoreCase("select 1")) {
-      OResultInternal element = new OResultInternal();
+      OResultInternal element = new OResultInternal(database);
       element.setProperty("1", 1);
       OInternalResultSet rs = new OInternalResultSet();
       rs.add(element);

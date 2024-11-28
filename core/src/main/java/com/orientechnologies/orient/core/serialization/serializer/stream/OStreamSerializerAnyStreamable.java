@@ -24,6 +24,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OArrays;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.script.OCommandScript;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.serialization.OBinaryProtocol;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
@@ -51,7 +52,8 @@ public class OStreamSerializerAnyStreamable {
    * Re-Create any object if the class has a public constructor that accepts a String as unique
    * parameter.
    */
-  public OCommandRequestText fromStream(final byte[] iStream, ORecordSerializer serializer)
+  public OCommandRequestText fromStream(ODatabaseSessionInternal db, final byte[] iStream,
+      ORecordSerializer serializer)
       throws IOException {
     if (iStream == null || iStream.length == 0)
     // NULL VALUE
@@ -92,7 +94,7 @@ public class OStreamSerializerAnyStreamable {
         stream = (OCommandRequestText) Class.forName(className).newInstance();
       }
 
-      return stream.fromStream(
+      return stream.fromStream(db,
           OArrays.copyOfRange(iStream, 4 + classNameSize, iStream.length), serializer);
 
     } catch (Exception e) {

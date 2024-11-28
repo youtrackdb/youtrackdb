@@ -3,6 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.OElement;
@@ -138,6 +139,7 @@ public class OJson extends SimpleNode {
   }
 
   public Object toObjectDetermineType(OIdentifiable source, OCommandContext ctx) {
+    var db = ctx.getDatabase();
     String className = getClassNameForDocument(ctx);
     String type = getTypeForDocument(ctx);
     if (className != null || ("d".equalsIgnoreCase(type))) {
@@ -145,9 +147,9 @@ public class OJson extends SimpleNode {
       if (source != null) {
         var identity = source.getIdentity();
         if (identity.isPersistent()) {
-          element = new OUpdatableResult(ctx.getDatabase().load(source.getIdentity()));
+          element = new OUpdatableResult(db, db.load(source.getIdentity()));
         } else if (identity instanceof OElement el) {
-          element = new OUpdatableResult(el);
+          element = new OUpdatableResult(db, el);
         }
       }
       return toDocument(element, ctx, className);
@@ -274,11 +276,12 @@ public class OJson extends SimpleNode {
     return false;
   }
 
-  public OResult serialize() {
-    OResultInternal result = new OResultInternal();
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
     if (items != null) {
       result.setProperty(
-          "items", items.stream().map(x -> x.serialize()).collect(Collectors.toList()));
+          "items",
+          items.stream().map(oJsonItem -> oJsonItem.serialize(db)).collect(Collectors.toList()));
     }
     return result;
   }

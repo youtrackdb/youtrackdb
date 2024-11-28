@@ -176,7 +176,7 @@ public class OContainsCondition extends OBooleanExpression {
         } else if (item instanceof OResult && condition.evaluate((OResult) item, ctx)) {
           return true;
         } else if (item instanceof Map) {
-          OResultInternal res = new OResultInternal();
+          OResultInternal res = new OResultInternal(ctx.getDatabase());
           ((Map<String, Object>) item)
               .entrySet()
               .forEach(x -> res.setProperty(x.getKey(), x.getValue()));
@@ -214,7 +214,7 @@ public class OContainsCondition extends OBooleanExpression {
           } else if (item instanceof OResult && condition.evaluate((OResult) item, ctx)) {
             return true;
           } else if (item instanceof Map) {
-            OResultInternal res = new OResultInternal();
+            OResultInternal res = new OResultInternal(ctx.getDatabase());
             ((Map<String, Object>) item)
                 .entrySet()
                 .forEach(x -> res.setProperty(x.getKey(), x.getValue()));
@@ -256,7 +256,7 @@ public class OContainsCondition extends OBooleanExpression {
             found = true;
             break;
           } else if (item instanceof Map) {
-            OResultInternal res = new OResultInternal();
+            OResultInternal res = new OResultInternal(ctx.getDatabase());
             ((Map<String, Object>) item)
                 .entrySet()
                 .forEach(x -> res.setProperty(x.getKey(), x.getValue()));

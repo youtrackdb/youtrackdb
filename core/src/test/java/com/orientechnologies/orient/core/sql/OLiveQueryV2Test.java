@@ -118,10 +118,10 @@ public class OLiveQueryV2Test {
       db.command("insert into test set name = 'foo', surname = 'baz'").close();
       db.commit();
 
-      Assert.assertEquals(listener.ops.size(), 2);
+      Assert.assertEquals(2, listener.ops.size());
       for (OResult doc : listener.ops) {
-        Assert.assertEquals(doc.getProperty("@class"), "test");
-        Assert.assertEquals(doc.getProperty("name"), "foo");
+        Assert.assertEquals("test", doc.getProperty("@class"));
+        Assert.assertEquals("foo", doc.getProperty("name"));
         ORID rid = doc.getProperty("@rid");
         Assert.assertTrue(rid.isPersistent());
       }
@@ -159,9 +159,9 @@ public class OLiveQueryV2Test {
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
-      Assert.assertEquals(listener.ops.size(), 1);
+      Assert.assertEquals(1, listener.ops.size());
       for (OResult doc : listener.ops) {
-        Assert.assertEquals(doc.getProperty("name"), "foo");
+        Assert.assertEquals("foo", doc.getProperty("name"));
         ORID rid = doc.getProperty("@rid");
         Assert.assertTrue(rid.isPersistent());
         Assert.assertNotNull(rid);
@@ -195,7 +195,7 @@ public class OLiveQueryV2Test {
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
-      Assert.assertEquals(listener.ops.size(), 1);
+      Assert.assertEquals(1, listener.ops.size());
       for (OResult doc : listener.ops) {
         Assert.assertEquals(doc.getProperty("id"), Integer.valueOf(1));
         ORID rid = doc.getProperty("@rid");
@@ -289,7 +289,7 @@ public class OLiveQueryV2Test {
       db.commit();
 
       Integer integer = future.get();
-      Assert.assertEquals(integer.intValue(), liveMatch);
+      Assert.assertEquals(liveMatch, integer.intValue());
     } finally {
       db.drop();
     }
@@ -325,10 +325,10 @@ public class OLiveQueryV2Test {
       db.command("insert into test set name = 'foo', surname = 'baz'").close();
       db.commit();
 
-      Assert.assertEquals(listener.ops.size(), 2);
+      Assert.assertEquals(2, listener.ops.size());
       for (OResult doc : listener.ops) {
-        Assert.assertEquals(doc.getProperty("@class"), "test");
-        Assert.assertEquals(doc.getProperty("name"), "foo");
+        Assert.assertEquals("test", doc.getProperty("@class"));
+        Assert.assertEquals("foo", doc.getProperty("name"));
         Assert.assertNull(doc.getProperty("surname"));
         ORID rid = doc.getProperty("rid");
         Assert.assertTrue(rid.isPersistent());

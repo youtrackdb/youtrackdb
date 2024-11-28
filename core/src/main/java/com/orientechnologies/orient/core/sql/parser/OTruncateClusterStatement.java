@@ -42,7 +42,7 @@ public class OTruncateClusterStatement extends ODDLStatement {
     String name = database.getClusterNameById(clusterId);
     long count = database.truncateClusterInternal(name);
 
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(database);
     result.setProperty("operation", "truncate cluster");
     result.setProperty("clusterName", name);
     result.setProperty("clusterId", clusterId);

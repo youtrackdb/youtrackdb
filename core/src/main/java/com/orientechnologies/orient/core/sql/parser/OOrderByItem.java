@@ -125,7 +125,7 @@ public class OOrderByItem {
       bVal = modifier.execute(b, bVal, ctx);
     }
     if (collate != null && collateStrategy == null) {
-      Object collateVal = collate.execute(new OResultInternal(), ctx);
+      Object collateVal = collate.execute(new OResultInternal(ctx.getDatabase()), ctx);
       if (collateVal == null) {
         collateVal = collate.toString();
         if (collateVal.equals("null")) {
@@ -230,19 +230,19 @@ public class OOrderByItem {
     this.modifier = modifier;
   }
 
-  public OResult serialize() {
-    OResultInternal result = new OResultInternal();
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("alias", alias);
     if (modifier != null) {
-      result.setProperty("modifier", modifier.serialize());
+      result.setProperty("modifier", modifier.serialize(db));
     }
     result.setProperty("recordAttr", recordAttr);
     if (rid != null) {
-      result.setProperty("rid", rid.serialize());
+      result.setProperty("rid", rid.serialize(db));
     }
     result.setProperty("type", type);
     if (collate != null) {
-      result.setProperty("collate", collate.serialize());
+      result.setProperty("collate", collate.serialize(db));
     }
     return result;
   }

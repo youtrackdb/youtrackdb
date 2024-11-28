@@ -81,7 +81,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     final ODocument document = new ODocument("RidBagIndexTestClass");
-    final ORidBag ridBag = new ORidBag();
+    final ORidBag ridBag = new ORidBag(database);
     ridBag.add(docOne);
     ridBag.add(docTwo);
 
@@ -118,7 +118,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
     try {
       final ODocument document = new ODocument("RidBagIndexTestClass");
-      final ORidBag ridBag = new ORidBag();
+      final ORidBag ridBag = new ORidBag(database);
       ridBag.add(docOne);
       ridBag.add(docTwo);
 
@@ -161,7 +161,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     ODocument document = new ODocument("RidBagIndexTestClass");
-    final ORidBag ridBagOne = new ORidBag();
+    final ORidBag ridBagOne = new ORidBag(database);
     ridBagOne.add(docOne);
     ridBagOne.add(docTwo);
 
@@ -171,7 +171,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     database.commit();
 
     database.begin();
-    final ORidBag ridBagTwo = new ORidBag();
+    final ORidBag ridBagTwo = new ORidBag(database);
     ridBagTwo.add(docOne);
     ridBagTwo.add(docThree);
 
@@ -212,7 +212,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     ODocument document = new ODocument("RidBagIndexTestClass");
-    final ORidBag ridBagOne = new ORidBag();
+    final ORidBag ridBagOne = new ORidBag(database);
     ridBagOne.add(docOne);
     ridBagOne.add(docTwo);
 
@@ -225,7 +225,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
       database.begin();
 
       document = database.bindToSession(document);
-      final ORidBag ridBagTwo = new ORidBag();
+      final ORidBag ridBagTwo = new ORidBag(database);
       ridBagTwo.add(docOne);
       ridBagTwo.add(docThree);
 
@@ -267,7 +267,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     final ODocument docThree = new ODocument();
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
-    final ORidBag ridBagOne = new ORidBag();
+    final ORidBag ridBagOne = new ORidBag(database);
     ridBagOne.add(docOne);
     ridBagOne.add(docTwo);
 
@@ -278,7 +278,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
 
     database.begin();
     document = database.bindToSession(document);
-    final ORidBag ridBagTwo = new ORidBag();
+    final ORidBag ridBagTwo = new ORidBag(database);
     ridBagTwo.add(docOne);
     ridBagTwo.add(docThree);
 
@@ -317,7 +317,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     final ODocument document = new ODocument("RidBagIndexTestClass");
-    final ORidBag ridBag = new ORidBag();
+    final ORidBag ridBag = new ORidBag(database);
     ridBag.add(docOne);
     ridBag.add(docTwo);
     document.field("ridBag", ridBag);
@@ -367,7 +367,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     final ODocument document = new ODocument("RidBagIndexTestClass");
-    final ORidBag ridBag = new ORidBag();
+    final ORidBag ridBag = new ORidBag(database);
     ridBag.add(docOne);
     ridBag.add(docTwo);
 
@@ -420,7 +420,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     final ODocument document = new ODocument("RidBagIndexTestClass");
-    final ORidBag ridBag = new ORidBag();
+    final ORidBag ridBag = new ORidBag(database);
     ridBag.add(docOne);
     ridBag.add(docTwo);
 
@@ -464,7 +464,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     final ODocument document = new ODocument("RidBagIndexTestClass");
-    final ORidBag ridBag = new ORidBag();
+    final ORidBag ridBag = new ORidBag(database);
     ridBag.add(docOne);
     ridBag.add(docTwo);
     document.field("ridBag", ridBag);
@@ -510,7 +510,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     final ODocument document = new ODocument("RidBagIndexTestClass");
-    final ORidBag ridBag = new ORidBag();
+    final ORidBag ridBag = new ORidBag(database);
     ridBag.add(docOne);
     ridBag.add(docTwo);
     document.field("ridBag", ridBag);
@@ -551,7 +551,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     final ODocument document = new ODocument("RidBagIndexTestClass");
-    final ORidBag ridBag = new ORidBag();
+    final ORidBag ridBag = new ORidBag(database);
     ridBag.add(docOne);
     ridBag.add(docTwo);
 
@@ -594,7 +594,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
 
     final ODocument document = new ODocument("RidBagIndexTestClass");
 
-    final ORidBag ridBag = new ORidBag();
+    final ORidBag ridBag = new ORidBag(database);
     ridBag.add(docOne);
     ridBag.add(docTwo);
 
@@ -619,7 +619,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
 
     final ODocument document = new ODocument("RidBagIndexTestClass");
 
-    final ORidBag ridBag = new ORidBag();
+    final ORidBag ridBag = new ORidBag(database);
     ridBag.add(docOne);
     ridBag.add(docTwo);
 
@@ -651,7 +651,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     final ODocument document = new ODocument("RidBagIndexTestClass");
-    final ORidBag ridBag = new ORidBag();
+    final ORidBag ridBag = new ORidBag(database);
     ridBag.add(docOne);
     ridBag.add(docTwo);
 
@@ -693,7 +693,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     docThree.save(database.getClusterNameById(database.getDefaultClusterId()));
 
     ODocument document = new ODocument("RidBagIndexTestClass");
-    final ORidBag ridBagOne = new ORidBag();
+    final ORidBag ridBagOne = new ORidBag(database);
     ridBagOne.add(docOne);
     ridBagOne.add(docTwo);
 
@@ -701,7 +701,7 @@ public class LinkBagIndexTest extends DocumentDBBaseTest {
     document.save();
 
     document = new ODocument("RidBagIndexTestClass");
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(database);
     ridBag.add(docThree);
     ridBag.add(docTwo);
 

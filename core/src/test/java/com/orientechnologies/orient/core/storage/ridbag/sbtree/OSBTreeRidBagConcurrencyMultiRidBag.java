@@ -86,7 +86,7 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
     db.create();
     for (int i = 0; i < 100; i++) {
       ODocument document = new ODocument();
-      ORidBag ridBag = new ORidBag();
+      ORidBag ridBag = new ORidBag(db);
       document.field("ridBag", ridBag);
 
       document.save();
@@ -159,7 +159,7 @@ public class OSBTreeRidBagConcurrencyMultiRidBag {
 
       try {
         ODocument document = new ODocument();
-        ORidBag ridBag = new ORidBag();
+        ORidBag ridBag = new ORidBag(db);
         document.field("ridBag", ridBag);
 
         document.save();

@@ -27,10 +27,11 @@ public class OIteratorExecutionStream implements OExecutionStream {
     }
 
     OResultInternal result;
+    var db = ctx.getDatabase();
     if (val instanceof OIdentifiable) {
-      result = new OResultInternal((OIdentifiable) val);
+      result = new OResultInternal(db, (OIdentifiable) val);
     } else {
-      result = new OResultInternal();
+      result = new OResultInternal(db);
       result.setProperty("value", val);
     }
     return result;

@@ -26,11 +26,12 @@ public class CastToEdgeStep extends AbstractExecutionStep {
     if (result.getElement().orElse(null) instanceof OEdge) {
       return result;
     }
+    var db = ctx.getDatabase();
     if (result.isEdge()) {
       if (result instanceof OResultInternal) {
         ((OResultInternal) result).setIdentifiable(result.toElement().toEdge());
       } else {
-        result = new OResultInternal(result.toElement().toEdge());
+        result = new OResultInternal(db, result.toElement().toEdge());
       }
     } else {
       throw new OCommandExecutionException("Current element is not a vertex: " + result);

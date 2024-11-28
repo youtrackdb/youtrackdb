@@ -20,6 +20,7 @@
 
 package com.orientechnologies.orient.core.db.record;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -197,6 +198,7 @@ public class OTrackedSet<T> extends LinkedHashSet<T>
   }
 
   public Set<T> returnOriginalState(
+      ODatabaseSessionInternal session,
       final List<OMultiValueChangeEvent<T, T>> multiValueChangeEvents) {
     final Set<T> reverted = new HashSet<T>(this);
 

@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -36,14 +37,16 @@ public class UnwindStep extends AbstractExecutionStep {
     }
 
     OExecutionStream resultSet = prev.start(ctx);
-    return resultSet.flatMap((res, res2) -> fetchNextResults(res));
+    var db = ctx.getDatabase();
+    return resultSet.flatMap((res, res2) -> fetchNextResults(db, res));
   }
 
-  private OExecutionStream fetchNextResults(OResult res) {
-    return OExecutionStream.resultIterator(unwind(res, unwindFields).iterator());
+  private OExecutionStream fetchNextResults(ODatabaseSessionInternal db, OResult res) {
+    return OExecutionStream.resultIterator(unwind(db, res, unwindFields).iterator());
   }
 
-  private Collection<OResult> unwind(final OResult doc, final List<String> unwindFields) {
+  private static Collection<OResult> unwind(ODatabaseSessionInternal db, final OResult doc,
+      final List<String> unwindFields) {
     final List<OResult> result = new ArrayList<>();
 
     if (unwindFields.isEmpty()) {
@@ -54,12 +57,12 @@ public class UnwindStep extends AbstractExecutionStep {
 
       Object fieldValue = doc.getProperty(firstField);
       if (fieldValue == null || fieldValue instanceof ODocument) {
-        result.addAll(unwind(doc, nextFields));
+        result.addAll(unwind(db, doc, nextFields));
         return result;
       }
 
       if (!(fieldValue instanceof Iterable) && !fieldValue.getClass().isArray()) {
-        result.addAll(unwind(doc, nextFields));
+        result.addAll(unwind(db, doc, nextFields));
         return result;
       }
 
@@ -70,18 +73,18 @@ public class UnwindStep extends AbstractExecutionStep {
         iterator = ((Iterable<?>) fieldValue).iterator();
       }
       if (!iterator.hasNext()) {
-        OResultInternal unwindedDoc = new OResultInternal();
+        OResultInternal unwindedDoc = new OResultInternal(db);
         copy(doc, unwindedDoc);
 
         unwindedDoc.setProperty(firstField, null);
-        result.addAll(unwind(unwindedDoc, nextFields));
+        result.addAll(unwind(db, unwindedDoc, nextFields));
       } else {
         do {
           Object o = iterator.next();
-          OResultInternal unwindedDoc = new OResultInternal();
+          OResultInternal unwindedDoc = new OResultInternal(db);
           copy(doc, unwindedDoc);
           unwindedDoc.setProperty(firstField, o);
-          result.addAll(unwind(unwindedDoc, nextFields));
+          result.addAll(unwind(db, unwindedDoc, nextFields));
         } while (iterator.hasNext());
       }
     }
@@ -89,7 +92,7 @@ public class UnwindStep extends AbstractExecutionStep {
     return result;
   }
 
-  private void copy(OResult from, OResultInternal to) {
+  private static void copy(OResult from, OResultInternal to) {
     for (String prop : from.getPropertyNames()) {
       to.setProperty(prop, from.getProperty(prop));
     }

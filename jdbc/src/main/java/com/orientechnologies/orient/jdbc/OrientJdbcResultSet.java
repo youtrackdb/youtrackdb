@@ -95,15 +95,16 @@ public class OrientJdbcResultSet implements ResultSet {
     oResultSet.close();
     rowCount = records.size();
 
-    if (records.size() >= 1) {
+    activateDatabaseOnCurrentThread();
+
+    if (!records.isEmpty()) {
       result = records.get(0);
     } else {
-      result = new OResultInternal();
+      result = new OResultInternal(statement.database);
     }
 
     fieldNames = extractFieldNames(statement);
 
-    activateDatabaseOnCurrentThread();
     if (type == TYPE_FORWARD_ONLY
         || type == TYPE_SCROLL_INSENSITIVE
         || type == TYPE_SCROLL_SENSITIVE) {

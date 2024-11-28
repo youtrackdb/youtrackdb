@@ -24,7 +24,6 @@ import com.orientechnologies.orient.client.remote.OBinaryAsyncRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.core.Oxygen;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.ORecord;
@@ -77,7 +76,8 @@ public class OUpdateRecordRequest implements OBinaryAsyncRequest<OUpdateRecordRe
     return "Update Record";
   }
 
-  public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
+  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+      ORecordSerializer serializer)
       throws IOException {
     rid = channel.readRID();
     if (protocolVersion >= 23) {
@@ -91,8 +91,8 @@ public class OUpdateRecordRequest implements OBinaryAsyncRequest<OUpdateRecordRe
     content =
         Oxygen.instance()
             .getRecordFactoryManager()
-            .newInstance(recordType, rid, ODatabaseRecordThreadLocal.instance().getIfDefined());
-    serializer.fromStream(bts, content, null);
+            .newInstance(recordType, rid, db);
+    serializer.fromStream(db, bts, content, null);
   }
 
   @Override

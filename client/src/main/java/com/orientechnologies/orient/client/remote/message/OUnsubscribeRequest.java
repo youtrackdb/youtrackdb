@@ -36,11 +36,12 @@ public class OUnsubscribeRequest implements OBinaryRequest<OUnsubscribeResponse>
   }
 
   @Override
-  public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
+  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+      ORecordSerializer serializer)
       throws IOException {
     unsubscribeMessage = channel.readByte();
     unsubscribeRequest = createBinaryRequest(unsubscribeMessage);
-    unsubscribeRequest.read(channel, protocolVersion, serializer);
+    unsubscribeRequest.read(db, channel, protocolVersion, serializer);
   }
 
   private OBinaryRequest<? extends OBinaryResponse> createBinaryRequest(byte message) {

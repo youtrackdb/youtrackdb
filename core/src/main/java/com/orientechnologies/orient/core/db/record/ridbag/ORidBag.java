@@ -47,8 +47,6 @@ import com.orientechnologies.orient.core.storage.ridbag.sbtree.Change;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeRidBag;
-import java.io.IOException;
-import java.io.PrintStream;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Iterator;
@@ -57,6 +55,7 @@ import java.util.Map;
 import java.util.NavigableMap;
 import java.util.Objects;
 import java.util.UUID;
+import javax.annotation.Nonnull;
 
 /**
  * A collection that contain links to {@link OIdentifiable}. Bag is similar to set but can contain
@@ -103,48 +102,49 @@ public class ORidBag
 
   private UUID uuid;
 
-  public ORidBag(final ORidBag ridBag) {
-    initThresholds();
+  public ORidBag(ODatabaseSessionInternal session, final ORidBag ridBag) {
+    initThresholds(session);
     init();
     for (OIdentifiable identifiable : ridBag) {
       add(identifiable);
     }
   }
 
-  public ORidBag() {
-    initThresholds();
+  public ORidBag(ODatabaseSessionInternal session) {
+    initThresholds(session);
     init();
   }
 
-  public ORidBag(UUID uuid) {
-    initThresholds();
+  public ORidBag(ODatabaseSessionInternal session, UUID uuid) {
+    initThresholds(session);
     init();
     this.uuid = uuid;
   }
 
-  public ORidBag(OBonsaiCollectionPointer pointer, Map<OIdentifiable, Change> changes, UUID uuid) {
-    initThresholds();
+  public ORidBag(ODatabaseSessionInternal session, OBonsaiCollectionPointer pointer,
+      Map<OIdentifiable, Change> changes, UUID uuid) {
+    initThresholds(session);
     delegate = new OSBTreeRidBag(pointer, changes);
     this.uuid = uuid;
   }
 
-  private ORidBag(final byte[] stream) {
-    initThresholds();
+  private ORidBag(ODatabaseSessionInternal session, final byte[] stream) {
+    initThresholds(session);
     fromStream(stream);
   }
 
-  public ORidBag(ORidBagDelegate delegate) {
-    initThresholds();
+  public ORidBag(ODatabaseSessionInternal session, ORidBagDelegate delegate) {
+    initThresholds(session);
     this.delegate = delegate;
   }
 
-  public static ORidBag fromStream(final String value) {
+  public static ORidBag fromStream(ODatabaseSessionInternal session, final String value) {
     final byte[] stream = Base64.getDecoder().decode(value);
-    return new ORidBag(stream);
+    return new ORidBag(session, stream);
   }
 
-  public ORidBag copy() {
-    final ORidBag copy = new ORidBag();
+  public ORidBag copy(ODatabaseSessionInternal session) {
+    final ORidBag copy = new ORidBag(session);
     copy.topThreshold = topThreshold;
     copy.bottomThreshold = bottomThreshold;
     copy.uuid = uuid;
@@ -194,6 +194,7 @@ public class ORidBag
     return delegate.isEmpty();
   }
 
+  @Nonnull
   @Override
   public Iterator<OIdentifiable> iterator() {
     return delegate.iterator();
@@ -365,8 +366,10 @@ public class ORidBag
 
   @Override
   public Object returnOriginalState(
+      ODatabaseSessionInternal session,
       List<OMultiValueChangeEvent<OIdentifiable, OIdentifiable>> multiValueChangeEvents) {
-    return new ORidBag((ORidBagDelegate) delegate.returnOriginalState(multiValueChangeEvents));
+    return new ORidBag(session,
+        (ORidBagDelegate) delegate.returnOriginalState(session, multiValueChangeEvents));
   }
 
   @Override
@@ -463,24 +466,14 @@ public class ORidBag
     return false;
   }
 
-  protected void initThresholds() {
-    if (ODatabaseRecordThreadLocal.instance().isDefined()
-        && !ODatabaseRecordThreadLocal.instance().get().isClosed()) {
-      OContextConfiguration conf = ODatabaseRecordThreadLocal.instance().get().getConfiguration();
-      topThreshold =
-          conf.getValueAsInteger(OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD);
+  protected void initThresholds(@Nonnull ODatabaseSessionInternal session) {
+    assert session.assertIfNotActive();
+    OContextConfiguration conf = session.getConfiguration();
+    topThreshold =
+        conf.getValueAsInteger(OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD);
 
-      bottomThreshold =
-          conf.getValueAsInteger(OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD);
-
-    } else {
-
-      topThreshold =
-          OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger();
-
-      bottomThreshold =
-          OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.getValueAsInteger();
-    }
+    bottomThreshold =
+        conf.getValueAsInteger(OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD);
   }
 
   protected void init() {
@@ -508,17 +501,6 @@ public class ORidBag
     treeBag.setOwner(delegate.getOwner());
     treeBag.setTracker(delegate.getTracker());
     delegate = treeBag;
-  }
-
-  public void debugPrint(PrintStream writer) throws IOException {
-    if (delegate instanceof OSBTreeRidBag) {
-      writer.append("tree [\n");
-      ((OSBTreeRidBag) delegate).debugPrint(writer);
-      writer.append("]\n");
-    } else {
-      writer.append(delegate.toString());
-      writer.append("\n");
-    }
   }
 
   public ORidBagDelegate getDelegate() {

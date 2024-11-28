@@ -20,6 +20,7 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.common.comparator.ODefaultComparator;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.id.ChangeableIdentity;
 import com.orientechnologies.orient.core.id.IdentityChangeListener;
@@ -255,7 +256,8 @@ public class OCompositeKey
     }
   }
 
-  public void fromStream(ORecordSerializerNetworkV37 serializer, DataInput in) throws IOException {
+  public void fromStream(ODatabaseSessionInternal db, ORecordSerializerNetworkV37 serializer,
+      DataInput in) throws IOException {
     int l = in.readInt();
     for (int i = 0; i < l; i++) {
       byte b = in.readByte();
@@ -266,7 +268,7 @@ public class OCompositeKey
         byte[] bytes = new byte[len];
         in.readFully(bytes);
         OType type = OType.getById(b);
-        Object k = serializer.deserializeValue(bytes, type);
+        Object k = serializer.deserializeValue(db, bytes, type);
         addKey(k);
       }
     }

@@ -24,6 +24,7 @@ package com.orientechnologies.orient.enterprise.channel.binary;
  */
 public class OChannelBinaryProtocol {
 
+  // max id for a request is 125
   // OUTGOING
   public static final byte REQUEST_SHUTDOWN = 1;
   public static final byte REQUEST_CONNECT = 2;
@@ -108,8 +109,9 @@ public class OChannelBinaryProtocol {
   public static final byte DISTRIBUTED_RESPONSE = 121;
   public static final byte DISTRIBUTED_CONNECT = 122;
   public static final byte COORDINATED_DISTRIBUTED_MESSAGE = 123;
+
   public static final byte REQUEST_RECORD_EXISTS = 124;
-  public static final byte RESPONSE_RECORD_EXISTS = 125;
+  public static final byte REQUEST_SEND_TRANSACTION_STATE = 125;
 
   // INCOMING
   public static final byte RESPONSE_STATUS_OK = 0;

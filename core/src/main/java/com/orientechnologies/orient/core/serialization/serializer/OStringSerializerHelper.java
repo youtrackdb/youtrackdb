@@ -24,6 +24,7 @@ import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.parser.OStringParser;
 import com.orientechnologies.common.types.OBinary;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -77,7 +78,7 @@ public abstract class OStringSerializerHelper {
   public static final String SKIPPED_VALUE = "[SKIPPED VALUE]";
 
   public static Object fieldTypeFromStream(
-      final ODocument iDocument, OType iType, final Object iValue) {
+      ODatabaseSessionInternal db, final ODocument iDocument, OType iType, final Object iValue) {
     if (iValue == null) {
       return null;
     }
@@ -202,12 +203,12 @@ public abstract class OStringSerializerHelper {
 
       case EMBEDDED:
         // EMBEDDED
-        return OStringSerializerAnyStreamable.INSTANCE.fromStream((String) iValue);
+        return OStringSerializerAnyStreamable.INSTANCE.fromStream(db, (String) iValue);
 
       case EMBEDDEDMAP:
         // RECORD
         final String value = (String) iValue;
-        return ORecordSerializerSchemaAware2CSV.INSTANCE.embeddedMapFromStream(
+        return ORecordSerializerSchemaAware2CSV.INSTANCE.embeddedMapFromStream(db,
             iDocument, null, value, null);
 
       case ANY:
@@ -1196,7 +1197,7 @@ public abstract class OStringSerializerHelper {
     return params;
   }
 
-  public static Map<String, String> getMap(final String iText) {
+  public static Map<String, String> getMap(ODatabaseSessionInternal db, final String iText) {
     int openPos = iText.indexOf(MAP_BEGIN);
     if (openPos == -1) {
       return Collections.emptyMap();
@@ -1223,7 +1224,7 @@ public abstract class OStringSerializerHelper {
         final String key = entry.get(0).trim();
         final String value = entry.get(1).trim();
 
-        map.put((String) fieldTypeFromStream(null, OType.STRING, key), value);
+        map.put((String) fieldTypeFromStream(db, null, OType.STRING, key), value);
       }
     }
 

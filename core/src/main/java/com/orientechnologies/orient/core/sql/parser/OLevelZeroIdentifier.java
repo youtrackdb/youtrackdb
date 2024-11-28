@@ -3,6 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.AggregationContext;
@@ -302,14 +303,14 @@ public class OLevelZeroIdentifier extends SimpleNode {
     return collection;
   }
 
-  public OResult serialize() {
-    OResultInternal result = new OResultInternal();
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
     if (functionCall != null) {
-      result.setProperty("functionCall", functionCall.serialize());
+      result.setProperty("functionCall", functionCall.serialize(db));
     }
     result.setProperty("self", self);
     if (collection != null) {
-      result.setProperty("collection", collection.serialize());
+      result.setProperty("collection", collection.serialize(db));
     }
     return result;
   }

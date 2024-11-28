@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -25,7 +26,7 @@ public class OImmutableRole implements OSecurityRole {
   private final ORID rid;
   private final Map<String, OSecurityPolicy> policies;
 
-  public OImmutableRole(ODatabaseSession session, OSecurityRole role) {
+  public OImmutableRole(ODatabaseSessionInternal session, OSecurityRole role) {
     if (role.getParentRole() == null) {
       this.parentRole = null;
     } else {
@@ -44,7 +45,8 @@ public class OImmutableRole implements OSecurityRole {
       Map<String, OSecurityPolicy> result = new HashMap<String, OSecurityPolicy>();
       policies
           .entrySet()
-          .forEach(x -> result.put(x.getKey(), new OImmutableSecurityPolicy(x.getValue())));
+          .forEach(
+              x -> result.put(x.getKey(), new OImmutableSecurityPolicy(session, x.getValue())));
       this.policies = result;
     } else {
       this.policies = null;

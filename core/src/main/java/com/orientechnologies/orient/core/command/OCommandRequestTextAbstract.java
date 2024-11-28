@@ -83,10 +83,11 @@ public abstract class OCommandRequestTextAbstract extends OCommandRequestAbstrac
     return this;
   }
 
-  public OCommandRequestText fromStream(final byte[] iStream, ORecordSerializer serializer)
+  public OCommandRequestText fromStream(ODatabaseSessionInternal db, final byte[] iStream,
+      ORecordSerializer serializer)
       throws OSerializationException {
     final OMemoryStream buffer = new OMemoryStream(iStream);
-    fromStream(buffer, serializer);
+    fromStream(db, buffer, serializer);
     return this;
   }
 
@@ -138,7 +139,8 @@ public abstract class OCommandRequestTextAbstract extends OCommandRequestAbstrac
     return buffer.toByteArray();
   }
 
-  protected void fromStream(final OMemoryStream buffer, ORecordSerializer serializer) {
+  protected void fromStream(ODatabaseSessionInternal db, final OMemoryStream buffer,
+      ORecordSerializer serializer) {
     text = buffer.getAsString();
 
     parameters = null;
@@ -148,7 +150,7 @@ public abstract class OCommandRequestTextAbstract extends OCommandRequestAbstrac
       final byte[] paramBuffer = buffer.getAsByteArray();
       final ODocument param = new ODocument();
       if (serializer != null) {
-        serializer.fromStream(paramBuffer, param, null);
+        serializer.fromStream(db, paramBuffer, param, null);
       } else {
         param.fromStream(paramBuffer);
       }
@@ -159,7 +161,7 @@ public abstract class OCommandRequestTextAbstract extends OCommandRequestAbstrac
         for (Entry<Object, Object> p : params.entrySet()) {
           final Object value;
           if (p.getValue() instanceof String) {
-            value = ORecordSerializerStringAbstract.getTypeValue((String) p.getValue());
+            value = ORecordSerializerStringAbstract.getTypeValue(db, (String) p.getValue());
           } else {
             value = p.getValue();
           }
@@ -187,7 +189,7 @@ public abstract class OCommandRequestTextAbstract extends OCommandRequestAbstrac
       final byte[] paramBuffer = buffer.getAsByteArray();
       final ODocument param = new ODocument();
       if (serializer != null) {
-        serializer.fromStream(paramBuffer, param, null);
+        serializer.fromStream(db, paramBuffer, param, null);
       } else {
         param.fromStream(paramBuffer);
       }

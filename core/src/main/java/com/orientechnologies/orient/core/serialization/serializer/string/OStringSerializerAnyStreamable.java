@@ -21,6 +21,7 @@ package com.orientechnologies.orient.core.serialization.serializer.string;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.OSerializableStream;
@@ -36,7 +37,7 @@ public class OStringSerializerAnyStreamable implements OStringSerializer {
    * Re-Create any object if the class has a public constructor that accepts a String as unique
    * parameter.
    */
-  public Object fromStream(final String iStream) {
+  public Object fromStream(ODatabaseSessionInternal db, final String iStream) {
     if (iStream == null || iStream.length() == 0)
     // NULL VALUE
     {

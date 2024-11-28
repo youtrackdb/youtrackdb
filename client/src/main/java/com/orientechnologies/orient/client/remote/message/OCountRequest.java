@@ -54,7 +54,8 @@ public final class OCountRequest implements OBinaryRequest<OCountResponse> {
     network.writeByte(countTombstones ? (byte) 1 : (byte) 0);
   }
 
-  public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
+  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+      ORecordSerializer serializer)
       throws IOException {
     int nclusters = channel.readShort();
     clusterIds = new int[nclusters];

@@ -1,7 +1,9 @@
 package com.orientechnologies.orient.core.metadata.security;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
+import javax.annotation.Nonnull;
 
 public class OImmutableSecurityPolicy implements OSecurityPolicy {
 
@@ -15,16 +17,16 @@ public class OImmutableSecurityPolicy implements OSecurityPolicy {
   private final String delete;
   private final String execute;
 
-  public OImmutableSecurityPolicy(OSecurityPolicy element) {
+  public OImmutableSecurityPolicy(@Nonnull ODatabaseSessionInternal db, OSecurityPolicy element) {
     this.identity = element.getIdentity();
-    this.name = element.getName();
-    this.active = element.isActive();
-    this.create = element.getCreateRule();
-    this.read = element.getReadRule();
-    this.beforeUpdate = element.getBeforeUpdateRule();
-    this.afterUpdate = element.getAfterUpdateRule();
-    this.delete = element.getDeleteRule();
-    this.execute = element.getExecuteRule();
+    this.name = element.getName(db);
+    this.active = element.isActive(db);
+    this.create = element.getCreateRule(db);
+    this.read = element.getReadRule(db);
+    this.beforeUpdate = element.getBeforeUpdateRule(db);
+    this.afterUpdate = element.getAfterUpdateRule(db);
+    this.delete = element.getDeleteRule(db);
+    this.execute = element.getExecuteRule(db);
   }
 
   public OImmutableSecurityPolicy(
@@ -48,42 +50,42 @@ public class OImmutableSecurityPolicy implements OSecurityPolicy {
   }
 
   @Override
-  public String getName() {
+  public String getName(@Nonnull ODatabaseSessionInternal db) {
     return name;
   }
 
   @Override
-  public boolean isActive() {
+  public boolean isActive(@Nonnull ODatabaseSessionInternal db) {
     return active;
   }
 
   @Override
-  public String getCreateRule() {
+  public String getCreateRule(@Nonnull ODatabaseSessionInternal db) {
     return create;
   }
 
   @Override
-  public String getReadRule() {
+  public String getReadRule(@Nonnull ODatabaseSessionInternal db) {
     return read;
   }
 
   @Override
-  public String getBeforeUpdateRule() {
+  public String getBeforeUpdateRule(@Nonnull ODatabaseSessionInternal db) {
     return beforeUpdate;
   }
 
   @Override
-  public String getAfterUpdateRule() {
+  public String getAfterUpdateRule(@Nonnull ODatabaseSessionInternal db) {
     return afterUpdate;
   }
 
   @Override
-  public String getDeleteRule() {
+  public String getDeleteRule(@Nonnull ODatabaseSessionInternal db) {
     return delete;
   }
 
   @Override
-  public String getExecuteRule() {
+  public String getExecuteRule(@Nonnull ODatabaseSessionInternal db) {
     return execute;
   }
 

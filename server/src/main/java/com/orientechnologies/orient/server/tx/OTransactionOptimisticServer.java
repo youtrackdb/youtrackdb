@@ -65,7 +65,8 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
                 Oxygen.instance()
                     .getRecordFactoryManager()
                     .newInstance(operation.getRecordType(), rid, getDatabase());
-            ORecordSerializerNetworkV37.INSTANCE.fromStream(operation.getRecord(), record);
+            ORecordSerializerNetworkV37.INSTANCE.fromStream(getDatabase(), operation.getRecord(),
+                record);
             entry = new ORecordOperation(record, ORecordOperation.CREATED);
             ORecordInternal.setVersion(record, 0);
 
@@ -86,7 +87,7 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
               updated.deserializeFields();
               ODocumentInternal.clearTransactionTrackData(updated);
               ODocumentSerializerDelta delta = ODocumentSerializerDelta.instance();
-              delta.deserializeDelta(operation.getRecord(), updated);
+              delta.deserializeDelta(getDatabase(), operation.getRecord(), updated);
               entry = new ORecordOperation(updated, ORecordOperation.UPDATED);
               ORecordInternal.setIdentity(updated, rid);
               ORecordInternal.setVersion(updated, version);
@@ -99,7 +100,8 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
                   Oxygen.instance()
                       .getRecordFactoryManager()
                       .newInstance(operation.getRecordType(), rid, getDatabase());
-              ORecordSerializerNetworkV37.INSTANCE.fromStream(operation.getRecord(), updated);
+              ORecordSerializerNetworkV37.INSTANCE.fromStream(getDatabase(), operation.getRecord(),
+                  updated);
               entry = new ORecordOperation(updated, ORecordOperation.UPDATED);
               ORecordInternal.setVersion(updated, version);
               updated.setDirty();

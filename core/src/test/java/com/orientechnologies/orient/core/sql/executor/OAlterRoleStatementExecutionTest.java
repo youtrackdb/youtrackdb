@@ -19,8 +19,8 @@ public class OAlterRoleStatementExecutionTest extends BaseMemoryDatabase {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setReadRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     db.command("ALTER ROLE reader SET POLICY testPolicy ON database.class.Person").close();
     db.commit();
@@ -30,7 +30,7 @@ public class OAlterRoleStatementExecutionTest extends BaseMemoryDatabase {
         security
             .getSecurityPolicies(db, security.getRole(db, "reader"))
             .get("database.class.Person")
-            .getName());
+            .getName(db));
   }
 
   @Test
@@ -41,8 +41,8 @@ public class OAlterRoleStatementExecutionTest extends BaseMemoryDatabase {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setReadRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
     db.commit();
@@ -52,7 +52,7 @@ public class OAlterRoleStatementExecutionTest extends BaseMemoryDatabase {
         security
             .getSecurityPolicies(db, security.getRole(db, "reader"))
             .get("database.class.Person")
-            .getName());
+            .getName(db));
 
     db.begin();
     db.command("ALTER ROLE reader REMOVE POLICY ON database.class.Person").close();

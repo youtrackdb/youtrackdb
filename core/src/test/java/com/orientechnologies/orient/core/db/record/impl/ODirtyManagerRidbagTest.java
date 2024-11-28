@@ -20,7 +20,7 @@ public class ODirtyManagerRidbagTest extends BaseMemoryDatabase {
     try {
       ODocument doc = new ODocument();
       doc.field("test", "ddd");
-      ORidBag bag = new ORidBag();
+      ORidBag bag = new ORidBag(db);
       ODocument doc1 = new ODocument();
       bag.add(doc1);
       doc.field("bag", bag);

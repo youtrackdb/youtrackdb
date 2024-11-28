@@ -41,8 +41,9 @@ public class OCreateSequenceStatement extends OSimpleExecStatement {
 
   @Override
   public OExecutionStream executeSimple(OCommandContext ctx) {
+    var db = ctx.getDatabase();
     OSequence seq =
-        ctx.getDatabase()
+        db
             .getMetadata()
             .getSequenceLibrary()
             .getSequence(this.name.getStringValue());
@@ -54,7 +55,7 @@ public class OCreateSequenceStatement extends OSimpleExecStatement {
             "Sequence " + name.getStringValue() + " already exists");
       }
     }
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("operation", "create sequence");
     result.setProperty("name", name.getStringValue());
 

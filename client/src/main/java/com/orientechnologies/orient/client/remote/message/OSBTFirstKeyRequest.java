@@ -49,7 +49,8 @@ public class OSBTFirstKeyRequest implements OBinaryRequest<OSBTFirstKeyResponse>
     OCollectionNetworkSerializer.INSTANCE.writeCollectionPointer(network, collectionPointer);
   }
 
-  public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
+  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+      ORecordSerializer serializer)
       throws IOException {
     collectionPointer = OCollectionNetworkSerializer.INSTANCE.readCollectionPointer(channel);
   }

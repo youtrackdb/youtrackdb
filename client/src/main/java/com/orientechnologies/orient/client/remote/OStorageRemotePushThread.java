@@ -58,7 +58,7 @@ public class OStorageRemotePushThread extends Thread {
           byte[] token = network.readBytes();
           byte messageId = network.readByte();
           OBinaryResponse response = currentRequest.createResponse();
-          response.read(network, null);
+          response.read(null, network, null);
           blockingQueue.put(response);
         } else if (res == OChannelBinaryProtocol.RESPONSE_STATUS_ERROR) {
           int currentSessionId = network.readInt();
@@ -66,11 +66,11 @@ public class OStorageRemotePushThread extends Thread {
           byte messageId = network.readByte();
           // TODO move handle status somewhere else
           ((OChannelBinaryAsynchClient) network)
-              .handleStatus(res, currentSessionId, this::handleException);
+              .handleStatus(null, res, currentSessionId, this::handleException);
         } else {
           byte push = network.readByte();
           OBinaryPushRequest request = pushHandler.createPush(push);
-          request.read(network);
+          request.read(null, network);
           try {
             OBinaryPushResponse response = request.execute(null, pushHandler);
             if (response != null) {

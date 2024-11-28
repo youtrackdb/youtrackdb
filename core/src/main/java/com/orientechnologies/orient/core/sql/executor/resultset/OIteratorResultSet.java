@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor.resultset;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -16,9 +17,11 @@ import java.util.Optional;
 public class OIteratorResultSet implements OResultSet {
 
   protected final Iterator iterator;
+  protected final ODatabaseSessionInternal db;
 
-  public OIteratorResultSet(Iterator iter) {
+  public OIteratorResultSet(ODatabaseSessionInternal db, Iterator iter) {
     this.iterator = iter;
+    this.db = db;
   }
 
   @Override
@@ -35,9 +38,9 @@ public class OIteratorResultSet implements OResultSet {
 
     OResultInternal result;
     if (val instanceof OIdentifiable) {
-      result = new OResultInternal((OIdentifiable) val);
+      result = new OResultInternal(db, (OIdentifiable) val);
     } else {
-      result = new OResultInternal();
+      result = new OResultInternal(db);
       result.setProperty("value", val);
     }
     return result;

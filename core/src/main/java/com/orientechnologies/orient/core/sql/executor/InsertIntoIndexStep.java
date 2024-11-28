@@ -65,7 +65,7 @@ public class InsertIntoIndexStep extends AbstractExecutionStep {
       count = handleKeyValues(body.getIdentifierList(), body.getValueExpressions(), index, ctx);
     }
 
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(database);
     result.setProperty("count", count);
     return result;
   }

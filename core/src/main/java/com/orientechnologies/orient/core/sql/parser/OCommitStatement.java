@@ -33,9 +33,9 @@ public class OCommitStatement extends OSimpleExecStatement {
 
   @Override
   public OExecutionStream executeSimple(OCommandContext ctx) {
-    ctx.getDatabase()
-        .commit(); // no RETRY and ELSE here, that case is allowed only for batch scripts;
-    OResultInternal item = new OResultInternal();
+    var db = ctx.getDatabase();
+    db.commit(); // no RETRY and ELSE here, that case is allowed only for batch scripts;
+    OResultInternal item = new OResultInternal(db);
     item.setProperty("operation", "commit");
     return OExecutionStream.singleton(item);
   }

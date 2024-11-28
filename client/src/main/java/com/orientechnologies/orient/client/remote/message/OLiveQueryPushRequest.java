@@ -71,7 +71,7 @@ public class OLiveQueryPushRequest implements OBinaryPushRequest {
   }
 
   @Override
-  public void read(OChannelDataInput network) throws IOException {
+  public void read(ODatabaseSessionInternal db, OChannelDataInput network) throws IOException {
     monitorId = network.readInt();
     status = network.readByte();
     if (status == ERROR) {
@@ -83,10 +83,10 @@ public class OLiveQueryPushRequest implements OBinaryPushRequest {
       events = new ArrayList<>(eventSize);
       while (eventSize-- > 0) {
         byte type = network.readByte();
-        OResult currentValue = OMessageHelper.readResult(network);
+        OResult currentValue = OMessageHelper.readResult(db, network);
         OResult oldValue = null;
         if (type == OLiveQueryResult.UPDATE_EVENT) {
-          oldValue = OMessageHelper.readResult(network);
+          oldValue = OMessageHelper.readResult(db, network);
         }
         events.add(new OLiveQueryResult(type, currentValue, oldValue));
       }

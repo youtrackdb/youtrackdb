@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.impl.OElementInternal;
@@ -11,8 +12,8 @@ public class OUpdatableResult extends OResultInternal {
 
   protected OResultInternal previousValue = null;
 
-  public OUpdatableResult(OElement element) {
-    super(element);
+  public OUpdatableResult(ODatabaseSessionInternal session, OElement element) {
+    super(session, element);
   }
 
   @Override

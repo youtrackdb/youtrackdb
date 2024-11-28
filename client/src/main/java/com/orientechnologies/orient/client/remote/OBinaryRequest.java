@@ -15,7 +15,8 @@ public interface OBinaryRequest<T extends OBinaryResponse> {
   void write(ODatabaseSessionInternal database, final OChannelDataOutput network,
       OStorageRemoteSession session) throws IOException;
 
-  void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
+  void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+      ORecordSerializer serializer)
       throws IOException;
 
   byte getCommand();

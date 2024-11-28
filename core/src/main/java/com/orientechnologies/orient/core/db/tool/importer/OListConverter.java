@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.db.tool.importer;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +14,7 @@ public final class OListConverter extends OAbstractCollectionConverter<List> {
   }
 
   @Override
-  public List convert(List value) {
+  public List convert(ODatabaseSessionInternal db, List value) {
     final List result = new ArrayList();
 
     final ResultCallback callback =
@@ -26,7 +27,7 @@ public final class OListConverter extends OAbstractCollectionConverter<List> {
     boolean updated = false;
 
     for (Object item : value) {
-      updated = convertSingleValue(item, callback, updated);
+      updated = convertSingleValue(db, item, callback, updated);
     }
 
     if (updated) {

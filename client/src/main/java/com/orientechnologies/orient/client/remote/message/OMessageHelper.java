@@ -7,7 +7,6 @@ import com.orientechnologies.orient.client.remote.OCollectionNetworkSerializer;
 import com.orientechnologies.orient.client.remote.message.tx.IndexChange;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
 import com.orientechnologies.orient.core.Oxygen;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -86,7 +85,7 @@ public class OMessageHelper {
       final ORecordAbstract iRecord, ORecordSerializer serializer) {
     final byte[] stream;
     String dbSerializerName = null;
-    if (ODatabaseRecordThreadLocal.instance().getIfDefined() != null) {
+    if (session != null) {
       dbSerializerName = (iRecord.getSession()).getSerializer().toString();
     }
     if (ORecordInternal.getRecordType(iRecord) == ODocument.RECORD_TYPE
@@ -351,7 +350,8 @@ public class OMessageHelper {
   }
 
   static List<IndexChange> readTransactionIndexChanges(
-      OChannelDataInput channel, ORecordSerializerNetworkV37 serializer) throws IOException {
+      ODatabaseSessionInternal db, OChannelDataInput channel,
+      ORecordSerializerNetworkV37 serializer) throws IOException {
     List<IndexChange> changes = new ArrayList<>();
     int val = channel.readInt();
     while (val-- > 0) {
@@ -368,7 +368,7 @@ public class OMessageHelper {
           key = null;
         } else {
           OType type = OType.getById(bt);
-          key = serializer.deserializeValue(channel.readBytes(), type);
+          key = serializer.deserializeValue(db, channel.readBytes(), type);
         }
         OTransactionIndexChangesPerKey changesPerKey = new OTransactionIndexChangesPerKey(key);
         int keyChangeCount = channel.readInt();
@@ -397,7 +397,8 @@ public class OMessageHelper {
   }
 
   public static OIdentifiable readIdentifiable(
-      final OChannelDataInput network, ORecordSerializer serializer) throws IOException {
+      ODatabaseSessionInternal db, final OChannelDataInput network, ORecordSerializer serializer)
+      throws IOException {
     final int classId = network.readShort();
     if (classId == OChannelBinaryProtocol.RECORD_NULL) {
       return null;
@@ -406,13 +407,14 @@ public class OMessageHelper {
     if (classId == OChannelBinaryProtocol.RECORD_RID) {
       return network.readRID();
     } else {
-      final ORecord record = readRecordFromBytes(network, serializer);
+      final ORecord record = readRecordFromBytes(db, network, serializer);
       return record;
     }
   }
 
   private static ORecord readRecordFromBytes(
-      OChannelDataInput network, ORecordSerializer serializer) throws IOException {
+      ODatabaseSessionInternal db, OChannelDataInput network, ORecordSerializer serializer)
+      throws IOException {
     byte rec = network.readByte();
     final ORecordId rid = network.readRID();
     final int version = network.readVersion();
@@ -421,9 +423,9 @@ public class OMessageHelper {
     ORecordAbstract record =
         Oxygen.instance()
             .getRecordFactoryManager()
-            .newInstance(rec, rid, ODatabaseRecordThreadLocal.instance().getIfDefined());
+            .newInstance(rec, rid, db);
     ORecordInternal.setVersion(record, version);
-    serializer.fromStream(content, record, null);
+    serializer.fromStream(db, content, record, null);
     ORecordInternal.unsetDirty(record);
 
     return record;
@@ -490,48 +492,49 @@ public class OMessageHelper {
     }
   }
 
-  private static OResultInternal readBlob(OChannelDataInput channel) throws IOException {
+  private static OResultInternal readBlob(ODatabaseSessionInternal db, OChannelDataInput channel)
+      throws IOException {
     ORecordSerializer serializer = ORecordSerializerNetworkV37.INSTANCE;
-    OResultInternal result = new OResultInternal(readIdentifiable(channel, serializer));
-    return result;
+    return new OResultInternal(db, readIdentifiable(db, channel, serializer));
   }
 
-  public static OResultInternal readResult(OChannelDataInput channel) throws IOException {
+  public static OResultInternal readResult(ODatabaseSessionInternal db, OChannelDataInput channel)
+      throws IOException {
     byte type = channel.readByte();
-    switch (type) {
-      case OQueryResponse.RECORD_TYPE_BLOB:
-        return readBlob(channel);
-      case OQueryResponse.RECORD_TYPE_VERTEX:
-        return readVertex(channel);
-      case OQueryResponse.RECORD_TYPE_EDGE:
-        return readEdge(channel);
-      case OQueryResponse.RECORD_TYPE_ELEMENT:
-        return readElement(channel);
-      case OQueryResponse.RECORD_TYPE_PROJECTION:
-        return readProjection(channel);
-    }
-    return new OResultInternal();
+    return switch (type) {
+      case OQueryResponse.RECORD_TYPE_BLOB -> readBlob(db, channel);
+      case OQueryResponse.RECORD_TYPE_VERTEX -> readVertex(db, channel);
+      case OQueryResponse.RECORD_TYPE_EDGE -> readEdge(db, channel);
+      case OQueryResponse.RECORD_TYPE_ELEMENT -> readElement(db, channel);
+      case OQueryResponse.RECORD_TYPE_PROJECTION -> readProjection(db, channel);
+      default -> new OResultInternal(db);
+    };
   }
 
-  private static OResultInternal readElement(OChannelDataInput channel) throws IOException {
-    return new OResultInternal(readDocument(channel));
+  private static OResultInternal readElement(ODatabaseSessionInternal db, OChannelDataInput channel)
+      throws IOException {
+    return new OResultInternal(db, readDocument(db, channel));
   }
 
-  private static OResultInternal readVertex(OChannelDataInput channel) throws IOException {
-    return new OResultInternal(readDocument(channel));
+  private static OResultInternal readVertex(ODatabaseSessionInternal db, OChannelDataInput channel)
+      throws IOException {
+    return new OResultInternal(db, readDocument(db, channel));
   }
 
-  private static OResultInternal readEdge(OChannelDataInput channel) throws IOException {
-    return new OResultInternal(readDocument(channel));
+  private static OResultInternal readEdge(ODatabaseSessionInternal db, OChannelDataInput channel)
+      throws IOException {
+    return new OResultInternal(db, readDocument(db, channel));
   }
 
-  private static ORecord readDocument(OChannelDataInput channel) throws IOException {
+  private static ORecord readDocument(ODatabaseSessionInternal db, OChannelDataInput channel)
+      throws IOException {
     ORecordSerializer serializer = ORecordSerializerNetworkV37Client.INSTANCE;
-    return (ORecord) readIdentifiable(channel, serializer);
+    return (ORecord) readIdentifiable(db, channel, serializer);
   }
 
-  private static OResultInternal readProjection(OChannelDataInput channel) throws IOException {
+  private static OResultInternal readProjection(ODatabaseSessionInternal db,
+      OChannelDataInput channel) throws IOException {
     OResultSerializerNetwork ser = new OResultSerializerNetwork();
-    return ser.fromStream(channel);
+    return ser.fromStream(db, channel);
   }
 }

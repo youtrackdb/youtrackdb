@@ -88,7 +88,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
 
       String context = urlParts[2];
       if ("document".equals(context)) {
-        executeDocument(iRequest, iResponse, operation, rid, className, fields);
+        executeDocument(db, iRequest, iResponse, operation, rid, className, fields);
       } else if ("classes".equals(context)) {
         executeClasses(iRequest, iResponse, db, operation, rid, className, fields);
       } else if ("clusters".equals(context)) {
@@ -296,7 +296,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
   }
 
   private void executeDocument(
-      final OHttpRequest iRequest,
+      ODatabaseSessionInternal db, final OHttpRequest iRequest,
       final OHttpResponse iResponse,
       final String operation,
       final String rid,
@@ -319,13 +319,13 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
         if (userValue != null && userValue.equals("undefined")) {
           doc.removeField(f.getKey());
         } else {
-          Object newValue = ORecordSerializerStringAbstract.getTypeValue(userValue);
+          Object newValue = ORecordSerializerStringAbstract.getTypeValue(db, userValue);
 
           if (newValue != null) {
             if (newValue instanceof Collection) {
               final ArrayList<Object> array = new ArrayList<Object>();
               for (String s : (Collection<String>) newValue) {
-                Object v = ORecordSerializerStringAbstract.getTypeValue(s);
+                Object v = ORecordSerializerStringAbstract.getTypeValue(db, s);
                 array.add(v);
               }
               newValue = array;

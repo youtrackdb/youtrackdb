@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.db.tool.importer;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 
@@ -13,8 +14,8 @@ public final class ORidBagConverter extends OAbstractCollectionConverter<ORidBag
   }
 
   @Override
-  public ORidBag convert(ORidBag value) {
-    final ORidBag result = new ORidBag();
+  public ORidBag convert(ODatabaseSessionInternal db, ORidBag value) {
+    final ORidBag result = new ORidBag(db);
     boolean updated = false;
     final ResultCallback callback =
         new ResultCallback() {
@@ -25,7 +26,7 @@ public final class ORidBagConverter extends OAbstractCollectionConverter<ORidBag
         };
 
     for (OIdentifiable identifiable : value) {
-      updated = convertSingleValue(identifiable, callback, updated);
+      updated = convertSingleValue(db, identifiable, callback, updated);
     }
 
     if (updated) {

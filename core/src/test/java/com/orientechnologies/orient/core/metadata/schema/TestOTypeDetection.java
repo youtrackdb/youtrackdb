@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.metadata.schema;
 
 import static org.junit.Assert.assertEquals;
 
+import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
@@ -31,7 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
 
-public class TestOTypeDetection {
+public class TestOTypeDetection extends BaseMemoryDatabase {
 
   @Test
   public void testOTypeFromClass() {
@@ -177,7 +178,7 @@ public class TestOTypeDetection {
 
     assertEquals(OType.LINKMAP, OType.getTypeByValue(new OMap(new ODocument())));
 
-    assertEquals(OType.LINKBAG, OType.getTypeByValue(new ORidBag()));
+    assertEquals(OType.LINKBAG, OType.getTypeByValue(new ORidBag(db)));
 
     assertEquals(OType.CUSTOM, OType.getTypeByValue(new CustomClass()));
 

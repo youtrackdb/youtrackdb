@@ -47,6 +47,7 @@ import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import com.orientechnologies.orient.core.exception.OSecurityException;
+import com.orientechnologies.orient.core.exception.OSessionNotActivatedException;
 import com.orientechnologies.orient.core.exception.OTransactionBlockedException;
 import com.orientechnologies.orient.core.exception.OTransactionException;
 import com.orientechnologies.orient.core.exception.OValidationException;
@@ -1518,6 +1519,7 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
   }
 
   protected long countClass(final OImmutableClass cls, final boolean iPolymorphic) {
+    checkOpenness();
 
     long totalOnDb = cls.countImpl(iPolymorphic);
 
@@ -1903,9 +1905,8 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
               + currentDatabase);
     }
   }
-
   @Override
-  public boolean validateIfActive() {
+  public boolean assertIfNotActive() {
     final ODatabaseRecordThreadLocal tl = ODatabaseRecordThreadLocal.instance();
     ODatabaseSessionInternal currentDatabase = tl.get();
 
@@ -1914,7 +1915,11 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
       currentDatabase = databaseDocumentTx.internal;
     }
 
-    return currentDatabase == this;
+    if (currentDatabase != this) {
+      throw new OSessionNotActivatedException(getName());
+    }
+
+    return true;
   }
 
   public IntSet getBlobClusterIds() {

@@ -31,7 +31,7 @@ public class SBTreeBagDeleteTest extends BaseMemoryInternalDatabase {
   public void testDeleteRidbagTx() throws InterruptedException {
 
     ODocument doc = new ODocument();
-    ORidBag bag = new ORidBag();
+    ORidBag bag = new ORidBag(db);
     int size =
         OGlobalConfiguration.INDEX_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger() * 2;
     for (int i = 0; i < size; i++) {

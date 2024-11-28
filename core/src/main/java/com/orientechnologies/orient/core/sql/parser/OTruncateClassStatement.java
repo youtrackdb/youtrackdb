@@ -74,7 +74,7 @@ public class OTruncateClassStatement extends ODDLStatement {
     }
 
     long count = db.truncateClass(clazz.getName(), false);
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("operation", "truncate class");
     result.setProperty("className", className.getStringValue());
     result.setProperty("count", count);
@@ -82,7 +82,7 @@ public class OTruncateClassStatement extends ODDLStatement {
     if (polymorphic) {
       for (OClass subclass : subclasses) {
         count = db.truncateClass(subclass.getName(), false);
-        result = new OResultInternal();
+        result = new OResultInternal(db);
         result.setProperty("operation", "truncate class");
         result.setProperty("className", className.getStringValue());
         result.setProperty("count", count);

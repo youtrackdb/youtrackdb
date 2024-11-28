@@ -142,7 +142,7 @@ public class ODocumentTest extends BaseMemoryDatabase {
     ORecordSerializer ser = ODatabaseSessionAbstract.getDefaultSerializer();
     byte[] bytes = ser.toStream(db, doc);
     doc = new ODocument();
-    ser.fromStream(bytes, doc, null);
+    ser.fromStream(db, bytes, doc, null);
     assertEquals(doc.fieldType("integer"), OType.INTEGER);
     assertEquals(doc.fieldType("string"), OType.STRING);
     assertEquals(doc.fieldType("binary"), OType.BINARY);
@@ -165,7 +165,7 @@ public class ODocumentTest extends BaseMemoryDatabase {
     ORecordSerializer ser = ODatabaseSessionAbstract.getDefaultSerializer();
     byte[] bytes = ser.toStream(db, doc);
     doc = new ODocument();
-    ser.fromStream(bytes, doc, null);
+    ser.fromStream(db, bytes, doc, null);
     assertEquals(doc.fieldType("integer"), OType.INTEGER);
     assertEquals(doc.fieldType("string"), OType.STRING);
     assertEquals(doc.fieldType("binary"), OType.BINARY);
@@ -200,7 +200,7 @@ public class ODocumentTest extends BaseMemoryDatabase {
       ORecordSerializer ser = ODatabaseSessionAbstract.getDefaultSerializer();
       byte[] bytes = ser.toStream(db, doc);
       doc = new ODocument();
-      ser.fromStream(bytes, doc, null);
+      ser.fromStream(db, bytes, doc, null);
       assertEquals(doc.fieldType("integer"), OType.INTEGER);
       assertEquals(doc.fieldType("string"), OType.STRING);
       assertEquals(doc.fieldType("binary"), OType.BINARY);
@@ -223,9 +223,9 @@ public class ODocumentTest extends BaseMemoryDatabase {
     ORecordSerializer ser = ODatabaseSessionAbstract.getDefaultSerializer();
     byte[] bytes = ser.toStream(db, doc);
     doc = new ODocument();
-    ser.fromStream(bytes, doc, null);
+    ser.fromStream(db, bytes, doc, null);
     assertEquals(doc.fieldType("link"), OType.LINK);
-    doc.field("link", new ORidBag());
+    doc.field("link", new ORidBag(db));
     assertNotEquals(doc.fieldType("link"), OType.LINK);
   }
 

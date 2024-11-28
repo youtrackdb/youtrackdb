@@ -24,7 +24,6 @@ import com.orientechnologies.orient.client.remote.OBinaryAsyncRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.core.Oxygen;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -83,7 +82,8 @@ public class OCreateRecordRequest implements OBinaryAsyncRequest<OCreateRecordRe
     network.writeByte(mode);
   }
 
-  public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
+  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+      ORecordSerializer serializer)
       throws IOException {
     final int dataSegmentId = protocolVersion < 24 ? channel.readInt() : 0;
 
@@ -94,8 +94,8 @@ public class OCreateRecordRequest implements OBinaryAsyncRequest<OCreateRecordRe
     content =
         Oxygen.instance()
             .getRecordFactoryManager()
-            .newInstance(recordType, rid, ODatabaseRecordThreadLocal.instance().getIfDefined());
-    serializer.fromStream(rec, content, null);
+            .newInstance(recordType, rid, db);
+    serializer.fromStream(db, rec, content, null);
   }
 
   public ORecordId getRid() {

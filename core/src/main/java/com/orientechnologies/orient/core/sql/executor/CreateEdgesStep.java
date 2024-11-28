@@ -69,7 +69,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
     Stream<OResult> stream =
         StreamSupport.stream(Spliterators.spliteratorUnknownSize(fromIter, 0), false)
             .map(CreateEdgesStep::asVertex)
-            .flatMap((currentFrom) -> mapTo(toList, currentFrom, uniqueIndex));
+            .flatMap((currentFrom) -> mapTo(ctx.getDatabase(), toList, currentFrom, uniqueIndex));
     return OExecutionStream.resultIterator(stream.iterator());
   }
 
@@ -132,7 +132,8 @@ public class CreateEdgesStep extends AbstractExecutionStep {
     return fromIter;
   }
 
-  public Stream<OResult> mapTo(List<Object> to, OVertex currentFrom, OIndex uniqueIndex) {
+  public Stream<OResult> mapTo(ODatabaseSessionInternal db, List<Object> to, OVertex currentFrom,
+      OIndex uniqueIndex) {
     return to.stream()
         .map(
             (obj) -> {
@@ -166,7 +167,7 @@ public class CreateEdgesStep extends AbstractExecutionStep {
               currentTo.save();
               edgeToUpdate.save();
 
-              return new OUpdatableResult(edgeToUpdate);
+              return new OUpdatableResult(db, edgeToUpdate);
             });
   }
 

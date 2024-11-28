@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
+import com.orientechnologies.BaseMemoryDatabase;
 import java.util.Optional;
 import org.junit.Assert;
 import org.junit.Test;
@@ -7,13 +8,13 @@ import org.junit.Test;
 /**
  *
  */
-public class OResultSetTest {
+public class OResultSetTest extends BaseMemoryDatabase {
 
   @Test
   public void testResultStream() {
     OInternalResultSet rs = new OInternalResultSet();
     for (int i = 0; i < 10; i++) {
-      OResultInternal item = new OResultInternal();
+      OResultInternal item = new OResultInternal(db);
       item.setProperty("i", i);
       rs.add(item);
     }
@@ -27,7 +28,7 @@ public class OResultSetTest {
   public void testResultEmptyVertexStream() {
     OInternalResultSet rs = new OInternalResultSet();
     for (int i = 0; i < 10; i++) {
-      OResultInternal item = new OResultInternal();
+      OResultInternal item = new OResultInternal(db);
       item.setProperty("i", i);
       rs.add(item);
     }
@@ -40,7 +41,7 @@ public class OResultSetTest {
   public void testResultEdgeVertexStream() {
     OInternalResultSet rs = new OInternalResultSet();
     for (int i = 0; i < 10; i++) {
-      OResultInternal item = new OResultInternal();
+      OResultInternal item = new OResultInternal(db);
       item.setProperty("i", i);
       rs.add(item);
     }

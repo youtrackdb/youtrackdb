@@ -21,7 +21,7 @@ public class ReturnMatchPathElementsStep extends AbstractUnrollStep {
     for (String s : doc.getPropertyNames()) {
       Object elem = doc.getProperty(s);
       if (elem instanceof OIdentifiable) {
-        OResultInternal newelem = new OResultInternal((OIdentifiable) elem);
+        OResultInternal newelem = new OResultInternal(iContext.getDatabase(), (OIdentifiable) elem);
         elem = newelem;
       }
       if (elem instanceof OResult) {

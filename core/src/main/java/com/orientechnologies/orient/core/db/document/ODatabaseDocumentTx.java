@@ -400,8 +400,8 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   @Override
-  public boolean validateIfActive() {
-    return internal.validateIfActive();
+  public boolean assertIfNotActive() {
+    return internal.assertIfNotActive();
   }
 
   protected void checkOpenness() {

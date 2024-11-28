@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.ArrayList;
@@ -86,15 +87,16 @@ public class OSelectExecutionPlan implements OInternalExecutionPlan {
   }
 
   @Override
-  public OResult toResult() {
-    OResultInternal result = new OResultInternal();
+  public OResult toResult(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("type", "QueryExecutionPlan");
     result.setProperty(JAVA_TYPE, getClass().getName());
     result.setProperty("cost", getCost());
     result.setProperty("prettyPrint", prettyPrint(0, 2));
     result.setProperty(
         "steps",
-        steps == null ? null : steps.stream().map(x -> x.toResult()).collect(Collectors.toList()));
+        steps == null ? null
+            : steps.stream().map(x -> x.toResult(db)).collect(Collectors.toList()));
     return result;
   }
 
@@ -103,15 +105,16 @@ public class OSelectExecutionPlan implements OInternalExecutionPlan {
     return 0L;
   }
 
-  public OResult serialize() {
-    OResultInternal result = new OResultInternal();
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("type", "QueryExecutionPlan");
     result.setProperty(JAVA_TYPE, getClass().getName());
     result.setProperty("cost", getCost());
     result.setProperty("prettyPrint", prettyPrint(0, 2));
     result.setProperty(
         "steps",
-        steps == null ? null : steps.stream().map(x -> x.serialize()).collect(Collectors.toList()));
+        steps == null ? null
+            : steps.stream().map(x -> x.serialize(db)).collect(Collectors.toList()));
     return result;
   }
 

@@ -20,6 +20,7 @@
 
 package com.orientechnologies.orient.core.db.document;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 
 /**
@@ -32,6 +33,7 @@ public interface ODocumentFieldVisitor {
   /**
    * Visits currently processed field.
    *
+   * @param db
    * @param type       Filed type. May be null if absent in DB schema.
    * @param linkedType Linked type in case collection is processed. May be null if absent in DB
    *                   schema.
@@ -39,7 +41,7 @@ public interface ODocumentFieldVisitor {
    * @return New value of this field. If the same value is returned document content will not be
    * changed.
    */
-  Object visitField(OType type, OType linkedType, Object value);
+  Object visitField(ODatabaseSessionInternal db, OType type, OType linkedType, Object value);
 
   /**
    * Indicates whether we continue to visit document fields after current one or should stop fields
@@ -49,7 +51,7 @@ public interface ODocumentFieldVisitor {
    * @param linkedType Linked type in case collection is processed. May be null if absent in DB
    *                   schema.
    * @param value      Field value.
-   * @param newValue   New value returned by {@link #visitField(OType, OType, Object)} method.
+   * @param newValue   New value returned by {@link #visitField(ODatabaseSessionInternal, OType, OType, Object)} method.
    * @return If false document processing will be stopped.
    */
   boolean goFurther(OType type, OType linkedType, Object value, Object newValue);
@@ -68,7 +70,7 @@ public interface ODocumentFieldVisitor {
   boolean goDeeper(OType type, OType linkedType, Object value);
 
   /**
-   * @return If false value returned by method {@link #visitField(OType, OType, Object)} will not be
+   * @return If false value returned by method {@link #visitField(ODatabaseSessionInternal, OType, OType, Object)} will not be
    * taken in account and field value will not be updated.
    */
   boolean updateMode();

@@ -107,7 +107,8 @@ public final class OServerQueryRequest implements OBinaryRequest<OServerQueryRes
     network.writeBoolean(namedParams);
   }
 
-  public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
+  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+      ORecordSerializer serializer)
       throws IOException {
     this.language = channel.readString();
     this.statement = channel.readString();
@@ -150,7 +151,7 @@ public final class OServerQueryRequest implements OBinaryRequest<OServerQueryRes
       // params
       ODocument paramsDoc = new ODocument();
       paramsDoc.setTrackingChanges(false);
-      serializer.fromStream(this.paramsBytes, paramsDoc, null);
+      serializer.fromStream(null, this.paramsBytes, paramsDoc, null);
       this.params = paramsDoc.field("params");
     }
     return params;

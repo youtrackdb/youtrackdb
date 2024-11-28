@@ -408,7 +408,7 @@ public class TrackedListTest extends BaseMemoryDatabase {
 
     Assert.assertEquals(
         original,
-        trackedList.returnOriginalState(
+        trackedList.returnOriginalState(db,
             (List) trackedList.getTimeLine().getMultiValueChangeEvents()));
   }
 
@@ -439,7 +439,7 @@ public class TrackedListTest extends BaseMemoryDatabase {
 
     Assert.assertEquals(
         original,
-        trackedList.returnOriginalState(
+        trackedList.returnOriginalState(db,
             (List) trackedList.getTimeLine().getMultiValueChangeEvents()));
   }
 

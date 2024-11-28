@@ -1354,8 +1354,6 @@ public class OrientSql /*@bgen(jjtree)*/ implements OrientSqlTreeConstants, Orie
                   jj_la1[12] = jj_gen;
                   if (jj_2_14(2)) {
                     result = CreateClassStatement();
-                  } else if (jj_2_15(2)) {
-                    result = CreateViewStatement();
                   } else if (jj_2_16(2)) {
                     result = CreatePropertyStatement();
                   } else if (jj_2_17(2)) {
@@ -16689,82 +16687,6 @@ public class OrientSql /*@bgen(jjtree)*/ implements OrientSqlTreeConstants, Orie
       jjtree.closeNodeScope(jjtn000, true);
       jjtc000 = false;
       jjtn000.jjtSetLastToken(getToken(0));
-      {
-        if (true) {
-          return jjtn000;
-        }
-      }
-    } catch (Throwable jjte000) {
-      if (jjtc000) {
-        jjtree.clearNodeScope(jjtn000);
-        jjtc000 = false;
-      } else {
-        jjtree.popNode();
-      }
-      if (jjte000 instanceof RuntimeException) {
-        {
-          if (true) {
-            throw (RuntimeException) jjte000;
-          }
-        }
-      }
-      if (jjte000 instanceof ParseException) {
-        {
-          if (true) {
-            throw (ParseException) jjte000;
-          }
-        }
-      }
-      {
-        if (true) {
-          throw (Error) jjte000;
-        }
-      }
-    } finally {
-      if (jjtc000) {
-        jjtree.closeNodeScope(jjtn000, true);
-        jjtn000.jjtSetLastToken(getToken(0));
-      }
-    }
-    throw new Error("Missing return statement in function");
-  }
-
-  public final OCreateViewStatement CreateViewStatement() throws ParseException {
-    /*@bgen(jjtree) CreateViewStatement */
-    OCreateViewStatement jjtn000 = new OCreateViewStatement(JJTCREATEVIEWSTATEMENT);
-    boolean jjtc000 = true;
-    jjtree.openNodeScope(jjtn000);
-    jjtn000.jjtSetFirstToken(getToken(1));
-    try {
-      jj_consume_token(CREATE);
-      jj_consume_token(VIEW);
-      jjtn000.name = Identifier();
-      switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
-        case IF:
-          jj_consume_token(IF);
-          jj_consume_token(NOT);
-          jj_consume_token(EXISTS);
-          jjtn000.ifNotExists = true;
-          break;
-        default:
-          jj_la1[307] = jj_gen;
-      }
-      jj_consume_token(FROM);
-      jj_consume_token(LPAREN);
-      jjtn000.statement = QueryStatement();
-      jj_consume_token(RPAREN);
-      switch ((jj_ntk == -1) ? jj_ntk() : jj_ntk) {
-        case METADATA:
-          jj_consume_token(METADATA);
-          jjtn000.metadata = Json();
-          break;
-        default:
-          jj_la1[308] = jj_gen;
-      }
-      jjtree.closeNodeScope(jjtn000, true);
-      jjtc000 = false;
-      jjtn000.jjtSetLastToken(getToken(0));
-      jjtn000.checkMetadataSyntax();
       {
         if (true) {
           return jjtn000;

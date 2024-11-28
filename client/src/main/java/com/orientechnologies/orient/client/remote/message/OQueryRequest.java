@@ -112,7 +112,8 @@ public final class OQueryRequest implements OBinaryRequest<OQueryResponse> {
     network.writeBoolean(namedParams);
   }
 
-  public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
+  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+      ORecordSerializer serializer)
       throws IOException {
     this.language = channel.readString();
     this.statement = channel.readString();
@@ -150,12 +151,12 @@ public final class OQueryRequest implements OBinaryRequest<OQueryResponse> {
     return statement;
   }
 
-  public Map<String, Object> getParams() {
+  public Map<String, Object> getParams(ODatabaseSessionInternal db) {
     if (params == null && this.paramsBytes != null) {
       // params
       ODocument paramsDoc = new ODocument();
       paramsDoc.setTrackingChanges(false);
-      serializer.fromStream(this.paramsBytes, paramsDoc, null);
+      serializer.fromStream(db, this.paramsBytes, paramsDoc, null);
       this.params = paramsDoc.field("params");
     }
     return params;
@@ -169,12 +170,12 @@ public final class OQueryRequest implements OBinaryRequest<OQueryResponse> {
     return namedParams;
   }
 
-  public Map getNamedParameters() {
-    return getParams();
+  public Map getNamedParameters(ODatabaseSessionInternal db) {
+    return getParams(db);
   }
 
-  public Object[] getPositionalParameters() {
-    Map<String, Object> params = getParams();
+  public Object[] getPositionalParameters(ODatabaseSessionInternal db) {
+    Map<String, Object> params = getParams(db);
     if (params == null) {
       return null;
     }

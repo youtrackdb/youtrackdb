@@ -108,11 +108,12 @@ public abstract class OSQLQuery<T> extends OQueryAbstract<T> implements OCommand
     return "sql." + text;
   }
 
-  public OCommandRequestText fromStream(final byte[] iStream, ORecordSerializer serializer)
+  public OCommandRequestText fromStream(ODatabaseSessionInternal db, final byte[] iStream,
+      ORecordSerializer serializer)
       throws OSerializationException {
     final OMemoryStream buffer = new OMemoryStream(iStream);
 
-    queryFromStream(buffer, serializer);
+    queryFromStream(db, buffer, serializer);
 
     return this;
   }
@@ -133,18 +134,19 @@ public abstract class OSQLQuery<T> extends OQueryAbstract<T> implements OCommand
     return buffer;
   }
 
-  protected void queryFromStream(final OMemoryStream buffer, ORecordSerializer serializer) {
+  protected void queryFromStream(ODatabaseSessionInternal db, final OMemoryStream buffer,
+      ORecordSerializer serializer) {
     text = buffer.getAsString();
     limit = buffer.getAsInteger();
 
     setFetchPlan(buffer.getAsString());
 
     final byte[] paramBuffer = buffer.getAsByteArray();
-    parameters = deserializeQueryParameters(paramBuffer, serializer);
+    parameters = deserializeQueryParameters(db, paramBuffer, serializer);
   }
 
   protected Map<Object, Object> deserializeQueryParameters(
-      final byte[] paramBuffer, ORecordSerializer serializer) {
+      ODatabaseSessionInternal db, final byte[] paramBuffer, ORecordSerializer serializer) {
     if (paramBuffer == null || paramBuffer.length == 0) {
       return Collections.emptyMap();
     }
@@ -153,7 +155,7 @@ public abstract class OSQLQuery<T> extends OQueryAbstract<T> implements OCommand
 
     OImmutableSchema schema =
         ODatabaseRecordThreadLocal.instance().get().getMetadata().getImmutableSchemaSnapshot();
-    serializer.fromStream(paramBuffer, param, null);
+    serializer.fromStream(db, paramBuffer, param, null);
     param.setFieldType("params", OType.EMBEDDEDMAP);
     final Map<String, Object> params = param.rawField("params");
 

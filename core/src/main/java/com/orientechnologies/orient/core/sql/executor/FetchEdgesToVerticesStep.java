@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.record.ODirection;
@@ -52,7 +53,7 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
 
           @Override
           public OExecutionStream next(OCommandContext ctx) {
-            return edges(iter.next());
+            return edges(ctx.getDatabase(), iter.next());
           }
 
           @Override
@@ -82,7 +83,7 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
         Spliterators.spliteratorUnknownSize((Iterator<?>) toValues, 0), false);
   }
 
-  private OExecutionStream edges(Object from) {
+  private OExecutionStream edges(ODatabaseSessionInternal db, Object from) {
     if (from instanceof OResult) {
       from = ((OResult) from).toElement();
     }
@@ -96,7 +97,7 @@ public class FetchEdgesToVerticesStep extends AbstractExecutionStep {
       Stream<OResult> stream =
           StreamSupport.stream(edges.spliterator(), false)
               .filter((edge) -> matchesClass(edge) && matchesCluster(edge))
-              .map(OResultInternal::new);
+              .map(e -> new OResultInternal(db, e));
       return OExecutionStream.resultIterator(stream.iterator());
     } else {
       throw new OCommandExecutionException("Invalid vertex: " + from);

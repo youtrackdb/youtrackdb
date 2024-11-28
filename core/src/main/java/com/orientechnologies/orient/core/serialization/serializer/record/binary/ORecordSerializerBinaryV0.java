@@ -104,7 +104,8 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
 
   @Override
   public void deserializePartial(
-      final ODocument document, final BytesContainer bytes, final String[] iFields) {
+      ODatabaseSessionInternal db, final ODocument document, final BytesContainer bytes,
+      final String[] iFields) {
     final String className = readString(bytes);
     if (!className.isEmpty()) {
       ODocumentInternal.fillClassNameIfNeeded(document, className);
@@ -186,7 +187,7 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
       if (valuePos != 0) {
         int headerCursor = bytes.offset;
         bytes.offset = valuePos;
-        final Object value = deserializeValue(bytes, type, document);
+        final Object value = deserializeValue(db, bytes, type, document);
         bytes.offset = headerCursor;
         ODocumentInternal.rawField(document, fieldName, value, type);
       } else {
@@ -287,14 +288,16 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
     }
   }
 
-  public void deserializeWithClassName(final ODocument document, final BytesContainer bytes) {
-    deserialize(document, bytes);
+  public void deserializeWithClassName(ODatabaseSessionInternal db, final ODocument document,
+      final BytesContainer bytes) {
+    deserialize(db, document, bytes);
   }
 
   @Override
-  public void deserialize(final ODocument document, final BytesContainer bytes) {
+  public void deserialize(ODatabaseSessionInternal db, final ODocument document,
+      final BytesContainer bytes) {
     final String className = readString(bytes);
-    if (className.length() != 0) {
+    if (!className.isEmpty()) {
       ODocumentInternal.fillClassNameIfNeeded(document, className);
     }
 
@@ -334,7 +337,7 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
       if (valuePos != 0) {
         int headerCursor = bytes.offset;
         bytes.offset = valuePos;
-        final Object value = deserializeValue(bytes, type, document);
+        final Object value = deserializeValue(db, bytes, type, document);
         if (bytes.offset > last) {
           last = bytes.offset;
         }
@@ -474,19 +477,21 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
 
   @Override
   public Object deserializeValue(
-      final BytesContainer bytes, final OType type, final ORecordElement owner) {
+      ODatabaseSessionInternal session, final BytesContainer bytes, final OType type,
+      final ORecordElement owner) {
     ORecordElement doc = owner;
     while (!(doc instanceof ODocument) && doc != null) {
       doc = doc.getOwner();
     }
     OImmutableSchema schema = ODocumentInternal.getImmutableSchema((ODocument) doc);
-    return deserializeValue(bytes, type, owner, true, -1, false, schema);
+    return deserializeValue(session, bytes, type, owner,
+        true, -1, false, schema);
   }
 
   protected Object deserializeEmbeddedAsDocument(
-      final BytesContainer bytes, final ORecordElement owner) {
+      ODatabaseSessionInternal db, final BytesContainer bytes, final ORecordElement owner) {
     Object value = new ODocumentEmbedded();
-    deserializeWithClassName((ODocument) value, bytes);
+    deserializeWithClassName(db, (ODocument) value, bytes);
     if (((ODocument) value).containsField(ODocumentSerializable.CLASS_NAME)) {
       String className = ((ODocument) value).field(ODocumentSerializable.CLASS_NAME);
       try {
@@ -504,7 +509,7 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
   }
 
   protected List<MapRecordInfo> getPositionsFromEmbeddedMap(
-      final BytesContainer bytes, OImmutableSchema schema) {
+      ODatabaseSessionInternal db, final BytesContainer bytes, OImmutableSchema schema) {
     List<MapRecordInfo> retList = new ArrayList<>();
 
     int numberOfElements = OVarIntSerializer.readAsInteger(bytes);
@@ -524,7 +529,7 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
 
       // get field length
       bytes.offset = valuePos;
-      deserializeValue(bytes, valueType, null, true, -1, true, schema);
+      deserializeValue(db, bytes, valueType, null, true, -1, true, schema);
       recordInfo.fieldLength = bytes.offset - valuePos;
 
       bytes.offset = currentOffset;
@@ -536,7 +541,7 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
 
   // returns begin position and length for each value in embedded collection
   private List<RecordInfo> getPositionsFromEmbeddedCollection(
-      final BytesContainer bytes, OImmutableSchema schema) {
+      ODatabaseSessionInternal db, final BytesContainer bytes, OImmutableSchema schema) {
     List<RecordInfo> retList = new ArrayList<>();
 
     int numberOfElements = OVarIntSerializer.readAsInteger(bytes);
@@ -555,7 +560,7 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
       fieldInfo.fieldType = dataType;
 
       // TODO find better way to skip data bytes;
-      deserializeValue(bytes, dataType, null, true, -1, true, schema);
+      deserializeValue(db, bytes, dataType, null, true, -1, true, schema);
       fieldInfo.fieldLength = bytes.offset - fieldStart;
       retList.add(fieldInfo);
     }
@@ -564,19 +569,19 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
   }
 
   protected List deserializeEmbeddedCollectionAsCollectionOfBytes(
-      final BytesContainer bytes, OImmutableSchema schema) {
+      ODatabaseSessionInternal db, final BytesContainer bytes, OImmutableSchema schema) {
     List retVal = new ArrayList();
-    List<RecordInfo> fieldsInfo = getPositionsFromEmbeddedCollection(bytes, schema);
+    List<RecordInfo> fieldsInfo = getPositionsFromEmbeddedCollection(db, bytes, schema);
     for (RecordInfo fieldInfo : fieldsInfo) {
       if (fieldInfo.fieldType.isEmbedded()) {
         OResultBinary result =
-            new OResultBinary(
+            new OResultBinary(db,
                 schema, bytes.bytes, fieldInfo.fieldStartOffset, fieldInfo.fieldLength, this);
         retVal.add(result);
       } else {
         int currentOffset = bytes.offset;
         bytes.offset = fieldInfo.fieldStartOffset;
-        Object value = deserializeValue(bytes, fieldInfo.fieldType, null);
+        Object value = deserializeValue(db, bytes, fieldInfo.fieldType, null);
         retVal.add(value);
         bytes.offset = currentOffset;
       }
@@ -586,20 +591,20 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
   }
 
   protected Map<String, Object> deserializeEmbeddedMapAsMapOfBytes(
-      final BytesContainer bytes, OImmutableSchema schema) {
+      ODatabaseSessionInternal db, final BytesContainer bytes, OImmutableSchema schema) {
     Map<String, Object> retVal = new TreeMap<>();
-    List<MapRecordInfo> positionsWithLengths = getPositionsFromEmbeddedMap(bytes, schema);
+    List<MapRecordInfo> positionsWithLengths = getPositionsFromEmbeddedMap(db, bytes, schema);
     for (MapRecordInfo recordInfo : positionsWithLengths) {
       String key = recordInfo.key;
       Object value;
       if (recordInfo.fieldType != null && recordInfo.fieldType.isEmbedded()) {
         value =
-            new OResultBinary(
+            new OResultBinary(db,
                 schema, bytes.bytes, recordInfo.fieldStartOffset, recordInfo.fieldLength, this);
       } else if (recordInfo.fieldStartOffset != 0) {
         int currentOffset = bytes.offset;
         bytes.offset = recordInfo.fieldStartOffset;
-        value = deserializeValue(bytes, recordInfo.fieldType, null);
+        value = deserializeValue(db, bytes, recordInfo.fieldType, null);
         bytes.offset = currentOffset;
       } else {
         value = null;
@@ -610,13 +615,14 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
   }
 
   protected OResultBinary deserializeEmbeddedAsBytes(
-      final BytesContainer bytes, int valueLength, OImmutableSchema schema) {
+      ODatabaseSessionInternal db, final BytesContainer bytes, int valueLength,
+      OImmutableSchema schema) {
     int startOffset = bytes.offset;
-    return new OResultBinary(schema, bytes.bytes, startOffset, valueLength, this);
+    return new OResultBinary(db, schema, bytes.bytes, startOffset, valueLength, this);
   }
 
   protected Object deserializeValue(
-      final BytesContainer bytes,
+      ODatabaseSessionInternal db, final BytesContainer bytes,
       final OType type,
       final ORecordElement owner,
       boolean embeddedAsDocument,
@@ -693,23 +699,23 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
         break;
       case EMBEDDED:
         if (embeddedAsDocument) {
-          value = deserializeEmbeddedAsDocument(bytes, owner);
+          value = deserializeEmbeddedAsDocument(db, bytes, owner);
         } else {
-          value = deserializeEmbeddedAsBytes(bytes, valueLengthInBytes, schema);
+          value = deserializeEmbeddedAsBytes(db, bytes, valueLengthInBytes, schema);
         }
         break;
       case EMBEDDEDSET:
         if (embeddedAsDocument) {
-          value = readEmbeddedSet(bytes, owner);
+          value = readEmbeddedSet(db, bytes, owner);
         } else {
-          value = deserializeEmbeddedCollectionAsCollectionOfBytes(bytes, schema);
+          value = deserializeEmbeddedCollectionAsCollectionOfBytes(db, bytes, schema);
         }
         break;
       case EMBEDDEDLIST:
         if (embeddedAsDocument) {
-          value = readEmbeddedList(bytes, owner);
+          value = readEmbeddedList(db, bytes, owner);
         } else {
-          value = deserializeEmbeddedCollectionAsCollectionOfBytes(bytes, schema);
+          value = deserializeEmbeddedCollectionAsCollectionOfBytes(db, bytes, schema);
         }
         break;
       case LINKSET:
@@ -738,13 +744,13 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
         value = readOptimizedLink(bytes, justRunThrough);
         break;
       case LINKMAP:
-        value = readLinkMap(bytes, owner, justRunThrough, schema);
+        value = readLinkMap(db, bytes, owner, justRunThrough, schema);
         break;
       case EMBEDDEDMAP:
         if (embeddedAsDocument) {
-          value = readEmbeddedMap(bytes, owner);
+          value = readEmbeddedMap(db, bytes, owner);
         } else {
-          value = deserializeEmbeddedMapAsMapOfBytes(bytes, schema);
+          value = deserializeEmbeddedMapAsMapOfBytes(db, bytes, schema);
         }
         break;
       case DECIMAL:
@@ -752,7 +758,7 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
         bytes.skip(ODecimalSerializer.INSTANCE.getObjectSize(bytes.bytes, bytes.offset));
         break;
       case LINKBAG:
-        ORidBag bag = readRidbag(bytes);
+        ORidBag bag = readRidbag(db, bytes);
         bag.setOwner(owner);
         value = bag;
         break;
@@ -773,7 +779,8 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
             }
           } else {
             OResultBinary retVal =
-                new OResultBinary(schema, bytesRepresentation, 0, bytesRepresentation.length, this);
+                new OResultBinary(db, schema, bytesRepresentation, 0, bytesRepresentation.length,
+                    this);
             return retVal;
           }
         } catch (Exception e) {
@@ -786,8 +793,8 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
     return value;
   }
 
-  protected ORidBag readRidbag(BytesContainer bytes) {
-    ORidBag bag = new ORidBag();
+  protected ORidBag readRidbag(ODatabaseSessionInternal db, BytesContainer bytes) {
+    ORidBag bag = new ORidBag(db);
     bag.fromStream(bytes);
     return bag;
   }
@@ -820,7 +827,7 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
   }
 
   protected Map<Object, OIdentifiable> readLinkMap(
-      final BytesContainer bytes,
+      ODatabaseSessionInternal db, final BytesContainer bytes,
       final ORecordElement owner,
       boolean justRunThrough,
       OImmutableSchema schema) {
@@ -831,7 +838,8 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
     }
     while ((size--) > 0) {
       final OType keyType = readOType(bytes, justRunThrough);
-      final Object key = deserializeValue(bytes, keyType, result, true, -1, justRunThrough, schema);
+      final Object key = deserializeValue(db, bytes, keyType, result, true, -1, justRunThrough,
+          schema);
       final ORecordId value = readOptimizedLink(bytes, justRunThrough);
       if (value.equals(NULL_RECORD_ID)) {
         result.putInternal(key, null);
@@ -842,20 +850,21 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
     return result;
   }
 
-  protected Object readEmbeddedMap(final BytesContainer bytes, final ORecordElement owner) {
+  protected Object readEmbeddedMap(ODatabaseSessionInternal db, final BytesContainer bytes,
+      final ORecordElement owner) {
     int size = OVarIntSerializer.readAsInteger(bytes);
     final OTrackedMap<Object> result = new OTrackedMap<>(owner);
 
     int last = 0;
     while ((size--) > 0) {
       OType keyType = readOType(bytes, false);
-      Object key = deserializeValue(bytes, keyType, result);
+      Object key = deserializeValue(db, bytes, keyType, result);
       final int valuePos = readInteger(bytes);
       final OType type = readOType(bytes, false);
       if (valuePos != 0) {
         int headerCursor = bytes.offset;
         bytes.offset = valuePos;
-        Object value = deserializeValue(bytes, type, result);
+        Object value = deserializeValue(db, bytes, type, result);
         if (bytes.offset > last) {
           last = bytes.offset;
         }
@@ -871,7 +880,8 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
     return result;
   }
 
-  protected Collection<?> readEmbeddedSet(final BytesContainer bytes, final ORecordElement owner) {
+  protected Collection<?> readEmbeddedSet(ODatabaseSessionInternal db, final BytesContainer bytes,
+      final ORecordElement owner) {
 
     final int items = OVarIntSerializer.readAsInteger(bytes);
     OType type = readOType(bytes, false);
@@ -883,7 +893,7 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
         if (itemType == OType.ANY) {
           found.addInternal(null);
         } else {
-          found.addInternal(deserializeValue(bytes, itemType, found));
+          found.addInternal(deserializeValue(db, bytes, itemType, found));
         }
       }
       return found;
@@ -892,7 +902,8 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
     return null;
   }
 
-  protected Collection<?> readEmbeddedList(final BytesContainer bytes, final ORecordElement owner) {
+  protected Collection<?> readEmbeddedList(ODatabaseSessionInternal db, final BytesContainer bytes,
+      final ORecordElement owner) {
 
     final int items = OVarIntSerializer.readAsInteger(bytes);
     OType type = readOType(bytes, false);
@@ -904,7 +915,7 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
         if (itemType == OType.ANY) {
           found.addInternal(null);
         } else {
-          found.addInternal(deserializeValue(bytes, itemType, found));
+          found.addInternal(deserializeValue(db, bytes, itemType, found));
         }
       }
       return found;
@@ -1158,7 +1169,8 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
   }
 
   private int getEmbeddedFieldSize(
-      BytesContainer bytes, int currentFieldDataPos, OType type, OImmutableSchema schema) {
+      ODatabaseSessionInternal db, BytesContainer bytes, int currentFieldDataPos, OType type,
+      OImmutableSchema schema) {
     int startOffset = bytes.offset;
     try {
       // try to read next position in header if exists
@@ -1175,7 +1187,7 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
       // this means that this is last field so field length have to be calculated
       // by deserializing the value
       bytes.offset = currentFieldDataPos;
-      deserializeValue(bytes, type, new ODocument(), true, -1, true, schema);
+      deserializeValue(db, bytes, type, new ODocument(), true, -1, true, schema);
       int fieldDataLength = bytes.offset - currentFieldDataPos;
       return fieldDataLength;
     } finally {
@@ -1184,7 +1196,8 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
   }
 
   protected <RET> RET deserializeFieldTypedLoopAndReturn(
-      BytesContainer bytes, String iFieldName, OImmutableSchema schema) {
+      ODatabaseSessionInternal db, BytesContainer bytes, String iFieldName,
+      OImmutableSchema schema) {
     final byte[] field = iFieldName.getBytes();
 
     while (true) {
@@ -1221,11 +1234,12 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
           // actual field byte length is only needed for embedded fields
           int fieldDataLength = -1;
           if (type.isEmbedded()) {
-            fieldDataLength = getEmbeddedFieldSize(bytes, valuePos, type, schema);
+            fieldDataLength = getEmbeddedFieldSize(db, bytes, valuePos, type, schema);
           }
 
           bytes.offset = valuePos;
-          Object value = deserializeValue(bytes, type, null, false, fieldDataLength, false, schema);
+          Object value = deserializeValue(db, bytes, type, null, false, fieldDataLength, false,
+              schema);
           return (RET) value;
         }
 
@@ -1247,7 +1261,7 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
 
           int fieldDataLength = -1;
           if (type.isEmbedded()) {
-            fieldDataLength = getEmbeddedFieldSize(bytes, valuePos, type, schema);
+            fieldDataLength = getEmbeddedFieldSize(db, bytes, valuePos, type, schema);
           }
 
           if (valuePos == 0) {
@@ -1256,7 +1270,8 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
 
           bytes.offset = valuePos;
 
-          Object value = deserializeValue(bytes, type, null, false, fieldDataLength, false, schema);
+          Object value = deserializeValue(db, bytes, type, null, false, fieldDataLength, false,
+              schema);
           return (RET) value;
         }
         bytes.skip(OIntegerSerializer.INT_SIZE + (prop.getType() != OType.ANY ? 0 : 1));
@@ -1266,17 +1281,17 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
 
   @Override
   public <RET> RET deserializeFieldTyped(
-      BytesContainer bytes,
+      ODatabaseSessionInternal session, BytesContainer bytes,
       String iFieldName,
       boolean isEmbedded,
       OImmutableSchema schema,
       OPropertyEncryption encryption) {
     // SKIP CLASS NAME
     skipClassName(bytes);
-    return deserializeFieldTypedLoopAndReturn(bytes, iFieldName, schema);
+    return deserializeFieldTypedLoopAndReturn(session, bytes, iFieldName, schema);
   }
 
-  public Tuple<Integer, OType> getPointerAndTypeFromCurrentPosition(BytesContainer bytes) {
+  public static Tuple<Integer, OType> getPointerAndTypeFromCurrentPosition(BytesContainer bytes) {
     int valuePos = readInteger(bytes);
     OType type = readOType(bytes, false);
     return new Tuple<>(valuePos, type);
@@ -1284,8 +1299,7 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
 
   @Override
   public void deserializeDebug(
-      BytesContainer bytes,
-      ODatabaseSessionInternal db,
+      ODatabaseSessionInternal db, BytesContainer bytes,
       ORecordSerializationDebug debugInfo,
       OImmutableSchema schema) {
 
@@ -1338,7 +1352,7 @@ public class ORecordSerializerBinaryV0 implements ODocumentSerializer {
           int headerCursor = bytes.offset;
           bytes.offset = valuePos;
           try {
-            debugProperty.value = deserializeValue(bytes, type, new ODocument());
+            debugProperty.value = deserializeValue(db, bytes, type, new ODocument());
           } catch (RuntimeException ex) {
             debugProperty.faildToRead = true;
             debugProperty.readingException = ex;

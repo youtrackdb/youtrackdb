@@ -108,7 +108,8 @@ public class OCommit38Request implements OBinaryRequest<OCommit37Response> {
   }
 
   @Override
-  public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
+  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+      ORecordSerializer serializer)
       throws IOException {
     txId = channel.readLong();
     hasContent = channel.readBoolean();
@@ -126,7 +127,7 @@ public class OCommit38Request implements OBinaryRequest<OCommit37Response> {
 
       // RECEIVE MANUAL INDEX CHANGES
       this.indexChanges =
-          OMessageHelper.readTransactionIndexChanges(
+          OMessageHelper.readTransactionIndexChanges(db,
               channel, (ORecordSerializerNetworkV37) serializer);
     }
   }

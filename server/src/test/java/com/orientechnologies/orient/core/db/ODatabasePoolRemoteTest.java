@@ -51,7 +51,7 @@ public class ODatabasePoolRemoteTest {
     db.save(new ODocument("Test"));
     db.close();
     db = (ODatabaseSessionInternal) pool.acquire();
-    assertEquals(db.countClass("Test"), 0);
+    assertEquals(0, db.countClass("Test"));
 
     pool.close();
     oxygenDb.close();

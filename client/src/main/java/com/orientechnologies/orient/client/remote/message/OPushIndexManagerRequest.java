@@ -29,10 +29,10 @@ public class OPushIndexManagerRequest implements OBinaryPushRequest<OBinaryPushR
   }
 
   @Override
-  public void read(OChannelDataInput network) throws IOException {
+  public void read(ODatabaseSessionInternal db, OChannelDataInput network) throws IOException {
     byte[] bytes = network.readBytes();
     this.indexManager =
-        (ODocument) ORecordSerializerNetworkV37Client.INSTANCE.fromStream(bytes, null);
+        (ODocument) ORecordSerializerNetworkV37Client.INSTANCE.fromStream(db, bytes, null);
   }
 
   @Override

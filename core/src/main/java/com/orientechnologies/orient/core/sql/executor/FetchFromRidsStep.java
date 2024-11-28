@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -41,8 +42,8 @@ public class FetchFromRidsStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OResult serialize() {
-    OResultInternal result = OExecutionStepInternal.basicSerialize(this);
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
     if (rids != null) {
       result.setProperty(
           "rids", rids.stream().map(ORecordId::toString).collect(Collectors.toList()));

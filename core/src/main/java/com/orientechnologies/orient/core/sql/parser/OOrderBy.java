@@ -3,6 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.ArrayList;
@@ -118,11 +119,12 @@ public class OOrderBy extends SimpleNode {
     return false;
   }
 
-  public OResult serialize() {
-    OResultInternal result = new OResultInternal();
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
     if (items != null) {
       result.setProperty(
-          "items", items.stream().map(x -> x.serialize()).collect(Collectors.toList()));
+          "items", items.stream().map(oOrderByItem -> oOrderByItem.serialize(db))
+              .collect(Collectors.toList()));
     }
     return result;
   }

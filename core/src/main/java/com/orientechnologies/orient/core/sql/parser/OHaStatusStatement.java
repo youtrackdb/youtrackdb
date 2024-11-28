@@ -95,7 +95,7 @@ public class OHaStatusStatement extends OSimpleExecStatement {
     try {
       Map<String, Object> res = database.getHaStatus(servers, this.db, latency, messages);
       if (res != null) {
-        OResultInternal row = new OResultInternal();
+        OResultInternal row = new OResultInternal(database);
         res.entrySet().forEach(x -> row.setProperty(x.getKey(), x.getValue()));
         return OExecutionStream.singleton(row);
       } else {

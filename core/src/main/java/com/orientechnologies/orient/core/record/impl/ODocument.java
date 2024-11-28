@@ -78,18 +78,12 @@ import com.orientechnologies.orient.core.record.ORecordSchemaAware;
 import com.orientechnologies.orient.core.record.ORecordVersionHelper;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.serialization.serializer.OStringSerializerHelper;
-import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
-import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializerFactory;
-import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetwork;
 import com.orientechnologies.orient.core.sql.OSQLHelper;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.filter.OSQLPredicate;
 import java.io.ByteArrayOutputStream;
-import java.io.Externalizable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
 import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -123,7 +117,6 @@ import javax.annotation.Nullable;
 public class ODocument extends ORecordAbstract
     implements Iterable<Entry<String, Object>>,
     ORecordSchemaAware,
-    Externalizable,
     OElementInternal {
 
   public static final byte RECORD_TYPE = 'd';
@@ -410,12 +403,14 @@ public class ODocument extends ORecordAbstract
   Set<String> calculatePropertyNames() {
     checkForBinding();
 
+    var session = getSessionIfDefined();
     if (status == ORecordElement.STATUS.LOADED
         && source != null
-        && ODatabaseRecordThreadLocal.instance().isDefined()
-        && !ODatabaseRecordThreadLocal.instance().get().isClosed()) {
+        && session != null
+        && !session.isClosed()) {
+      assert session.assertIfNotActive();
       // DESERIALIZE FIELD NAMES ONLY (SUPPORTED ONLY BY BINARY SERIALIZER)
-      final String[] fieldNames = recordFormat.getFieldNames(this, source);
+      final String[] fieldNames = recordFormat.getFieldNames(session, this, source);
       if (fieldNames != null) {
         Set<String> fields = new LinkedHashSet<>();
         if (propertyAccess != null && propertyAccess.hasFilters()) {
@@ -529,7 +524,7 @@ public class ODocument extends ORecordAbstract
 
     var field = fields.get(name);
     if (field != null) {
-      RET onLoadValue = (RET) field.getOnLoadValue();
+      RET onLoadValue = (RET) field.getOnLoadValue(getSession());
       if (onLoadValue instanceof ORidBag) {
         throw new IllegalArgumentException(
             "getPropertyOnLoadValue(name) is not designed to work with Edge properties");
@@ -1159,7 +1154,7 @@ public class ODocument extends ORecordAbstract
         // check if the field is actually changed by equal.
         // this is due to a limitation in the merge algorithm used server side marking all
         // non-simple fields as dirty
-        Object orgVal = entry.getOnLoadValue();
+        Object orgVal = entry.getOnLoadValue(session);
         boolean simple =
             fieldValue != null ? OType.isSimpleType(fieldValue) : OType.isSimpleType(orgVal);
         if ((simple)
@@ -1433,7 +1428,8 @@ public class ODocument extends ORecordAbstract
         var originalEntry = entry.getValue();
         ODocumentEntry docEntry = originalEntry.clone();
         destination.fields.put(entry.getKey(), docEntry);
-        docEntry.value = ODocumentHelper.cloneValue(destination, entry.getValue().value);
+        docEntry.value = ODocumentHelper.cloneValue(getSession(), destination,
+            entry.getValue().value);
       }
     } else {
       destination.fields = null;
@@ -2891,13 +2887,9 @@ public class ODocument extends ORecordAbstract
       }
     }
 
-    if (recordFormat == null) {
-      setup(ODatabaseRecordThreadLocal.instance().getIfDefined());
-    }
-
     status = ORecordElement.STATUS.UNMARSHALLING;
     try {
-      recordFormat.fromStream(source, this, iFields);
+      recordFormat.fromStream(getSession(), source, this, iFields);
     } finally {
       status = ORecordElement.STATUS.LOADED;
     }
@@ -2931,80 +2923,6 @@ public class ODocument extends ORecordAbstract
     }
 
     return true;
-  }
-
-  @Override
-  public void writeExternal(ObjectOutput stream) throws IOException {
-    checkForBinding();
-
-    ORecordSerializer serializer =
-        ORecordSerializerFactory.instance().getFormat(ORecordSerializerNetwork.NAME);
-    final byte[] idBuffer;
-    //noinspection ReplaceNullCheck
-    if (recordId != null) {
-      idBuffer = recordId.toStream();
-    } else {
-      idBuffer = new ORecordId(-2, -2).toStream();
-    }
-
-    stream.writeInt(-1);
-    stream.writeInt(idBuffer.length);
-    stream.write(idBuffer);
-    stream.writeInt(recordVersion);
-
-    final byte[] content = serializer.toStream(getSession(), this);
-    stream.writeInt(content.length);
-    stream.write(content);
-
-    stream.writeBoolean(dirty);
-    stream.writeObject(serializer.toString());
-  }
-
-  @Override
-  public void readExternal(ObjectInput stream) throws IOException, ClassNotFoundException {
-    checkForBinding();
-
-    int i = stream.readInt();
-    int size;
-    if (i < 0) {
-      size = stream.readInt();
-    } else {
-      size = i;
-    }
-    final byte[] idBuffer = new byte[size];
-    stream.readFully(idBuffer);
-
-    ORecordId rid = new OEmptyRecordId();
-    rid.fromStream(idBuffer);
-    rid = rid.copy();
-
-    if (rid.getClusterId() == -2 && rid.getClusterPosition() == -2) {
-      recordId = null;
-    } else {
-      recordId = rid;
-    }
-
-    recordVersion = stream.readInt();
-
-    final int len = stream.readInt();
-    final byte[] content = new byte[len];
-    stream.readFully(content);
-
-    dirty = stream.readBoolean();
-
-    ORecordSerializer serializer = recordFormat;
-    if (i < 0) {
-      final String str = (String) stream.readObject();
-      // TODO: WHEN TO USE THE SERIALIZER?
-      serializer = ORecordSerializerFactory.instance().getFormat(str);
-    }
-
-    status = ORecordElement.STATUS.UNMARSHALLING;
-    try {
-      serializer.fromStream(content, this, null);
-    } finally {
-      status = ORecordElement.STATUS.LOADED;
-    }
   }
 
   /**
@@ -3104,10 +3022,9 @@ public class ODocument extends ORecordAbstract
     autoConvertValues();
 
     var session = getSession();
-    if (session != null) {
-      validateFieldsSecurity(session, this);
-    }
-    if (session != null && !session.isValidationEnabled()) {
+
+    validateFieldsSecurity(session, this);
+    if (!session.isValidationEnabled()) {
       return;
     }
 
@@ -3326,7 +3243,7 @@ public class ODocument extends ORecordAbstract
     }
     OGlobalProperty prop = schema.getGlobalPropertyById(id);
     if (prop == null) {
-      if (session == null || session.isClosed()) {
+      if (session.isClosed()) {
         throw new ODatabaseException(
             "Cannot unmarshall the document because no database is active, use detach for use the"
                 + " document outside the database session scope");
@@ -3449,7 +3366,7 @@ public class ODocument extends ORecordAbstract
           if (type == OType.LINKBAG
               && !(entry.value instanceof ORidBag)
               && entry.value instanceof Collection) {
-            ORidBag newValue = new ORidBag();
+            ORidBag newValue = new ORidBag(session);
             newValue.setRecordAndField(recordId, prop.getName());
             for (Object o : ((Collection<Object>) entry.value)) {
               if (!(o instanceof OIdentifiable)) {
@@ -3616,6 +3533,8 @@ public class ODocument extends ORecordAbstract
     if (fields == null) {
       return;
     }
+
+    var session = getSession();
     for (Map.Entry<String, ODocumentEntry> fieldEntry : fields.entrySet()) {
       ODocumentEntry entry = fieldEntry.getValue();
       final Object fieldValue = entry.value;
@@ -3696,7 +3615,7 @@ public class ODocument extends ORecordAbstract
           break;
         case LINKBAG:
           if (fieldValue instanceof Collection<?>) {
-            ORidBag bag = new ORidBag();
+            ORidBag bag = new ORidBag(session);
             bag.setOwner(this);
             bag.setRecordAndField(recordId, fieldEntry.getKey());
             bag.addAll((Collection<OIdentifiable>) fieldValue);

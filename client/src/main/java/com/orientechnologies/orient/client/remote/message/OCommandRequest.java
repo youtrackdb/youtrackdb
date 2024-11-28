@@ -64,7 +64,8 @@ public final class OCommandRequest implements OBinaryRequest<OCommandResponse> {
     network.writeBytes(OStreamSerializerAnyStreamable.INSTANCE.toStream(query));
   }
 
-  public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
+  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+      ORecordSerializer serializer)
       throws IOException {
 
     byte type = channel.readByte();
@@ -74,7 +75,7 @@ public final class OCommandRequest implements OBinaryRequest<OCommandResponse> {
     if (type == (byte) 'a') {
       asynch = true;
     }
-    query = OStreamSerializerAnyStreamable.INSTANCE.fromStream(channel.readBytes(), serializer);
+    query = OStreamSerializerAnyStreamable.INSTANCE.fromStream(db, channel.readBytes(), serializer);
   }
 
   @Override

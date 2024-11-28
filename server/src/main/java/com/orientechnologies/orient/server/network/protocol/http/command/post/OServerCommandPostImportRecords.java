@@ -55,9 +55,7 @@ public class OServerCommandPostImportRecords extends OServerCommandDocumentAbstr
 
     iRequest.getData().commandInfo = "Import records";
 
-    var db = getProfiledDatabaseInstance(iRequest);
-    try {
-
+    try (var db = getProfiledDatabaseInstance(iRequest)) {
       final OClass cls = db.getMetadata().getSchema().getClass(urlParts[3]);
       if (cls == null) {
         throw new IllegalArgumentException("Class '" + urlParts[3] + " is not defined");
@@ -75,14 +73,12 @@ public class OServerCommandPostImportRecords extends OServerCommandDocumentAbstr
 
         final BufferedReader reader = new BufferedReader(new StringReader(iRequest.getContent()));
         String header = reader.readLine();
-        if (header == null || (header = header.trim()).length() == 0) {
+        if (header == null || (header = header.trim()).isEmpty()) {
           throw new InputMismatchException("Missing CSV file header");
         }
 
         final List<String> columns = OStringSerializerHelper.smartSplit(header, separator);
-        for (int i = 0; i < columns.size(); ++i) {
-          columns.set(i, OIOUtils.getStringContent(columns.get(i)));
-        }
+        columns.replaceAll(OIOUtils::getStringContent);
 
         int imported = 0;
         int errors = 0;
@@ -112,7 +108,7 @@ public class OServerCommandPostImportRecords extends OServerCommandDocumentAbstr
 
               String cellValue = parsedCell.trim();
 
-              if (cellValue.length() == 0 || cellValue.equalsIgnoreCase("null")) {
+              if (cellValue.isEmpty() || cellValue.equalsIgnoreCase("null")) {
                 continue;
               }
 
@@ -125,7 +121,7 @@ public class OServerCommandPostImportRecords extends OServerCommandDocumentAbstr
                 try {
                   value = numberFormat.parse(cellValue);
                 } catch (Exception e) {
-                  value = ORecordSerializerCSVAbstract.getTypeValue(cellValue);
+                  value = ORecordSerializerCSVAbstract.getTypeValue(db, cellValue);
                 }
               }
 
@@ -144,14 +140,15 @@ public class OServerCommandPostImportRecords extends OServerCommandDocumentAbstr
           }
         }
 
-        final float elapsed = (System.currentTimeMillis() - start) / 1000;
+        final float elapsed = (float) (System.currentTimeMillis() - start) / 1000;
 
         String message =
             String.format(
-                "Import of records of class '%s' completed in %5.3f seconds. Line parsed: %d,"
-                    + " imported: %d, error: %d\n"
-                    + "Detailed messages:\n"
-                    + "%s",
+                """
+                    Import of records of class '%s' completed in %5.3f seconds. Line parsed: %d,\
+                     imported: %d, error: %d
+                    Detailed messages:
+                    %s""",
                 cls.getName(), elapsed, line, imported, errors, output);
 
         iResponse.send(
@@ -167,10 +164,6 @@ public class OServerCommandPostImportRecords extends OServerCommandDocumentAbstr
             "Unsupported format on importing record. Available formats are: csv");
       }
 
-    } finally {
-      if (db != null) {
-        db.close();
-      }
     }
   }
 

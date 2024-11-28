@@ -54,7 +54,7 @@ public class MatchFirstStep extends AbstractExecutionStep {
 
     return data.map(
         (result, context) -> {
-          OResultInternal newResult = new OResultInternal();
+          OResultInternal newResult = new OResultInternal(context.getDatabase());
           newResult.setProperty(getAlias(), result);
           context.setVariable("$matched", newResult);
           return newResult;

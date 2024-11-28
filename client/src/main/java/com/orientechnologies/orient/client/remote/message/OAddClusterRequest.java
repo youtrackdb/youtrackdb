@@ -50,7 +50,8 @@ public final class OAddClusterRequest implements OBinaryRequest<OAddClusterRespo
     network.writeShort((short) requestedId);
   }
 
-  public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
+  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+      ORecordSerializer serializer)
       throws IOException {
     String type = "";
     if (protocolVersion < 24) {

@@ -31,7 +31,7 @@ public class DistinctExecutionStepTest extends BaseMemoryDatabase {
             List<OResult> result = new ArrayList<>();
             if (!done) {
               for (int i = 0; i < 10; i++) {
-                OResultInternal item = new OResultInternal();
+                OResultInternal item = new OResultInternal(ctx.getDatabase());
                 item.setProperty("name", i % 2 == 0 ? "foo" : "bar");
                 result.add(item);
               }

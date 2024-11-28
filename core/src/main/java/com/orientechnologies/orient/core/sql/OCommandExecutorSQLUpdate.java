@@ -388,7 +388,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
     updated |= handleRemoveEntries(querySession, record);
 
     if (updated) {
-      handleUpdateEdge(record);
+      handleUpdateEdge(querySession, record);
       record.setDirty();
       record.save();
       returnHandler.afterUpdate(record);
@@ -422,9 +422,10 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
   /**
    * handles vertex consistency after an UPDATE EDGE
    *
+   * @param db
    * @param record the edge record
    */
-  private void handleUpdateEdge(ODocument record) {
+  private void handleUpdateEdge(ODatabaseSessionInternal db, ODocument record) {
     if (!updateEdge) {
       return;
     }
@@ -436,20 +437,22 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
 
     validateOutInForEdge(record, currentOut, currentIn);
 
-    changeVertexEdgePointer(record, (OIdentifiable) prevIn, (OIdentifiable) currentIn, "in");
-    changeVertexEdgePointer(record, (OIdentifiable) prevOut, (OIdentifiable) currentOut, "out");
+    changeVertexEdgePointer(db, record, (OIdentifiable) prevIn, (OIdentifiable) currentIn, "in");
+    changeVertexEdgePointer(db, record, (OIdentifiable) prevOut, (OIdentifiable) currentOut, "out");
   }
 
   /**
    * updates old and new vertices connected to an edge after out/in update on the edge itself
    *
+   * @param db
    * @param edge          the edge
    * @param prevVertex    the previously connected vertex
    * @param currentVertex the currently connected vertex
    * @param direction     the direction ("out" or "in")
    */
   private void changeVertexEdgePointer(
-      ODocument edge, OIdentifiable prevVertex, OIdentifiable currentVertex, String direction) {
+      ODatabaseSessionInternal db, ODocument edge, OIdentifiable prevVertex,
+      OIdentifiable currentVertex, String direction) {
     if (prevVertex != null && !prevVertex.equals(currentVertex)) {
       String edgeClassName = edge.getClassName();
       if (edgeClassName.equalsIgnoreCase("E")) {
@@ -466,7 +469,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
       ODocument currentVertexDoc = currentVertex.getRecord();
       ORidBag currentBag = currentVertexDoc.field(vertexFieldName);
       if (currentBag == null) {
-        currentBag = new ORidBag();
+        currentBag = new ORidBag(db);
         currentVertexDoc.field(vertexFieldName, currentBag);
       }
       currentBag.add(edge);
@@ -718,7 +721,7 @@ public class OCommandExecutorSQLUpdate extends OCommandExecutorSQLRetryAbstract
           }
           if (prop != null && prop.getType() == OType.LINKBAG) {
             // there is no ridbag value already but property type is defined as LINKBAG
-            bag = new ORidBag();
+            bag = new ORidBag(querySession);
             bag.setOwner(record);
             record.field(entry.getKey(), bag);
           }

@@ -32,7 +32,7 @@ public class SetDocumentClassStep extends AbstractExecutionStep {
       var element = result.toElement();
       ((ODocument) element).setClassName(targetClass);
       if (!(result instanceof OResultInternal)) {
-        result = new OUpdatableResult(element);
+        result = new OUpdatableResult(ctx.getDatabase(), element);
       } else {
         ((OResultInternal) result).setIdentifiable(element);
       }

@@ -87,7 +87,7 @@ public class OrientJdbcPreparedStatement extends OrientJdbcStatement implements 
 
     if (sql.equalsIgnoreCase("select 1")) {
       // OPTIMIZATION
-      OResultInternal element = new OResultInternal();
+      OResultInternal element = new OResultInternal(database);
       element.setProperty("1", 1);
       OInternalResultSet rs = new OInternalResultSet();
       rs.add(element);

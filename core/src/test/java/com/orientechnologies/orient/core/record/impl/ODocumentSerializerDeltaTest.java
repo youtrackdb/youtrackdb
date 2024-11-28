@@ -63,7 +63,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     // test serialization/deserialization
     ODocumentSerializerDelta delta = ODocumentSerializerDelta.instance();
     byte[] bytes = delta.serializeDelta(doc);
-    delta.deserializeDelta(bytes, originalDoc);
+    delta.deserializeDelta(db, bytes, originalDoc);
     assertEquals(testValue, originalDoc.field(fieldName));
     assertNull(originalDoc.field(removeField));
     db.rollback();
@@ -107,7 +107,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     byte[] bytes = serializerDelta.serializeDelta(doc);
     // test serialization/deserialization
     originalDoc = db.bindToSession(originalDoc);
-    serializerDelta.deserializeDelta(bytes, originalDoc);
+    serializerDelta.deserializeDelta(db, bytes, originalDoc);
     nestedDoc = originalDoc.field(nestedDocField);
     assertEquals(nestedDoc.field(fieldName), testValue);
     db.rollback();
@@ -143,7 +143,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(doc);
-    serializerDelta.deserializeDelta(bytes, originalDoc);
+    serializerDelta.deserializeDelta(db, bytes, originalDoc);
 
     List<?> checkList = originalDoc.getProperty(fieldName);
     assertEquals("three", checkList.get(1));
@@ -179,7 +179,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(doc);
-    serializerDelta.deserializeDelta(bytes, originalDoc);
+    serializerDelta.deserializeDelta(db, bytes, originalDoc);
 
     Set<String> checkSet = originalDoc.field(fieldName);
     assertTrue(checkSet.contains("three"));
@@ -219,7 +219,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(doc);
-    serializerDelta.deserializeDelta(bytes, originalDoc);
+    serializerDelta.deserializeDelta(db, bytes, originalDoc);
 
     Set<Set<String>> checkSet = originalDoc.field(fieldName);
     assertTrue(checkSet.iterator().next().contains("three"));
@@ -260,7 +260,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(doc);
-    serializerDelta.deserializeDelta(bytes, originalDoc);
+    serializerDelta.deserializeDelta(db, bytes, originalDoc);
 
     List<List<String>> checkList = originalDoc.field(fieldName);
     assertEquals("three", checkList.get(0).get(1));
@@ -304,7 +304,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(doc);
-    serializerDelta.deserializeDelta(bytes, originalDoc);
+    serializerDelta.deserializeDelta(db, bytes, originalDoc);
 
     List<ODocument> checkList = originalDoc.field(fieldName);
     ODocument checkDoc = checkList.get(1);
@@ -354,7 +354,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(doc);
-    serializerDelta.deserializeDelta(bytes, originalDoc);
+    serializerDelta.deserializeDelta(db, bytes, originalDoc);
 
     List<List<ODocument>> checkList = originalDoc.field(fieldName);
     assertEquals("two", checkList.get(0).get(0).field(variableField));
@@ -397,7 +397,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(doc);
-    serializerDelta.deserializeDelta(bytes, originalDoc);
+    serializerDelta.deserializeDelta(db, bytes, originalDoc);
 
     List<List<List<String>>> checkList = originalDoc.field(fieldName);
     assertEquals("changed", checkList.get(0).get(0).get(0));
@@ -446,7 +446,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(doc);
-    serializerDelta.deserializeDelta(bytes, originalDoc);
+    serializerDelta.deserializeDelta(db, bytes, originalDoc);
 
     List<ODocument> checkList = originalDoc.field(fieldName);
     ODocument checkDoc = checkList.get(1);
@@ -482,7 +482,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(doc);
-    serializerDelta.deserializeDelta(bytes, originalDoc);
+    serializerDelta.deserializeDelta(db, bytes, originalDoc);
 
     List<String> checkList = originalDoc.field(fieldName);
     assertEquals(3, checkList.size());
@@ -527,7 +527,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(doc);
-    serializerDelta.deserializeDelta(bytes, originalDoc);
+    serializerDelta.deserializeDelta(db, bytes, originalDoc);
 
     List<List<String>> rootList = originalDoc.field(fieldName);
     List<String> checkList = rootList.get(0);
@@ -565,7 +565,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(doc);
-    serializerDelta.deserializeDelta(bytes, originalDoc);
+    serializerDelta.deserializeDelta(db, bytes, originalDoc);
 
     List<String> checkList = originalDoc.field(fieldName);
     assertEquals("three", checkList.get(0));
@@ -598,7 +598,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(doc);
-    serializerDelta.deserializeDelta(bytes, originalDoc);
+    serializerDelta.deserializeDelta(db, bytes, originalDoc);
     assertEquals(testValue, originalDoc.field(fieldName));
     db.rollback();
   }
@@ -630,7 +630,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(doc);
-    serializerDelta.deserializeDelta(bytes, originalDoc);
+    serializerDelta.deserializeDelta(db, bytes, originalDoc);
 
     assertFalse(originalDoc.hasProperty(fieldName));
     assertEquals(originalDoc.getProperty("other"), "new");
@@ -670,7 +670,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(rootDoc);
-    serializerDelta.deserializeDelta(bytes, originalDoc);
+    serializerDelta.deserializeDelta(db, bytes, originalDoc);
 
     ODocument nested = originalDoc.field(nestedFieldName);
     assertFalse(nested.hasProperty(fieldName));
@@ -713,7 +713,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(doc);
-    serializerDelta.deserializeDelta(bytes, originalDoc);
+    serializerDelta.deserializeDelta(db, bytes, originalDoc);
 
     List<OIdentifiable> checkList = originalDoc.field(fieldName);
     ODocument checkDoc = checkList.get(1).getRecord();
@@ -749,7 +749,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(doc);
-    serializerDelta.deserializeDelta(bytes, originalDoc);
+    serializerDelta.deserializeDelta(db, bytes, originalDoc);
 
     containedMap = originalDoc.field(fieldName);
     assertEquals("changed", containedMap.get("first"));
@@ -787,7 +787,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(doc);
-    serializerDelta.deserializeDelta(bytes, originalDoc);
+    serializerDelta.deserializeDelta(db, bytes, originalDoc);
 
     //noinspection unchecked
     containedMap = ((List<Map<String, String>>) originalDoc.field(fieldName)).get(0);
@@ -829,7 +829,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(doc);
-    serializerDelta.deserializeDelta(bytes, originalDoc);
+    serializerDelta.deserializeDelta(db, bytes, originalDoc);
     containedMap = originalDoc.field(fieldName);
     ODocument containedDoc = containedMap.get("first");
     assertEquals("changed", containedDoc.field("f1"));
@@ -875,7 +875,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(doc);
-    serializerDelta.deserializeDelta(bytes, originalDoc);
+    serializerDelta.deserializeDelta(db, bytes, originalDoc);
 
     containedMap = (Map<String, String>) ((List) originalDoc.field(fieldName)).get(0);
     assertEquals("changed", containedMap.get("first"));
@@ -895,7 +895,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocument second = new ODocument(claz);
     second = db.save(second);
 
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
     ridBag.add(first);
     ridBag.add(second);
     doc.field(fieldName, ridBag, OType.LINKBAG);
@@ -913,7 +913,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     second = db.bindToSession(second);
     third = db.bindToSession(third);
 
-    ridBag = new ORidBag();
+    ridBag = new ORidBag(db);
     ridBag.add(first);
     ridBag.add(second);
     ridBag.add(third);
@@ -925,7 +925,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
 
     byte[] bytes = serializerDelta.serializeDelta(doc);
     originalDoc = db.bindToSession(originalDoc);
-    serializerDelta.deserializeDelta(bytes, originalDoc);
+    serializerDelta.deserializeDelta(db, bytes, originalDoc);
 
     ORidBag mergedRidbag = originalDoc.field(fieldName);
     assertEquals(ridBag, mergedRidbag);
@@ -953,7 +953,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     second = db.bindToSession(second);
     third = db.bindToSession(third);
 
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
     ridBag.add(first);
     ridBag.add(second);
     ridBag.add(third);
@@ -969,7 +969,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
 
     ODocument originalDoc = doc.copy();
 
-    ridBag = new ORidBag();
+    ridBag = new ORidBag(db);
     ridBag.add(first);
     ridBag.add(second);
     doc.field(fieldName, ridBag, OType.LINKBAG);
@@ -978,7 +978,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(doc);
-    serializerDelta.deserializeDelta(bytes, originalDoc);
+    serializerDelta.deserializeDelta(db, bytes, originalDoc);
 
     ORidBag mergedRidbag = originalDoc.field(fieldName);
     assertEquals(ridBag, mergedRidbag);
@@ -998,7 +998,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocument second = new ODocument(claz);
     second = db.save(second);
 
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
     ridBag.add(first);
     ridBag.add(second);
     doc.field(fieldName, ridBag, OType.LINKBAG);
@@ -1024,7 +1024,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(doc);
-    serializerDelta.deserializeDelta(bytes, originalDoc);
+    serializerDelta.deserializeDelta(db, bytes, originalDoc);
 
     ORidBag mergedRidbag = originalDoc.field(fieldName);
     assertEquals(ridBag, mergedRidbag);
@@ -1046,7 +1046,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocument third = new ODocument(claz);
     third = db.save(third);
 
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
     ridBag.add(first);
     ridBag.add(second);
     ridBag.add(third);
@@ -1064,7 +1064,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(doc);
-    serializerDelta.deserializeDelta(bytes, originalDoc);
+    serializerDelta.deserializeDelta(db, bytes, originalDoc);
 
     ORidBag mergedRidbag = originalDoc.field(fieldName);
     assertEquals(ridBag, mergedRidbag);
@@ -1086,7 +1086,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocument third = new ODocument(claz);
     third = db.save(third);
 
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
     ridBag.add(first);
     ridBag.add(second);
     ridBag.add(third);
@@ -1098,7 +1098,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     doc = db.bindToSession(doc);
     ODocument originalDoc = doc.copy();
 
-    ridBag = new ORidBag();
+    ridBag = new ORidBag(db);
     ridBag.add(first);
     ridBag.add(third);
     doc.field(fieldName, ridBag, OType.LINKBAG);
@@ -1107,7 +1107,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(doc);
-    serializerDelta.deserializeDelta(bytes, originalDoc);
+    serializerDelta.deserializeDelta(db, bytes, originalDoc);
 
     ORidBag mergedRidbag = originalDoc.field(fieldName);
     assertEquals(ridBag, mergedRidbag);
@@ -1149,7 +1149,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(doc);
-    serializerDelta.deserializeDelta(bytes, originalDoc);
+    serializerDelta.deserializeDelta(db, bytes, originalDoc);
     assertTrue(((List) originalDoc.getProperty("list")).contains(null));
     assertTrue(((Set) originalDoc.getProperty("set")).contains(null));
     assertTrue(((Map) originalDoc.getProperty("map")).containsKey("nullValue"));
@@ -1197,7 +1197,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(doc);
-    serializerDelta.deserializeDelta(bytes, originalDoc);
+    serializerDelta.deserializeDelta(db, bytes, originalDoc);
     assertFalse(((List) originalDoc.getProperty("linkList")).contains(link1));
     assertTrue(((List) originalDoc.getProperty("linkList")).contains(link2));
     assertEquals(((List) originalDoc.getProperty("linkList")).get(1), link2);
@@ -1253,7 +1253,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 
     byte[] bytes = serializerDelta.serializeDelta(doc);
-    serializerDelta.deserializeDelta(bytes, originalDoc);
+    serializerDelta.deserializeDelta(db, bytes, originalDoc);
     assertNotNull(((Map) originalDoc.getProperty("mapEmbedded")).get("newDoc"));
     assertEquals(
         ((Map<String, OElement>) originalDoc.getProperty("mapEmbedded"))
@@ -1289,7 +1289,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     document.field("dateTime", new Date());
     document.field(
         "bigNumber", new BigDecimal("43989872423376487952454365232141525434.32146432321442534"));
-    ORidBag bag = new ORidBag();
+    ORidBag bag = new ORidBag(db);
     bag.add(new ORecordId(1, 1));
     bag.add(new ORecordId(2, 2));
     // document.field("ridBag", bag);
@@ -1312,7 +1312,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
     ODocument extr = new ODocument();
-    serializerDelta.deserialize(res, extr);
+    serializerDelta.deserialize(db, res, extr);
 
     c.set(Calendar.MILLISECOND, 0);
     c.set(Calendar.SECOND, 0);
@@ -1426,7 +1426,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
     ODocument extr = new ODocument();
-    serializerDelta.deserialize(res, extr);
+    serializerDelta.deserialize(db, res, extr);
 
     assertEquals(extr.fields(), document.fields());
     assertEquals(((List) extr.field("listStrings")).toArray(), document.field("listStrings"));
@@ -1519,7 +1519,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
     ODocument extr = new ODocument();
-    serializerDelta.deserialize(res, extr);
+    serializerDelta.deserialize(db, res, extr);
 
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field("listStrings"), document.field("listStrings"));
@@ -1614,7 +1614,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
     ODocument extr = new ODocument();
-    serializerDelta.deserialize(res, extr);
+    serializerDelta.deserialize(db, res, extr);
 
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field("listStrings"), document.field("listStrings"));
@@ -1646,7 +1646,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
     ODocument extr = new ODocument();
-    serializerDelta.deserialize(res, extr);
+    serializerDelta.deserialize(db, res, extr);
 
     assertEquals(extr.fields(), document.fields());
     assertEquals(
@@ -1666,7 +1666,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
     ODocument extr = new ODocument();
-    serializerDelta.deserialize(res, extr);
+    serializerDelta.deserialize(db, res, extr);
 
     assertEquals(document.fields(), extr.fields());
     ODocument emb = extr.field("embed");
@@ -1727,7 +1727,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
     ODocument extr = new ODocument();
-    serializerDelta.deserialize(res, extr);
+    serializerDelta.deserialize(db, res, extr);
 
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field("mapString"), document.field("mapString"));
@@ -1751,7 +1751,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
     ODocument extr = new ODocument();
-    serializerDelta.deserialize(res, extr);
+    serializerDelta.deserialize(db, res, extr);
 
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field("complexList"), document.field("complexList"));
@@ -1770,7 +1770,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
     ODocument extr = new ODocument();
-    serializerDelta.deserialize(res, extr);
+    serializerDelta.deserialize(db, res, extr);
 
     assertEquals(extr.fields(), document.fields());
     List<List<String>> savedValue = extr.field("complexArray");
@@ -1796,7 +1796,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
     ODocument extr = new ODocument();
-    serializerDelta.deserialize(res, extr);
+    serializerDelta.deserialize(db, res, extr);
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field("list"), document.field("list"));
   }
@@ -1815,7 +1815,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
     ODocument extr = new ODocument();
-    serializerDelta.deserialize(res, extr);
+    serializerDelta.deserialize(db, res, extr);
 
     Map<String, ODocument> mapS = extr.field("map");
     assertEquals(1, mapS.size());
@@ -1837,7 +1837,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
     ODocument extr = new ODocument();
-    serializerDelta.deserialize(res, extr);
+    serializerDelta.deserialize(db, res, extr);
 
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field("map"), document.field("map"));
@@ -1850,7 +1850,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
     ODocument extr = new ODocument();
-    serializerDelta.deserialize(res, extr);
+    serializerDelta.deserialize(db, res, extr);
 
     //      assertEquals(extr.getClassName(), document.getClassName());
     assertEquals(extr.fields(), document.fields());
@@ -1869,7 +1869,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
     ODocument extr = new ODocument();
-    serializerDelta.deserialize(res, extr);
+    serializerDelta.deserialize(db, res, extr);
 
     assertEquals(extr.getClassName(), document.getClassName());
     assertEquals(extr.fields(), document.fields());
@@ -1887,7 +1887,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
     ODocument extr = new ODocument();
-    serializerDelta.deserialize(res, extr);
+    serializerDelta.deserialize(db, res, extr);
 
     assertEquals(extr.getClassName(), document.getClassName());
     assertEquals(extr.fields(), document.fields());
@@ -2013,7 +2013,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
     ODocument extr = new ODocument();
-    serializerDelta.deserialize(res, extr);
+    serializerDelta.deserialize(db, res, extr);
 
     List<ODocument> ser = extr.field("embeddedList");
     assertEquals(ser.size(), 4);
@@ -2058,7 +2058,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
     ODocument extr = new ODocument();
-    serializerDelta.deserialize(res, extr);
+    serializerDelta.deserialize(db, res, extr);
 
     assertNotNull(extr.field("seri"));
     assertEquals(extr.fieldType("seri"), OType.CUSTOM);
@@ -2075,7 +2075,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
     ODocument extr = new ODocument();
-    serializerDelta.deserialize(res, extr);
+    serializerDelta.deserialize(db, res, extr);
 
     final String[] fields = extr.fieldNames();
 
@@ -2098,7 +2098,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
     ODocument extr = new ODocument();
-    serializerDelta.deserialize(res, extr);
+    serializerDelta.deserialize(db, res, extr);
 
     assertEquals(document.field("name"), extr.<Object>field("name"));
     assertEquals(document.<Object>field("age"), extr.field("age"));
@@ -2124,7 +2124,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
     byte[] res = serializerDelta.serialize(document);
     ODocument extr = new ODocument();
-    serializerDelta.deserialize(res, extr);
+    serializerDelta.deserialize(db, res, extr);
 
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field("list"), document.field("list"));

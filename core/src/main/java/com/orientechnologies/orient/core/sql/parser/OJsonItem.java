@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.Map;
@@ -124,11 +125,11 @@ public class OJsonItem {
     return result;
   }
 
-  public OResult serialize() {
-    OResultInternal result = new OResultInternal();
-    result.setProperty("leftIdentifier", leftIdentifier.serialize());
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
+    result.setProperty("leftIdentifier", leftIdentifier.serialize(db));
     result.setProperty("leftString", leftString);
-    result.setProperty("right", right.serialize());
+    result.setProperty("right", right.serialize(db));
     return result;
   }
 

@@ -49,7 +49,8 @@ public class MatchReverseEdgeTraverser extends MatchEdgeTraverser {
       return OExecutionStream.singleton((OResultInternal) qR);
     }
     if (qR instanceof OIdentifiable) {
-      return OExecutionStream.singleton(new OResultInternal((OIdentifiable) qR));
+      return OExecutionStream.singleton(
+          new OResultInternal(iCommandContext.getDatabase(), (OIdentifiable) qR));
     }
     if (qR instanceof Iterable iterable) {
       return OExecutionStream.iterator(iterable.iterator());

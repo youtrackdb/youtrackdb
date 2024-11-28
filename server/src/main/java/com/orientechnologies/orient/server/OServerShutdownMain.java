@@ -88,7 +88,7 @@ public class OServerShutdownMain {
     request.write(null, channel, null);
     channel.flush();
 
-    channel.beginResponse(0, true);
+    channel.beginResponse(null, 0, true);
   }
 
   public static void main(final String[] iArgs) {

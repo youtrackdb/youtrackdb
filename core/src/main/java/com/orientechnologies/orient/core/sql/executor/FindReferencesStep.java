@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OMap;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
@@ -47,6 +48,7 @@ public class FindReferencesStep extends AbstractExecutionStep {
 
   @Override
   public OExecutionStream internalStart(OCommandContext ctx) throws OTimeoutException {
+    var db = ctx.getDatabase();
     Set<ORID> rids = fetchRidsToFind(ctx);
     List<ORecordIteratorCluster<ORecord>> clustersIterators = initClusterIterators(ctx);
     Stream<OResult> stream =
@@ -55,18 +57,19 @@ public class FindReferencesStep extends AbstractExecutionStep {
                 (iterator) -> {
                   return StreamSupport.stream(
                           Spliterators.spliteratorUnknownSize(iterator, 0), false)
-                      .flatMap((record) -> findMatching(rids, record));
+                      .flatMap((record) -> findMatching(db, rids, record));
                 });
     return OExecutionStream.resultIterator(stream.iterator());
   }
 
-  private static Stream<? extends OResult> findMatching(Set<ORID> rids, ORecord record) {
-    OResultInternal rec = new OResultInternal(record);
+  private static Stream<? extends OResult> findMatching(ODatabaseSessionInternal db, Set<ORID> rids,
+      ORecord record) {
+    OResultInternal rec = new OResultInternal(db, record);
     List<OResult> results = new ArrayList<>();
     for (ORID rid : rids) {
       List<String> resultForRecord = checkObject(Collections.singleton(rid), rec, record, "");
       if (!resultForRecord.isEmpty()) {
-        OResultInternal nextResult = new OResultInternal();
+        OResultInternal nextResult = new OResultInternal(db);
         nextResult.setProperty("rid", rid);
         nextResult.setProperty("referredBy", rec);
         nextResult.setProperty("fields", resultForRecord);

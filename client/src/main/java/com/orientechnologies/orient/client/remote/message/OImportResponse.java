@@ -32,7 +32,8 @@ public class OImportResponse implements OBinaryResponse {
   }
 
   @Override
-  public void read(OChannelDataInput network, OStorageRemoteSession session) throws IOException {
+  public void read(ODatabaseSessionInternal db, OChannelDataInput network,
+      OStorageRemoteSession session) throws IOException {
     String message;
     while ((message = network.readString()) != null) {
       messages.add(message);

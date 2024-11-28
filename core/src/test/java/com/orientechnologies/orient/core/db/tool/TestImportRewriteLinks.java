@@ -5,6 +5,7 @@ import static com.orientechnologies.orient.core.db.tool.ODatabaseImport.EXPORT_I
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
@@ -100,7 +101,8 @@ public class TestImportRewriteLinks {
         emb1.field("linkSet", linkSet);
         emb1.field("linkMap", linkMap);
 
-        ODatabaseImport.doRewriteLinksInDocument(session, doc, brokenRids);
+        ODatabaseImport.doRewriteLinksInDocument((ODatabaseSessionInternal) session, doc,
+            brokenRids);
 
         Assert.assertEquals(new ORecordId(10, 3), emb1.getLinkProperty("link"));
         Assert.assertEquals(new ORecordId(-1, -42), emb1.getLinkProperty("negativeLink"));

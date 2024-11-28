@@ -56,7 +56,7 @@ public class GetValueFromIndexEntryStep extends AbstractExecutionStep {
       }
     }
     if (finalVal instanceof OIdentifiable) {
-      return new OResultInternal((OIdentifiable) finalVal);
+      return new OResultInternal(ctx.getDatabase(), (OIdentifiable) finalVal);
 
     } else if (finalVal instanceof OResult) {
       return (OResult) finalVal;

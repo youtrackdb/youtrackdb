@@ -12,6 +12,7 @@ import org.junit.Test;
  *
  */
 public class OQueryRequestTest extends BaseMemoryDatabase {
+
   @Test
   public void testWithPositionalParams() throws IOException {
     Object[] params = new Object[]{1, "Foo"};
@@ -28,12 +29,13 @@ public class OQueryRequestTest extends BaseMemoryDatabase {
     channel.close();
 
     OQueryRequest other = new OQueryRequest();
-    other.read(channel, -1, ORecordSerializerNetworkFactory.INSTANCE.current());
+    other.read(db, channel, -1, ORecordSerializerNetworkFactory.INSTANCE.current());
 
     Assert.assertEquals(request.getCommand(), other.getCommand());
 
     Assert.assertFalse(other.isNamedParams());
-    Assert.assertArrayEquals(request.getPositionalParameters(), other.getPositionalParameters());
+    Assert.assertArrayEquals(request.getPositionalParameters(db),
+        other.getPositionalParameters(db));
 
     Assert.assertEquals(request.getOperationType(), other.getOperationType());
     Assert.assertEquals(request.getRecordsPerPage(), other.getRecordsPerPage());
@@ -58,11 +60,11 @@ public class OQueryRequestTest extends BaseMemoryDatabase {
     channel.close();
 
     OQueryRequest other = new OQueryRequest();
-    other.read(channel, -1, ORecordSerializerNetworkFactory.INSTANCE.current());
+    other.read(db, channel, -1, ORecordSerializerNetworkFactory.INSTANCE.current());
 
     Assert.assertEquals(request.getCommand(), other.getCommand());
     Assert.assertTrue(other.isNamedParams());
-    Assert.assertEquals(request.getNamedParameters(), other.getNamedParameters());
+    Assert.assertEquals(request.getNamedParameters(db), other.getNamedParameters(db));
     Assert.assertEquals(request.getOperationType(), other.getOperationType());
     Assert.assertEquals(request.getRecordsPerPage(), other.getRecordsPerPage());
   }
@@ -84,11 +86,11 @@ public class OQueryRequestTest extends BaseMemoryDatabase {
     channel.close();
 
     OQueryRequest other = new OQueryRequest();
-    other.read(channel, -1, ORecordSerializerNetworkFactory.INSTANCE.current());
+    other.read(db, channel, -1, ORecordSerializerNetworkFactory.INSTANCE.current());
 
     Assert.assertEquals(request.getCommand(), other.getCommand());
     Assert.assertTrue(other.isNamedParams());
-    Assert.assertEquals(request.getNamedParameters(), other.getNamedParameters());
+    Assert.assertEquals(request.getNamedParameters(db), other.getNamedParameters(db));
     Assert.assertEquals(request.getOperationType(), other.getOperationType());
     Assert.assertEquals(request.getRecordsPerPage(), other.getRecordsPerPage());
   }

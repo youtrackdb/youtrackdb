@@ -46,45 +46,45 @@ public class OAlterSecurityPolicyStatement extends OSimpleExecStatement {
     }
 
     if (create != null) {
-      policy.setCreateRule(create.toString());
+      policy.setCreateRule(db, create.toString());
     }
     if (read != null) {
-      policy.setReadRule(read.toString());
+      policy.setReadRule(db, read.toString());
     }
     if (beforeUpdate != null) {
-      policy.setBeforeUpdateRule(beforeUpdate.toString());
+      policy.setBeforeUpdateRule(db, beforeUpdate.toString());
     }
     if (afterUpdate != null) {
-      policy.setAfterUpdateRule(afterUpdate.toString());
+      policy.setAfterUpdateRule(db, afterUpdate.toString());
     }
     if (delete != null) {
-      policy.setDeleteRule(delete.toString());
+      policy.setDeleteRule(db, delete.toString());
     }
     if (execute != null) {
-      policy.setExecuteRule(execute.toString());
+      policy.setExecuteRule(db, execute.toString());
     }
 
     if (removeCreate) {
-      policy.setCreateRule(null);
+      policy.setCreateRule(db, null);
     }
     if (removeRead) {
-      policy.setReadRule(null);
+      policy.setReadRule(db, null);
     }
     if (removeBeforeUpdate) {
-      policy.setBeforeUpdateRule(null);
+      policy.setBeforeUpdateRule(db, null);
     }
     if (removeAfterUpdate) {
-      policy.setAfterUpdateRule(null);
+      policy.setAfterUpdateRule(db, null);
     }
     if (removeDelete) {
-      policy.setDeleteRule(null);
+      policy.setDeleteRule(db, null);
     }
     if (removeExecute) {
-      policy.setExecuteRule(null);
+      policy.setExecuteRule(db, null);
     }
     security.saveSecurityPolicy(db, policy);
 
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("operation", "alter security policy");
     result.setProperty("name", name.getStringValue());
     return OExecutionStream.singleton(result);

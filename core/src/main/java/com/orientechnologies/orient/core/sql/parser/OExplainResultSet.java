@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.sql.parser;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseStats;
 import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -17,10 +18,14 @@ public class OExplainResultSet implements OResultSet {
   private final OExecutionPlan executionPlan;
   private final ODatabaseStats dbStats;
   boolean hasNext = true;
+  private final ODatabaseSessionInternal db;
 
-  public OExplainResultSet(OExecutionPlan executionPlan, ODatabaseStats dbStats) {
+  public OExplainResultSet(ODatabaseSessionInternal db, OExecutionPlan executionPlan,
+      ODatabaseStats dbStats) {
     this.executionPlan = executionPlan;
     this.dbStats = dbStats;
+    this.db = db;
+    assert db == null || db.assertIfNotActive();
   }
 
   @Override
@@ -33,11 +38,13 @@ public class OExplainResultSet implements OResultSet {
     if (!hasNext) {
       throw new IllegalStateException();
     }
-    OResultInternal result = new OResultInternal();
-    getExecutionPlan().ifPresent(x -> result.setProperty("executionPlan", x.toResult()));
+
+    OResultInternal result = new OResultInternal(db);
+    getExecutionPlan().ifPresent(x -> result.setProperty("executionPlan", x.toResult(db)));
     getExecutionPlan()
         .ifPresent(x -> result.setProperty("executionPlanAsString", x.prettyPrint(0, 3)));
-    getExecutionPlan().ifPresent(x -> result.setProperty("dbStats", dbStats.toResult()));
+    getExecutionPlan().ifPresent(x -> result.setProperty("dbStats", dbStats.toResult(db)));
+
     hasNext = false;
     return result;
   }

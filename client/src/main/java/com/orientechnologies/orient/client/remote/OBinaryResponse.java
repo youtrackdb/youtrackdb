@@ -15,5 +15,6 @@ public interface OBinaryResponse {
       ORecordSerializer serializer)
       throws IOException;
 
-  void read(final OChannelDataInput network, OStorageRemoteSession session) throws IOException;
+  void read(ODatabaseSessionInternal db, final OChannelDataInput network,
+      OStorageRemoteSession session) throws IOException;
 }

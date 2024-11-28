@@ -35,7 +35,8 @@ public class WhileStep extends AbstractExecutionStep {
       prev.start(ctx).close(ctx);
     }
 
-    while (condition.evaluate(new OResultInternal(), ctx)) {
+    var db = ctx.getDatabase();
+    while (condition.evaluate(new OResultInternal(db), ctx)) {
       if (OExecutionThreadLocal.isInterruptCurrentOperation()) {
         throw new OCommandInterruptedException("The command has been interrupted");
       }

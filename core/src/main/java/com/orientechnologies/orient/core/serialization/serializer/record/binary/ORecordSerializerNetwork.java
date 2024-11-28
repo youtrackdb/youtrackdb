@@ -61,7 +61,8 @@ public class ORecordSerializerNetwork implements ORecordSerializer {
 
   @Override
   public ORecordAbstract fromStream(
-      final byte[] iSource, ORecordAbstract iRecord, final String[] iFields) {
+      ODatabaseSessionInternal db, final byte[] iSource, ORecordAbstract iRecord,
+      final String[] iFields) {
     if (iSource == null || iSource.length == 0) {
       return iRecord;
     }
@@ -80,9 +81,10 @@ public class ORecordSerializerNetwork implements ORecordSerializer {
 
     try {
       if (iFields != null && iFields.length > 0) {
-        serializerByVersion[iSource[0]].deserializePartial((ODocument) iRecord, container, iFields);
+        serializerByVersion[iSource[0]].deserializePartial(db, (ODocument) iRecord, container,
+            iFields);
       } else {
-        serializerByVersion[iSource[0]].deserialize((ODocument) iRecord, container);
+        serializerByVersion[iSource[0]].deserialize(db, (ODocument) iRecord, container);
       }
     } catch (RuntimeException e) {
       OLogManager.instance()
@@ -126,9 +128,9 @@ public class ORecordSerializerNetwork implements ORecordSerializer {
     return bytes.fitBytes();
   }
 
-  public Object deserializeValue(byte[] val, OType type) {
+  public Object deserializeValue(ODatabaseSessionInternal db, byte[] val, OType type) {
     BytesContainer bytes = new BytesContainer(val);
-    return serializerByVersion[0].deserializeValue(bytes, type, null);
+    return serializerByVersion[0].deserializeValue(db, bytes, type, null);
   }
 
   @Override
@@ -142,7 +144,7 @@ public class ORecordSerializerNetwork implements ORecordSerializer {
   }
 
   @Override
-  public String[] getFieldNames(ODocument reference, byte[] iSource) {
+  public String[] getFieldNames(ODatabaseSessionInternal db, ODocument reference, byte[] iSource) {
     if (iSource == null || iSource.length == 0) {
       return new String[0];
     }

@@ -29,8 +29,9 @@ public class CopyRecordContentBeforeUpdateStep extends AbstractExecutionStep {
   }
 
   private OResult mapResult(OResult result, OCommandContext ctx) {
+    var db = ctx.getDatabase();
     if (result instanceof OUpdatableResult) {
-      OResultInternal prevValue = new OResultInternal();
+      OResultInternal prevValue = new OResultInternal(db);
       var rec = result.toElement();
       prevValue.setProperty("@rid", rec.getIdentity());
       prevValue.setProperty("@version", rec.getVersion());

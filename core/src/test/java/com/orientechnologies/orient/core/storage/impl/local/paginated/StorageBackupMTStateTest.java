@@ -330,7 +330,7 @@ public class StorageBackupMTStateTest {
         linkedClassCounter = classInstancesCounters.get(linkedClassName);
       } while (linkedClassCounter == null);
 
-      ORidBag linkedDocuments = new ORidBag();
+      ORidBag linkedDocuments = new ORidBag(db);
 
       long linkedClassCount = db.countClass(linkedClassName);
       long tCount = 0;

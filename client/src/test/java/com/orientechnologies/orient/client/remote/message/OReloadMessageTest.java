@@ -42,7 +42,7 @@ public class OReloadMessageTest {
         OChannelBinaryProtocol.CURRENT_PROTOCOL_VERSION, null);
     channel.close();
     OReloadResponse37 responseRead = new OReloadResponse37();
-    responseRead.read(channel, null);
+    responseRead.read((ODatabaseSessionInternal) session, channel, null);
     OStorageConfigurationPayload payload = responseRead.getPayload();
     assertEquals(configuration.getProperties().size(), payload.getProperties().size());
     for (int i = 0; i < configuration.getProperties().size(); i++) {

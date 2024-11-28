@@ -4,6 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -164,16 +165,16 @@ public class ORid extends SimpleNode {
     return position;
   }
 
-  public OResult serialize() {
-    OResultInternal result = new OResultInternal();
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
     if (cluster != null) {
-      result.setProperty("cluster", cluster.serialize());
+      result.setProperty("cluster", cluster.serialize(db));
     }
     if (position != null) {
-      result.setProperty("position", position.serialize());
+      result.setProperty("position", position.serialize(db));
     }
     if (expression != null) {
-      result.setProperty("expression", expression.serialize());
+      result.setProperty("expression", expression.serialize(db));
     }
     result.setProperty("legacy", legacy);
     return result;

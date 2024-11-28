@@ -4,6 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -311,13 +312,13 @@ public class OBaseIdentifier extends SimpleNode {
     }
   }
 
-  public OResult serialize() {
-    OResultInternal result = new OResultInternal();
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
     if (levelZero != null) {
-      result.setProperty("levelZero", levelZero.serialize());
+      result.setProperty("levelZero", levelZero.serialize(db));
     }
     if (suffix != null) {
-      result.setProperty("suffix", suffix.serialize());
+      result.setProperty("suffix", suffix.serialize(db));
     }
     return result;
   }

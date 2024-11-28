@@ -15,8 +15,6 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseSessionAbstract;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
@@ -728,21 +726,20 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
   public void testSerialization() {
     ORecordSerializer current = ODatabaseSessionAbstract.getDefaultSerializer();
     ODatabaseSessionAbstract.setDefaultSerializer(ORecordSerializerSchemaAware2CSV.INSTANCE);
-    ODatabaseSessionInternal oldDb = ODatabaseRecordThreadLocal.instance().get();
-    ORecordSerializer dbser = oldDb.getSerializer();
-    oldDb.setSerializer(ORecordSerializerSchemaAware2CSV.INSTANCE);
+    ORecordSerializer dbser = database.getSerializer();
+    database.setSerializer(ORecordSerializerSchemaAware2CSV.INSTANCE);
     final byte[] streamOrigin =
         "Account@html:{\"path\":\"html/layout\"},config:{\"title\":\"Github Admin\",\"modules\":(githubDisplay:\"github_display\")},complex:(simple1:\"string1\",one_level1:(simple2:\"string2\"),two_levels:(simple3:\"string3\",one_level2:(simple4:\"string4\")))"
             .getBytes();
     ODocument doc =
         (ODocument)
-            ORecordSerializerSchemaAware2CSV.INSTANCE.fromStream(
+            ORecordSerializerSchemaAware2CSV.INSTANCE.fromStream(database,
                 streamOrigin, new ODocument(), null);
     doc.field("out");
     final byte[] streamDest = ORecordSerializerSchemaAware2CSV.INSTANCE.toStream(database, doc);
     Assert.assertEquals(streamOrigin, streamDest);
     ODatabaseSessionAbstract.setDefaultSerializer(current);
-    oldDb.setSerializer(dbser);
+    database.setSerializer(dbser);
   }
 
   @Test(dependsOnMethods = "readAndBrowseDescendingAndCheckHoleUtilization")

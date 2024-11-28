@@ -626,6 +626,7 @@ public class OSBTreeRidBag implements ORidBagDelegate {
 
   @Override
   public Object returnOriginalState(
+      ODatabaseSessionInternal session,
       List<OMultiValueChangeEvent<OIdentifiable, OIdentifiable>> multiValueChangeEvents) {
     final OSBTreeRidBag reverted = new OSBTreeRidBag();
     for (OIdentifiable identifiable : this) {

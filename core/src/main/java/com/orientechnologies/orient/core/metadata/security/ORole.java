@@ -102,7 +102,8 @@ public class ORole extends OIdentity implements OSecurityRole {
         iParent != null ? iParent.getIdentity(session) : null);
     if (policies != null) {
       Map<String, OIdentifiable> p = new HashMap<>();
-      policies.forEach((k, v) -> p.put(k, ((OSecurityPolicyImpl) v).getElement()));
+      policies.forEach((k, v) -> p.put(k,
+          ((OSecurityPolicyImpl) v).getElement((ODatabaseSessionInternal) session)));
       getDocument(session).setProperty("policies", p);
     }
 

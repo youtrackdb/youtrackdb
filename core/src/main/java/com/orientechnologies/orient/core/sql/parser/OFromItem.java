@@ -2,6 +2,7 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.orientechnologies.orient.core.sql.parser;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.ArrayList;
@@ -331,42 +332,42 @@ public class OFromItem extends SimpleNode {
     this.inputParams = inputParams;
   }
 
-  public OResult serialize() {
-    OResultInternal result = new OResultInternal();
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
     if (rids != null) {
       result.setProperty(
-          "rids", rids.stream().map(x -> x.serialize()).collect(Collectors.toList()));
+          "rids", rids.stream().map(x -> x.serialize(db)).collect(Collectors.toList()));
     }
     if (inputParams != null) {
       result.setProperty(
-          "inputParams", rids.stream().map(x -> x.serialize()).collect(Collectors.toList()));
+          "inputParams", rids.stream().map(x -> x.serialize(db)).collect(Collectors.toList()));
     }
     if (cluster != null) {
-      result.setProperty("cluster", cluster.serialize());
+      result.setProperty("cluster", cluster.serialize(db));
     }
     if (clusterList != null) {
-      result.setProperty("clusterList", clusterList.serialize());
+      result.setProperty("clusterList", clusterList.serialize(db));
     }
     if (index != null) {
-      result.setProperty("index", index.serialize());
+      result.setProperty("index", index.serialize(db));
     }
     if (metadata != null) {
-      result.setProperty("metadata", metadata.serialize());
+      result.setProperty("metadata", metadata.serialize(db));
     }
     if (statement != null) {
-      result.setProperty("statement", statement.serialize());
+      result.setProperty("statement", statement.serialize(db));
     }
     if (inputParam != null) {
-      result.setProperty("inputParam", inputParam.serialize());
+      result.setProperty("inputParam", inputParam.serialize(db));
     }
     if (identifier != null) {
-      result.setProperty("identifier", identifier.serialize());
+      result.setProperty("identifier", identifier.serialize(db));
     }
     if (functionCall != null) {
-      result.setProperty("functionCall", functionCall.serialize());
+      result.setProperty("functionCall", functionCall.serialize(db));
     }
     if (modifier != null) {
-      result.setProperty("modifier", modifier.serialize());
+      result.setProperty("modifier", modifier.serialize(db));
     }
 
     return result;

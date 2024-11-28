@@ -37,7 +37,7 @@ public class CopyDocumentStep extends AbstractExecutionStep {
     } else {
       resultDoc = (ODocument) result.toElement();
     }
-    return new OUpdatableResult(resultDoc);
+    return new OUpdatableResult(ctx.getDatabase(), resultDoc);
   }
 
   @Override

@@ -76,7 +76,7 @@ public class OBonsaiTreeRepair {
 
           if (inVertex.field(inVertexName) instanceof ORidBag) {
             if (inVertexes.add(inVertex.getIdentity())) {
-              inVertex.field(inVertexName, new ORidBag());
+              inVertex.field(inVertexName, new ORidBag((ODatabaseSessionInternal) db));
             }
 
             final ORidBag inRidBag = inVertex.field(inVertexName);
@@ -87,7 +87,7 @@ public class OBonsaiTreeRepair {
 
           if (outVertex.field(outVertexName) instanceof ORidBag) {
             if (outVertexes.add(outVertex.getIdentity())) {
-              outVertex.field(outVertexName, new ORidBag());
+              outVertex.field(outVertexName, new ORidBag((ODatabaseSessionInternal) db));
             }
 
             final ORidBag outRidBag = outVertex.field(outVertexName);

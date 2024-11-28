@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.OElement;
@@ -51,11 +52,13 @@ public class MatchEdgeTraverser {
     if (prevValue != null && !equals(prevValue, nextElement)) {
       return null;
     }
-    OResultInternal result = new OResultInternal();
+
+    var db = ctx.getDatabase();
+    OResultInternal result = new OResultInternal(db);
     for (String prop : sourceRecord.getPropertyNames()) {
       result.setProperty(prop, sourceRecord.getProperty(prop));
     }
-    result.setProperty(endPointAlias, toResult(nextElement));
+    result.setProperty(endPointAlias, toResult(db, nextElement));
     if (edge.edge.item.getFilter().getDepthAlias() != null) {
       result.setProperty(edge.edge.item.getFilter().getDepthAlias(), nextR.getMetadata("$depth"));
     }
@@ -76,8 +79,8 @@ public class MatchEdgeTraverser {
     return prevValue != null && prevValue.equals(nextElement);
   }
 
-  protected Object toResult(OIdentifiable nextElement) {
-    return new OResultInternal(nextElement);
+  protected static Object toResult(ODatabaseSessionInternal db, OIdentifiable nextElement) {
+    return new OResultInternal(db, nextElement);
   }
 
   protected String getStartingPointAlias() {
@@ -151,7 +154,7 @@ public class MatchEdgeTraverser {
           && matchesClass(iCommandContext, className, startingPoint)
           && matchesCluster(iCommandContext, clusterId, startingPoint)
           && matchesRid(iCommandContext, targetRid, startingPoint)) {
-        OResultInternal rs = new OResultInternal(startingPoint);
+        OResultInternal rs = new OResultInternal(iCommandContext.getDatabase(), startingPoint);
         // set traversal depth in the metadata
         rs.setMetadata("$depth", depth);
         // set traversal path in the metadata
@@ -314,7 +317,8 @@ public class MatchEdgeTraverser {
       return OExecutionStream.empty();
     }
     if (qR instanceof OIdentifiable) {
-      return OExecutionStream.singleton(new OResultInternal((OIdentifiable) qR));
+      return OExecutionStream.singleton(new OResultInternal(
+          iCommandContext.getDatabase(), (OIdentifiable) qR));
     }
     if (qR instanceof Iterable) {
       return OExecutionStream.iterator(((Iterable) qR).iterator());

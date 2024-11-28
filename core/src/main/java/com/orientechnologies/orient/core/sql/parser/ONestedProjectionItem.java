@@ -3,6 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.Map;
@@ -158,19 +159,19 @@ public class ONestedProjectionItem extends SimpleNode {
     return expansion.apply(expression, value, ctx);
   }
 
-  public OResult serialize() {
-    OResultInternal result = new OResultInternal();
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("exclude", exclude);
     result.setProperty("star", star);
     if (expression != null) {
-      result.setProperty("expression", expression.serialize());
+      result.setProperty("expression", expression.serialize(db));
     }
     result.setProperty("rightWildcard", rightWildcard);
     if (expansion != null) {
-      result.setProperty("expansion", expansion.serialize());
+      result.setProperty("expansion", expansion.serialize(db));
     }
     if (alias != null) {
-      result.setProperty("alias", alias.serialize());
+      result.setProperty("alias", alias.serialize(db));
     }
     return result;
   }

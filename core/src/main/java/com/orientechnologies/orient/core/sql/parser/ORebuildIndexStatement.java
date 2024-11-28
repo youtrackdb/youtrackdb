@@ -26,10 +26,10 @@ public class ORebuildIndexStatement extends OSimpleExecStatement {
 
   @Override
   public OExecutionStream executeSimple(OCommandContext ctx) {
-    OResultInternal result = new OResultInternal();
+    final ODatabaseSessionInternal database = ctx.getDatabase();
+    OResultInternal result = new OResultInternal(database);
     result.setProperty("operation", "rebuild index");
 
-    final ODatabaseSessionInternal database = ctx.getDatabase();
     if (all) {
       long totalIndexed = 0;
       for (OIndex idx : database.getMetadata().getIndexManagerInternal().getIndexes(database)) {

@@ -40,11 +40,13 @@ public interface ODocumentSerializer {
       OImmutableSchema schema,
       OPropertyEncryption encryption);
 
-  void deserialize(ODocument document, BytesContainer bytes);
+  void deserialize(ODatabaseSessionInternal db, ODocument document, BytesContainer bytes);
 
-  void deserializePartial(ODocument document, BytesContainer bytes, String[] iFields);
+  void deserializePartial(ODatabaseSessionInternal db, ODocument document, BytesContainer bytes,
+      String[] iFields);
 
-  Object deserializeValue(BytesContainer bytes, OType type, ORecordElement owner);
+  Object deserializeValue(ODatabaseSessionInternal session, BytesContainer bytes, OType type,
+      ORecordElement owner);
 
   OBinaryField deserializeField(
       BytesContainer bytes,
@@ -67,15 +69,14 @@ public interface ODocumentSerializer {
   boolean isSerializingClassNameByDefault();
 
   <RET> RET deserializeFieldTyped(
-      BytesContainer record,
+      ODatabaseSessionInternal session, BytesContainer record,
       String iFieldName,
       boolean isEmbedded,
       OImmutableSchema schema,
       OPropertyEncryption encryption);
 
   void deserializeDebug(
-      BytesContainer bytes,
-      ODatabaseSessionInternal db,
+      ODatabaseSessionInternal db, BytesContainer bytes,
       ORecordSerializationDebug debugInfo,
       OImmutableSchema schema);
 }

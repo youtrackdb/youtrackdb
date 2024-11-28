@@ -129,7 +129,8 @@ public class OFetchTransaction38Response implements OBinaryResponse {
   }
 
   @Override
-  public void read(OChannelDataInput network, OStorageRemoteSession session) throws IOException {
+  public void read(ODatabaseSessionInternal db, OChannelDataInput network,
+      OStorageRemoteSession session) throws IOException {
     ORecordSerializerNetworkV37Client serializer = ORecordSerializerNetworkV37Client.INSTANCE;
     txId = network.readInt();
     operations = new ArrayList<>();
@@ -143,7 +144,7 @@ public class OFetchTransaction38Response implements OBinaryResponse {
     } while (hasEntry == 1);
 
     // RECEIVE MANUAL INDEX CHANGES
-    this.indexChanges = OMessageHelper.readTransactionIndexChanges(network, serializer);
+    this.indexChanges = OMessageHelper.readTransactionIndexChanges(db, network, serializer);
   }
 
   static ORecordOperation38Response readTransactionEntry(

@@ -22,7 +22,8 @@ public class OServerInfoRequest implements OBinaryRequest<OServerInfoResponse> {
   }
 
   @Override
-  public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
+  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+      ORecordSerializer serializer)
       throws IOException {
   }
 

@@ -24,6 +24,7 @@ public class ConvertToUpdatableResultStepTest extends TestUtilsFixture {
   @Test
   public void shouldConvertUpdatableResult() {
     OCommandContext context = new OBasicCommandContext();
+    context.setDatabase(db);
     ConvertToUpdatableResultStep step = new ConvertToUpdatableResultStep(context, false);
     AbstractExecutionStep previous =
         new AbstractExecutionStep(context, false) {
@@ -38,7 +39,7 @@ public class ConvertToUpdatableResultStepTest extends TestUtilsFixture {
                 document.setProperty(STRING_PROPERTY, RandomStringUtils.randomAlphanumeric(10));
                 document.setProperty(INTEGER_PROPERTY, new Random().nextInt());
                 documents.add(document);
-                result.add(new OResultInternal(document));
+                result.add(new OResultInternal(ctx.getDatabase(), document));
               }
               done = true;
             }

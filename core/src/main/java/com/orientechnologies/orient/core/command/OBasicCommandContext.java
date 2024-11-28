@@ -34,7 +34,6 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
-import javax.annotation.Nonnull;
 
 /**
  * Basic implementation of OCommandContext interface that stores variables in a map. Supports
@@ -447,9 +446,9 @@ public class OBasicCommandContext implements OCommandContext {
     return this.uniqueResult.add(toAdd);
   }
 
-  public @Nonnull ODatabaseSessionInternal getDatabase() {
+  public ODatabaseSessionInternal getDatabase() {
     if (database != null) {
-      assert database.validateIfActive() : "Current SQL session is not active on given thread";
+      assert database.assertIfNotActive();
       return database;
     }
 
@@ -457,11 +456,11 @@ public class OBasicCommandContext implements OCommandContext {
       database = parent.getDatabase();
     }
 
-    if (database == null) {
-      throw new ODatabaseException("No database found in current SQL execution context");
+    if (database == null && !(this instanceof OServerCommandContext)) {
+      throw new ODatabaseException("No database found in SQL context");
     }
 
-    assert database.validateIfActive() : "Current SQL session is not active on given thread";
+    assert database == null || database.assertIfNotActive();
     return database;
   }
 

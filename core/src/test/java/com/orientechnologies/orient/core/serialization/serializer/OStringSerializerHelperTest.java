@@ -10,13 +10,14 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.common.io.OIOUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.junit.Test;
 
-public class OStringSerializerHelperTest {
+public class OStringSerializerHelperTest extends BaseMemoryDatabase {
 
   @Test
   public void test() {
@@ -90,13 +91,13 @@ public class OStringSerializerHelperTest {
   @Test
   public void testGetMap() {
     String testText = "";
-    Map<String, String> map = OStringSerializerHelper.getMap(testText);
+    Map<String, String> map = OStringSerializerHelper.getMap(db, testText);
     assertNotNull(map);
     assertTrue(map.isEmpty());
 
     testText = "{ param1 :value1, param2 :value2}";
     // testText = "{\"param1\":\"value1\",\"param2\":\"value2\"}";
-    map = OStringSerializerHelper.getMap(testText);
+    map = OStringSerializerHelper.getMap(db, testText);
     assertNotNull(map);
     assertFalse(map.isEmpty());
     System.out.println(map);

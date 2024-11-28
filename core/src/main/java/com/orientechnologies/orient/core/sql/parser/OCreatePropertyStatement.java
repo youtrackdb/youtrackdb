@@ -45,7 +45,7 @@ public class OCreatePropertyStatement extends ODDLStatement {
 
   @Override
   public OExecutionStream executeDDL(OCommandContext ctx) {
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(ctx.getDatabase());
     result.setProperty("operation", "create property");
     result.setProperty("className", className.getStringValue());
     result.setProperty("propertyName", propertyName.getStringValue());

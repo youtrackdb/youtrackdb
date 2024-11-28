@@ -263,7 +263,8 @@ public class PostponedEngineStartTest {
 
         @Override
         public void open(
-            String iUserName, String iUserPassword, OContextConfiguration contextConfiguration) {
+            ODatabaseSessionInternal remote, String iUserName, String iUserPassword,
+            OContextConfiguration contextConfiguration) {
         }
 
         @Override
@@ -284,15 +285,15 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public void close() {
+        public void close(ODatabaseSessionInternal session) {
         }
 
         @Override
-        public void close(boolean iForce) {
+        public void close(ODatabaseSessionInternal database, boolean iForce) {
         }
 
         @Override
-        public boolean isClosed() {
+        public boolean isClosed(ODatabaseSessionInternal database) {
           return false;
         }
 

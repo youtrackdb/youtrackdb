@@ -22,6 +22,7 @@ package com.orientechnologies.orient.core.command.script;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.command.OCommandRequestTextAbstract;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.serialization.OMemoryStream;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
@@ -72,7 +73,8 @@ public class OCommandScript extends OCommandRequestTextAbstract {
     return this;
   }
 
-  public OCommandRequestText fromStream(byte[] iStream, ORecordSerializer serializer)
+  public OCommandRequestText fromStream(ODatabaseSessionInternal db, byte[] iStream,
+      ORecordSerializer serializer)
       throws OSerializationException {
     final OMemoryStream buffer = new OMemoryStream(iStream);
     language = buffer.getAsString();
@@ -87,7 +89,7 @@ public class OCommandScript extends OCommandRequestTextAbstract {
       buffer.setPosition(currPosition);
     }
 
-    fromStream(buffer, serializer);
+    fromStream(db, buffer, serializer);
     return this;
   }
 

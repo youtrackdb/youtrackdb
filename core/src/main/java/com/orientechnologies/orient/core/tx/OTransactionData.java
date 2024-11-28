@@ -82,7 +82,7 @@ public class OTransactionData {
                   switch (x.getType()) {
                     case ORecordOperation.CREATED: {
                       record =
-                          ORecordSerializerNetworkDistributed.INSTANCE.fromStream(
+                          ORecordSerializerNetworkDistributed.INSTANCE.fromStream(database,
                               x.getRecord().get(), null);
                       ORecordInternal.setRecordSerializer(record, database.getSerializer());
                       break;
@@ -98,13 +98,13 @@ public class OTransactionData {
                         ((ODocument) record).deserializeFields();
                         ODocumentInternal.clearTransactionTrackData((ODocument) record);
                         ODocumentSerializerDelta.instance()
-                            .deserializeDelta(x.getRecord().get(), (ODocument) record);
+                            .deserializeDelta(database, x.getRecord().get(), (ODocument) record);
                         /// Got record with empty deltas, at this level we mark the record dirty
                         // anyway.
                         record.setDirty();
                       } else {
                         record =
-                            ORecordSerializerNetworkDistributed.INSTANCE.fromStream(
+                            ORecordSerializerNetworkDistributed.INSTANCE.fromStream(database,
                                 x.getRecord().get(), null);
                         ORecordInternal.setRecordSerializer(record, database.getSerializer());
                       }

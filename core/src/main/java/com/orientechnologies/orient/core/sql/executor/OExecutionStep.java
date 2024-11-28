@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,8 +28,8 @@ public interface OExecutionStep {
     return -1L;
   }
 
-  default OResult toResult() {
-    OResultInternal result = new OResultInternal();
+  default OResult toResult(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("name", getName());
     result.setProperty("type", getType());
     result.setProperty("targetNode", getType());
@@ -38,7 +39,7 @@ public interface OExecutionStep {
         "subSteps",
         getSubSteps() == null
             ? null
-            : getSubSteps().stream().map(x -> x.toResult()).collect(Collectors.toList()));
+            : getSubSteps().stream().map(x -> x.toResult(db)).collect(Collectors.toList()));
     result.setProperty("description", getDescription());
     return result;
   }

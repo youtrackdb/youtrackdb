@@ -32,7 +32,7 @@ public class ODropDatabaseStatement extends OSimpleExecServerStatement {
       nameString = "" + nameParam.getValue(ctx.getInputParameters());
     }
     OxygenDBInternal server = ctx.getServer();
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(ctx.getDatabase());
     result.setProperty("operation", "drop database");
     result.setProperty("name", nameString);
 

@@ -26,11 +26,12 @@ public class CastToVertexStep extends AbstractExecutionStep {
     if (result.getElement().orElse(null) instanceof OVertex) {
       return result;
     }
+    var db = ctx.getDatabase();
     if (result.isVertex()) {
       if (result instanceof OResultInternal) {
         ((OResultInternal) result).setIdentifiable(result.toElement().toVertex());
       } else {
-        result = new OResultInternal(result.toElement().toVertex());
+        result = new OResultInternal(db, result.toElement().toVertex());
       }
     } else {
       throw new OCommandExecutionException("Current element is not a vertex: " + result);

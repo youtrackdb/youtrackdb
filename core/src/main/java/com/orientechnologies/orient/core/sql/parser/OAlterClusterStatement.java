@@ -94,7 +94,7 @@ public class OAlterClusterStatement extends ODDLStatement {
     for (final int clusterId : clustersToUpdate) {
       storage.setClusterAttribute(clusterId, attribute, finalValue);
 
-      OResultInternal resultItem = new OResultInternal();
+      OResultInternal resultItem = new OResultInternal(ctx.getDatabase());
       resultItem.setProperty("cluster", storage.getClusterName(ctx.getDatabase(), clusterId));
       result.add(resultItem);
     }

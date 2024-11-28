@@ -45,7 +45,7 @@ public class InsertValuesStep extends AbstractExecutionStep {
                 throw new OCommandExecutionException(
                     "Error executing INSERT, cannot modify element: " + result);
               }
-              result = new OUpdatableResult(result.toElement());
+              result = new OUpdatableResult(ctx.getDatabase(), result.toElement());
             }
             List<OExpression> currentValues = values.get(nextValueSet++);
             if (currentValues.size() != identifiers.size()) {

@@ -210,7 +210,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
 
   protected Object executeJsr223Script(
       final String language, final OCommandContext iContext, final Map<Object, Object> iArgs) {
-    ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
+    ODatabaseSessionInternal db = iContext.getDatabase();
 
     final OScriptManager scriptManager = db.getSharedContext().getOxygenDB().getScriptManager();
     CompiledScript compiledScript = request.getCompiledScript();
@@ -577,7 +577,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
     return parameters;
   }
 
-  private Object getValue(final String iValue, final ODatabaseSession db) {
+  private Object getValue(final String iValue, final ODatabaseSessionInternal db) {
     Object lastResult = null;
     boolean recordResultSet = true;
     if (iValue.equalsIgnoreCase("NULL")) {
@@ -598,7 +598,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
       checkIsRecordResultSet(lastResult);
     } else if (iValue.startsWith("{") && iValue.endsWith("}")) {
       // MAP
-      final Map<String, String> map = OStringSerializerHelper.getMap(iValue);
+      final Map<String, String> map = OStringSerializerHelper.getMap(db, iValue);
       final Map<Object, Object> result = new HashMap<Object, Object>(map.size());
 
       for (Map.Entry<String, String> entry : map.entrySet()) {
@@ -677,22 +677,22 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
     }
   }
 
-  private void executeConsoleLog(final String lastCommand, final ODatabaseSession db) {
+  private void executeConsoleLog(final String lastCommand, final ODatabaseSessionInternal db) {
     final String value = lastCommand.substring("console.log ".length()).trim();
     OLogManager.instance().info(this, "%s", getValue(OIOUtils.wrapStringContent(value, '\''), db));
   }
 
-  private void executeConsoleOutput(final String lastCommand, final ODatabaseSession db) {
+  private void executeConsoleOutput(final String lastCommand, final ODatabaseSessionInternal db) {
     final String value = lastCommand.substring("console.output ".length()).trim();
     System.out.println(getValue(OIOUtils.wrapStringContent(value, '\''), db));
   }
 
-  private void executeConsoleError(final String lastCommand, final ODatabaseSession db) {
+  private void executeConsoleError(final String lastCommand, final ODatabaseSessionInternal db) {
     final String value = lastCommand.substring("console.error ".length()).trim();
     System.err.println(getValue(OIOUtils.wrapStringContent(value, '\''), db));
   }
 
-  private Object executeLet(final String lastCommand, final ODatabaseSession db) {
+  private Object executeLet(final String lastCommand, final ODatabaseSessionInternal db) {
     final int equalsPos = lastCommand.indexOf('=');
     final String variable = lastCommand.substring("let ".length(), equalsPos).trim();
     final String cmd = lastCommand.substring(equalsPos + 1).trim();

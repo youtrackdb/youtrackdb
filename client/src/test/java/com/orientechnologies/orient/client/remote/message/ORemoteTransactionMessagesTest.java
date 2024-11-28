@@ -40,7 +40,7 @@ public class ORemoteTransactionMessagesTest extends BaseMemoryDatabase {
     request.write(db, channel, null);
     channel.close();
     OBeginTransactionRequest readRequest = new OBeginTransactionRequest();
-    readRequest.read(channel, 0, null);
+    readRequest.read(db, channel, 0, null);
     assertFalse(readRequest.isHasContent());
   }
 
@@ -67,7 +67,7 @@ public class ORemoteTransactionMessagesTest extends BaseMemoryDatabase {
     channel.close();
 
     OBeginTransactionRequest readRequest = new OBeginTransactionRequest();
-    readRequest.read(channel, 0, ORecordSerializerNetworkFactory.INSTANCE.current());
+    readRequest.read(db, channel, 0, ORecordSerializerNetworkFactory.INSTANCE.current());
     assertTrue(readRequest.isUsingLog());
     assertEquals(1, readRequest.getOperations().size());
     assertEquals(0, readRequest.getTxId());
@@ -106,7 +106,7 @@ public class ORemoteTransactionMessagesTest extends BaseMemoryDatabase {
     channel.close();
 
     OCommit37Request readRequest = new OCommit37Request();
-    readRequest.read(channel, 0, ORecordSerializerNetworkFactory.INSTANCE.current());
+    readRequest.read(db, channel, 0, ORecordSerializerNetworkFactory.INSTANCE.current());
     assertTrue(readRequest.isUsingLog());
     assertEquals(1, readRequest.getOperations().size());
     assertEquals(0, readRequest.getTxId());
@@ -142,7 +142,7 @@ public class ORemoteTransactionMessagesTest extends BaseMemoryDatabase {
     channel.close();
 
     OCommit37Response readResponse = new OCommit37Response();
-    readResponse.read(channel, null);
+    readResponse.read(db, channel, null);
 
     assertEquals(2, readResponse.getUpdatedRids().size());
 
@@ -169,7 +169,7 @@ public class ORemoteTransactionMessagesTest extends BaseMemoryDatabase {
     channel.close();
 
     OCommit37Request readRequest = new OCommit37Request();
-    readRequest.read(channel, 0, ORecordSerializerNetworkFactory.INSTANCE.current());
+    readRequest.read(db, channel, 0, ORecordSerializerNetworkFactory.INSTANCE.current());
     assertTrue(readRequest.isUsingLog());
     assertNull(readRequest.getOperations());
     assertEquals(0, readRequest.getTxId());
@@ -210,7 +210,7 @@ public class ORemoteTransactionMessagesTest extends BaseMemoryDatabase {
     channel.close();
 
     OFetchTransactionResponse readResponse = new OFetchTransactionResponse();
-    readResponse.read(channel, null);
+    readResponse.read(db, channel, null);
 
     assertEquals(3, readResponse.getOperations().size());
     assertEquals(ORecordOperation.CREATED, readResponse.getOperations().get(0).getType());
@@ -262,7 +262,7 @@ public class ORemoteTransactionMessagesTest extends BaseMemoryDatabase {
     channel.close();
 
     OFetchTransaction38Response readResponse = new OFetchTransaction38Response();
-    readResponse.read(channel, null);
+    readResponse.read(db, channel, null);
 
     assertEquals(3, readResponse.getOperations().size());
     assertEquals(ORecordOperation.CREATED, readResponse.getOperations().get(0).getType());
@@ -309,7 +309,7 @@ public class ORemoteTransactionMessagesTest extends BaseMemoryDatabase {
 
     OFetchTransactionResponse readResponse =
         new OFetchTransactionResponse(db, 10, operations, changes, new HashMap<>());
-    readResponse.read(channel, null);
+    readResponse.read(db, channel, null);
 
     assertEquals(10, readResponse.getTxId());
     assertEquals(1, readResponse.getIndexChanges().size());

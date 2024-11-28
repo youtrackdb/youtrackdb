@@ -47,7 +47,8 @@ public final class OCloseQueryRequest implements OBinaryRequest<OCloseQueryRespo
     network.writeString(queryId);
   }
 
-  public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
+  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+      ORecordSerializer serializer)
       throws IOException {
     this.queryId = channel.readString();
   }

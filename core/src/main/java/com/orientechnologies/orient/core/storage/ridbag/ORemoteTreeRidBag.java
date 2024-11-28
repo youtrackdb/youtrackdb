@@ -245,6 +245,7 @@ public class ORemoteTreeRidBag implements ORidBagDelegate {
 
   @Override
   public Object returnOriginalState(
+      ODatabaseSessionInternal session,
       List<OMultiValueChangeEvent<OIdentifiable, OIdentifiable>> multiValueChangeEvents) {
     final ORemoteTreeRidBag reverted = new ORemoteTreeRidBag(this.collectionPointer);
     for (OIdentifiable identifiable : this) {

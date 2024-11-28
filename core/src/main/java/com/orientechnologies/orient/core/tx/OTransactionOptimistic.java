@@ -99,7 +99,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
   private List<byte[]> serializedOperations;
 
   protected boolean changed = true;
-  private boolean alreadyCleared = false;
+  private boolean isAlreadyStartedOnServer = false;
   protected int txStartCounter;
   private boolean sentToServer = false;
 
@@ -796,7 +796,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
   }
 
   public void resetChangesTracking() {
-    alreadyCleared = true;
+    isAlreadyStartedOnServer = true;
     changed = false;
   }
 
@@ -1113,8 +1113,8 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     return changed;
   }
 
-  public boolean isAlreadyCleared() {
-    return alreadyCleared;
+  public boolean isStartedOnServer() {
+    return isAlreadyStartedOnServer;
   }
 
   public void setSentToServer(boolean sentToServer) {
@@ -1231,7 +1231,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
       case ORecordOperation.CREATED: {
         final ODocument doc = (ODocument) change.record;
         OLiveQueryHook.addOp(doc, ORecordOperation.CREATED, database);
-        OLiveQueryHookV2.addOp(doc, ORecordOperation.CREATED, database);
+        OLiveQueryHookV2.addOp(database, doc, ORecordOperation.CREATED);
         final OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(doc);
         if (clazz != null) {
           OClassIndexManager.processIndexOnCreate(database, rec);
@@ -1254,7 +1254,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
         final OIdentifiable updateRecord = change.record;
         ODocument updateDoc = (ODocument) updateRecord;
         OLiveQueryHook.addOp(updateDoc, ORecordOperation.UPDATED, database);
-        OLiveQueryHookV2.addOp(updateDoc, ORecordOperation.UPDATED, database);
+        OLiveQueryHookV2.addOp(database, updateDoc, ORecordOperation.UPDATED);
         final OImmutableClass clazz = ODocumentInternal.getImmutableSchemaClass(updateDoc);
         if (clazz != null) {
           OClassIndexManager.processIndexOnUpdate(database, updateDoc);
@@ -1288,7 +1288,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
           }
         }
         OLiveQueryHook.addOp(doc, ORecordOperation.DELETED, database);
-        OLiveQueryHookV2.addOp(doc, ORecordOperation.DELETED, database);
+        OLiveQueryHookV2.addOp(database, doc, ORecordOperation.DELETED);
       }
       break;
       default:

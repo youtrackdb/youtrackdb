@@ -30,6 +30,7 @@ import com.orientechnologies.orient.client.remote.message.OError37Response;
 import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.enterprise.channel.OSocketFactory;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinary;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
@@ -172,11 +173,13 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
     return rootException;
   }
 
-  public byte[] beginResponse(final int iRequesterId, final boolean token) throws IOException {
-    return beginResponse(iRequesterId, timeout, token);
+  public byte[] beginResponse(ODatabaseSessionInternal db, final int iRequesterId,
+      final boolean token) throws IOException {
+    return beginResponse(db, iRequesterId, timeout, token);
   }
 
-  public byte[] beginResponse(final int iRequesterId, final long iTimeout, final boolean token)
+  public byte[] beginResponse(ODatabaseSessionInternal db, final int iRequesterId,
+      final long iTimeout, final boolean token)
       throws IOException {
     try {
       // WAIT FOR THE RESPONSE
@@ -222,7 +225,7 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
       }
 
       currentMessage = readByte();
-      handleStatus(currentStatus, currentSessionId);
+      handleStatus(db, currentStatus, currentSessionId);
       return tokenBytes;
     } catch (OLockException e) {
       Thread.currentThread().interrupt();
@@ -306,7 +309,8 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
   }
 
   public int handleStatus(
-      final byte iResult, final int iClientTxId, ExceptionHandler exceptionHandler)
+      ODatabaseSessionInternal db, final byte iResult, final int iClientTxId,
+      ExceptionHandler exceptionHandler)
       throws IOException {
     if (iResult == OChannelBinaryProtocol.RESPONSE_STATUS_OK
         || iResult == OChannelBinaryProtocol.PUSH_DATA) {
@@ -314,7 +318,7 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
     } else if (iResult == OChannelBinaryProtocol.RESPONSE_STATUS_ERROR) {
 
       OError37Response response = new OError37Response();
-      response.read(this, null);
+      response.read(db, this, null);
       byte[] serializedException = response.getVerbose();
       Exception previous = null;
       if (serializedException != null && serializedException.length > 0) {
@@ -342,8 +346,9 @@ public class OChannelBinaryAsynchClient extends OChannelBinary {
     return iClientTxId;
   }
 
-  public int handleStatus(final byte iResult, final int iClientTxId) throws IOException {
-    return handleStatus(iResult, iClientTxId, this::handleException);
+  public int handleStatus(ODatabaseSessionInternal db, final byte iResult, final int iClientTxId)
+      throws IOException {
+    return handleStatus(db, iResult, iClientTxId, this::handleException);
   }
 
   private void setReadResponseTimeout() throws SocketException {

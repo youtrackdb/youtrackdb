@@ -63,7 +63,7 @@ public class UpsertStep extends AbstractExecutionStep {
           "Cannot execute UPSERT on target '" + commandTarget + "'");
     }
 
-    OUpdatableResult result = new OUpdatableResult(doc);
+    OUpdatableResult result = new OUpdatableResult(ctx.getDatabase(), doc);
     if (initialFilter != null) {
       setContent(result, initialFilter);
     }

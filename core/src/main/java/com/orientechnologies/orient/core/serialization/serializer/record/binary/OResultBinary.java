@@ -15,10 +15,9 @@
  */
 package com.orientechnologies.orient.core.serialization.serializer.record.binary;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.metadata.schema.OImmutableSchema;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
@@ -45,8 +44,10 @@ public class OResultBinary implements OResult {
   private final int offset;
   private final int fieldLength;
   private final OImmutableSchema schema;
+  private final ODatabaseSessionInternal db;
 
   public OResultBinary(
+      ODatabaseSessionInternal db,
       OImmutableSchema schema,
       byte[] bytes,
       int offset,
@@ -58,21 +59,24 @@ public class OResultBinary implements OResult {
     this.serializer = serializer;
     this.offset = offset;
     this.fieldLength = fieldLength;
+    this.db = db;
+
   }
 
   public OResultBinary(
-      ODatabaseSession db,
+      ODatabaseSessionInternal db,
       byte[] bytes,
       int offset,
       int fieldLength,
       ODocumentSerializer serializer,
       @Nullable ORecordId id) {
-    schema = ((OMetadataInternal) db.getMetadata()).getImmutableSchemaSnapshot();
+    schema = db.getMetadata().getImmutableSchemaSnapshot();
     this.id = id;
     this.bytes = bytes;
     this.serializer = serializer;
     this.offset = offset;
     this.fieldLength = fieldLength;
+    this.db = db;
   }
 
   public int getFieldLength() {
@@ -91,7 +95,7 @@ public class OResultBinary implements OResult {
   public <T> T getProperty(String name) {
     BytesContainer bytes = new BytesContainer(this.bytes);
     bytes.skip(offset);
-    return serializer.deserializeFieldTyped(bytes, name, id == null, schema, null);
+    return serializer.deserializeFieldTyped(db, bytes, name, id == null, schema, null);
   }
 
   @Override
@@ -196,7 +200,8 @@ public class OResultBinary implements OResult {
     ODocument doc = new ODocument();
     BytesContainer bytes = new BytesContainer(this.bytes);
     bytes.skip(offset);
-    serializer.deserialize(doc, bytes);
+
+    serializer.deserialize(db, doc, bytes);
     return doc;
   }
 }

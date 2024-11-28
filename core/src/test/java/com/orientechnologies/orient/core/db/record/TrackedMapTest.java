@@ -235,7 +235,8 @@ public class TrackedMapTest extends BaseMemoryDatabase {
     trackedMap.remove("key3");
 
     Assert.assertEquals(
-        trackedMap.returnOriginalState((List) trackedMap.getTimeLine().getMultiValueChangeEvents()),
+        trackedMap.returnOriginalState(db,
+            (List) trackedMap.getTimeLine().getMultiValueChangeEvents()),
         original);
   }
 
@@ -266,7 +267,8 @@ public class TrackedMapTest extends BaseMemoryDatabase {
     trackedMap.remove("key3");
 
     Assert.assertEquals(
-        trackedMap.returnOriginalState((List) trackedMap.getTimeLine().getMultiValueChangeEvents()),
+        trackedMap.returnOriginalState(db,
+            (List) trackedMap.getTimeLine().getMultiValueChangeEvents()),
         original);
   }
 

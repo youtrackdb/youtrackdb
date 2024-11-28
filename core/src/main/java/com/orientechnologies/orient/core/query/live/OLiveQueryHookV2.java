@@ -48,6 +48,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.LinkedBlockingQueue;
+import javax.annotation.Nonnull;
 
 public class OLiveQueryHookV2 {
 
@@ -181,13 +182,6 @@ public class OLiveQueryHookV2 {
     // TODO sync
     if (list != null) {
       for (OLiveQueryOp item : list) {
-        var originalDoc = item.originalDoc;
-
-        if (originalDoc.isNotBound(database) && originalDoc.getIdentity().isPersistent()) {
-          originalDoc = database.bindToSession(originalDoc);
-        }
-
-        item.originalDoc = originalDoc;
         ops.enqueue(item);
       }
     }
@@ -209,9 +203,8 @@ public class OLiveQueryHookV2 {
     }
   }
 
-  public static void addOp(ODocument iDocument, byte iType, ODatabaseSession database) {
-    ODatabaseSession db = database;
-    OLiveQueryOps ops = getOpsReference((ODatabaseSessionInternal) db);
+  public static void addOp(ODatabaseSessionInternal database, ODocument iDocument, byte iType) {
+    OLiveQueryOps ops = getOpsReference(database);
     if (!ops.hasListeners()) {
       return;
     }
@@ -222,16 +215,18 @@ public class OLiveQueryHookV2 {
     Set<String> projectionsToLoad = calculateProjections(ops);
 
     OResult before =
-        iType == ORecordOperation.CREATED ? null : calculateBefore(iDocument, projectionsToLoad);
+        iType == ORecordOperation.CREATED ? null
+            : calculateBefore(database, iDocument, projectionsToLoad);
     OResult after =
-        iType == ORecordOperation.DELETED ? null : calculateAfter(iDocument, projectionsToLoad);
+        iType == ORecordOperation.DELETED ? null
+            : calculateAfter(database, iDocument, projectionsToLoad);
 
     OLiveQueryOp result = new OLiveQueryOp(iDocument, before, after, iType);
     synchronized (ops.pendingOps) {
-      List<OLiveQueryOp> list = ops.pendingOps.get(db);
+      List<OLiveQueryOp> list = ops.pendingOps.get(database);
       if (list == null) {
         list = new ArrayList<>();
-        ops.pendingOps.put(db, list);
+        ops.pendingOps.put(database, list);
       }
       if (result.type == ORecordOperation.UPDATED) {
         OLiveQueryOp prev = prevousUpdate(list, result.originalDoc);
@@ -285,8 +280,8 @@ public class OLiveQueryHookV2 {
   }
 
   public static OResultInternal calculateBefore(
-      ODocument iDocument, Set<String> projectionsToLoad) {
-    OResultInternal result = new OResultInternal();
+      @Nonnull ODatabaseSessionInternal db, ODocument iDocument, Set<String> projectionsToLoad) {
+    OResultInternal result = new OResultInternal(db);
     for (String prop : iDocument.getPropertyNamesInternal()) {
       if (projectionsToLoad == null || projectionsToLoad.contains(prop)) {
         result.setProperty(prop, unboxRidbags(iDocument.getPropertyInternal(prop)));
@@ -302,7 +297,7 @@ public class OLiveQueryHookV2 {
             rawEntry.getKey(), convert(iDocument.getOriginalValue(rawEntry.getKey())));
       } else if (entry.isTrackedModified()) {
         if (entry.value instanceof ODocument && ((ODocument) entry.value).isEmbedded()) {
-          result.setProperty(rawEntry.getKey(), calculateBefore((ODocument) entry.value, null));
+          result.setProperty(rawEntry.getKey(), calculateBefore(db, (ODocument) entry.value, null));
         }
       }
     }
@@ -312,15 +307,15 @@ public class OLiveQueryHookV2 {
   private static Object convert(Object originalValue) {
     if (originalValue instanceof ORidBag) {
       Set result = new LinkedHashSet<>();
-      ((ORidBag) originalValue).forEach(x -> result.add(x));
+      ((ORidBag) originalValue).forEach(result::add);
       return result;
     }
     return originalValue;
   }
 
   private static OResultInternal calculateAfter(
-      ODocument iDocument, Set<String> projectionsToLoad) {
-    OResultInternal result = new OResultInternal();
+      ODatabaseSessionInternal db, ODocument iDocument, Set<String> projectionsToLoad) {
+    OResultInternal result = new OResultInternal(db);
     for (String prop : iDocument.getPropertyNamesInternal()) {
       if (projectionsToLoad == null || projectionsToLoad.contains(prop)) {
         result.setProperty(prop, unboxRidbags(iDocument.getPropertyInternal(prop)));

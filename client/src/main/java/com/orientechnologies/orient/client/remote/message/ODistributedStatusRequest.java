@@ -44,7 +44,8 @@ public class ODistributedStatusRequest implements OBinaryRequest<ODistributedSta
     network.writeBytes(new ODocument().field("operation", "status").toStream());
   }
 
-  public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
+  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+      ORecordSerializer serializer)
       throws IOException {
     status = new ODocument(channel.readBytes());
   }

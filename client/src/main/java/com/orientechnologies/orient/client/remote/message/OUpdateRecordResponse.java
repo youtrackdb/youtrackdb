@@ -53,7 +53,8 @@ public class OUpdateRecordResponse implements OBinaryResponse {
   }
 
   @Override
-  public void read(OChannelDataInput network, OStorageRemoteSession session) throws IOException {
+  public void read(ODatabaseSessionInternal db, OChannelDataInput network,
+      OStorageRemoteSession session) throws IOException {
     version = network.readVersion();
     changes = OMessageHelper.readCollectionChanges(network);
   }

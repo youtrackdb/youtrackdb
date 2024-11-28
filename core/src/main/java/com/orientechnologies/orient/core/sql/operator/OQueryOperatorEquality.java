@@ -68,8 +68,10 @@ public abstract class OQueryOperatorEquality extends OQueryOperator {
       final OBinaryField iSecondField,
       final OCommandContext iContext,
       final ODocumentSerializer serializer) {
-    final Object left = serializer.deserializeValue(iFirstField.bytes, iFirstField.type, null);
-    final Object right = serializer.deserializeValue(iSecondField.bytes, iFirstField.type, null);
+    final Object left = serializer.deserializeValue(iContext.getDatabase(), iFirstField.bytes,
+        iFirstField.type, null);
+    final Object right = serializer.deserializeValue(iContext.getDatabase(), iSecondField.bytes,
+        iFirstField.type, null);
 
     return evaluateExpression(null, null, left, right, iContext);
   }

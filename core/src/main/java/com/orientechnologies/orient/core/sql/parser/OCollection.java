@@ -3,6 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -164,11 +165,12 @@ public class OCollection extends SimpleNode {
     return false;
   }
 
-  public OResult serialize() {
-    OResultInternal result = new OResultInternal();
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
     if (expressions != null) {
       result.setProperty(
-          "expressions", expressions.stream().map(x -> x.serialize()).collect(Collectors.toList()));
+          "expressions",
+          expressions.stream().map(x -> x.serialize(db)).collect(Collectors.toList()));
     }
     return result;
   }

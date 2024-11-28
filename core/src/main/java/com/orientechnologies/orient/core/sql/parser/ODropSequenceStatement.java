@@ -47,7 +47,7 @@ public class ODropSequenceStatement extends ODDLStatement {
       throw new OCommandExecutionException(message);
     }
 
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(database);
     result.setProperty("operation", "drop sequence");
     result.setProperty("sequenceName", name.getStringValue());
     return OExecutionStream.singleton(result);

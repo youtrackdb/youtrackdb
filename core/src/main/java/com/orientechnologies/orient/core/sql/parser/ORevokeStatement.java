@@ -44,7 +44,7 @@ public class ORevokeStatement extends OSimpleExecStatement {
       security.removeSecurityPolicy(db, role, resourcePath);
     }
 
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("operation", "grant");
     result.setProperty("role", actor.getStringValue());
     if (permission != null) {

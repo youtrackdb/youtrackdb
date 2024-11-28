@@ -70,7 +70,8 @@ public final class OCommitResponse implements OBinaryResponse {
   }
 
   @Override
-  public void read(OChannelDataInput network, OStorageRemoteSession session) throws IOException {
+  public void read(ODatabaseSessionInternal db, OChannelDataInput network,
+      OStorageRemoteSession session) throws IOException {
     final int updatedRecordsCount = network.readInt();
     updatedRids = new ArrayList<>(updatedRecordsCount);
 

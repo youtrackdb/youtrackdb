@@ -21,7 +21,6 @@ package com.orientechnologies.orient.client.remote.message;
 
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
@@ -79,7 +78,8 @@ public final class OReadRecordResponse implements OBinaryResponse {
   }
 
   @Override
-  public void read(OChannelDataInput network, OStorageRemoteSession session) throws IOException {
+  public void read(ODatabaseSessionInternal db, OChannelDataInput network,
+      OStorageRemoteSession session) throws IOException {
     ORecordSerializerNetworkV37Client serializer = ORecordSerializerNetworkV37Client.INSTANCE;
     if (network.readByte() == 0) {
       return;
@@ -92,19 +92,18 @@ public final class OReadRecordResponse implements OBinaryResponse {
     buffer = new ORawBuffer(bytes, recVersion, type);
 
     // TODO: This should not be here, move it in a callback or similar
-    var database = ODatabaseRecordThreadLocal.instance().getIfDefined();
     ORecordAbstract record;
     while (network.readByte() == 2) {
-      record = (ORecordAbstract) OMessageHelper.readIdentifiable(network, serializer);
+      record = (ORecordAbstract) OMessageHelper.readIdentifiable(db, network, serializer);
 
-      if (database != null && record != null) {
-        var cacheRecord = database.getLocalCache().findRecord(record.getIdentity());
+      if (db != null && record != null) {
+        var cacheRecord = db.getLocalCache().findRecord(record.getIdentity());
 
         if (cacheRecord != record) {
           if (cacheRecord != null) {
             record.copyTo(cacheRecord);
           } else {
-            database.getLocalCache().updateRecord(record);
+            db.getLocalCache().updateRecord(record);
           }
         }
       }

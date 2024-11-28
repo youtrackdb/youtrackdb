@@ -89,7 +89,8 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
 
   @Override
   public ORecordAbstract fromString(
-      String iContent, final ORecordAbstract iRecord, final String[] iFields) {
+      ODatabaseSessionInternal db, String iContent, final ORecordAbstract iRecord,
+      final String[] iFields) {
     iContent = iContent.trim();
 
     if (iContent.length() == 0) {
@@ -277,7 +278,7 @@ public class ORecordSerializerSchemaAware2CSV extends ORecordSerializerCSVAbstra
             }
           }
           final Object value =
-              fieldFromStream(iRecord, type, linkedClass, linkedType, fieldName, fieldValue);
+              fieldFromStream(db, iRecord, type, linkedClass, linkedType, fieldName, fieldValue);
           if ("@class".equals(fieldName)) {
             ODocumentInternal.fillClassNameIfNeeded(((ODocument) iRecord), value.toString());
           } else {

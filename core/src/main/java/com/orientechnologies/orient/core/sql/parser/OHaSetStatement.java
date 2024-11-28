@@ -31,19 +31,19 @@ public class OHaSetStatement extends OSimpleExecStatement {
     List<OResult> result = new ArrayList<>();
 
     String operation = this.operation.getStringValue();
-    Object key = this.key.execute(new OResultInternal(), ctx);
+    var db = ctx.getDatabase();
+    Object key = this.key.execute(new OResultInternal(db), ctx);
     if (key == null) {
       key = this.key.getDefaultAlias();
     }
 
-    Object value = this.value.execute(new OResultInternal(), ctx);
+    Object value = this.value.execute(new OResultInternal(db), ctx);
     if (value == null) {
       value = this.value.getDefaultAlias();
       if (value.equals("null")) {
         value = null;
       }
     }
-    var db = ctx.getDatabase();
 
     OEnterpriseEndpoint ee = db.getEnterpriseEndpoint();
     if (ee == null) {
@@ -58,7 +58,7 @@ public class OHaSetStatement extends OSimpleExecStatement {
       } catch (UnsupportedOperationException e) {
         finalResult = e.getMessage();
       }
-      OResultInternal item = new OResultInternal();
+      OResultInternal item = new OResultInternal(db);
       item.setProperty("operation", "ha set status");
       item.setProperty("result", finalResult);
       result.add(item);
@@ -70,7 +70,7 @@ public class OHaSetStatement extends OSimpleExecStatement {
       } catch (UnsupportedOperationException e) {
         finalResult = e.getMessage();
       }
-      OResultInternal item = new OResultInternal();
+      OResultInternal item = new OResultInternal(db);
       item.setProperty("operation", "ha set owner");
       item.setProperty("result", finalResult);
       result.add(item);
@@ -82,7 +82,7 @@ public class OHaSetStatement extends OSimpleExecStatement {
       } catch (UnsupportedOperationException e) {
         finalResult = e.getMessage();
       }
-      OResultInternal item = new OResultInternal();
+      OResultInternal item = new OResultInternal(db);
       item.setProperty("operation", "ha set role");
       item.setProperty("result", finalResult);
       result.add(item);

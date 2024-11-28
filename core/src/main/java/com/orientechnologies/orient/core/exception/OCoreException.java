@@ -27,11 +27,18 @@ public abstract class OCoreException extends OException {
   }
 
   public OCoreException(final String message) {
-    this(message, null, null);
+    this(message, null, (OErrorCode) null);
   }
 
+
   public OCoreException(final String message, final String componentName) {
-    this(message, componentName, null);
+    this(message, componentName, (OErrorCode) null);
+  }
+
+  public OCoreException(final String message, final String componentName, String dbName) {
+    this(message);
+    this.dbName = dbName;
+    this.componentName = componentName;
   }
 
   public OCoreException(

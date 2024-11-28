@@ -4,6 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -416,23 +417,23 @@ public class OBaseExpression extends OMathExpression {
     }
   }
 
-  public OResult serialize() {
-    OResultInternal result = (OResultInternal) super.serialize();
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = (OResultInternal) super.serialize(db);
 
     if (number != null) {
-      result.setProperty("number", number.serialize());
+      result.setProperty("number", number.serialize(db));
     }
     if (identifier != null) {
-      result.setProperty("identifier", identifier.serialize());
+      result.setProperty("identifier", identifier.serialize(db));
     }
     if (inputParam != null) {
-      result.setProperty("inputParam", inputParam.serialize());
+      result.setProperty("inputParam", inputParam.serialize(db));
     }
     if (string != null) {
       result.setProperty("string", string);
     }
     if (modifier != null) {
-      result.setProperty("modifier", modifier.serialize());
+      result.setProperty("modifier", modifier.serialize(db));
     }
     return result;
   }

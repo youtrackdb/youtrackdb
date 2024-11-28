@@ -45,7 +45,7 @@ public class OSecurityEngine {
    * @return always returns a valid predicate (it is never supposed to be null)
    */
   static OBooleanExpression getPredicateForSecurityResource(
-      ODatabaseSession session,
+      ODatabaseSessionInternal session,
       OSecurityShared security,
       String resourceString,
       OSecurityPolicy.Scope scope) {
@@ -55,7 +55,7 @@ public class OSecurityEngine {
     }
 
     Set<? extends OSecurityRole> roles = user.getRoles();
-    if (roles == null || roles.size() == 0) {
+    if (roles == null || roles.isEmpty()) {
       return OBooleanExpression.FALSE;
     }
 
@@ -73,7 +73,7 @@ public class OSecurityEngine {
   }
 
   private static OBooleanExpression getPredicateForFunction(
-      ODatabaseSession session,
+      ODatabaseSessionInternal session,
       OSecurityShared security,
       OSecurityResourceFunction resource,
       OSecurityPolicy.Scope scope) {
@@ -103,18 +103,18 @@ public class OSecurityEngine {
   }
 
   private static OBooleanExpression getPredicateForProperty(
-      ODatabaseSession session,
+      ODatabaseSessionInternal session,
       OSecurityShared security,
       OSecurityResourceProperty resource,
       OSecurityPolicy.Scope scope) {
     OClass clazz =
-        ((ODatabaseSessionInternal) session)
+        session
             .getMetadata()
             .getImmutableSchemaSnapshot()
             .getClass(resource.getClassName());
     if (clazz == null) {
       clazz =
-          ((ODatabaseSessionInternal) session)
+          session
               .getMetadata()
               .getImmutableSchemaSnapshot()
               .getView(resource.getClassName());
@@ -144,12 +144,12 @@ public class OSecurityEngine {
   }
 
   private static OBooleanExpression getPredicateForClass(
-      ODatabaseSession session,
+      ODatabaseSessionInternal session,
       OSecurityShared security,
       OSecurityResourceClass resource,
       OSecurityPolicy.Scope scope) {
     OClass clazz =
-        ((ODatabaseSessionInternal) session)
+        session
             .getMetadata()
             .getImmutableSchemaSnapshot()
             .getClass(resource.getClassName());
@@ -179,7 +179,7 @@ public class OSecurityEngine {
   }
 
   private static OBooleanExpression getPredicateForRoleHierarchy(
-      ODatabaseSession session,
+      ODatabaseSessionInternal session,
       OSecurityShared security,
       OSecurityRole role,
       OFunction function,
@@ -198,7 +198,7 @@ public class OSecurityEngine {
   }
 
   private static OBooleanExpression getPredicateForFunction(
-      ODatabaseSession session,
+      ODatabaseSessionInternal session,
       OSecurityShared security,
       OSecurityRole role,
       OFunction clazz,
@@ -207,11 +207,11 @@ public class OSecurityEngine {
     Map<String, OSecurityPolicy> definedPolicies = security.getSecurityPolicies(session, role);
     OSecurityPolicy policy = definedPolicies.get(resource);
 
-    String predicateString = policy != null ? policy.get(scope) : null;
+    String predicateString = policy != null ? policy.get(scope, session) : null;
 
     if (predicateString == null) {
       OSecurityPolicy wildcardPolicy = definedPolicies.get("database.function.*");
-      predicateString = wildcardPolicy == null ? null : wildcardPolicy.get(scope);
+      predicateString = wildcardPolicy == null ? null : wildcardPolicy.get(scope, session);
     }
 
     if (predicateString != null) {
@@ -221,7 +221,7 @@ public class OSecurityEngine {
   }
 
   private static OBooleanExpression getPredicateForRoleHierarchy(
-      ODatabaseSession session,
+      ODatabaseSessionInternal session,
       OSecurityShared security,
       OSecurityRole role,
       OClass clazz,
@@ -245,14 +245,12 @@ public class OSecurityEngine {
     if (result == null) {
       result = OBooleanExpression.FALSE;
     }
-    if (role != null) {
-      security.putPredicateInCache(role.getName(session), clazz.getName(), result);
-    }
+    security.putPredicateInCache(role.getName(session), clazz.getName(), result);
     return result;
   }
 
   private static OBooleanExpression getPredicateForRoleHierarchy(
-      ODatabaseSession session,
+      ODatabaseSessionInternal session,
       OSecurityShared security,
       OSecurityRole role,
       OClass clazz,
@@ -283,7 +281,7 @@ public class OSecurityEngine {
   }
 
   private static OBooleanExpression getPredicateForClassHierarchy(
-      ODatabaseSession session,
+      ODatabaseSessionInternal session,
       OSecurityShared security,
       OSecurityRole role,
       OClass clazz,
@@ -292,8 +290,8 @@ public class OSecurityEngine {
     Map<String, OSecurityPolicy> definedPolicies = security.getSecurityPolicies(session, role);
     OSecurityPolicy classPolicy = definedPolicies.get(resource);
 
-    String predicateString = classPolicy != null ? classPolicy.get(scope) : null;
-    if (predicateString == null && clazz.getSuperClasses().size() > 0) {
+    String predicateString = classPolicy != null ? classPolicy.get(scope, session) : null;
+    if (predicateString == null && !clazz.getSuperClasses().isEmpty()) {
       if (clazz.getSuperClasses().size() == 1) {
         return getPredicateForClassHierarchy(
             session, security, role, clazz.getSuperClasses().iterator().next(), scope);
@@ -312,12 +310,12 @@ public class OSecurityEngine {
 
     if (predicateString == null) {
       OSecurityPolicy wildcardPolicy = definedPolicies.get("database.class.*");
-      predicateString = wildcardPolicy == null ? null : wildcardPolicy.get(scope);
+      predicateString = wildcardPolicy == null ? null : wildcardPolicy.get(scope, session);
     }
 
     if (predicateString == null) {
       OSecurityPolicy wildcardPolicy = definedPolicies.get("*");
-      predicateString = wildcardPolicy == null ? null : wildcardPolicy.get(scope);
+      predicateString = wildcardPolicy == null ? null : wildcardPolicy.get(scope, session);
     }
     if (predicateString != null) {
       return parsePredicate(session, predicateString);
@@ -326,7 +324,7 @@ public class OSecurityEngine {
   }
 
   private static OBooleanExpression getPredicateForClassHierarchy(
-      ODatabaseSession session,
+      ODatabaseSessionInternal session,
       OSecurityShared security,
       OSecurityRole role,
       OClass clazz,
@@ -336,8 +334,8 @@ public class OSecurityEngine {
     Map<String, OSecurityPolicy> definedPolicies = security.getSecurityPolicies(session, role);
     OSecurityPolicy classPolicy = definedPolicies.get(resource);
 
-    String predicateString = classPolicy != null ? classPolicy.get(scope) : null;
-    if (predicateString == null && clazz.getSuperClasses().size() > 0) {
+    String predicateString = classPolicy != null ? classPolicy.get(scope, session) : null;
+    if (predicateString == null && !clazz.getSuperClasses().isEmpty()) {
       if (clazz.getSuperClasses().size() == 1) {
         return getPredicateForClassHierarchy(
             session,
@@ -362,22 +360,22 @@ public class OSecurityEngine {
     if (predicateString == null) {
       OSecurityPolicy wildcardPolicy =
           definedPolicies.get("database.class." + clazz.getName() + ".*");
-      predicateString = wildcardPolicy == null ? null : wildcardPolicy.get(scope);
+      predicateString = wildcardPolicy == null ? null : wildcardPolicy.get(scope, session);
     }
 
     if (predicateString == null) {
       OSecurityPolicy wildcardPolicy = definedPolicies.get("database.class.*." + propertyName);
-      predicateString = wildcardPolicy == null ? null : wildcardPolicy.get(scope);
+      predicateString = wildcardPolicy == null ? null : wildcardPolicy.get(scope, session);
     }
 
     if (predicateString == null) {
       OSecurityPolicy wildcardPolicy = definedPolicies.get("database.class.*.*");
-      predicateString = wildcardPolicy == null ? null : wildcardPolicy.get(scope);
+      predicateString = wildcardPolicy == null ? null : wildcardPolicy.get(scope, session);
     }
 
     if (predicateString == null) {
       OSecurityPolicy wildcardPolicy = definedPolicies.get("*");
-      predicateString = wildcardPolicy == null ? null : wildcardPolicy.get(scope);
+      predicateString = wildcardPolicy == null ? null : wildcardPolicy.get(scope, session);
     }
     // TODO
 

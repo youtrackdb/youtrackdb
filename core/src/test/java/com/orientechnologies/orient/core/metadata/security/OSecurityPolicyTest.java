@@ -53,24 +53,24 @@ public class OSecurityPolicyTest extends BaseMemoryDatabase {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "test");
-    policy.setCreateRule("name = 'create'");
-    policy.setReadRule("name = 'read'");
-    policy.setBeforeUpdateRule("name = 'beforeUpdate'");
-    policy.setAfterUpdateRule("name = 'afterUpdate'");
-    policy.setDeleteRule("name = 'delete'");
-    policy.setExecuteRule("name = 'execute'");
+    policy.setCreateRule(db, "name = 'create'");
+    policy.setReadRule(db, "name = 'read'");
+    policy.setBeforeUpdateRule(db, "name = 'beforeUpdate'");
+    policy.setAfterUpdateRule(db, "name = 'afterUpdate'");
+    policy.setDeleteRule(db, "name = 'delete'");
+    policy.setExecuteRule(db, "name = 'execute'");
 
     security.saveSecurityPolicy(db, policy);
     db.commit();
 
     OSecurityPolicy readPolicy = security.getSecurityPolicy(db, "test");
     Assert.assertNotNull(policy);
-    Assert.assertEquals("name = 'create'", readPolicy.getCreateRule());
-    Assert.assertEquals("name = 'read'", readPolicy.getReadRule());
-    Assert.assertEquals("name = 'beforeUpdate'", readPolicy.getBeforeUpdateRule());
-    Assert.assertEquals("name = 'afterUpdate'", readPolicy.getAfterUpdateRule());
-    Assert.assertEquals("name = 'delete'", readPolicy.getDeleteRule());
-    Assert.assertEquals("name = 'execute'", readPolicy.getExecuteRule());
+    Assert.assertEquals("name = 'create'", readPolicy.getCreateRule(db));
+    Assert.assertEquals("name = 'read'", readPolicy.getReadRule(db));
+    Assert.assertEquals("name = 'beforeUpdate'", readPolicy.getBeforeUpdateRule(db));
+    Assert.assertEquals("name = 'afterUpdate'", readPolicy.getAfterUpdateRule(db));
+    Assert.assertEquals("name = 'delete'", readPolicy.getDeleteRule(db));
+    Assert.assertEquals("name = 'execute'", readPolicy.getExecuteRule(db));
   }
 
   @Test
@@ -83,42 +83,42 @@ public class OSecurityPolicyTest extends BaseMemoryDatabase {
     db.commit();
     try {
       db.begin();
-      policy.setCreateRule("foo bar");
+      policy.setCreateRule(db, "foo bar");
       db.commit();
       Assert.fail();
     } catch (IllegalArgumentException ex) {
     }
     try {
       db.begin();
-      policy.setReadRule("foo bar");
+      policy.setReadRule(db, "foo bar");
       db.commit();
       Assert.fail();
     } catch (IllegalArgumentException ex) {
     }
     try {
       db.begin();
-      policy.setBeforeUpdateRule("foo bar");
+      policy.setBeforeUpdateRule(db, "foo bar");
       db.commit();
       Assert.fail();
     } catch (IllegalArgumentException ex) {
     }
     try {
       db.begin();
-      policy.setAfterUpdateRule("foo bar");
+      policy.setAfterUpdateRule(db, "foo bar");
       db.commit();
       Assert.fail();
     } catch (IllegalArgumentException ex) {
     }
     try {
       db.begin();
-      policy.setDeleteRule("foo bar");
+      policy.setDeleteRule(db, "foo bar");
       db.commit();
       Assert.fail();
     } catch (IllegalArgumentException ex) {
     }
     try {
       db.begin();
-      policy.setExecuteRule("foo bar");
+      policy.setExecuteRule(db, "foo bar");
       db.commit();
       Assert.fail();
     } catch (IllegalArgumentException ex) {
@@ -132,9 +132,9 @@ public class OSecurityPolicyTest extends BaseMemoryDatabase {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "test");
-    policy.setCreateRule("1 = 1");
-    policy.setBeforeUpdateRule("1 = 2");
-    policy.setActive(true);
+    policy.setCreateRule(db, "1 = 1");
+    policy.setBeforeUpdateRule(db, "1 = 2");
+    policy.setActive(db, true);
     security.saveSecurityPolicy(db, policy);
     db.commit();
 
@@ -144,7 +144,7 @@ public class OSecurityPolicyTest extends BaseMemoryDatabase {
     security.setSecurityPolicy(db, reader, resource, policy);
     db.commit();
 
-    ORID policyRid = policy.getElement().getIdentity();
+    ORID policyRid = policy.getElement(db).getIdentity();
     try (OResultSet rs = db.query("select from ORole where name = 'reader'")) {
       Map<String, OIdentifiable> rolePolicies = rs.next().getProperty("policies");
       OIdentifiable id = rolePolicies.get(resource);
@@ -163,9 +163,9 @@ public class OSecurityPolicyTest extends BaseMemoryDatabase {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "test");
-    policy.setCreateRule("1 = 1");
-    policy.setBeforeUpdateRule("1 = 2");
-    policy.setActive(true);
+    policy.setCreateRule(db, "1 = 1");
+    policy.setBeforeUpdateRule(db, "1 = 2");
+    policy.setActive(db, true);
     security.saveSecurityPolicy(db, policy);
     db.commit();
 

@@ -976,7 +976,7 @@ public class JSONTest extends DocumentDBBaseTest {
     final String json = "{\"a\":\"{dd}\",\"bl\":{\"b\":\"c\",\"a\":\"d\"}}";
     final ODocument in =
         (ODocument)
-            ORecordSerializerJSON.INSTANCE.fromString(
+            ORecordSerializerJSON.INSTANCE.fromString(database,
                 json, database.newInstance(), new String[]{});
     Assert.assertEquals(in.field("a"), "{dd}");
     Assert.assertTrue(in.field("bl") instanceof Map);

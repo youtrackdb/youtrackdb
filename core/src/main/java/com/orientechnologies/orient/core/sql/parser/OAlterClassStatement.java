@@ -441,7 +441,8 @@ public class OAlterClassStatement extends ODDLStatement {
       int clusterId = database.getClusterIdByName(defaultClusterName.getStringValue());
       oClass.setDefaultClusterId(database, clusterId);
     }
-    OResultInternal result = new OResultInternal();
+
+    OResultInternal result = new OResultInternal(database);
     result.setProperty("operation", "ALTER CLASS");
     result.setProperty("className", name.getStringValue());
     result.setProperty("result", "OK");

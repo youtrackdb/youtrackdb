@@ -80,7 +80,7 @@ public class ORemoteResultSet implements OResultSet {
     if (internal.isRecord() && db != null && db.getTransaction().isActive()) {
       ORecord record = db.getTransaction().getRecord(internal.getRecord().get().getIdentity());
       if (record != null) {
-        internal = new OResultInternal(record);
+        internal = new OResultInternal(db, record);
       }
     }
     return internal;

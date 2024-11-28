@@ -47,7 +47,7 @@ public class ORecordSerializerRaw implements ORecordSerializer {
   }
 
   @Override
-  public String[] getFieldNames(ODocument reference, byte[] iSource) {
+  public String[] getFieldNames(ODatabaseSessionInternal db, ODocument reference, byte[] iSource) {
     return null;
   }
 
@@ -58,7 +58,8 @@ public class ORecordSerializerRaw implements ORecordSerializer {
 
   @Override
   public ORecordAbstract fromStream(
-      final byte[] iSource, final ORecordAbstract iRecord, String[] iFields) {
+      ODatabaseSessionInternal db, final byte[] iSource, final ORecordAbstract iRecord,
+      String[] iFields) {
     iRecord.reset();
     iRecord.fromStream(iSource);
 

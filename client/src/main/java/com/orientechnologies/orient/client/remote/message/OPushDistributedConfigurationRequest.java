@@ -41,7 +41,7 @@ public class OPushDistributedConfigurationRequest
   }
 
   @Override
-  public void read(OChannelDataInput network) throws IOException {
+  public void read(ODatabaseSessionInternal db, OChannelDataInput network) throws IOException {
     int size = network.readInt();
     hosts = new ArrayList<>(size);
     while (size-- > 0) {

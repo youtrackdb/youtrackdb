@@ -164,7 +164,7 @@ public class ORuntimeResult {
 
         if (projectionValue != null) {
           if (projectionValue instanceof ORidBag) {
-            iValue.field(prjName, new ORidBag((ORidBag) projectionValue));
+            iValue.field(prjName, new ORidBag(iContext.getDatabase(), (ORidBag) projectionValue));
           } else {
             if (projectionValue instanceof OIdentifiable
                 && !(projectionValue instanceof ORID)

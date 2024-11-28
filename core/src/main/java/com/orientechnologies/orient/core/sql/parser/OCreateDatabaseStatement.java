@@ -45,7 +45,7 @@ public class OCreateDatabaseStatement extends OSimpleExecServerStatement {
   @Override
   public OExecutionStream executeSimple(OServerCommandContext ctx) {
     OxygenDBInternal server = ctx.getServer();
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(ctx.getDatabase());
     result.setProperty("operation", "create database");
     String dbName =
         name != null
@@ -106,7 +106,8 @@ public class OCreateDatabaseStatement extends OSimpleExecServerStatement {
 
   private OxygenDBConfigBuilder mapOrientDBConfig(
       OJson config, OServerCommandContext ctx, OxygenDBConfigBuilder builder) {
-    Map<String, Object> configMap = config.toMap(new OResultInternal(), ctx);
+    Map<String, Object> configMap = config.toMap(new OResultInternal(ctx.getDatabase()), ctx);
+
     Object globalConfig = configMap.get("config");
     if (globalConfig != null && globalConfig instanceof Map) {
       ((Map<String, Object>) globalConfig)
@@ -115,6 +116,7 @@ public class OCreateDatabaseStatement extends OSimpleExecServerStatement {
           .forEach(
               x -> builder.addConfig(OGlobalConfiguration.findByKey(x.getKey()), x.getValue()));
     }
+
     return builder;
   }
 

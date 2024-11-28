@@ -57,7 +57,7 @@ public class OAlterRoleStatement extends OSimpleExecStatement {
       throw new OCommandExecutionException("role not found: " + name.getStringValue());
     }
     for (Op op : operations) {
-      OResultInternal result = new OResultInternal();
+      OResultInternal result = new OResultInternal(db);
       result.setProperty("operation", "alter role");
       result.setProperty("name", name.getStringValue());
       result.setProperty("resource", op.resource.toString());

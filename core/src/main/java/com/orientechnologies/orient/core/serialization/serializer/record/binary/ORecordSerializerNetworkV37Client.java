@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.core.serialization.serializer.record.binary;
 
 import com.orientechnologies.common.serialization.types.OUUIDSerializer;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OBonsaiBucketPointer;
@@ -18,7 +19,7 @@ public class ORecordSerializerNetworkV37Client extends ORecordSerializerNetworkV
       new ORecordSerializerNetworkV37Client();
   public static final String NAME = "onet_ser_v37_client";
 
-  protected ORidBag readRidBag(BytesContainer bytes) {
+  protected ORidBag readRidBag(ODatabaseSessionInternal db, BytesContainer bytes) {
     UUID uuid = OUUIDSerializer.INSTANCE.deserialize(bytes.bytes, bytes.offset);
     bytes.skip(OUUIDSerializer.UUID_SIZE);
     if (uuid.getMostSignificantBits() == -1 && uuid.getLeastSignificantBits() == -1) {
@@ -27,7 +28,7 @@ public class ORecordSerializerNetworkV37Client extends ORecordSerializerNetworkV
     byte b = bytes.bytes[bytes.offset];
     bytes.skip(1);
     if (b == 1) {
-      ORidBag bag = new ORidBag(uuid);
+      ORidBag bag = new ORidBag(db, uuid);
       int size = OVarIntSerializer.readAsInteger(bytes);
 
       if (size > 0) {
@@ -67,7 +68,7 @@ public class ORecordSerializerNetworkV37Client extends ORecordSerializerNetworkV
         pointer =
             new OBonsaiCollectionPointer(fileId, new OBonsaiBucketPointer(pageIndex, pageOffset));
       }
-      return new ORidBag(new ORemoteTreeRidBag(pointer));
+      return new ORidBag(db, new ORemoteTreeRidBag(pointer));
     }
   }
 }

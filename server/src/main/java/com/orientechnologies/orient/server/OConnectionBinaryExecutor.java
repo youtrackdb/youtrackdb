@@ -108,6 +108,8 @@ import com.orientechnologies.orient.client.remote.message.OSBTGetRealBagSizeRequ
 import com.orientechnologies.orient.client.remote.message.OSBTGetRealBagSizeResponse;
 import com.orientechnologies.orient.client.remote.message.OSBTGetRequest;
 import com.orientechnologies.orient.client.remote.message.OSBTGetResponse;
+import com.orientechnologies.orient.client.remote.message.OSendTransactionStateRequest;
+import com.orientechnologies.orient.client.remote.message.OSendTransactionStateResponse;
 import com.orientechnologies.orient.client.remote.message.OServerInfoRequest;
 import com.orientechnologies.orient.client.remote.message.OServerInfoResponse;
 import com.orientechnologies.orient.client.remote.message.OServerQueryRequest;
@@ -457,6 +459,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     } else {
       final ORecordAbstract record = connection.getDatabase()
           .load(rid, fetchPlanString, ignoreCache);
+      assert !record.isUnloaded();
       if (record != null) {
         byte[] bytes = getRecordBytes(connection, record);
         final Set<ORecordAbstract> recordsToSend = new HashSet<>();
@@ -1351,26 +1354,28 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     if (OQueryRequest.QUERY == request.getOperationType()) {
       // TODO Assert is sql.
       if (request.isNamedParams()) {
-        rs = database.query(request.getStatement(), request.getNamedParameters());
+        rs = database.query(request.getStatement(), request.getNamedParameters(database));
       } else {
-        rs = database.query(request.getStatement(), request.getPositionalParameters());
+        rs = database.query(request.getStatement(), request.getPositionalParameters(database));
       }
     } else {
       if (OQueryRequest.COMMAND == request.getOperationType()) {
         if (request.isNamedParams()) {
-          rs = database.command(request.getStatement(), request.getNamedParameters());
+          rs = database.command(request.getStatement(), request.getNamedParameters(database));
         } else {
-          rs = database.command(request.getStatement(), request.getPositionalParameters());
+          rs = database.command(request.getStatement(), request.getPositionalParameters(database));
         }
       } else {
         if (request.isNamedParams()) {
           rs =
               database.execute(
-                  request.getLanguage(), request.getStatement(), request.getNamedParameters());
+                  request.getLanguage(), request.getStatement(),
+                  request.getNamedParameters(database));
         } else {
           rs =
               database.execute(
-                  request.getLanguage(), request.getStatement(), request.getPositionalParameters());
+                  request.getLanguage(), request.getStatement(),
+                  request.getPositionalParameters(database));
         }
       }
     }
@@ -1508,26 +1513,11 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     if (!indexChanges.isEmpty()) {
       throw new ODatabaseException("Manual indexes are not supported");
     }
+
     var tx = database.getTransaction();
 
     if (tx.isActive()) {
-      if (tx.getId() != request.getTxId()) {
-        throw new ODatabaseException(
-            "Transaction id mismatch, expected " + tx.getId() + " but got " + request.getTxId());
-      }
-      if (!(tx instanceof OTransactionOptimisticServer serverTransaction)) {
-        throw new ODatabaseException("Non-server based transaction is active");
-      }
-      try {
-        serverTransaction.mergeReceivedTransaction(recordOperations);
-      } catch (final ORecordNotFoundException e) {
-        throw e.getCause() instanceof OOfflineClusterException
-            ? (OOfflineClusterException) e.getCause()
-            : e;
-      }
-
-      return new OBeginTransactionResponse(
-          tx.getId(), serverTransaction.getTxGeneratedRealRecordIdMap());
+      throw new ODatabaseException("Transaction is already started on server");
     }
 
     var serverTransaction =
@@ -1539,6 +1529,8 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   private static OTransactionOptimisticServer doExecuteBeginTransaction(
       long txId, ODatabaseSessionInternal database,
       List<ORecordOperationRequest> recordOperations) {
+    assert database.activeTxCount() == 0;
+
     database.begin(new OTransactionOptimisticServer(database, txId));
     var serverTransaction = (OTransactionOptimisticServer) database.getTransaction();
 
@@ -1549,7 +1541,39 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
           ? (OOfflineClusterException) e.getCause()
           : e;
     }
+
     return serverTransaction;
+  }
+
+  @Override
+  public OBinaryResponse executeSendTransactionState(OSendTransactionStateRequest request) {
+    var database = connection.getDatabase();
+    var recordOperations = request.getOperations();
+
+    var tx = database.getTransaction();
+
+    if (!tx.isActive()) {
+      throw new ODatabaseException(
+          "Transaction with id " + request.getTxId() + " is not active on server.");
+    }
+
+    if (!(tx instanceof OTransactionOptimisticServer serverTransaction)) {
+      throw new ODatabaseException(
+          "Invalid transaction type,"
+              + " expected OTransactionOptimisticServer but found "
+              + tx.getClass().getName());
+    }
+
+    try {
+      serverTransaction.mergeReceivedTransaction(recordOperations);
+    } catch (final ORecordNotFoundException e) {
+      throw e.getCause() instanceof OOfflineClusterException
+          ? (OOfflineClusterException) e.getCause()
+          : e;
+    }
+
+    return new OSendTransactionStateResponse(
+        tx.getId(), serverTransaction.getTxGeneratedRealRecordIdMap());
   }
 
   @Override
@@ -1564,7 +1588,9 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     var database = connection.getDatabase();
     var tx = database.getTransaction();
 
-    if (!tx.isActive()) {
+    var started = tx.isActive();
+    if (!started) {
+      //case when transaction was sent during commit.
       tx = doExecuteBeginTransaction(request.getTxId(), database, recordOperations);
     }
 
@@ -1582,12 +1608,19 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
     try {
       try {
-        serverTransaction.mergeReceivedTransaction(recordOperations);
+        if (started) {
+          serverTransaction.mergeReceivedTransaction(recordOperations);
+        }
       } catch (final ORecordNotFoundException e) {
         throw e.getCause() instanceof OOfflineClusterException
             ? (OOfflineClusterException) e.getCause()
             : e;
       }
+
+      if (serverTransaction.getTxStartCounter() != 1) {
+        throw new ODatabaseException("Transaction can be started only once on server");
+      }
+
       try {
         try {
           database.commit();
@@ -1653,6 +1686,10 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
           "Invalid transaction type,"
               + " expected OTransactionOptimisticServer but found "
               + tx.getClass().getName());
+    }
+
+    if (serverTransaction.getTxStartCounter() != 1) {
+      throw new ODatabaseException("Transaction can be started only once on server");
     }
 
     try {

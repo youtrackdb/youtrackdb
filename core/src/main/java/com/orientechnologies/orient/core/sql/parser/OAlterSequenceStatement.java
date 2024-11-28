@@ -98,7 +98,7 @@ public class OAlterSequenceStatement extends ODDLStatement {
       throw new OCommandExecutionException(message);
     }
 
-    OResultInternal item = new OResultInternal();
+    OResultInternal item = new OResultInternal(ctx.getDatabase());
     item.setProperty("operation", "alter sequence");
     item.setProperty("sequenceName", sequenceName);
     if (params.getStart() != null) {

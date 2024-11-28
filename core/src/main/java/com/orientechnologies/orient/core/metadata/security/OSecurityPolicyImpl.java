@@ -5,6 +5,7 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
+import javax.annotation.Nonnull;
 
 public class OSecurityPolicyImpl implements OSecurityPolicy {
 
@@ -19,9 +20,9 @@ public class OSecurityPolicyImpl implements OSecurityPolicy {
     return element.getIdentity();
   }
 
-  public OElement getElement() {
+  public OElement getElement(@Nonnull ODatabaseSessionInternal db) {
     if (element.isUnloaded()) {
-      element = ODatabaseSessionInternal.getActiveSession().bindToSession(element);
+      element = db.bindToSession(element);
     }
     return element;
   }
@@ -30,80 +31,86 @@ public class OSecurityPolicyImpl implements OSecurityPolicy {
     this.element = element;
   }
 
-  public String getName() {
-    return getElement().getProperty("name");
+  public String getName(@Nonnull ODatabaseSessionInternal db) {
+    return getElement(db).getProperty("name");
   }
 
-  public void setName(String name) {
-    getElement().setProperty("name", name);
+  public void setName(@Nonnull ODatabaseSessionInternal db, String name) {
+    getElement(db).setProperty("name", name);
   }
 
-  public boolean isActive() {
-    return Boolean.TRUE.equals(this.getElement().getProperty("active"));
+  public boolean isActive(@Nonnull ODatabaseSessionInternal db) {
+    return Boolean.TRUE.equals(this.getElement(db).getProperty("active"));
   }
 
-  public void setActive(Boolean active) {
-    this.getElement().setProperty("active", active);
+  public void setActive(@Nonnull ODatabaseSessionInternal db, Boolean active) {
+    this.getElement(db).setProperty("active", active);
   }
 
-  public String getCreateRule() {
-    var element = getElement();
+  public String getCreateRule(@Nonnull ODatabaseSessionInternal db) {
+    var element = getElement(db);
     return element == null ? null : element.getProperty("create");
   }
 
-  public void setCreateRule(String rule) throws IllegalArgumentException {
+  public void setCreateRule(@Nonnull ODatabaseSessionInternal db, String rule)
+      throws IllegalArgumentException {
     validatePredicate(rule);
-    getElement().setProperty("create", rule);
+    getElement(db).setProperty("create", rule);
   }
 
-  public String getReadRule() {
-    var element = getElement();
+  public String getReadRule(@Nonnull ODatabaseSessionInternal db) {
+    var element = getElement(db);
     return element == null ? null : element.getProperty("read");
   }
 
-  public void setReadRule(String rule) throws IllegalArgumentException {
+  public void setReadRule(@Nonnull ODatabaseSessionInternal db, String rule)
+      throws IllegalArgumentException {
     validatePredicate(rule);
-    getElement().setProperty("read", rule);
+    getElement(db).setProperty("read", rule);
   }
 
-  public String getBeforeUpdateRule() {
-    var element = getElement();
+  public String getBeforeUpdateRule(@Nonnull ODatabaseSessionInternal db) {
+    var element = getElement(db);
     return element == null ? null : element.getProperty("beforeUpdate");
   }
 
-  public void setBeforeUpdateRule(String rule) throws IllegalArgumentException {
+  public void setBeforeUpdateRule(@Nonnull ODatabaseSessionInternal db, String rule)
+      throws IllegalArgumentException {
     validatePredicate(rule);
-    getElement().setProperty("beforeUpdate", rule);
+    getElement(db).setProperty("beforeUpdate", rule);
   }
 
-  public String getAfterUpdateRule() {
-    var element = getElement();
+  public String getAfterUpdateRule(@Nonnull ODatabaseSessionInternal db) {
+    var element = getElement(db);
     return element == null ? null : element.getProperty("afterUpdate");
   }
 
-  public void setAfterUpdateRule(String rule) throws IllegalArgumentException {
+  public void setAfterUpdateRule(@Nonnull ODatabaseSessionInternal db, String rule)
+      throws IllegalArgumentException {
     validatePredicate(rule);
-    getElement().setProperty("afterUpdate", rule);
+    getElement(db).setProperty("afterUpdate", rule);
   }
 
-  public String getDeleteRule() {
-    var element = getElement();
+  public String getDeleteRule(@Nonnull ODatabaseSessionInternal db) {
+    var element = getElement(db);
     return element == null ? null : element.getProperty("delete");
   }
 
-  public void setDeleteRule(String rule) throws IllegalArgumentException {
+  public void setDeleteRule(@Nonnull ODatabaseSessionInternal db, String rule)
+      throws IllegalArgumentException {
     validatePredicate(rule);
-    getElement().setProperty("delete", rule);
+    getElement(db).setProperty("delete", rule);
   }
 
-  public String getExecuteRule() {
-    var element = getElement();
+  public String getExecuteRule(@Nonnull ODatabaseSessionInternal db) {
+    var element = getElement(db);
     return element == null ? null : element.getProperty("execute");
   }
 
-  public void setExecuteRule(String rule) throws IllegalArgumentException {
+  public void setExecuteRule(@Nonnull ODatabaseSessionInternal db, String rule)
+      throws IllegalArgumentException {
     validatePredicate(rule);
-    getElement().setProperty("execute", rule);
+    getElement(db).setProperty("execute", rule);
   }
 
   protected static void validatePredicate(String predicate) throws IllegalArgumentException {

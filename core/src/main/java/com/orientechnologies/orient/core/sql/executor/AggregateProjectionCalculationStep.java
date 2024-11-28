@@ -89,7 +89,7 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
       if (limit > 0 && aggregateResults.size() > limit) {
         return;
       }
-      preAggr = new OResultInternal();
+      preAggr = new OResultInternal(ctx.getDatabase());
 
       for (OProjectionItem proj : this.projection.getItems()) {
         String alias = proj.getProjectionAlias().getStringValue();

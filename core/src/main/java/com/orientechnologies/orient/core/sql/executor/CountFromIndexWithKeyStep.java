@@ -46,11 +46,12 @@ public class CountFromIndexWithKeyStep extends AbstractExecutionStep {
 
   private OResult produce(OCommandContext ctx) {
     OIndex idx = ctx.getDatabase().getMetadata().getIndexManager().getIndex(target.getIndexName());
+    var db = ctx.getDatabase();
     Object val =
         idx.getDefinition()
-            .createValue(ctx.getDatabase(), keyValue.execute(new OResultInternal(), ctx));
-    long size = idx.getInternal().getRids(ctx.getDatabase(), val).distinct().count();
-    OResultInternal result = new OResultInternal();
+            .createValue(db, keyValue.execute(new OResultInternal(db), ctx));
+    long size = idx.getInternal().getRids(db, val).distinct().count();
+    OResultInternal result = new OResultInternal(db);
     result.setProperty(alias, size);
     return result;
   }

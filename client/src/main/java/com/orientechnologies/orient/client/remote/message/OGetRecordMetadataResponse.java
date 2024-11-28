@@ -41,7 +41,8 @@ public class OGetRecordMetadataResponse implements OBinaryResponse {
   }
 
   @Override
-  public void read(OChannelDataInput network, OStorageRemoteSession session) throws IOException {
+  public void read(ODatabaseSessionInternal db, OChannelDataInput network,
+      OStorageRemoteSession session) throws IOException {
     ORecordId recordId = network.readRID();
     int version = network.readVersion();
     metadata = new ORecordMetadata(recordId, version);

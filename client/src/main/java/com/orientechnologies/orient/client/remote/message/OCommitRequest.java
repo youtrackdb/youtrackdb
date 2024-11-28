@@ -24,7 +24,6 @@ import com.orientechnologies.orient.client.remote.OBinaryRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializer;
@@ -48,7 +47,7 @@ public final class OCommitRequest implements OBinaryRequest<OCommitResponse> {
   @Override
   public void write(ODatabaseSessionInternal database, OChannelDataOutput network,
       OStorageRemoteSession session) throws IOException {
-    ORecordSerializer serializer = ODatabaseRecordThreadLocal.instance().get().getSerializer();
+    ORecordSerializer serializer = database.getSerializer();
     network.writeLong(txId);
     network.writeBoolean(usingLong);
 
@@ -65,7 +64,8 @@ public final class OCommitRequest implements OBinaryRequest<OCommitResponse> {
   }
 
   @Override
-  public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
+  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+      ORecordSerializer serializer)
       throws IOException {
     txId = channel.readLong();
     usingLong = channel.readBoolean();

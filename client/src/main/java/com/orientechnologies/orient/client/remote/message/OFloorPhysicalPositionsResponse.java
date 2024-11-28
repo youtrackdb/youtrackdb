@@ -40,7 +40,8 @@ public class OFloorPhysicalPositionsResponse implements OBinaryResponse {
   }
 
   @Override
-  public void read(OChannelDataInput network, OStorageRemoteSession session) throws IOException {
+  public void read(ODatabaseSessionInternal db, OChannelDataInput network,
+      OStorageRemoteSession session) throws IOException {
     this.positions = OMessageHelper.readPhysicalPositions(network);
   }
 

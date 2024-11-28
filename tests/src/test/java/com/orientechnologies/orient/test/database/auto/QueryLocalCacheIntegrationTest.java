@@ -31,7 +31,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-@Test(groups = "query")
+@Test
 public class QueryLocalCacheIntegrationTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
@@ -92,11 +92,11 @@ public class QueryLocalCacheIntegrationTest extends DocumentDBBaseTest {
     database.save(doc5);
 
     ODocument doc6 = new ODocument("OutInFetchClass");
-    ORidBag out = new ORidBag();
+    ORidBag out = new ORidBag(database);
     out.add(doc2);
     out.add(doc3);
     doc6.field("out_friend", out);
-    ORidBag in = new ORidBag();
+    ORidBag in = new ORidBag(database);
     in.add(doc4);
     in.add(doc5);
     doc6.field("in_friend", in);

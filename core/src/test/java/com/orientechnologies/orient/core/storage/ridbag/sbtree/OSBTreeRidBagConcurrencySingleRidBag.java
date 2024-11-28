@@ -66,7 +66,7 @@ public class OSBTreeRidBagConcurrencySingleRidBag {
     db.create();
 
     ODocument document = new ODocument();
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
 
     document.field("ridBag", ridBag);
     for (int i = 0; i < 100; i++) {

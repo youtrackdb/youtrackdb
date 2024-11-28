@@ -53,7 +53,7 @@ public class OCreateClusterStatement extends ODDLStatement {
       }
     }
 
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("operation", "create cluster");
     result.setProperty("clusterName", name.getStringValue());
 

@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.db.document;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiableMultiValue;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
@@ -40,8 +40,9 @@ import java.util.Set;
  * collections also will be visited.
  *
  * <p>Fields values can be updated/converted too. If method {@link
- * ODocumentFieldVisitor#visitField(OType, OType, Object)} will return new value original value will
- * be updated but returned result will not be visited by {@link ODocumentFieldVisitor} instance.
+ * ODocumentFieldVisitor#visitField(com.orientechnologies.orient.core.db.ODatabaseSessionInternal,
+ * OType, OType, Object)} will return new value original value will be updated but returned result
+ * will not be visited by {@link ODocumentFieldVisitor} instance.
  *
  * <p>If currently processed value is collection or map of embedded documents or embedded document
  * itself then method {@link ODocumentFieldVisitor#goDeeper(OType, OType, Object)} is called, if it
@@ -54,7 +55,7 @@ import java.util.Set;
 public class ODocumentFieldWalker {
 
   public ODocument walkDocument(
-      ODatabaseSession session, ODocument document, ODocumentFieldVisitor fieldWalker) {
+      ODatabaseSessionInternal session, ODocument document, ODocumentFieldVisitor fieldWalker) {
     final Set<ODocument> walked = Collections.newSetFromMap(new IdentityHashMap<>());
 
     ODocument doc;
@@ -70,7 +71,7 @@ public class ODocumentFieldWalker {
   }
 
   private void walkDocument(
-      ODatabaseSession session,
+      ODatabaseSessionInternal session,
       ODocument document,
       ODocumentFieldVisitor fieldWalker,
       Set<ODocument> walked) {
@@ -104,7 +105,7 @@ public class ODocumentFieldWalker {
       }
 
       Object fieldValue = document.field(fieldName, fieldType);
-      Object newValue = fieldWalker.visitField(fieldType, linkedType, fieldValue);
+      Object newValue = fieldWalker.visitField(session, fieldType, linkedType, fieldValue);
 
       boolean updated;
       if (updateMode) {
@@ -158,7 +159,7 @@ public class ODocumentFieldWalker {
   }
 
   private void walkMap(
-      ODatabaseSession session,
+      ODatabaseSessionInternal session,
       Map map,
       OType fieldType,
       ODocumentFieldVisitor fieldWalker,
@@ -174,7 +175,7 @@ public class ODocumentFieldWalker {
   }
 
   private void walkIterable(
-      ODatabaseSession session,
+      ODatabaseSessionInternal session,
       Iterable iterable,
       OType fieldType,
       ODocumentFieldVisitor fieldWalker,

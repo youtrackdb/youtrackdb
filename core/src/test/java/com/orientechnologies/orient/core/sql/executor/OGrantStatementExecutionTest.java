@@ -40,8 +40,8 @@ public class OGrantStatementExecutionTest extends BaseMemoryDatabase {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setReadRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     db.command("GRANT POLICY testPolicy ON database.class.Person TO reader").close();
     db.commit();
@@ -51,6 +51,6 @@ public class OGrantStatementExecutionTest extends BaseMemoryDatabase {
         security
             .getSecurityPolicies(db, security.getRole(db, "reader"))
             .get("database.class.Person")
-            .getName());
+            .getName(db));
   }
 }

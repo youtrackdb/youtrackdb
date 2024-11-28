@@ -3,6 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -93,13 +94,13 @@ public class OSkip extends SimpleNode {
     return result;
   }
 
-  public OResult serialize() {
-    OResultInternal result = new OResultInternal();
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
     if (num != null) {
-      result.setProperty("num", num.serialize());
+      result.setProperty("num", num.serialize(db));
     }
     if (inputParam != null) {
-      result.setProperty("inputParam", inputParam.serialize());
+      result.setProperty("inputParam", inputParam.serialize(db));
     }
     return result;
   }

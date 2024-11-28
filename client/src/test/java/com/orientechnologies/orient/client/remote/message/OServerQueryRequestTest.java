@@ -29,7 +29,7 @@ public class OServerQueryRequestTest extends BaseMemoryDatabase {
     channel.close();
 
     OServerQueryRequest other = new OServerQueryRequest();
-    other.read(channel, -1, ORecordSerializerNetworkFactory.INSTANCE.current());
+    other.read(db, channel, -1, ORecordSerializerNetworkFactory.INSTANCE.current());
 
     Assert.assertEquals(request.getCommand(), other.getCommand());
 
@@ -59,7 +59,7 @@ public class OServerQueryRequestTest extends BaseMemoryDatabase {
     channel.close();
 
     OServerQueryRequest other = new OServerQueryRequest();
-    other.read(channel, -1, ORecordSerializerNetworkFactory.INSTANCE.current());
+    other.read(db, channel, -1, ORecordSerializerNetworkFactory.INSTANCE.current());
 
     Assert.assertEquals(request.getCommand(), other.getCommand());
     Assert.assertTrue(other.isNamedParams());
@@ -85,7 +85,7 @@ public class OServerQueryRequestTest extends BaseMemoryDatabase {
     channel.close();
 
     OServerQueryRequest other = new OServerQueryRequest();
-    other.read(channel, -1, ORecordSerializerNetworkFactory.INSTANCE.current());
+    other.read(db, channel, -1, ORecordSerializerNetworkFactory.INSTANCE.current());
 
     Assert.assertEquals(request.getCommand(), other.getCommand());
     Assert.assertTrue(other.isNamedParams());

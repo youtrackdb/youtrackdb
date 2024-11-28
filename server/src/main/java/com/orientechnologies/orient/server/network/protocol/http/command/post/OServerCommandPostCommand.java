@@ -147,9 +147,10 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
       }
       Map<String, Object> additionalContent = new HashMap<>();
       if (returnExecutionPlan) {
+        var dbRef = db;
         result
             .getExecutionPlan()
-            .ifPresent(x -> additionalContent.put("executionPlan", x.toResult().toElement()));
+            .ifPresent(x -> additionalContent.put("executionPlan", x.toResult(dbRef).toElement()));
       }
 
       result.close();
@@ -166,7 +167,7 @@ public class OServerCommandPostCommand extends OServerCommandAuthenticatedDbAbst
 
       additionalContent.put("elapsedMs", elapsedMs);
       ODatabaseStats dbStats = db.getStats();
-      additionalContent.put("dbStats", dbStats.toResult().toElement());
+      additionalContent.put("dbStats", dbStats.toResult(db).toElement());
 
       iResponse.writeResult(response, format, accept, additionalContent, mode, db);
       ok = true;

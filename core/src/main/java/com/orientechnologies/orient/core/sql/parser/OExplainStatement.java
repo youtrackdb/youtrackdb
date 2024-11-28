@@ -60,7 +60,7 @@ public class OExplainStatement extends OStatement {
       executionPlan = statement.createExecutionPlanNoCache(ctx, false);
     }
 
-    OExplainResultSet result = new OExplainResultSet(executionPlan, new ODatabaseStats());
+    OExplainResultSet result = new OExplainResultSet(db, executionPlan, new ODatabaseStats());
     return result;
   }
 
@@ -81,7 +81,7 @@ public class OExplainStatement extends OStatement {
       executionPlan = statement.createExecutionPlanNoCache(ctx, false);
     }
 
-    OExplainResultSet result = new OExplainResultSet(executionPlan, new ODatabaseStats());
+    OExplainResultSet result = new OExplainResultSet(db, executionPlan, new ODatabaseStats());
     return result;
   }
 

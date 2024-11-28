@@ -4,7 +4,6 @@ import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryBatchResultListener;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
@@ -43,14 +42,15 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
   private static final Random random = new Random();
 
   public LiveQueryListenerImpl(
-      OLiveQueryResultListener clientListener, String query, ODatabaseSession db, Object[] iArgs) {
+      OLiveQueryResultListener clientListener, String query, ODatabaseSessionInternal db,
+      Object[] iArgs) {
     this(clientListener, query, db, toPositionalParams(iArgs));
   }
 
   public LiveQueryListenerImpl(
       OLiveQueryResultListener clientListener,
       String query,
-      ODatabaseSession db,
+      ODatabaseSessionInternal db,
       Map<Object, Object> iArgs) {
     this.clientListener = clientListener;
     this.params = iArgs;
@@ -58,7 +58,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
     if (query.trim().toLowerCase().startsWith("live ")) {
       query = query.trim().substring(5);
     }
-    OStatement stm = OSQLEngine.parse(query, (ODatabaseSessionInternal) db);
+    OStatement stm = OSQLEngine.parse(query, db);
     if (!(stm instanceof OSelectStatement)) {
       throw new OCommandExecutionException(
           "Only SELECT statement can be used as a live query: " + query);
@@ -67,7 +67,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
     validateStatement(statement);
     if (statement.getTarget().getItem().getIdentifier() != null) {
       this.className = statement.getTarget().getItem().getIdentifier().getStringValue();
-      if (!((ODatabaseSessionInternal) db)
+      if (!db
           .getMetadata()
           .getImmutableSchemaSnapshot()
           .existsClass(className)) {
@@ -75,23 +75,25 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
             "Class " + className + " not found in the schema: " + query);
       }
     } else if (statement.getTarget().getItem().getRids() != null) {
+      var context = new OBasicCommandContext();
+      context.setDatabase(db);
       this.rids =
           statement.getTarget().getItem().getRids().stream()
-              .map(x -> x.toRecordId(new OResultInternal(), new OBasicCommandContext()))
+              .map(x -> x.toRecordId(new OResultInternal(db), context))
               .collect(Collectors.toList());
     }
     execInSeparateDatabase(
         new OCallable() {
           @Override
           public Object call(Object iArgument) {
-            return execDb = ((ODatabaseSessionInternal) db).copy();
+            return execDb = db.copy();
           }
         });
 
     synchronized (random) {
       token = random.nextInt(); // TODO do something better ;-)!
     }
-    OLiveQueryHookV2.subscribe(token, this, (ODatabaseSessionInternal) db);
+    OLiveQueryHookV2.subscribe(token, this, db);
 
     OCommandContext ctx = new OBasicCommandContext();
     if (iArgs != null)
@@ -137,13 +139,13 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
     for (OLiveQueryHookV2.OLiveQueryOp iRecord : iRecords) {
       OResultInternal record;
       if (iRecord.type == ORecordOperation.CREATED || iRecord.type == ORecordOperation.UPDATED) {
-        record = copy(iRecord.after);
+        record = copy(execDb, iRecord.after);
         if (iRecord.type == ORecordOperation.UPDATED) {
-          OResultInternal before = copy(iRecord.before);
+          OResultInternal before = copy(execDb, iRecord.before);
           record.setMetadata(BEFORE_METADATA_KEY, before);
         }
       } else {
-        record = copy(iRecord.before);
+        record = copy(execDb, iRecord.before);
         record.setMetadata(BEFORE_METADATA_KEY, record);
       }
 
@@ -225,11 +227,11 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
     return where.matchesFilters(record, ctx);
   }
 
-  private OResultInternal copy(OResult item) {
+  private OResultInternal copy(ODatabaseSessionInternal db, OResult item) {
     if (item == null) {
       return null;
     }
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(db);
 
     for (String prop : item.getPropertyNames()) {
       result.setProperty(prop, item.getProperty(prop));

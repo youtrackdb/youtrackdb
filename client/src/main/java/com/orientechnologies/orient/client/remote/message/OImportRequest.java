@@ -44,7 +44,8 @@ public class OImportRequest implements OBinaryRequest<OImportResponse> {
   }
 
   @Override
-  public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
+  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+      ORecordSerializer serializer)
       throws IOException {
     options = channel.readString();
     name = channel.readString();

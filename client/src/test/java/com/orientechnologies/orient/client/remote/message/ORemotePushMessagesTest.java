@@ -37,7 +37,7 @@ public class ORemotePushMessagesTest extends BaseMemoryDatabase {
     channel.close();
 
     OPushDistributedConfigurationRequest readRequest = new OPushDistributedConfigurationRequest();
-    readRequest.read(channel);
+    readRequest.read(db, channel);
     assertEquals(2, readRequest.getHosts().size());
     assertEquals("one", readRequest.getHosts().get(0));
     assertEquals("two", readRequest.getHosts().get(1));
@@ -52,9 +52,8 @@ public class ORemotePushMessagesTest extends BaseMemoryDatabase {
 
     session.begin();
     ODocument schema =
-        ((ODatabaseSessionInternal) session).getSharedContext().getSchema().toStream().copy();
+        ((ODatabaseSessionInternal) session).getSharedContext().getSchema().toStream(db).copy();
     session.commit();
-
 
     MockChannel channel = new MockChannel();
     OPushSchemaRequest request = new OPushSchemaRequest(schema);
@@ -62,7 +61,7 @@ public class ORemotePushMessagesTest extends BaseMemoryDatabase {
     channel.close();
 
     OPushSchemaRequest readRequest = new OPushSchemaRequest();
-    readRequest.read(channel);
+    readRequest.read(db, channel);
     assertNotNull(readRequest.getSchema());
   }
 
@@ -85,7 +84,7 @@ public class ORemotePushMessagesTest extends BaseMemoryDatabase {
         session.commit();
 
         OPushIndexManagerRequest readRequest = new OPushIndexManagerRequest();
-        readRequest.read(channel);
+        readRequest.read(db, channel);
         assertNotNull(readRequest.getIndexManager());
       }
     }
@@ -107,7 +106,7 @@ public class ORemotePushMessagesTest extends BaseMemoryDatabase {
     channel.close();
 
     OPushStorageConfigurationRequest readRequest = new OPushStorageConfigurationRequest();
-    readRequest.read(channel);
+    readRequest.read(db, channel);
     OStorageConfigurationPayload readPayload = readRequest.getPayload();
     OStorageConfigurationPayload payload = request.getPayload();
     assertEquals(readPayload.getName(), payload.getName());
@@ -162,7 +161,7 @@ public class ORemotePushMessagesTest extends BaseMemoryDatabase {
     channel.close();
 
     OSubscribeRequest requestRead = new OSubscribeRequest();
-    requestRead.read(channel, 1, ORecordSerializerNetworkV37.INSTANCE);
+    requestRead.read(db, channel, 1, ORecordSerializerNetworkV37.INSTANCE);
 
     assertEquals(request.getPushMessage(), requestRead.getPushMessage());
     assertTrue(requestRead.getPushRequest() instanceof OSubscribeLiveQueryRequest);
@@ -177,7 +176,7 @@ public class ORemotePushMessagesTest extends BaseMemoryDatabase {
     channel.close();
 
     OSubscribeResponse responseRead = new OSubscribeResponse(new OSubscribeLiveQueryResponse());
-    responseRead.read(channel, null);
+    responseRead.read(db, channel, null);
 
     assertTrue(responseRead.getResponse() instanceof OSubscribeLiveQueryResponse);
     assertEquals(10, ((OSubscribeLiveQueryResponse) responseRead.getResponse()).getMonitorId());
@@ -190,7 +189,7 @@ public class ORemotePushMessagesTest extends BaseMemoryDatabase {
     request.write(null, channel, null);
     channel.close();
     OUnsubscribeRequest readRequest = new OUnsubscribeRequest();
-    readRequest.read(channel, 0, null);
+    readRequest.read(db, channel, 0, null);
     assertEquals(
         10, ((OUnsubscribeLiveQueryRequest) readRequest.getUnsubscribeRequest()).getMonitorId());
   }

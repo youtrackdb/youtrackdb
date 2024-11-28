@@ -34,28 +34,29 @@ public class OCreateSecurityPolicyStatement extends OSimpleExecStatement {
     var db = ctx.getDatabase();
     OSecurityInternal security = db.getSharedContext().getSecurity();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, name.getStringValue());
-    policy.setActive(true);
+    policy.setActive(ctx.getDatabase(), true);
     if (create != null) {
-      policy.setCreateRule(create.toString());
+      policy.setCreateRule(ctx.getDatabase(), create.toString());
     }
     if (read != null) {
-      policy.setReadRule(read.toString());
+      policy.setReadRule(db, read.toString());
     }
     if (beforeUpdate != null) {
-      policy.setBeforeUpdateRule(beforeUpdate.toString());
+      policy.setBeforeUpdateRule(db, beforeUpdate.toString());
     }
     if (afterUpdate != null) {
-      policy.setAfterUpdateRule(afterUpdate.toString());
+      policy.setAfterUpdateRule(db, afterUpdate.toString());
     }
     if (delete != null) {
-      policy.setDeleteRule(delete.toString());
+      policy.setDeleteRule(db, delete.toString());
     }
     if (execute != null) {
-      policy.setExecuteRule(execute.toString());
+      policy.setExecuteRule(db, execute.toString());
     }
+
     security.saveSecurityPolicy(db, policy);
 
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("operation", "create security policy");
     result.setProperty("name", name.getStringValue());
     return OExecutionStream.singleton(result);

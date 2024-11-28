@@ -19,7 +19,8 @@ public class OListDatabasesRequest implements OBinaryRequest<OListDatabasesRespo
   }
 
   @Override
-  public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
+  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+      ORecordSerializer serializer)
       throws IOException {
   }
 

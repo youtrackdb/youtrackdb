@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * This is the gateway interface between the Database side and the storage. Provided implementations
@@ -63,7 +64,8 @@ public interface OStorage extends OBackupable, OStorageInfo {
   }
 
   void open(
-      String iUserName, String iUserPassword, final OContextConfiguration contextConfiguration);
+      ODatabaseSessionInternal remote, String iUserName, String iUserPassword,
+      final OContextConfiguration contextConfiguration);
 
   void create(OContextConfiguration contextConfiguration) throws IOException;
 
@@ -73,11 +75,11 @@ public interface OStorage extends OBackupable, OStorageInfo {
 
   void delete();
 
-  void close();
+  void close(@Nullable ODatabaseSessionInternal session);
 
-  void close(boolean iForce);
+  void close(@Nullable ODatabaseSessionInternal database, boolean iForce);
 
-  boolean isClosed();
+  boolean isClosed(ODatabaseSessionInternal database);
 
   // CRUD OPERATIONS
   @Nonnull

@@ -33,31 +33,30 @@ public class FetchFromStorageMetadataStep extends AbstractExecutionStep {
   }
 
   private OResult produce(OCommandContext ctx) {
-    OResultInternal result = new OResultInternal();
+    ODatabaseSessionInternal db = ctx.getDatabase();
+    OResultInternal result = new OResultInternal(db);
 
-    if (ctx.getDatabase() != null) {
-      ODatabaseSessionInternal db = ctx.getDatabase();
-      OStorage storage = db.getStorage();
-      result.setProperty("clusters", toResult(storage.getClusterInstances()));
-      result.setProperty("defaultClusterId", storage.getDefaultClusterId());
-      result.setProperty("totalClusters", storage.getClusters());
-      result.setProperty("configuration", toResult(storage.getConfiguration()));
-      result.setProperty(
-          "conflictStrategy",
-          storage.getRecordConflictStrategy() == null
-              ? null
-              : storage.getRecordConflictStrategy().getName());
-      result.setProperty("name", storage.getName());
-      result.setProperty("size", storage.getSize(ctx.getDatabase()));
-      result.setProperty("type", storage.getType());
-      result.setProperty("version", storage.getVersion());
-      result.setProperty("createdAtVersion", storage.getCreatedAtVersion());
-    }
+    OStorage storage = db.getStorage();
+    result.setProperty("clusters", toResult(db, storage.getClusterInstances()));
+    result.setProperty("defaultClusterId", storage.getDefaultClusterId());
+    result.setProperty("totalClusters", storage.getClusters());
+    result.setProperty("configuration", toResult(db, storage.getConfiguration()));
+    result.setProperty(
+        "conflictStrategy",
+        storage.getRecordConflictStrategy() == null
+            ? null
+            : storage.getRecordConflictStrategy().getName());
+    result.setProperty("name", storage.getName());
+    result.setProperty("size", storage.getSize(ctx.getDatabase()));
+    result.setProperty("type", storage.getType());
+    result.setProperty("version", storage.getVersion());
+    result.setProperty("createdAtVersion", storage.getCreatedAtVersion());
     return result;
   }
 
-  private Object toResult(OStorageConfiguration configuration) {
-    OResultInternal result = new OResultInternal();
+  private static Object toResult(ODatabaseSessionInternal db,
+      OStorageConfiguration configuration) {
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("charset", configuration.getCharset());
     result.setProperty("clusterSelection", configuration.getClusterSelection());
     result.setProperty("conflictStrategy", configuration.getConflictStrategy());
@@ -67,15 +66,16 @@ public class FetchFromStorageMetadataStep extends AbstractExecutionStep {
     result.setProperty("localeLanguage", configuration.getLocaleLanguage());
     result.setProperty("recordSerializer", configuration.getRecordSerializer());
     result.setProperty("timezone", String.valueOf(configuration.getTimeZone()));
-    result.setProperty("properties", toResult(configuration.getProperties()));
+    result.setProperty("properties", toResult(db, configuration.getProperties()));
     return result;
   }
 
-  private List<OResult> toResult(List<OStorageEntryConfiguration> properties) {
+  private static List<OResult> toResult(ODatabaseSessionInternal db,
+      List<OStorageEntryConfiguration> properties) {
     List<OResult> result = new ArrayList<>();
     if (properties != null) {
       for (OStorageEntryConfiguration entry : properties) {
-        OResultInternal item = new OResultInternal();
+        OResultInternal item = new OResultInternal(db);
         item.setProperty("name", entry.name);
         item.setProperty("value", entry.value);
         result.add(item);
@@ -84,11 +84,12 @@ public class FetchFromStorageMetadataStep extends AbstractExecutionStep {
     return result;
   }
 
-  private List<OResult> toResult(Collection<? extends OCluster> clusterInstances) {
+  private List<OResult> toResult(ODatabaseSessionInternal db,
+      Collection<? extends OCluster> clusterInstances) {
     List<OResult> result = new ArrayList<>();
     if (clusterInstances != null) {
       for (OCluster cluster : clusterInstances) {
-        OResultInternal item = new OResultInternal();
+        OResultInternal item = new OResultInternal(db);
         item.setProperty("name", cluster.getName());
         item.setProperty("fileName", cluster.getFileName());
         item.setProperty("id", cluster.getId());

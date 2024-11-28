@@ -1,7 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
@@ -23,7 +22,7 @@ import org.junit.Test;
 public class ORevokeStatementExecutionTest {
 
   static OxygenDB orient;
-  private ODatabaseSession db;
+  private ODatabaseSessionInternal db;
 
   @BeforeClass
   public static void beforeClass() {
@@ -38,7 +37,8 @@ public class ORevokeStatementExecutionTest {
   @Before
   public void before() {
     OCreateDatabaseUtil.createDatabase("test", orient, OCreateDatabaseUtil.TYPE_MEMORY);
-    this.db = orient.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    this.db = (ODatabaseSessionInternal) orient.open("test", "admin",
+        OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
 
   @After
@@ -75,14 +75,14 @@ public class ORevokeStatementExecutionTest {
 
   @Test
   public void testRemovePolicy() {
-    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setReadRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
     db.commit();
@@ -92,7 +92,7 @@ public class ORevokeStatementExecutionTest {
         security
             .getSecurityPolicies(db, security.getRole(db, "reader"))
             .get("database.class.Person")
-            .getName());
+            .getName(db));
     db.begin();
     db.command("REVOKE POLICY ON database.class.Person FROM reader").close();
     db.commit();

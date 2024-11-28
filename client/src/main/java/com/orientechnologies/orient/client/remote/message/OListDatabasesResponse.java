@@ -33,10 +33,11 @@ public class OListDatabasesResponse implements OBinaryResponse {
   }
 
   @Override
-  public void read(OChannelDataInput network, OStorageRemoteSession session) throws IOException {
+  public void read(ODatabaseSessionInternal db, OChannelDataInput network,
+      OStorageRemoteSession session) throws IOException {
     ORecordSerializer serializer = ORecordSerializerNetworkFactory.INSTANCE.current();
     final ODocument result = new ODocument();
-    serializer.fromStream(network.readBytes(), result, null);
+    serializer.fromStream(db, network.readBytes(), result, null);
     databases = result.field("databases");
   }
 

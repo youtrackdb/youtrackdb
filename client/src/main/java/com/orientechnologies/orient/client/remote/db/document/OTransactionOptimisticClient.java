@@ -69,7 +69,8 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
           // keep rid instance to support links consistency
           record.fromStream(operation.getOriginal());
           ODocumentSerializerDelta deltaSerializer = ODocumentSerializerDelta.instance();
-          deltaSerializer.deserializeDelta(operation.getRecord(), (ODocument) record);
+          deltaSerializer.deserializeDelta(getDatabase(), operation.getRecord(),
+              (ODocument) record);
         } finally {
           record.decrementLoading();
         }

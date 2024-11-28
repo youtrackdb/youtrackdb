@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import com.orientechnologies.orient.core.sql.parser.OExpression;
@@ -48,13 +49,13 @@ public class LetExpressionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OResult serialize() {
-    OResultInternal result = OExecutionStepInternal.basicSerialize(this);
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
     if (varname != null) {
-      result.setProperty("varname", varname.serialize());
+      result.setProperty("varname", varname.serialize(db));
     }
     if (expression != null) {
-      result.setProperty("expression", expression.serialize());
+      result.setProperty("expression", expression.serialize(db));
     }
     return result;
   }

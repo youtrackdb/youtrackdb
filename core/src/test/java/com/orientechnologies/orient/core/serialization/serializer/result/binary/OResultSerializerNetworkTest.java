@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.serialization.serializer.result.binary;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
@@ -22,10 +23,10 @@ public class OResultSerializerNetworkTest {
   public void test() {
     try (var orientDB = new OxygenDB("memory", OxygenDBConfig.defaultConfig())) {
       orientDB.createIfNotExists("test", ODatabaseType.MEMORY, "admin", "admin", "admin");
-      try (var ignore = orientDB.open("test", "admin", "admin")) {
+      try (var db = (ODatabaseSessionInternal) orientDB.open("test", "admin", "admin")) {
         OResultSerializerNetwork serializer = new OResultSerializerNetwork();
 
-        OResultInternal original = new OResultInternal();
+        OResultInternal original = new OResultInternal(db);
         original.setProperty("string", "foo");
         original.setProperty("integer", 12);
         original.setProperty("float", 12.4f);
@@ -33,7 +34,7 @@ public class OResultSerializerNetworkTest {
         original.setProperty("boolean", true);
         original.setProperty("rid", new ORecordId("#12:0"));
 
-        OResultInternal embeddedProj = new OResultInternal();
+        OResultInternal embeddedProj = new OResultInternal(db);
         embeddedProj.setProperty("name", "bar");
         original.setProperty("embeddedProj", embeddedProj);
 
@@ -51,7 +52,7 @@ public class OResultSerializerNetworkTest {
         serializer.serialize(original, bytes);
 
         bytes.offset = 0;
-        OResultInternal deserialized = serializer.deserialize(bytes);
+        OResultInternal deserialized = serializer.deserialize(db, bytes);
         Assert.assertEquals(original, deserialized);
       }
     }

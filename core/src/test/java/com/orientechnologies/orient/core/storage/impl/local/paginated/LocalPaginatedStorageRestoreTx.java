@@ -119,7 +119,7 @@ public class LocalPaginatedStorageRestoreTx {
     copyDataFromTestWithoutClose();
     OStorage storage = baseDocumentTx.getStorage();
     baseDocumentTx.close();
-    storage.close();
+    storage.close(baseDocumentTx);
 
     testDocumentTx =
         new ODatabaseDocumentTx(

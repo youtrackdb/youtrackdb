@@ -50,14 +50,14 @@ public class TransactionChangesDetectionTest {
     final OTransactionOptimistic currentTx = (OTransactionOptimistic) database.getTransaction();
     database.save(new ODocument("test"));
     assertTrue(currentTx.isChanged());
-    assertFalse(currentTx.isAlreadyCleared());
+    assertFalse(currentTx.isStartedOnServer());
     assertEquals(1, currentTx.getEntryCount());
     assertEquals(OTransaction.TXSTATUS.BEGUN, currentTx.getStatus());
 
     currentTx.resetChangesTracking();
     database.save(new ODocument("test"));
     assertTrue(currentTx.isChanged());
-    assertTrue(currentTx.isAlreadyCleared());
+    assertTrue(currentTx.isStartedOnServer());
     assertEquals(2, currentTx.getEntryCount());
     assertEquals(OTransaction.TXSTATUS.BEGUN, currentTx.getStatus());
     database.commit();
@@ -70,7 +70,7 @@ public class TransactionChangesDetectionTest {
     final OTransactionOptimistic currentTx = (OTransactionOptimistic) database.getTransaction();
     database.save(new ODocument("test"));
     assertTrue(currentTx.isChanged());
-    assertFalse(currentTx.isAlreadyCleared());
+    assertFalse(currentTx.isStartedOnServer());
     assertEquals(1, currentTx.getEntryCount());
     assertEquals(OTransaction.TXSTATUS.BEGUN, currentTx.getStatus());
     database.rollback();
@@ -93,7 +93,7 @@ public class TransactionChangesDetectionTest {
     assertEquals(1, currentTx.getTxStartCounter());
     database.save(new ODocument("test"));
     assertTrue(currentTx.isChanged());
-    assertFalse(currentTx.isAlreadyCleared());
+    assertFalse(currentTx.isStartedOnServer());
     assertEquals(1, currentTx.getEntryCount());
     assertEquals(OTransaction.TXSTATUS.BEGUN, currentTx.getStatus());
   }

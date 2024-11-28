@@ -22,8 +22,9 @@ public class OExpressionStatement extends OSimpleExecStatement {
 
   @Override
   public OExecutionStream executeSimple(OCommandContext ctx) {
-    Object expResult = expression.execute(new OResultInternal(), ctx);
-    OResultInternal item = new OResultInternal();
+    var db = ctx.getDatabase();
+    Object expResult = expression.execute(new OResultInternal(db), ctx);
+    OResultInternal item = new OResultInternal(db);
     item.setProperty("result", expResult);
     return OExecutionStream.singleton(item);
   }

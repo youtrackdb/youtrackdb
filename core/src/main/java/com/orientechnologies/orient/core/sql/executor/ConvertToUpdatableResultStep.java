@@ -32,7 +32,7 @@ public class ConvertToUpdatableResultStep extends AbstractExecutionStep {
     if (result.isElement()) {
       var element = result.toElement();
       if (element != null) {
-        return new OUpdatableResult(element);
+        return new OUpdatableResult(ctx.getDatabase(), element);
       }
       return result;
     }

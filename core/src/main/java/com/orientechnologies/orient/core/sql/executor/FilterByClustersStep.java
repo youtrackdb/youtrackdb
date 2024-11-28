@@ -68,8 +68,8 @@ public class FilterByClustersStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OResult serialize() {
-    OResultInternal result = OExecutionStepInternal.basicSerialize(this);
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
     if (clusters != null) {
       result.setProperty("clusters", clusters);
     }

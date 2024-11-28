@@ -56,7 +56,7 @@ public class TestNetworkSerializerIndipendency {
     } finally {
       if (dbTx != null && !dbTx.isClosed()) {
         dbTx.close();
-        dbTx.getStorage().close();
+        dbTx.getStorage().close(dbTx);
       }
 
       dropDatabase();
@@ -104,7 +104,7 @@ public class TestNetworkSerializerIndipendency {
     } finally {
       if (dbTx != null) {
         dbTx.close();
-        dbTx.getStorage().close();
+        dbTx.getStorage().close(dbTx);
       }
 
       dropDatabase();

@@ -61,7 +61,7 @@ public class OAlterDatabaseStatement extends ODDLStatement {
     Object finalValue = customPropertyValue.execute((OIdentifiable) null, ctx);
     db.setCustom(customPropertyName.getStringValue(), finalValue);
 
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("operation", "alter database");
     result.setProperty("customAttribute", customPropertyName.getStringValue());
     result.setProperty("oldValue", oldValue);
@@ -80,7 +80,7 @@ public class OAlterDatabaseStatement extends ODDLStatement {
     Object finalValue = settingValue.execute((OIdentifiable) null, ctx);
     db.setInternal(attribute, finalValue);
 
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("operation", "alter database");
     result.setProperty("attribute", settingName.getStringValue());
     result.setProperty("oldValue", oldValue);

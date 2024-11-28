@@ -108,7 +108,7 @@ public class OCompositeIndexDefinitionTest extends BaseMemoryDatabase {
     compositeIndexDefinition.addIndex(
         new OPropertyRidBagIndexDefinition("testCollectionClass", "fTwo"));
 
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
     ridBag.add(new ORecordId("#1:10"));
     ridBag.add(new ORecordId("#1:11"));
     ridBag.add(new ORecordId("#1:11"));
@@ -213,7 +213,7 @@ public class OCompositeIndexDefinitionTest extends BaseMemoryDatabase {
     compositeIndexDefinition.addIndex(
         new OPropertyIndexDefinition("testCollectionClass", "fOne", OType.INTEGER));
 
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
     ridBag.add(new ORecordId("#1:10"));
     ridBag.add(new ORecordId("#1:11"));
     ridBag.add(new ORecordId("#1:11"));
@@ -263,7 +263,7 @@ public class OCompositeIndexDefinitionTest extends BaseMemoryDatabase {
     compositeIndexDefinition.addIndex(
         new OPropertyIndexDefinition("testCollectionClass", "fThree", OType.STRING));
 
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
     ridBag.add(new ORecordId("#1:10"));
     ridBag.add(new ORecordId("#1:11"));
     ridBag.add(new ORecordId("#1:11"));
@@ -477,7 +477,7 @@ public class OCompositeIndexDefinitionTest extends BaseMemoryDatabase {
   public void testDocumentToIndexRidBagValueSuccessfulOne() {
     final ODocument document = new ODocument();
 
-    final ORidBag ridBag = new ORidBag();
+    final ORidBag ridBag = new ORidBag(db);
     ridBag.add(new ORecordId("#1:10"));
     ridBag.add(new ORecordId("#1:11"));
     ridBag.add(new ORecordId("#1:11"));
@@ -531,7 +531,7 @@ public class OCompositeIndexDefinitionTest extends BaseMemoryDatabase {
 
   @Test
   public void testDocumentToIndexRidBagValueSuccessfulTwo() {
-    final ORidBag ridBag = new ORidBag();
+    final ORidBag ridBag = new ORidBag(db);
     ridBag.add(new ORecordId("#1:10"));
     ridBag.add(new ORecordId("#1:11"));
     ridBag.add(new ORecordId("#1:11"));
@@ -592,7 +592,7 @@ public class OCompositeIndexDefinitionTest extends BaseMemoryDatabase {
   public void testDocumentToIndexRidBagValueSuccessfulThree() {
     final ODocument document = new ODocument();
 
-    final ORidBag ridBag = new ORidBag();
+    final ORidBag ridBag = new ORidBag(db);
     ridBag.add(new ORecordId("#1:10"));
     ridBag.add(new ORecordId("#1:11"));
     ridBag.add(new ORecordId("#1:11"));
@@ -788,7 +788,7 @@ public class OCompositeIndexDefinitionTest extends BaseMemoryDatabase {
     compositeIndexDefinition.addIndex(
         new OPropertyIndexDefinition("testCollectionClass", "fThree", OType.INTEGER));
 
-    final ORidBag ridBag = new ORidBag();
+    final ORidBag ridBag = new ORidBag(db);
     ridBag.enableTracking(null);
     ridBag.add(new ORecordId("#10:0"));
     ridBag.add(new ORecordId("#10:1"));
@@ -872,7 +872,7 @@ public class OCompositeIndexDefinitionTest extends BaseMemoryDatabase {
     compositeIndexDefinition.addIndex(
         new OPropertyIndexDefinition("testCollectionClass", "fThree", OType.INTEGER));
 
-    final ORidBag ridBag = new ORidBag();
+    final ORidBag ridBag = new ORidBag(db);
 
     ridBag.add(new ORecordId("#10:1"));
     ridBag.add(new ORecordId("#10:2"));

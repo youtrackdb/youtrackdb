@@ -32,7 +32,8 @@ public class OConnect37Request implements OBinaryRequest<OConnectResponse> {
   }
 
   @Override
-  public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
+  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+      ORecordSerializer serializer)
       throws IOException {
     username = channel.readString();
     password = channel.readString();

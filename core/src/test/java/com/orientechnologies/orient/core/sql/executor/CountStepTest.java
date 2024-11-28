@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
+import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
@@ -12,7 +13,7 @@ import org.junit.Test;
 /**
  *
  */
-public class CountStepTest {
+public class CountStepTest extends BaseMemoryDatabase {
 
   private static final String PROPERTY_NAME = "testPropertyName";
   private static final String PROPERTY_VALUE = "testPropertyValue";
@@ -21,6 +22,8 @@ public class CountStepTest {
   @Test
   public void shouldCountRecords() {
     OCommandContext context = new OBasicCommandContext();
+    context.setDatabase(db);
+
     CountStep step = new CountStep(context, false);
 
     AbstractExecutionStep previous =
@@ -32,7 +35,7 @@ public class CountStepTest {
             List<OResult> result = new ArrayList<>();
             if (!done) {
               for (int i = 0; i < 100; i++) {
-                OResultInternal item = new OResultInternal();
+                OResultInternal item = new OResultInternal(ctx.getDatabase());
                 item.setProperty(PROPERTY_NAME, PROPERTY_VALUE);
                 result.add(item);
               }

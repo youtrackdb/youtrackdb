@@ -37,7 +37,8 @@ public class OGetSizeRequest implements OBinaryRequest<OGetSizeResponse> {
       OStorageRemoteSession session) throws IOException {
   }
 
-  public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
+  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+      ORecordSerializer serializer)
       throws IOException {
   }
 

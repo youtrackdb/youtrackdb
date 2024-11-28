@@ -47,7 +47,8 @@ public class OGetClusterDataRangeRequest implements OBinaryRequest<OGetClusterDa
     network.writeShort((short) clusterId);
   }
 
-  public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
+  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+      ORecordSerializer serializer)
       throws IOException {
     this.clusterId = channel.readShort();
   }

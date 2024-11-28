@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream
  */
 public class OptionalMatchEdgeTraverser extends MatchEdgeTraverser {
 
-  public static final OResult EMPTY_OPTIONAL = new OResultInternal();
+  public static final OResult EMPTY_OPTIONAL = new OResultInternal(null);
 
   public OptionalMatchEdgeTraverser(OResult lastUpstreamRecord, EdgeTraversal edge) {
     super(lastUpstreamRecord, edge);
@@ -42,11 +42,12 @@ public class OptionalMatchEdgeTraverser extends MatchEdgeTraverser {
       }
     }
 
-    OResultInternal result = new OResultInternal();
+    var db = ctx.getDatabase();
+    OResultInternal result = new OResultInternal(db);
     for (String prop : sourceRecord.getPropertyNames()) {
       result.setProperty(prop, sourceRecord.getProperty(prop));
     }
-    result.setProperty(endPointAlias, next.getElement().map(x -> toResult(x)).orElse(null));
+    result.setProperty(endPointAlias, next.getElement().map(x -> toResult(db, x)).orElse(null));
     return result;
   }
 
@@ -54,6 +55,7 @@ public class OptionalMatchEdgeTraverser extends MatchEdgeTraverser {
     if (elem == EMPTY_OPTIONAL) {
       return true;
     }
+
     return elem instanceof OResult && EMPTY_OPTIONAL == ((OResult) elem).getElement().orElse(null);
   }
 }

@@ -52,7 +52,7 @@ public class CountFromClassStep extends AbstractExecutionStep {
           "Class " + target.getStringValue() + " does not exist in the database schema");
     }
     long size = clazz.count(db);
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(db);
     result.setProperty(alias, size);
     return result;
   }

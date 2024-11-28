@@ -26,6 +26,7 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.OMap;
@@ -125,7 +126,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
   }
 
   public Object fieldFromStream(
-      final ORecordAbstract iSourceRecord,
+      ODatabaseSessionInternal db, final ORecordAbstract iSourceRecord,
       final OType iType,
       OClass iLinkedClass,
       OType iLinkedType,
@@ -139,7 +140,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
     switch (iType) {
       case EMBEDDEDLIST:
       case EMBEDDEDSET:
-        return embeddedCollectionFromStream(
+        return embeddedCollectionFromStream(db,
             (ODocument) iSourceRecord, iType, iLinkedClass, iLinkedType, iValue);
 
       case LINKSET:
@@ -155,9 +156,9 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
                 : iValue;
 
         if (iType == OType.LINKLIST) {
-          return unserializeList((ODocument) iSourceRecord, value);
+          return unserializeList(db, (ODocument) iSourceRecord, value);
         } else {
-          return unserializeSet((ODocument) iSourceRecord, value);
+          return unserializeSet(db, (ODocument) iSourceRecord, value);
         }
       }
 
@@ -191,7 +192,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
                 mapValue = mapValue.substring(1);
               }
               map.put(
-                  fieldTypeFromStream((ODocument) iSourceRecord, OType.STRING, entry.get(0)),
+                  fieldTypeFromStream(db, (ODocument) iSourceRecord, OType.STRING, entry.get(0)),
                   new ORecordId(mapValue));
             }
           }
@@ -200,7 +201,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
       }
 
       case EMBEDDEDMAP:
-        return embeddedMapFromStream((ODocument) iSourceRecord, iLinkedType, iValue, iName);
+        return embeddedMapFromStream(db, (ODocument) iSourceRecord, iLinkedType, iValue, iName);
 
       case LINK:
         if (iValue.length() > 1) {
@@ -238,7 +239,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
           // REMOVE BEGIN & END EMBEDDED CHARACTERS
           final String value = iValue.substring(1, iValue.length() - 1);
 
-          final Object embeddedObject = OStringSerializerEmbedded.INSTANCE.fromStream(value);
+          final Object embeddedObject = OStringSerializerEmbedded.INSTANCE.fromStream(db, value);
           if (embeddedObject instanceof ODocument) {
             ODocumentInternal.addOwner((ODocument) embeddedObject, iSourceRecord);
           }
@@ -253,14 +254,14 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
             iValue.charAt(0) == OStringSerializerHelper.BAG_BEGIN
                 ? iValue.substring(1, iValue.length() - 1)
                 : iValue;
-        return ORidBag.fromStream(value);
+        return ORidBag.fromStream(db, value);
       default:
-        return fieldTypeFromStream((ODocument) iSourceRecord, iType, iValue);
+        return fieldTypeFromStream(db, (ODocument) iSourceRecord, iType, iValue);
     }
   }
 
   public Map<String, Object> embeddedMapFromStream(
-      final ODocument iSourceDocument,
+      ODatabaseSessionInternal db, final ODocument iSourceDocument,
       final OType iLinkedType,
       final String iValue,
       final String iName) {
@@ -324,7 +325,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
               mapValue = mapValue.substring(1, mapValue.length() - 1);
             }
 
-            mapValueObject = fieldTypeFromStream(iSourceDocument, linkedType, mapValue);
+            mapValueObject = fieldTypeFromStream(db, iSourceDocument, linkedType, mapValue);
 
             if (mapValueObject != null && mapValueObject instanceof ODocument) {
               ODocumentInternal.addOwner((ODocument) mapValueObject, iSourceDocument);
@@ -333,7 +334,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
             mapValueObject = null;
           }
 
-          final Object key = fieldTypeFromStream(iSourceDocument, OType.STRING, entries.get(0));
+          final Object key = fieldTypeFromStream(db, iSourceDocument, OType.STRING, entries.get(0));
           try {
             map.put(key, mapValueObject);
           } catch (ClassCastException e) {
@@ -666,7 +667,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
   }
 
   public Object embeddedCollectionFromStream(
-      final ODocument iDocument,
+      ODatabaseSessionInternal db, final ODocument iDocument,
       final OType iType,
       OClass iLinkedClass,
       final OType iLinkedType,
@@ -689,13 +690,13 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
       if (iDocument != null) {
         coll =
             (iType == OType.EMBEDDEDLIST
-                ? unserializeList(iDocument, value)
-                : unserializeSet(iDocument, value));
+                ? unserializeList(db, iDocument, value)
+                : unserializeSet(db, iDocument, value));
       } else {
         if (iType == OType.EMBEDDEDLIST) {
-          coll = unserializeList(iDocument, value);
+          coll = unserializeList(db, iDocument, value);
         } else {
-          return unserializeSet(iDocument, value);
+          return unserializeSet(db, iDocument, value);
         }
       }
     } else {
@@ -733,12 +734,12 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
 
           if (iLinkedClass != null) {
             ODocument doc = new ODocument();
-            objectToAdd = fromString(item, doc, null);
+            objectToAdd = fromString(db, item, doc, null);
             ODocumentInternal.fillClassNameIfNeeded(doc, iLinkedClass.getName());
           } else
           // EMBEDDED OBJECT
           {
-            objectToAdd = fieldTypeFromStream(iDocument, OType.EMBEDDED, item);
+            objectToAdd = fieldTypeFromStream(db, iDocument, OType.EMBEDDED, item);
           }
         }
       } else {
@@ -763,7 +764,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
           item = item.substring(1, item.length() - 1);
         }
 
-        objectToAdd = fieldTypeFromStream(iDocument, linkedType, item);
+        objectToAdd = fieldTypeFromStream(db, iDocument, linkedType, item);
       }
 
       if (objectToAdd != null
@@ -899,7 +900,8 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
     iOutput.append(OStringSerializerHelper.SET_END);
   }
 
-  private OList unserializeList(final ODocument iSourceRecord, final String value) {
+  private OList unserializeList(ODatabaseSessionInternal db, final ODocument iSourceRecord,
+      final String value) {
     final OList coll = new OList(iSourceRecord);
     final List<String> items =
         OStringSerializerHelper.smartSplit(value, OStringSerializerHelper.RECORD_SEPARATOR);
@@ -910,7 +912,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
         if (item.startsWith("#")) {
           coll.add(new ORecordId(item));
         } else {
-          final ORecord doc = fromString(item);
+          final ORecord doc = fromString(db, item);
           if (doc instanceof ODocument) {
             ODocumentInternal.addOwner((ODocument) doc, iSourceRecord);
           }
@@ -922,7 +924,8 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
     return coll;
   }
 
-  private OSet unserializeSet(final ODocument iSourceRecord, final String value) {
+  private OSet unserializeSet(ODatabaseSessionInternal db, final ODocument iSourceRecord,
+      final String value) {
     final OSet coll = new OSet(iSourceRecord);
     final List<String> items =
         OStringSerializerHelper.smartSplit(value, OStringSerializerHelper.RECORD_SEPARATOR);
@@ -933,7 +936,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
         if (item.startsWith("#")) {
           coll.add(new ORecordId(item));
         } else {
-          final ORecord doc = fromString(item);
+          final ORecord doc = fromString(db, item);
           if (doc instanceof ODocument) {
             ODocumentInternal.addOwner((ODocument) doc, iSourceRecord);
           }

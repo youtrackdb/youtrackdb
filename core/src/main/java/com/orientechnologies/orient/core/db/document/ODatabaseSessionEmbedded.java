@@ -591,7 +591,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
    */
   public ODatabaseSessionInternal copy() {
     var storage = (OStorage) getSharedContext().getStorage();
-    storage.open(null, null, config.getConfigurations());
+    storage.open(this, null, null, config.getConfigurations());
     ODatabaseSessionEmbedded database = new ODatabaseSessionEmbedded(storage);
     database.init(config, this.sharedContext);
     String user;
@@ -614,7 +614,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
 
   @Override
   public boolean isClosed() {
-    return status == STATUS.CLOSED || storage.isClosed();
+    return status == STATUS.CLOSED || storage.isClosed(this);
   }
 
   public void rebuildIndexes() {
@@ -1154,7 +1154,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
       }
 
       OLiveQueryHook.addOp(doc, ORecordOperation.CREATED, this);
-      OLiveQueryHookV2.addOp(doc, ORecordOperation.CREATED, this);
+      OLiveQueryHookV2.addOp(this, doc, ORecordOperation.CREATED);
     }
 
     callbackHooks(ORecordHook.TYPE.AFTER_CREATE, id);
@@ -1203,7 +1203,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
         getSharedContext().getViewManager().recordDeleted(clazz, doc, this);
       }
       OLiveQueryHook.addOp(doc, ORecordOperation.DELETED, this);
-      OLiveQueryHookV2.addOp(doc, ORecordOperation.DELETED, this);
+      OLiveQueryHookV2.addOp(this, doc, ORecordOperation.DELETED);
     }
     callbackHooks(ORecordHook.TYPE.AFTER_DELETE, id);
   }
@@ -1291,7 +1291,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
           }
 
           OLiveQueryHook.addOp(doc, ORecordOperation.UPDATED, this);
-          OLiveQueryHookV2.addOp(doc, ORecordOperation.UPDATED, this);
+          OLiveQueryHookV2.addOp(this, doc, ORecordOperation.UPDATED);
         }
       }
     }
@@ -1840,7 +1840,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
         sharedContext = null;
 
         if (storage != null) {
-          storage.close();
+          storage.close(this);
         }
       }
 

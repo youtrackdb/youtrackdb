@@ -26,6 +26,7 @@ import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.OMap;
@@ -558,7 +559,7 @@ public enum OType {
       }
 
       if (targetClass.equals(ORidBag.class) && value instanceof Iterable<?> iterable) {
-        var ridBag = new ORidBag();
+        var ridBag = new ORidBag((ODatabaseSessionInternal) session);
 
         for (var item : iterable) {
           if (item instanceof OIdentifiable identifiable) {

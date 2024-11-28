@@ -46,17 +46,18 @@ public final class OLoaderExecutionStream implements OExecutionStream {
     if (nextResult != null) {
       return;
     }
+    var db = ctx.getDatabase();
     while (iterator.hasNext()) {
       OIdentifiable nextRid = iterator.next();
 
       if (nextRid != null) {
         if (nextRid instanceof ORecord record) {
-          nextResult = new OResultInternal(record);
+          nextResult = new OResultInternal(db, record);
           return;
         } else {
           try {
-            ORecord nextDoc = ctx.getDatabase().load(nextRid.getIdentity());
-            OResultInternal res = new OResultInternal(nextDoc);
+            ORecord nextDoc = db.load(nextRid.getIdentity());
+            OResultInternal res = new OResultInternal(db, nextDoc);
             if (nextRid instanceof OContextualRecordId) {
               res.addMetadata(((OContextualRecordId) nextRid).getContext());
             }

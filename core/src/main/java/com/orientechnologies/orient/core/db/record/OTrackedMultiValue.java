@@ -19,6 +19,7 @@
  */
 package com.orientechnologies.orient.core.db.record;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
@@ -37,10 +38,12 @@ public interface OTrackedMultiValue<K, V> {
   /**
    * Reverts all operations that were performed on collection and return original collection state.
    *
+   * @param session
    * @param changeEvents List of operations that were performed on collection.
    * @return Original collection state.
    */
-  Object returnOriginalState(List<OMultiValueChangeEvent<K, V>> changeEvents);
+  Object returnOriginalState(ODatabaseSessionInternal session,
+      List<OMultiValueChangeEvent<K, V>> changeEvents);
 
   Class<?> getGenericClass();
 

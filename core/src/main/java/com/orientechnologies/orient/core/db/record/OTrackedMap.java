@@ -19,6 +19,7 @@
  */
 package com.orientechnologies.orient.core.db.record;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -169,6 +170,7 @@ public class OTrackedMap<T> extends LinkedHashMap<Object, T>
   }
 
   public Map<Object, T> returnOriginalState(
+      ODatabaseSessionInternal session,
       final List<OMultiValueChangeEvent<Object, T>> multiValueChangeEvents) {
     final Map<Object, T> reverted = new HashMap<Object, T>(this);
 

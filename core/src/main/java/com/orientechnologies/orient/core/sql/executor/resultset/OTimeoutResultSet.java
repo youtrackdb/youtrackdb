@@ -43,7 +43,7 @@ public final class OTimeoutResultSet implements OExecutionStream {
     if (totalTime.get() / 1_000_000 > timeoutMillis) {
       fail();
       if (timedOut) {
-        return new OResultInternal();
+        return new OResultInternal(ctx.getDatabase());
       }
     }
     long begin = System.nanoTime();

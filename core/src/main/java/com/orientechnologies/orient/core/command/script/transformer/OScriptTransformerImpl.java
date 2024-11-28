@@ -6,6 +6,7 @@ import com.orientechnologies.orient.core.command.script.transformer.result.MapTr
 import com.orientechnologies.orient.core.command.script.transformer.result.OResultTransformer;
 import com.orientechnologies.orient.core.command.script.transformer.resultset.OResultSetTransformer;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -36,14 +37,14 @@ public class OScriptTransformerImpl implements OScriptTransformer {
             c,
             new OResultTransformer() {
               @Override
-              public OResult transform(Object value) {
-                OResultInternal internal = new OResultInternal();
+              public OResult transform(ODatabaseSessionInternal db, Object value) {
+                OResultInternal internal = new OResultInternal(db);
 
                 final List res = new ArrayList();
                 internal.setProperty("value", res);
 
                 for (Object v : ((Map) value).values()) {
-                  res.add(new OResultInternal((OIdentifiable) v));
+                  res.add(new OResultInternal(db, (OIdentifiable) v));
                 }
 
                 return internal;
@@ -57,14 +58,14 @@ public class OScriptTransformerImpl implements OScriptTransformer {
   }
 
   @Override
-  public OResultSet toResultSet(Object value) {
+  public OResultSet toResultSet(ODatabaseSessionInternal db, Object value) {
     if (value instanceof Value v) {
       if (v.isNull()) {
         return null;
       } else if (v.hasArrayElements()) {
         final List<Object> array = new ArrayList<>((int) v.getArraySize());
         for (int i = 0; i < v.getArraySize(); ++i) {
-          array.add(new OResultInternal(v.getArrayElement(i).asHostObject()));
+          array.add(new OResultInternal(db, v.getArrayElement(i).asHostObject()));
         }
         value = array;
       } else if (v.isHostObject()) {
@@ -79,34 +80,34 @@ public class OScriptTransformerImpl implements OScriptTransformer {
     }
 
     if (value == null) {
-      return OScriptResultSets.empty();
+      return OScriptResultSets.empty(db);
     }
     if (value instanceof OResultSet) {
       return (OResultSet) value;
     } else if (value instanceof Iterator) {
-      return new OScriptResultSet((Iterator) value, this);
+      return new OScriptResultSet(db, (Iterator) value, this);
     }
     OResultSetTransformer oResultSetTransformer = resultSetTransformers.get(value.getClass());
 
     if (oResultSetTransformer != null) {
       return oResultSetTransformer.transform(value);
     }
-    return defaultResultSet(value);
+    return defaultResultSet(db, value);
   }
 
-  private OResultSet defaultResultSet(Object value) {
-    return new OScriptResultSet(Collections.singletonList(value).iterator(), this);
+  private OResultSet defaultResultSet(ODatabaseSessionInternal db, Object value) {
+    return new OScriptResultSet(db, Collections.singletonList(value).iterator(), this);
   }
 
   @Override
-  public OResult toResult(Object value) {
+  public OResult toResult(ODatabaseSessionInternal db, Object value) {
 
     OResultTransformer transformer = getTransformer(value.getClass());
 
     if (transformer == null) {
-      return defaultTransformer(value);
+      return defaultTransformer(db, value);
     }
-    return transformer.transform(value);
+    return transformer.transform(db, value);
   }
 
   public OResultTransformer getTransformer(final Class clazz) {
@@ -125,8 +126,8 @@ public class OScriptTransformerImpl implements OScriptTransformer {
     return getTransformer(value.getClass()) != null;
   }
 
-  private OResult defaultTransformer(Object value) {
-    OResultInternal internal = new OResultInternal();
+  private OResult defaultTransformer(ODatabaseSessionInternal db, Object value) {
+    OResultInternal internal = new OResultInternal(db);
     internal.setProperty("value", value);
     return internal;
   }

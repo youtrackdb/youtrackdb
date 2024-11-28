@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.id.ORID;
@@ -34,7 +35,7 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
       OExecutionStream nextN, OCommandContext ctx, List<OResult> entryPoints, Set<ORID> traversed) {
     // Doing max batch of 100 entry points for now
     while (nextN.hasNext(ctx) && entryPoints.size() < 100) {
-      OResult item = toTraverseResult(nextN.next(ctx));
+      OResult item = toTraverseResult(ctx.getDatabase(), nextN.next(ctx));
       if (item == null) {
         continue;
       }
@@ -63,22 +64,22 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
     }
   }
 
-  private OResult toTraverseResult(OResult item) {
+  private OResult toTraverseResult(ODatabaseSessionInternal db, OResult item) {
     OTraverseResult res = null;
     if (item instanceof OTraverseResult) {
       res = (OTraverseResult) item;
     } else if (item.isElement() && item.getElement().get().getIdentity().isValid()) {
-      res = new OTraverseResult(item.getElement().get());
+      res = new OTraverseResult(db, item.getElement().get());
       res.depth = 0;
     } else if (item.getPropertyNames().size() == 1) {
       Object val = item.getProperty(item.getPropertyNames().iterator().next());
       if (val instanceof OIdentifiable) {
-        res = new OTraverseResult((OIdentifiable) val);
+        res = new OTraverseResult(db, (OIdentifiable) val);
         res.depth = 0;
         res.setMetadata("$depth", 0);
       }
     } else {
-      res = new OTraverseResult();
+      res = new OTraverseResult(db);
       for (String key : item.getPropertyNames()) {
         res.setProperty(key, convert(item.getProperty(key)));
       }
@@ -168,7 +169,7 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
     if (traversed.contains(nextStep.getIdentity())) {
       return;
     }
-    OTraverseResult res = new OTraverseResult(nextStep);
+    OTraverseResult res = new OTraverseResult(ctx.getDatabase(), nextStep);
     res.depth = depth;
     res.setMetadata("$depth", depth);
 
@@ -218,7 +219,7 @@ public class DepthFirstTraverseStep extends AbstractTraverseStep {
 
       tryAddEntryPoint(nextStep, ctx, entryPoints, traversed);
     } else {
-      OTraverseResult res = new OTraverseResult(nextStep.getElement().get());
+      OTraverseResult res = new OTraverseResult(ctx.getDatabase(), nextStep.getElement().get());
       res.depth = depth;
       res.setMetadata("$depth", depth);
       List<OIdentifiable> newPath = new ArrayList<>();

@@ -4,6 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.AggregationContext;
@@ -224,12 +225,12 @@ public class OArrayConcatExpression extends SimpleNode {
     return childExpressions != null ? childExpressions.hashCode() : 0;
   }
 
-  public OResult serialize() {
-    OResultInternal result = new OResultInternal();
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
     if (childExpressions != null) {
       result.setProperty(
           "childExpressions",
-          childExpressions.stream().map(x -> x.serialize()).collect(Collectors.toList()));
+          childExpressions.stream().map(x -> x.serialize(db)).collect(Collectors.toList()));
     }
     return result;
   }

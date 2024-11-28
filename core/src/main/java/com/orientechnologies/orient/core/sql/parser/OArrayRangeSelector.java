@@ -4,6 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -403,19 +404,21 @@ public class OArrayRangeSelector extends SimpleNode {
     }
   }
 
-  public OResult serialize() {
-    OResultInternal result = new OResultInternal();
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("from", from);
     result.setProperty("to", to);
     result.setProperty("newRange", newRange);
     result.setProperty("included", included);
 
     if (fromSelector != null) {
-      result.setProperty("fromSelector", fromSelector.serialize());
+      result.setProperty("fromSelector", fromSelector.serialize(db));
     }
+
     if (toSelector != null) {
-      result.setProperty("toSelector", toSelector.serialize());
+      result.setProperty("toSelector", toSelector.serialize(db));
     }
+
     return result;
   }
 

@@ -20,6 +20,7 @@ public class CheckRecordTypeStepTest extends TestUtilsFixture {
   @Test
   public void shouldCheckRecordsOfOneType() {
     OCommandContext context = new OBasicCommandContext();
+    context.setDatabase(db);
     String className = createClassInstance().getName();
     CheckRecordTypeStep step = new CheckRecordTypeStep(context, className, false);
     AbstractExecutionStep previous =
@@ -31,7 +32,7 @@ public class CheckRecordTypeStepTest extends TestUtilsFixture {
             List<OResult> result = new ArrayList<>();
             if (!done) {
               for (int i = 0; i < 10; i++) {
-                result.add(new OResultInternal(new ODocument(className)));
+                result.add(new OResultInternal(ctx.getDatabase(), new ODocument(className)));
               }
               done = true;
             }
@@ -48,6 +49,7 @@ public class CheckRecordTypeStepTest extends TestUtilsFixture {
   @Test
   public void shouldCheckRecordsOfSubclasses() {
     OCommandContext context = new OBasicCommandContext();
+    context.setDatabase(db);
     OClass parentClass = createClassInstance();
     OClass childClass = createChildClassInstance(parentClass);
     CheckRecordTypeStep step = new CheckRecordTypeStep(context, parentClass.getName(), false);
@@ -61,7 +63,8 @@ public class CheckRecordTypeStepTest extends TestUtilsFixture {
             if (!done) {
               for (int i = 0; i < 10; i++) {
                 result.add(
-                    new OResultInternal(new ODocument(i % 2 == 0 ? parentClass : childClass)));
+                    new OResultInternal(ctx.getDatabase(),
+                        new ODocument(i % 2 == 0 ? parentClass : childClass)));
               }
               done = true;
             }
@@ -78,6 +81,7 @@ public class CheckRecordTypeStepTest extends TestUtilsFixture {
   @Test(expected = OCommandExecutionException.class)
   public void shouldThrowExceptionWhenTypeIsDifferent() {
     OCommandContext context = new OBasicCommandContext();
+    context.setDatabase(db);
     String firstClassName = createClassInstance().getName();
     String secondClassName = createClassInstance().getName();
     CheckRecordTypeStep step = new CheckRecordTypeStep(context, firstClassName, false);
@@ -91,7 +95,7 @@ public class CheckRecordTypeStepTest extends TestUtilsFixture {
             if (!done) {
               for (int i = 0; i < 10; i++) {
                 result.add(
-                    new OResultInternal(
+                    new OResultInternal(ctx.getDatabase(),
                         new ODocument(i % 2 == 0 ? firstClassName : secondClassName)));
               }
               done = true;

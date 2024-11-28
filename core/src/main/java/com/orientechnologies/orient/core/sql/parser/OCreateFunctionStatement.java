@@ -54,7 +54,7 @@ public class OCreateFunctionStatement extends OSimpleExecStatement {
     }
     f.save(database);
     ORID functionId = f.getId(database);
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(database);
     result.setProperty("operation", "create function");
     result.setProperty("functionName", name.getStringValue());
     result.setProperty("finalId", functionId);

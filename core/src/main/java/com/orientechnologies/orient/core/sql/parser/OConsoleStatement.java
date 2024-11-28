@@ -26,7 +26,7 @@ public class OConsoleStatement extends OSimpleExecStatement {
 
   @Override
   public OExecutionStream executeSimple(OCommandContext ctx) {
-    OResultInternal item = new OResultInternal();
+    OResultInternal item = new OResultInternal(ctx.getDatabase());
     Object msg = "" + message.execute((OIdentifiable) null, ctx);
 
     if (logLevel.getStringValue().equalsIgnoreCase("log")) {

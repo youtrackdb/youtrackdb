@@ -4,6 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -185,13 +186,12 @@ public class ORightBinaryCondition extends SimpleNode {
     return right != null && right.refersToParent();
   }
 
-  public OResult serialize() {
-
-    OResultInternal result = new OResultInternal();
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("operator", operator.getClass().getName());
     result.setProperty("not", not);
     result.setProperty("in", inOperator != null);
-    result.setProperty("right", right.serialize());
+    result.setProperty("right", right.serialize(db));
     return result;
   }
 

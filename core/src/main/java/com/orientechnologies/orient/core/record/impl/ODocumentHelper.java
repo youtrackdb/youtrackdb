@@ -423,7 +423,7 @@ public class ODocumentHelper {
             // CONDITION
             final String conditionFieldName = indexCondition.get(0);
             Object conditionFieldValue =
-                ORecordSerializerStringAbstract.getTypeValue(indexCondition.get(1));
+                ORecordSerializerStringAbstract.getTypeValue(session, indexCondition.get(1));
 
             if (conditionFieldValue instanceof String) {
               conditionFieldValue = OIOUtils.getStringContent(conditionFieldValue);
@@ -490,7 +490,7 @@ public class ODocumentHelper {
             // CONDITION
             final String conditionFieldName = indexCondition.get(0);
             Object conditionFieldValue =
-                ORecordSerializerStringAbstract.getTypeValue(indexCondition.get(1));
+                ORecordSerializerStringAbstract.getTypeValue(session, indexCondition.get(1));
 
             if (conditionFieldValue instanceof String) {
               conditionFieldValue = OIOUtils.getStringContent(conditionFieldValue);
@@ -634,7 +634,7 @@ public class ODocumentHelper {
           if (indexCondition.size() == 2) {
             final String conditionFieldName = indexCondition.get(0);
             Object conditionFieldValue =
-                ORecordSerializerStringAbstract.getTypeValue(indexCondition.get(1));
+                ORecordSerializerStringAbstract.getTypeValue(session, indexCondition.get(1));
 
             if (conditionFieldValue instanceof String) {
               conditionFieldValue = OIOUtils.getStringContent(conditionFieldValue);
@@ -1049,14 +1049,15 @@ public class ODocumentHelper {
   }
 
   @SuppressWarnings("unchecked")
-  public static Object cloneValue(ODocument iCloned, final Object fieldValue) {
+  public static Object cloneValue(ODatabaseSessionInternal db,
+      ODocument iCloned, final Object fieldValue) {
 
     if (fieldValue != null) {
       if (fieldValue instanceof ODocument && ((ODocument) fieldValue).isEmbedded()) {
         // EMBEDDED DOCUMENT
         return ((ODocument) fieldValue).copy();
       } else if (fieldValue instanceof ORidBag) {
-        ORidBag newBag = ((ORidBag) fieldValue).copy();
+        ORidBag newBag = ((ORidBag) fieldValue).copy(db);
         newBag.setOwner(null);
         newBag.setOwner(iCloned);
         return newBag;

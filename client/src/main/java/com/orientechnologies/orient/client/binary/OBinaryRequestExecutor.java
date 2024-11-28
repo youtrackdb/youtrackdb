@@ -53,6 +53,7 @@ import com.orientechnologies.orient.client.remote.message.OSBTFetchEntriesMajorR
 import com.orientechnologies.orient.client.remote.message.OSBTFirstKeyRequest;
 import com.orientechnologies.orient.client.remote.message.OSBTGetRealBagSizeRequest;
 import com.orientechnologies.orient.client.remote.message.OSBTGetRequest;
+import com.orientechnologies.orient.client.remote.message.OSendTransactionStateRequest;
 import com.orientechnologies.orient.client.remote.message.OServerInfoRequest;
 import com.orientechnologies.orient.client.remote.message.OServerQueryRequest;
 import com.orientechnologies.orient.client.remote.message.OSetGlobalConfigurationRequest;
@@ -171,6 +172,8 @@ public interface OBinaryRequestExecutor {
   OBinaryResponse executeQueryNextPage(OQueryNextPageRequest request);
 
   OBinaryResponse executeBeginTransaction(OBeginTransactionRequest request);
+
+  OBinaryResponse executeSendTransactionState(OSendTransactionStateRequest request);
 
   OBinaryResponse executeCommit37(OCommit37Request request);
 

@@ -248,7 +248,7 @@ public class ODatabaseSessionRemote extends ODatabaseSessionAbstract {
     applyListeners(config);
     try {
 
-      storage.open(user, password, config.getConfigurations());
+      storage.open(this, user, password, config.getConfigurations());
 
       status = STATUS.OPEN;
 
@@ -340,10 +340,10 @@ public class ODatabaseSessionRemote extends ODatabaseSessionAbstract {
     if (this.currentTx.isActive() && ((OTransactionOptimistic) this.currentTx).isChanged()) {
       var optimistic = (OTransactionOptimistic) this.currentTx;
 
-      if (((OTransactionOptimistic) this.getTransaction()).isAlreadyCleared()) {
-        storage.reBeginTransaction(this, optimistic);
+      if (((OTransactionOptimistic) this.getTransaction()).isStartedOnServer()) {
+        storage.sendTransactionState(optimistic);
       } else {
-        storage.beginTransaction(this, optimistic);
+        storage.beginTransaction(optimistic);
       }
 
       optimistic.resetChangesTracking();
@@ -954,7 +954,7 @@ public class ODatabaseSessionRemote extends ODatabaseSessionAbstract {
 
   @Override
   public boolean isClosed() {
-    return status == STATUS.CLOSED || storage.isClosed();
+    return status == STATUS.CLOSED || storage.isClosed(this);
   }
 
   public void internalClose(boolean recycle) {
@@ -986,7 +986,7 @@ public class ODatabaseSessionRemote extends ODatabaseSessionAbstract {
         sharedContext = null;
 
         if (storage != null) {
-          storage.close();
+          storage.close(this);
         }
       }
 

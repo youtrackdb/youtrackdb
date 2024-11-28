@@ -29,11 +29,12 @@ public class OReturnStatement extends OSimpleExecStatement {
   public OExecutionStream executeSimple(OCommandContext ctx) {
     List<OResult> rs = new ArrayList<>();
 
+    var database = ctx.getDatabase();
     Object result = expression == null ? null : expression.execute((OResult) null, ctx);
     if (result instanceof OResult) {
       rs.add((OResult) result);
     } else if (result instanceof OIdentifiable) {
-      OResultInternal res = new OResultInternal((OIdentifiable) result);
+      OResultInternal res = new OResultInternal(database, (OIdentifiable) result);
       rs.add(res);
     } else if (result instanceof OResultSet) {
       if (!((OResultSet) result).hasNext()) {
@@ -52,7 +53,7 @@ public class OReturnStatement extends OSimpleExecStatement {
     } else if (result instanceof OExecutionStream) {
       return (OExecutionStream) result;
     } else {
-      OResultInternal res = new OResultInternal();
+      OResultInternal res = new OResultInternal(database);
       res.setProperty("value", result);
       rs.add(res);
     }

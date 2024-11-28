@@ -124,7 +124,7 @@ public class LocalPaginatedStorageRestoreFromWALIT {
     copyDataFromTestWithoutClose();
     OStorage baseStorage = baseDocumentTx.getStorage();
     baseDocumentTx.close();
-    baseStorage.close();
+    baseStorage.close(baseDocumentTx);
 
     testDocumentTx =
         new ODatabaseDocumentTx(

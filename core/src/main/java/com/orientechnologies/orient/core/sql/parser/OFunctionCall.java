@@ -476,15 +476,19 @@ public class OFunctionCall extends SimpleNode {
     return result;
   }
 
-  public OResult serialize() {
-    OResultInternal result = new OResultInternal();
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
+
     if (name != null) {
-      result.setProperty("name", name.serialize());
+      result.setProperty("name", name.serialize(db));
     }
+
     if (params != null) {
       result.setProperty(
-          "collection", params.stream().map(x -> x.serialize()).collect(Collectors.toList()));
+          "collection", params.stream().map(oExpression -> oExpression.serialize(db))
+              .collect(Collectors.toList()));
     }
+
     return result;
   }
 

@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.core.command.script;
 
 import com.orientechnologies.orient.core.command.script.transformer.OScriptTransformer;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.resultset.OIteratorResultSet;
 import java.util.Iterator;
@@ -13,8 +14,9 @@ public class OScriptResultSet extends OIteratorResultSet {
 
   protected OScriptTransformer transformer;
 
-  public OScriptResultSet(Iterator iter, OScriptTransformer transformer) {
-    super(iter);
+  public OScriptResultSet(ODatabaseSessionInternal db, Iterator iter,
+      OScriptTransformer transformer) {
+    super(db, iter);
     this.transformer = transformer;
   }
 
@@ -22,6 +24,6 @@ public class OScriptResultSet extends OIteratorResultSet {
   public OResult next() {
 
     Object next = iterator.next();
-    return transformer.toResult(next);
+    return transformer.toResult(db, next);
   }
 }

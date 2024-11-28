@@ -20,7 +20,8 @@ public class ORollbackStatement extends OSimpleExecStatement {
   @Override
   public OExecutionStream executeSimple(OCommandContext ctx) {
     ctx.getDatabase().rollback();
-    OResultInternal item = new OResultInternal();
+    var db = ctx.getDatabase();
+    OResultInternal item = new OResultInternal(db);
     item.setProperty("operation", "rollback");
     return OExecutionStream.singleton(item);
   }

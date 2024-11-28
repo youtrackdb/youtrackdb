@@ -351,7 +351,7 @@ public class OCompositeKeyTest extends BaseMemoryDatabase {
     ByteArrayInputStream inStream = new ByteArrayInputStream(outStream.toByteArray());
     DataInputStream in = new DataInputStream(inStream);
     OCompositeKey deserializedCompositeKey = new OCompositeKey();
-    deserializedCompositeKey.fromStream(serializer, in);
+    deserializedCompositeKey.fromStream(db, serializer, in);
     assertEquals(compositeKey, deserializedCompositeKey);
   }
 }

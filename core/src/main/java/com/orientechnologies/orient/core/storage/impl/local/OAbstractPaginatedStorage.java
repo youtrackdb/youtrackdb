@@ -404,7 +404,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Override
-  public void close() {
+  public void close(ODatabaseSessionInternal session) {
     var sessions = sessionCount.decrementAndGet();
 
     if (sessions < 0) {
@@ -522,7 +522,7 @@ public abstract class OAbstractPaginatedStorage
 
   @Override
   public final void open(
-      final String iUserName,
+      ODatabaseSessionInternal remote, final String iUserName,
       final String iUserPassword,
       final OContextConfiguration contextConfiguration) {
     open(contextConfiguration);
@@ -853,10 +853,10 @@ public abstract class OAbstractPaginatedStorage
         throw OException.wrapException(
             new OStorageException("Storage creation was interrupted"), e);
       } catch (final OStorageException e) {
-        close();
+        close(null);
         throw e;
       } catch (final IOException e) {
-        close();
+        close(null);
         throw OException.wrapException(
             new OStorageException("Error on creation of storage '" + name + "'"), e);
       } finally {
@@ -1048,7 +1048,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Override
-  public final boolean isClosed() {
+  public final boolean isClosed(ODatabaseSessionInternal database) {
     try {
       stateLock.readLock().lock();
       try {
@@ -1070,10 +1070,10 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Override
-  public final void close(final boolean force) {
+  public final void close(ODatabaseSessionInternal database, final boolean force) {
     try {
       if (!force) {
-        close();
+        close(database);
         return;
       }
 
@@ -3969,7 +3969,7 @@ public abstract class OAbstractPaginatedStorage
   @Override
   public final void reload(ODatabaseSessionInternal database) {
     try {
-      close();
+      close(database);
       open(new OContextConfiguration());
     } catch (final RuntimeException ee) {
       throw logAndPrepareForRethrow(ee);

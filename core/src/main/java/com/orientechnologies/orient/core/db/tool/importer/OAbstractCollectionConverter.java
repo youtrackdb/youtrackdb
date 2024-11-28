@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.db.tool.importer;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 
 /**
@@ -18,7 +19,8 @@ public abstract class OAbstractCollectionConverter<T> implements OValuesConverte
     void add(Object item);
   }
 
-  protected boolean convertSingleValue(final Object item, ResultCallback result, boolean updated) {
+  protected boolean convertSingleValue(ODatabaseSessionInternal db, final Object item,
+      ResultCallback result, boolean updated) {
     if (item == null) {
       result.add(null);
       return false;
@@ -29,7 +31,7 @@ public abstract class OAbstractCollectionConverter<T> implements OValuesConverte
           (OValuesConverter<OIdentifiable>)
               OImportConvertersFactory.INSTANCE.getConverter(item, converterData);
 
-      final OIdentifiable newValue = converter.convert((OIdentifiable) item);
+      final OIdentifiable newValue = converter.convert(db, (OIdentifiable) item);
 
       // this code intentionally uses == instead of equals, in such case we may distinguish rids
       // which already contained in
@@ -47,7 +49,7 @@ public abstract class OAbstractCollectionConverter<T> implements OValuesConverte
       if (valuesConverter == null) {
         result.add(item);
       } else {
-        final Object newValue = valuesConverter.convert(item);
+        final Object newValue = valuesConverter.convert(db, item);
         if (newValue != item) {
           updated = true;
         }

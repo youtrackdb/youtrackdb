@@ -50,8 +50,8 @@ public class OCreateClassStatement extends ODDLStatement {
 
   @Override
   public OExecutionStream executeDDL(OCommandContext ctx) {
-
-    OSchema schema = ctx.getDatabase().getMetadata().getSchema();
+    var db = ctx.getDatabase();
+    OSchema schema = db.getMetadata().getSchema();
     if (schema.existsClass(name.getStringValue())) {
       if (ifNotExists) {
         return OExecutionStream.empty();
@@ -61,7 +61,7 @@ public class OCreateClassStatement extends ODDLStatement {
     }
     checkSuperclasses(schema, ctx);
 
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("operation", "create class");
     result.setProperty("className", name.getStringValue());
 

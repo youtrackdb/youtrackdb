@@ -37,11 +37,12 @@ public class OOptimizeDatabaseStatement extends OSimpleExecStatement {
 
   @Override
   public OExecutionStream executeSimple(OCommandContext ctx) {
-    OResultInternal result = new OResultInternal();
+    var db = ctx.getDatabase();
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("operation", "optimize databae");
 
     if (isOptimizeEdges()) {
-      String edges = optimizeEdges(ctx.getDatabase());
+      String edges = optimizeEdges(db);
       result.setProperty("optimizeEdges", edges);
     }
 

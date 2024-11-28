@@ -151,7 +151,7 @@ public abstract class ODocumentSchemafullSerializationTest extends BaseMemoryInt
     document.field(RECORDID_FIELD, new ORecordId(10, 0));
 
     byte[] res = serializer.toStream(db, document);
-    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
+    ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
 
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field(STRING_FIELD), document.field(STRING_FIELD));
@@ -245,7 +245,7 @@ public abstract class ODocumentSchemafullSerializationTest extends BaseMemoryInt
     document.field(LIST_MIXED, listMixed);
 
     byte[] res = serializer.toStream(db, document);
-    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
+    ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
 
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field(LIST_STRINGS), document.field(LIST_STRINGS));
@@ -303,7 +303,7 @@ public abstract class ODocumentSchemafullSerializationTest extends BaseMemoryInt
     document.field(MAP_BYTES, bytesMap);
 
     byte[] res = serializer.toStream(db, document);
-    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
+    ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field(MAP_STRING), document.field(MAP_STRING));
     assertEquals(extr.<Object>field(MAP_LONG), document.field(MAP_LONG));
@@ -324,7 +324,7 @@ public abstract class ODocumentSchemafullSerializationTest extends BaseMemoryInt
     document.field(EMBEDDED_FIELD, embedded);
 
     byte[] res = serializer.toStream(db, document);
-    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
+    ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
     assertEquals(document.fields(), extr.fields());
     ODocument emb = extr.field(EMBEDDED_FIELD);
     assertNotNull(emb);
@@ -340,14 +340,14 @@ public abstract class ODocumentSchemafullSerializationTest extends BaseMemoryInt
     document.field(ANY_FIELD, false);
 
     byte[] res = serializer.toStream(db, document);
-    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
+    ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
     assertEquals(document.fields(), extr.fields());
     assertEquals(extr.field(ANY_FIELD), false);
 
     extr.field(ANY_FIELD, false);
 
     res = serializer.toStream(db, extr);
-    ODocument extr2 = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
+    ODocument extr2 = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
     assertEquals(extr.fields(), extr2.fields());
     assertEquals(extr2.field(ANY_FIELD), false);
   }

@@ -17,7 +17,6 @@ import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.record.impl.OElementInternal;
-import com.orientechnologies.orient.core.serialization.OSerializableStream;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
@@ -40,15 +39,21 @@ public class OResultInternal implements OResult {
   protected Map<String, Object> content;
   protected Map<String, Object> temporaryContent;
   protected Map<String, Object> metadata;
+
   @Nullable
   protected OIdentifiable identifiable;
 
-  public OResultInternal() {
+  @Nullable
+  protected ODatabaseSessionInternal session;
+
+  public OResultInternal(@Nullable ODatabaseSessionInternal session) {
     content = new LinkedHashMap<>();
+    this.session = session;
   }
 
-  public OResultInternal(OIdentifiable ident) {
+  public OResultInternal(@Nullable ODatabaseSessionInternal session, OIdentifiable ident) {
     setIdentifiable(ident);
+    this.session = session;
   }
 
   public void setProperty(String name, Object value) {
@@ -77,7 +82,7 @@ public class OResultInternal implements OResult {
     return identifiable.getIdentity();
   }
 
-  private void checkType(Object value) {
+  private static void checkType(Object value) {
     if (value == null) {
       return;
     }
@@ -93,7 +98,7 @@ public class OResultInternal implements OResult {
     if (value instanceof Collection || value instanceof Map) {
       return;
     }
-    if (value instanceof OSerializableStream || value instanceof Serializable) {
+    if (value instanceof Serializable) {
       return;
     }
     throw new IllegalArgumentException(
@@ -133,12 +138,14 @@ public class OResultInternal implements OResult {
 
   public <T> T getProperty(String name) {
     loadIdentifiable();
+
     T result = null;
     if (content != null && content.containsKey(name)) {
-      result = (T) wrap(content.get(name));
+      result = (T) wrap(session, content.get(name));
     } else {
       if (isElement()) {
-        result = (T) wrap(ODocumentInternal.rawPropertyRead((OElement) identifiable, name));
+        result = (T) wrap(session,
+            ODocumentInternal.rawPropertyRead((OElement) identifiable, name));
       }
     }
     if (result instanceof OIdentifiable && ((OIdentifiable) result).getIdentity().isPersistent()) {
@@ -240,9 +247,9 @@ public class OResultInternal implements OResult {
     return result instanceof OBlob ? (OBlob) result : null;
   }
 
-  private static Object wrap(Object input) {
+  private static Object wrap(ODatabaseSessionInternal session, Object input) {
     if (input instanceof OElementInternal elem && !((OElement) input).getIdentity().isValid()) {
-      OResultInternal result = new OResultInternal();
+      OResultInternal result = new OResultInternal(session);
       for (String prop : elem.getPropertyNamesInternal()) {
         result.setProperty(prop, elem.getPropertyInternal(prop));
       }
@@ -250,10 +257,10 @@ public class OResultInternal implements OResult {
       return result;
     } else {
       if (isEmbeddedList(input)) {
-        return ((List) input).stream().map(OResultInternal::wrap).collect(Collectors.toList());
+        return ((List) input).stream().map(in -> wrap(session, in)).collect(Collectors.toList());
       } else {
         if (isEmbeddedSet(input)) {
-          Stream mappedSet = ((Set) input).stream().map(OResultInternal::wrap);
+          Stream mappedSet = ((Set) input).stream().map(in -> wrap(session, in));
           if (input instanceof LinkedHashSet<?>) {
             return mappedSet.collect(Collectors.toCollection(LinkedHashSet::new));
           } else {
@@ -263,7 +270,7 @@ public class OResultInternal implements OResult {
           if (isEmbeddedMap(input)) {
             Map result = new HashMap();
             for (Map.Entry<Object, Object> o : ((Map<Object, Object>) input).entrySet()) {
-              result.put(o.getKey(), wrap(o.getValue()));
+              result.put(o.getKey(), wrap(session, o.getValue()));
             }
             return result;
           }
@@ -498,7 +505,11 @@ public class OResultInternal implements OResult {
     if (identifiable instanceof OElement elem) {
       if (elem.isUnloaded()) {
         try {
-          identifiable = ODatabaseSessionInternal.getActiveSession().bindToSession(elem);
+          if (session == null) {
+            throw new IllegalStateException("There is no active session to load element");
+          }
+
+          identifiable = session.bindToSession(elem);
         } catch (ORecordNotFoundException rnf) {
           identifiable = null;
         }
@@ -512,7 +523,11 @@ public class OResultInternal implements OResult {
     }
 
     try {
-      this.identifiable = identifiable.getRecord();
+      if (session == null) {
+        throw new IllegalStateException("There is no active session to load element");
+      }
+
+      this.identifiable = session.load(identifiable.getIdentity());
     } catch (ORecordNotFoundException rnf) {
       identifiable = null;
     }

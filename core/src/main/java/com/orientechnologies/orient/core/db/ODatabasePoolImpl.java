@@ -62,7 +62,7 @@ public class ODatabasePoolImpl implements ODatabasePoolInternal {
               @Override
               public boolean reuseResource(
                   Void iKey, Object[] iAdditionalArgs, ODatabaseSessionInternal iValue) {
-                if (iValue.getStorage().isClosed()) {
+                if (iValue.getStorage().isClosed(iValue)) {
                   return false;
                 }
                 iValue.reuse();

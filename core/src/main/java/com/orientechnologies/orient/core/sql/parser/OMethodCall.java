@@ -329,14 +329,15 @@ public class OMethodCall extends SimpleNode {
     return false;
   }
 
-  public OResult serialize() {
-    OResultInternal result = new OResultInternal();
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
     if (methodName != null) {
-      result.setProperty("methodName", methodName.serialize());
+      result.setProperty("methodName", methodName.serialize(db));
     }
     if (params != null) {
       result.setProperty(
-          "items", params.stream().map(x -> x.serialize()).collect(Collectors.toList()));
+          "items", params.stream().map(oExpression -> oExpression.serialize(db))
+              .collect(Collectors.toList()));
     }
     return result;
   }

@@ -3,6 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -137,13 +138,13 @@ public class OArrayNumberSelector extends SimpleNode {
     return expressionValue != null && expressionValue.refersToParent();
   }
 
-  public OResult serialize() {
-    OResultInternal result = new OResultInternal();
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
     if (inputValue != null) {
-      result.setProperty("inputValue", inputValue.serialize());
+      result.setProperty("inputValue", inputValue.serialize(db));
     }
     if (expressionValue != null) {
-      result.setProperty("expressionValue", expressionValue.serialize());
+      result.setProperty("expressionValue", expressionValue.serialize(db));
     }
     result.setProperty("integer", integer);
     return result;

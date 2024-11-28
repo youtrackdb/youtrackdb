@@ -33,7 +33,8 @@ public class MatchFieldTraverser extends MatchEdgeTraverser {
       return OExecutionStream.empty();
     }
     if (qR instanceof OIdentifiable) {
-      return OExecutionStream.singleton(new OResultInternal((OIdentifiable) qR));
+      return OExecutionStream.singleton(new OResultInternal(
+          iCommandContext.getDatabase(), (OIdentifiable) qR));
     }
     if (qR instanceof Iterable) {
       return OExecutionStream.iterator(((Iterable) qR).iterator());

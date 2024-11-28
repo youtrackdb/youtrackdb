@@ -35,7 +35,8 @@ public class OListGlobalConfigurationsResponse implements OBinaryResponse {
   }
 
   @Override
-  public void read(OChannelDataInput network, OStorageRemoteSession session) throws IOException {
+  public void read(ODatabaseSessionInternal db, OChannelDataInput network,
+      OStorageRemoteSession session) throws IOException {
     configs = new HashMap<String, String>();
     final int num = network.readShort();
     for (int i = 0; i < num; ++i) {

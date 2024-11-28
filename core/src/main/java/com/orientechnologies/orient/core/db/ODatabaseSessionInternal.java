@@ -75,19 +75,6 @@ import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
 
 public interface ODatabaseSessionInternal extends ODatabaseSession {
-
-  /**
-   * Returns the active session for the current thread.
-   *
-   * @return the active session for the current thread
-   * @see #activateOnCurrentThread()
-   * @see #isActiveOnCurrentThread()
-   */
-  static ODatabaseSessionInternal getActiveSession() {
-    final ODatabaseRecordThreadLocal tl = ODatabaseRecordThreadLocal.instance();
-    return tl.get();
-  }
-
   String TYPE = "document";
 
   /**
@@ -180,7 +167,8 @@ public interface ODatabaseSessionInternal extends ODatabaseSession {
 
   void checkIfActive();
 
-  boolean validateIfActive();
+
+  boolean assertIfNotActive();
 
   void callOnOpenListeners();
 

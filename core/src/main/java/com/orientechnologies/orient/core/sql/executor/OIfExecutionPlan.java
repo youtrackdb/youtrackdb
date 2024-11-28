@@ -5,6 +5,7 @@ package com.orientechnologies.orient.core.sql.executor;
  */
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Collections;
 import java.util.List;
@@ -65,13 +66,13 @@ public class OIfExecutionPlan implements OInternalExecutionPlan {
   }
 
   @Override
-  public OResult toResult() {
-    OResultInternal result = new OResultInternal();
+  public OResult toResult(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("type", "IfExecutionPlan");
     result.setProperty("javaType", getClass().getName());
     result.setProperty("cost", getCost());
     result.setProperty("prettyPrint", prettyPrint(0, 2));
-    result.setProperty("steps", Collections.singletonList(step.toResult()));
+    result.setProperty("steps", Collections.singletonList(step.toResult(db)));
     return result;
   }
 

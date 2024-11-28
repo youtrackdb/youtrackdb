@@ -28,6 +28,7 @@ import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.OSet;
@@ -192,38 +193,40 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
   }
 
   public ORecordAbstract fromString(
-      String source, ORecordAbstract record, final String[] fields, boolean needReload) {
-    return fromString(source, record, fields, null, needReload);
+      ODatabaseSessionInternal db, String source, ORecordAbstract record, final String[] fields,
+      boolean needReload) {
+    return fromString(db, source, record, fields, null, needReload);
   }
 
   @Override
-  public ORecordAbstract fromString(String source, ORecordAbstract record, final String[] fields) {
-    return fromString(source, record, fields, null, false);
+  public ORecordAbstract fromString(ODatabaseSessionInternal db, String source,
+      ORecordAbstract record, final String[] fields) {
+    return fromString(db, source, record, fields, null, false);
   }
 
   public ORecordAbstract fromString(
-      String source,
+      ODatabaseSessionInternal db, String source,
       ORecordAbstract record,
       final String[] fields,
       final String options,
       boolean needReload) {
-    return fromString(source, record, fields, options, needReload, -1, new IntOpenHashSet());
+    return fromString(db, source, record, fields, options, needReload, -1, new IntOpenHashSet());
   }
 
   public ORecordAbstract fromString(
-      String source,
+      ODatabaseSessionInternal db, String source,
       ORecordAbstract record,
       final String[] iFields,
       final String iOptions,
       boolean needReload,
       int maxRidbagSizeBeforeSkip,
       IntSet skippedPartsIndexes) {
-    return this.fromStringV0(
+    return this.fromStringV0(db,
         source, record, iOptions, needReload, maxRidbagSizeBeforeSkip, skippedPartsIndexes);
   }
 
   public ORecordAbstract fromStringV0(
-      String source,
+      ODatabaseSessionInternal db, String source,
       ORecordAbstract record,
       final String iOptions,
       boolean needReload,
@@ -336,7 +339,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
           final String fieldValue = fields.get(i + 1);
           final String fieldValueAsString = OIOUtils.getStringContent(fieldValue);
 
-          processRecordsV0(
+          processRecordsV0(db,
               record, fieldTypes, noMap, iOptions, fieldName, fieldValue, fieldValueAsString);
         }
         if (className != null) {
@@ -361,7 +364,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
   }
 
   private void processRecordsV0(
-      ORecordAbstract record,
+      ODatabaseSessionInternal db, ORecordAbstract record,
       Map<String, Character> fieldTypes,
       boolean noMap,
       String iOptions,
@@ -412,10 +415,10 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
 
                   final Object v;
                   if (OStringSerializerHelper.SKIPPED_VALUE.equals(fieldValue)) {
-                    v = new ORidBag();
+                    v = new ORidBag(db);
                   } else {
                     v =
-                        getValueV0(
+                        getValueV0(db,
                             doc,
                             fieldName,
                             fieldValue,
@@ -423,8 +426,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
                             type,
                             null,
                             fieldTypes,
-                            noMap,
-                            iOptions);
+                            noMap, iOptions);
                   }
 
                   if (v != null) {
@@ -605,7 +607,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
   }
 
   private Object getValueV0(
-      final ODocument iRecord,
+      ODatabaseSessionInternal db, final ODocument iRecord,
       String iFieldName,
       String iFieldValue,
       String iFieldValueAsString,
@@ -633,12 +635,12 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
 
     if (iFieldValue.startsWith("{") && iFieldValue.endsWith("}")) {
       // Json object
-      return getValueAsObjectOrMapV0(
+      return getValueAsObjectOrMapV0(db,
           iRecord, iFieldValue, iType, iLinkedType, iFieldTypes, iNoMap, iOptions);
     } else {
       if (iFieldValue.startsWith("[") && iFieldValue.endsWith("]")) {
         // Json array
-        return getValueAsCollectionV0(
+        return getValueAsCollectionV0(db,
             iRecord, iFieldValue, iType, iLinkedType, iFieldTypes, iNoMap, iOptions);
       }
     }
@@ -722,7 +724,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
             return new ORecordId(iFieldValueAsString);
           }
         case EMBEDDED:
-          return fromString(iFieldValueAsString, new ODocumentEmbedded(), null);
+          return fromString(db, iFieldValueAsString, new ODocumentEmbedded(), null);
         case DATE:
           if (iFieldValueAsString == null || iFieldValueAsString.isEmpty()) {
             return null;
@@ -770,7 +772,8 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
             }
           }
         case BINARY:
-          return OStringSerializerHelper.fieldTypeFromStream(iRecord, iType, iFieldValueAsString);
+          return OStringSerializerHelper.fieldTypeFromStream(db, iRecord, iType,
+              iFieldValueAsString);
         case CUSTOM: {
           try {
             ByteArrayInputStream bais =
@@ -783,7 +786,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
           }
         }
         default:
-          return OStringSerializerHelper.fieldTypeFromStream(iRecord, iType, iFieldValue);
+          return OStringSerializerHelper.fieldTypeFromStream(db, iRecord, iType, iFieldValue);
       }
     }
     return iFieldValueAsString;
@@ -797,7 +800,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
    * OBJECT OR MAP. CHECK THE TYPE ATTRIBUTE TO KNOW IT.
    */
   private Object getValueAsObjectOrMapV0(
-      ODocument iRecord,
+      ODatabaseSessionInternal db, ODocument iRecord,
       String iFieldValue,
       OType iType,
       OType iLinkedType,
@@ -818,15 +821,15 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
     }
 
     if (iNoMap || hasTypeField(fields)) {
-      return getObjectValuesAsRecordV0(iRecord, iFieldValue, iType, iOptions, fields);
+      return getObjectValuesAsRecordV0(db, iRecord, iFieldValue, iType, iOptions, fields);
     } else {
-      return getObjectValuesAsMapV0(
+      return getObjectValuesAsMapV0(db,
           iRecord, iFieldValue, iLinkedType, iFieldTypes, iOptions, fields);
     }
   }
 
   private Object getObjectValuesAsMapV0(
-      ODocument iRecord,
+      ODatabaseSessionInternal db, ODocument iRecord,
       String iFieldValue,
       OType iLinkedType,
       Map<String, Character> iFieldTypes,
@@ -850,7 +853,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
 
       embeddedMap.put(
           iFieldName,
-          getValueV0(
+          getValueV0(db,
               iRecord,
               null,
               iFieldValue,
@@ -858,19 +861,19 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
               iLinkedType,
               null,
               iFieldTypes,
-              false,
-              iOptions));
+              false, iOptions));
     }
     return embeddedMap;
   }
 
   private Object getObjectValuesAsRecordV0(
-      ODocument iRecord, String iFieldValue, OType iType, String iOptions, String[] fields) {
+      ODatabaseSessionInternal db, ODocument iRecord, String iFieldValue, OType iType,
+      String iOptions, String[] fields) {
     ORID rid = new ORecordId(OIOUtils.getStringContent(getFieldValue("@rid", fields)));
     boolean shouldReload = rid.isTemporary();
 
     final ODocument recordInternal =
-        (ODocument) fromString(iFieldValue, new ODocument(), null, iOptions, shouldReload);
+        (ODocument) fromString(db, iFieldValue, new ODocument(), null, iOptions, shouldReload);
 
     if (shouldBeDeserializedAsEmbedded(recordInternal, iType)) {
       ODocumentInternal.addOwner(recordInternal, iRecord);
@@ -887,7 +890,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
   }
 
   private Object getValueAsCollectionV0(
-      ODocument iRecord,
+      ODatabaseSessionInternal db, ODocument iRecord,
       String iFieldValue,
       OType iType,
       OType iLinkedType,
@@ -898,16 +901,15 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
     iFieldValue = iFieldValue.substring(1, iFieldValue.length() - 1);
 
     if (iType == OType.LINKBAG) {
-      final ORidBag bag = new ORidBag();
+      final ORidBag bag = new ORidBag(db);
 
-      parseRidBagV0(
+      parseRidBagV0(db,
           iRecord,
           iFieldValue,
           iType,
           iFieldTypes,
           iNoMap,
-          iOptions,
-          new CollectionItemVisitor() {
+          iOptions, new CollectionItemVisitor() {
             @Override
             public void visitItem(Object item) {
               bag.add((OIdentifiable) item);
@@ -917,47 +919,43 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
       return bag;
     } else {
       if (iType == OType.LINKSET) {
-        return getValueAsLinkedCollectionV0(
+        return getValueAsLinkedCollectionV0(db,
             new OSet(iRecord),
             iRecord,
             iFieldValue,
             iType,
             iLinkedType,
             iFieldTypes,
-            iNoMap,
-            iOptions);
+            iNoMap, iOptions);
       } else {
         if (iType == OType.LINKLIST) {
-          return getValueAsLinkedCollectionV0(
+          return getValueAsLinkedCollectionV0(db,
               new OList(iRecord),
               iRecord,
               iFieldValue,
               iType,
               iLinkedType,
               iFieldTypes,
-              iNoMap,
-              iOptions);
+              iNoMap, iOptions);
         } else {
           if (iType == OType.EMBEDDEDSET) {
-            return getValueAsEmbeddedCollectionV0(
+            return getValueAsEmbeddedCollectionV0(db,
                 new OTrackedSet<>(iRecord),
                 iRecord,
                 iFieldValue,
                 iType,
                 iLinkedType,
                 iFieldTypes,
-                iNoMap,
-                iOptions);
+                iNoMap, iOptions);
           } else {
-            return getValueAsEmbeddedCollectionV0(
+            return getValueAsEmbeddedCollectionV0(db,
                 new OTrackedList<>(iRecord),
                 iRecord,
                 iFieldValue,
                 iType,
                 iLinkedType,
                 iFieldTypes,
-                iNoMap,
-                iOptions);
+                iNoMap, iOptions);
           }
         }
       }
@@ -965,7 +963,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
   }
 
   private Object getValueAsLinkedCollectionV0(
-      final Collection<OIdentifiable> collection,
+      ODatabaseSessionInternal db, final Collection<OIdentifiable> collection,
       ODocument iRecord,
       String iFieldValue,
       OType iType,
@@ -974,15 +972,14 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
       boolean iNoMap,
       String iOptions) {
 
-    parseCollectionV0(
+    parseCollectionV0(db,
         iRecord,
         iFieldValue,
         iType,
         iLinkedType,
         iFieldTypes,
         iNoMap,
-        iOptions,
-        new CollectionItemVisitor() {
+        iOptions, new CollectionItemVisitor() {
           @Override
           public void visitItem(Object item) {
             collection.add((OIdentifiable) item);
@@ -993,7 +990,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
   }
 
   private Object getValueAsEmbeddedCollectionV0(
-      final Collection<Object> collection,
+      ODatabaseSessionInternal db, final Collection<Object> collection,
       ODocument iRecord,
       String iFieldValue,
       OType iType,
@@ -1002,15 +999,14 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
       boolean iNoMap,
       String iOptions) {
 
-    parseCollectionV0(
+    parseCollectionV0(db,
         iRecord,
         iFieldValue,
         iType,
         iLinkedType,
         iFieldTypes,
         iNoMap,
-        iOptions,
-        new CollectionItemVisitor() {
+        iOptions, new CollectionItemVisitor() {
           @Override
           public void visitItem(Object item) {
             collection.add(item);
@@ -1020,7 +1016,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
   }
 
   private void parseRidBagV0(
-      ODocument iRecord,
+      ODatabaseSessionInternal db, ODocument iRecord,
       String iFieldValue,
       OType iType,
       Map<String, Character> iFieldTypes,
@@ -1044,7 +1040,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
           }
 
           final Object collectionItem =
-              getValueV0(
+              getValueV0(db,
                   iRecord,
                   null,
                   itemValue,
@@ -1052,8 +1048,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
                   OType.LINK,
                   null,
                   iFieldTypes,
-                  iNoMap,
-                  iOptions);
+                  iNoMap, iOptions);
 
           // TODO: redundant in some cases, owner is already added by getValueV0 in some cases
           if (shouldBeDeserializedAsEmbedded(collectionItem, iType)) {
@@ -1068,7 +1063,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
   }
 
   private void parseCollectionV0(
-      ODocument iRecord,
+      ODatabaseSessionInternal db, ODocument iRecord,
       String iFieldValue,
       OType iType,
       OType iLinkedType,
@@ -1084,7 +1079,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
         }
 
         final Object collectionItem =
-            getValueV0(
+            getValueV0(db,
                 iRecord,
                 null,
                 itemValue,
@@ -1092,8 +1087,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
                 iLinkedType,
                 null,
                 iFieldTypes,
-                iNoMap,
-                iOptions);
+                iNoMap, iOptions);
 
         // TODO redundant in some cases, owner is already added by getValueV0 in some cases
         if (shouldBeDeserializedAsEmbedded(collectionItem, iType)) {

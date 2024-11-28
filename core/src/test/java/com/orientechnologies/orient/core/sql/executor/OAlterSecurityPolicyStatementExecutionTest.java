@@ -21,13 +21,13 @@ public class OAlterSecurityPolicyStatementExecutionTest extends BaseMemoryDataba
     OSecurityInternal security = db.getSharedContext().getSecurity();
     OSecurityPolicy policy = security.getSecurityPolicy(db, "foo");
     Assert.assertNotNull(policy);
-    Assert.assertNotNull("foo", policy.getName());
-    Assert.assertEquals("name = 'foo'", policy.getReadRule());
-    Assert.assertNull(policy.getCreateRule());
-    Assert.assertNull(policy.getBeforeUpdateRule());
-    Assert.assertNull(policy.getAfterUpdateRule());
-    Assert.assertNull(policy.getDeleteRule());
-    Assert.assertNull(policy.getExecuteRule());
+    Assert.assertNotNull("foo", policy.getName(db));
+    Assert.assertEquals("name = 'foo'", policy.getReadRule(db));
+    Assert.assertNull(policy.getCreateRule(db));
+    Assert.assertNull(policy.getBeforeUpdateRule(db));
+    Assert.assertNull(policy.getAfterUpdateRule(db));
+    Assert.assertNull(policy.getDeleteRule(db));
+    Assert.assertNull(policy.getExecuteRule(db));
 
     db.begin();
     db.command("ALTER SECURITY POLICY foo REMOVE READ").close();
@@ -35,6 +35,6 @@ public class OAlterSecurityPolicyStatementExecutionTest extends BaseMemoryDataba
 
     policy = security.getSecurityPolicy(db, "foo");
     Assert.assertNotNull(policy);
-    Assert.assertNull(policy.getReadRule());
+    Assert.assertNull(policy.getReadRule(db));
   }
 }

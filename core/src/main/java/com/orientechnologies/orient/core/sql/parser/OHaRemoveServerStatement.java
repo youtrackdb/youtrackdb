@@ -41,7 +41,7 @@ public class OHaRemoveServerStatement extends OStatement {
       boolean usePlanCache) {
     ODatabaseSessionInternal internalDb = db;
     boolean res = internalDb.removeHaServer(serverName.getStringValue());
-    OResultInternal r = new OResultInternal();
+    OResultInternal r = new OResultInternal(internalDb);
     r.setProperty("result", res);
     OInternalResultSet rs = new OInternalResultSet();
     rs.add(r);
@@ -53,7 +53,7 @@ public class OHaRemoveServerStatement extends OStatement {
       ODatabaseSessionInternal db, Map args, OCommandContext parentContext, boolean usePlanCache) {
     ODatabaseSessionInternal internalDb = db;
     boolean res = internalDb.removeHaServer(serverName.getStringValue());
-    OResultInternal r = new OResultInternal();
+    OResultInternal r = new OResultInternal(internalDb);
     r.setProperty("result", res);
     OInternalResultSet rs = new OInternalResultSet();
     rs.add(r);

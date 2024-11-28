@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.client.remote.message;
 
+import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -16,14 +17,14 @@ import org.junit.Test;
 /**
  *
  */
-public class OServerQueryResponseTest {
+public class OServerQueryResponseTest extends BaseMemoryDatabase {
 
   @Test
   public void test() throws IOException {
 
     List<OResult> resuls = new ArrayList<>();
     for (int i = 0; i < 10; i++) {
-      OResultInternal item = new OResultInternal();
+      OResultInternal item = new OResultInternal(null);
       item.setProperty("name", "foo");
       item.setProperty("counter", i);
       resuls.add(item);
@@ -42,7 +43,7 @@ public class OServerQueryResponseTest {
 
     OServerQueryResponse newResponse = new OServerQueryResponse();
 
-    newResponse.read(channel, null);
+    newResponse.read(db, channel, null);
     Iterator<OResult> responseRs = newResponse.getResult().iterator();
 
     for (int i = 0; i < 10; i++) {

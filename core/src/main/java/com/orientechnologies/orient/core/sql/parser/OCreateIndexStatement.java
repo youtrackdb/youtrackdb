@@ -60,7 +60,7 @@ public class OCreateIndexStatement extends ODDLStatement {
   public OExecutionStream executeDDL(OCommandContext ctx) {
     Object execResult = execute(ctx);
     if (execResult != null) {
-      OResultInternal result = new OResultInternal();
+      OResultInternal result = new OResultInternal(ctx.getDatabase());
       result.setProperty("operation", "create index");
       result.setProperty("name", name.getValue());
       return OExecutionStream.singleton(result);

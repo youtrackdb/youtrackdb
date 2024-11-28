@@ -19,6 +19,7 @@
  */
 package com.orientechnologies.orient.core.record.impl;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeTimeLine;
 import com.orientechnologies.orient.core.db.record.OTrackedMultiValue;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
@@ -193,7 +194,7 @@ public class ODocumentEntry {
     this.onLoadValue = null;
   }
 
-  public Object getOnLoadValue() {
+  public Object getOnLoadValue(ODatabaseSessionInternal session) {
     if (!hasOnLoadValue && !(value instanceof OTrackedMultiValue<?, ?>)) {
       return value;
     }
@@ -205,7 +206,7 @@ public class ODocumentEntry {
         OMultiValueChangeTimeLine transactionTimeLine = trackedOnLoadValue.getTransactionTimeLine();
         //noinspection unchecked
         return transactionTimeLine != null
-            ? trackedOnLoadValue.returnOriginalState(
+            ? trackedOnLoadValue.returnOriginalState(session,
             transactionTimeLine.getMultiValueChangeEvents())
             : onLoadValue;
       } else {
@@ -218,7 +219,8 @@ public class ODocumentEntry {
       OMultiValueChangeTimeLine transactionTimeLine = trackedOnLoadValue.getTransactionTimeLine();
       //noinspection unchecked
       return transactionTimeLine != null
-          ? trackedOnLoadValue.returnOriginalState(transactionTimeLine.getMultiValueChangeEvents())
+          ? trackedOnLoadValue.returnOriginalState(session,
+          transactionTimeLine.getMultiValueChangeEvents())
           : trackedOnLoadValue;
     }
   }

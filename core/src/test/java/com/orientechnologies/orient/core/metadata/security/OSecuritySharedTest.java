@@ -34,13 +34,14 @@ public class OSecuritySharedTest extends BaseMemoryDatabase {
     OSecurityInternal security = db.getSharedContext().getSecurity();
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setReadRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     db.commit();
 
-    Assert.assertTrue(security.getSecurityPolicy(db, "testPolicy").isActive());
-    Assert.assertEquals("name = 'foo'", security.getSecurityPolicy(db, "testPolicy").getReadRule());
+    Assert.assertTrue(security.getSecurityPolicy(db, "testPolicy").isActive(db));
+    Assert.assertEquals("name = 'foo'",
+        security.getSecurityPolicy(db, "testPolicy").getReadRule(db));
   }
 
   @Test
@@ -51,8 +52,8 @@ public class OSecuritySharedTest extends BaseMemoryDatabase {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setReadRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
     db.commit();
@@ -62,7 +63,7 @@ public class OSecuritySharedTest extends BaseMemoryDatabase {
         security
             .getSecurityPolicies(db, security.getRole(db, "reader"))
             .get("database.class.Person")
-            .getName());
+            .getName(db));
   }
 
   @Test
@@ -73,8 +74,8 @@ public class OSecuritySharedTest extends BaseMemoryDatabase {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setReadRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
     db.commit();

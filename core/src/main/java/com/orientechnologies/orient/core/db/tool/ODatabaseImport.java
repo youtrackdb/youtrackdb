@@ -27,7 +27,6 @@ import com.orientechnologies.common.serialization.types.OBinarySerializer;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSession.STATUS;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODocumentFieldWalker;
@@ -595,7 +594,8 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
         }
 
         if (!value.isEmpty()) {
-          document = (ODocument) ORecordSerializerJSON.INSTANCE.fromString(value, document, null);
+          document = (ODocument) ORecordSerializerJSON.INSTANCE.fromString(database, value,
+              document, null);
           document.setLazyLoad(false);
 
           final OIdentifiable oldRid = document.field("rid");
@@ -1298,14 +1298,13 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
     try {
       try {
         record =
-            ORecordSerializerJSON.INSTANCE.fromString(
+            ORecordSerializerJSON.INSTANCE.fromString(database,
                 value,
                 null,
                 null,
                 null,
                 false,
-                maxRidbagStringSizeBeforeLazyImport,
-                skippedPartsIndexes);
+                maxRidbagStringSizeBeforeLazyImport, skippedPartsIndexes);
       } catch (final OSerializationException e) {
         if (e.getCause() instanceof OSchemaException) {
           // EXTRACT CLASS NAME If ANY
@@ -1321,14 +1320,13 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
             value = value1 + newClassName + value2;
             // OVERWRITE CLASS NAME WITH NEW NAME
             record =
-                ORecordSerializerJSON.INSTANCE.fromString(
+                ORecordSerializerJSON.INSTANCE.fromString(database,
                     value,
                     record,
                     null,
                     null,
                     false,
-                    maxRidbagStringSizeBeforeLazyImport,
-                    skippedPartsIndexes);
+                    maxRidbagStringSizeBeforeLazyImport, skippedPartsIndexes);
           }
         } else {
           throw OException.wrapException(
@@ -1861,7 +1859,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
 
     final OIndexDefinition indexDefinition;
     final ODocument indexDefinitionDoc =
-        (ODocument) ORecordSerializerJSON.INSTANCE.fromString(value, null, null);
+        (ODocument) ORecordSerializerJSON.INSTANCE.fromString(database, value, null, null);
     try {
       final Class<?> indexDefClass = Class.forName(className);
       indexDefinition = (OIndexDefinition) indexDefClass.getDeclaredConstructor().newInstance();
@@ -1953,7 +1951,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
   }
 
   protected static void rewriteLinksInDocument(
-      ODatabaseSession session, ODocument document, Set<ORID> brokenRids) {
+      ODatabaseSessionInternal session, ODocument document, Set<ORID> brokenRids) {
     var doc = doRewriteLinksInDocument(session, document, brokenRids);
 
     if (!doc.isDirty()) {
@@ -1965,7 +1963,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
   }
 
   protected static ODocument doRewriteLinksInDocument(
-      ODatabaseSession session, ODocument document, Set<ORID> brokenRids) {
+      ODatabaseSessionInternal session, ODocument document, Set<ORID> brokenRids) {
     final OLinksRewriter rewriter = new OLinksRewriter(new OConverterData(session, brokenRids));
     final ODocumentFieldWalker documentFieldWalker = new ODocumentFieldWalker();
     return documentFieldWalker.walkDocument(session, document, rewriter);

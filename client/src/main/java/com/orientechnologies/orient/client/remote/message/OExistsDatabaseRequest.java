@@ -32,7 +32,8 @@ public class OExistsDatabaseRequest implements OBinaryRequest<OExistsDatabaseRes
   }
 
   @Override
-  public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
+  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+      ORecordSerializer serializer)
       throws IOException {
     databaseName = channel.readString();
     storageType = channel.readString();

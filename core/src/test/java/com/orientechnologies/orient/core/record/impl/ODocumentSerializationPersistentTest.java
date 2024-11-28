@@ -1,18 +1,12 @@
 package com.orientechnologies.orient.core.record.impl;
 
-import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.BaseMemoryInternalDatabase;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OType;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -24,10 +18,6 @@ import org.junit.Test;
  * @since 12/20/12
  */
 public class ODocumentSerializationPersistentTest extends BaseMemoryInternalDatabase {
-
-  private ORID docId;
-  private ORID linkedId;
-
   public void beforeTest() {
     super.beforeTest();
 
@@ -40,43 +30,15 @@ public class ODocumentSerializationPersistentTest extends BaseMemoryInternalData
     doc.setProperty("country", linkedDoc, OType.LINK);
     doc.setProperty("numbers", Arrays.asList(0, 1, 2, 3, 4, 5));
     doc.save(db.getClusterNameById(db.getDefaultClusterId()));
+
     db.commit();
-
-    docId = doc.getIdentity();
-    linkedId = linkedDoc.getIdentity();
-  }
-
-  @Test
-  public void testSerialization() throws Exception {
-    final ODocument doc = db.load(docId);
-
-    final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-    final ObjectOutputStream out = new ObjectOutputStream(byteArrayOutputStream);
-
-    out.writeObject(doc);
-
-    db.begin();
-    final ObjectInputStream in =
-        new ObjectInputStream(new ByteArrayInputStream(byteArrayOutputStream.toByteArray()));
-    final ODocument loadedDoc = (ODocument) in.readObject();
-
-    assertEquals(loadedDoc.getIdentity(), docId);
-    assertEquals(loadedDoc.getVersion(), doc.getVersion());
-    assertEquals(loadedDoc.field("name"), "Artem");
-    assertEquals(loadedDoc.field("country"), linkedId);
-
-    final List<Integer> numbers = loadedDoc.field("numbers");
-    for (int i = 0; i < numbers.size(); i++) {
-      assertEquals((int) numbers.get(i), i);
-    }
-    db.rollback();
   }
 
   @Test(expected = ODatabaseException.class)
   public void testRidBagInEmbeddedDocument() {
     ODatabaseRecordThreadLocal.instance().set(db);
     ODocument doc = new ODocument();
-    ORidBag rids = new ORidBag();
+    ORidBag rids = new ORidBag(db);
     rids.add(new ORecordId(2, 3));
     rids.add(new ORecordId(2, 4));
     rids.add(new ORecordId(2, 5));
@@ -92,6 +54,6 @@ public class ODocumentSerializationPersistentTest extends BaseMemoryInternalData
     doc.setProperty("some", "test");
 
     byte[] res = db.getSerializer().toStream(db, doc);
-    db.getSerializer().fromStream(res, new ODocument(), new String[]{});
+    db.getSerializer().fromStream(db, res, new ODocument(), new String[]{});
   }
 }

@@ -36,7 +36,8 @@ public class ODistributedConnectResponse implements OBinaryResponse {
   }
 
   @Override
-  public void read(OChannelDataInput network, OStorageRemoteSession session) throws IOException {
+  public void read(ODatabaseSessionInternal db, OChannelDataInput network,
+      OStorageRemoteSession session) throws IOException {
     this.sessionId = network.readInt();
     distributedProtocolVersion = network.readInt();
     token = network.readBytes();

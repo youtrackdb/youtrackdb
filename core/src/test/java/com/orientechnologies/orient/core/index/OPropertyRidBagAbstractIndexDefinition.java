@@ -30,7 +30,7 @@ public abstract class OPropertyRidBagAbstractIndexDefinition extends BaseMemoryD
 
   @Test
   public void testCreateValueSingleParameter() {
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
 
     ridBag.add(new ORecordId("#1:12"));
     ridBag.add(new ORecordId("#1:23"));
@@ -40,15 +40,17 @@ public abstract class OPropertyRidBagAbstractIndexDefinition extends BaseMemoryD
     Assert.assertTrue(result instanceof Collection);
 
     final Collection<?> collectionResult = (Collection<?>) result;
-    Assert.assertEquals(collectionResult.size(), 2);
+    Assert.assertEquals(2, collectionResult.size());
 
     Assert.assertTrue(collectionResult.contains(new ORecordId("#1:12")));
     Assert.assertTrue(collectionResult.contains(new ORecordId("#1:23")));
+
+    assertEmbedded(ridBag);
   }
 
   @Test
   public void testCreateValueTwoParameters() {
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
 
     ridBag.add(new ORecordId("#1:12"));
     ridBag.add(new ORecordId("#1:23"));
@@ -58,10 +60,12 @@ public abstract class OPropertyRidBagAbstractIndexDefinition extends BaseMemoryD
     Assert.assertTrue(result instanceof Collection);
 
     final Collection<?> collectionResult = (Collection<?>) result;
-    Assert.assertEquals(collectionResult.size(), 2);
+    Assert.assertEquals(2, collectionResult.size());
 
     Assert.assertTrue(collectionResult.contains(new ORecordId("#1:12")));
     Assert.assertTrue(collectionResult.contains(new ORecordId("#1:23")));
+
+    assertEmbedded(ridBag);
   }
 
   @Test
@@ -71,7 +75,7 @@ public abstract class OPropertyRidBagAbstractIndexDefinition extends BaseMemoryD
 
   @Test
   public void testCreateValueSingleParameterArrayParams() {
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
 
     ridBag.add(new ORecordId("#1:12"));
     ridBag.add(new ORecordId("#1:23"));
@@ -81,15 +85,18 @@ public abstract class OPropertyRidBagAbstractIndexDefinition extends BaseMemoryD
     Assert.assertTrue(result instanceof Collection);
 
     final Collection<?> collectionResult = (Collection<?>) result;
-    Assert.assertEquals(collectionResult.size(), 2);
+    Assert.assertEquals(2, collectionResult.size());
 
     Assert.assertTrue(collectionResult.contains(new ORecordId("#1:12")));
     Assert.assertTrue(collectionResult.contains(new ORecordId("#1:23")));
+
+    assertEmbedded(ridBag);
   }
+
 
   @Test
   public void testCreateValueTwoParametersArrayParams() {
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
 
     ridBag.add(new ORecordId("#1:12"));
     ridBag.add(new ORecordId("#1:23"));
@@ -99,10 +106,12 @@ public abstract class OPropertyRidBagAbstractIndexDefinition extends BaseMemoryD
     Assert.assertTrue(result instanceof Collection);
 
     final Collection<?> collectionResult = (Collection<?>) result;
-    Assert.assertEquals(collectionResult.size(), 2);
+    Assert.assertEquals(2, collectionResult.size());
 
     Assert.assertTrue(collectionResult.contains(new ORecordId("#1:12")));
     Assert.assertTrue(collectionResult.contains(new ORecordId("#1:23")));
+
+    assertEmbedded(ridBag);
   }
 
   @Test
@@ -112,7 +121,7 @@ public abstract class OPropertyRidBagAbstractIndexDefinition extends BaseMemoryD
 
   @Test
   public void testGetDocumentValueToIndex() {
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
 
     ridBag.add(new ORecordId("#1:12"));
     ridBag.add(new ORecordId("#1:23"));
@@ -126,10 +135,12 @@ public abstract class OPropertyRidBagAbstractIndexDefinition extends BaseMemoryD
     Assert.assertTrue(result instanceof Collection);
 
     final Collection<?> collectionResult = (Collection<?>) result;
-    Assert.assertEquals(collectionResult.size(), 2);
+    Assert.assertEquals(2, collectionResult.size());
 
     Assert.assertTrue(collectionResult.contains(new ORecordId("#1:12")));
     Assert.assertTrue(collectionResult.contains(new ORecordId("#1:23")));
+
+    assertEmbedded(ridBag);
   }
 
   @Test
@@ -433,4 +444,6 @@ public abstract class OPropertyRidBagAbstractIndexDefinition extends BaseMemoryD
     Assert.assertEquals(keysToAdd, addedKeys);
     Assert.assertEquals(keysToRemove, removedKeys);
   }
+
+  abstract void assertEmbedded(ORidBag ridBag);
 }

@@ -21,6 +21,7 @@ package com.orientechnologies.orient.core.db.record;
 
 import com.orientechnologies.common.collection.OLazyIterator;
 import com.orientechnologies.common.util.OSizeable;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.record.OIdentityChangeListener;
 import com.orientechnologies.orient.core.record.ORecord;
@@ -168,6 +169,7 @@ public class OSet extends AbstractCollection<OIdentifiable>
   }
 
   public Set<OIdentifiable> returnOriginalState(
+      ODatabaseSessionInternal session,
       final List<OMultiValueChangeEvent<OIdentifiable, OIdentifiable>> events) {
     final Set<OIdentifiable> reverted = new HashSet<OIdentifiable>(this);
 

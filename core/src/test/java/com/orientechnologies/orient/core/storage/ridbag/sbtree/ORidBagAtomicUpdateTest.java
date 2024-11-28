@@ -47,7 +47,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     db.begin();
     ODocument rootDoc = new ODocument();
 
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
     rootDoc.field("ridBag", ridBag);
 
     rootDoc.save(db.getClusterNameById(db.getDefaultClusterId()));
@@ -85,7 +85,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     db.begin();
     ODocument rootDoc = new ODocument();
 
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
     rootDoc.field("ridBag", ridBag);
 
     rootDoc.save(db.getClusterNameById(db.getDefaultClusterId()));
@@ -132,7 +132,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
 
     ODocument rootDoc = new ODocument();
 
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
     rootDoc.field("ridBag", ridBag);
 
     ODocument docOne = new ODocument();
@@ -180,7 +180,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     db.begin();
     ODocument rootDoc = new ODocument();
 
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
     rootDoc.field("ridBag", ridBag);
 
     ODocument docOne = new ODocument();
@@ -218,7 +218,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
 
     ODocument rootDoc = new ODocument();
 
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
     rootDoc.field("ridBag", ridBag);
 
     ODocument docOne = new ODocument();
@@ -262,7 +262,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
 
     ODocument rootDoc = new ODocument();
 
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
     rootDoc.field("ridBag", ridBag);
 
     ODocument docOne = new ODocument();
@@ -323,7 +323,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
 
     ODocument rootDoc = new ODocument();
 
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
     rootDoc.field("ridBag", ridBag);
 
     ODocument docOne = new ODocument();
@@ -347,7 +347,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
 
     ODocument rootDoc = new ODocument();
 
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
     rootDoc.field("ridBag", ridBag);
 
     ODocument docOne = new ODocument();
@@ -406,7 +406,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
 
     ODocument rootDoc = new ODocument();
 
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
     rootDoc.field("ridBag", ridBag);
 
     ODocument docOne = new ODocument();
@@ -470,7 +470,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
 
     ODocument rootDoc = new ODocument();
 
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
     rootDoc.field("ridBag", ridBag);
 
     ODocument docOne = new ODocument();
@@ -509,7 +509,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     ODocument docThreeTwo = new ODocument();
     docThreeTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    ORidBag ridBagThree = new ORidBag();
+    ORidBag ridBagThree = new ORidBag(db);
     ridBagThree.add(docThreeOne);
     ridBagThree.add(docThreeTwo);
     docThree.field("ridBag", ridBagThree);
@@ -522,7 +522,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     ODocument docFourTwo = new ODocument();
     docFourTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    ORidBag ridBagFour = new ORidBag();
+    ORidBag ridBagFour = new ORidBag(db);
     ridBagFour.add(docFourOne);
     ridBagFour.add(docFourTwo);
 
@@ -553,7 +553,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     db.begin();
     ODocument rootDoc = new ODocument();
 
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
     rootDoc.field("ridBag", ridBag);
 
     ODocument docOne = new ODocument();
@@ -596,7 +596,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     ODocument docThreeTwo = new ODocument();
     docThreeTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    ORidBag ridBagThree = new ORidBag();
+    ORidBag ridBagThree = new ORidBag(db);
     ridBagThree.add(docThreeOne);
     ridBagThree.add(docThreeTwo);
     docThree.field("ridBag", ridBagThree);
@@ -609,7 +609,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     ODocument docFourTwo = new ODocument();
     docFourTwo.save(db.getClusterNameById(db.getDefaultClusterId()));
 
-    ORidBag ridBagFour = new ORidBag();
+    ORidBag ridBagFour = new ORidBag(db);
     ridBagFour.add(docFourOne);
     ridBagFour.add(docFourTwo);
 
@@ -742,7 +742,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     db.begin();
     ODocument document = new ODocument();
 
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
     document.field("ridBag", ridBag);
     document.save(db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
@@ -810,7 +810,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
 
     ODocument document = new ODocument();
 
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
     document.field("ridBag", ridBag);
     document.save(db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
@@ -883,7 +883,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     db.begin();
     ODocument document = new ODocument();
 
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
     document.field("ridBag", ridBag);
     document.save(db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
@@ -965,7 +965,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     db.begin();
     ODocument document = new ODocument();
 
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
     document.field("ridBag", ridBag);
     document.save(db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
@@ -1032,7 +1032,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
 
     ODocument document = new ODocument();
 
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
     document.field("ridBag", ridBag);
     document.save(db.getClusterNameById(db.getDefaultClusterId()));
     db.commit();
@@ -1105,7 +1105,7 @@ public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
     List<OIdentifiable> addedDocs = new ArrayList<OIdentifiable>();
     addedDocPerLevel.put(new LevelKey(rootDoc.getIdentity(), level), addedDocs);
 
-    ORidBag ridBag = new ORidBag();
+    ORidBag ridBag = new ORidBag(db);
     rootDoc.field("ridBag", ridBag);
 
     for (int i = 0; i < docs; i++) {

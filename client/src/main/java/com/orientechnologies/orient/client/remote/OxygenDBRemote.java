@@ -656,8 +656,8 @@ public class OxygenDBRemote implements OxygenDBInternal {
           }
           T response = request.createResponse();
           try {
-            OStorageRemote.beginResponse(network, session1);
-            response.read(network, session1);
+            OStorageRemote.beginResponse(null, network, session1);
+            response.read(null, network, session1);
           } finally {
             network.endResponse();
           }
@@ -739,8 +739,8 @@ public class OxygenDBRemote implements OxygenDBInternal {
               }
               OConnectResponse response = request.createResponse();
               try {
-                network.beginResponse(nodeSession.getSessionId(), true);
-                response.read(network, session);
+                network.beginResponse(null, nodeSession.getSessionId(), true);
+                response.read(null, network, session);
               } finally {
                 network.endResponse();
               }

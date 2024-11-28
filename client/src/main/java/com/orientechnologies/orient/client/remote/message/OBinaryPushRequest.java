@@ -13,7 +13,7 @@ public interface OBinaryPushRequest<T extends OBinaryPushResponse> {
 
   void write(ODatabaseSessionInternal session, OChannelDataOutput channel) throws IOException;
 
-  void read(final OChannelDataInput network) throws IOException;
+  void read(ODatabaseSessionInternal db, final OChannelDataInput network) throws IOException;
 
   T execute(ODatabaseSessionInternal session, ORemotePushHandler remote);
 

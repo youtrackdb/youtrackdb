@@ -2,13 +2,13 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.orientechnologies.orient.core.sql.parser;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class OFetchPlanItem extends SimpleNode {
 
@@ -126,18 +126,18 @@ public class OFetchPlanItem extends SimpleNode {
     return result;
   }
 
-  public OResult serialize() {
-    OResultInternal result = new OResultInternal();
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("star", star);
     if (leftDepth != null) {
-      result.setProperty("leftDepth", leftDepth.serialize());
+      result.setProperty("leftDepth", leftDepth.serialize(db));
     }
     result.setProperty("leftStar", leftStar);
     if (rightDepth != null) {
-      result.setProperty("rightDepth", rightDepth.serialize());
+      result.setProperty("rightDepth", rightDepth.serialize(db));
     }
     if (fieldChain != null) {
-      result.setProperty("rightDepth", fieldChain.stream().collect(Collectors.toList()));
+      result.setProperty("rightDepth", new ArrayList<>(fieldChain));
     }
     return result;
   }

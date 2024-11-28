@@ -27,7 +27,8 @@ public class OUnsubscribeResponse implements OBinaryResponse {
   }
 
   @Override
-  public void read(OChannelDataInput network, OStorageRemoteSession session) throws IOException {
-    response.read(network, session);
+  public void read(ODatabaseSessionInternal db, OChannelDataInput network,
+      OStorageRemoteSession session) throws IOException {
+    response.read(db, network, session);
   }
 }

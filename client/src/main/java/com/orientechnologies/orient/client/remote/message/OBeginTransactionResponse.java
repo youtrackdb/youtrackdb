@@ -37,7 +37,8 @@ public class OBeginTransactionResponse implements OBinaryResponse {
   }
 
   @Override
-  public void read(OChannelDataInput network, OStorageRemoteSession session) throws IOException {
+  public void read(ODatabaseSessionInternal db, OChannelDataInput network,
+      OStorageRemoteSession session) throws IOException {
     txId = network.readInt();
     int size = network.readInt();
     updatedIds = new HashMap<>(size);

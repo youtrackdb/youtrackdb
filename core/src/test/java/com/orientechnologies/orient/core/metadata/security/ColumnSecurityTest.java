@@ -2,7 +2,6 @@ package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
@@ -27,7 +26,7 @@ public class ColumnSecurityTest {
 
   static String DB_NAME = "test";
   static OxygenDB context;
-  private ODatabaseSession db;
+  private ODatabaseSessionInternal db;
 
   @BeforeClass
   public static void beforeClass() {
@@ -54,7 +53,8 @@ public class ColumnSecurityTest {
             + " users ( admin identified by '"
             + OCreateDatabaseUtil.NEW_ADMIN_PASSWORD
             + "' role admin)");
-    this.db = context.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    this.db = (ODatabaseSessionInternal) context.open(DB_NAME, "admin",
+        OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
 
   @After
@@ -66,14 +66,14 @@ public class ColumnSecurityTest {
 
   @Test
   public void testIndexWithPolicy() {
-    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
     person.createProperty(db, "name", OType.STRING);
 
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setReadRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(
         db, security.getRole(db, "reader"), "database.class.Person.name", policy);
@@ -83,15 +83,15 @@ public class ColumnSecurityTest {
 
   @Test
   public void testIndexWithPolicy1() throws InterruptedException {
-    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
     person.createProperty(db, "name", OType.STRING);
     person.createProperty(db, "surname", OType.STRING);
 
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setReadRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(
         db, security.getRole(db, "reader"), "database.class.Person.name", policy);
@@ -107,17 +107,17 @@ public class ColumnSecurityTest {
 
   @Test
   public void testIndexWithPolicy2() {
-    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
     person.createProperty(db, "name", OType.STRING);
 
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setCreateRule("name = 'foo'");
-    policy.setBeforeUpdateRule("name = 'foo'");
-    policy.setAfterUpdateRule("name = 'foo'");
-    policy.setDeleteRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setCreateRule(db, "name = 'foo'");
+    policy.setBeforeUpdateRule(db, "name = 'foo'");
+    policy.setAfterUpdateRule(db, "name = 'foo'");
+    policy.setDeleteRule(db, "name = 'foo'");
 
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(
@@ -128,14 +128,14 @@ public class ColumnSecurityTest {
 
   @Test
   public void testIndexWithPolicy3() {
-    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
     person.createProperty(db, "name", OType.STRING);
 
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setReadRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(
         db, security.getRole(db, "reader"), "database.class.Person.surname", policy);
@@ -145,7 +145,7 @@ public class ColumnSecurityTest {
 
   @Test
   public void testIndexWithPolicy4() {
-    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
     person.createProperty(db, "name", OType.STRING);
@@ -154,8 +154,8 @@ public class ColumnSecurityTest {
     db.command("create index Person.name_address on Person (name, address) NOTUNIQUE");
 
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setReadRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(
         db, security.getRole(db, "reader"), "database.class.Person.surname", policy);
@@ -163,7 +163,7 @@ public class ColumnSecurityTest {
 
   @Test
   public void testIndexWithPolicy5() {
-    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
     person.createProperty(db, "name", OType.STRING);
@@ -172,8 +172,8 @@ public class ColumnSecurityTest {
     db.command("create index Person.name_surname on Person (name, surname) NOTUNIQUE");
 
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setReadRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
 
     try {
@@ -186,7 +186,7 @@ public class ColumnSecurityTest {
 
   @Test
   public void testIndexWithPolicy6() {
-    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     OClass person = db.createClass("Person");
     person.createProperty(db, "name", OType.STRING);
@@ -194,8 +194,8 @@ public class ColumnSecurityTest {
     db.command("create index Person.name on Person (name) NOTUNIQUE");
 
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setReadRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(
         db, security.getRole(db, "reader"), "database.class.Person.name", policy);
@@ -203,13 +203,13 @@ public class ColumnSecurityTest {
 
   @Test
   public void testReadFilterOneProperty() {
-    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setReadRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(
         db, security.getRole(db, "reader"), "database.class.Person.name", policy);
@@ -223,7 +223,7 @@ public class ColumnSecurityTest {
     db.save(elem);
 
     db.close();
-    this.db = context.open(DB_NAME, "reader", "reader");
+    this.db = (ODatabaseSessionInternal) context.open(DB_NAME, "reader", "reader");
     OResultSet rs = db.query("select from Person");
     boolean fooFound = false;
     boolean nullFound = false;
@@ -247,7 +247,7 @@ public class ColumnSecurityTest {
 
   @Test
   public void testReadFilterOnePropertyWithIndex() {
-    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     OClass clazz = db.createClass("Person");
     clazz.createProperty(db, "name", OType.STRING);
@@ -255,8 +255,8 @@ public class ColumnSecurityTest {
     db.command("create index Person.name on Person (name) NOTUNIQUE");
 
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setReadRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(
         db, security.getRole(db, "reader"), "database.class.Person.name", policy);
@@ -270,7 +270,7 @@ public class ColumnSecurityTest {
     db.save(elem);
 
     db.close();
-    this.db = context.open(DB_NAME, "reader", "reader");
+    this.db = (ODatabaseSessionInternal) context.open(DB_NAME, "reader", "reader");
     OResultSet rs = db.query("select from Person where name = 'foo'");
     Assert.assertTrue(rs.hasNext());
     rs.next();
@@ -287,13 +287,13 @@ public class ColumnSecurityTest {
 
   @Test
   public void testReadWithPredicateAndQuery() throws InterruptedException {
-    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setReadRule("name IN (select 'foo' as foo)");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name IN (select 'foo' as foo)");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(
         db, security.getRole(db, "reader"), "database.class.Person.name", policy);
@@ -328,7 +328,8 @@ public class ColumnSecurityTest {
 
     db.close();
     Thread.sleep(200);
-    this.db = context.open(DB_NAME, "reader", "reader");
+
+    this.db = (ODatabaseSessionInternal) context.open(DB_NAME, "reader", "reader");
     rs = db.query("select from Person");
     fooFound = false;
     boolean nullFound = false;
@@ -352,13 +353,13 @@ public class ColumnSecurityTest {
 
   @Test
   public void testReadFilterOnePropertyWithQuery() {
-    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setReadRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(
         db, security.getRole(db, "reader"), "database.class.Person.name", policy);
@@ -374,7 +375,8 @@ public class ColumnSecurityTest {
     db.save(elem);
 
     db.close();
-    this.db = context.open(DB_NAME, "reader", "reader");
+
+    this.db = (ODatabaseSessionInternal) context.open(DB_NAME, "reader", "reader");
     OResultSet rs = db.query("select from Person where name = 'foo' OR name = 'bar'");
 
     OResult item = rs.next();
@@ -386,19 +388,19 @@ public class ColumnSecurityTest {
 
   @Test
   public void testCreate() {
-    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setCreateRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setCreateRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(
         db, security.getRole(db, "writer"), "database.class.Person.name", policy);
 
     db.close();
-    this.db = context.open(DB_NAME, "writer", "writer");
+    this.db = (ODatabaseSessionInternal) context.open(DB_NAME, "writer", "writer");
 
     OElement elem = db.newElement("Person");
     elem.setProperty("name", "foo");
@@ -418,13 +420,13 @@ public class ColumnSecurityTest {
 
   @Test
   public void testBeforeUpdate() {
-    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setBeforeUpdateRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setBeforeUpdateRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(
         db, security.getRole(db, "writer"), "database.class.Person.name", policy);
@@ -440,7 +442,8 @@ public class ColumnSecurityTest {
     db.save(elem);
 
     db.close();
-    this.db = context.open(DB_NAME, "writer", "writer");
+
+    this.db = (ODatabaseSessionInternal) context.open(DB_NAME, "writer", "writer");
 
     db.command("UPDATE Person SET name = 'foo1' WHERE name = 'foo'");
 
@@ -460,13 +463,13 @@ public class ColumnSecurityTest {
 
   @Test
   public void testAfterUpdate() {
-    OSecurityInternal security = ((ODatabaseSessionInternal) db).getSharedContext().getSecurity();
+    OSecurityInternal security = db.getSharedContext().getSecurity();
 
     db.createClass("Person");
 
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setAfterUpdateRule("name <> 'invalid'");
+    policy.setActive(db, true);
+    policy.setAfterUpdateRule(db, "name <> 'invalid'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(
         db, security.getRole(db, "writer"), "database.class.Person.name", policy);
@@ -477,7 +480,7 @@ public class ColumnSecurityTest {
     db.save(elem);
 
     db.close();
-    this.db = context.open(DB_NAME, "writer", "writer");
+    this.db = (ODatabaseSessionInternal) context.open(DB_NAME, "writer", "writer");
 
     db.command("UPDATE Person SET name = 'foo1' WHERE name = 'foo'");
 
@@ -508,7 +511,7 @@ public class ColumnSecurityTest {
 
     db.close();
 
-    db = context.open(DB_NAME, "reader", "reader");
+    db = (ODatabaseSessionInternal) context.open(DB_NAME, "reader", "reader");
     try (final OResultSet resultSet = db.query("SELECT from Person")) {
       OResult item = resultSet.next();
       Assert.assertNull(item.getProperty("name"));
@@ -529,7 +532,7 @@ public class ColumnSecurityTest {
 
     db.close();
 
-    db = context.open(DB_NAME, "reader", "reader");
+    db = (ODatabaseSessionInternal) context.open(DB_NAME, "reader", "reader");
     try (final OResultSet resultSet = db.query("SELECT from Person")) {
       OResult item = resultSet.next();
       Assert.assertNull(item.getProperty("name"));

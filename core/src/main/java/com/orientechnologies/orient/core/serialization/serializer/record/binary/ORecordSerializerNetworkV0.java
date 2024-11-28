@@ -78,7 +78,8 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
 
   @Override
   public void deserializePartial(
-      final ODocument document, final BytesContainer bytes, final String[] iFields) {
+      ODatabaseSessionInternal db, final ODocument document, final BytesContainer bytes,
+      final String[] iFields) {
     final String className = readString(bytes);
     if (className.length() != 0) {
       ODocumentInternal.fillClassNameIfNeeded(document, className);
@@ -137,7 +138,7 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
       if (valuePos != 0) {
         int headerCursor = bytes.offset;
         bytes.offset = valuePos;
-        final Object value = deserializeValue(bytes, type, document);
+        final Object value = deserializeValue(db, bytes, type, document);
         bytes.offset = headerCursor;
         document.field(fieldName, value, type);
       } else {
@@ -153,7 +154,8 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
   }
 
   @Override
-  public void deserialize(final ODocument document, final BytesContainer bytes) {
+  public void deserialize(ODatabaseSessionInternal db, final ODocument document,
+      final BytesContainer bytes) {
     final String className = readString(bytes);
     if (className.length() != 0) {
       ODocumentInternal.fillClassNameIfNeeded(document, className);
@@ -185,7 +187,7 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
       if (valuePos != 0) {
         int headerCursor = bytes.offset;
         bytes.offset = valuePos;
-        final Object value = deserializeValue(bytes, type, document);
+        final Object value = deserializeValue(db, bytes, type, document);
         if (bytes.offset > last) {
           last = bytes.offset;
         }
@@ -319,7 +321,8 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
     bytes.bytes[pos] = (byte) type.getId();
   }
 
-  public Object deserializeValue(BytesContainer bytes, OType type, ORecordElement owner) {
+  public Object deserializeValue(ODatabaseSessionInternal session, BytesContainer bytes, OType type,
+      ORecordElement owner) {
     Object value = null;
     switch (type) {
       case INTEGER:
@@ -358,7 +361,7 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
         break;
       case EMBEDDED:
         value = new ODocumentEmbedded();
-        deserialize((ODocument) value, bytes);
+        deserialize(session, (ODocument) value, bytes);
         if (((ODocument) value).containsField(ODocumentSerializable.CLASS_NAME)) {
           String className = ((ODocument) value).field(ODocumentSerializable.CLASS_NAME);
           try {
@@ -376,11 +379,11 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
         break;
       case EMBEDDEDSET:
         OTrackedSet<Object> set = new OTrackedSet<Object>(owner);
-        value = readEmbeddedCollection(bytes, set, set);
+        value = readEmbeddedCollection(session, bytes, set, set);
         break;
       case EMBEDDEDLIST:
         OTrackedList<Object> list = new OTrackedList<Object>(owner);
-        value = readEmbeddedCollection(bytes, list, list);
+        value = readEmbeddedCollection(session, bytes, list, list);
         break;
       case LINKSET:
         value = readLinkCollection(bytes, new OSet(owner));
@@ -395,17 +398,17 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
         value = readOptimizedLink(bytes);
         break;
       case LINKMAP:
-        value = readLinkMap(bytes, owner);
+        value = readLinkMap(session, bytes, owner);
         break;
       case EMBEDDEDMAP:
-        value = readEmbeddedMap(bytes, owner);
+        value = readEmbeddedMap(session, bytes, owner);
         break;
       case DECIMAL:
         value = ODecimalSerializer.INSTANCE.deserialize(bytes.bytes, bytes.offset);
         bytes.skip(ODecimalSerializer.INSTANCE.getObjectSize(bytes.bytes, bytes.offset));
         break;
       case LINKBAG:
-        ORidBag bag = new ORidBag();
+        ORidBag bag = new ORidBag(session);
         bag.fromStream(bytes);
         bag.setOwner(owner);
         value = bag;
@@ -442,12 +445,12 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
   }
 
   private Map<Object, OIdentifiable> readLinkMap(
-      final BytesContainer bytes, final ORecordElement owner) {
+      ODatabaseSessionInternal db, final BytesContainer bytes, final ORecordElement owner) {
     int size = OVarIntSerializer.readAsInteger(bytes);
     OMap result = new OMap(owner);
     while ((size--) > 0) {
       OType keyType = readOType(bytes);
-      Object key = deserializeValue(bytes, keyType, result);
+      Object key = deserializeValue(db, bytes, keyType, result);
       ORecordId value = readOptimizedLink(bytes);
       if (value.equals(NULL_RECORD_ID)) {
         result.put(key, null);
@@ -458,19 +461,20 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
     return result;
   }
 
-  private Object readEmbeddedMap(final BytesContainer bytes, final ORecordElement owner) {
+  private Object readEmbeddedMap(ODatabaseSessionInternal db, final BytesContainer bytes,
+      final ORecordElement owner) {
     int size = OVarIntSerializer.readAsInteger(bytes);
     final OTrackedMap<Object> result = new OTrackedMap<Object>(owner);
     int last = 0;
     while ((size--) > 0) {
       OType keyType = readOType(bytes);
-      Object key = deserializeValue(bytes, keyType, result);
+      Object key = deserializeValue(db, bytes, keyType, result);
       final int valuePos = readInteger(bytes);
       final OType type = readOType(bytes);
       if (valuePos != 0) {
         int headerCursor = bytes.offset;
         bytes.offset = valuePos;
-        Object value = deserializeValue(bytes, type, result);
+        Object value = deserializeValue(db, bytes, type, result);
         if (bytes.offset > last) {
           last = bytes.offset;
         }
@@ -506,7 +510,8 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
   }
 
   private Collection<?> readEmbeddedCollection(
-      final BytesContainer bytes, final Collection<Object> found, final ORecordElement owner) {
+      ODatabaseSessionInternal db, final BytesContainer bytes, final Collection<Object> found,
+      final ORecordElement owner) {
     final int items = OVarIntSerializer.readAsInteger(bytes);
     OType type = readOType(bytes);
 
@@ -516,7 +521,7 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
         if (itemType == OType.ANY) {
           found.add(null);
         } else {
-          found.add(deserializeValue(bytes, itemType, owner));
+          found.add(deserializeValue(db, bytes, itemType, owner));
         }
       }
       return found;
@@ -904,7 +909,7 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
 
   @Override
   public <RET> RET deserializeFieldTyped(
-      BytesContainer record,
+      ODatabaseSessionInternal session, BytesContainer record,
       String iFieldName,
       boolean isEmbedded,
       OImmutableSchema schema,
@@ -915,8 +920,7 @@ public class ORecordSerializerNetworkV0 implements ODocumentSerializer {
 
   @Override
   public void deserializeDebug(
-      BytesContainer bytes,
-      ODatabaseSessionInternal db,
+      ODatabaseSessionInternal db, BytesContainer bytes,
       ORecordSerializationDebug debugInfo,
       OImmutableSchema schema) {
     throw new UnsupportedOperationException(

@@ -5,6 +5,7 @@ package com.orientechnologies.orient.core.sql.parser;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -1273,18 +1274,18 @@ public class OMathExpression extends SimpleNode {
     }
   }
 
-  public OResult serialize() {
-    OResultInternal result = new OResultInternal();
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("__class", getClass().getName());
     if (childExpressions != null) {
       result.setProperty(
           "childExpressions",
-          childExpressions.stream().map(x -> x.serialize()).collect(Collectors.toList()));
+          childExpressions.stream().map(x -> x.serialize(db)).collect(Collectors.toList()));
     }
     if (operators != null) {
       result.setProperty(
           "operators",
-          operators.stream().map(x -> serializeOperator(x)).collect(Collectors.toList()));
+          operators.stream().map(this::serializeOperator).collect(Collectors.toList()));
     }
     return result;
   }

@@ -86,6 +86,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.function.Function;
 import java.util.logging.Level;
+import javax.annotation.Nonnull;
 
 public class ONetworkProtocolBinary extends ONetworkProtocol {
 
@@ -172,7 +173,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
     OServerPluginHelper.invokeHandlerCallbackOnSocketDestroyed(server, this);
   }
 
-  private boolean isHandshaking(int requestType) {
+  private static boolean isHandshaking(int requestType) {
     return requestType == OChannelBinaryProtocol.REQUEST_CONNECT
         || requestType == OChannelBinaryProtocol.REQUEST_DB_OPEN
         || requestType == OChannelBinaryProtocol.REQUEST_SHUTDOWN
@@ -180,12 +181,12 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
         || requestType == OChannelBinaryProtocol.DISTRIBUTED_CONNECT;
   }
 
-  private boolean isDistributed(int requestType) {
+  private static boolean isDistributed(int requestType) {
     return requestType == OChannelBinaryProtocol.DISTRIBUTED_REQUEST
         || requestType == OChannelBinaryProtocol.DISTRIBUTED_RESPONSE;
   }
 
-  private boolean isCoordinated(int requestType) {
+  private static boolean isCoordinated(int requestType) {
     return requestType == OChannelBinaryProtocol.COORDINATED_DISTRIBUTED_MESSAGE;
   }
 
@@ -236,6 +237,10 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
       // GET THE CONNECTION IF EXIST
       OClientConnection connection =
           server.getClientConnectionManager().getConnection(clientTxId, this);
+      if (connection != null) {
+        connection.activateDatabaseOnCurrentThread();
+      }
+
       if (isCoordinated(requestType)) {
         coordinatedRequest(connection, requestType, clientTxId);
       } else if (isDistributed(requestType)) {
@@ -287,8 +292,9 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
     }
   }
 
-  private void sessionRequest(OClientConnection connection, int requestType, int clientTxId) {
-    long timer = 0;
+  private void sessionRequest(@Nonnull OClientConnection connection, int requestType,
+      int clientTxId) {
+    long timer;
 
     timer = Oxygen.instance().getProfiler().startChrono();
     OLogManager.instance().debug(this, "Request id:" + clientTxId + " type:" + requestType);
@@ -323,12 +329,14 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
           if (connection != null) {
             protocolVersion = connection.getData().protocolVersion;
             serializer = connection.getData().getSerializer();
+
+            request.read(connection.getDatabase(), channel, protocolVersion, serializer);
+          } else {
+            request.read(null, channel, protocolVersion, serializer);
           }
-          request.read(channel, protocolVersion, serializer);
+
         } catch (IOException e) {
-          if (connection != null) {
-            connection.endOperation();
-          }
+          connection.endOperation();
           OLogManager.instance()
               .debug(
                   this, "I/O Error on client clientId=%d reqType=%d", clientTxId, requestType, e);
@@ -342,17 +350,10 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
           sendShutdown();
           return;
         }
-        if (connection == null && requestType == OChannelBinaryProtocol.REQUEST_DB_CLOSE) {
-          // Backward compatible with old clients
-          return;
-        }
 
         OBinaryResponse response = null;
         if (exception == null) {
           try {
-            if (connection == null) {
-              throw new ODatabaseException("Required session");
-            }
 
             if (request.requireServerUser()) {
               checkServerAccess(connection.getDatabase(), request.requiredServerRole(), connection);
@@ -366,7 +367,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
             response = request.execute(connection.getExecutor());
           } catch (RuntimeException t) {
             // This should be moved in the execution of the command that manipulate data
-            if (connection != null && connection.getDatabase() != null) {
+            if (connection.getDatabase() != null) {
               final OSBTreeCollectionManager collectionManager =
                   connection.getDatabase().getSbTreeCollectionManager();
               if (collectionManager != null) {
@@ -376,9 +377,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
             exception = t;
           } catch (Throwable err) {
             sendShutdown();
-            if (connection != null) {
-              connection.release();
-            }
+            connection.release();
             throw err;
           }
         }

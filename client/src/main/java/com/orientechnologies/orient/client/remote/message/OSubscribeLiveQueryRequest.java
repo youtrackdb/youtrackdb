@@ -54,12 +54,13 @@ public class OSubscribeLiveQueryRequest implements OBinaryRequest<OSubscribeLive
   }
 
   @Override
-  public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
+  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+      ORecordSerializer serializer)
       throws IOException {
     this.query = channel.readString();
     ODocument paramsDoc = new ODocument();
     byte[] bytes = channel.readBytes();
-    serializer.fromStream(bytes, paramsDoc, null);
+    serializer.fromStream(db, bytes, paramsDoc, null);
     this.params = paramsDoc.field("params");
     this.namedParams = channel.readBoolean();
   }

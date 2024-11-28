@@ -3,6 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OInsertExecutionPlan;
@@ -224,13 +225,13 @@ public class OParenthesisExpression extends OMathExpression {
     }
   }
 
-  public OResult serialize() {
-    OResultInternal result = (OResultInternal) super.serialize();
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = (OResultInternal) super.serialize(db);
     if (expression != null) {
-      result.setProperty("expression", expression.serialize());
+      result.setProperty("expression", expression.serialize(db));
     }
     if (statement != null) {
-      result.setProperty("statement", statement.serialize());
+      result.setProperty("statement", statement.serialize(db));
     }
     return result;
   }

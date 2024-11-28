@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.sql.executor;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -56,10 +57,10 @@ public class FetchFromIndexedFunctionStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OResult serialize() {
-    OResultInternal result = OExecutionStepInternal.basicSerialize(this);
-    result.setProperty("functionCondition", this.functionCondition.serialize());
-    result.setProperty("queryTarget", this.queryTarget.serialize());
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
+    result.setProperty("functionCondition", this.functionCondition.serialize(db));
+    result.setProperty("queryTarget", this.queryTarget.serialize(db));
 
     return result;
   }

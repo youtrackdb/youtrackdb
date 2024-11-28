@@ -29,17 +29,15 @@ public class OExistsSystemUserStatement extends OSimpleExecServerStatement {
   public OExecutionStream executeSimple(OServerCommandContext ctx) {
 
     OSystemDatabase systemDb = ctx.getServer().getSystemDatabase();
-
-    OResultInternal result = new OResultInternal();
-    result.setProperty("operation", "exists system user");
-    if (name != null) {
-      result.setProperty("name", name.getStringValue());
-    } else {
-      result.setProperty("name", nameParam.getValue(ctx.getInputParameters()));
-    }
-
-    systemDb.executeWithDB(
+    var res = systemDb.executeWithDB(
         (db) -> {
+          OResultInternal result = new OResultInternal(db);
+          result.setProperty("operation", "exists system user");
+          if (name != null) {
+            result.setProperty("name", name.getStringValue());
+          } else {
+            result.setProperty("name", nameParam.getValue(ctx.getInputParameters()));
+          }
           List<Object> params = new ArrayList<>();
           if (name != null) {
             params.add(name.getStringValue());
@@ -55,10 +53,10 @@ public class OExistsSystemUserStatement extends OSimpleExecServerStatement {
               result.setProperty("exists", false);
             }
           }
-          return null;
+          return result;
         });
 
-    return OExecutionStream.singleton(result);
+    return OExecutionStream.singleton(res);
   }
 
   @Override

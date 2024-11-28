@@ -121,9 +121,7 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
     Object key = nextEntry.first;
     OIdentifiable value = nextEntry.second;
 
-    nextEntry = null;
-
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(ctx.getDatabase());
     result.setProperty("key", convertKey(key));
     result.setProperty("rid", value);
     ctx.setVariable("$current", result);
@@ -483,11 +481,13 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
 
   private static List<OCollection> cartesianProduct(
       OCollection head, OCollection key, OCommandContext ctx) {
-    if (key.getExpressions().size() == 0) {
+    if (key.getExpressions().isEmpty()) {
       return Collections.singletonList(head);
     }
+
+    var db = ctx.getDatabase();
     OExpression nextElementInKey = key.getExpressions().get(0);
-    Object value = nextElementInKey.execute(new OResultInternal(), ctx);
+    Object value = nextElementInKey.execute(new OResultInternal(db), ctx);
     if (value instanceof Iterable && !(value instanceof OIdentifiable)) {
       List<OCollection> result = new ArrayList<>();
       for (Object elemInKey : (Collection<?>) value) {
@@ -824,15 +824,15 @@ public class FetchFromIndexStep extends AbstractExecutionStep {
   }
 
   @Override
-  public OResult serialize() {
-    OResultInternal result = OExecutionStepInternal.basicSerialize(this);
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = OExecutionStepInternal.basicSerialize(db, this);
     result.setProperty("indexName", desc.getIndex().getName());
     if (desc.getKeyCondition() != null) {
-      result.setProperty("condition", desc.getKeyCondition().serialize());
+      result.setProperty("condition", desc.getKeyCondition().serialize(db));
     }
     if (desc.getAdditionalRangeCondition() != null) {
       result.setProperty(
-          "additionalRangeCondition", desc.getAdditionalRangeCondition().serialize());
+          "additionalRangeCondition", desc.getAdditionalRangeCondition().serialize(db));
     }
     result.setProperty("orderAsc", orderAsc);
     return result;

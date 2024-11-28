@@ -42,15 +42,18 @@ import com.orientechnologies.orient.core.exception.OQueryParsingException;
 /** Orient Database Sql grammar. */
 public class OrientSql {
 
-  private int inputParamCount = 0;
+    private int inputParamCount = 0;
+    private ODatabaseSessionInternal session;
 
 
-    public OrientSql(InputStream stream) {
+    public OrientSql(ODatabaseSessionInternal session, InputStream stream) {
       this(new JavaCharStream(stream));
+      this.session = session;
     }
 
-    public OrientSql(InputStream stream, String charset) throws java.io.UnsupportedEncodingException {
+    public OrientSql(ODatabaseSessionInternal session, InputStream stream, String charset) throws java.io.UnsupportedEncodingException {
       this(new JavaCharStream(stream, charset));
+      this.session = session;
     }
 
 }
@@ -1087,9 +1090,6 @@ OStatement StatementInternal():
                 |
                 LOOKAHEAD(2)
                 result = CreateClassStatement()
-                |
-                LOOKAHEAD(2)
-                result = CreateViewStatement()
                 |
                 LOOKAHEAD(2)
                 result = CreatePropertyStatement()
@@ -4000,22 +4000,6 @@ OCreateClassStatement CreateClassStatement():
 		[ <ABSTRACT> { jjtThis.abstractClass = true; } ]
 	)
 	{ return jjtThis; }
-}
-
-OCreateViewStatement CreateViewStatement():
-{}
-{
-	<CREATE> <VIEW>
-	(
-		jjtThis.name = Identifier()
-		[ <IF> <NOT> <EXISTS> { jjtThis.ifNotExists = true; }]
-		<FROM> <LPAREN> jjtThis.statement = QueryStatement() <RPAREN>
-		[ <METADATA> jjtThis.metadata = Json() ]
-	)
-	{
-	  jjtThis.checkMetadataSyntax();
-	  return jjtThis;
-	}
 }
 
 OAlterClassStatement AlterClassStatement():

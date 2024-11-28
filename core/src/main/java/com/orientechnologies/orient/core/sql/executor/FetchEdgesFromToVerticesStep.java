@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.id.ORID;
@@ -52,6 +53,7 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
 
     final Set<ORID> toList = loadTo();
 
+    var db = ctx.getDatabase();
     OExecutionStreamProducer res =
         new OExecutionStreamProducer() {
           private final Iterator iter = fromIter;
@@ -59,7 +61,7 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
 
           @Override
           public OExecutionStream next(OCommandContext ctx) {
-            return createResultSet(to, iter.next());
+            return createResultSet(db, to, iter.next());
           }
 
           @Override
@@ -75,13 +77,14 @@ public class FetchEdgesFromToVerticesStep extends AbstractExecutionStep {
     return new OMultipleExecutionStream(res);
   }
 
-  private OExecutionStream createResultSet(Set<ORID> toList, Object val) {
+  private OExecutionStream createResultSet(ODatabaseSessionInternal db, Set<ORID> toList,
+      Object val) {
     return OExecutionStream.resultIterator(
         StreamSupport.stream(this.loadNextResults(val).spliterator(), false)
             .filter((e) -> filterResult(e, toList))
             .map(
                 (edge) -> {
-                  return (OResult) new OResultInternal(edge);
+                  return (OResult) new OResultInternal(db, edge);
                 })
             .iterator());
   }

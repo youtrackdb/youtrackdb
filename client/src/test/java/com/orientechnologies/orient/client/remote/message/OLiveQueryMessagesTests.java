@@ -28,8 +28,8 @@ public class OLiveQueryMessagesTests extends BaseMemoryDatabase {
     request.write(null, channel, null);
     channel.close();
     OSubscribeLiveQueryRequest requestRead = new OSubscribeLiveQueryRequest();
-    requestRead.read(channel, -1, new ORecordSerializerNetworkV37());
-    assertEquals(requestRead.getQuery(), "select from Some");
+    requestRead.read(db, channel, -1, new ORecordSerializerNetworkV37());
+    assertEquals("select from Some", requestRead.getQuery());
     assertEquals(requestRead.getParams(), params);
   }
 
@@ -40,8 +40,8 @@ public class OLiveQueryMessagesTests extends BaseMemoryDatabase {
     response.write(null, channel, 0, null);
     channel.close();
     OSubscribeLiveQueryResponse responseRead = new OSubscribeLiveQueryResponse();
-    responseRead.read(channel, null);
-    assertEquals(responseRead.getMonitorId(), 20);
+    responseRead.read(db, channel, null);
+    assertEquals(20, responseRead.getMonitorId());
   }
 
   @Test
@@ -53,26 +53,26 @@ public class OLiveQueryMessagesTests extends BaseMemoryDatabase {
     pushRequest.write(null, channel);
     channel.close();
     OLiveQueryPushRequest pushRequestRead = new OLiveQueryPushRequest();
-    pushRequestRead.read(channel);
-    assertEquals(pushRequestRead.getMonitorId(), 10);
-    assertEquals(pushRequestRead.getStatus(), OLiveQueryPushRequest.ERROR);
-    assertEquals(pushRequestRead.getErrorIdentifier(), 20);
-    assertEquals(pushRequestRead.getErrorCode(), OErrorCode.GENERIC_ERROR);
-    assertEquals(pushRequestRead.getErrorMessage(), "the message");
+    pushRequestRead.read(db, channel);
+    assertEquals(10, pushRequestRead.getMonitorId());
+    assertEquals(OLiveQueryPushRequest.ERROR, pushRequestRead.getStatus());
+    assertEquals(20, pushRequestRead.getErrorIdentifier());
+    assertEquals(OErrorCode.GENERIC_ERROR, pushRequestRead.getErrorCode());
+    assertEquals("the message", pushRequestRead.getErrorMessage());
   }
 
   @Test
   public void testLiveQueryPushRequest() throws IOException {
 
     List<OLiveQueryResult> events = new ArrayList<>();
-    OResultInternal res = new OResultInternal();
+    OResultInternal res = new OResultInternal(db);
     res.setProperty("one", "one");
     res.setProperty("two", 10);
     events.add(new OLiveQueryResult(OLiveQueryResult.CREATE_EVENT, res, null));
     events.add(
         new OLiveQueryResult(
-            OLiveQueryResult.UPDATE_EVENT, new OResultInternal(), new OResultInternal()));
-    events.add(new OLiveQueryResult(OLiveQueryResult.DELETE_EVENT, new OResultInternal(), null));
+            OLiveQueryResult.UPDATE_EVENT, new OResultInternal(db), new OResultInternal(db)));
+    events.add(new OLiveQueryResult(OLiveQueryResult.DELETE_EVENT, new OResultInternal(db), null));
 
     OLiveQueryPushRequest pushRequest =
         new OLiveQueryPushRequest(10, OLiveQueryPushRequest.END, events);
@@ -80,12 +80,12 @@ public class OLiveQueryMessagesTests extends BaseMemoryDatabase {
     pushRequest.write(null, channel);
     channel.close();
     OLiveQueryPushRequest pushRequestRead = new OLiveQueryPushRequest();
-    pushRequestRead.read(channel);
+    pushRequestRead.read(db, channel);
 
-    assertEquals(pushRequestRead.getMonitorId(), 10);
-    assertEquals(pushRequestRead.getStatus(), OLiveQueryPushRequest.END);
-    assertEquals(pushRequestRead.getEvents().size(), 3);
-    assertEquals(pushRequestRead.getEvents().get(0).getCurrentValue().getProperty("one"), "one");
-    assertEquals((int) pushRequestRead.getEvents().get(0).getCurrentValue().getProperty("two"), 10);
+    assertEquals(10, pushRequestRead.getMonitorId());
+    assertEquals(OLiveQueryPushRequest.END, pushRequestRead.getStatus());
+    assertEquals(3, pushRequestRead.getEvents().size());
+    assertEquals("one", pushRequestRead.getEvents().get(0).getCurrentValue().getProperty("one"));
+    assertEquals(10, (int) pushRequestRead.getEvents().get(0).getCurrentValue().getProperty("two"));
   }
 }

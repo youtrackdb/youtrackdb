@@ -38,11 +38,7 @@ import java.util.TimeZone;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- * @email <gabriele.ponzi--at--gmail.com>
- */
 public class ODateConversionTestCase extends BaseMemoryDatabase {
-
   private final ORecordSerializer serializer = new ORecordSerializerBinary();
 
   @Test
@@ -56,12 +52,12 @@ public class ODateConversionTestCase extends BaseMemoryDatabase {
     ODocument document = new ODocument();
     document.field("date", dateToInsert, OType.DATE);
     byte[] res = serializer.toStream(db, document);
-    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
+    ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
     final String[] fields = extr.fieldNames();
 
     assertNotNull(fields);
-    assertEquals(fields.length, 1);
-    assertEquals(fields[0], "date");
+    assertEquals(1, fields.length);
+    assertEquals("date", fields[0]);
 
     Date old = document.field("date");
     Date newDate = extr.field("date");

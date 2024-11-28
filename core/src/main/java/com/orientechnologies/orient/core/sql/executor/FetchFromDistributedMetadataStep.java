@@ -31,7 +31,7 @@ public class FetchFromDistributedMetadataStep extends AbstractExecutionStep {
     OSharedContextEmbedded value = (OSharedContextEmbedded) session.getSharedContext();
 
     Map<String, Object> map = value.loadDistributedConfig(session);
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(session);
 
     for (var entry : map.entrySet()) {
       result.setProperty(entry.getKey(), entry.getValue());

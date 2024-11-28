@@ -1,35 +1,29 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import org.junit.After;
-import org.junit.Before;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDBConfigBuilder;
+import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import org.junit.Assert;
 
 /**
  * @since 1/30/14
  */
-public class OPropertyEmbeddedRidBagIndexDefinitionTest
-    extends OPropertyRidBagAbstractIndexDefinition {
+public class OPropertyEmbeddedRidBagIndexDefinitionTest extends
+    OPropertyRidBagAbstractIndexDefinition {
 
-  private int topThreshold;
-  private int bottomThreshold;
-
-  @Before
   @Override
-  public void beforeMethod() {
-    super.beforeMethod();
+  protected OxygenDBConfig createConfig(OxygenDBConfigBuilder builder) {
+    builder.addConfig(OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD,
+        Integer.MAX_VALUE);
+    builder.addConfig(OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD,
+        Integer.MAX_VALUE);
 
-    topThreshold =
-        OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger();
-    bottomThreshold =
-        OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.getValueAsInteger();
-
-    OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(Integer.MAX_VALUE);
-    OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(Integer.MAX_VALUE);
+    return builder.build();
   }
 
-  @After
-  public void afterMethod() {
-    OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(topThreshold);
-    OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(bottomThreshold);
+  @Override
+  void assertEmbedded(ORidBag ridBag) {
+    Assert.assertTrue(ridBag.isEmbedded());
   }
 }

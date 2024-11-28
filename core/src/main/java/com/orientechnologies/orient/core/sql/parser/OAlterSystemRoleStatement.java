@@ -64,7 +64,7 @@ public class OAlterSystemRoleStatement extends OSimpleExecServerStatement {
             throw new OCommandExecutionException("role not found: " + name.getStringValue());
           }
           for (Op op : operations) {
-            OResultInternal result = new OResultInternal();
+            OResultInternal result = new OResultInternal(db);
             result.setProperty("operation", "alter system role");
             result.setProperty("name", name.getStringValue());
             result.setProperty("resource", op.resource.toString());

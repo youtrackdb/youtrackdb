@@ -38,9 +38,10 @@ public class OPushSchemaRequest implements OBinaryPushRequest<OBinaryPushRespons
   }
 
   @Override
-  public void read(OChannelDataInput network) throws IOException {
+  public void read(ODatabaseSessionInternal db, OChannelDataInput network) throws IOException {
     byte[] bytes = network.readBytes();
-    this.schema = (ODocument) ORecordSerializerNetworkV37Client.INSTANCE.fromStream(bytes, null);
+    this.schema = (ODocument) ORecordSerializerNetworkV37Client.INSTANCE.fromStream(db, bytes,
+        null);
   }
 
   @Override

@@ -4,6 +4,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -585,7 +586,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
     ORecordInternal.setIdentity(doc, new OEmptyRecordId());
 
     // DELETE THE OLD RECORD FIRST TO AVOID ISSUES WITH UNIQUE CONSTRAINTS
-    copyRidBags(oldRecord, doc);
+    copyRidBags(db, oldRecord, doc);
     detachRidbags(oldRecord);
     db.delete(oldRecord);
 
@@ -710,7 +711,8 @@ public interface OVertexInternal extends OVertex, OElementInternal {
     }
   }
 
-  private static void copyRidBags(ORecord oldRecord, ODocument newDoc) {
+  private static void copyRidBags(ODatabaseSessionInternal db, ORecord oldRecord,
+      ODocument newDoc) {
     ODocument oldDoc = (ODocument) oldRecord;
     for (String field : oldDoc.getPropertyNamesInternal()) {
       if (field.equalsIgnoreCase(OEdgeInternal.DIRECTION_OUT)
@@ -722,7 +724,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
         Object val = oldDoc.rawField(field);
         if (val instanceof ORidBag bag) {
           if (!bag.isEmbedded()) {
-            ORidBag newBag = new ORidBag();
+            ORidBag newBag = new ORidBag(db);
             for (OIdentifiable identifiable : bag) {
               newBag.add(identifiable);
             }
@@ -881,7 +883,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
         out = coll;
         outType = OType.LINKLIST;
       } else if (propType == null || propType == OType.LINKBAG) {
-        final ORidBag bag = new ORidBag();
+        final ORidBag bag = new ORidBag(fromVertex.getSession());
         bag.add(to);
         out = bag;
         outType = OType.LINKBAG;
@@ -910,7 +912,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
         out = coll;
         outType = OType.LINKLIST;
       } else {
-        final ORidBag bag = new ORidBag();
+        final ORidBag bag = new ORidBag(fromVertex.getSession());
         bag.add(foundId);
         bag.add(to);
         out = bag;

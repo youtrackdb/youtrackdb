@@ -21,8 +21,6 @@ package com.orientechnologies.orient.core.command.traverse;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
-import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocumentHelper;
@@ -245,10 +243,6 @@ public class OTraverseContext extends OBasicCommandContext {
     @Override
     public void add(final OTraverseAbstractProcess<?> iProcess) {
       deque.addLast(iProcess);
-    }
-
-    public ODatabaseSession getDatabase() {
-      return ODatabaseRecordThreadLocal.instance().getIfDefined();
     }
   }
 }

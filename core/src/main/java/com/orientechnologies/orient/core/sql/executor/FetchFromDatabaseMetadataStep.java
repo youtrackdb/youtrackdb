@@ -21,14 +21,14 @@ public class FetchFromDatabaseMetadataStep extends AbstractExecutionStep {
       prev.start(ctx).close(ctx);
     }
 
-    return new OProduceExecutionStream(this::produce).limit(1);
+    return new OProduceExecutionStream(FetchFromDatabaseMetadataStep::produce).limit(1);
   }
 
-  private OResult produce(OCommandContext ctx) {
+  private static OResult produce(OCommandContext ctx) {
+    var db = ctx.getDatabase();
+    OResultInternal result = new OResultInternal(db);
 
-    OResultInternal result = new OResultInternal();
 
-    ODatabaseSession db = ctx.getDatabase();
     result.setProperty("name", db.getName());
     result.setProperty("user", db.getUser() == null ? null : db.getUser().getName(db));
     result.setProperty("type", String.valueOf(db.get(ODatabaseSession.ATTRIBUTES.TYPE)));

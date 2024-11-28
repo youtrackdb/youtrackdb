@@ -105,7 +105,7 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
     document.field("dateTime", new Date());
     document.field(
         "bigNumber", new BigDecimal("43989872423376487952454365232141525434.32146432321442534"));
-    ORidBag bag = new ORidBag();
+    ORidBag bag = new ORidBag(db);
     bag.add(new ORecordId(1, 1));
     bag.add(new ORecordId(2, 2));
     // document.field("ridBag", bag);
@@ -126,7 +126,7 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
     document.field("recordId", new ORecordId(10, 10));
 
     byte[] res = serializer.toStream(db, document);
-    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
+    ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
 
     c.set(Calendar.MILLISECOND, 0);
     c.set(Calendar.SECOND, 0);
@@ -238,7 +238,7 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
     // document.field("listMixed", listMixed);
 
     byte[] res = serializer.toStream(db, document);
-    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
+    ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
 
     assertEquals(extr.fields(), document.fields());
     assertEquals(((List) extr.field("listStrings")).toArray(), document.field("listStrings"));
@@ -329,7 +329,7 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
     document.field("listMixed", listMixed);
 
     byte[] res = serializer.toStream(db, document);
-    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
+    ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
 
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field("listStrings"), document.field("listStrings"));
@@ -428,7 +428,8 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
         document.field("listMixed", listMixed);
 
         byte[] res = serializer.toStream(db, document);
-        ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
+        ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(),
+            new String[]{});
 
         assertEquals(extr.fields(), document.fields());
         assertEquals(extr.<Object>field("listStrings"), document.field("listStrings"));
@@ -462,7 +463,8 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
         linkList.add(new ORecordId(11, 22));
         document.field("linkList", linkList, OType.LINKLIST);
         byte[] res = serializer.toStream(db, document);
-        ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
+        ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(),
+            new String[]{});
 
         assertEquals(extr.fields(), document.fields());
         assertEquals(
@@ -483,7 +485,7 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
     document.field("embed", embedded, OType.EMBEDDED);
 
     byte[] res = serializer.toStream(db, document);
-    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
+    ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
     assertEquals(document.fields(), extr.fields());
     ODocument emb = extr.field("embed");
     assertNotNull(emb);
@@ -541,7 +543,7 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
     document.field("bytesMap", mapWithNulls);
 
     byte[] res = serializer.toStream(db, document);
-    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
+    ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field("mapString"), document.field("mapString"));
     assertEquals(extr.<Object>field("mapLong"), document.field("mapLong"));
@@ -562,7 +564,7 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
     document.field("complexList", list);
 
     byte[] res = serializer.toStream(db, document);
-    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
+    ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field("complexList"), document.field("complexList"));
   }
@@ -578,7 +580,7 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
     document.field("complexArray", array);
 
     byte[] res = serializer.toStream(db, document);
-    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
+    ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
     assertEquals(extr.fields(), document.fields());
     List<List<String>> savedValue = extr.field("complexArray");
     assertEquals(savedValue.size(), array.length);
@@ -601,7 +603,7 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
     coll.add(map2);
     document.field("list", coll);
     byte[] res = serializer.toStream(db, document);
-    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
+    ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field("list"), document.field("list"));
   }
@@ -618,7 +620,7 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
     document.field("map", map, OType.EMBEDDEDMAP);
 
     byte[] res = serializer.toStream(db, document);
-    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
+    ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
     Map<String, ODocument> mapS = extr.field("map");
     assertEquals(1, mapS.size());
     ODocument emb = mapS.get("embedded");
@@ -640,7 +642,8 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
         document.field("map", map, OType.LINKMAP);
 
         byte[] res = serializer.toStream(db, document);
-        ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
+        ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(),
+            new String[]{});
         assertEquals(extr.fields(), document.fields());
         assertEquals(extr.<Object>field("map"), document.field("map"));
       }
@@ -656,7 +659,8 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
         ODocument document = new ODocument("TestClass");
         document.field("test", "test");
         byte[] res = serializer.toStream(db, document);
-        ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
+        ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(),
+            new String[]{});
         //      assertEquals(extr.getClassName(), document.getClassName());
         assertEquals(extr.fields(), document.fields());
         assertEquals(extr.<Object>field("test"), document.field("test"));
@@ -674,7 +678,7 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
     document.field("test", "test");
     document.field("custom", new Custom());
     byte[] res = serializer.toStream(db, document);
-    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
+    ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
     assertEquals(extr.getClassName(), document.getClassName());
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field("test"), document.field("test"));
@@ -688,7 +692,7 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
     document.field("test", "test");
     document.field("custom", new CustomDocument());
     byte[] res = serializer.toStream(db, document);
-    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
+    ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
     assertEquals(extr.getClassName(), document.getClassName());
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field("test"), document.field("test"));
@@ -804,7 +808,7 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
     document.field("embeddedSet", embeddedSet, OType.EMBEDDEDSET);
 
     byte[] res = serializer.toStream(db, document);
-    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
+    ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
 
     List<ODocument> ser = extr.field("embeddedList");
     assertEquals(ser.size(), 4);
@@ -840,7 +844,7 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
     ser.name = "testName";
     document.field("seri", ser);
     byte[] res = serializer.toStream(db, document);
-    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
+    ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
 
     assertNotNull(extr.field("seri"));
     assertEquals(extr.fieldType("seri"), OType.CUSTOM);
@@ -854,7 +858,7 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
     ODocument document = new ODocument();
     document.fields("a", 1, "b", 2, "c", 3);
     byte[] res = serializer.toStream(db, document);
-    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
+    ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
 
     final String[] fields = extr.fieldNames();
 
@@ -870,7 +874,7 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
     ODocument document = new ODocument();
     document.fields("a", 1, "b", 2, "c", 3);
     byte[] res = serializer.toStream(db, document);
-    final String[] fields = serializer.getFieldNames(document, res);
+    final String[] fields = serializer.getFieldNames(db, document, res);
 
     assertNotNull(fields);
     assertEquals(fields.length, 3);
@@ -889,7 +893,7 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
 
     byte[] res = serializer.toStream(db, document);
     ODocument extr =
-        (ODocument) serializer.fromStream(res, new ODocument(), new String[]{"name", "age"});
+        (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{"name", "age"});
 
     assertEquals(document.field("name"), extr.<Object>field("name"));
     assertEquals(document.<Object>field("age"), extr.field("age"));
@@ -907,7 +911,7 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
     document.removeField("oldAge");
 
     byte[] res = serializer.toStream(db, document);
-    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
+    ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
 
     assertEquals(document.field("name"), extr.<Object>field("name"));
     assertEquals(document.<Object>field("age"), extr.field("age"));
@@ -949,7 +953,7 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
 
       byte[] res = serializer.toStream(db, document);
       ODocument extr =
-          (ODocument) serializer.fromStream(res, new ODocument(), new String[]{"foo"});
+          (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{"foo"});
 
       assertEquals(document.field("name"), extr.<Object>field("name"));
       assertEquals(document.<Object>field("age"), extr.field("age"));
@@ -974,7 +978,7 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
     document.setProperty("list", lista);
 
     byte[] res = serializer.toStream(db, document);
-    ODocument extr = (ODocument) serializer.fromStream(res, new ODocument(), new String[]{});
+    ODocument extr = (ODocument) serializer.fromStream(db, res, new ODocument(), new String[]{});
     assertEquals(extr.fields(), document.fields());
     assertEquals(extr.<Object>field("list"), document.field("list"));
   }

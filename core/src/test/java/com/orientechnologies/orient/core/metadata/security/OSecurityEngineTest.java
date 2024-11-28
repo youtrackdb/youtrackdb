@@ -65,8 +65,8 @@ public class OSecurityEngineTest {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "policy1");
-    policy.setActive(true);
-    policy.setReadRule("name = 'admin'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'admin'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "admin"), "database.class.*", policy);
     db.commit();
@@ -86,8 +86,8 @@ public class OSecurityEngineTest {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "policy1");
-    policy.setActive(true);
-    policy.setReadRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "admin"), "database.class.Person", policy);
     db.commit();
@@ -108,8 +108,8 @@ public class OSecurityEngineTest {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "policy1");
-    policy.setActive(true);
-    policy.setReadRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "admin"), "database.class.Person", policy);
     db.commit();
@@ -130,14 +130,14 @@ public class OSecurityEngineTest {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "policy1");
-    policy.setActive(true);
-    policy.setReadRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "admin"), "database.class.Person", policy);
 
     policy = security.createSecurityPolicy(db, "policy2");
-    policy.setActive(true);
-    policy.setReadRule("name = 'bar'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'bar'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(
         db, security.getRole(db, "admin"), "database.class.Employee", policy);
@@ -159,14 +159,14 @@ public class OSecurityEngineTest {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "policy1");
-    policy.setActive(true);
-    policy.setReadRule("name = 'admin'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'admin'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "admin"), "database.class.Person", policy);
 
     policy = security.createSecurityPolicy(db, "policy2");
-    policy.setActive(true);
-    policy.setReadRule("name = 'bar' OR name = 'admin'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'bar' OR name = 'admin'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "admin"), "database.class.*", policy);
     db.commit();
@@ -188,14 +188,14 @@ public class OSecurityEngineTest {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "policy1");
-    policy.setActive(true);
-    policy.setReadRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "admin"), "database.class.Person", policy);
 
     policy = security.createSecurityPolicy(db, "policy2");
-    policy.setActive(true);
-    policy.setReadRule("surname = 'bar'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "surname = 'bar'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "admin"), "database.class.Foo", policy);
     db.commit();
@@ -228,14 +228,14 @@ public class OSecurityEngineTest {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "policy1");
-    policy.setActive(true);
-    policy.setReadRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "admin"), "database.class.Person", policy);
 
     policy = security.createSecurityPolicy(db, "policy2");
-    policy.setActive(true);
-    policy.setReadRule("surname = 'bar'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "surname = 'bar'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
     db.commit();
@@ -274,8 +274,8 @@ public class OSecurityEngineTest {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "policy1");
-    policy.setActive(true);
-    policy.setReadRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "admin"), "database.class.Person", policy);
     db.commit();

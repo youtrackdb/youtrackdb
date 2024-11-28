@@ -1,6 +1,8 @@
 package com.orientechnologies.orient.core.metadata.security;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORID;
+import javax.annotation.Nonnull;
 
 public interface OSecurityPolicy {
 
@@ -15,38 +17,31 @@ public interface OSecurityPolicy {
 
   ORID getIdentity();
 
-  String getName();
+  String getName(@Nonnull ODatabaseSessionInternal db);
 
-  boolean isActive();
+  boolean isActive(@Nonnull ODatabaseSessionInternal db);
 
-  String getCreateRule();
+  String getCreateRule(@Nonnull ODatabaseSessionInternal db);
 
-  String getReadRule();
+  String getReadRule(@Nonnull ODatabaseSessionInternal db);
 
-  String getBeforeUpdateRule();
+  String getBeforeUpdateRule(@Nonnull ODatabaseSessionInternal db);
 
-  String getAfterUpdateRule();
+  String getAfterUpdateRule(@Nonnull ODatabaseSessionInternal db);
 
-  String getDeleteRule();
+  String getDeleteRule(@Nonnull ODatabaseSessionInternal db);
 
-  String getExecuteRule();
+  String getExecuteRule(@Nonnull ODatabaseSessionInternal db);
 
-  default String get(Scope scope) {
-    switch (scope) {
-      case CREATE:
-        return getCreateRule();
-      case READ:
-        return getReadRule();
-      case BEFORE_UPDATE:
-        return getBeforeUpdateRule();
-      case AFTER_UPDATE:
-        return getAfterUpdateRule();
-      case DELETE:
-        return getDeleteRule();
-      case EXECUTE:
-        return getExecuteRule();
-      default:
-        throw new IllegalArgumentException();
-    }
+  default String get(Scope scope, @Nonnull ODatabaseSessionInternal db) {
+    return switch (scope) {
+      case CREATE -> getCreateRule(db);
+      case READ -> getReadRule(db);
+      case BEFORE_UPDATE -> getBeforeUpdateRule(db);
+      case AFTER_UPDATE -> getAfterUpdateRule(db);
+      case DELETE -> getDeleteRule(db);
+      case EXECUTE -> getExecuteRule(db);
+      default -> throw new IllegalArgumentException();
+    };
   }
 }

@@ -3,6 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
@@ -126,12 +127,12 @@ public class OProjection extends SimpleNode {
           "This is an expand projection, it cannot be calculated as a single result" + this);
     }
 
-    if (items.size() == 0
+    if (items.isEmpty()
         || (items.size() == 1 && items.get(0).isAll()) && items.get(0).nestedProjection == null) {
       return iRecord;
     }
 
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(iContext.getDatabase());
     for (OProjectionItem item : items) {
       if (item.exclude) {
         continue;
@@ -278,12 +279,13 @@ public class OProjection extends SimpleNode {
     return false;
   }
 
-  public OResult serialize() {
-    OResultInternal result = new OResultInternal();
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("distinct", distinct);
     if (items != null) {
       result.setProperty(
-          "items", items.stream().map(x -> x.serialize()).collect(Collectors.toList()));
+          "items", items.stream().map(oProjectionItem -> oProjectionItem.serialize(db))
+              .collect(Collectors.toList()));
     }
     return result;
   }

@@ -65,7 +65,7 @@ public class OLuceneSearchOnClassFunction extends OLuceneSearchFunctionTemplate 
     if (iThis instanceof OResult) {
       result = (OResult) iThis;
     } else {
-      result = new OResultInternal((OIdentifiable) iThis);
+      result = new OResultInternal(ctx.getDatabase(), (OIdentifiable) iThis);
     }
 
     OElement element = result.toElement();

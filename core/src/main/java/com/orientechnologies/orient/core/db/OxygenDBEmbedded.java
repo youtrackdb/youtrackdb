@@ -1009,7 +1009,7 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
       return;
     }
     open = false;
-    this.sharedContexts.values().forEach(x -> x.close());
+    this.sharedContexts.values().forEach(OSharedContext::close);
     final List<OAbstractPaginatedStorage> storagesCopy = new ArrayList<>(storages.values());
 
     Exception storageException = null;
@@ -1103,9 +1103,7 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
     if (storage != null) {
       OSharedContext ctx = sharedContexts.remove(iDatabaseName);
       ctx.getViewManager().close();
-      if (ctx != null) {
-        ctx.close();
-      }
+      ctx.close();
       storage.shutdown();
     }
   }

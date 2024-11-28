@@ -204,7 +204,7 @@ public abstract class ORecordAbstract implements ORecord, ORecordElement, OSeria
   public <RET extends ORecord> RET fromJSON(final String iSource, final String iOptions) {
     incrementLoading();
     try {
-      ORecordSerializerJSON.INSTANCE.fromString(
+      ORecordSerializerJSON.INSTANCE.fromString(getSession(),
           iSource, this, null, iOptions, false); // Add new parameter to accommodate new API,
       // nothing change
       return (RET) this;
@@ -216,7 +216,7 @@ public abstract class ORecordAbstract implements ORecord, ORecordElement, OSeria
   public void fromJSON(final String iSource) {
     incrementLoading();
     try {
-      ORecordSerializerJSON.INSTANCE.fromString(iSource, this, null);
+      ORecordSerializerJSON.INSTANCE.fromString(getSession(), iSource, this, null);
     } finally {
       decrementLoading();
     }
@@ -226,7 +226,8 @@ public abstract class ORecordAbstract implements ORecord, ORecordElement, OSeria
   public final <RET extends ORecord> RET fromJSON(final String iSource, boolean needReload) {
     incrementLoading();
     try {
-      return (RET) ORecordSerializerJSON.INSTANCE.fromString(iSource, this, null, needReload);
+      return (RET) ORecordSerializerJSON.INSTANCE.fromString(getSession(), iSource, this, null,
+          needReload);
     } finally {
       decrementLoading();
     }
@@ -238,7 +239,7 @@ public abstract class ORecordAbstract implements ORecord, ORecordElement, OSeria
     try {
       final ByteArrayOutputStream out = new ByteArrayOutputStream();
       OIOUtils.copyStream(iContentResult, out);
-      ORecordSerializerJSON.INSTANCE.fromString(out.toString(), this, null);
+      ORecordSerializerJSON.INSTANCE.fromString(getSession(), out.toString(), this, null);
       return (RET) this;
     } finally {
       decrementLoading();
@@ -309,7 +310,7 @@ public abstract class ORecordAbstract implements ORecord, ORecordElement, OSeria
 
   @Nonnull
   public ODatabaseSessionInternal getSession() {
-    assert session != null && session.validateIfActive() : createNotBoundToSessionMessage();
+    assert session != null && session.assertIfNotActive();
 
     if (session == null) {
       throw new ODatabaseException(createNotBoundToSessionMessage());
@@ -320,7 +321,7 @@ public abstract class ORecordAbstract implements ORecord, ORecordElement, OSeria
 
   @Nullable
   protected ODatabaseSessionInternal getSessionIfDefined() {
-    assert session == null || session.validateIfActive() : createNotBoundToSessionMessage();
+    assert session == null || session.assertIfNotActive();
     return session;
   }
 
@@ -525,7 +526,7 @@ public abstract class ORecordAbstract implements ORecord, ORecordElement, OSeria
 
   protected void checkForBinding() {
     assert loadingCounter >= 0;
-    if (loadingCounter > 0) {
+    if (loadingCounter > 0 || status == ORecordElement.STATUS.UNMARSHALLING) {
       return;
     }
 
@@ -537,7 +538,7 @@ public abstract class ORecordAbstract implements ORecord, ORecordElement, OSeria
       throw new ODatabaseException(createNotBoundToSessionMessage());
     }
 
-    assert session == null || session.validateIfActive() : createNotBoundToSessionMessage();
+    assert session == null || session.assertIfNotActive();
   }
 
   private String createNotBoundToSessionMessage() {

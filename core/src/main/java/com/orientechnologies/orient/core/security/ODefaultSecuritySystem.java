@@ -424,10 +424,11 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
       return systemDb
           .execute(
               (resultset, session) -> {
+                var sessionInternal = (ODatabaseSessionInternal) session;
                 if (resultset != null && resultset.hasNext()) {
-                  return new OImmutableUser(session,
+                  return new OImmutableUser(sessionInternal,
                       0,
-                      new OSystemUser((ODatabaseSessionInternal) session,
+                      new OSystemUser(sessionInternal,
                           resultset.next().getElement().orElseThrow().getRecord(), dbName));
                 }
                 return null;

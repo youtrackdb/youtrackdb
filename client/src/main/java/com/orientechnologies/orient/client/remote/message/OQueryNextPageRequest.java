@@ -50,7 +50,8 @@ public final class OQueryNextPageRequest implements OBinaryRequest<OQueryRespons
     network.writeInt(recordsPerPage);
   }
 
-  public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
+  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+      ORecordSerializer serializer)
       throws IOException {
     this.queryId = channel.readString();
     this.recordsPerPage = channel.readInt();

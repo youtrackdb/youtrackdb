@@ -46,7 +46,7 @@ public class OGrantStatement extends OSimpleExecStatement {
       security.setSecurityPolicy(db, role, securityResource.toString(), policy);
     }
 
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("operation", "grant");
     result.setProperty("role", actor.getStringValue());
     if (permission != null) {

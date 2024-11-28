@@ -64,7 +64,7 @@ public class ODropClassStatement extends ODDLStatement {
 
     schema.dropClass(className);
 
-    OResultInternal result = new OResultInternal();
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("operation", "drop class");
     result.setProperty("className", className);
     return OExecutionStream.singleton(result);

@@ -1,53 +1,27 @@
 package com.orientechnologies.orient.core.index;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
-import org.junit.After;
-import org.junit.Before;
+import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.OxygenDBConfigBuilder;
+import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import org.junit.Assert;
 
 /**
  * @since 1/30/14
  */
-public class OPropertySBTreeRidBagIndexDefinitionTest
-    extends OPropertyRidBagAbstractIndexDefinition {
+public class OPropertySBTreeRidBagIndexDefinitionTest extends
+    OPropertyRidBagAbstractIndexDefinition {
 
-  protected ODatabaseDocumentTx database;
-  private int topThreshold;
-  private int bottomThreshold;
+  @Override
+  protected OxygenDBConfig createConfig(OxygenDBConfigBuilder builder) {
+    builder.addConfig(OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, -1);
+    builder.addConfig(OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD, -1);
 
-  public OPropertySBTreeRidBagIndexDefinitionTest() {
-    final String buildDirectory = System.getProperty("buildDirectory", ".");
-    final String url = "plocal:" + buildDirectory + "/test-db/" + this.getClass().getSimpleName();
-    database = new ODatabaseDocumentTx(url);
-    if (database.exists()) {
-      database.open("admin", "admin");
-      database.drop();
-    }
-
-    database.create();
-    database.close();
+    return builder.build();
   }
 
-  @Before
-  public void beforeMethod2() {
-    super.beforeMethod();
-
-    topThreshold =
-        OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.getValueAsInteger();
-    bottomThreshold =
-        OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.getValueAsInteger();
-
-    OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(-1);
-    OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(-1);
-
-    database.open("admin", "admin");
-  }
-
-  @After
-  public void afterMethod() {
-    database.close();
-
-    OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD.setValue(topThreshold);
-    OGlobalConfiguration.RID_BAG_SBTREEBONSAI_TO_EMBEDDED_THRESHOLD.setValue(bottomThreshold);
+  @Override
+  void assertEmbedded(ORidBag ridBag) {
+    Assert.assertFalse(ridBag.isEmbedded());
   }
 }

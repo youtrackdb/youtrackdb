@@ -4,6 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.record.OElement;
@@ -144,7 +145,7 @@ public class OValueExpression extends OExpression {
     return false;
   }
 
-  public OResult serialize() {
+  public OResult serialize(ODatabaseSessionInternal db) {
     throw new UnsupportedOperationException(
         "Cannot serialize value expression (not supported yet)");
   }

@@ -77,16 +77,17 @@ public class OQueryResponse implements OBinaryResponse {
   }
 
   @Override
-  public void read(OChannelDataInput network, OStorageRemoteSession session) throws IOException {
+  public void read(ODatabaseSessionInternal db, OChannelDataInput network,
+      OStorageRemoteSession session) throws IOException {
     queryId = network.readString();
     txChanges = network.readBoolean();
-    executionPlan = readExecutionPlan(network);
+    executionPlan = readExecutionPlan(db, network);
     // THIS IS A PREFETCHED COLLECTION NOT YET HERE
     int prefetched = network.readInt();
     int size = network.readInt();
     this.result = new ArrayList<>(size);
     while (size-- > 0) {
-      result.add(OMessageHelper.readResult(network));
+      result.add(OMessageHelper.readResult(db, network));
     }
     this.hasNextPage = network.readBoolean();
     this.queryStats = readQueryStats(network);
@@ -125,20 +126,21 @@ public class OQueryResponse implements OBinaryResponse {
     if (executionPlan.isPresent()
         && OGlobalConfiguration.QUERY_REMOTE_SEND_EXECUTION_PLAN.getValueAsBoolean()) {
       channel.writeBoolean(true);
-      OMessageHelper.writeResult(session, executionPlan.get().toResult(), channel,
+      OMessageHelper.writeResult(session, executionPlan.get().toResult(session), channel,
           recordSerializer);
     } else {
       channel.writeBoolean(false);
     }
   }
 
-  private Optional<OExecutionPlan> readExecutionPlan(OChannelDataInput network) throws IOException {
+  private Optional<OExecutionPlan> readExecutionPlan(ODatabaseSessionInternal db,
+      OChannelDataInput network) throws IOException {
     boolean present = network.readBoolean();
     if (!present) {
       return Optional.empty();
     }
     OInfoExecutionPlan result = new OInfoExecutionPlan();
-    OResult read = OMessageHelper.readResult(network);
+    OResult read = OMessageHelper.readResult(db, network);
     result.setCost(((Number) read.getProperty("cost")).intValue());
     result.setType(read.getProperty("type"));
     result.setJavaType(read.getProperty("javaType"));

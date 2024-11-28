@@ -285,15 +285,16 @@ public class OWhereClause extends SimpleNode {
     this.flattened = flattened;
   }
 
-  public OResult serialize() {
-    OResultInternal result = new OResultInternal();
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
     if (baseExpression != null) {
-      result.setProperty("baseExpression", baseExpression.serialize());
+      result.setProperty("baseExpression", baseExpression.serialize(db));
     }
     if (flattened != null) {
       try (Stream<OAndBlock> stream = flattened.stream()) {
         result.setProperty(
-            "flattened", stream.map(OBooleanExpression::serialize).collect(Collectors.toList()));
+            "flattened",
+            stream.map(oAndBlock -> oAndBlock.serialize(db)).collect(Collectors.toList()));
       }
     }
     return result;

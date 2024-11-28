@@ -47,6 +47,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import javax.annotation.Nullable;
 
 public class OClientConnection {
 
@@ -294,8 +295,16 @@ public class OClientConnection {
     this.protocol = protocol;
   }
 
+  @Nullable
   public ODatabaseSessionInternal getDatabase() {
     return database;
+  }
+
+  public void activateDatabaseOnCurrentThread() {
+    var database = this.database;
+    if (database != null) {
+      database.activateOnCurrentThread();
+    }
   }
 
   public boolean hasDatabase() {
@@ -343,7 +352,6 @@ public class OClientConnection {
   }
 
   public void statsUpdate() {
-
     if (database != null) {
       database.activateOnCurrentThread();
       stats.lastDatabase = database.getName();

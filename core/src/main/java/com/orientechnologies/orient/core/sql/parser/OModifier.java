@@ -4,6 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -400,29 +401,29 @@ public class OModifier extends SimpleNode {
     }
   }
 
-  public OResult serialize() {
-    OResultInternal result = new OResultInternal();
+  public OResult serialize(ODatabaseSessionInternal db) {
+    OResultInternal result = new OResultInternal(db);
     result.setProperty("squareBrackets", squareBrackets);
     if (arrayRange != null) {
-      result.setProperty("arrayRange", arrayRange.serialize());
+      result.setProperty("arrayRange", arrayRange.serialize(db));
     }
     if (condition != null) {
-      result.setProperty("condition", condition.serialize());
+      result.setProperty("condition", condition.serialize(db));
     }
     if (arraySingleValues != null) {
-      result.setProperty("arraySingleValues", arraySingleValues.serialize());
+      result.setProperty("arraySingleValues", arraySingleValues.serialize(db));
     }
     if (rightBinaryCondition != null) {
-      result.setProperty("rightBinaryCondition", rightBinaryCondition.serialize());
+      result.setProperty("rightBinaryCondition", rightBinaryCondition.serialize(db));
     }
     if (methodCall != null) {
-      result.setProperty("methodCall", methodCall.serialize());
+      result.setProperty("methodCall", methodCall.serialize(db));
     }
     if (suffix != null) {
-      result.setProperty("suffix", suffix.serialize());
+      result.setProperty("suffix", suffix.serialize(db));
     }
     if (next != null) {
-      result.setProperty("next", next.serialize());
+      result.setProperty("next", next.serialize(db));
     }
     return result;
   }

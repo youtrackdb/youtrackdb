@@ -82,7 +82,7 @@ public class OJsr223ScriptExecutor extends OAbstractScriptExecutor {
 
       try {
         final Object ob = compiledScript.eval(binding);
-        return transformer.toResultSet(ob);
+        return transformer.toResultSet(database, ob);
       } catch (ScriptException e) {
         throw OException.wrapException(
             new OCommandScriptException(

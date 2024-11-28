@@ -52,7 +52,8 @@ public class OLowerPhysicalPositionsRequest
     network.writeLong(physicalPosition.clusterPosition);
   }
 
-  public void read(OChannelDataInput channel, int protocolVersion, ORecordSerializer serializer)
+  public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
+      ORecordSerializer serializer)
       throws IOException {
     this.iClusterId = channel.readInt();
     this.physicalPosition = new OPhysicalPosition(channel.readLong());

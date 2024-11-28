@@ -56,7 +56,7 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
   private static final int MAX_INTEGER_DIGITS = MAX_INTEGER_AS_STRING.length();
 
   public static Object fieldTypeFromStream(
-      final ODocument iDocument, OType iType, final Object iValue) {
+      ODatabaseSessionInternal db, final ODocument iDocument, OType iType, final Object iValue) {
     if (iValue == null) {
       return null;
     }
@@ -79,12 +79,12 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
       case DATE:
       case DATETIME:
       case LINK:
-        return simpleValueFromStream(iValue, iType);
+        return simpleValueFromStream(db, iValue, iType);
 
       case EMBEDDED: {
         // EMBEDED RECORD
         final Object embeddedObject =
-            OStringSerializerEmbedded.INSTANCE.fromStream((String) iValue);
+            OStringSerializerEmbedded.INSTANCE.fromStream(db, (String) iValue);
         if (embeddedObject instanceof ODocument) {
           ODocumentInternal.addOwner((ODocument) embeddedObject, iDocument);
         }
@@ -95,7 +95,8 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
 
       case CUSTOM:
         // RECORD
-        final Object result = OStringSerializerAnyStreamable.INSTANCE.fromStream((String) iValue);
+        final Object result = OStringSerializerAnyStreamable.INSTANCE.fromStream(db,
+            (String) iValue);
         if (result instanceof ODocument) {
           ODocumentInternal.addOwner((ODocument) result, iDocument);
         }
@@ -104,13 +105,13 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
       case EMBEDDEDSET:
       case EMBEDDEDLIST: {
         final String value = (String) iValue;
-        return ORecordSerializerSchemaAware2CSV.INSTANCE.embeddedCollectionFromStream(
+        return ORecordSerializerSchemaAware2CSV.INSTANCE.embeddedCollectionFromStream(db,
             iDocument, iType, null, null, value);
       }
 
       case EMBEDDEDMAP: {
         final String value = (String) iValue;
-        return ORecordSerializerSchemaAware2CSV.INSTANCE.embeddedMapFromStream(
+        return ORecordSerializerSchemaAware2CSV.INSTANCE.embeddedMapFromStream(db,
             iDocument, null, value, null);
       }
     }
@@ -119,9 +120,10 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
         "Type " + iType + " not supported to convert value: " + iValue);
   }
 
-  public static Object convertValue(final String iValue, final OType iExpectedType) {
-    final Object v = getTypeValue(iValue);
-    return OType.convert(null, v, iExpectedType.getDefaultJavaType());
+  public static Object convertValue(ODatabaseSessionInternal db,
+      final String iValue, final OType iExpectedType) {
+    final Object v = getTypeValue(db, iValue);
+    return OType.convert(db, v, iExpectedType.getDefaultJavaType());
   }
 
   public static void fieldTypeToString(
@@ -427,7 +429,7 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
     if (dou <= Float.MAX_VALUE
         && dou >= Float.MIN_VALUE
         && Double.toString(dou).equals(Float.toString((float) dou))
-        && new Double(new Double(dou).floatValue()).doubleValue() == dou) {
+        && (double) Double.valueOf(dou).floatValue() == dou) {
       return OType.FLOAT;
     } else if (!Double.toString(dou).equals(iValue)) {
       return OType.DECIMAL;
@@ -443,10 +445,11 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
    * starts with # it's a RecordID. Most of the code is equals to getType() but has been copied to
    * speed-up it.
    *
+   * @param db
    * @param iValue Value to parse
    * @return The closest type recognized
    */
-  public static Object getTypeValue(final String iValue) {
+  public static Object getTypeValue(ODatabaseSessionInternal db, final String iValue) {
     if (iValue == null || iValue.equalsIgnoreCase("NULL")) {
       return null;
     }
@@ -492,7 +495,7 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
       } else if (iValue.charAt(0) == OStringSerializerHelper.MAP_BEGIN
           && iValue.charAt(iValue.length() - 1) == OStringSerializerHelper.MAP_END) {
         // MAP
-        return OStringSerializerHelper.getMap(iValue);
+        return OStringSerializerHelper.getMap(db, iValue);
       }
     }
 
@@ -530,13 +533,13 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
             final String v = iValue.substring(0, index);
 
             if (c == 'f') {
-              return new Float(v);
+              return Float.valueOf(v);
             } else if (c == 'c') {
               return new BigDecimal(v);
             } else if (c == 'l') {
               return Long.valueOf(v);
             } else if (c == 'd') {
-              return new Double(v);
+              return Double.valueOf(v);
             } else if (c == 'b') {
               return Byte.valueOf(v);
             } else if (c == 'a' || c == 't') {
@@ -564,13 +567,14 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
     } else if ("NaN".equals(iValue) || "Infinity".equals(iValue))
     // NaN and Infinity CANNOT BE MANAGED BY BIG-DECIMAL TYPE
     {
-      return new Double(iValue);
+      return Double.valueOf(iValue);
     } else {
       return new BigDecimal(iValue);
     }
   }
 
-  public static Object simpleValueFromStream(final Object iValue, final OType iType) {
+  public static Object simpleValueFromStream(ODatabaseSessionInternal db, final Object iValue,
+      final OType iType) {
     switch (iType) {
       case STRING:
         if (iValue instanceof String) {
@@ -595,37 +599,37 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
         if (iValue instanceof Float) {
           return iValue;
         }
-        return convertValue((String) iValue, iType);
+        return convertValue(db, (String) iValue, iType);
 
       case DECIMAL:
         if (iValue instanceof BigDecimal) {
           return iValue;
         }
-        return convertValue((String) iValue, iType);
+        return convertValue(db, (String) iValue, iType);
 
       case LONG:
         if (iValue instanceof Long) {
           return iValue;
         }
-        return convertValue((String) iValue, iType);
+        return convertValue(db, (String) iValue, iType);
 
       case DOUBLE:
         if (iValue instanceof Double) {
           return iValue;
         }
-        return convertValue((String) iValue, iType);
+        return convertValue(db, (String) iValue, iType);
 
       case SHORT:
         if (iValue instanceof Short) {
           return iValue;
         }
-        return convertValue((String) iValue, iType);
+        return convertValue(db, (String) iValue, iType);
 
       case BYTE:
         if (iValue instanceof Byte) {
           return iValue;
         }
-        return convertValue((String) iValue, iType);
+        return convertValue(db, (String) iValue, iType);
 
       case BINARY:
         return OStringSerializerHelper.getBinaryContent(iValue);
@@ -635,7 +639,7 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
         if (iValue instanceof Date) {
           return iValue;
         }
-        return convertValue((String) iValue, iType);
+        return convertValue(db, (String) iValue, iType);
 
       case LINK:
         if (iValue instanceof ORID) {
@@ -750,29 +754,30 @@ public abstract class ORecordSerializerStringAbstract implements ORecordSerializ
   }
 
   public abstract ORecordAbstract fromString(
-      String iContent, ORecordAbstract iRecord, String[] iFields);
+      ODatabaseSessionInternal db, String iContent, ORecordAbstract iRecord, String[] iFields);
 
   public StringBuilder toString(
       final ORecord iRecord, final StringBuilder iOutput, final String iFormat) {
     return toString(iRecord, iOutput, iFormat, true);
   }
 
-  public ORecord fromString(final String iSource) {
-    return fromString(iSource, ODatabaseRecordThreadLocal.instance().get().newInstance(), null);
+  public ORecord fromString(ODatabaseSessionInternal db, final String iSource) {
+    return fromString(db, iSource, ODatabaseRecordThreadLocal.instance().get().newInstance(), null);
   }
 
   @Override
-  public String[] getFieldNames(ODocument reference, byte[] iSource) {
+  public String[] getFieldNames(ODatabaseSessionInternal db, ODocument reference, byte[] iSource) {
     return null;
   }
 
   @Override
   public ORecordAbstract fromStream(
-      final byte[] iSource, final ORecordAbstract iRecord, final String[] iFields) {
+      ODatabaseSessionInternal db, final byte[] iSource, final ORecordAbstract iRecord,
+      final String[] iFields) {
     final long timer = PROFILER.startChrono();
 
     try {
-      return fromString(new String(iSource, StandardCharsets.UTF_8), iRecord, iFields);
+      return fromString(db, new String(iSource, StandardCharsets.UTF_8), iRecord, iFields);
     } finally {
 
       PROFILER.stopChrono(

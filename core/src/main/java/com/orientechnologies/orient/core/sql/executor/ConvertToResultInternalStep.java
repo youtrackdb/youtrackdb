@@ -29,7 +29,7 @@ public class ConvertToResultInternalStep extends AbstractExecutionStep {
     if (result instanceof OUpdatableResult) {
       var element = result.toElement();
       if (element != null) {
-        return new OResultInternal(element);
+        return new OResultInternal(ctx.getDatabase(), element);
       }
       return result;
     }

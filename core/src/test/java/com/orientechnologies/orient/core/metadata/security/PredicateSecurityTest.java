@@ -76,8 +76,8 @@ public class PredicateSecurityTest {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setCreateRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setCreateRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "writer"), "database.class.Person", policy);
     db.commit();
@@ -114,8 +114,8 @@ public class PredicateSecurityTest {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setCreateRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setCreateRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "writer"), "database.class.Person", policy);
     db.commit();
@@ -147,8 +147,8 @@ public class PredicateSecurityTest {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setReadRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
     db.commit();
@@ -188,8 +188,8 @@ public class PredicateSecurityTest {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setReadRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
     db.commit();
@@ -227,8 +227,8 @@ public class PredicateSecurityTest {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setReadRule("surname = 'foo'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "surname = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
     db.commit();
@@ -269,8 +269,8 @@ public class PredicateSecurityTest {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setBeforeUpdateRule("name = 'bar'");
+    policy.setActive(db, true);
+    policy.setBeforeUpdateRule(db, "name = 'bar'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "writer"), "database.class.Person", policy);
     db.commit();
@@ -314,8 +314,8 @@ public class PredicateSecurityTest {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setBeforeUpdateRule("name = 'bar'");
+    policy.setActive(db, true);
+    policy.setBeforeUpdateRule(db, "name = 'bar'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "writer"), "database.class.Person", policy);
     db.commit();
@@ -365,8 +365,8 @@ public class PredicateSecurityTest {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setAfterUpdateRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setAfterUpdateRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "writer"), "database.class.Person", policy);
     db.commit();
@@ -408,8 +408,8 @@ public class PredicateSecurityTest {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setAfterUpdateRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setAfterUpdateRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "writer"), "database.class.Person", policy);
     db.commit();
@@ -447,8 +447,8 @@ public class PredicateSecurityTest {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setDeleteRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setDeleteRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "writer"), "database.class.Person", policy);
     db.commit();
@@ -495,8 +495,8 @@ public class PredicateSecurityTest {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setDeleteRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setDeleteRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "writer"), "database.class.Person", policy);
     db.commit();
@@ -547,8 +547,8 @@ public class PredicateSecurityTest {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setReadRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
     db.commit();
@@ -586,8 +586,8 @@ public class PredicateSecurityTest {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setReadRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
     db.commit();
@@ -629,8 +629,8 @@ public class PredicateSecurityTest {
 
     db.begin();
     OSecurityPolicyImpl policy = security.createSecurityPolicy(db, "testPolicy");
-    policy.setActive(true);
-    policy.setReadRule("name = 'foo'");
+    policy.setActive(db, true);
+    policy.setReadRule(db, "name = 'foo'");
     security.saveSecurityPolicy(db, policy);
     security.setSecurityPolicy(db, security.getRole(db, "reader"), "database.class.Person", policy);
     db.commit();

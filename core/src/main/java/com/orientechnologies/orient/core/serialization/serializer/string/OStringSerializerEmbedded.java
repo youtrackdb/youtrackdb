@@ -21,6 +21,7 @@ package com.orientechnologies.orient.core.serialization.serializer.string;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentEmbedded;
@@ -40,15 +41,15 @@ public class OStringSerializerEmbedded implements OStringSerializer {
    * Re-Create any object if the class has a public constructor that accepts a String as unique
    * parameter.
    */
-  public Object fromStream(final String iStream) {
-    if (iStream == null || iStream.length() == 0)
+  public Object fromStream(ODatabaseSessionInternal db, final String iStream) {
+    if (iStream == null || iStream.isEmpty())
     // NULL VALUE
     {
       return null;
     }
 
     final ODocument instance = new ODocumentEmbedded();
-    ORecordSerializerSchemaAware2CSV.INSTANCE.fromStream(
+    ORecordSerializerSchemaAware2CSV.INSTANCE.fromStream(db,
         iStream.getBytes(StandardCharsets.UTF_8), instance, null);
 
     final String className = instance.field(ODocumentSerializable.CLASS_NAME);

@@ -29,7 +29,7 @@ public class ORecordSerializerBinaryDebug extends ORecordSerializerBinaryV0 {
 
     ORecordSerializerBinary.INSTANCE
         .getSerializer(version)
-        .deserializeDebug(bytes, db, debugInfo, schema);
+        .deserializeDebug(db, bytes, debugInfo, schema);
     return debugInfo;
   }
 }

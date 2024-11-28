@@ -33,7 +33,8 @@ public class OError37Response implements OBinaryResponse {
   }
 
   @Override
-  public void read(OChannelDataInput network, OStorageRemoteSession session) throws IOException {
+  public void read(ODatabaseSessionInternal db, OChannelDataInput network,
+      OStorageRemoteSession session) throws IOException {
     int code = network.readInt();
     this.errorIdentifier = network.readInt();
     this.code = OErrorCode.getErrorCode(code);
