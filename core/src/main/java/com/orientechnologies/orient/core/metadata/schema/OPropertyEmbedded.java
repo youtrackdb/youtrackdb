@@ -380,6 +380,9 @@ public class OPropertyEmbedded extends OPropertyImpl {
     acquireSchemaWriteLock(sessionInternal);
     try {
       setDefaultValueInternal(sessionInternal, defaultValue);
+    } catch (Exception e) {
+      OLogManager.instance().error(this, "Error on setting default value", e);
+      throw e;
     } finally {
       releaseSchemaWriteLock(sessionInternal);
     }

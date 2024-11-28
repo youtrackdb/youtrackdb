@@ -85,7 +85,6 @@ import org.apache.commons.lang.ArrayUtils;
  * <p>
  */
 public class OxygenDB implements AutoCloseable {
-
   private final ConcurrentLinkedHashMap<ODatabasePoolInternal, ODatabasePool> cachedPools =
       new ConcurrentLinkedHashMap.Builder<ODatabasePoolInternal, ODatabasePool>()
           .maximumWeightedCapacity(100)

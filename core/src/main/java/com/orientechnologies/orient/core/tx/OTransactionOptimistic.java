@@ -90,8 +90,6 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
   protected int newRecordsPositionsGenerator = -2;
   private final HashMap<String, Object> userData = new HashMap<>();
 
-  public int serverBeginCount = 0;
-
   @Nullable
   private OTxMetadataHolder metadata = null;
 

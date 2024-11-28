@@ -1085,6 +1085,8 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
   }
 
   public int begin() {
+    assert assertIfNotActive();
+
     if (currentTx.isActive()) {
       return currentTx.begin();
     }

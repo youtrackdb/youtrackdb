@@ -29,11 +29,6 @@ public class OLocalResultSetLifecycleDecorator implements OResultSet {
     queryId = System.currentTimeMillis() + "_" + counter.incrementAndGet();
   }
 
-  public OLocalResultSetLifecycleDecorator(OInternalResultSet rsCopy, String queryId) {
-    this.entity = rsCopy;
-    this.queryId = queryId;
-  }
-
   public void addLifecycleListener(OQueryLifecycleListener db) {
     this.lifecycleListeners.add(db);
   }
@@ -52,8 +47,8 @@ public class OLocalResultSetLifecycleDecorator implements OResultSet {
     if (!hasNext()) {
       throw new IllegalStateException();
     }
-    OResult result = entity.next();
-    return result;
+
+    return entity.next();
   }
 
   @Override

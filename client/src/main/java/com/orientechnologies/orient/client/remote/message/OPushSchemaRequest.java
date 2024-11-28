@@ -27,14 +27,13 @@ public class OPushSchemaRequest implements OBinaryPushRequest<OBinaryPushRespons
   @Override
   public void write(ODatabaseSessionInternal session, OChannelDataOutput channel)
       throws IOException {
-    session.executeInTx(() -> {
-      try {
-        channel.writeBytes(ORecordSerializerNetworkV37.INSTANCE.toStream(session, schema));
-      } catch (IOException e) {
-        throw OException.wrapException(new ODatabaseException("Error on sending schema updates"),
-            e);
-      }
-    });
+    try {
+      schema.setup(session);
+      channel.writeBytes(ORecordSerializerNetworkV37.INSTANCE.toStream(session, schema));
+    } catch (IOException e) {
+      throw OException.wrapException(new ODatabaseException("Error on sending schema updates"),
+          e);
+    }
   }
 
   @Override

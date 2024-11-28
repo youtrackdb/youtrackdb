@@ -37,8 +37,6 @@ public class OSequenceRemoteTest extends AbstractRemoteTest {
             + " \"sequence('personIdSequence').next()\");");
     db.command("CREATE INDEX Person.id ON Person (id) UNIQUE");
 
-    db.getMetadata().reload();
-
     db.begin();
     for (int i = 0; i < 10; i++) {
       OVertex person = db.newVertex("Person");
@@ -60,7 +58,6 @@ public class OSequenceRemoteTest extends AbstractRemoteTest {
         "CREATE PROPERTY Person.id LONG (MANDATORY TRUE, default"
             + " \"sequence('personIdSequence').next()\");");
     db.command("CREATE INDEX Person.id ON Person (id) UNIQUE");
-    db.getMetadata().reload();
 
     db.begin();
 

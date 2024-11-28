@@ -16,7 +16,6 @@ import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.index.OIndexManagerShared;
 import com.orientechnologies.orient.core.metadata.schema.OSchemaShared;
-import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -137,7 +136,9 @@ public class OPushManager implements OMetadataUpdateListener {
   @Override
   public void onSchemaUpdate(ODatabaseSessionInternal session, String database,
       OSchemaShared schema) {
-    OPushSchemaRequest request = new OPushSchemaRequest(schema.toNetworkStream());
+    var document = schema.toNetworkStream();
+    document.setup(null);
+    OPushSchemaRequest request = new OPushSchemaRequest(document);
     this.schema.send(session, database, request, this);
   }
 
@@ -145,10 +146,9 @@ public class OPushManager implements OMetadataUpdateListener {
   public void onIndexManagerUpdate(ODatabaseSessionInternal session, String database,
       OIndexManagerAbstract indexManager) {
     var document = ((OIndexManagerShared) indexManager).toNetworkStream();
-    OPushIndexManagerRequest request = new OPushIndexManagerRequest(document.copy());
+    document.setup(null);
+    OPushIndexManagerRequest request = new OPushIndexManagerRequest(document);
     this.indexManager.send(session, database, request, this);
-    ORecordInternal.unsetDirty(document);
-    document.unload();
   }
 
   @Override
@@ -176,6 +176,13 @@ public class OPushManager implements OMetadataUpdateListener {
       String database,
       OPushEventType pack) {
     try {
+      ODatabaseSessionInternal sessionCopy;
+      if (session != null) {
+        sessionCopy = session.copy();
+      } else {
+        sessionCopy = null;
+      }
+
       executor.submit(
           () -> {
             Set<WeakReference<ONetworkProtocolBinary>> clients = null;
@@ -192,7 +199,12 @@ public class OPushManager implements OMetadataUpdateListener {
                   try {
                     OBinaryPushRequest<?> request = pack.getRequest(database);
                     if (request != null) {
-                      OBinaryPushResponse response = protocolBinary.push(session, request);
+                      if (sessionCopy != null) {
+                        sessionCopy.activateOnCurrentThread();
+                        protocolBinary.push(sessionCopy, request);
+                      } else {
+                        protocolBinary.push(null, request);
+                      }
                     }
                   } catch (IOException e) {
                     synchronized (OPushManager.this) {

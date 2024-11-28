@@ -30,6 +30,7 @@ public class OBeginTransactionResponse implements OBinaryResponse {
       throws IOException {
     channel.writeLong(txId);
     channel.writeInt(updatedIds.size());
+
     for (Map.Entry<ORID, ORID> ids : updatedIds.entrySet()) {
       channel.writeRID(ids.getKey());
       channel.writeRID(ids.getValue());
@@ -39,7 +40,7 @@ public class OBeginTransactionResponse implements OBinaryResponse {
   @Override
   public void read(ODatabaseSessionInternal db, OChannelDataInput network,
       OStorageRemoteSession session) throws IOException {
-    txId = network.readInt();
+    txId = network.readLong();
     int size = network.readInt();
     updatedIds = new HashMap<>(size);
     while (size-- > 0) {

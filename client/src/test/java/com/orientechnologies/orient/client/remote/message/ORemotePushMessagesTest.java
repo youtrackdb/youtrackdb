@@ -48,16 +48,16 @@ public class ORemotePushMessagesTest extends BaseMemoryDatabase {
 
     OxygenDB oxygenDB = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
     oxygenDB.execute("create database test memory users (admin identified by 'admin' role admin)");
-    ODatabaseSession session = oxygenDB.open("test", "admin", "admin");
+    var session = (ODatabaseSessionInternal) oxygenDB.open("test", "admin", "admin");
 
     session.begin();
     ODocument schema =
-        ((ODatabaseSessionInternal) session).getSharedContext().getSchema().toStream(db).copy();
+        session.getSharedContext().getSchema().toStream(session).copy();
     session.commit();
 
     MockChannel channel = new MockChannel();
     OPushSchemaRequest request = new OPushSchemaRequest(schema);
-    request.write((ODatabaseSessionInternal) session, channel);
+    request.write(session, channel);
     channel.close();
 
     OPushSchemaRequest readRequest = new OPushSchemaRequest();

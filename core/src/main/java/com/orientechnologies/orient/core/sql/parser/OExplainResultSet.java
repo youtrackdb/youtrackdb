@@ -25,6 +25,7 @@ public class OExplainResultSet implements OResultSet {
     this.executionPlan = executionPlan;
     this.dbStats = dbStats;
     this.db = db;
+
     assert db == null || db.assertIfNotActive();
   }
 

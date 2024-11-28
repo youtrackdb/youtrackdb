@@ -173,10 +173,13 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
   }
 
   private OResultInternal applyProjections(OResultInternal record) {
+    var ctx = new OBasicCommandContext();
+    ctx.setDatabase(execDb);
+
     if (statement.getProjection() != null) {
       OResultInternal result =
           (OResultInternal)
-              statement.getProjection().calculateSingle(new OBasicCommandContext(), record);
+              statement.getProjection().calculateSingle(ctx, record);
       return result;
     }
     return record;

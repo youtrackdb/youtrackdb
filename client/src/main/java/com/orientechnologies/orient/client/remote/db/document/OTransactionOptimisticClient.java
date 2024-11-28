@@ -39,6 +39,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
     Map<ORID, ORecordOperation> oldEntries = this.recordOperations;
     this.recordOperations = new LinkedHashMap<>();
     int createCount = -2; // Start from -2 because temporary rids start from -2
+    var db = getDatabase();
     for (ORecordOperation38Response operation : operations) {
       if (!operation.getOldId().equals(operation.getId())) {
         txGeneratedRealRecordIdMap.put(operation.getId().copy(), operation.getOldId());
@@ -50,7 +51,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
         record = op.record;
       }
       if (record == null) {
-        record = getDatabase().getLocalCache().findRecord(operation.getOldId());
+        record = db.getLocalCache().findRecord(operation.getOldId());
       }
       if (record != null) {
         ORecordInternal.unsetDirty(record);
@@ -69,7 +70,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
           // keep rid instance to support links consistency
           record.fromStream(operation.getOriginal());
           ODocumentSerializerDelta deltaSerializer = ODocumentSerializerDelta.instance();
-          deltaSerializer.deserializeDelta(getDatabase(), operation.getRecord(),
+          deltaSerializer.deserializeDelta(db, operation.getRecord(),
               (ODocument) record);
         } finally {
           record.decrementLoading();
@@ -77,6 +78,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
       } else {
         record.fromStream(operation.getRecord());
       }
+      record.setup(db);
 
       var rid = (ORecordId) record.getIdentity();
       var operationId = operation.getId();

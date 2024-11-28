@@ -116,7 +116,7 @@ public class OFetchTransactionResponse implements OBinaryResponse {
   public void read(ODatabaseSessionInternal db, OChannelDataInput network,
       OStorageRemoteSession session) throws IOException {
     ORecordSerializerNetworkV37Client serializer = ORecordSerializerNetworkV37Client.INSTANCE;
-    txId = network.readInt();
+    txId = network.readLong();
     operations = new ArrayList<>();
     byte hasEntry;
     do {

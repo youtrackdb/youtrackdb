@@ -52,7 +52,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import javax.annotation.Nonnull;
 
@@ -979,31 +978,27 @@ public abstract class OSchemaShared implements OCloseable {
 
   private void saveInternal(ODatabaseSessionInternal database) {
 
-    if (database.getTransaction().isActive()) {
+    var tx = database.getTransaction();
+    if (tx.isActive()) {
       throw new OSchemaException(
           "Cannot change the schema while a transaction is active. Schema changes are not"
               + " transactional");
     }
 
     OScenarioThreadLocal.executeAsDistributed(
-        new Callable<Object>() {
-          @Override
-          public Object call() {
-            database.begin();
+        () -> {
+          database.executeInTx(() -> {
             ODocument document = toStream(database);
             database.save(document, OMetadataDefault.CLUSTER_INTERNAL_NAME);
-            database.commit();
-            return null;
-          }
+          });
+          return null;
         });
 
     forceSnapshot(database);
-    database.executeInTx(() -> {
-      for (OMetadataUpdateListener listener : database.getSharedContext().browseListeners()) {
-        listener.onSchemaUpdate(database, database.getName(), this);
-      }
-    });
 
+    for (OMetadataUpdateListener listener : database.getSharedContext().browseListeners()) {
+      listener.onSchemaUpdate(database, database.getName(), this);
+    }
   }
 
   protected void addClusterClassMap(final OClass cls) {

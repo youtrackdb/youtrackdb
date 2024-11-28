@@ -143,22 +143,6 @@ public class ViewManager {
   }
 
   private void schedule() {
-    this.timerTask =
-        new TimerTask() {
-          @Override
-          public void run() {
-            if (closed) {
-              return;
-            }
-            oxygenDB.executeNoAuthorizationAsync(
-                dbName,
-                (db) -> {
-                  ViewManager.this.updateViews(db);
-                  return null;
-                });
-          }
-        };
-    this.oxygenDB.schedule(timerTask, 1000, 1000);
   }
 
   private void updateViews(ODatabaseSessionInternal db) {

@@ -45,9 +45,8 @@ public class OUnsubscribeRequest implements OBinaryRequest<OUnsubscribeResponse>
   }
 
   private OBinaryRequest<? extends OBinaryResponse> createBinaryRequest(byte message) {
-    switch (message) {
-      case OChannelBinaryProtocol.UNSUBSCRIBE_PUSH_LIVE_QUERY:
-        return new OUnsubscribeLiveQueryRequest();
+    if (message == OChannelBinaryProtocol.UNSUBSCRIBE_PUSH_LIVE_QUERY) {
+      return new OUnsubscribeLiveQueryRequest();
     }
 
     throw new ODatabaseException("Unknown message response for code:" + message);

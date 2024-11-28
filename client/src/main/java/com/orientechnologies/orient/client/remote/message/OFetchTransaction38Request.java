@@ -35,7 +35,7 @@ public class OFetchTransaction38Request implements OBinaryRequest<OFetchTransact
   public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
       ORecordSerializer serializer)
       throws IOException {
-    this.txId = channel.readInt();
+    this.txId = channel.readLong();
   }
 
   @Override

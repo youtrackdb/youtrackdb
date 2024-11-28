@@ -448,7 +448,6 @@ public class OBasicCommandContext implements OCommandContext {
 
   public ODatabaseSessionInternal getDatabase() {
     if (database != null) {
-      assert database.assertIfNotActive();
       return database;
     }
 
@@ -460,7 +459,6 @@ public class OBasicCommandContext implements OCommandContext {
       throw new ODatabaseException("No database found in SQL context");
     }
 
-    assert database == null || database.assertIfNotActive();
     return database;
   }
 

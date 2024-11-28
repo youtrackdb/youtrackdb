@@ -25,6 +25,7 @@ public class OPushIndexManagerRequest implements OBinaryPushRequest<OBinaryPushR
   @Override
   public void write(ODatabaseSessionInternal session, OChannelDataOutput channel)
       throws IOException {
+    indexManager.setup(session);
     channel.writeBytes(ORecordSerializerNetworkV37.INSTANCE.toStream(session, indexManager));
   }
 
