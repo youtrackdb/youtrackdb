@@ -155,6 +155,10 @@ public class OxygenDBRemote implements OxygenDBInternal {
   }
 
   private String buildUrl(String name) {
+    if (name == null) {
+      return String.join(ADDRESS_SEPARATOR, hosts);
+    }
+
     return String.join(ADDRESS_SEPARATOR, hosts) + "/" + name;
   }
 

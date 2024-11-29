@@ -8,9 +8,9 @@ import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
-import com.orientechnologies.orient.server.config.OServerHandlerConfiguration;
 import com.orientechnologies.orient.server.config.OServerUserConfiguration;
 import java.io.File;
 import java.io.IOException;
@@ -46,7 +46,7 @@ public class OServerDatabaseOperationsTest {
     OLogManager.instance().setConsoleLevel(Level.OFF.getName());
     OServerConfiguration conf = new OServerConfiguration();
 
-    conf.handlers = new ArrayList<OServerHandlerConfiguration>();
+    conf.handlers = new ArrayList<>();
     OServerUserConfiguration rootUser = new OServerUserConfiguration();
     rootUser.name = "root";
     rootUser.password = "root";
@@ -56,12 +56,24 @@ public class OServerDatabaseOperationsTest {
     server.setServerRootDirectory(SERVER_DIRECTORY);
     server.startup(conf);
     server.activate();
-    ODocument securityConfig = new ODocument();
-    securityConfig.fromJSON(
-        OIOUtils.readStreamAsString(
-            this.getClass().getClassLoader().getResourceAsStream("security.json")),
-        "noMap");
-    server.getSecurity().reload(null, securityConfig);
+
+    server
+        .getContext()
+        .execute("create database " + OServerDatabaseOperationsTest.class.getSimpleName() +
+            " memory users (admin identified by 'admin' role admin)");
+    assertTrue(server.existsDatabase(OServerDatabaseOperationsTest.class.getSimpleName()));
+
+    try (ODatabaseSession session = server.openDatabase(
+        OServerDatabaseOperationsTest.class.getSimpleName())) {
+      ODocument securityConfig = new ODocument();
+      securityConfig.fromJSON(
+          OIOUtils.readStreamAsString(
+              this.getClass().getClassLoader().getResourceAsStream("security.json")),
+          "noMap");
+      server.getSecurity().reload((ODatabaseSessionInternal) session, securityConfig);
+    } finally {
+      server.dropDatabase(OServerDatabaseOperationsTest.class.getSimpleName());
+    }
   }
 
   @After
@@ -82,10 +94,13 @@ public class OServerDatabaseOperationsTest {
   public void testCreateOpenDatabase() {
     server
         .getContext()
-        .execute("create database test memory users (admin identified by 'admin' role admin)");
-    assertTrue(server.existsDatabase("test"));
-    ODatabaseSession session = server.openDatabase("test");
+        .execute("create database " + OServerDatabaseOperationsTest.class.getSimpleName()
+            + " memory users (admin identified by 'admin' role admin)");
+    assertTrue(server.existsDatabase(OServerDatabaseOperationsTest.class.getSimpleName()));
+    ODatabaseSession session = server.openDatabase(
+        OServerDatabaseOperationsTest.class.getSimpleName());
     assertNotNull(session);
     session.close();
+    server.dropDatabase(OServerDatabaseOperationsTest.class.getSimpleName());
   }
 }

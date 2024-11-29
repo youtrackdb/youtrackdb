@@ -4,7 +4,6 @@ import static org.junit.Assert.assertNotNull;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.Oxygen;
-import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
@@ -49,10 +48,9 @@ public class TestConcurrentSequenceGenerationIT {
 
   @Test
   public void test() throws Exception {
-    try (ODatabasePool pool =
-        new ODatabasePool(
-            oxygenDB, TestConcurrentSequenceGenerationIT.class.getSimpleName(), "admin", "admin")) {
 
+    try (var pool = oxygenDB.cachedPool(TestConcurrentSequenceGenerationIT.class.getSimpleName(),
+        "admin", "admin")) {
       var executorService = Executors.newFixedThreadPool(THREADS);
       var futures = new ArrayList<Future<Object>>();
 
@@ -62,11 +60,11 @@ public class TestConcurrentSequenceGenerationIT {
                 () -> {
                   try (ODatabaseSession db = pool.acquire()) {
                     for (int j = 0; j < RECORDS; j++) {
-                      db.begin();
-                      OVertex vert = db.newVertex("TestSequence");
-                      assertNotNull(vert.getProperty("id"));
-                      db.save(vert);
-                      db.commit();
+                      db.executeInTx(() -> {
+                        OVertex vert = db.newVertex("TestSequence");
+                        assertNotNull(vert.getProperty("id"));
+                        db.save(vert);
+                      });
                     }
                   }
 

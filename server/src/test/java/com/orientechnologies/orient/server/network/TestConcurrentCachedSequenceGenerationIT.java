@@ -66,8 +66,7 @@ public class TestConcurrentCachedSequenceGenerationIT {
           new Thread() {
             @Override
             public void run() {
-              ODatabaseSession db = pool.acquire();
-              try {
+              try (ODatabaseSession db = pool.acquire()) {
                 for (int j = 0; j < RECORDS; j++) {
                   db.begin();
                   OVertex vert = db.newVertex("TestSequence");
@@ -78,8 +77,6 @@ public class TestConcurrentCachedSequenceGenerationIT {
               } catch (Exception e) {
                 failures.incrementAndGet();
                 e.printStackTrace();
-              } finally {
-                db.close();
               }
             }
           };

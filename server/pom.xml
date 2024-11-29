@@ -17,15 +17,15 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.orientechnologies</groupId>
-    <artifactId>orientdb-parent</artifactId>
-    <version>4.0.0-SNAPSHOT</version>
+    <groupId>io.oxygendb</groupId>
+    <artifactId>oxygendb-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>orientdb-server</artifactId>
+  <artifactId>oxygendb-server</artifactId>
 
-  <name>OrientDB Server</name>
+  <name>OxygenDB Server</name>
 
   <properties>
     <javac.src.version>${maven.compiler.source}</javac.src.version>
@@ -38,24 +38,24 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.orientechnologies</groupId>
-      <artifactId>orientdb-test-commons</artifactId>
+      <groupId>io.oxygendb</groupId>
+      <artifactId>oxygendb-test-commons</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.orientechnologies</groupId>
-      <artifactId>orientdb-client</artifactId>
+      <groupId>io.oxygendb</groupId>
+      <artifactId>oxygendb-client</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.orientechnologies</groupId>
-      <artifactId>orientdb-tools</artifactId>
+      <groupId>io.oxygendb</groupId>
+      <artifactId>oxygendb-tools</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.orientechnologies</groupId>
-      <artifactId>orientdb-core</artifactId>
+      <groupId>io.oxygendb</groupId>
+      <artifactId>oxygendb-core</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
@@ -132,7 +132,7 @@
       <id>ci</id>
       <activation>
         <property>
-          <name>orientdb.test.env</name>
+          <name>oxygendb.test.env</name>
           <value>ci</value>
         </property>
       </activation>
@@ -145,7 +145,7 @@
       <id>release</id>
       <activation>
         <property>
-          <name>orientdb.test.env</name>
+          <name>oxygendb.test.env</name>
           <value>release</value>
         </property>
       </activation>

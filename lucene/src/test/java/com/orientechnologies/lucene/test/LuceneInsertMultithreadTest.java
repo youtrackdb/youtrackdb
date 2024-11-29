@@ -55,7 +55,7 @@ public class LuceneInsertMultithreadTest {
       buildDirectory = ".";
     }
 
-    String config = System.getProperty("orientdb.test.env");
+    String config = System.getProperty("oxygendb.test.env");
 
     String storageType;
     if ("ci".equals(config) || "release".equals(config)) {

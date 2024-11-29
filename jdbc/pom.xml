@@ -22,9 +22,9 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.orientechnologies</groupId>
-    <artifactId>orientdb-parent</artifactId>
-    <version>4.0.0-SNAPSHOT</version>
+    <groupId>io.oxygendb</groupId>
+    <artifactId>oxygendb-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -33,16 +33,16 @@
     <project.build.outputTimestamp>2023-01-01T00:00:00Z</project.build.outputTimestamp>
   </properties>
 
-  <name>OrientDB JDBC Driver</name>
-  <artifactId>orientdb-jdbc</artifactId>
+  <name>OxygenDB JDBC Driver</name>
+  <artifactId>oxygendb-jdbc</artifactId>
 
-  <description>JDBC Driver for OrientDB NoSQL document graph dbms</description>
+  <description>JDBC Driver for OxygenDB NoSQL document graph dbms</description>
   <inceptionYear>2012</inceptionYear>
 
   <dependencies>
     <dependency>
-      <groupId>com.orientechnologies</groupId>
-      <artifactId>orientdb-test-commons</artifactId>
+      <groupId>io.oxygendb</groupId>
+      <artifactId>oxygendb-test-commons</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
@@ -55,19 +55,19 @@
     </dependency>
 
     <dependency>
-      <groupId>com.orientechnologies</groupId>
-      <artifactId>orientdb-server</artifactId>
+      <groupId>io.oxygendb</groupId>
+      <artifactId>oxygendb-server</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.orientechnologies</groupId>
-      <artifactId>orientdb-client</artifactId>
+      <groupId>io.oxygendb</groupId>
+      <artifactId>oxygendb-client</artifactId>
       <version>${project.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
-      <groupId>com.orientechnologies</groupId>
-      <artifactId>orientdb-core</artifactId>
+      <groupId>io.oxygendb</groupId>
+      <artifactId>oxygendb-core</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>

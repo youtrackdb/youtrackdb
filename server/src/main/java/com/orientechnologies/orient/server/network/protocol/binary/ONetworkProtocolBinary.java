@@ -827,8 +827,11 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
       if (connection != null) {
         protocolVersion = connection.getData().protocolVersion;
         serializationImpl = connection.getData().getSerializer();
+        error.write(connection.getDatabase(), channel, protocolVersion, serializationImpl);
+      } else {
+        error.write(null, channel, protocolVersion, serializationImpl);
       }
-      error.write(connection.getDatabase(), channel, protocolVersion, serializationImpl);
+
       channel.flush();
 
       if (OLogManager.instance().isLevelEnabled(logClientExceptions)) {

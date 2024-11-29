@@ -26,15 +26,15 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.orientechnologies</groupId>
-    <artifactId>orientdb-parent</artifactId>
-    <version>4.0.0-SNAPSHOT</version>
+    <groupId>io.oxygendb</groupId>
+    <artifactId>oxygendb-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>orientdb-client</artifactId>
+  <artifactId>oxygendb-client</artifactId>
 
-  <name>OrientDB Client</name>
+  <name>OxygenDB Client</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -45,19 +45,19 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.orientechnologies</groupId>
-      <artifactId>orientdb-core</artifactId>
+      <groupId>io.oxygendb</groupId>
+      <artifactId>oxygendb-core</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.orientechnologies</groupId>
-      <artifactId>orientdb-test-commons</artifactId>
+      <groupId>io.oxygendb</groupId>
+      <artifactId>oxygendb-test-commons</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.orientechnologies</groupId>
-      <artifactId>orientdb-core</artifactId>
+      <groupId>io.oxygendb</groupId>
+      <artifactId>oxygendb-core</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>

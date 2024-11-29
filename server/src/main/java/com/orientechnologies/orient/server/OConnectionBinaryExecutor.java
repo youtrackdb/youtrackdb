@@ -1319,14 +1319,14 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeServerQuery(OServerQueryRequest request) {
-    OxygenDB orientdb = server.getContext();
+    OxygenDB oxygenDB = server.getContext();
 
     OResultSet rs;
 
     if (request.isNamedParams()) {
-      rs = orientdb.execute(request.getStatement(), request.getNamedParameters());
+      rs = oxygenDB.execute(request.getStatement(), request.getNamedParameters());
     } else {
-      rs = orientdb.execute(request.getStatement(), request.getPositionalParameters());
+      rs = oxygenDB.execute(request.getStatement(), request.getPositionalParameters());
     }
 
     // copy the result-set to make sure that the execution is successful

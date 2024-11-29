@@ -93,7 +93,7 @@ public abstract class BaseHttpTest {
   }
 
   protected boolean isInDevelopmentMode() {
-    final String env = System.getProperty("orientdb.test.env");
+    final String env = System.getProperty("oxygendb.test.env");
     return env == null || env.equals("dev");
   }
 

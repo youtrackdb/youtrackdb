@@ -14,13 +14,13 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.orientechnologies</groupId>
-  <artifactId>orientdb-parent</artifactId>
-  <version>4.0.0-SNAPSHOT</version>
+  <groupId>io.oxygendb</groupId>
+  <artifactId>oxygendb-parent</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <name>OrientDB</name>
-  <description>OrientDB NoSQL document graph dbms</description>
+  <name>OxygenDB</name>
+  <description>OxygenDB NoSQL document graph DB</description>
   <inceptionYear>2009</inceptionYear>
   <licenses>
     <license>
@@ -255,7 +255,7 @@
             <allowTimestampedSnapshots>true</allowTimestampedSnapshots>
             <pushChanges>false</pushChanges>
             <tagNameFormat>@{project.version}</tagNameFormat>
-            <scmCommentPrefix>OrientDB</scmCommentPrefix>
+            <scmCommentPrefix>OxygenDB</scmCommentPrefix>
             <localCheckout>true</localCheckout>
           </configuration>
         </plugin>
@@ -519,7 +519,7 @@
                 <systemPropertyVariables>
                   <buildDirectory>${project.build.directory}</buildDirectory>
                   <security.userPasswordSaltIterations>1</security.userPasswordSaltIterations>
-                  <orientdb.test.env>ci</orientdb.test.env>
+                  <oxygendb.test.env>ci</oxygendb.test.env>
                 </systemPropertyVariables>
                 <useModulePath>false</useModulePath>
               </configuration>
@@ -539,7 +539,7 @@
               <configuration>
                 <systemPropertyVariables>
                   <buildDirectory>${project.build.directory}</buildDirectory>
-                  <orientdb.test.env>ci</orientdb.test.env>
+                  <oxygendb.test.env>ci</oxygendb.test.env>
                 </systemPropertyVariables>
                 <properties>
                   <property>

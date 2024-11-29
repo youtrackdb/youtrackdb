@@ -3,7 +3,7 @@ package com.orientechnologies.orient.server;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.core.Oxygen;
-import com.orientechnologies.orient.core.db.OPartitionedDatabasePool;
+import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.server.config.OServerConfigurationManager;
@@ -70,7 +70,7 @@ public class HookInstallServerTest {
                     "com/orientechnologies/orient/server/network/orientdb-server-config.xml"));
     OServerHookConfiguration hc = new OServerHookConfiguration();
     hc.clazz = MyHook.class.getName();
-    ret.getConfiguration().hooks = new ArrayList<OServerHookConfiguration>();
+    ret.getConfiguration().hooks = new ArrayList<>();
     ret.getConfiguration().hooks.add(hc);
     server.startup(ret.getConfiguration());
     server.activate();
@@ -98,20 +98,22 @@ public class HookInstallServerTest {
   public void test() {
     final int initValue = count;
 
-    OPartitionedDatabasePool pool =
-        new OPartitionedDatabasePool("remote:localhost/test", "admin", "admin");
-    for (int i = 0; i < 10; i++) {
-      var id = i;
-      try (var some = pool.acquire()) {
-        some.createClassIfNotExist("Test");
+    try (var pool =
+        OxygenDB.remote("remote:localhost", "root", "root")) {
+      for (int i = 0; i < 10; i++) {
+        var poolInstance = pool.cachedPool("test", "admin", "admin");
+        var id = i;
+        try (var some = poolInstance.acquire()) {
+          some.createClassIfNotExist("Test");
 
-        some.executeInTx(() -> {
-          some.save(new ODocument("Test").field("entry", id));
-          some.commit();
-        });
+          some.executeInTx(() -> {
+            some.save(new ODocument("Test").field("entry", id));
+            some.commit();
+          });
+        }
       }
     }
-    pool.close();
+
     Assert.assertEquals(initValue + 10, count);
   }
 }

@@ -25,15 +25,15 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>com.orientechnologies</groupId>
-    <artifactId>orientdb-parent</artifactId>
-    <version>4.0.0-SNAPSHOT</version>
+    <groupId>io.oxygendb</groupId>
+    <artifactId>oxygendb-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>orientdb-tools</artifactId>
+  <artifactId>oxygendb-tools</artifactId>
 
-  <name>OrientDB Tools</name>
+  <name>OxygenDB Tools</name>
 
   <properties>
     <jar.manifest.mainclass>com.orientechnologies.orient.console.OConsoleDatabaseApp
@@ -49,19 +49,19 @@
       <artifactId>slf4j-jdk14</artifactId>
     </dependency>
     <dependency>
-      <groupId>com.orientechnologies</groupId>
-      <artifactId>orientdb-test-commons</artifactId>
+      <groupId>io.oxygendb</groupId>
+      <artifactId>oxygendb-test-commons</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>com.orientechnologies</groupId>
-      <artifactId>orientdb-client</artifactId>
+      <groupId>io.oxygendb</groupId>
+      <artifactId>oxygendb-client</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.orientechnologies</groupId>
-      <artifactId>orientdb-core</artifactId>
+      <groupId>io.oxygendb</groupId>
+      <artifactId>oxygendb-core</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>

@@ -16,16 +16,16 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>com.orientechnologies</groupId>
-    <artifactId>orientdb-parent</artifactId>
-    <version>4.0.0-SNAPSHOT</version>
+    <groupId>io.oxygendb</groupId>
+    <artifactId>oxygendb-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>orientdb-community</artifactId>
+  <artifactId>oxygendb-community</artifactId>
   <packaging>pom</packaging>
 
-  <name>OrientDB Community Distribution</name>
+  <name>OxygenDB Community Distribution</name>
 
   <properties>
     <VERSION>${project.version}</VERSION>
@@ -37,40 +37,40 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.orientechnologies</groupId>
-      <artifactId>orientdb-client</artifactId>
+      <groupId>io.oxygendb</groupId>
+      <artifactId>oxygendb-client</artifactId>
       <version>${project.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>com.orientechnologies</groupId>
-      <artifactId>orientdb-core</artifactId>
+      <groupId>io.oxygendb</groupId>
+      <artifactId>oxygendb-core</artifactId>
       <version>${project.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>com.orientechnologies</groupId>
-      <artifactId>orientdb-server</artifactId>
+      <groupId>io.oxygendb</groupId>
+      <artifactId>oxygendb-server</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.orientechnologies</groupId>
-      <artifactId>orientdb-tools</artifactId>
+      <groupId>io.oxygendb</groupId>
+      <artifactId>oxygendb-tools</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.orientechnologies</groupId>
-      <artifactId>orientdb-lucene</artifactId>
+      <groupId>io.oxygendb</groupId>
+      <artifactId>oxygendb-lucene</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.orientechnologies</groupId>
-      <artifactId>orientdb-jdbc</artifactId>
+      <groupId>io.oxygendb</groupId>
+      <artifactId>oxygendb-jdbc</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>com.orientechnologies</groupId>
-      <artifactId>orientdb-test-commons</artifactId>
+      <groupId>io.oxygendb</groupId>
+      <artifactId>oxygendb-test-commons</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
@@ -181,7 +181,7 @@
               </execution>
             </executions>
             <configuration>
-              <imageName>orientdb/orientdb</imageName>
+              <imageName>oxygendb/oxygendb</imageName>
               <imageTags>
                 <imageTag>${project.version}</imageTag>
               </imageTags>
@@ -223,7 +223,7 @@
       <id>ci</id>
       <activation>
         <property>
-          <name>orientdb.test.env</name>
+          <name>oxygendb.test.env</name>
           <value>ci</value>
         </property>
       </activation>
@@ -267,7 +267,7 @@
       <id>integration_docker</id>
       <activation>
         <property>
-          <name>orientdb.test.env</name>
+          <name>oxygendb.test.env</name>
           <value>integration_docker</value>
         </property>
       </activation>

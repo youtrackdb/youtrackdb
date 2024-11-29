@@ -69,7 +69,7 @@ public class FulltextIndexFunctionBenchmark {
 
   private void setupDatabase() {
     final String config =
-        System.getProperty("orientdb.test.env", ODatabaseType.MEMORY.name().toLowerCase());
+        System.getProperty("oxygendb.test.env", ODatabaseType.MEMORY.name().toLowerCase());
     String path;
     if ("ci".equals(config) || "release".equals(config)) {
       type = ODatabaseType.PLOCAL;

@@ -24,7 +24,7 @@ public class OLuceneAllIndexTest extends BaseLuceneTest {
     OLogManager.instance().installCustomFormatter();
     OLogManager.instance().setConsoleLevel(Level.INFO.getName());
 
-    System.setProperty("orientdb.test.env", "ci");
+    System.setProperty("oxygendb.test.env", "ci");
 
     String fromStream =
         OIOUtils.readStreamAsString(ClassLoader.getSystemResourceAsStream("testLuceneIndex.sql"));

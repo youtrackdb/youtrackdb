@@ -28,14 +28,14 @@
 
   <parent>
     <groupId>com.orientechnologies</groupId>
-    <artifactId>orientdb-parent</artifactId>
-    <version>4.0.0-SNAPSHOT</version>
+    <artifactId>oxygendb-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>orientdb-distributed</artifactId>
+  <artifactId>oxygendb-distributed</artifactId>
 
-  <name>OrientDB Distributed Server</name>
+  <name>Oxygendb Distributed Server</name>
 
   <properties>
     <hz.version>5.5.0</hz.version>
@@ -124,7 +124,7 @@
               </includes>
               <systemPropertyVariables>
                 <kubeConfig/>
-                <orientdbLabel>orientdb</orientdbLabel>
+                <oxygendbLabel>oxygendb</orientdbLabel>
                 <orientdbHttpPort>2480</orientdbHttpPort>
                 <orientdbBinaryPort>2424</orientdbBinaryPort>
                 <orientdbHazelcastPort>2434</orientdbHazelcastPort>

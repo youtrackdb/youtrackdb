@@ -29,6 +29,7 @@ import org.junit.Test;
  *
  */
 public class OxygenDBRemoteTest {
+
   private static final String SERVER_DIRECTORY = "./target/dbfactory";
   private OServer server;
 
