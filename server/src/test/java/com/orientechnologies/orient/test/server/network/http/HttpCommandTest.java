@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.test.server.network.http;
 
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.InputStream;
 import org.junit.Assert;
@@ -14,30 +14,31 @@ public class HttpCommandTest extends BaseHttpDatabaseTest {
   @Test
   public void commandRootCredentials() throws IOException {
     Assert.assertEquals(
+        200,
         post("command/" + getDatabaseName() + "/sql/")
             .payload("select from OUSer", CONTENT.TEXT)
             .setUserName("root")
             .setUserPassword("root")
             .getResponse()
-            .getCode(),
-        200);
+            .getCode());
   }
 
   @Test
   public void commandDatabaseCredentials() throws IOException {
     Assert.assertEquals(
+        200,
         post("command/" + getDatabaseName() + "/sql/")
             .payload("select from OUSer", CONTENT.TEXT)
             .setUserName("admin")
             .setUserPassword("admin")
             .getResponse()
-            .getCode(),
-        200);
+            .getCode());
   }
 
   @Test
   public void commandWithNamedParams() throws IOException {
     Assert.assertEquals(
+        200,
         post("command/" + getDatabaseName() + "/sql/")
             .payload(
                 "{\"command\":\"select from OUSer where name ="
@@ -46,22 +47,25 @@ public class HttpCommandTest extends BaseHttpDatabaseTest {
             .setUserName("admin")
             .setUserPassword("admin")
             .getResponse()
-            .getCode(),
-        200);
+            .getCode());
 
     final InputStream response = getResponse().getEntity().getContent();
-    final ODocument result = new ODocument().fromJSON(response);
-    final Iterable<ODocument> res = result.field("result");
 
-    Assert.assertTrue(res.iterator().hasNext());
+    var objectMapper = new ObjectMapper();
+    var result = objectMapper.readTree(response);
 
-    final ODocument doc = res.iterator().next();
-    Assert.assertEquals(doc.field("name"), "admin");
+    var res = result.get("result").iterator();
+
+    Assert.assertTrue(res.hasNext());
+
+    var doc = res.next();
+    Assert.assertEquals("admin", doc.get("name").asText());
   }
 
   @Test
   public void commandWithPosParams() throws IOException {
     Assert.assertEquals(
+        200,
         post("command/" + getDatabaseName() + "/sql/")
             .payload(
                 "{\"command\":\"select from OUSer where name = ?\",\"parameters\":[\"admin\"]}",
@@ -69,17 +73,18 @@ public class HttpCommandTest extends BaseHttpDatabaseTest {
             .setUserName("admin")
             .setUserPassword("admin")
             .getResponse()
-            .getCode(),
-        200);
+            .getCode());
 
     final InputStream response = getResponse().getEntity().getContent();
-    final ODocument result = new ODocument().fromJSON(response);
-    final Iterable<ODocument> res = result.field("result");
+    var objectMapper = new ObjectMapper();
+    var result = objectMapper.readTree(response);
 
-    Assert.assertTrue(res.iterator().hasNext());
+    var res = result.get("result").iterator();
 
-    final ODocument doc = res.iterator().next();
-    Assert.assertEquals(doc.field("name"), "admin");
+    Assert.assertTrue(res.hasNext());
+
+    var doc = res.next();
+    Assert.assertEquals("admin", doc.get("name").asText());
   }
 
   @Override

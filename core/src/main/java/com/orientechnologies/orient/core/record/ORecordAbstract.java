@@ -216,7 +216,7 @@ public abstract class ORecordAbstract implements ORecord, ORecordElement, OSeria
   public void fromJSON(final String iSource) {
     incrementLoading();
     try {
-      ORecordSerializerJSON.INSTANCE.fromString(getSession(), iSource, this, null);
+      ORecordSerializerJSON.INSTANCE.fromString(getSessionIfDefined(), iSource, this, null);
     } finally {
       decrementLoading();
     }

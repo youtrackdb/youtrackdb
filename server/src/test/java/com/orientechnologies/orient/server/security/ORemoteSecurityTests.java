@@ -511,11 +511,12 @@ public class ORemoteSecurityTests {
 
     db = orient.open(DB_NAME, "reader", "reader");
     try (final OResultSet resultSet = db.query("SELECT from Person")) {
-      OResult item = resultSet.next();
-      OElement doc = item.getElement().get();
-      doc.setProperty("name", "bar");
       try {
         db.begin();
+        OResult item = resultSet.next();
+        OElement doc = item.getElement().get();
+        doc.setProperty("name", "bar");
+
         doc.save();
         db.commit();
         Assert.fail();

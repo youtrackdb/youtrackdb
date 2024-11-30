@@ -403,7 +403,8 @@ public abstract class DocumentDBBaseTest extends BaseTest<ODatabaseSessionIntern
     cls.createProperty(database, "nick", OType.STRING)
         .setMin(database, "3")
         .setMax(database, "30")
-        .createIndex(OClass.INDEX_TYPE.UNIQUE, new ODocument().field("ignoreNullValues", true));
+        .createIndex(database, OClass.INDEX_TYPE.UNIQUE,
+            new ODocument().field("ignoreNullValues", true));
     cls.createProperty(database, "followings", OType.LINKSET, cls);
     cls.createProperty(database, "followers", OType.LINKSET, cls);
     cls.createProperty(database, "name", OType.STRING)

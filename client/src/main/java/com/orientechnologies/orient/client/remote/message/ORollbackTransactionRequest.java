@@ -35,7 +35,7 @@ public class ORollbackTransactionRequest implements OBinaryRequest<ORollbackTran
   public void read(ODatabaseSessionInternal db, OChannelDataInput channel, int protocolVersion,
       ORecordSerializer serializer)
       throws IOException {
-    txId = channel.readInt();
+    txId = channel.readLong();
   }
 
   @Override

@@ -19,6 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
@@ -72,11 +73,13 @@ public class OServerCommandPostDatabase extends OServerCommandAuthenticatedServe
       // CONTENT REPLACES TEXT
       if (iRequest.getContent().startsWith("{")) {
         // JSON PAYLOAD
-        final ODocument doc = new ODocument();
-        doc.fromJSON(iRequest.getContent());
-        if (doc.hasProperty("adminPassword")) {
+
+        var objectMapper = new ObjectMapper();
+        var result = objectMapper.readTree(iRequest.getContent());
+
+        if (result.has("adminPassword")) {
           createAdmin = true;
-          adminPwd = doc.getProperty("adminPassword");
+          adminPwd = result.findValue("adminPassword").asText();
         }
       }
     }

@@ -72,6 +72,11 @@
     </dependency>
 
     <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcpkix-jdk18on</artifactId>
       <version>1.79</version>
@@ -91,7 +96,6 @@
       <version>4.5.14</version>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
 
   <profiles>
@@ -195,7 +199,6 @@
       </build>
     </profile>
   </profiles>
-
 
   <build>
     <plugins>

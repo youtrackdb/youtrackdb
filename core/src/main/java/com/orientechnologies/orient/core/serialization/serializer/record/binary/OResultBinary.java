@@ -117,7 +117,7 @@ public class OResultBinary implements OResult {
 
   @Override
   public OBlob getBlobProperty(String name) {
-    return null;
+    throw new UnsupportedOperationException("Not supported yet.");
   }
 
   @Override

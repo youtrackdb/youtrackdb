@@ -25,6 +25,10 @@ public class OSendTransactionStateRequest implements OBinaryRequest<OSendTransac
   @Nonnull
   private final List<ORecordOperationRequest> operations;
 
+  public OSendTransactionStateRequest() {
+    operations = new ArrayList<>();
+  }
+
   public OSendTransactionStateRequest(ODatabaseSessionInternal session, long txId,
       Iterable<ORecordOperation> operations) {
     this.txId = txId;

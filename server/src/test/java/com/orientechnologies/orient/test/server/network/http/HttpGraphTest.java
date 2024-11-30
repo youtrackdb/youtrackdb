@@ -1,11 +1,9 @@
 package com.orientechnologies.orient.test.server.network.http;
 
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -17,17 +15,17 @@ public class HttpGraphTest extends BaseHttpDatabaseTest {
   @Test
   public void updateWithEdges() throws IOException {
     Assert.assertEquals(
+        200,
         post("command/" + getDatabaseName() + "/sql/")
             .payload("create class Foo extends V", CONTENT.TEXT)
             .getResponse()
-            .getCode(),
-        200);
+            .getCode());
     Assert.assertEquals(
+        200,
         post("command/" + getDatabaseName() + "/sql/")
             .payload("create class FooEdge extends E", CONTENT.TEXT)
             .getResponse()
-            .getCode(),
-        200);
+            .getCode());
 
     String script = "begin;";
     script += "let $v1 = create vertex Foo set name = 'foo1';";
@@ -44,48 +42,53 @@ public class HttpGraphTest extends BaseHttpDatabaseTest {
         post("batch/" + getDatabaseName() + "/sql/")
             .payload(String.format(scriptPayload, script), CONTENT.JSON)
             .getResponse();
-    Assert.assertEquals(response.getCode(), 200);
+    Assert.assertEquals(200, response.getCode());
 
-    final ODocument result = new ODocument().fromJSON(response.getEntity().getContent());
+    var objectMapper = new ObjectMapper();
+    var result = objectMapper.readTree(response.getEntity().getContent());
 
-    final List<ODocument> res = result.field("result");
-    Assert.assertEquals(res.size(), 1);
-    ODocument created = res.get(0);
-    Assert.assertEquals(created.field("name"), "foo1");
-    Assert.assertEquals(created.getVersion(), 1);
+    var res = result.get("result");
+    Assert.assertEquals(1, res.size());
 
-    ORidBag coll = created.field("out_FooEdge");
-    Assert.assertEquals(coll.size(), 1);
-    created.field("name", "fooUpdated");
+    var created = res.get(0);
+    Assert.assertEquals("foo1", created.get("name").asText());
+    Assert.assertEquals(1, created.get("@version").asInt());
+
+    var coll = created.get("out_FooEdge");
+    Assert.assertEquals(1, coll.size());
+
+    var createdNode = created.<ObjectNode>deepCopy();
+    createdNode.put("name", "fooUpdated");
 
     response =
-        put("document/" + getDatabaseName() + "/" + created.getIdentity().toString().substring(1))
-            .payload(created.toJSON(), CONTENT.JSON)
+        put("document/" + getDatabaseName() + "/" + createdNode.get("@rid").asText().substring(1))
+            .payload(createdNode.toString(), CONTENT.JSON)
             .exec()
             .getResponse();
-    Assert.assertEquals(response.getCode(), 200);
+    Assert.assertEquals(200, response.getCode());
 
-    final ODocument updated = new ODocument().fromJSON(response.getEntity().getContent());
-    Assert.assertEquals(updated.field("name"), "fooUpdated");
-    Assert.assertEquals(updated.getVersion(), 2);
-    coll = updated.field("out_FooEdge");
-    Assert.assertEquals(coll.size(), 1);
+    var updated = objectMapper.readTree(response.getEntity().getContent());
+    Assert.assertEquals("fooUpdated", updated.get("name").asText());
+    Assert.assertEquals(2, updated.get("@version").asInt());
+
+    coll = updated.get("out_FooEdge");
+    Assert.assertEquals(1, coll.size());
   }
 
   @Test
   public void getGraphResult() throws IOException {
     Assert.assertEquals(
+        200,
         post("command/" + getDatabaseName() + "/sql/")
             .payload("create class Foo extends V", CONTENT.TEXT)
             .getResponse()
-            .getCode(),
-        200);
+            .getCode());
     Assert.assertEquals(
+        200,
         post("command/" + getDatabaseName() + "/sql/")
             .payload("create class FooEdge extends E", CONTENT.TEXT)
             .getResponse()
-            .getCode(),
-        200);
+            .getCode());
 
     String script = "begin;";
     script += "let $v1 = create vertex Foo set name = 'foo1';";
@@ -102,17 +105,19 @@ public class HttpGraphTest extends BaseHttpDatabaseTest {
         post("batch/" + getDatabaseName() + "/sql/")
             .payload(String.format(scriptPayload, script), CONTENT.JSON)
             .getResponse();
-    Assert.assertEquals(response.getCode(), 200);
+    Assert.assertEquals(200, response.getCode());
 
     final String payload =
         new ODocument().field("command", "select from E").field("mode", "graph").toJSON();
     response =
         post("command/" + getDatabaseName() + "/sql/").payload(payload, CONTENT.JSON).getResponse();
 
-    final ODocument result = new ODocument().fromJSON(response.getEntity().getContent());
-    final Map<String, Object> res = result.field("graph");
-    final Collection vertices = (Collection) res.get("vertices");
-    final Collection edges = (Collection) res.get("edges");
+    var objectMapper = new ObjectMapper();
+    var result = objectMapper.readTree(response.getEntity().getContent());
+
+    var res = result.get("graph");
+    var vertices = res.get("vertices");
+    var edges = res.get("edges");
 
     Assert.assertEquals(2, vertices.size());
     Assert.assertEquals(1, edges.size());

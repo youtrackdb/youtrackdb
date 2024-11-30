@@ -307,8 +307,8 @@ public class OPropertyRemote extends OPropertyImpl {
   }
 
   @Override
-  public OIndex createIndex(OClass.INDEX_TYPE iType, ODocument metadata) {
-    return createIndex(iType.name(), metadata);
+  public OIndex createIndex(ODatabaseSession session, INDEX_TYPE iType, ODocument metadata) {
+    return createIndex(session, iType.name(), metadata);
   }
 
   @Override

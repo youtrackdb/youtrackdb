@@ -37,7 +37,6 @@ import com.orientechnologies.orient.client.remote.message.OCreateDatabaseRespons
 import com.orientechnologies.orient.client.remote.message.ODistributedStatusRequest;
 import com.orientechnologies.orient.client.remote.message.ODistributedStatusResponse;
 import com.orientechnologies.orient.client.remote.message.ODropDatabaseRequest;
-import com.orientechnologies.orient.client.remote.message.ODropDatabaseResponse;
 import com.orientechnologies.orient.client.remote.message.OExistsDatabaseRequest;
 import com.orientechnologies.orient.client.remote.message.OExistsDatabaseResponse;
 import com.orientechnologies.orient.client.remote.message.OFreezeDatabaseRequest;
@@ -318,7 +317,7 @@ public class OxygenDBRemote implements OxygenDBInternal {
   @Override
   public synchronized void drop(String name, String user, String password) {
     ODropDatabaseRequest request = new ODropDatabaseRequest(name, null);
-    ODropDatabaseResponse response = connectAndSend(name, user, password, request);
+    connectAndSend(name, user, password, request);
 
     OSharedContext ctx = sharedContexts.get(name);
     if (ctx != null) {

@@ -198,24 +198,6 @@ public interface OProperty extends Comparable<OProperty> {
    * operations. For massive inserts we suggest to remove the index, make the massive insert and
    * recreate it.
    *
-   * @param iType    One of types supported.
-   *                 <ul>
-   *                   <li>UNIQUE: Doesn't allow duplicates
-   *                   <li>NOTUNIQUE: Allow duplicates
-   *                   <li>FULLTEXT: Indexes single word for full text search
-   *                 </ul>
-   * @param metadata the index metadata
-   * @return see {@link OClass#createIndex(ODatabaseSession, String, INDEX_TYPE, String...)}.
-   */
-  default OIndex createIndex(String iType, ODocument metadata) {
-    return createIndex(iType, metadata);
-  }
-
-  /**
-   * Creates an index on this property. Indexes speed up queries but slow down insert and update
-   * operations. For massive inserts we suggest to remove the index, make the massive insert and
-   * recreate it.
-   *
    * @param session
    * @param iType    One of types supported.
    *                 <ul>
@@ -235,6 +217,7 @@ public interface OProperty extends Comparable<OProperty> {
    * operations. For massive inserts we suggest to remove the index, make the massive insert and
    * recreate it.
    *
+   * @param session
    * @param iType    One of types supported.
    *                 <ul>
    *                   <li>UNIQUE: Doesn't allow duplicates
@@ -246,7 +229,7 @@ public interface OProperty extends Comparable<OProperty> {
    * {@link OClass#createIndex(com.orientechnologies.orient.core.db.ODatabaseSession, String,
    * OClass.INDEX_TYPE, String...)}.
    */
-  OIndex createIndex(OClass.INDEX_TYPE iType, ODocument metadata);
+  OIndex createIndex(ODatabaseSession session, INDEX_TYPE iType, ODocument metadata);
 
   /**
    * Remove the index on property

@@ -23,20 +23,20 @@ public class HttpBatchTest extends BaseHttpDatabaseTest {
 
   public void batchUpdate() throws Exception {
     Assert.assertEquals(
+        200,
         post("command/" + getDatabaseName() + "/sql/")
             .payload("create class User", CONTENT.TEXT)
             .getResponse()
-            .getCode(),
-        200);
+            .getCode());
 
     Assert.assertEquals(
+        200,
         post("command/" + getDatabaseName() + "/sql/")
             .payload("insert into User content {\"userID\": \"35862601\"}", CONTENT.TEXT)
             .setUserName("admin")
             .setUserPassword("admin")
             .getResponse()
-            .getCode(),
-        200);
+            .getCode());
 
     String response = EntityUtils.toString(getResponse().getEntity());
 
@@ -49,6 +49,7 @@ public class HttpBatchTest extends BaseHttpDatabaseTest {
 
     // TEST UPDATE
     Assert.assertEquals(
+        200,
         post("batch/" + getDatabaseName() + "/sql/")
             .payload(
                 "{\n"
@@ -68,11 +69,11 @@ public class HttpBatchTest extends BaseHttpDatabaseTest {
                     + "}",
                 CONTENT.JSON)
             .getResponse()
-            .getCode(),
-        200);
+            .getCode());
 
     // TEST DOUBLE UPDATE
     Assert.assertEquals(
+        200,
         post("batch/" + getDatabaseName() + "/sql/")
             .payload(
                 "{\n"
@@ -92,11 +93,11 @@ public class HttpBatchTest extends BaseHttpDatabaseTest {
                     + "}",
                 CONTENT.JSON)
             .getResponse()
-            .getCode(),
-        200);
+            .getCode());
 
     // TEST WRONG VERSION ON UPDATE
     Assert.assertEquals(
+        409,
         post("batch/" + getDatabaseName() + "/sql/")
             .payload(
                 "{\n"
@@ -116,8 +117,7 @@ public class HttpBatchTest extends BaseHttpDatabaseTest {
                     + "}",
                 CONTENT.JSON)
             .getResponse()
-            .getCode(),
-        409);
+            .getCode());
 
     batchWithEmpty();
   }
@@ -135,7 +135,7 @@ public class HttpBatchTest extends BaseHttpDatabaseTest {
             + "}";
     var response = post("batch/" + getDatabaseName()).payload(json, CONTENT.TEXT).getResponse();
 
-    Assert.assertEquals(response.getCode(), 200);
+    Assert.assertEquals(200, response.getCode());
     InputStream stream = response.getEntity().getContent();
     String string = "";
     BufferedReader reader = new BufferedReader(new InputStreamReader(stream));

@@ -442,7 +442,8 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
           .createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
       curatorClass
           .createProperty(database, "salary", OType.INTEGER)
-          .createIndex(OClass.INDEX_TYPE.UNIQUE, new ODocument().field("ignoreNullValues", true));
+          .createIndex(database, OClass.INDEX_TYPE.UNIQUE,
+              new ODocument().field("ignoreNullValues", true));
       curatorClass.createIndex(database,
           "curotorCompositeIndex",
           OClass.INDEX_TYPE.UNIQUE.name(),
@@ -452,10 +453,12 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
       final OClass groupClass = schema.createClass("lpirtGroup");
       groupClass
           .createProperty(database, "name", OType.STRING)
-          .createIndex(OClass.INDEX_TYPE.UNIQUE, new ODocument().field("ignoreNullValues", true));
+          .createIndex(database, OClass.INDEX_TYPE.UNIQUE,
+              new ODocument().field("ignoreNullValues", true));
       groupClass
           .createProperty(database, "curator", OType.LINK, curatorClass)
-          .createIndex(OClass.INDEX_TYPE.UNIQUE, new ODocument().field("ignoreNullValues", true));
+          .createIndex(database, OClass.INDEX_TYPE.UNIQUE,
+              new ODocument().field("ignoreNullValues", true));
 
       final OClass diplomaClass = schema.createClass("lpirtDiploma");
       diplomaClass.createProperty(database, "GPA", OType.DOUBLE)
@@ -463,7 +466,8 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
       diplomaClass.createProperty(database, "thesis", OType.STRING);
       diplomaClass
           .createProperty(database, "name", OType.STRING)
-          .createIndex(OClass.INDEX_TYPE.UNIQUE, new ODocument().field("ignoreNullValues", true));
+          .createIndex(database, OClass.INDEX_TYPE.UNIQUE,
+              new ODocument().field("ignoreNullValues", true));
       diplomaClass.createIndex(database,
           "diplomaThesisUnique",
           OClass.INDEX_TYPE.UNIQUE.name(),
@@ -473,25 +477,27 @@ public class SQLSelectByLinkedPropertyIndexReuseTest extends AbstractIndexReuseT
       final OClass transcriptClass = schema.createClass("lpirtTranscript");
       transcriptClass
           .createProperty(database, "id", OType.STRING)
-          .createIndex(
+          .createIndex(database,
               OClass.INDEX_TYPE.UNIQUE_HASH_INDEX, new ODocument().field("ignoreNullValues", true));
 
       final OClass skillClass = schema.createClass("lpirtSkill");
       skillClass
           .createProperty(database, "name", OType.STRING)
-          .createIndex(OClass.INDEX_TYPE.UNIQUE, new ODocument().field("ignoreNullValues", true));
+          .createIndex(database, OClass.INDEX_TYPE.UNIQUE,
+              new ODocument().field("ignoreNullValues", true));
 
       final OClass studentClass = schema.createClass("lpirtStudent");
       studentClass
           .createProperty(database, "name", OType.STRING)
-          .createIndex(OClass.INDEX_TYPE.UNIQUE, new ODocument().field("ignoreNullValues", true));
+          .createIndex(database, OClass.INDEX_TYPE.UNIQUE,
+              new ODocument().field("ignoreNullValues", true));
       studentClass
           .createProperty(database, "group", OType.LINK, groupClass)
           .createIndex(database, OClass.INDEX_TYPE.NOTUNIQUE);
       studentClass.createProperty(database, "diploma", OType.LINK, diplomaClass);
       studentClass
           .createProperty(database, "transcript", OType.LINK, transcriptClass)
-          .createIndex(
+          .createIndex(database,
               OClass.INDEX_TYPE.UNIQUE_HASH_INDEX, new ODocument().field("ignoreNullValues", true));
       studentClass.createProperty(database, "skill", OType.LINK, skillClass);
 

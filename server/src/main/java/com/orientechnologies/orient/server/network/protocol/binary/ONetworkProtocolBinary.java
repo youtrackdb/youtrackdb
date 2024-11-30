@@ -425,9 +425,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
             afterOperationRequest(connection);
           }
         }
-        if (connection != null) {
-          tokenConnection = Boolean.TRUE.equals(connection.getTokenBased());
-        }
+        tokenConnection = Boolean.TRUE.equals(connection.getTokenBased());
       } else {
         OLogManager.instance().error(this, "Request not supported. Code: " + requestType, null);
         handleConnectionError(

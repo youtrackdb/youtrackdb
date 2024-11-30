@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.test.server.network.http;
 
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -10,21 +10,23 @@ public class HttpServerTest extends BaseHttpDatabaseTest {
   @Test
   public void testGetServer() throws Exception {
     var res = get("server").getResponse();
-    Assert.assertEquals(res.getReasonPhrase(), res.getCode(), 200);
+    Assert.assertEquals(res.getReasonPhrase(), 200, res.getCode());
 
-    ODocument payload = new ODocument().fromJSON(res.getEntity().getContent());
+    var objectMapper = new ObjectMapper();
+    var result = objectMapper.readTree(res.getEntity().getContent());
 
-    Assert.assertTrue(payload.containsField("connections"));
+    Assert.assertTrue(result.hasNonNull("connections"));
   }
 
   @Test
   public void testGetConnections() throws Exception {
     var res = setUserName("root").setUserPassword("root").get("connections/").getResponse();
-    Assert.assertEquals(res.getReasonPhrase(), res.getCode(), 200);
+    Assert.assertEquals(res.getReasonPhrase(), 200, res.getCode());
 
-    ODocument payload = new ODocument().fromJSON(res.getEntity().getContent());
+    var objectMapper = new ObjectMapper();
+    var result = objectMapper.readTree(res.getEntity().getContent());
 
-    Assert.assertTrue(payload.containsField("connections"));
+    Assert.assertTrue(result.hasNonNull("connections"));
   }
 
   @Test
@@ -36,7 +38,7 @@ public class HttpServerTest extends BaseHttpDatabaseTest {
             .post("servercommand")
             .payload("{\"command\":\"create database " + dbName + " plocal\" }", CONTENT.JSON)
             .getResponse();
-    Assert.assertEquals(res.getReasonPhrase(), res.getCode(), 200);
+    Assert.assertEquals(res.getReasonPhrase(), 200, res.getCode());
 
     Assert.assertTrue(getServer().getContext().exists(dbName));
     getServer().getContext().drop(dbName);

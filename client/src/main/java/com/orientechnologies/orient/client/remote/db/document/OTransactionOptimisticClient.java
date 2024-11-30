@@ -67,6 +67,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
           && operation.getRecordType() == ODocument.RECORD_TYPE) {
         record.incrementLoading();
         try {
+          record.setup(db);
           // keep rid instance to support links consistency
           record.fromStream(operation.getOriginal());
           ODocumentSerializerDelta deltaSerializer = ODocumentSerializerDelta.instance();
@@ -76,9 +77,9 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
           record.decrementLoading();
         }
       } else {
+        record.setup(db);
         record.fromStream(operation.getRecord());
       }
-      record.setup(db);
 
       var rid = (ORecordId) record.getIdentity();
       var operationId = operation.getId();

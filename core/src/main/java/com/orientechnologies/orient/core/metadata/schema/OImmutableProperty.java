@@ -379,7 +379,7 @@ public class OImmutableProperty implements OProperty {
   }
 
   @Override
-  public OIndex createIndex(OClass.INDEX_TYPE iType, ODocument metadata) {
+  public OIndex createIndex(ODatabaseSession session, INDEX_TYPE iType, ODocument metadata) {
     throw new UnsupportedOperationException();
   }
 

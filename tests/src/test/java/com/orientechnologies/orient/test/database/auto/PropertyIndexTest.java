@@ -73,7 +73,8 @@ public class PropertyIndexTest extends DocumentDBBaseTest {
     final OClass oClass = schema.getClass("PropertyIndexTestClass");
     final OProperty propOne = oClass.getProperty("prop1");
 
-    propOne.createIndex(OClass.INDEX_TYPE.UNIQUE, new ODocument().field("ignoreNullValues", true));
+    propOne.createIndex(database, OClass.INDEX_TYPE.UNIQUE,
+        new ODocument().field("ignoreNullValues", true));
 
     final Collection<OIndex> indexes = propOne.getIndexes(database);
     OIndexDefinition indexDefinition = null;

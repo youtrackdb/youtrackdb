@@ -1,6 +1,7 @@
 package com.orientechnologies.orient.test.server.network.http;
 
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.junit.Assert;
@@ -20,13 +21,13 @@ public class HttpDocumentTest extends BaseHttpDatabaseTest {
     ClassicHttpResponse response = getResponse();
     Assert.assertEquals(response.getReasonPhrase(), 201, response.getCode());
 
-    final ODocument created = new ODocument().fromJSON(response.getEntity().getContent());
+    var objectMapper = new ObjectMapper();
+    var result = objectMapper.readTree(response.getEntity().getContent());
 
-    Assert.assertEquals(created.getVersion(), 1);
-    Assert.assertEquals(created.field("name"), "Jay");
-    Assert.assertEquals(created.field("surname"), "Miner");
-    Assert.assertEquals(created.<Object>field("age"), 99);
-    Assert.assertEquals(created.getVersion(), 1);
+    Assert.assertEquals(1, result.get("@version").asInt());
+    Assert.assertEquals("Jay", result.get("name").asText());
+    Assert.assertEquals("Miner", result.get("surname").asText());
+    Assert.assertEquals(99, result.get("age").asInt());
   }
 
   @Test
@@ -35,23 +36,26 @@ public class HttpDocumentTest extends BaseHttpDatabaseTest {
         .payload("{@class:'V', name:'Jay', surname:'Miner',age:99}", CONTENT.JSON)
         .exec();
     ClassicHttpResponse response = getResponse();
-    Assert.assertEquals(response.getReasonPhrase(), response.getCode(), 201);
-    final ODocument created = new ODocument().fromJSON(getResponse().getEntity().getContent());
+    Assert.assertEquals(response.getReasonPhrase(), 201, response.getCode());
 
-    Assert.assertEquals(created.field("name"), "Jay");
-    Assert.assertEquals(created.field("surname"), "Miner");
-    Assert.assertEquals(created.<Object>field("age"), 99);
-    Assert.assertEquals(created.getVersion(), 1);
+    var objectMapper = new ObjectMapper();
+    var result = objectMapper.readTree(response.getEntity().getContent());
 
-    get("document/" + getDatabaseName() + "/" + created.getIdentity().toString().substring(1))
+    Assert.assertEquals("Jay", result.get("name").asText());
+    Assert.assertEquals("Miner", result.get("surname").asText());
+    Assert.assertEquals(99, result.get("age").asInt());
+    Assert.assertEquals(1, result.get("@version").asInt());
+
+    get("document/" + getDatabaseName() + "/" + result.get("@rid").asText().substring(1))
         .exec();
-    Assert.assertEquals(getResponse().getCode(), 200);
-    final ODocument updated = new ODocument().fromJSON(getResponse().getEntity().getContent());
 
-    Assert.assertEquals(updated.field("name"), "Jay");
-    Assert.assertEquals(updated.field("surname"), "Miner");
-    Assert.assertEquals(updated.<Object>field("age"), 99);
-    Assert.assertEquals(updated.getVersion(), 1);
+    Assert.assertEquals(200, getResponse().getCode());
+    var updated = objectMapper.readTree(getResponse().getEntity().getContent());
+
+    Assert.assertEquals("Jay", updated.get("name").asText());
+    Assert.assertEquals("Miner", updated.get("surname").asText());
+    Assert.assertEquals(99, updated.get("age").asInt());
+    Assert.assertEquals(1, updated.get("@version").asInt());
   }
 
   @Test
@@ -59,28 +63,33 @@ public class HttpDocumentTest extends BaseHttpDatabaseTest {
     post("document/" + getDatabaseName())
         .payload("{@class:'V', name:'Jay', surname:'Miner',age:0}", CONTENT.JSON)
         .exec();
-    Assert.assertEquals(getResponse().getCode(), 201);
-    final ODocument created = new ODocument().fromJSON(getResponse().getEntity().getContent());
+    Assert.assertEquals(201, getResponse().getCode());
 
-    Assert.assertEquals(created.field("name"), "Jay");
-    Assert.assertEquals(created.field("surname"), "Miner");
-    Assert.assertEquals(created.<Object>field("age"), 0);
-    Assert.assertEquals(created.getVersion(), 1);
+    var objectMapper = new ObjectMapper();
+    var result = objectMapper.readTree(getResponse().getEntity().getContent());
 
-    created.field("name", "Jay2");
-    created.field("surname", "Miner2");
-    created.field("age", 1);
+    Assert.assertEquals("Jay", result.get("name").asText());
+    Assert.assertEquals("Miner", result.get("surname").asText());
+    Assert.assertEquals(0, result.get("age").asInt());
+    Assert.assertEquals(1, result.get("@version").asInt());
 
-    put("document/" + getDatabaseName() + "/" + created.getIdentity().toString().substring(1))
-        .payload(created.toJSON(), CONTENT.JSON)
+    var created = result.<ObjectNode>deepCopy();
+
+    created.put("name", "Jay2");
+    created.put("surname", "Miner2");
+    created.put("age", 1);
+
+    put("document/" + getDatabaseName() + "/" + created.get("@rid").asText().substring(1))
+        .payload(created.toString(), CONTENT.JSON)
         .exec();
-    Assert.assertEquals(getResponse().getCode(), 200);
-    final ODocument updated = new ODocument().fromJSON(getResponse().getEntity().getContent());
+    Assert.assertEquals(200, getResponse().getCode());
 
-    Assert.assertEquals(updated.field("name"), "Jay2");
-    Assert.assertEquals(updated.field("surname"), "Miner2");
-    Assert.assertEquals(updated.<Object>field("age"), 1);
-    Assert.assertEquals(updated.getVersion(), 2);
+    var updated = objectMapper.readTree(getResponse().getEntity().getContent());
+
+    Assert.assertEquals("Jay2", updated.get("name").asText());
+    Assert.assertEquals("Miner2", updated.get("surname").asText());
+    Assert.assertEquals(1, updated.get("age").asInt());
+    Assert.assertEquals(2, updated.get("@version").asInt());
   }
 
   @Test
@@ -88,24 +97,27 @@ public class HttpDocumentTest extends BaseHttpDatabaseTest {
     post("document/" + getDatabaseName())
         .payload("{@class:'V', name:'Jay', surname:'Miner',age:0}", CONTENT.JSON)
         .exec();
-    Assert.assertEquals(getResponse().getCode(), 201);
-    final ODocument created = new ODocument().fromJSON(getResponse().getEntity().getContent());
+    Assert.assertEquals(201, getResponse().getCode());
 
-    Assert.assertEquals(created.field("name"), "Jay");
-    Assert.assertEquals(created.field("surname"), "Miner");
-    Assert.assertEquals(created.<Object>field("age"), 0);
-    Assert.assertEquals(created.getVersion(), 1);
+    var objectMapper = new ObjectMapper();
+    var result = objectMapper.readTree(getResponse().getEntity().getContent());
 
-    put("document/" + getDatabaseName() + "/" + created.getIdentity().toString().substring(1))
+    Assert.assertEquals("Jay", result.get("name").asText());
+    Assert.assertEquals("Miner", result.get("surname").asText());
+    Assert.assertEquals(0, result.get("age").asInt());
+    Assert.assertEquals(1, result.get("@version").asInt());
+
+    put("document/" + getDatabaseName() + "/" + result.get("@rid").asText().substring(1))
         .payload("{name:'Jay2', surname:'Miner2',age:1}", CONTENT.JSON)
         .exec();
-    Assert.assertEquals(getResponse().getCode(), 200);
-    final ODocument updated = new ODocument().fromJSON(getResponse().getEntity().getContent());
+    Assert.assertEquals(200, getResponse().getCode());
 
-    Assert.assertEquals(updated.field("name"), "Jay2");
-    Assert.assertEquals(updated.field("surname"), "Miner2");
-    Assert.assertEquals(updated.<Object>field("age"), 1);
-    Assert.assertEquals(updated.getVersion(), 2);
+    var updated = objectMapper.readTree(getResponse().getEntity().getContent());
+
+    Assert.assertEquals("Jay2", updated.get("name").asText());
+    Assert.assertEquals("Miner2", updated.get("surname").asText());
+    Assert.assertEquals(1, updated.get("age").asInt());
+    Assert.assertEquals(2, updated.get("@version").asInt());
   }
 
   @Test
@@ -113,18 +125,20 @@ public class HttpDocumentTest extends BaseHttpDatabaseTest {
     post("document/" + getDatabaseName())
         .payload("{@class:'V', name:'Jay', surname:'Miner',age:0}", CONTENT.JSON)
         .exec();
-    Assert.assertEquals(getResponse().getCode(), 201);
-    final ODocument created = new ODocument().fromJSON(getResponse().getEntity().getContent());
+    Assert.assertEquals(201, getResponse().getCode());
 
-    Assert.assertEquals(created.field("name"), "Jay");
-    Assert.assertEquals(created.field("surname"), "Miner");
-    Assert.assertEquals(created.<Object>field("age"), 0);
-    Assert.assertEquals(created.getVersion(), 1);
+    var objectMapper = new ObjectMapper();
+    var result = objectMapper.readTree(getResponse().getEntity().getContent());
 
-    put("document/" + getDatabaseName() + "/" + created.getIdentity().toString().substring(1))
+    Assert.assertEquals("Jay", result.get("name").asText());
+    Assert.assertEquals("Miner", result.get("surname").asText());
+    Assert.assertEquals(0, result.get("age").asInt());
+    Assert.assertEquals(1, result.get("@version").asInt());
+
+    put("document/" + getDatabaseName() + "/" + result.get("@rid").asText().substring(1))
         .payload("{name:'Jay2', surname:'Miner2',age:1, @version: 2}", CONTENT.JSON)
         .exec();
-    Assert.assertEquals(getResponse().getCode(), 409);
+    Assert.assertEquals(409, getResponse().getCode());
   }
 
   @Test
@@ -132,28 +146,31 @@ public class HttpDocumentTest extends BaseHttpDatabaseTest {
     post("document/" + getDatabaseName())
         .payload("{@class:'V', name:'Jay', surname:'Miner',age:0}", CONTENT.JSON)
         .exec();
-    Assert.assertEquals(getResponse().getCode(), 201);
-    final ODocument created = new ODocument().fromJSON(getResponse().getEntity().getContent());
+    Assert.assertEquals(201, getResponse().getCode());
 
-    Assert.assertEquals(created.field("name"), "Jay");
-    Assert.assertEquals(created.field("surname"), "Miner");
-    Assert.assertEquals(created.<Object>field("age"), 0);
-    Assert.assertEquals(created.getVersion(), 1);
+    var objectMapper = new ObjectMapper();
+    var result = objectMapper.readTree(getResponse().getEntity().getContent());
+
+    Assert.assertEquals("Jay", result.get("name").asText());
+    Assert.assertEquals("Miner", result.get("surname").asText());
+    Assert.assertEquals(0, result.get("age").asInt());
+    Assert.assertEquals(1, result.get("@version").asInt());
 
     put("document/"
         + getDatabaseName()
         + "/"
-        + created.getIdentity().toString().substring(1)
+        + result.get("@rid").asText().substring(1)
         + "?updateMode=partial")
         .payload("{age:1}", CONTENT.JSON)
         .exec();
-    Assert.assertEquals(getResponse().getCode(), 200);
-    final ODocument updated = new ODocument().fromJSON(getResponse().getEntity().getContent());
+    Assert.assertEquals(200, getResponse().getCode());
 
-    Assert.assertEquals(updated.field("name"), "Jay");
-    Assert.assertEquals(updated.field("surname"), "Miner");
-    Assert.assertEquals(updated.<Object>field("age"), 1);
-    Assert.assertEquals(updated.getVersion(), 2);
+    var updated = objectMapper.readTree(getResponse().getEntity().getContent());
+
+    Assert.assertEquals("Jay", updated.get("name").asText());
+    Assert.assertEquals("Miner", updated.get("surname").asText());
+    Assert.assertEquals(1, updated.get("age").asInt());
+    Assert.assertEquals(2, updated.get("@version").asInt());
   }
 
   @Test
@@ -161,24 +178,27 @@ public class HttpDocumentTest extends BaseHttpDatabaseTest {
     post("document/" + getDatabaseName())
         .payload("{@class:'V', name:'Jay', surname:'Miner',age:0}", CONTENT.JSON)
         .exec();
-    Assert.assertEquals(getResponse().getCode(), 201);
-    final ODocument created = new ODocument().fromJSON(getResponse().getEntity().getContent());
+    Assert.assertEquals(201, getResponse().getCode());
 
-    Assert.assertEquals(created.field("name"), "Jay");
-    Assert.assertEquals(created.field("surname"), "Miner");
-    Assert.assertEquals(created.field("age"), (Integer) 0);
-    Assert.assertEquals(created.getVersion(), 1);
+    var objectMapper = new ObjectMapper();
+    var result = objectMapper.readTree(getResponse().getEntity().getContent());
 
-    patch("document/" + getDatabaseName() + "/" + created.getIdentity().toString().substring(1))
+    Assert.assertEquals("Jay", result.get("name").asText());
+    Assert.assertEquals("Miner", result.get("surname").asText());
+    Assert.assertEquals(0, result.get("age").asInt());
+    Assert.assertEquals(1, result.get("@version").asInt());
+
+    patch("document/" + getDatabaseName() + "/" + result.get("@rid").asText().substring(1))
         .payload("{age:1,@version:1}", CONTENT.JSON)
         .exec();
-    Assert.assertEquals(getResponse().getCode(), 200);
-    final ODocument updated = new ODocument().fromJSON(getResponse().getEntity().getContent());
+    Assert.assertEquals(200, getResponse().getCode());
 
-    Assert.assertEquals(updated.field("name"), "Jay");
-    Assert.assertEquals(updated.field("surname"), "Miner");
-    Assert.assertEquals(updated.field("age"), (Integer) 1);
-    Assert.assertEquals(updated.getVersion(), 2);
+    var updated = objectMapper.readTree(getResponse().getEntity().getContent());
+
+    Assert.assertEquals("Jay", updated.get("name").asText());
+    Assert.assertEquals("Miner", updated.get("surname").asText());
+    Assert.assertEquals(1, updated.get("age").asInt());
+    Assert.assertEquals(2, updated.get("@version").asInt());
   }
 
   @Test
@@ -186,21 +206,23 @@ public class HttpDocumentTest extends BaseHttpDatabaseTest {
     post("document/" + getDatabaseName())
         .payload("{@class:'V', name:'Jay', surname:'Miner',age:0}", CONTENT.JSON)
         .exec();
-    Assert.assertEquals(getResponse().getCode(), 201);
-    final ODocument created = new ODocument().fromJSON(getResponse().getEntity().getContent());
+    Assert.assertEquals(201, getResponse().getCode());
 
-    Assert.assertEquals(created.field("name"), "Jay");
-    Assert.assertEquals(created.field("surname"), "Miner");
-    Assert.assertEquals(created.<Object>field("age"), 0);
-    Assert.assertEquals(created.getVersion(), 1);
+    var objectMapper = new ObjectMapper();
+    var created = objectMapper.readTree(getResponse().getEntity().getContent());
 
-    delete("document/" + getDatabaseName() + "/" + created.getIdentity().toString().substring(1))
+    Assert.assertEquals("Jay", created.get("name").asText());
+    Assert.assertEquals("Miner", created.get("surname").asText());
+    Assert.assertEquals(0, created.get("age").asInt());
+    Assert.assertEquals(1, created.get("@version").asInt());
+
+    delete("document/" + getDatabaseName() + "/" + created.get("@rid").asText().substring(1))
         .exec();
-    Assert.assertEquals(getResponse().getCode(), 204);
+    Assert.assertEquals(204, getResponse().getCode());
 
-    get("document/" + getDatabaseName() + "/" + created.getIdentity().toString().substring(1))
+    get("document/" + getDatabaseName() + "/" + created.get("@rid").asText().substring(1))
         .exec();
-    Assert.assertEquals(getResponse().getCode(), 404);
+    Assert.assertEquals(404, getResponse().getCode());
   }
 
   @Test
@@ -208,22 +230,24 @@ public class HttpDocumentTest extends BaseHttpDatabaseTest {
     post("document/" + getDatabaseName())
         .payload("{@class:'V', name:'Jay', surname:'Miner',age:0}", CONTENT.JSON)
         .exec();
-    Assert.assertEquals(getResponse().getCode(), 201);
-    final ODocument created = new ODocument().fromJSON(getResponse().getEntity().getContent());
+    Assert.assertEquals(201, getResponse().getCode());
 
-    Assert.assertEquals(created.field("name"), "Jay");
-    Assert.assertEquals(created.field("surname"), "Miner");
-    Assert.assertEquals(created.<Object>field("age"), 0);
-    Assert.assertEquals(created.getVersion(), 1);
+    var objectMapper = new ObjectMapper();
+    var created = objectMapper.readTree(getResponse().getEntity().getContent());
 
-    delete("document/" + getDatabaseName() + "/" + created.getIdentity().toString().substring(1))
-        .payload(created.toJSON(), CONTENT.JSON)
+    Assert.assertEquals("Jay", created.get("name").asText());
+    Assert.assertEquals("Miner", created.get("surname").asText());
+    Assert.assertEquals(0, created.get("age").asInt());
+    Assert.assertEquals(1, created.get("@version").asInt());
+
+    delete("document/" + getDatabaseName() + "/" + created.get("@rid").asText().substring(1))
+        .payload(created.toString(), CONTENT.JSON)
         .exec();
-    Assert.assertEquals(getResponse().getCode(), 204);
+    Assert.assertEquals(204, getResponse().getCode());
 
-    get("document/" + getDatabaseName() + "/" + created.getIdentity().toString().substring(1))
+    get("document/" + getDatabaseName() + "/" + created.get("@rid").asText().substring(1))
         .exec();
-    Assert.assertEquals(getResponse().getCode(), 404);
+    Assert.assertEquals(404, getResponse().getCode());
   }
 
   @Override

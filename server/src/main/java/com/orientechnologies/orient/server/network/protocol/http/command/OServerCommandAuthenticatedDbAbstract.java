@@ -20,6 +20,7 @@
 package com.orientechnologies.orient.server.network.protocol.http.command;
 
 import com.orientechnologies.common.concur.lock.OLockException;
+import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
@@ -178,13 +179,17 @@ public abstract class OServerCommandAuthenticatedDbAbstract extends OServerComma
           return true;
         }
       }
+    } catch (Exception e) {
+      throw OException.wrapException(new OHttpRequestException("Error on authentication"), e);
     } finally {
       // clear local cache to ensure that zomby records will not pile up in cache.
       try {
-        var db = getProfiledDatabaseInstance(iRequest);
-        if (db != null && !db.getTransaction().isActive()) {
-          db.activateOnCurrentThread();
-          db.getLocalCache().clear();
+        if (iRequest.getDatabaseName() != null) {
+          ODatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest);
+          if (db != null && !db.getTransaction().isActive()) {
+            db.activateOnCurrentThread();
+            db.getLocalCache().clear();
+          }
         }
       } catch (Exception e) {
         // ignore

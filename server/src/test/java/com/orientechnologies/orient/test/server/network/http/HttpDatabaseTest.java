@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.test.server.network.http;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 import org.apache.hc.core5.http.HttpResponse;
 import org.junit.After;
 import org.junit.Assert;
@@ -20,23 +20,23 @@ public class HttpDatabaseTest extends BaseHttpTest {
   @Test
   public void testCreateDatabaseNoType() throws Exception {
     Assert.assertEquals(
+        500,
         setUserName("root")
             .setUserPassword("root")
             .post("database/" + getDatabaseName())
             .getResponse()
-            .getCode(),
-        500);
+            .getCode());
   }
 
   @Test
   public void testCreateDatabaseWrongPassword() throws Exception {
     Assert.assertEquals(
+        401,
         setUserName("root")
             .setUserPassword("wrongPasswod")
             .post("database/wrongpasswd")
             .getResponse()
-            .getCode(),
-        401);
+            .getCode());
   }
 
   @Test
@@ -45,13 +45,13 @@ public class HttpDatabaseTest extends BaseHttpTest {
     ODocument pass = new ODocument();
     pass.setProperty("adminPassword", "admin");
     Assert.assertEquals(
+        200,
         setUserName("root")
             .setUserPassword("root")
             .post("database/" + getDatabaseName() + "/memory")
             .payload(pass.toJSON(), CONTENT.JSON)
             .getResponse()
-            .getCode(),
-        200);
+            .getCode());
 
     HttpResponse response =
         setUserName("admin")
@@ -61,10 +61,11 @@ public class HttpDatabaseTest extends BaseHttpTest {
 
     Assert.assertEquals(200, response.getCode());
 
-    final ODocument payload = new ODocument().fromJSON(getResponse().getEntity().getContent());
+    var objectMapper = new ObjectMapper();
+    var result = objectMapper.readTree(getResponse().getEntity().getContent());
 
-    Map<String, Object> server = payload.field("server");
-    Assert.assertEquals(OConstants.getRawVersion(), server.get("version"));
+    var server = result.findValue("server");
+    Assert.assertEquals(OConstants.getRawVersion(), server.get("version").asText());
   }
 
   @Test
@@ -72,15 +73,16 @@ public class HttpDatabaseTest extends BaseHttpTest {
     ODocument pass = new ODocument();
     pass.setProperty("adminPassword", "admin");
     Assert.assertEquals(
+        200,
         setUserName("root")
             .setUserPassword("root")
             .post("database/" + getDatabaseName() + "/memory")
             .payload(pass.toJSON(), CONTENT.JSON)
             .getResponse()
-            .getCode(),
-        200);
+            .getCode());
 
     Assert.assertEquals(
+        200,
         setUserName("admin")
             .setUserPassword("admin")
             .get(
@@ -90,27 +92,26 @@ public class HttpDatabaseTest extends BaseHttpTest {
                     + URLEncoder.encode("select from OUSer", StandardCharsets.UTF_8)
                     + "/10")
             .getResponse()
-            .getCode(),
-        200);
+            .getCode());
 
     Assert.assertEquals(
+        204,
         setUserName("root")
             .setUserPassword("root")
             .delete("database/" + getDatabaseName())
             .getResponse()
-            .getCode(),
-        204);
+            .getCode());
   }
 
   @Test
   public void testDropUnknownDatabase() throws Exception {
     Assert.assertEquals(
+        500,
         setUserName("root")
             .setUserPassword("root")
             .delete("database/whateverdbname")
             .getResponse()
-            .getCode(),
-        500);
+            .getCode());
   }
 
   @Override
