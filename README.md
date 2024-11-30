@@ -6,11 +6,11 @@
 
 ## What is OxygenDB?
 
-**OxygenDB** is an Open Source Multi-Model [NoSQL](http://en.wikipedia.org/wiki/NoSQL) DBMS with the support of Native Graphs, 
-Documents, Full-Text search, Reactivity, Geo-Spatial and Object Oriented concepts. 
+**OxygenDB** is an Open Source Entity Store with the support of Native Graphs, 
+Full-text search, Reactivity, Geo-Spatial, and Object Oriented concepts. 
 It's written in Java and it's amazingly fast. 
-No expensive run-time JOINs, connections are managed as persistent pointers between records. 
-You can traverse thousands of records in no time. Supports schema-less, schema-full and schema-mixed modes.
+No expensive run-time JOINs, connections are managed as persistent pointers between entities. 
+You can traverse thousands of entities in no time. Supports schema-less, schema-full and schema-mixed modes.
 Has a strong security profiling system based on user, roles and predicate security and 
 supports SQL amongst the query languages. Thanks to the SQL layer 
 it's straightforward to use for people skilled in the Relational world.
