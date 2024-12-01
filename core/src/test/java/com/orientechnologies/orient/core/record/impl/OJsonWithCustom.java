@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -55,9 +55,8 @@ public class OJsonWithCustom {
         OCreateDatabaseUtil.createDatabase(
             "testJson", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY)) {
       // oxygenDB.create("testJson", ODatabaseType.MEMORY);
-      final ODatabaseSession db =
-          oxygenDB.open("testJson", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-      try {
+      try (var db = (ODatabaseSessionInternal) oxygenDB.open("testJson", "admin",
+          OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
         OClass klass = db.getMetadata().getSchema().createClass("TestCustom");
         klass.createProperty(db, "test", OType.CUSTOM);
         ODocument doc = new ODocument("TestCustom");
@@ -67,9 +66,7 @@ public class OJsonWithCustom {
 
         ODocument doc1 = new ODocument();
         doc1.fromJSON(json);
-        assertEquals(TestCustom.valueOf(doc1.field("test")), TestCustom.ONE);
-      } finally {
-        db.close();
+        assertEquals(TestCustom.ONE, TestCustom.valueOf(doc1.field("test")));
       }
     }
     OGlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(old);

@@ -425,7 +425,7 @@ public class ORole extends OIdentity implements OSecurityRole {
   }
 
   @Override
-  public ORole save(ODatabaseSession session) {
+  public ORole save(ODatabaseSessionInternal session) {
     getDocument(session).save(ORole.class.getSimpleName());
     return this;
   }

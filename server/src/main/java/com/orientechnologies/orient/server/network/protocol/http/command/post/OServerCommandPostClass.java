@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpUtils;
@@ -37,10 +37,7 @@ public class OServerCommandPostClass extends OServerCommandAuthenticatedDbAbstra
     iRequest.getData().commandInfo = "Create class";
     iRequest.getData().commandDetail = urlParts[2];
 
-    ODatabaseSession db = null;
-
-    try {
-      db = getProfiledDatabaseInstance(iRequest);
+    try (ODatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
 
       if (db.getMetadata().getSchema().getClass(urlParts[2]) != null) {
         throw new IllegalArgumentException("Class '" + urlParts[2] + "' already exists");
@@ -55,10 +52,6 @@ public class OServerCommandPostClass extends OServerCommandAuthenticatedDbAbstra
           db.getMetadata().getSchema().getClasses().size(),
           null);
 
-    } finally {
-      if (db != null) {
-        db.close();
-      }
     }
     return false;
   }

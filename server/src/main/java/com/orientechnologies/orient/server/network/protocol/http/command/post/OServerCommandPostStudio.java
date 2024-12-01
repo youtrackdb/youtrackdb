@@ -20,7 +20,6 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
 import com.orientechnologies.common.util.OPatternConst;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -110,7 +109,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
   private void executeClassProperties(
       final OHttpRequest iRequest,
       final OHttpResponse iResponse,
-      final ODatabaseSession db,
+      final ODatabaseSessionInternal db,
       final String operation,
       final String rid,
       final String className,
@@ -199,7 +198,7 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
   private void executeClasses(
       final OHttpRequest iRequest,
       final OHttpResponse iResponse,
-      final ODatabaseSession db,
+      final ODatabaseSessionInternal db,
       final String operation,
       final String rid,
       final String className,
@@ -207,11 +206,6 @@ public class OServerCommandPostStudio extends OServerCommandAuthenticatedDbAbstr
       throws IOException {
     if ("add".equals(operation)) {
       iRequest.getData().commandInfo = "Studio add class";
-
-      // int defCluster = fields.get("defaultCluster") != null ?
-      // Integer.parseInt(fields.get("defaultCluster")) : db
-      // .getDefaultClusterId();
-
       try {
         final String superClassName = fields.get("superClass");
         final OClass superClass;

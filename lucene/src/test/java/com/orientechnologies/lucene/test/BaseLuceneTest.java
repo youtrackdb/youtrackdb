@@ -72,8 +72,8 @@ public abstract class BaseLuceneTest {
     db.set(ODatabaseSession.ATTRIBUTES.MINIMUMCLUSTERS, 8);
   }
 
-  public ODatabaseSession openDatabase() {
-    return context.open(dbName, "admin", "admin");
+  public ODatabaseSessionInternal openDatabase() {
+    return (ODatabaseSessionInternal) context.open(dbName, "admin", "admin");
   }
 
   public void createDatabase() {

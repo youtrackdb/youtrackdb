@@ -39,9 +39,9 @@ public class InvalidRemovedFileIdsIT {
     OxygenDB oxygenDB = new OxygenDB("plocal:" + buildDirectory, config);
     oxygenDB.execute(
         "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
-    var db = oxygenDB.open(dbName, "admin", "admin");
+    var db = (ODatabaseSessionInternal) oxygenDB.open(dbName, "admin", "admin");
 
-    OStorage storage = ((ODatabaseSessionInternal) db).getStorage();
+    OStorage storage = db.getStorage();
     OWriteCache writeCache = ((OAbstractPaginatedStorage) storage).getWriteCache();
     Map<String, Long> files = writeCache.files();
 
@@ -78,7 +78,7 @@ public class InvalidRemovedFileIdsIT {
     fileMap.close();
 
     oxygenDB = new OxygenDB("plocal:" + buildDirectory, config);
-    db = oxygenDB.open(dbName, "admin", "admin");
+    db = (ODatabaseSessionInternal) oxygenDB.open(dbName, "admin", "admin");
 
     final OSchema schema = db.getMetadata().getSchema();
     schema.createClass("c1");
@@ -86,7 +86,7 @@ public class InvalidRemovedFileIdsIT {
     schema.createClass("c3");
     schema.createClass("c4");
 
-    storage = ((ODatabaseSessionInternal) db).getStorage();
+    storage = db.getStorage();
     writeCache = ((OAbstractPaginatedStorage) storage).getWriteCache();
 
     files = writeCache.files();

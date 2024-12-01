@@ -795,6 +795,17 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
     return currentTx;
   }
 
+  /**
+   * Returns the schema of the database.
+   *
+   * @return the schema of the database
+   */
+  @Override
+  public OSchema getSchema() {
+    return getMetadata().getSchema();
+  }
+
+
   @SuppressWarnings("unchecked")
   @Override
   public <RET extends ORecord> RET load(final ORecord record, final String iFetchPlan) {

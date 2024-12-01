@@ -19,7 +19,6 @@
  */
 package com.orientechnologies.orient.core.security.authenticator;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
@@ -115,14 +114,14 @@ public abstract class OSecurityAuthenticatorAbstract implements OSecurityAuthent
     return null;
   }
 
-  public boolean isAuthorized(ODatabaseSession session, final String username,
+  public boolean isAuthorized(ODatabaseSessionInternal session, final String username,
       final String resource) {
     return false;
   }
 
   @Override
   public OSecurityUser authenticate(
-      ODatabaseSession session, OAuthenticationInfo authenticationInfo) {
+      ODatabaseSessionInternal session, OAuthenticationInfo authenticationInfo) {
     // Return null means no valid authentication
     return null;
   }
@@ -131,7 +130,7 @@ public abstract class OSecurityAuthenticatorAbstract implements OSecurityAuthent
     return false;
   }
 
-  protected boolean isPasswordValid(ODatabaseSession session, final OSecurityUser user) {
+  protected boolean isPasswordValid(ODatabaseSessionInternal session, final OSecurityUser user) {
     return user != null && user.getPassword(session) != null && !user.getPassword(session)
         .isEmpty();
   }

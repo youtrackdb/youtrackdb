@@ -28,7 +28,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 
 /**
- * Abstract index definiton implementation.
+ * Abstract index definition implementation.
  */
 public abstract class OAbstractIndexDefinition implements OIndexDefinition {
 

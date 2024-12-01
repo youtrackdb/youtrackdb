@@ -115,12 +115,12 @@ public class ODatabaseSuperNodeTest {
       final OxygenDB oxygenDB,
       final ByteArrayOutputStream output,
       List<Long> stats) {
-    try (final ODatabaseSession db =
-        oxygenDB.open(
+    try (var db =
+        (ODatabaseSessionInternal) oxygenDB.open(
             databaseName + "_reImport", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
       final ODatabaseImport importer =
           new ODatabaseImport(
-              (ODatabaseSessionInternal) db,
+              db,
               new ByteArrayInputStream(output.toByteArray()),
               new OCommandOutputListener() {
                 @Override

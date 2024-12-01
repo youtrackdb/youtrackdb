@@ -5,7 +5,6 @@ import com.orientechnologies.common.exception.OSystemException;
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.OImmutableRecordId;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -178,7 +177,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
     return valid;
   }
 
-  public byte[] getSignedWebToken(final ODatabaseSession db, final OSecurityUser user) {
+  public byte[] getSignedWebToken(final ODatabaseSessionInternal db, final OSecurityUser user) {
     final ByteArrayOutputStream tokenByteOS = new ByteArrayOutputStream(1024);
     final OrientJwtHeader header = new OrientJwtHeader();
     header.setAlgorithm("HS256");
@@ -467,7 +466,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
     return payload;
   }
 
-  protected OJwtPayload createPayload(final ODatabaseSession db, final OSecurityUser user) {
+  protected OJwtPayload createPayload(final ODatabaseSessionInternal db, final OSecurityUser user) {
     if (user == null) {
       throw new IllegalArgumentException("User is null");
     }

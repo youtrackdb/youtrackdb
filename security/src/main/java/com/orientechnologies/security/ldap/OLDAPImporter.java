@@ -67,18 +67,11 @@ public class OLDAPImporter implements OSecurityComponent {
     // Go through each database entry and check the _OLDAPUsers schema.
     for (Map.Entry<String, Database> dbEntry : databaseMap.entrySet()) {
       Database db = dbEntry.getValue();
-      ODatabaseSession odb = null;
 
-      try {
-        odb = context.openNoAuthenticate(db.getName(), "internal");
-
+      try (ODatabaseSessionInternal odb = context.openNoAuthenticate(db.getName(), "internal")) {
         verifySchema(odb);
       } catch (Exception ex) {
         OLogManager.instance().error(this, "OLDAPImporter.active() Database: %s", ex, db.getName());
-      } finally {
-        if (odb != null) {
-          odb.close();
-        }
       }
     }
 
@@ -289,7 +282,7 @@ public class OLDAPImporter implements OSecurityComponent {
     return enabled;
   }
 
-  private void verifySchema(ODatabaseSession odb) {
+  private void verifySchema(ODatabaseSessionInternal odb) {
     try {
       System.out.println("calling existsClass odb = " + odb);
 

@@ -16,7 +16,7 @@ package com.orientechnologies.orient.jdbc;
 import static com.orientechnologies.orient.jdbc.OrientDbCreationHelper.createSchemaDB;
 import static com.orientechnologies.orient.jdbc.OrientDbCreationHelper.loadDB;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import java.util.Properties;
 import javax.sql.DataSource;
@@ -30,7 +30,7 @@ import org.junit.rules.TestName;
 public abstract class OrientJdbcDbPerClassTemplateTest {
 
   protected static OrientJdbcConnection conn;
-  protected static ODatabaseSession db;
+  protected static ODatabaseSessionInternal db;
   protected static OxygenDB oxygenDB;
   protected static DataSource ds;
 
@@ -55,7 +55,7 @@ public abstract class OrientJdbcDbPerClassTemplateTest {
     conn = (OrientJdbcConnection) ds.getConnection();
     oxygenDB = conn.getOrientDB();
 
-    db = ((OrientJdbcConnection) ds.getConnection()).getDatabase();
+    db = (ODatabaseSessionInternal) ((OrientJdbcConnection) ds.getConnection()).getDatabase();
 
     createSchemaDB(db);
 

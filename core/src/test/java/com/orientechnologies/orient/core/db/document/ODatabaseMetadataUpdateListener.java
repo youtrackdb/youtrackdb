@@ -24,14 +24,15 @@ import org.junit.Test;
 public class ODatabaseMetadataUpdateListener {
 
   private OxygenDB oxygenDB;
-  private ODatabaseSession session;
+  private ODatabaseSessionInternal session;
   private int count;
 
   @Before
   public void before() {
     oxygenDB =
         OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    session = oxygenDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    session = (ODatabaseSessionInternal) oxygenDB.open("test", "admin",
+        OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     count = 0;
     OMetadataUpdateListener listener =
         new OMetadataUpdateListener() {
@@ -67,7 +68,7 @@ public class ODatabaseMetadataUpdateListener {
           }
         };
 
-    ((ODatabaseSessionInternal) session).getSharedContext().registerListener(listener);
+    session.getSharedContext().registerListener(listener);
   }
 
   @Test

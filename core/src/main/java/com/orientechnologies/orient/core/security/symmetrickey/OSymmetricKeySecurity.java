@@ -33,6 +33,7 @@ import com.orientechnologies.orient.core.metadata.security.OSecurityPolicy;
 import com.orientechnologies.orient.core.metadata.security.OSecurityPolicyImpl;
 import com.orientechnologies.orient.core.metadata.security.OSecurityResourceProperty;
 import com.orientechnologies.orient.core.metadata.security.OSecurityRole;
+import com.orientechnologies.orient.core.metadata.security.OSecurityRole.ALLOW_MODES;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OToken;
 import com.orientechnologies.orient.core.metadata.security.OUser;
@@ -61,12 +62,12 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
 
   @Override
   public OSecurityUser securityAuthenticate(
-      ODatabaseSession session, String userName, String password) {
+      ODatabaseSessionInternal session, String userName, String password) {
     return authenticate(session, userName, password);
   }
 
   public OUser authenticate(
-      ODatabaseSession session, final String username, final String password) {
+      ODatabaseSessionInternal session, final String username, final String password) {
     if (delegate == null) {
       throw new OSecurityAccessException(
           "OSymmetricKeySecurity.authenticate() Delegate is null for username: " + username);
@@ -126,7 +127,7 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
 
   @Override
   public boolean isAllowed(
-      ODatabaseSession session,
+      ODatabaseSessionInternal session,
       final Set<OIdentifiable> iAllowAll,
       final Set<OIdentifiable> iAllowOperation) {
     return delegate.isAllowed(session, iAllowAll, iAllowOperation);
@@ -152,7 +153,7 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
 
   @Override
   public OIdentifiable denyUser(
-      ODatabaseSession session,
+      ODatabaseSessionInternal session,
       ODocument iDocument,
       ORestrictedOperation iOperationType,
       String iUserName) {
@@ -161,7 +162,7 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
 
   @Override
   public OIdentifiable denyRole(
-      ODatabaseSession session,
+      ODatabaseSessionInternal session,
       ODocument iDocument,
       ORestrictedOperation iOperationType,
       String iRoleName) {
@@ -176,19 +177,20 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
 
   @Override
   public OIdentifiable disallowIdentity(
-      ODatabaseSession session, ODocument iDocument, String iAllowFieldName, OIdentifiable iId) {
+      ODatabaseSessionInternal session, ODocument iDocument, String iAllowFieldName,
+      OIdentifiable iId) {
     return delegate.disallowIdentity(session, iDocument, iAllowFieldName, iId);
   }
 
-  public OUser create(ODatabaseSession session) {
+  public OUser create(ODatabaseSessionInternal session) {
     return delegate.create(session);
   }
 
-  public void load(ODatabaseSession session) {
+  public void load(ODatabaseSessionInternal session) {
     delegate.load(session);
   }
 
-  public OUser authenticate(ODatabaseSession session, final OToken authToken) {
+  public OUser authenticate(ODatabaseSessionInternal session, final OToken authToken) {
     return null;
   }
 
@@ -201,7 +203,7 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
   }
 
   public OUser createUser(
-      ODatabaseSession session,
+      ODatabaseSessionInternal session,
       final String iUserName,
       final String iUserPassword,
       final String... iRoles) {
@@ -209,7 +211,7 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
   }
 
   public OUser createUser(
-      ODatabaseSession session,
+      ODatabaseSessionInternal session,
       final String iUserName,
       final String iUserPassword,
       final ORole... iRoles) {
@@ -225,17 +227,17 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
   }
 
   public ORole createRole(
-      ODatabaseSession session,
+      ODatabaseSessionInternal session,
       final String iRoleName,
-      final OSecurityRole.ALLOW_MODES iAllowMode) {
+      final ALLOW_MODES iAllowMode) {
     return delegate.createRole(session, iRoleName, iAllowMode);
   }
 
   public ORole createRole(
-      ODatabaseSession session,
+      ODatabaseSessionInternal session,
       final String iRoleName,
       final ORole iParent,
-      final OSecurityRole.ALLOW_MODES iAllowMode) {
+      final ALLOW_MODES iAllowMode) {
     return delegate.createRole(session, iRoleName, iParent, iAllowMode);
   }
 
@@ -261,7 +263,8 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
 
   @Override
   public void setSecurityPolicy(
-      ODatabaseSession session, OSecurityRole role, String resource, OSecurityPolicyImpl policy) {
+      ODatabaseSessionInternal session, OSecurityRole role, String resource,
+      OSecurityPolicyImpl policy) {
     delegate.setSecurityPolicy(session, role, resource, policy);
   }
 
@@ -302,7 +305,7 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
     return delegate.dropRole(session, iRoleName);
   }
 
-  public void createClassTrigger(ODatabaseSession session) {
+  public void createClassTrigger(ODatabaseSessionInternal session) {
     delegate.createClassTrigger(session);
   }
 
@@ -317,37 +320,38 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
   }
 
   @Override
-  public Set<String> getFilteredProperties(ODatabaseSession session, ODocument document) {
+  public Set<String> getFilteredProperties(ODatabaseSessionInternal session, ODocument document) {
     return delegate.getFilteredProperties(session, document);
   }
 
   @Override
-  public boolean isAllowedWrite(ODatabaseSession session, ODocument document, String propertyName) {
+  public boolean isAllowedWrite(ODatabaseSessionInternal session, ODocument document,
+      String propertyName) {
     return delegate.isAllowedWrite(session, document, propertyName);
   }
 
   @Override
-  public boolean canCreate(ODatabaseSession session, ORecord record) {
+  public boolean canCreate(ODatabaseSessionInternal session, ORecord record) {
     return delegate.canCreate(session, record);
   }
 
   @Override
-  public boolean canRead(ODatabaseSession session, ORecord record) {
+  public boolean canRead(ODatabaseSessionInternal session, ORecord record) {
     return delegate.canRead(session, record);
   }
 
   @Override
-  public boolean canUpdate(ODatabaseSession session, ORecord record) {
+  public boolean canUpdate(ODatabaseSessionInternal session, ORecord record) {
     return delegate.canUpdate(session, record);
   }
 
   @Override
-  public boolean canDelete(ODatabaseSession session, ORecord record) {
+  public boolean canDelete(ODatabaseSessionInternal session, ORecord record) {
     return delegate.canDelete(session, record);
   }
 
   @Override
-  public boolean canExecute(ODatabaseSession session, OFunction function) {
+  public boolean canExecute(ODatabaseSessionInternal session, OFunction function) {
     return delegate.canExecute(session, function);
   }
 
@@ -364,7 +368,7 @@ public class OSymmetricKeySecurity implements OSecurityInternal {
 
   @Override
   public OSecurityUser securityAuthenticate(
-      ODatabaseSession session, OAuthenticationInfo authenticationInfo) {
+      ODatabaseSessionInternal session, OAuthenticationInfo authenticationInfo) {
     return delegate.securityAuthenticate(session, authenticationInfo);
   }
 

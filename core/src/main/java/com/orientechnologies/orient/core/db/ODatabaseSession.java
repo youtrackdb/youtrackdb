@@ -30,7 +30,6 @@ import com.orientechnologies.orient.core.exception.OSchemaException;
 import com.orientechnologies.orient.core.exception.OTransactionException;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.metadata.OMetadata;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -186,9 +185,9 @@ public interface ODatabaseSession extends AutoCloseable {
    * You can verify if record already bound to the session by calling
    * {@link ORecord#isNotBound(ODatabaseSession)} method.
    * <p/>
-   *
-   * Records with temporary RIDs are not allowed to be bound to the session and can not be accepted from
-   * the outside of the transaction boundaries.
+   * <p>
+   * Records with temporary RIDs are not allowed to be bound to the session and can not be accepted
+   * from the outside of the transaction boundaries.
    *
    * @param identifiable Record or rid to bind to the session, passed in instance is
    *                     <b>prohibited</b> for further usage.
@@ -196,7 +195,6 @@ public interface ODatabaseSession extends AutoCloseable {
    * @return Bounded instance of given record.
    * @throws ORecordNotFoundException if record does not exist in database
    * @throws ODatabaseException       if the record rid is temporary
-   *
    * @see ORecord#isNotBound(ODatabaseSession)
    * @see OIdentifiable#getIdentity()
    * @see ORID#isPersistent()
@@ -208,9 +206,7 @@ public interface ODatabaseSession extends AutoCloseable {
    *
    * @return the schema of the database
    */
-  default OSchema getSchema() {
-    return getMetadata().getSchema();
-  }
+  OSchema getSchema();
 
   /**
    * Returns the number of active nested transactions.
@@ -435,7 +431,7 @@ public interface ODatabaseSession extends AutoCloseable {
    */
   default OClass createClassIfNotExist(String className, String... superclasses)
       throws OSchemaException {
-    OSchema schema = getMetadata().getSchema();
+    OSchema schema = getSchema();
     schema.reload();
 
     OClass result = schema.getClass(className);
@@ -603,7 +599,7 @@ public interface ODatabaseSession extends AutoCloseable {
    * @return The object representing the class in the schema. Null if the class does not exist.
    */
   default OClass getClass(String className) {
-    OSchema schema = getMetadata().getSchema();
+    OSchema schema = getSchema();
     return schema.getClass(className);
   }
 
@@ -617,7 +613,7 @@ public interface ODatabaseSession extends AutoCloseable {
    *                          does not exist.
    */
   default OClass createClass(String className, String... superclasses) throws OSchemaException {
-    OSchema schema = getMetadata().getSchema();
+    OSchema schema = getSchema();
     schema.reload();
     OClass[] superclassInstances = null;
     if (superclasses != null) {
@@ -653,7 +649,7 @@ public interface ODatabaseSession extends AutoCloseable {
    */
   default OClass createAbstractClass(String className, String... superclasses)
       throws OSchemaException {
-    OSchema schema = getMetadata().getSchema();
+    OSchema schema = getSchema();
     schema.reload();
     OClass[] superclassInstances = null;
     if (superclasses != null) {
@@ -954,6 +950,4 @@ public interface ODatabaseSession extends AutoCloseable {
    * @param args     the live query args
    */
   OLiveQueryMonitor live(String query, OLiveQueryResultListener listener, Object... args);
-
-  OMetadata getMetadata();
 }

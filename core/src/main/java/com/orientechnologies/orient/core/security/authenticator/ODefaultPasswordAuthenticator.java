@@ -20,7 +20,6 @@
 package com.orientechnologies.orient.core.security.authenticator;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.security.OImmutableUser;
 import com.orientechnologies.orient.core.metadata.security.ORole;
@@ -108,16 +107,14 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
   // OSecurityAuthenticator
   // Returns the actual username if successful, null otherwise.
   public OSecurityUser authenticate(
-      ODatabaseSession session, final String username, final String password) {
+      ODatabaseSessionInternal session, final String username, final String password) {
 
     try {
-      OSecurityUser user = getUser(username, (ODatabaseSessionInternal) session);
+      OSecurityUser user = getUser(username, session);
 
       if (isPasswordValid(session, user)) {
         if (OSecurityManager.checkPassword(password, user.getPassword(session))) {
-          if (user != null) {
-            return user;
-          }
+          return user;
         }
       }
     } catch (Exception ex) {
@@ -128,13 +125,13 @@ public class ODefaultPasswordAuthenticator extends OSecurityAuthenticatorAbstrac
 
   // OSecurityAuthenticator
   // If not supported by the authenticator, return false.
-  public boolean isAuthorized(ODatabaseSession session, final String username,
+  public boolean isAuthorized(ODatabaseSessionInternal session, final String username,
       final String resource) {
     if (username == null || resource == null) {
       return false;
     }
 
-    OSecurityUser userCfg = getUser(username, (ODatabaseSessionInternal) session);
+    OSecurityUser userCfg = getUser(username, session);
 
     if (userCfg != null) {
       // TODO: to verify if this logic match previous logic

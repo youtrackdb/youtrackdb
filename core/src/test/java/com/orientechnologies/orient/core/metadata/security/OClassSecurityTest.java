@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.record.OElement;
@@ -18,7 +18,7 @@ public class OClassSecurityTest {
 
   private static final String DB_NAME = OClassSecurityTest.class.getSimpleName();
   private static OxygenDB orient;
-  private ODatabaseSession db;
+  private ODatabaseSessionInternal db;
 
   @BeforeClass
   public static void beforeClass() {
@@ -49,7 +49,8 @@ public class OClassSecurityTest {
             + "' role reader, writer identified by '"
             + OCreateDatabaseUtil.NEW_ADMIN_PASSWORD
             + "' role writer)");
-    this.db = orient.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    this.db = (ODatabaseSessionInternal) orient.open(DB_NAME, "admin",
+        OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
 
   @After
@@ -78,7 +79,8 @@ public class OClassSecurityTest {
 
     db.close();
 
-    db = orient.open(DB_NAME, "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
+    db = (ODatabaseSessionInternal) orient.open(DB_NAME, "reader",
+        OCreateDatabaseUtil.NEW_ADMIN_PASSWORD); // "reader"
     try (final OResultSet resultSet = db.query("SELECT from Person")) {
       Assert.assertFalse(resultSet.hasNext());
     }

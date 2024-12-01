@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.metadata.security;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.Set;
 
@@ -8,7 +8,8 @@ public class OPropertyAccess {
 
   private final Set<String> filtered;
 
-  public OPropertyAccess(ODatabaseSession session, ODocument document, OSecurityInternal security) {
+  public OPropertyAccess(ODatabaseSessionInternal session, ODocument document,
+      OSecurityInternal security) {
     filtered = security.getFilteredProperties(session, document);
   }
 

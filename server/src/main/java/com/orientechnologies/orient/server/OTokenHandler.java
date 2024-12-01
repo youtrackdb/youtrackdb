@@ -1,6 +1,5 @@
 package com.orientechnologies.orient.server;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OToken;
@@ -42,7 +41,7 @@ public interface OTokenHandler {
   ONetworkProtocolData getProtocolDataFromToken(OClientConnection oClientConnection, OToken token);
 
   // Return a byte array representing a signed token
-  byte[] getSignedWebToken(ODatabaseSession db, OSecurityUser user);
+  byte[] getSignedWebToken(ODatabaseSessionInternal db, OSecurityUser user);
 
   default byte[] getSignedWebTokenServerUser(OSecurityUser user) {
     throw new UnsupportedOperationException();

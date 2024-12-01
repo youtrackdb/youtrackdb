@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.db.record;
 import static org.junit.Assert.assertNotNull;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
@@ -22,7 +22,7 @@ import org.junit.Test;
 public class ORecordLazyListTest {
 
   private OxygenDB oxygenDb;
-  private ODatabaseSession dbSession;
+  private ODatabaseSessionInternal dbSession;
 
   @Before
   public void init() throws Exception {
@@ -30,7 +30,7 @@ public class ORecordLazyListTest {
         OCreateDatabaseUtil.createDatabase(
             ORecordLazyListTest.class.getSimpleName(), "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
     dbSession =
-        oxygenDb.open(
+        (ODatabaseSessionInternal) oxygenDb.open(
             ORecordLazyListTest.class.getSimpleName(),
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);

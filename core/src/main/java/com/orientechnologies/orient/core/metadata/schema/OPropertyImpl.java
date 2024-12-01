@@ -492,10 +492,11 @@ public abstract class OPropertyImpl implements OProperty {
     }
 
     final String stringValue = iValue != null ? iValue.toString() : null;
+    var sessionInternal = (ODatabaseSessionInternal) session;
 
     switch (attribute) {
       case LINKEDCLASS:
-        setLinkedClass(session, session.getMetadata().getSchema().getClass(stringValue));
+        setLinkedClass(session, sessionInternal.getMetadata().getSchema().getClass(stringValue));
         break;
       case LINKEDTYPE:
         if (stringValue == null) {

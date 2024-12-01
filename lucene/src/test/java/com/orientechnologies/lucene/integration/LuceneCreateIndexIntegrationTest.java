@@ -1,6 +1,7 @@
 package com.orientechnologies.lucene.integration;
 
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -45,8 +46,9 @@ public class LuceneCreateIndexIntegrationTest {
 
   @Test
   public void testCreateIndexJavaAPI() {
-    final ODatabaseSession session =
-        remote.open("LuceneCreateIndexIntegrationTest", "admin", "admin");
+    final ODatabaseSessionInternal session =
+        (ODatabaseSessionInternal) remote.open("LuceneCreateIndexIntegrationTest", "admin",
+            "admin");
     OClass person = session.getMetadata().getSchema().getClass("Person");
 
     if (person == null) {

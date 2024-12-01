@@ -4,7 +4,6 @@ import static com.orientechnologies.orient.core.db.tool.ODatabaseImport.EXPORT_I
 import static com.orientechnologies.orient.core.db.tool.ODatabaseImport.EXPORT_IMPORT_INDEX_NAME;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -31,8 +30,9 @@ public class TestImportRewriteLinks {
     try (final OxygenDB oxygenDb =
         OCreateDatabaseUtil.createDatabase(
             "testDB", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY)) {
-      try (final ODatabaseSession session =
-          oxygenDb.open("testDB", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
+      try (var session =
+          (ODatabaseSessionInternal) oxygenDb.open("testDB", "admin",
+              OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
         final OSchema schema = session.getMetadata().getSchema();
 
         final OClass cls = schema.createClass(EXPORT_IMPORT_CLASS_NAME);
@@ -101,7 +101,7 @@ public class TestImportRewriteLinks {
         emb1.field("linkSet", linkSet);
         emb1.field("linkMap", linkMap);
 
-        ODatabaseImport.doRewriteLinksInDocument((ODatabaseSessionInternal) session, doc,
+        ODatabaseImport.doRewriteLinksInDocument(session, doc,
             brokenRids);
 
         Assert.assertEquals(new ORecordId(10, 3), emb1.getLinkProperty("link"));

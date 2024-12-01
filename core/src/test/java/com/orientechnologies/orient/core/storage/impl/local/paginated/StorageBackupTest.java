@@ -38,7 +38,7 @@ public class StorageBackupTest {
     oxygenDB.execute(
         "create database `" + dbName + "` plocal users(admin identified by 'admin' role admin)");
 
-    var db = oxygenDB.open(dbName, "admin", "admin");
+    var db = (ODatabaseSessionInternal) oxygenDB.open(dbName, "admin", "admin");
 
     final OSchema schema = db.getMetadata().getSchema();
     final OClass backupClass = schema.createClass("BackupClass");
@@ -124,7 +124,7 @@ public class StorageBackupTest {
     oxygenDB.execute(
         "create database `" + dbName + "` plocal users(admin identified by 'admin' role admin)");
 
-    var db = oxygenDB.open(dbName, "admin", "admin");
+    var db = (ODatabaseSessionInternal) oxygenDB.open(dbName, "admin", "admin");
 
     final OSchema schema = db.getMetadata().getSchema();
     final OClass backupClass = schema.createClass("BackupClass");
@@ -237,7 +237,7 @@ public class StorageBackupTest {
     oxygenDB.execute(
         "create database `" + dbName + "` plocal users(admin identified by 'admin' role admin)");
 
-    var db = oxygenDB.open(dbName, "admin", "admin");
+    var db = (ODatabaseSessionInternal) oxygenDB.open(dbName, "admin", "admin");
 
     final OSchema schema = db.getMetadata().getSchema();
     final OClass backupClass = schema.createClass("BackupClass");

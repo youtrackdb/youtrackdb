@@ -1,7 +1,6 @@
 package com.orientechnologies.orient.core.db.tool;
 
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
@@ -24,7 +23,8 @@ import java.util.Set;
  */
 public class OBonsaiTreeRepair {
 
-  public void repairDatabaseRidbags(ODatabaseSession db, OCommandOutputListener outputListener) {
+  public void repairDatabaseRidbags(ODatabaseSessionInternal db,
+      OCommandOutputListener outputListener) {
     message(outputListener, "Repair of ridbags is started ...\n");
 
     final OMetadata metadata = db.getMetadata();
@@ -32,12 +32,12 @@ public class OBonsaiTreeRepair {
     final OClass edgeClass = schema.getClass("E");
     if (edgeClass != null) {
       final HashMap<String, Set<ORID>> processedVertexes = new HashMap<String, Set<ORID>>();
-      final long countEdges = ((ODatabaseSessionInternal) db).countClass(edgeClass.getName());
+      final long countEdges = db.countClass(edgeClass.getName());
 
       message(outputListener, countEdges + " will be processed.");
       long counter = 0;
 
-      for (ODocument edge : ((ODatabaseSessionInternal) db).browseClass(edgeClass.getName())) {
+      for (ODocument edge : db.browseClass(edgeClass.getName())) {
         try {
           final String label;
           if (edge.field("label") != null) {
@@ -76,7 +76,7 @@ public class OBonsaiTreeRepair {
 
           if (inVertex.field(inVertexName) instanceof ORidBag) {
             if (inVertexes.add(inVertex.getIdentity())) {
-              inVertex.field(inVertexName, new ORidBag((ODatabaseSessionInternal) db));
+              inVertex.field(inVertexName, new ORidBag(db));
             }
 
             final ORidBag inRidBag = inVertex.field(inVertexName);
@@ -87,7 +87,7 @@ public class OBonsaiTreeRepair {
 
           if (outVertex.field(outVertexName) instanceof ORidBag) {
             if (outVertexes.add(outVertex.getIdentity())) {
-              outVertex.field(outVertexName, new ORidBag((ODatabaseSessionInternal) db));
+              outVertex.field(outVertexName, new ORidBag(db));
             }
 
             final ORidBag outRidBag = outVertex.field(outVertexName);

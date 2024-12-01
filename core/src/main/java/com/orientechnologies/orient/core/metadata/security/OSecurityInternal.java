@@ -5,6 +5,7 @@ import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
+import com.orientechnologies.orient.core.metadata.security.OSecurityRole.ALLOW_MODES;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -15,7 +16,8 @@ import java.util.Set;
 public interface OSecurityInternal {
 
   boolean isAllowed(
-      ODatabaseSession session, Set<OIdentifiable> iAllowAll, Set<OIdentifiable> iAllowOperation);
+      ODatabaseSessionInternal session, Set<OIdentifiable> iAllowAll,
+      Set<OIdentifiable> iAllowOperation);
 
   @Deprecated
   OIdentifiable allowUser(
@@ -33,14 +35,14 @@ public interface OSecurityInternal {
 
   @Deprecated
   OIdentifiable denyUser(
-      ODatabaseSession session,
+      ODatabaseSessionInternal session,
       ODocument iDocument,
       ORestrictedOperation iOperationType,
       String iUserName);
 
   @Deprecated
   OIdentifiable denyRole(
-      ODatabaseSession session,
+      ODatabaseSessionInternal session,
       ODocument iDocument,
       ORestrictedOperation iOperationType,
       String iRoleName);
@@ -51,26 +53,27 @@ public interface OSecurityInternal {
 
   @Deprecated
   OIdentifiable disallowIdentity(
-      ODatabaseSession session, ODocument iDocument, String iAllowFieldName, OIdentifiable iId);
+      ODatabaseSessionInternal session, ODocument iDocument, String iAllowFieldName,
+      OIdentifiable iId);
 
-  OUser authenticate(ODatabaseSession session, String iUsername, String iUserPassword);
-
-  OUser createUser(
-      ODatabaseSession session, String iUserName, String iUserPassword, String[] iRoles);
+  OUser authenticate(ODatabaseSessionInternal session, String iUsername, String iUserPassword);
 
   OUser createUser(
-      ODatabaseSession session, String iUserName, String iUserPassword, ORole[] iRoles);
+      ODatabaseSessionInternal session, String iUserName, String iUserPassword, String[] iRoles);
 
-  OUser authenticate(ODatabaseSession session, OToken authToken);
+  OUser createUser(
+      ODatabaseSessionInternal session, String iUserName, String iUserPassword, ORole[] iRoles);
+
+  OUser authenticate(ODatabaseSessionInternal session, OToken authToken);
 
   ORole createRole(
-      ODatabaseSession session,
+      ODatabaseSessionInternal session,
       String iRoleName,
       ORole iParent,
-      OSecurityRole.ALLOW_MODES iAllowMode);
+      ALLOW_MODES iAllowMode);
 
   ORole createRole(
-      ODatabaseSession session, String iRoleName, OSecurityRole.ALLOW_MODES iAllowMode);
+      ODatabaseSessionInternal session, String iRoleName, ALLOW_MODES iAllowMode);
 
   OUser getUser(ODatabaseSession session, String iUserName);
 
@@ -108,7 +111,8 @@ public interface OSecurityInternal {
    * @param policy   The security policy
    */
   void setSecurityPolicy(
-      ODatabaseSession session, OSecurityRole role, String resource, OSecurityPolicyImpl policy);
+      ODatabaseSessionInternal session, OSecurityRole role, String resource,
+      OSecurityPolicyImpl policy);
 
   /**
    * creates and saves an empty security policy
@@ -139,15 +143,15 @@ public interface OSecurityInternal {
 
   boolean dropRole(ODatabaseSession session, String iRoleName);
 
-  void createClassTrigger(ODatabaseSession session);
+  void createClassTrigger(ODatabaseSessionInternal session);
 
   long getVersion(ODatabaseSession session);
 
   void incrementVersion(ODatabaseSession session);
 
-  OUser create(ODatabaseSession session);
+  OUser create(ODatabaseSessionInternal session);
 
-  void load(ODatabaseSession session);
+  void load(ODatabaseSessionInternal session);
 
   void close();
 
@@ -160,7 +164,7 @@ public interface OSecurityInternal {
    * @return the list of the properties that are hidden (ie. not allowed to be read) on current
    * document for current session
    */
-  Set<String> getFilteredProperties(ODatabaseSession session, ODocument document);
+  Set<String> getFilteredProperties(ODatabaseSessionInternal session, ODocument document);
 
   /**
    * For property-level security
@@ -170,17 +174,17 @@ public interface OSecurityInternal {
    * @param propertyName the property to check for write access
    * @return
    */
-  boolean isAllowedWrite(ODatabaseSession session, ODocument document, String propertyName);
+  boolean isAllowedWrite(ODatabaseSessionInternal session, ODocument document, String propertyName);
 
-  boolean canCreate(ODatabaseSession session, ORecord record);
+  boolean canCreate(ODatabaseSessionInternal session, ORecord record);
 
-  boolean canRead(ODatabaseSession session, ORecord record);
+  boolean canRead(ODatabaseSessionInternal session, ORecord record);
 
-  boolean canUpdate(ODatabaseSession session, ORecord record);
+  boolean canUpdate(ODatabaseSessionInternal session, ORecord record);
 
-  boolean canDelete(ODatabaseSession session, ORecord record);
+  boolean canDelete(ODatabaseSessionInternal session, ORecord record);
 
-  boolean canExecute(ODatabaseSession session, OFunction function);
+  boolean canExecute(ODatabaseSessionInternal session, OFunction function);
 
   /**
    * checks if for current session a resource is restricted by security resources (ie. READ policies
@@ -201,8 +205,9 @@ public interface OSecurityInternal {
    */
   Set<OSecurityResourceProperty> getAllFilteredProperties(ODatabaseSessionInternal database);
 
-  OSecurityUser securityAuthenticate(ODatabaseSession session, String userName, String password);
+  OSecurityUser securityAuthenticate(ODatabaseSessionInternal session, String userName,
+      String password);
 
   OSecurityUser securityAuthenticate(
-      ODatabaseSession session, OAuthenticationInfo authenticationInfo);
+      ODatabaseSessionInternal session, OAuthenticationInfo authenticationInfo);
 }

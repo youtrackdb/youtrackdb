@@ -34,6 +34,7 @@ import com.orientechnologies.orient.core.iterator.ORecordIteratorClass;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
+import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OView;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
@@ -1626,6 +1627,11 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   @Override
   public <T extends OIdentifiable> T bindToSession(T identifiable) {
     return internal.bindToSession(identifiable);
+  }
+
+  @Override
+  public OSchema getSchema() {
+    return internal.getSchema();
   }
 
   @Override

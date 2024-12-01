@@ -1058,7 +1058,6 @@ public interface ODatabaseSessionInternal extends ODatabaseSession {
    */
   <RET extends ORecord> RET save(ORecord iObject, String iClusterName);
 
-  @Override
   OMetadataInternal getMetadata();
 
   void afterCommitOperations();

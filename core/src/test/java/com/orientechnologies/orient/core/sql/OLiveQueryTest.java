@@ -56,7 +56,7 @@ import org.junit.Test;
 public class OLiveQueryTest {
 
   private OxygenDB odb;
-  private ODatabaseSession db;
+  private ODatabaseSessionInternal db;
 
   @Before
   public void before() {
@@ -64,7 +64,7 @@ public class OLiveQueryTest {
     odb.execute(
         "create database OLiveQueryTest memory users ( admin identified by 'admin' role admin,"
             + " reader identified by 'reader' role reader)");
-    db = odb.open("OLiveQueryTest", "admin", "admin");
+    db = (ODatabaseSessionInternal) odb.open("OLiveQueryTest", "admin", "admin");
   }
 
   @After
@@ -161,7 +161,7 @@ public class OLiveQueryTest {
     OClass clazz = db.getMetadata().getSchema().createClass("test");
 
     int defaultCluster = clazz.getDefaultClusterId();
-    final OStorage storage = ((ODatabaseSessionInternal) db).getStorage();
+    final OStorage storage = db.getStorage();
 
     MyLiveQueryListener listener = new MyLiveQueryListener(new CountDownLatch(1));
 

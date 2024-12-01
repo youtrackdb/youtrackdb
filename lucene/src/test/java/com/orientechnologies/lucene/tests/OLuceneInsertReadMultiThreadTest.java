@@ -133,7 +133,7 @@ public class OLuceneInsertReadMultiThreadTest extends OLuceneBaseTest {
     @Override
     public void run() {
 
-      final ODatabaseSession db = pool.acquire();
+      final ODatabaseSessionInternal db = (ODatabaseSessionInternal) pool.acquire();
       db.activateOnCurrentThread();
       OSchema schema = db.getMetadata().getSchema();
       OIndex idx = schema.getClass("City").getClassIndex(db, "City.name");

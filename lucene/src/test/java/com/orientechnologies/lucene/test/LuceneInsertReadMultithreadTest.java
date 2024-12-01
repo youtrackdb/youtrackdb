@@ -19,6 +19,7 @@
 package com.orientechnologies.lucene.test;
 
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -123,7 +124,7 @@ public class LuceneInsertReadMultithreadTest extends BaseLuceneTest {
   public class LuceneReadThread implements Runnable {
 
     private final int cycle;
-    private ODatabaseSession databaseDocumentTx;
+    private ODatabaseSessionInternal databaseDocumentTx;
 
     public LuceneReadThread(int cycle) {
       this.cycle = cycle;

@@ -26,7 +26,6 @@ import com.orientechnologies.orient.core.command.OCommandExecutorAbstract;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestAbstract;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
@@ -216,7 +215,8 @@ public abstract class OCommandExecutorSQLAbstract extends OCommandExecutorAbstra
     return clusters;
   }
 
-  protected boolean checkClusterAccess(final ODatabaseSession db, final String iClusterName) {
+  protected boolean checkClusterAccess(final ODatabaseSessionInternal db,
+      final String iClusterName) {
     return db.getUser() == null
         || db.getUser()
         .checkIfAllowed(db,

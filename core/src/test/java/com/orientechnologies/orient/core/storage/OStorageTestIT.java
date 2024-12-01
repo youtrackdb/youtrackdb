@@ -57,8 +57,9 @@ public class OStorageTestIT {
             + OStorageTestIT.class.getSimpleName()
             + " plocal users ( admin identified by 'admin' role admin)");
 
-    ODatabaseSession session =
-        oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin", config);
+    var session =
+        (ODatabaseSessionInternal) oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin",
+            "admin", config);
     OMetadata metadata = session.getMetadata();
     OSchema schema = metadata.getSchema();
     schema.createClass("PageBreak");
@@ -70,9 +71,9 @@ public class OStorageTestIT {
     }
 
     OLocalPaginatedStorage storage =
-        (OLocalPaginatedStorage) ((ODatabaseSessionInternal) session).getStorage();
+        (OLocalPaginatedStorage) session.getStorage();
     OWriteCache wowCache = storage.getWriteCache();
-    OSharedContext ctx = ((ODatabaseSessionInternal) session).getSharedContext();
+    OSharedContext ctx = session.getSharedContext();
     session.close();
 
     final Path storagePath = storage.getStoragePath();
@@ -94,7 +95,8 @@ public class OStorageTestIT {
     file.write(bt + 1);
     file.close();
 
-    session = oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");
+    session = (ODatabaseSessionInternal) oxygenDB.open(OStorageTestIT.class.getSimpleName(),
+        "admin", "admin");
     try {
       session.query("select from PageBreak").close();
       Assert.fail();
@@ -121,8 +123,9 @@ public class OStorageTestIT {
             + OStorageTestIT.class.getSimpleName()
             + " plocal users ( admin identified by 'admin' role admin)");
 
-    ODatabaseSession session =
-        oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin", config);
+    var session =
+        (ODatabaseSessionInternal) oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin",
+            "admin", config);
     OMetadata metadata = session.getMetadata();
     OSchema schema = metadata.getSchema();
     schema.createClass("PageBreak");
@@ -134,9 +137,9 @@ public class OStorageTestIT {
     }
 
     OLocalPaginatedStorage storage =
-        (OLocalPaginatedStorage) ((ODatabaseSessionInternal) session).getStorage();
+        (OLocalPaginatedStorage) session.getStorage();
     OWriteCache wowCache = storage.getWriteCache();
-    OSharedContext ctx = ((ODatabaseSessionInternal) session).getSharedContext();
+    OSharedContext ctx = session.getSharedContext();
     session.close();
 
     final Path storagePath = storage.getStoragePath();
@@ -155,7 +158,8 @@ public class OStorageTestIT {
     file.write(1);
     file.close();
 
-    session = oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");
+    session = (ODatabaseSessionInternal) oxygenDB.open(OStorageTestIT.class.getSimpleName(),
+        "admin", "admin");
     try {
       session.query("select from PageBreak").close();
       Assert.fail();
@@ -181,8 +185,9 @@ public class OStorageTestIT {
             + OStorageTestIT.class.getSimpleName()
             + " plocal users ( admin identified by 'admin' role admin)");
 
-    ODatabaseSession session =
-        oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin", config);
+    var session =
+        (ODatabaseSessionInternal) oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin",
+            "admin", config);
     OMetadata metadata = session.getMetadata();
     OSchema schema = metadata.getSchema();
     schema.createClass("PageBreak");
@@ -194,9 +199,9 @@ public class OStorageTestIT {
     }
 
     OLocalPaginatedStorage storage =
-        (OLocalPaginatedStorage) ((ODatabaseSessionInternal) session).getStorage();
+        (OLocalPaginatedStorage) session.getStorage();
     OWriteCache wowCache = storage.getWriteCache();
-    OSharedContext ctx = ((ODatabaseSessionInternal) session).getSharedContext();
+    OSharedContext ctx = session.getSharedContext();
     session.close();
 
     final Path storagePath = storage.getStoragePath();
@@ -215,7 +220,8 @@ public class OStorageTestIT {
     file.write(1);
     file.close();
 
-    session = oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");
+    session = (ODatabaseSessionInternal) oxygenDB.open(OStorageTestIT.class.getSimpleName(),
+        "admin", "admin");
     session.query("select from PageBreak").close();
 
     Thread.sleep(100); // lets wait till event will be propagated
@@ -243,8 +249,9 @@ public class OStorageTestIT {
             + OStorageTestIT.class.getSimpleName()
             + " plocal users ( admin identified by 'admin' role admin)");
 
-    ODatabaseSession session =
-        oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin", config);
+    var session =
+        (ODatabaseSessionInternal) oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin",
+            "admin", config);
     OMetadata metadata = session.getMetadata();
     OSchema schema = metadata.getSchema();
     schema.createClass("PageBreak");
@@ -256,9 +263,9 @@ public class OStorageTestIT {
     }
 
     OLocalPaginatedStorage storage =
-        (OLocalPaginatedStorage) ((ODatabaseSessionInternal) session).getStorage();
+        (OLocalPaginatedStorage) session.getStorage();
     OWriteCache wowCache = storage.getWriteCache();
-    OSharedContext ctx = ((ODatabaseSessionInternal) session).getSharedContext();
+    OSharedContext ctx = session.getSharedContext();
     session.close();
 
     final Path storagePath = storage.getStoragePath();
@@ -280,7 +287,8 @@ public class OStorageTestIT {
     file.write(bt + 1);
     file.close();
 
-    session = oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");
+    session = (ODatabaseSessionInternal) oxygenDB.open(OStorageTestIT.class.getSimpleName(),
+        "admin", "admin");
     session.query("select from PageBreak").close();
 
     Thread.sleep(100); // lets wait till event will be propagated

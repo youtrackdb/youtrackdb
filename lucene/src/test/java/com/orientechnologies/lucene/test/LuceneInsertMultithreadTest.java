@@ -83,7 +83,8 @@ public class LuceneInsertMultithreadTest {
         "create database ? " + databaseType + " users(admin identified by 'admin' role admin)",
         dbName);
     OSchema schema;
-    try (ODatabaseSession databaseDocumentTx = OXYGEN_DB.open(dbName, "admin", "admin")) {
+    try (ODatabaseSessionInternal databaseDocumentTx = (ODatabaseSessionInternal) OXYGEN_DB.open(
+        dbName, "admin", "admin")) {
       schema = databaseDocumentTx.getMetadata().getSchema();
 
       if (schema.getClass("City") == null) {
@@ -114,7 +115,7 @@ public class LuceneInsertMultithreadTest {
       OIndex idx = schema.getClass("City").getClassIndex(databaseDocumentTx, "City.name");
 
       databaseDocumentTx.begin();
-      Assertions.assertThat(idx.getInternal().size((ODatabaseSessionInternal) databaseDocumentTx))
+      Assertions.assertThat(idx.getInternal().size(databaseDocumentTx))
           .isEqualTo(THREADS * CYCLE);
       databaseDocumentTx.commit();
     }
@@ -164,14 +165,15 @@ public class LuceneInsertMultithreadTest {
     @Override
     public void run() {
       OSchema schema;
-      try (ODatabaseSession databaseDocumentTx = OXYGEN_DB.open(dbName, "admin", "admin")) {
+      try (ODatabaseSessionInternal databaseDocumentTx = (ODatabaseSessionInternal) OXYGEN_DB.open(
+          dbName, "admin", "admin")) {
         schema = databaseDocumentTx.getMetadata().getSchema();
 
         OIndex idx = schema.getClass("City").getClassIndex(databaseDocumentTx, "City.name");
 
         for (int i = 0; i < cycle; i++) {
           try (Stream<ORID> stream = idx.getInternal()
-              .getRids((ODatabaseSessionInternal) databaseDocumentTx, "Rome")) {
+              .getRids(databaseDocumentTx, "Rome")) {
             //noinspection ResultOfMethodCallIgnored
             stream.collect(Collectors.toList());
           }

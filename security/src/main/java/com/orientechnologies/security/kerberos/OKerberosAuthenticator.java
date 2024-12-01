@@ -15,7 +15,6 @@ package com.orientechnologies.security.kerberos;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.parser.OSystemVariableResolver;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.metadata.security.OImmutableUser;
@@ -91,7 +90,7 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
   // OSecurityAuthenticator
   // Kerberos magic happens here.
   public OSecurityUser authenticate(
-      ODatabaseSession session, final String username, final String password) {
+      ODatabaseSessionInternal session, final String username, final String password) {
     // username will contain either the principal or be null.
     // password will contain either a Kerberos 5 service ticket or a SPNEGO ticket.
     String principal = null;
@@ -187,7 +186,7 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
       OLogManager.instance().debug(this, "OKerberosAuthenticator.authenticate() Exception: ", ex);
     }
 
-    return new OImmutableUser((ODatabaseSessionInternal) session, principal,
+    return new OImmutableUser(session, principal,
         OSecurityUser.SERVER_USER_TYPE);
   }
 

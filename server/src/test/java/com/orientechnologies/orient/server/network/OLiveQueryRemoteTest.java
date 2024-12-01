@@ -5,6 +5,7 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.OxygenDB;
@@ -42,7 +43,7 @@ public class OLiveQueryRemoteTest {
 
   private OServer server;
   private OxygenDB oxygenDB;
-  private ODatabaseSession db;
+  private ODatabaseSessionInternal db;
 
   @Before
   public void before() throws Exception {
@@ -58,7 +59,8 @@ public class OLiveQueryRemoteTest {
     oxygenDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         OLiveQueryRemoteTest.class.getSimpleName());
-    db = oxygenDB.open(OLiveQueryRemoteTest.class.getSimpleName(), "admin", "admin");
+    db = (ODatabaseSessionInternal) oxygenDB.open(OLiveQueryRemoteTest.class.getSimpleName(),
+        "admin", "admin");
   }
 
   @After
@@ -73,6 +75,7 @@ public class OLiveQueryRemoteTest {
   }
 
   static class MyLiveQueryListener implements OLiveQueryResultListener {
+
     public CountDownLatch latch;
     public CountDownLatch ended = new CountDownLatch(1);
 

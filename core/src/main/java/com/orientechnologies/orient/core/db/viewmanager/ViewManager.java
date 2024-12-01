@@ -59,7 +59,7 @@ public class ViewManager {
 
   private final OxygenDBInternal oxygenDB;
   private final String dbName;
-  private boolean viewsExist = false;
+  private final boolean viewsExist = false;
 
   /**
    * To retain clusters that are being used in queries until the queries are closed.
@@ -113,17 +113,7 @@ public class ViewManager {
   }
 
   public boolean registerLiveUpdateFor(ODatabaseSession db, String viewName) {
-    OView view = db.getMetadata().getSchema().getView(viewName);
-    viewsExist = true;
-    boolean registered = false;
-    if (view != null
-        && view.getUpdateStrategy() != null
-        && view.getUpdateStrategy().equalsIgnoreCase(OViewConfig.UPDATE_STRATEGY_LIVE)) {
-      db.live(view.getQuery(), new ViewUpdateListener(view.getName()));
-      registered = true;
-    }
-
-    return registered;
+    return false;
   }
 
   public void load() {
@@ -601,35 +591,35 @@ public class ViewManager {
 
     @Override
     public void onCreate(ODatabaseSession db, OResult data) {
-      OView view = db.getMetadata().getSchema().getView(viewName);
-      var dbInternal = (ODatabaseSessionInternal) db;
-      if (view != null) {
-        int cluster = view.getClusterIds()[0];
-        addItemToView(
-            data,
-            dbInternal,
-            view.getOriginRidField(),
-            view.getName(),
-            dbInternal.getClusterNameById(cluster),
-            new ArrayList<>(view.getIndexes(db)));
-      }
+//      OView view = db.getMetadata().getSchema().getView(viewName);
+//      var dbInternal = (ODatabaseSessionInternal) db;
+//      if (view != null) {
+//        int cluster = view.getClusterIds()[0];
+//        addItemToView(
+//            data,
+//            dbInternal,
+//            view.getOriginRidField(),
+//            view.getName(),
+//            dbInternal.getClusterNameById(cluster),
+//            new ArrayList<>(view.getIndexes(db)));
+//      }
     }
 
     @Override
     public void onUpdate(ODatabaseSession db, OResult before, OResult after) {
-      OView view = db.getMetadata().getSchema().getView(viewName);
-      if (view != null && view.getOriginRidField() != null) {
-        try (OResultSet rs =
-            db.query(
-                "SELECT FROM " + viewName + " WHERE " + view.getOriginRidField() + " = ?",
-                (Object) after.getProperty("@rid"))) {
-          while (rs.hasNext()) {
-            OResult row = rs.next();
-            row.getElement()
-                .ifPresent(elem -> updateViewRow(elem, after, view, (ODatabaseSessionInternal) db));
-          }
-        }
-      }
+//      OView view = db.getMetadata().getSchema().getView(viewName);
+//      if (view != null && view.getOriginRidField() != null) {
+//        try (OResultSet rs =
+//            db.query(
+//                "SELECT FROM " + viewName + " WHERE " + view.getOriginRidField() + " = ?",
+//                (Object) after.getProperty("@rid"))) {
+//          while (rs.hasNext()) {
+//            OResult row = rs.next();
+//            row.getElement()
+//                .ifPresent(elem -> updateViewRow(elem, after, view, (ODatabaseSessionInternal) db));
+//          }
+//        }
+//      }
     }
 
     private void updateViewRow(
@@ -664,17 +654,17 @@ public class ViewManager {
 
     @Override
     public void onDelete(ODatabaseSession db, OResult data) {
-      OView view = db.getMetadata().getSchema().getView(viewName);
-      if (view != null && view.getOriginRidField() != null) {
-        try (OResultSet rs =
-            db.query(
-                "SELECT FROM " + viewName + " WHERE " + view.getOriginRidField() + " = ?",
-                (Object) data.getProperty("@rid"))) {
-          while (rs.hasNext()) {
-            rs.next().getElement().ifPresent(x -> x.delete());
-          }
-        }
-      }
+//      OView view = db.getMetadata().getSchema().getView(viewName);
+//      if (view != null && view.getOriginRidField() != null) {
+//        try (OResultSet rs =
+//            db.query(
+//                "SELECT FROM " + viewName + " WHERE " + view.getOriginRidField() + " = ?",
+//                (Object) data.getProperty("@rid"))) {
+//          while (rs.hasNext()) {
+//            rs.next().getElement().ifPresent(x -> x.delete());
+//          }
+//        }
+//      }
     }
 
     @Override

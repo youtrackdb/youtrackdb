@@ -2,7 +2,6 @@ package com.orientechnologies.orient.core.db.tool;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import java.io.ByteArrayOutputStream;
@@ -20,7 +19,7 @@ public class ODatabaseImportSimpleCompatibilityTest {
 
   private OxygenDB oxygenDB;
 
-  private ODatabaseSession importDatabase;
+  private ODatabaseSessionInternal importDatabase;
   private ODatabaseImport importer;
 
   private ODatabaseExport export;
@@ -102,11 +101,12 @@ public class ODatabaseImportSimpleCompatibilityTest {
     oxygenDB =
         OCreateDatabaseUtil.createDatabase(
             databaseName, importDbUrl, OCreateDatabaseUtil.TYPE_MEMORY);
-    importDatabase = oxygenDB.open(databaseName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    importDatabase = (ODatabaseSessionInternal) oxygenDB.open(databaseName, "admin",
+        OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     try {
-      importer = new ODatabaseImport((ODatabaseSessionInternal) importDatabase, input, iText -> {
+      importer = new ODatabaseImport(importDatabase, input, iText -> {
       });
-      export = new ODatabaseExport((ODatabaseSessionInternal) importDatabase, output, iText -> {
+      export = new ODatabaseExport(importDatabase, output, iText -> {
       });
     } catch (final IOException e) {
       e.printStackTrace();

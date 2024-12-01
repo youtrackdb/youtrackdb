@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.delete;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -39,10 +39,7 @@ public class OServerCommandDeleteProperty extends OServerCommandAuthenticatedDbA
     iRequest.getData().commandInfo = "Delete property";
     iRequest.getData().commandDetail = urlParts[2] + "." + urlParts[3];
 
-    ODatabaseSession db = null;
-
-    try {
-      db = getProfiledDatabaseInstance(iRequest);
+    try (ODatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
 
       if (db.getMetadata().getSchema().getClass(urlParts[2]) == null) {
         throw new IllegalArgumentException("Invalid class '" + urlParts[2] + "'");
@@ -59,10 +56,6 @@ public class OServerCommandDeleteProperty extends OServerCommandAuthenticatedDbA
           null,
           null);
 
-    } finally {
-      if (db != null) {
-        db.close();
-      }
     }
     return false;
   }

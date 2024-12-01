@@ -19,6 +19,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.testng.Assert;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -26,8 +27,8 @@ import org.testng.annotations.Test;
 public class CollateTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
-  public CollateTest(boolean remote) {
-    super(remote);
+  public CollateTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   public void testQuery() {

@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -40,24 +40,18 @@ public class OServerCommandPostProperty extends OServerCommandAuthenticatedDbAbs
 
   @Override
   public boolean execute(final OHttpRequest iRequest, OHttpResponse iResponse) throws Exception {
-    ODatabaseSession db = null;
-    try {
-      db = getProfiledDatabaseInstance(iRequest);
+    try (ODatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
       if (iRequest.getContent() == null || iRequest.getContent().length() <= 0) {
         return addSingleProperty(iRequest, iResponse, db);
       } else {
         return addMultipreProperties(iRequest, iResponse, db);
-      }
-    } finally {
-      if (db != null) {
-        db.close();
       }
     }
   }
 
   @SuppressWarnings("unused")
   protected boolean addSingleProperty(
-      final OHttpRequest iRequest, final OHttpResponse iResponse, final ODatabaseSession db)
+      final OHttpRequest iRequest, final OHttpResponse iResponse, final ODatabaseSessionInternal db)
       throws InterruptedException, IOException {
     String[] urlParts =
         checkSyntax(
@@ -132,7 +126,7 @@ public class OServerCommandPostProperty extends OServerCommandAuthenticatedDbAbs
 
   @SuppressWarnings({"unchecked", "unused"})
   protected boolean addMultipreProperties(
-      final OHttpRequest iRequest, final OHttpResponse iResponse, final ODatabaseSession db)
+      final OHttpRequest iRequest, final OHttpResponse iResponse, final ODatabaseSessionInternal db)
       throws InterruptedException, IOException {
     String[] urlParts =
         checkSyntax(iRequest.getUrl(), 3, "Syntax error: property/<database>/<class-name>");

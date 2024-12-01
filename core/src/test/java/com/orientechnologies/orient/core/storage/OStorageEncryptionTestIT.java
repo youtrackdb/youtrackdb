@@ -39,7 +39,7 @@ public class OStorageEncryptionTestIT {
         new OxygenDB("embedded:" + dbDirectoryFile.getAbsolutePath(), oxygenDBConfig)) {
       oxygenDB.execute(
           "create database encryption plocal users ( admin identified by 'admin' role admin)");
-      try (final ODatabaseSession session = oxygenDB.open("encryption", "admin", "admin")) {
+      try (var session = (ODatabaseSessionInternal) oxygenDB.open("encryption", "admin", "admin")) {
         final OSchema schema = session.getMetadata().getSchema();
         final OClass cls = schema.createClass("EncryptedData");
         cls.createProperty(session, "id", OType.INTEGER);
@@ -181,8 +181,9 @@ public class OStorageEncryptionTestIT {
           OxygenDBConfig.builder()
               .addConfig(OGlobalConfiguration.STORAGE_ENCRYPTION_KEY, "T1JJRU5UREJfSVNfQ09PTA==")
               .build();
-      try (final ODatabaseSession session =
-          oxygenDB.open("encryption", "admin", "admin", oxygenDBConfig)) {
+      try (var session =
+          (ODatabaseSessionInternal) oxygenDB.open("encryption", "admin", "admin",
+              oxygenDBConfig)) {
         final OSchema schema = session.getMetadata().getSchema();
         final OClass cls = schema.createClass("EncryptedData");
 

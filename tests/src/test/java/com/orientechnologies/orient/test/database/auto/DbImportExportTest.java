@@ -19,7 +19,6 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OxygenDB;
@@ -145,7 +144,8 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
     try (final OxygenDB oxygenDB = new OxygenDB("embedded:" + localTesPath.getPath(), config)) {
       oxygenDB.create("original", ODatabaseType.PLOCAL);
 
-      try (final ODatabaseSession session = oxygenDB.open("original", "admin", "admin")) {
+      try (final ODatabaseSessionInternal session = (ODatabaseSessionInternal) oxygenDB.open(
+          "original", "admin", "admin")) {
         final OSchema schema = session.getMetadata().getSchema();
 
         final OClass rootCls = schema.createClass("RootClass");
@@ -191,7 +191,7 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
 
         final ODatabaseExport databaseExport =
             new ODatabaseExport(
-                (ODatabaseSessionInternal) session, exportPath.getPath(), System.out::println);
+                session, exportPath.getPath(), System.out::println);
         databaseExport.exportDatabase();
       }
 

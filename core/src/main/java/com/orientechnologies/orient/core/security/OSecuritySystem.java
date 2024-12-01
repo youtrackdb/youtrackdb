@@ -19,7 +19,6 @@
  */
 package com.orientechnologies.orient.core.security;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
@@ -44,7 +43,7 @@ public interface OSecuritySystem {
   // Some token-based authentication (e.g., SPNEGO tokens have the user's name embedded in the
   // service ticket).
   OSecurityUser authenticate(
-      ODatabaseSession session, final String username, final String password);
+      ODatabaseSessionInternal session, final String username, final String password);
 
   // Used for generating the appropriate HTTP authentication mechanism. The chain of authenticators
   // is used for this.
@@ -65,7 +64,8 @@ public interface OSecuritySystem {
   OSecurityUser getSystemUser(final String username, final String dbName);
 
   // Walks through the list of Authenticators.
-  boolean isAuthorized(ODatabaseSession session, final String username, final String resource);
+  boolean isAuthorized(ODatabaseSessionInternal session, final String username,
+      final String resource);
 
   boolean isEnabled();
 
@@ -135,11 +135,13 @@ public interface OSecuritySystem {
       ODatabaseSessionInternal session, String iUserName, String iPassword,
       String iResourceToCheck);
 
-  OSecurityUser authenticateServerUser(ODatabaseSession session, String username, String password);
+  OSecurityUser authenticateServerUser(ODatabaseSessionInternal session, String username,
+      String password);
 
   OSecurityUser getServerUser(ODatabaseSessionInternal session, String username);
 
-  boolean isServerUserAuthorized(ODatabaseSession session, String username, String resource);
+  boolean isServerUserAuthorized(ODatabaseSessionInternal session, String username,
+      String resource);
 
   OxygenDBInternal getContext();
 
@@ -149,7 +151,8 @@ public interface OSecuritySystem {
 
   OSecurityInternal newSecurity(String database);
 
-  OSecurityUser authenticate(ODatabaseSession session, OAuthenticationInfo authenticationInfo);
+  OSecurityUser authenticate(ODatabaseSessionInternal session,
+      OAuthenticationInfo authenticationInfo);
 
   OTokenSign getTokenSign();
 }

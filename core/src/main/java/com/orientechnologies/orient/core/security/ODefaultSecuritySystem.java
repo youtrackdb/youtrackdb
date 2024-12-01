@@ -23,7 +23,6 @@ import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.parser.OSystemVariableResolver;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -120,10 +119,10 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     }
   }
 
-  public static void createSystemRoles(ODatabaseSession session) {
+  public static void createSystemRoles(ODatabaseSessionInternal session) {
     session.executeInTx(
         () -> {
-          OSecurity security = ((ODatabaseSessionInternal) session).getMetadata().getSecurity();
+          OSecurity security = session.getMetadata().getSecurity();
           if (security.getRole("root") == null) {
             ORole root = security.createRole("root", ORole.ALLOW_MODES.DENY_ALL_BUT);
             for (ORule.ResourceGeneric resource : ORule.ResourceGeneric.values()) {
@@ -230,7 +229,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
 
   @Override
   public OSecurityUser authenticate(
-      ODatabaseSession session, OAuthenticationInfo authenticationInfo) {
+      ODatabaseSessionInternal session, OAuthenticationInfo authenticationInfo) {
     try {
       for (OSecurityAuthenticator sa : enabledAuthenticators) {
         OSecurityUser principal = sa.authenticate(session, authenticationInfo);
@@ -248,7 +247,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
 
   // OSecuritySystem (via OServerSecurity)
   public OSecurityUser authenticate(
-      ODatabaseSession session, final String username, final String password) {
+      ODatabaseSessionInternal session, final String username, final String password) {
     try {
       // It's possible for the username to be null or an empty string in the case of SPNEGO
       // Kerberos
@@ -278,9 +277,10 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     return null; // Indicates authentication failed.
   }
 
-  public OSecurityUser authenticateServerUser(ODatabaseSession session, final String username,
+  public OSecurityUser authenticateServerUser(ODatabaseSessionInternal session,
+      final String username,
       final String password) {
-    OSecurityUser user = getServerUser((ODatabaseSessionInternal) session, username);
+    OSecurityUser user = getServerUser(session, username);
 
     if (user != null && user.getPassword(session) != null) {
       if (OSecurityManager.checkPassword(password, user.getPassword(session).trim())) {
@@ -442,7 +442,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   // OSecuritySystem (via OServerSecurity)
   // This will first look for a user in the security.json "users" array and then check if a resource
   // matches.
-  public boolean isAuthorized(ODatabaseSession session, final String username,
+  public boolean isAuthorized(ODatabaseSessionInternal session, final String username,
       final String resource) {
     if (username == null || resource == null) {
       return false;
@@ -457,9 +457,9 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     return false;
   }
 
-  public boolean isServerUserAuthorized(ODatabaseSession session, final String username,
+  public boolean isServerUserAuthorized(ODatabaseSessionInternal session, final String username,
       final String resource) {
-    final OSecurityUser user = getServerUser((ODatabaseSessionInternal) session, username);
+    final OSecurityUser user = getServerUser(session, username);
 
     if (user != null) {
       // TODO: to verify if this logic match previous logic

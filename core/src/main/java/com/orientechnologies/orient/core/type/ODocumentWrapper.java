@@ -60,7 +60,7 @@ public class ODocumentWrapper implements Serializable {
     return (RET) this;
   }
 
-  public <RET extends ODocumentWrapper> RET save(ODatabaseSession session) {
+  public <RET extends ODocumentWrapper> RET save(ODatabaseSessionInternal session) {
     document.save();
     return (RET) this;
   }

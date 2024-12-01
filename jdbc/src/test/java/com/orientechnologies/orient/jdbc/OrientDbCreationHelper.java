@@ -239,7 +239,7 @@ public class OrientDbCreationHelper {
     return binaryChuncks;
   }
 
-  public static void createSchemaDB(ODatabaseSession db) {
+  public static void createSchemaDB(ODatabaseSessionInternal db) {
 
     OSchema schema = db.getMetadata().getSchema();
 

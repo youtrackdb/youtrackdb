@@ -107,7 +107,7 @@ public abstract class ODatabasePoolBase extends Thread {
                               (String) iAdditionalArgs[0],
                               (String) iAdditionalArgs[1], new OContextConfiguration());
                     } else if (!iValue.getUser()
-                        .checkPassword(iValue, (String) iAdditionalArgs[1])) {
+                        .checkPassword(session, (String) iAdditionalArgs[1])) {
                       throw new OSecurityAccessException(
                           iValue.getName(),
                           "User or password not valid for database: '" + iValue.getName() + "'");

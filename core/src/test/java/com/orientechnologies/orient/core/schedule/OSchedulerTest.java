@@ -33,8 +33,9 @@ public class OSchedulerTest {
   @Test
   public void scheduleSQLFunction() throws Exception {
     try (OxygenDB context = createContext()) {
-      final ODatabaseSession db =
-          context.cachedPool("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD).acquire();
+      var db =
+          (ODatabaseSessionInternal) context.cachedPool("test", "admin",
+              OCreateDatabaseUtil.NEW_ADMIN_PASSWORD).acquire();
       createLogEvent(db);
 
       BaseMemoryDatabase.assertWithTimeout(
@@ -50,7 +51,8 @@ public class OSchedulerTest {
   public void scheduleWithDbClosed() throws Exception {
     OxygenDB context = createContext();
     {
-      ODatabaseSession db = context.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+      var db = (ODatabaseSessionInternal) context.open("test", "admin",
+          OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       createLogEvent(db);
       db.close();
     }
@@ -70,8 +72,9 @@ public class OSchedulerTest {
   @Test
   public void eventLifecycle() throws Exception {
     try (OxygenDB context = createContext()) {
-      ODatabaseSession db =
-          context.cachedPool("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD).acquire();
+      var db =
+          (ODatabaseSessionInternal) context.cachedPool("test", "admin",
+              OCreateDatabaseUtil.NEW_ADMIN_PASSWORD).acquire();
       createLogEvent(db);
 
       Thread.sleep(2000);
@@ -96,8 +99,9 @@ public class OSchedulerTest {
   @Test
   public void eventSavedAndLoaded() throws Exception {
     OxygenDB context = createContext();
-    final ODatabaseSession db =
-        context.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db =
+        (ODatabaseSessionInternal) context.open("test", "admin",
+            OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     createLogEvent(db);
     db.close();
 
@@ -137,7 +141,7 @@ public class OSchedulerTest {
     }
     final ODatabasePool pool =
         oxygenDb.cachedPool("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    final ODatabaseSession db = pool.acquire();
+    var db = (ODatabaseSessionInternal) pool.acquire();
 
     assertEquals(db, ODatabaseRecordThreadLocal.instance().getIfDefined());
     createLogEvent(db);
@@ -150,8 +154,9 @@ public class OSchedulerTest {
   public void eventBySQL() throws Exception {
     OxygenDB context = createContext();
     try (context;
-        ODatabaseSession db =
-            context.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
+        var db =
+            (ODatabaseSessionInternal) context.open("test", "admin",
+                OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
       OFunction func = createFunction(db);
       db.begin();
       db.command(
@@ -234,7 +239,7 @@ public class OSchedulerTest {
     return oxygenDB;
   }
 
-  private void createLogEvent(ODatabaseSession db) {
+  private void createLogEvent(ODatabaseSessionInternal db) {
     OFunction func = createFunction(db);
 
     db.executeInTx(() -> {
@@ -250,7 +255,7 @@ public class OSchedulerTest {
     });
   }
 
-  private OFunction createFunction(ODatabaseSession db) {
+  private OFunction createFunction(ODatabaseSessionInternal db) {
     db.getMetadata().getSchema().createClass("scheduler_log");
 
     return db.computeInTx(

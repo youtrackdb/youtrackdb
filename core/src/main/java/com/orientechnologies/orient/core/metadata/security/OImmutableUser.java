@@ -1,7 +1,6 @@
 package com.orientechnologies.orient.core.metadata.security;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
@@ -66,7 +65,7 @@ public class OImmutableUser implements OSecurityUser {
   }
 
   public OSecurityRole allow(
-      ODatabaseSession session, final ResourceGeneric resourceGeneric,
+      ODatabaseSessionInternal session, final ResourceGeneric resourceGeneric,
       final String resourceSpecific,
       final int iOperation) {
     if (roles.isEmpty()) {
@@ -93,7 +92,7 @@ public class OImmutableUser implements OSecurityUser {
   }
 
   public OSecurityRole checkIfAllowed(
-      ODatabaseSession session, final ResourceGeneric resourceGeneric,
+      ODatabaseSessionInternal session, final ResourceGeneric resourceGeneric,
       final String resourceSpecific,
       final int iOperation) {
     for (OImmutableRole r : roles) {
@@ -113,7 +112,8 @@ public class OImmutableUser implements OSecurityUser {
   }
 
   public boolean isRuleDefined(
-      ODatabaseSession session, final ResourceGeneric resourceGeneric, String resourceSpecific) {
+      ODatabaseSessionInternal session, final ResourceGeneric resourceGeneric,
+      String resourceSpecific) {
     for (OImmutableRole r : roles) {
       if (r == null) {
         OLogManager.instance()
@@ -132,7 +132,7 @@ public class OImmutableUser implements OSecurityUser {
 
   @Override
   @Deprecated
-  public OSecurityRole allow(ODatabaseSession session, String iResource, int iOperation) {
+  public OSecurityRole allow(ODatabaseSessionInternal session, String iResource, int iOperation) {
     final String resourceSpecific = ORule.mapLegacyResourceToSpecificResource(iResource);
     final ORule.ResourceGeneric resourceGeneric =
         ORule.mapLegacyResourceToGenericResource(iResource);
@@ -146,7 +146,8 @@ public class OImmutableUser implements OSecurityUser {
 
   @Override
   @Deprecated
-  public OSecurityRole checkIfAllowed(ODatabaseSession session, String iResource, int iOperation) {
+  public OSecurityRole checkIfAllowed(ODatabaseSessionInternal session, String iResource,
+      int iOperation) {
     final String resourceSpecific = ORule.mapLegacyResourceToSpecificResource(iResource);
     final ORule.ResourceGeneric resourceGeneric =
         ORule.mapLegacyResourceToGenericResource(iResource);
@@ -160,7 +161,7 @@ public class OImmutableUser implements OSecurityUser {
 
   @Override
   @Deprecated
-  public boolean isRuleDefined(ODatabaseSession session, String iResource) {
+  public boolean isRuleDefined(ODatabaseSessionInternal session, String iResource) {
     final String resourceSpecific = ORule.mapLegacyResourceToSpecificResource(iResource);
     final ORule.ResourceGeneric resourceGeneric =
         ORule.mapLegacyResourceToGenericResource(iResource);
@@ -172,31 +173,31 @@ public class OImmutableUser implements OSecurityUser {
     return isRuleDefined(session, resourceGeneric, resourceSpecific);
   }
 
-  public boolean checkPassword(ODatabaseSession session, final String iPassword) {
+  public boolean checkPassword(ODatabaseSessionInternal session, final String iPassword) {
     return OSecurityManager.checkPassword(iPassword, password);
   }
 
-  public String getName(ODatabaseSession session) {
+  public String getName(ODatabaseSessionInternal session) {
     return name;
   }
 
-  public OUser setName(ODatabaseSession session, final String iName) {
+  public OUser setName(ODatabaseSessionInternal session, final String iName) {
     throw new UnsupportedOperationException();
   }
 
-  public String getPassword(ODatabaseSession session) {
+  public String getPassword(ODatabaseSessionInternal session) {
     return password;
   }
 
-  public OUser setPassword(ODatabaseSession session, final String iPassword) {
+  public OUser setPassword(ODatabaseSessionInternal session, final String iPassword) {
     throw new UnsupportedOperationException();
   }
 
-  public STATUSES getAccountStatus(ODatabaseSession session) {
+  public STATUSES getAccountStatus(ODatabaseSessionInternal session) {
     return status;
   }
 
-  public void setAccountStatus(ODatabaseSession session, STATUSES accountStatus) {
+  public void setAccountStatus(ODatabaseSessionInternal session, STATUSES accountStatus) {
     throw new UnsupportedOperationException();
   }
 
@@ -204,19 +205,19 @@ public class OImmutableUser implements OSecurityUser {
     return Collections.unmodifiableSet(roles);
   }
 
-  public OUser addRole(ODatabaseSession session, final String iRole) {
+  public OUser addRole(ODatabaseSessionInternal session, final String iRole) {
     throw new UnsupportedOperationException();
   }
 
-  public OUser addRole(ODatabaseSession session, final OSecurityRole iRole) {
+  public OUser addRole(ODatabaseSessionInternal session, final OSecurityRole iRole) {
     throw new UnsupportedOperationException();
   }
 
-  public boolean removeRole(ODatabaseSession session, final String iRoleName) {
+  public boolean removeRole(ODatabaseSessionInternal session, final String iRoleName) {
     throw new UnsupportedOperationException();
   }
 
-  public boolean hasRole(ODatabaseSession session, final String iRoleName,
+  public boolean hasRole(ODatabaseSessionInternal session, final String iRoleName,
       final boolean iIncludeInherited) {
     for (final OSecurityRole role : roles) {
       if (role.getName(session).equals(iRoleName)) {
@@ -247,7 +248,7 @@ public class OImmutableUser implements OSecurityUser {
   }
 
   @Override
-  public OIdentifiable getIdentity(ODatabaseSession session) {
+  public OIdentifiable getIdentity(ODatabaseSessionInternal session) {
     return rid;
   }
 

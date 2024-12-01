@@ -14,6 +14,7 @@ import com.orientechnologies.orient.core.metadata.security.OSecurityPolicy;
 import com.orientechnologies.orient.core.metadata.security.OSecurityPolicyImpl;
 import com.orientechnologies.orient.core.metadata.security.OSecurityResourceProperty;
 import com.orientechnologies.orient.core.metadata.security.OSecurityRole;
+import com.orientechnologies.orient.core.metadata.security.OSecurityRole.ALLOW_MODES;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.OToken;
 import com.orientechnologies.orient.core.metadata.security.OUser;
@@ -35,7 +36,8 @@ public class OSecurityRemote implements OSecurityInternal {
 
   @Override
   public boolean isAllowed(
-      ODatabaseSession session, Set<OIdentifiable> iAllowAll, Set<OIdentifiable> iAllowOperation) {
+      ODatabaseSessionInternal session, Set<OIdentifiable> iAllowAll,
+      Set<OIdentifiable> iAllowOperation) {
     return true;
   }
 
@@ -69,7 +71,7 @@ public class OSecurityRemote implements OSecurityInternal {
 
   @Override
   public OIdentifiable denyUser(
-      final ODatabaseSession session,
+      final ODatabaseSessionInternal session,
       final ODocument iDocument,
       final ORestrictedOperation iOperation,
       final String iUserName) {
@@ -83,7 +85,7 @@ public class OSecurityRemote implements OSecurityInternal {
 
   @Override
   public OIdentifiable denyRole(
-      final ODatabaseSession session,
+      final ODatabaseSessionInternal session,
       final ODocument iDocument,
       final ORestrictedOperation iOperation,
       final String iRoleName) {
@@ -137,7 +139,8 @@ public class OSecurityRemote implements OSecurityInternal {
 
   @Override
   public OIdentifiable disallowIdentity(
-      ODatabaseSession session, ODocument iDocument, String iAllowFieldName, OIdentifiable iId) {
+      ODatabaseSessionInternal session, ODocument iDocument, String iAllowFieldName,
+      OIdentifiable iId) {
     Set<OIdentifiable> field = iDocument.field(iAllowFieldName);
     if (field != null) {
       field.remove(iId);
@@ -146,13 +149,14 @@ public class OSecurityRemote implements OSecurityInternal {
   }
 
   @Override
-  public OUser authenticate(ODatabaseSession session, String iUsername, String iUserPassword) {
+  public OUser authenticate(ODatabaseSessionInternal session, String iUsername,
+      String iUserPassword) {
     throw new UnsupportedOperationException();
   }
 
   @Override
   public OUser createUser(
-      final ODatabaseSession session,
+      final ODatabaseSessionInternal session,
       final String iUserName,
       final String iUserPassword,
       final String... iRoles) {
@@ -167,7 +171,7 @@ public class OSecurityRemote implements OSecurityInternal {
 
   @Override
   public OUser createUser(
-      final ODatabaseSession session,
+      final ODatabaseSessionInternal session,
       final String userName,
       final String userPassword,
       final ORole... roles) {
@@ -183,22 +187,23 @@ public class OSecurityRemote implements OSecurityInternal {
   }
 
   @Override
-  public OUser authenticate(ODatabaseSession session, OToken authToken) {
+  public OUser authenticate(ODatabaseSessionInternal session, OToken authToken) {
     throw new UnsupportedOperationException();
   }
 
   @Override
   public ORole createRole(
-      final ODatabaseSession session, final String iRoleName, final ORole.ALLOW_MODES iAllowMode) {
+      final ODatabaseSessionInternal session, final String iRoleName,
+      final ALLOW_MODES iAllowMode) {
     return createRole(session, iRoleName, null, iAllowMode);
   }
 
   @Override
   public ORole createRole(
-      final ODatabaseSession session,
+      final ODatabaseSessionInternal session,
       final String iRoleName,
       final ORole iParent,
-      final ORole.ALLOW_MODES iAllowMode) {
+      final ALLOW_MODES iAllowMode) {
     final ORole role = new ORole(session, iRoleName, iParent, iAllowMode);
     return role.save(session);
   }
@@ -277,7 +282,8 @@ public class OSecurityRemote implements OSecurityInternal {
 
   @Override
   public void setSecurityPolicy(
-      ODatabaseSession session, OSecurityRole role, String resource, OSecurityPolicyImpl policy) {
+      ODatabaseSessionInternal session, OSecurityRole role, String resource,
+      OSecurityPolicyImpl policy) {
     throw new UnsupportedOperationException();
   }
 
@@ -326,7 +332,7 @@ public class OSecurityRemote implements OSecurityInternal {
   }
 
   @Override
-  public void createClassTrigger(ODatabaseSession session) {
+  public void createClassTrigger(ODatabaseSessionInternal session) {
     throw new UnsupportedOperationException();
   }
 
@@ -341,12 +347,12 @@ public class OSecurityRemote implements OSecurityInternal {
   }
 
   @Override
-  public OUser create(ODatabaseSession session) {
+  public OUser create(ODatabaseSessionInternal session) {
     throw new UnsupportedOperationException();
   }
 
   @Override
-  public void load(ODatabaseSession session) {
+  public void load(ODatabaseSessionInternal session) {
   }
 
   @Override
@@ -354,37 +360,38 @@ public class OSecurityRemote implements OSecurityInternal {
   }
 
   @Override
-  public Set<String> getFilteredProperties(ODatabaseSession session, ODocument document) {
+  public Set<String> getFilteredProperties(ODatabaseSessionInternal session, ODocument document) {
     return Collections.emptySet();
   }
 
   @Override
-  public boolean isAllowedWrite(ODatabaseSession session, ODocument document, String propertyName) {
+  public boolean isAllowedWrite(ODatabaseSessionInternal session, ODocument document,
+      String propertyName) {
     return true;
   }
 
   @Override
-  public boolean canCreate(ODatabaseSession session, ORecord record) {
+  public boolean canCreate(ODatabaseSessionInternal session, ORecord record) {
     return true;
   }
 
   @Override
-  public boolean canRead(ODatabaseSession session, ORecord record) {
+  public boolean canRead(ODatabaseSessionInternal session, ORecord record) {
     return true;
   }
 
   @Override
-  public boolean canUpdate(ODatabaseSession session, ORecord record) {
+  public boolean canUpdate(ODatabaseSessionInternal session, ORecord record) {
     return true;
   }
 
   @Override
-  public boolean canDelete(ODatabaseSession session, ORecord record) {
+  public boolean canDelete(ODatabaseSessionInternal session, ORecord record) {
     return true;
   }
 
   @Override
-  public boolean canExecute(ODatabaseSession session, OFunction function) {
+  public boolean canExecute(ODatabaseSessionInternal session, OFunction function) {
     return true;
   }
 
@@ -401,13 +408,13 @@ public class OSecurityRemote implements OSecurityInternal {
 
   @Override
   public OSecurityUser securityAuthenticate(
-      ODatabaseSession session, String userName, String password) {
+      ODatabaseSessionInternal session, String userName, String password) {
     throw new UnsupportedOperationException();
   }
 
   @Override
   public OSecurityUser securityAuthenticate(
-      ODatabaseSession session, OAuthenticationInfo authenticationInfo) {
+      ODatabaseSessionInternal session, OAuthenticationInfo authenticationInfo) {
     throw new UnsupportedOperationException();
   }
 }

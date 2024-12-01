@@ -20,6 +20,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.orient.core.OConstants;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -164,7 +165,9 @@ public class OxygenJdbcDatabaseMetaDataTest extends OrientJdbcDbPerClassTemplate
     int tableCount = sizeOf(rs);
 
     assertThat(tableCount)
-        .isEqualTo(conn.getDatabase().getMetadata().getSchema().getClasses().size());
+        .isEqualTo(
+            ((ODatabaseSessionInternal) conn.getDatabase()).getMetadata().getSchema().getClasses()
+                .size());
   }
 
   @Test
@@ -187,7 +190,9 @@ public class OxygenJdbcDatabaseMetaDataTest extends OrientJdbcDbPerClassTemplate
     rs = metaData.getTables(null, null, null, tableTypes.toArray(new String[2]));
     int tableCount = sizeOf(rs);
     assertThat(tableCount)
-        .isEqualTo(conn.getDatabase().getMetadata().getSchema().getClasses().size());
+        .isEqualTo(
+            ((ODatabaseSessionInternal) conn.getDatabase()).getMetadata().getSchema().getClasses()
+                .size());
   }
 
   @Test

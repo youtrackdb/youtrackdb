@@ -9,7 +9,6 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.BaseMemoryDatabase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.document.ODatabaseSessionAbstract;
@@ -231,11 +230,12 @@ public class ODocumentTest extends BaseMemoryDatabase {
 
   @Test
   public void testRemovingReadonlyField() {
-    ODatabaseSession db = null;
+    ODatabaseSessionInternal db = null;
     OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+      db = (ODatabaseSessionInternal) odb.open(dbName, defaultDbAdminCredentials,
+          OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
       OSchema schema = db.getMetadata().getSchema();
       OClass classA = schema.createClass("TestRemovingField2");
@@ -271,11 +271,12 @@ public class ODocumentTest extends BaseMemoryDatabase {
 
   @Test
   public void testUndo() {
-    ODatabaseSession db = null;
+    ODatabaseSessionInternal db = null;
     OxygenDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
-      db = odb.open(dbName, defaultDbAdminCredentials, OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+      db = (ODatabaseSessionInternal) odb.open(dbName, defaultDbAdminCredentials,
+          OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
       OSchema schema = db.getMetadata().getSchema();
       OClass classA = schema.createClass("TestUndo");

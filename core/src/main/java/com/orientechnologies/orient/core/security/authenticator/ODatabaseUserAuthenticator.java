@@ -1,6 +1,5 @@
 package com.orientechnologies.orient.core.security.authenticator;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
 import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
@@ -27,7 +26,7 @@ public class ODatabaseUserAuthenticator extends OSecurityAuthenticatorAbstract {
   }
 
   @Override
-  public OSecurityUser authenticate(ODatabaseSession session, OAuthenticationInfo info) {
+  public OSecurityUser authenticate(ODatabaseSessionInternal session, OAuthenticationInfo info) {
     if (info instanceof OUserPasswordAuthInfo) {
       return authenticate(
           session,
@@ -43,10 +42,10 @@ public class ODatabaseUserAuthenticator extends OSecurityAuthenticatorAbstract {
         throw new OSecurityAccessException(session.getName(), "Token not valid");
       }
 
-      OUser user = token.getToken().getUser((ODatabaseSessionInternal) session);
+      OUser user = token.getToken().getUser(session);
       if (user == null && token.getToken().getUserName() != null) {
         OSecurityShared databaseSecurity =
-            (OSecurityShared) ((ODatabaseSessionInternal) session).getSharedContext().getSecurity();
+            (OSecurityShared) session.getSharedContext().getSecurity();
         user = OSecurityShared.getUserInternal(session, token.getToken().getUserName());
       }
       return user;
@@ -55,14 +54,13 @@ public class ODatabaseUserAuthenticator extends OSecurityAuthenticatorAbstract {
   }
 
   @Override
-  public OSecurityUser authenticate(ODatabaseSession session, String username, String password) {
+  public OSecurityUser authenticate(ODatabaseSessionInternal session, String username,
+      String password) {
     if (session == null) {
       return null;
     }
 
     String dbName = session.getName();
-    OSecurityShared databaseSecurity =
-        (OSecurityShared) ((ODatabaseSessionInternal) session).getSharedContext().getSecurity();
     OUser user = OSecurityShared.getUserInternal(session, username);
     if (user == null) {
       return null;
@@ -92,7 +90,7 @@ public class ODatabaseUserAuthenticator extends OSecurityAuthenticatorAbstract {
   }
 
   @Override
-  public boolean isAuthorized(ODatabaseSession session, String username, String resource) {
+  public boolean isAuthorized(ODatabaseSessionInternal session, String username, String resource) {
     return false;
   }
 

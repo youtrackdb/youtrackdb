@@ -992,19 +992,19 @@ public abstract class OClassImpl implements OClass {
 
         if (stringValue.startsWith("+")) {
           addSuperClass(session,
-              session
+              sessionInternal
                   .getMetadata()
                   .getSchema()
                   .getClass(decodeClassName(stringValue.substring(1))));
         } else if (stringValue.startsWith("-")) {
           removeSuperClass(session,
-              session
+              sessionInternal
                   .getMetadata()
                   .getSchema()
                   .getClass(decodeClassName(stringValue.substring(1))));
         } else {
           setSuperClass(sessionInternal,
-              session.getMetadata().getSchema().getClass(decodeClassName(stringValue)));
+              sessionInternal.getMetadata().getSchema().getClass(decodeClassName(stringValue)));
         }
         break;
       case SUPERCLASSES:

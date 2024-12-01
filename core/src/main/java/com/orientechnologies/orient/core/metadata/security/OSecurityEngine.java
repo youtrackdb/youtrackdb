@@ -403,7 +403,7 @@ public class OSecurityEngine {
   }
 
   static boolean evaluateSecuirtyPolicyPredicate(
-      ODatabaseSession session, OBooleanExpression predicate, ORecord record) {
+      ODatabaseSessionInternal session, OBooleanExpression predicate, ORecord record) {
     if (OBooleanExpression.TRUE.equals(predicate)) {
       return true;
     }
@@ -418,7 +418,7 @@ public class OSecurityEngine {
       // at the first access with the same execution permission of the policy
       OIdentifiable user = session.getUser().getIdentity(session);
 
-      var sessionInternal = (ODatabaseSessionInternal) session;
+      var sessionInternal = session;
       var recordCopy = ((ORecordAbstract) record).copy();
       return sessionInternal
           .getSharedContext()
@@ -440,7 +440,7 @@ public class OSecurityEngine {
   }
 
   static boolean evaluateSecuirtyPolicyPredicate(
-      ODatabaseSession session, OBooleanExpression predicate, OResult record) {
+      ODatabaseSessionInternal session, OBooleanExpression predicate, OResult record) {
     if (OBooleanExpression.TRUE.equals(predicate)) {
       return true;
     }
@@ -451,7 +451,7 @@ public class OSecurityEngine {
       // Create a new instance of ODocument with a user record id, this will lazy load the user data
       // at the first access with the same execution permission of the policy
       final ODocument user = session.getUser().getIdentity(session).getRecordSilently();
-      return ((ODatabaseSessionInternal) session)
+      return session
           .getSharedContext()
           .getOxygenDB()
           .executeNoAuthorizationAsync(

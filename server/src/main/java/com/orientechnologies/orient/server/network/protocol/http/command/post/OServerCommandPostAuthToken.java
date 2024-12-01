@@ -3,7 +3,7 @@ package com.orientechnologies.orient.server.network.protocol.http.command.post;
 import com.orientechnologies.common.concur.lock.OLockException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -70,17 +70,14 @@ public class OServerCommandPostAuthToken extends OServerCommandAbstract {
       } else if (tokenHandler != null) {
         // Generate and return a JWT access token
 
-        ODatabaseSession db = null;
         OSecurityUser user = null;
-        try {
-          db = server.openDatabase(iRequest.getDatabaseName(), username, password);
+        try (ODatabaseSessionInternal db = server.openDatabase(iRequest.getDatabaseName(), username,
+            password)) {
           user = db.getUser();
 
           if (user != null) {
             byte[] tokenBytes = tokenHandler.getSignedWebToken(db, user);
             signedToken = new String(tokenBytes);
-          } else {
-            // Server user (not supported yet!)
           }
 
         } catch (OSecurityAccessException e) {
@@ -88,10 +85,6 @@ public class OServerCommandPostAuthToken extends OServerCommandAbstract {
         } catch (OLockException e) {
           OLogManager.instance()
               .error(this, "Cannot access to the database '" + iRequest.getDatabaseName() + "'", e);
-        } finally {
-          if (db != null) {
-            db.close();
-          }
         }
 
         // 4.1.4 (Access Token Response) of RFC 6749
@@ -115,7 +108,7 @@ public class OServerCommandPostAuthToken extends OServerCommandAbstract {
   // null is returned in all other cases and means authentication was unsuccessful.
   protected String authenticate(
       final String username, final String password, final String iDatabaseName) throws IOException {
-    ODatabaseSession db = null;
+    ODatabaseSessionInternal db = null;
     String userRid = null;
     try {
       db = server.openDatabase(iDatabaseName, username, password);

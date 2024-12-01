@@ -41,10 +41,11 @@ public class ODatabaseImportTest {
     databaseName = "import";
 
     oxygenDB.createIfNotExists(databaseName, ODatabaseType.PLOCAL, "admin", "admin", "admin");
-    try (final ODatabaseSession db = oxygenDB.open(databaseName, "admin", "admin")) {
+    try (var db = (ODatabaseSessionInternal) oxygenDB.open(databaseName, "admin",
+        "admin")) {
       final ODatabaseImport importer =
           new ODatabaseImport(
-              (ODatabaseSessionInternal) db,
+              db,
               new ByteArrayInputStream(output.toByteArray()),
               iText -> {
               });

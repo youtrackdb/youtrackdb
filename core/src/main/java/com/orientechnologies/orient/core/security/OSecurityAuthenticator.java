@@ -19,7 +19,6 @@
  */
 package com.orientechnologies.orient.core.security;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
@@ -36,9 +35,10 @@ public interface OSecurityAuthenticator extends OSecurityComponent {
   // Some token-based authentication (e.g., SPNEGO tokens have the user's name embedded in the
   // service ticket).
   OSecurityUser authenticate(
-      ODatabaseSession session, final String username, final String password);
+      ODatabaseSessionInternal session, final String username, final String password);
 
-  OSecurityUser authenticate(ODatabaseSession session, OAuthenticationInfo authenticationInfo);
+  OSecurityUser authenticate(ODatabaseSessionInternal session,
+      OAuthenticationInfo authenticationInfo);
 
   String getAuthenticationHeader(final String databaseName);
 
@@ -53,7 +53,8 @@ public interface OSecurityAuthenticator extends OSecurityComponent {
 
   OSecurityUser getUser(final String username, ODatabaseSessionInternal session);
 
-  boolean isAuthorized(ODatabaseSession session, final String username, final String resource);
+  boolean isAuthorized(ODatabaseSessionInternal session, final String username,
+      final String resource);
 
   boolean isSingleSignOnSupported();
 }

@@ -180,7 +180,7 @@ public class OScriptManager {
    * @param iLanguage Language as filter
    * @return String containing all the functions
    */
-  public String getLibrary(final ODatabaseSession db, final String iLanguage) {
+  public String getLibrary(final ODatabaseSessionInternal db, final String iLanguage) {
     if (db == null)
     // NO DB = NO LIBRARY
     {

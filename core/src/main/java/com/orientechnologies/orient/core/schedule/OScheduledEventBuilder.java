@@ -18,6 +18,7 @@ package com.orientechnologies.orient.core.schedule;
 
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.type.ODocumentWrapper;
@@ -63,7 +64,7 @@ public class OScheduledEventBuilder extends ODocumentWrapper {
     return this;
   }
 
-  public OScheduledEvent build(ODatabaseSession session) {
+  public OScheduledEvent build(ODatabaseSessionInternal session) {
     var event = new OScheduledEvent(getDocument(session), session);
     event.save(session);
     return event;

@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.Oxygen;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.server.OServer;
@@ -19,7 +19,7 @@ public class RemoteSimpleSchemaTest {
   private static final String SERVER_DIRECTORY = "./target/metadata-push";
   private OServer server;
   private OxygenDB oxygenDB;
-  private ODatabaseSession database;
+  private ODatabaseSessionInternal database;
 
   @Before
   public void before() throws Exception {
@@ -32,7 +32,8 @@ public class RemoteSimpleSchemaTest {
     oxygenDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         RemoteSimpleSchemaTest.class.getSimpleName());
-    database = oxygenDB.open(RemoteSimpleSchemaTest.class.getSimpleName(), "admin", "admin");
+    database = (ODatabaseSessionInternal) oxygenDB.open(
+        RemoteSimpleSchemaTest.class.getSimpleName(), "admin", "admin");
   }
 
   @Test
