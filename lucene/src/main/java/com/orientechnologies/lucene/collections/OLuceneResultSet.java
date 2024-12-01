@@ -29,7 +29,6 @@ import com.orientechnologies.lucene.tx.OLuceneTxChangesAbstract;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.OContextualRecordId;
-import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -78,7 +77,7 @@ public class OLuceneResultSet implements Set<OIdentifiable> {
   public OLuceneResultSet(
       final OLuceneIndexEngine engine,
       final OLuceneQueryContext queryContext,
-      final ODocument metadata) {
+      final Map<String, ?> metadata) {
     this.engine = engine;
     this.queryContext = queryContext;
     this.query = queryContext.getQuery();
@@ -88,7 +87,7 @@ public class OLuceneResultSet implements Set<OIdentifiable> {
     deletedMatchCount = calculateDeletedMatch();
 
     final Map<String, Object> highlight =
-        Optional.ofNullable(metadata.<Map>getProperty("highlight")).orElse(Collections.emptyMap());
+        Optional.ofNullable((Map) metadata.get("highlight")).orElse(Collections.emptyMap());
 
     highlighted =
         Optional.ofNullable((List<String>) highlight.get("fields")).orElse(Collections.emptyList());

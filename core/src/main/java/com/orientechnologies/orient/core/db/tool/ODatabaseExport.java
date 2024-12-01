@@ -422,12 +422,15 @@ public class ODatabaseExport extends ODatabaseImpExpAbstract {
         writer.endObject(4, true);
       }
 
-      final ODocument metadata = index.getMetadata();
+      final var metadata = index.getMetadata();
       if (metadata != null) {
-        writer.writeAttribute(4, true, "metadata", metadata);
+        var doc = new ODocument();
+        doc.fromMap(metadata);
+
+        writer.writeAttribute(4, true, "metadata", doc);
       }
 
-      final ODocument configuration = index.getConfiguration();
+      final ODocument configuration = index.getConfiguration(database);
       if (configuration.field("blueprintsIndexClass") != null) {
         writer.writeAttribute(
             4, true, "blueprintsIndexClass", configuration.field("blueprintsIndexClass"));

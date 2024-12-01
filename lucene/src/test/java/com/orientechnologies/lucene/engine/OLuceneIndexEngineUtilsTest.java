@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import org.apache.lucene.search.SortField;
 import org.junit.Test;
@@ -12,16 +13,15 @@ public class OLuceneIndexEngineUtilsTest {
 
   @Test
   public void buildSortFields() throws Exception {
-    ODocument metadata =
-        new ODocument()
-            .field(
-                "sort",
-                Collections.singletonList(
-                    new ODocument()
-                        .field("field", "score")
-                        .field("reverse", false)
-                        .field("type", "INT")
-                        .toMap()));
+    var metadata = new HashMap<String, Object>();
+    metadata.put(
+        "sort",
+        Collections.singletonList(
+            new ODocument()
+                .field("field", "score")
+                .field("reverse", false)
+                .field("type", "INT")
+                .toMap()));
 
     final List<SortField> fields = OLuceneIndexEngineUtils.buildSortFields(metadata);
 

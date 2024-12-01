@@ -301,13 +301,21 @@ public abstract class OIndexRemote implements OIndex {
     return algorithm;
   }
 
-  public ODocument getConfiguration() {
+  public ODocument getConfiguration(ODatabaseSessionInternal session) {
     return configuration;
   }
 
   @Override
-  public ODocument getMetadata() {
-    return configuration.field("metadata", OType.EMBEDDED);
+  public Map<String, ?> getMetadata() {
+    var embedded = configuration.<ODocument>field("metadata", OType.EMBEDDED);
+    var map = embedded.toMap();
+
+    map.remove("@rid");
+    map.remove("@class");
+    map.remove("@type");
+    map.remove("@version");
+
+    return map;
   }
 
   public ORID getIdentity() {

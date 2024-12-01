@@ -223,12 +223,6 @@ public abstract class OIndexAbstract implements OIndexInternal {
         OLogManager.instance().error(this, "Error during deletion of index '%s'", e, im.getName());
       }
       Map<String, String> engineProperties = new HashMap<>();
-      // this property is used for autosharded index
-      if (im.getMetadata() != null && im.getMetadata().containsField("partitions")) {
-        engineProperties.put("partitions", im.getMetadata().field("partitions"));
-      } else {
-        engineProperties.put("partitions", Integer.toString(clustersToIndex.size()));
-      }
       indexMetadata.setVersion(im.getVersion());
       indexId = storage.addIndexEngine(indexMetadata, engineProperties);
       apiVersion = OAbstractPaginatedStorage.extractEngineAPIVersion(indexId);
@@ -241,8 +235,6 @@ public abstract class OIndexAbstract implements OIndexInternal {
       if (rebuild) {
         fillIndex(session, progressListener, false);
       }
-
-      updateConfiguration();
     } catch (Exception e) {
       OLogManager.instance().error(this, "Exception during index '%s' creation", e, im.getName());
       // index is created inside of storage
@@ -282,12 +274,6 @@ public abstract class OIndexAbstract implements OIndexInternal {
 
         if (indexId == -1) {
           Map<String, String> engineProperties = new HashMap<>();
-          // this property is used for autosharded index
-          if (im.getMetadata() != null && im.getMetadata().containsField("partitions")) {
-            engineProperties.put("partitions", im.getMetadata().field("partitions"));
-          } else {
-            engineProperties.put("partitions", Integer.toString(clustersToIndex.size()));
-          }
           indexId = storage.loadExternalIndexEngine(indexMetadata, engineProperties);
           apiVersion = OAbstractPaginatedStorage.extractEngineAPIVersion(indexId);
         }
@@ -499,14 +485,8 @@ public abstract class OIndexAbstract implements OIndexInternal {
         OLogManager.instance().error(this, "Error during index '%s' delete", e, im.getName());
       }
 
-      OIndexMetadata indexMetadata = this.loadMetadata(updateConfiguration());
+      OIndexMetadata indexMetadata = this.loadMetadata(updateConfiguration(session));
       Map<String, String> engineProperties = new HashMap<>();
-      // this property is used for autosharded index
-      if (im.getMetadata() != null && im.getMetadata().containsField("partitions")) {
-        engineProperties.put("partitions", im.getMetadata().field("partitions"));
-      } else {
-        engineProperties.put("partitions", Integer.toString(clustersToIndex.size()));
-      }
       indexId = storage.addIndexEngine(indexMetadata, engineProperties);
       apiVersion = OAbstractPaginatedStorage.extractEngineAPIVersion(indexId);
 
@@ -726,8 +706,6 @@ public abstract class OIndexAbstract implements OIndexInternal {
     acquireExclusiveLock();
     try {
       if (clustersToIndex.add(clusterName)) {
-        updateConfiguration();
-
         // INDEX SINGLE CLUSTER
         indexCluster(session, clusterName, null, 0, 0, 0);
       }
@@ -742,7 +720,6 @@ public abstract class OIndexAbstract implements OIndexInternal {
     acquireExclusiveLock();
     try {
       if (clustersToIndex.remove(iClusterName)) {
-        updateConfiguration();
         rebuild(session);
       }
 
@@ -756,15 +733,15 @@ public abstract class OIndexAbstract implements OIndexInternal {
     return im.getVersion();
   }
 
-  public ODocument updateConfiguration() {
-    ODocument document = new ODocument();
+  public ODocument updateConfiguration(ODatabaseSessionInternal session) {
+    ODocument document = new ODocument(session);
     document.field(OIndexInternal.CONFIG_TYPE, im.getType());
     document.field(OIndexInternal.CONFIG_NAME, im.getName());
     document.field(OIndexInternal.INDEX_VERSION, im.getVersion());
 
     if (im.getIndexDefinition() != null) {
 
-      final ODocument indexDefDocument = im.getIndexDefinition().toStream(new ODocument());
+      final ODocument indexDefDocument = im.getIndexDefinition().toStream(new ODocument(session));
       if (!indexDefDocument.hasOwners()) {
         ODocumentInternal.addOwner(indexDefDocument, document);
       }
@@ -780,8 +757,11 @@ public abstract class OIndexAbstract implements OIndexInternal {
     document.field(CONFIG_CLUSTERS, clustersToIndex, OType.EMBEDDEDSET);
     document.field(ALGORITHM, im.getAlgorithm());
     document.field(VALUE_CONTAINER_ALGORITHM, im.getValueContainerAlgorithm());
+
     if (im.getMetadata() != null) {
-      document.field(OIndexInternal.METADATA, im.getMetadata(), OType.EMBEDDED);
+      var imDoc = new ODocument();
+      imDoc.fromMap(im.getMetadata());
+      document.field(OIndexInternal.METADATA, imDoc, OType.EMBEDDED);
     }
 
     return document;
@@ -804,12 +784,12 @@ public abstract class OIndexAbstract implements OIndexInternal {
     return changes.getEntriesAsList();
   }
 
-  public ODocument getConfiguration() {
-    return updateConfiguration();
+  public ODocument getConfiguration(ODatabaseSessionInternal session) {
+    return updateConfiguration(session);
   }
 
   @Override
-  public ODocument getMetadata() {
+  public Map<String, ?> getMetadata() {
     return im.getMetadata();
   }
 

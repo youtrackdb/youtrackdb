@@ -77,7 +77,6 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
       new ConcurrentHashMap<>();
   protected Map<String, OIndex> indexes = new ConcurrentHashMap<>();
   protected String defaultClusterName = OMetadataDefault.CLUSTER_INDEX_NAME;
-  protected String manualClusterName = OMetadataDefault.CLUSTER_MANUAL_INDEX_NAME;
   protected final AtomicInteger writeLockNesting = new AtomicInteger();
 
   protected final ReadWriteLock lock = new ReentrantReadWriteLock();
@@ -856,7 +855,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
 
       for (final OIndex i : this.indexes.values()) {
         var indexInternal = (OIndexInternal) i;
-        indexes.add(indexInternal.updateConfiguration());
+        indexes.add(indexInternal.updateConfiguration(session));
       }
       document.field(CONFIG_INDEXES, indexes, OType.EMBEDDEDSET);
       document.setDirty();
@@ -951,7 +950,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
             OIndex oldIndex = oldIndexes.remove(normalizedName);
             if (oldIndex != null) {
               OIndexMetadata oldIndexMetadata =
-                  oldIndex.getInternal().loadMetadata(oldIndex.getConfiguration());
+                  oldIndex.getInternal().loadMetadata(oldIndex.getConfiguration(session));
 
               if (!(oldIndexMetadata.equals(newIndexMetadata)
                   || newIndexMetadata.getIndexDefinition() == null)) {
@@ -1053,8 +1052,8 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
     }
   }
 
-  public ODocument toNetworkStream() {
-    ODocument document = new ODocument();
+  public ODocument toNetworkStream(ODatabaseSessionInternal session) {
+    ODocument document = new ODocument(session);
     internalAcquireExclusiveLock();
     try {
       document.setTrackingChanges(false);
@@ -1062,10 +1061,10 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
 
       for (final OIndex i : this.indexes.values()) {
         var indexInternal = (OIndexInternal) i;
-        indexes.add(indexInternal.updateConfiguration());
+        indexes.add(indexInternal.updateConfiguration(session));
       }
-      document.field(CONFIG_INDEXES, indexes, OType.EMBEDDEDSET);
 
+      document.field(CONFIG_INDEXES, indexes, OType.EMBEDDEDSET);
       return document;
     } finally {
       internalReleaseExclusiveLock();

@@ -34,6 +34,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.storage.OStorage;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 
@@ -84,13 +85,14 @@ public class OLuceneIndexFactory implements OIndexFactory, ODatabaseLifecycleLis
   @Override
   public OIndexInternal createIndex(OStorage storage, OIndexMetadata im)
       throws OConfigurationException {
-    ODocument metadata = im.getMetadata();
+    Map<String, ?> metadata = im.getMetadata();
     final String indexType = im.getType();
     final String algorithm = im.getAlgorithm();
 
     if (metadata == null) {
-      metadata = new ODocument().field("analyzer", StandardAnalyzer.class.getName());
-      im.setMetadata(metadata);
+      var metadataDoc = new ODocument();
+      metadataDoc.field("analyzer", StandardAnalyzer.class.getName());
+      im.setMetadata(metadataDoc);
     }
 
     if (FULLTEXT.toString().equalsIgnoreCase(indexType)) {

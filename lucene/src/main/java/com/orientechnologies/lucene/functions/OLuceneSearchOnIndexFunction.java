@@ -11,7 +11,6 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.parser.OBinaryCompareOperator;
 import com.orientechnologies.orient.core.sql.parser.OExpression;
@@ -74,7 +73,7 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
       memoryIndex.addField(field, index.indexAnalyzer());
     }
 
-    ODocument metadata = getMetadata(params);
+    var metadata = getMetadata(params);
     OLuceneKeyAndMetadata keyAndMetadata =
         new OLuceneKeyAndMetadata(
             new OLuceneCompositeKey(Collections.singletonList(query)).setContext(ctx), metadata);
@@ -82,19 +81,16 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
     return memoryIndex.search(index.buildQuery(keyAndMetadata)) > 0.0f;
   }
 
-  private ODocument getMetadata(Object[] params) {
+  private Map<String, ?> getMetadata(Object[] params) {
 
     if (params.length == 3) {
-      var doc = new ODocument();
-      //noinspection unchecked
-      doc.fromMap((Map<String, ?>) params[2]);
-      return doc;
+      return (Map<String, ?>) params[2];
     }
 
     return OLuceneQueryBuilder.EMPTY_METADATA;
   }
 
-  private MemoryIndex getOrCreateMemoryIndex(OCommandContext ctx) {
+  private static MemoryIndex getOrCreateMemoryIndex(OCommandContext ctx) {
     MemoryIndex memoryIndex = (MemoryIndex) ctx.getVariable(MEMORY_INDEX);
     if (memoryIndex == null) {
       memoryIndex = new MemoryIndex();
@@ -129,7 +125,7 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
     String query = (String) expression.execute((OIdentifiable) null, ctx);
     if (index != null && query != null) {
 
-      ODocument meta = getMetadata(args, ctx);
+      var meta = getMetadata(args, ctx);
 
       List<OIdentifiable> luceneResultSet;
       try (Stream<ORID> rids =
@@ -146,7 +142,7 @@ public class OLuceneSearchOnIndexFunction extends OLuceneSearchFunctionTemplate 
     return Collections.emptyList();
   }
 
-  private ODocument getMetadata(OExpression[] args, OCommandContext ctx) {
+  private Map<String, ?> getMetadata(OExpression[] args, OCommandContext ctx) {
     if (args.length == 3) {
       return getMetadata(args[2], ctx);
     }

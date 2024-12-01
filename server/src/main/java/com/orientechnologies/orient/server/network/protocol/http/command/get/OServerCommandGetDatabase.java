@@ -279,7 +279,7 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
         json.beginObject();
         try {
           json.writeAttribute("name", index.getName());
-          json.writeAttribute("configuration", index.getConfiguration());
+          json.writeAttribute("configuration", index.getConfiguration(db));
           // Exclude index size because it's too costly
           // json.writeAttribute("size", index.getSize());
         } catch (Exception e) {

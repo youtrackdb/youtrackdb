@@ -17,7 +17,6 @@ import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
-import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.spatial.shape.OShapeBuilder;
 import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.bbox.BBoxStrategy;
@@ -36,11 +35,10 @@ public class OSpatialStrategyFactory {
     this.factory = factory;
   }
 
-  public SpatialStrategy createStrategy(
+  public static SpatialStrategy createStrategy(
       SpatialContext ctx,
       ODatabaseSessionInternal db,
-      OIndexDefinition indexDefinition,
-      ODocument metadata) {
+      OIndexDefinition indexDefinition) {
 
     OClass aClass =
         db.getMetadata().getImmutableSchemaSnapshot().getClass(indexDefinition.getClassName());

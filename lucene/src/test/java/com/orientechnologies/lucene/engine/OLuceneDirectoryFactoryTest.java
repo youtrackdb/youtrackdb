@@ -12,9 +12,10 @@ import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
-import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.io.File;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
 import org.apache.lucene.store.NIOFSDirectory;
@@ -29,12 +30,12 @@ import org.mockito.Mockito;
 public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
 
   private OLuceneDirectoryFactory fc;
-  private ODocument meta;
+  private Map<String, Object> meta;
   private OIndexDefinition indexDef;
 
   @Before
   public void setUp() throws Exception {
-    meta = new ODocument();
+    meta = new HashMap<>();
     indexDef = Mockito.mock(OIndexDefinition.class);
     when(indexDef.getFields()).thenReturn(Collections.emptyList());
     when(indexDef.getClassName()).thenReturn("Song");
@@ -43,7 +44,7 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
 
   @Test
   public void shouldCreateNioFsDirectory() throws Exception {
-    meta.field(DIRECTORY_TYPE, DIRECTORY_NIO);
+    meta.put(DIRECTORY_TYPE, DIRECTORY_NIO);
     try (OxygenDB ctx =
         new OxygenDB("embedded:./target/testDatabase/", OxygenDBConfig.defaultConfig())) {
       ctx.execute(
@@ -62,7 +63,7 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
 
   @Test
   public void shouldCreateMMapFsDirectory() throws Exception {
-    meta.field(DIRECTORY_TYPE, DIRECTORY_MMAP);
+    meta.put(DIRECTORY_TYPE, DIRECTORY_MMAP);
     try (OxygenDB ctx =
         new OxygenDB("embedded:./target/testDatabase/", OxygenDBConfig.defaultConfig())) {
       ctx.execute(
@@ -81,7 +82,7 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
 
   @Test
   public void shouldCreateRamDirectory() throws Exception {
-    meta.field(DIRECTORY_TYPE, DIRECTORY_RAM);
+    meta.put(DIRECTORY_TYPE, DIRECTORY_RAM);
     try (OxygenDB ctx =
         new OxygenDB("embedded:./target/testDatabase/", OxygenDBConfig.defaultConfig())) {
       ctx.execute(
@@ -98,7 +99,7 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
 
   @Test
   public void shouldCreateRamDirectoryOnMemoryDatabase() {
-    meta.field(DIRECTORY_TYPE, DIRECTORY_RAM);
+    meta.put(DIRECTORY_TYPE, DIRECTORY_RAM);
     try (OxygenDB ctx =
         new OxygenDB("embedded:./target/testDatabase/", OxygenDBConfig.defaultConfig())) {
       ctx.execute(
@@ -117,7 +118,7 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
 
   @Test
   public void shouldCreateRamDirectoryOnMemoryFromMmapDatabase() {
-    meta.field(DIRECTORY_TYPE, DIRECTORY_MMAP);
+    meta.put(DIRECTORY_TYPE, DIRECTORY_MMAP);
     try (OxygenDB ctx =
         new OxygenDB("embedded:./target/testDatabase/", OxygenDBConfig.defaultConfig())) {
       ctx.execute(

@@ -31,17 +31,14 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.security.OPropertyAccess;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityResourceProperty;
-import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.tx.OTransactionIndexChangesPerKey;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -75,9 +72,9 @@ public interface OIndexInternal extends OIndex {
    * Saves the index configuration to disk.
    *
    * @return The configuration as ODocument instance
-   * @see #getConfiguration()
+   * @see OIndex#getConfiguration(ODatabaseSessionInternal)
    */
-  ODocument updateConfiguration();
+  ODocument updateConfiguration(ODatabaseSessionInternal session);
 
   /**
    * Add given cluster to the list of clusters that should be automatically indexed.
@@ -297,66 +294,6 @@ public interface OIndexInternal extends OIndex {
     }
 
     return false;
-  }
-
-  static Collection securityFilterOnRead(OIndex idx, Collection<OIdentifiable> items) {
-    if (idx.getMetadata() == null && idx.getDefinition() == null) {
-      return items;
-    }
-    String indexClass =
-        idx.getMetadata() == null
-            ? idx.getDefinition().getClassName()
-            : idx.getMetadata().getClassName();
-    if (indexClass == null) {
-      return items;
-    }
-    ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
-    if (db == null) {
-      return items;
-    }
-    OSecurityInternal security = db.getSharedContext().getSecurity();
-    if (isReadRestrictedBySecurityPolicy(indexClass, db, security)) {
-      items =
-          items.stream()
-              .map(
-                  x -> {
-                    try {
-                      return x.getRecord();
-                    } catch (ORecordNotFoundException e) {
-                      return null;
-                    }
-                  }) // force record load, that triggers security checks
-              .filter(Objects::nonNull)
-              .map(x -> ((ORecord) x).getIdentity())
-              .collect(Collectors.toList());
-    }
-
-    if (idx.getDefinition().getFields().size() == 1) {
-      String indexProp = idx.getDefinition().getFields().get(0);
-      if (isLabelSecurityDefined(db, security, indexClass, indexProp)) {
-
-        items =
-            items.stream()
-                .map(
-                    x -> {
-                      try {
-                        return x.getRecord();
-                      } catch (ORecordNotFoundException e) {
-                        return null;
-                      }
-                    })
-                .filter(Objects::nonNull)
-                .filter(
-                    x ->
-                        !(x instanceof ODocument)
-                            || ODocumentInternal.getPropertyAccess((ODocument) x) == null
-                            || ODocumentInternal.getPropertyAccess((ODocument) x)
-                            .isReadable(indexProp))
-                .map(x -> ((ORecord) x).getIdentity())
-                .collect(Collectors.toList());
-      }
-    }
-    return items;
   }
 
   boolean isNativeTxSupported();

@@ -53,15 +53,14 @@ public class OLuceneIndexEngineUtils {
     }
   }
 
-  public static List<SortField> buildSortFields(ODocument metadata) {
+  public static List<SortField> buildSortFields(Map<String, ?> metadata) {
+    @SuppressWarnings("unchecked")
     List<Map<String, Object>> sortConf =
-        Optional.ofNullable(metadata.<List<Map<String, Object>>>getProperty("sort"))
+        Optional.ofNullable((List<Map<String, Object>>) metadata.get("sort"))
             .orElse(Collections.emptyList());
 
-    final List<SortField> fields =
-        sortConf.stream().map(d -> buildSortField(d)).collect(Collectors.toList());
-
-    return fields;
+    return sortConf.stream().map(OLuceneIndexEngineUtils::buildSortField)
+        .collect(Collectors.toList());
   }
 
   /**

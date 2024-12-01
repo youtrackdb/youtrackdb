@@ -20,7 +20,6 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -211,12 +210,12 @@ public class OLuceneIndexCrashRestoreIT {
     assertThat(index).isNotNull();
 
     // sometimes the metadata is null!!!!!
-    assertThat((Iterable<? extends Map.Entry<String, Object>>) index.getMetadata()).isNotNull();
+    assertThat(index.getMetadata()).isNotNull();
 
-    assertThat(index.getMetadata().<String>field("default")).isNotNull();
-    assertThat(index.getMetadata().<String>field("default"))
+    assertThat(index.getMetadata().get("default")).isNotNull();
+    assertThat(index.getMetadata().get("default"))
         .isEqualTo("org.apache.lucene.analysis.core.KeywordAnalyzer");
-    assertThat(index.getMetadata().<String>field("unknownKey")).isEqualTo("unknownValue");
+    assertThat(index.getMetadata().get("unknownKey")).isEqualTo("unknownValue");
 
     // sometimes it is not null, and all works fine
     res = db.query("select from Person where name lucene 'Robert' ");
@@ -271,7 +270,7 @@ public class OLuceneIndexCrashRestoreIT {
         db.getMetadata()
             .getIndexManagerInternal()
             .getIndex(db, "Person.name")
-            .getConfiguration()
+            .getConfiguration(db)
             .toJSON());
     db.close();
   }

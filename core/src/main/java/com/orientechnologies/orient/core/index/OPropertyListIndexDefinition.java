@@ -40,6 +40,10 @@ import java.util.List;
 public class OPropertyListIndexDefinition extends OPropertyIndexDefinition
     implements OIndexDefinitionMultiValue {
 
+  @SuppressWarnings("unused")
+  public OPropertyListIndexDefinition() {
+  }
+
   public OPropertyListIndexDefinition(
       final String iClassName, final String iField, final OType iType) {
     super(iClassName, iField, iType);

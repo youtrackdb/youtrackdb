@@ -26,9 +26,11 @@ import com.orientechnologies.orient.core.serialization.serializer.stream.OStream
 import com.orientechnologies.orient.core.serialization.serializer.stream.OStreamSerializerSBTreeIndexRIDContainer;
 import com.orientechnologies.orient.core.sharding.auto.OAutoShardingIndexFactory;
 import com.orientechnologies.orient.core.storage.index.hashindex.local.OHashIndexFactory;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Contains the index metadata.
@@ -43,7 +45,7 @@ public class OIndexMetadata {
   private final String algorithm;
   private final String valueContainerAlgorithm;
   private int version;
-  private ODocument metadata;
+  private Map<String, ?> metadata;
 
   public OIndexMetadata(
       @Nonnull String name,
@@ -54,6 +56,7 @@ public class OIndexMetadata {
       String valueContainerAlgorithm,
       int version,
       ODocument metadata) {
+    assert metadata == null || metadata.getIdentity().isNew();
     this.name = name;
     this.indexDefinition = indexDefinition;
     this.clustersToIndex = clustersToIndex;
@@ -66,13 +69,26 @@ public class OIndexMetadata {
       }
     }
     this.algorithm = algorithm;
-    if (valueContainerAlgorithm != null) {
-      this.valueContainerAlgorithm = valueContainerAlgorithm;
-    } else {
-      this.valueContainerAlgorithm = OAutoShardingIndexFactory.NONE_VALUE_CONTAINER;
-    }
+    this.valueContainerAlgorithm = Objects.requireNonNullElse(valueContainerAlgorithm,
+        OAutoShardingIndexFactory.NONE_VALUE_CONTAINER);
     this.version = version;
-    this.metadata = metadata;
+    this.metadata = initMetadata(metadata);
+  }
+
+  @Nullable
+  private static Map<String, ?> initMetadata(ODocument metadataDoc) {
+    if (metadataDoc == null) {
+      return null;
+    }
+
+    var metadata = metadataDoc.toMap();
+
+    metadata.remove("@rid");
+    metadata.remove("@class");
+    metadata.remove("@type");
+    metadata.remove("@version");
+
+    return metadata;
   }
 
   @Nonnull
@@ -168,11 +184,11 @@ public class OIndexMetadata {
     this.version = version;
   }
 
-  public ODocument getMetadata() {
+  public Map<String, ?> getMetadata() {
     return metadata;
   }
 
   public void setMetadata(ODocument metadata) {
-    this.metadata = metadata;
+    this.metadata = initMetadata(metadata);
   }
 }

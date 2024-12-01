@@ -22,7 +22,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
-import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.InputStream;
 import java.util.stream.Stream;
@@ -62,11 +61,11 @@ public class LuceneMultiFieldTest extends BaseLuceneTest {
                 + "\"}")
         .close();
 
-    final ODocument index =
+    final var index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, "Song.title_author").getMetadata();
 
-    assertThat(index.<Object>field("author_index")).isEqualTo(StandardAnalyzer.class.getName());
-    assertThat(index.<Object>field("title_index")).isEqualTo(EnglishAnalyzer.class.getName());
+    assertThat(index.get("author_index")).isEqualTo(StandardAnalyzer.class.getName());
+    assertThat(index.get("title_index")).isEqualTo(EnglishAnalyzer.class.getName());
   }
 
   @Test

@@ -86,11 +86,11 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     nestedDoc.setProperty(constantFieldName, "someValue1");
 
     doc.setProperty(constantFieldName, "someValue2");
-    doc.setProperty(nestedDocField, nestedDoc);
+    doc.setProperty(nestedDocField, nestedDoc, OType.EMBEDDED);
 
     ODocument originalDoc = new ODocument();
     originalDoc.setProperty(constantFieldName, "someValue2");
-    originalDoc.setProperty(nestedDocField, nestedDoc);
+    originalDoc.setProperty(nestedDocField, nestedDoc, OType.EMBEDDED);
 
     doc = db.save(doc);
     db.commit();
@@ -100,7 +100,7 @@ public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
     nestedDoc = doc.field(nestedDocField);
     nestedDoc.setProperty(fieldName, testValue);
 
-    doc.setProperty(nestedDocField, nestedDoc);
+    doc.setProperty(nestedDocField, nestedDoc, OType.EMBEDDED);
 
     ODocumentSerializerDelta serializerDelta = ODocumentSerializerDelta.instance();
 

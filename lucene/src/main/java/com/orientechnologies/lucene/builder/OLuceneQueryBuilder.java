@@ -24,8 +24,8 @@ import com.orientechnologies.lucene.parser.OLuceneMultiFieldQueryParser;
 import com.orientechnologies.orient.core.index.OCompositeKey;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.parser.ParseException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -39,18 +39,18 @@ import org.apache.lucene.search.Query;
  */
 public class OLuceneQueryBuilder {
 
-  public static final ODocument EMPTY_METADATA = new ODocument();
+  public static final Map<String, ?> EMPTY_METADATA = Collections.emptyMap();
 
   private final boolean allowLeadingWildcard;
   // private final boolean                lowercaseExpandedTerms;
   private final boolean splitOnWhitespace;
   private final OLuceneAnalyzerFactory analyzerFactory;
 
-  public OLuceneQueryBuilder(final ODocument metadata) {
+  public OLuceneQueryBuilder(final Map<String, ?> metadata) {
     this(
-        Optional.ofNullable(metadata.<Boolean>field("allowLeadingWildcard")).orElse(false),
-        Optional.ofNullable(metadata.<Boolean>field("lowercaseExpandedTerms")).orElse(true),
-        Optional.ofNullable(metadata.<Boolean>field("splitOnWhitespace")).orElse(true));
+        Optional.ofNullable((Boolean) metadata.get("allowLeadingWildcard")).orElse(false),
+        Optional.ofNullable((Boolean) metadata.get("lowercaseExpandedTerms")).orElse(true),
+        Optional.ofNullable((Boolean) metadata.get("splitOnWhitespace")).orElse(true));
   }
 
   public OLuceneQueryBuilder(
@@ -66,7 +66,7 @@ public class OLuceneQueryBuilder {
   public Query query(
       final OIndexDefinition index,
       final Object key,
-      final ODocument metadata,
+      final Map<String, ?> metadata,
       final Analyzer analyzer)
       throws ParseException {
     final String query = constructQueryString(key);
@@ -76,7 +76,7 @@ public class OLuceneQueryBuilder {
     return buildQuery(index, query, metadata, analyzer);
   }
 
-  private String constructQueryString(final Object key) {
+  private static String constructQueryString(final Object key) {
     if (key instanceof OCompositeKey) {
       final Object params = ((OCompositeKey) key).getKeys().get(0);
       return params.toString();
@@ -88,7 +88,7 @@ public class OLuceneQueryBuilder {
   protected Query buildQuery(
       final OIndexDefinition index,
       final String query,
-      final ODocument metadata,
+      final Map<String, ?> metadata,
       final Analyzer queryAnalyzer)
       throws ParseException {
     String[] fields;
@@ -112,19 +112,19 @@ public class OLuceneQueryBuilder {
   private Query getQuery(
       final OIndexDefinition index,
       final String query,
-      final ODocument metadata,
+      final Map<String, ?> metadata,
       final Analyzer queryAnalyzer,
       final String[] fields,
       final Map<String, OType> types)
       throws ParseException {
-    final Map<String, Float> boost =
-        Optional.ofNullable(metadata.<Map<String, Number>>getProperty("boost"))
+    @SuppressWarnings("unchecked") final Map<String, Float> boost =
+        Optional.ofNullable((Map<String, Number>) metadata.get("boost"))
             .orElse(new HashMap<>())
             .entrySet()
             .stream()
             .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().floatValue()));
     final Analyzer analyzer =
-        Optional.ofNullable(metadata.<Boolean>getProperty("customAnalysis"))
+        Optional.ofNullable((Boolean) metadata.get("customAnalysis"))
             .filter(b -> b)
             .map(
                 b ->
@@ -134,10 +134,10 @@ public class OLuceneQueryBuilder {
     final OLuceneMultiFieldQueryParser queryParser =
         new OLuceneMultiFieldQueryParser(types, fields, analyzer, boost);
     queryParser.setAllowLeadingWildcard(
-        Optional.ofNullable(metadata.<Boolean>getProperty("allowLeadingWildcard"))
+        Optional.ofNullable((Boolean) metadata.get("allowLeadingWildcard"))
             .orElse(allowLeadingWildcard));
     queryParser.setSplitOnWhitespace(
-        Optional.ofNullable(metadata.<Boolean>getProperty("splitOnWhitespace"))
+        Optional.ofNullable((Boolean) metadata.get("splitOnWhitespace"))
             .orElse(splitOnWhitespace));
     //  TODO   REMOVED
     //    queryParser.setLowercaseExpandedTerms(
@@ -164,9 +164,9 @@ public class OLuceneQueryBuilder {
    * persisted in logs.
    */
   private static Throwable prepareParseError(
-      org.apache.lucene.queryparser.classic.ParseException e, ODocument metadata) {
+      org.apache.lucene.queryparser.classic.ParseException e, Map<String, ?> metadata) {
     final Throwable cause;
-    final String reportAs = metadata.getProperty("reportQueryAs");
+    final String reportAs = (String) metadata.get("reportQueryAs");
     if (reportAs == null) {
       cause = e;
     } else {

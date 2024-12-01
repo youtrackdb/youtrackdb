@@ -88,7 +88,7 @@ public class OLuceneSpatialIndexFactory implements OIndexFactory, ODatabaseLifec
   @Override
   public OIndexInternal createIndex(OStorage storage, OIndexMetadata im)
       throws OConfigurationException {
-    ODocument metadata = im.getMetadata();
+    var metadata = im.getMetadata();
     final String indexType = im.getType();
     final String algorithm = im.getAlgorithm();
 
@@ -106,9 +106,11 @@ public class OLuceneSpatialIndexFactory implements OIndexFactory, ODatabaseLifec
     }
 
     if (metadata == null) {
-      metadata = new ODocument().field("analyzer", StandardAnalyzer.class.getName());
-      im.setMetadata(metadata);
+      var metadataDoc = new ODocument();
+      metadataDoc.field("analyzer", StandardAnalyzer.class.getName());
+      im.setMetadata(metadataDoc);
     }
+
     if (OClass.INDEX_TYPE.SPATIAL.toString().equals(indexType)) {
       return new OLuceneSpatialIndex(im, storage);
     }

@@ -32,6 +32,7 @@ import com.orientechnologies.spatial.factory.OSpatialStrategyFactory;
 import com.orientechnologies.spatial.shape.OShapeBuilder;
 import com.orientechnologies.spatial.strategy.SpatialQueryBuilder;
 import java.io.IOException;
+import java.util.Map;
 import java.util.stream.Stream;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -76,7 +77,7 @@ public abstract class OLuceneSpatialIndexEngineAbstract extends OLuceneIndexEngi
   }
 
   protected abstract SpatialStrategy createSpatialStrategy(
-      OIndexDefinition indexDefinition, ODocument metadata);
+      OIndexDefinition indexDefinition, Map<String, ?> metadata);
 
   @Override
   public IndexWriter createIndexWriter(Directory directory) throws IOException {

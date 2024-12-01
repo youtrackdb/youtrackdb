@@ -189,9 +189,12 @@ public class OPropertyEmbedded extends OPropertyImpl {
 
           for (OIndex indexToRecreate : indexesToRecreate) {
             final OIndexMetadata indexMetadata =
-                indexToRecreate.getInternal().loadMetadata(indexToRecreate.getConfiguration());
+                indexToRecreate.getInternal()
+                    .loadMetadata(indexToRecreate.getConfiguration(session));
 
-            final ODocument metadata = indexToRecreate.getMetadata();
+            final ODocument metadata = new ODocument();
+            metadata.fromMap(indexToRecreate.getMetadata());
+
             final List<String> fields = indexMetadata.getIndexDefinition().getFields();
             final String[] fieldsToIndex = fields.toArray(new String[0]);
 

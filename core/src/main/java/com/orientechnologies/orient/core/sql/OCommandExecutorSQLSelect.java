@@ -33,7 +33,6 @@ import com.orientechnologies.common.util.OPatternConst;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.common.util.OSizeable;
 import com.orientechnologies.orient.core.Oxygen;
-import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
@@ -2596,8 +2595,8 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
           streams.add(stream);
         }
 
-        if (index.getMetadata() != null && !index.getDefinition().isNullValuesIgnored()) {
-          @SuppressWarnings("resource") final Stream<ORID> nullRids = index.getInternal()
+        if (!index.getDefinition().isNullValuesIgnored()) {
+          final Stream<ORID> nullRids = index.getInternal()
               .getRids(session, null);
           streams.add(nullRids.map((rid) -> new ORawPair<>(null, rid)));
         }

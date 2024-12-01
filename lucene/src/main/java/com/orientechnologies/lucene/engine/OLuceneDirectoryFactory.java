@@ -2,11 +2,11 @@ package com.orientechnologies.lucene.engine;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.storage.OStorage;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
 import org.apache.lucene.store.NIOFSDirectory;
@@ -28,9 +28,10 @@ public class OLuceneDirectoryFactory {
   public static final String DIRECTORY_PATH = "directory_path";
 
   public OLuceneDirectory createDirectory(
-      final OStorage storage, final String indexName, final ODocument metadata) {
+      final OStorage storage, final String indexName, final Map<String, ?> metadata) {
     final String luceneType =
-        metadata.containsField(DIRECTORY_TYPE) ? metadata.field(DIRECTORY_TYPE) : DIRECTORY_MMAP;
+        metadata.containsKey(DIRECTORY_TYPE) ? metadata.get(DIRECTORY_TYPE).toString()
+            : DIRECTORY_MMAP;
     if (storage.getType().equals(ODatabaseType.MEMORY.name().toLowerCase())
         || DIRECTORY_RAM.equals(luceneType)) {
       final Directory dir = new RAMDirectory();
@@ -42,11 +43,11 @@ public class OLuceneDirectoryFactory {
   private OLuceneDirectory createDirectory(
       final OStorage storage,
       final String indexName,
-      final ODocument metadata,
+      final Map<String, ?> metadata,
       final String luceneType) {
     final String luceneBasePath;
-    if (metadata.containsField(DIRECTORY_PATH)) {
-      luceneBasePath = metadata.field(DIRECTORY_PATH);
+    if (metadata.containsKey(DIRECTORY_PATH)) {
+      luceneBasePath = metadata.get(DIRECTORY_PATH).toString();
     } else {
       luceneBasePath = OLUCENE_BASE_DIR;
     }

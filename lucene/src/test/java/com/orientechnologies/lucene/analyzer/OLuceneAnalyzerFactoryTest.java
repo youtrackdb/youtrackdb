@@ -11,6 +11,7 @@ import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import org.apache.lucene.analysis.StopwordAnalyzerBase;
 import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
@@ -25,7 +26,7 @@ import org.mockito.Mockito;
 public class OLuceneAnalyzerFactoryTest {
 
   private OLuceneAnalyzerFactory analyzerFactory;
-  private ODocument metadata;
+  private Map<String, ?> metadata;
   private OIndexDefinition indexDef;
 
   @Before
@@ -37,8 +38,9 @@ public class OLuceneAnalyzerFactoryTest {
 
     String metajson =
         OIOUtils.readFileAsString(new File("./src/test/resources/index_metadata_new.json"));
-    metadata = new ODocument();
-    metadata.fromJSON(metajson);
+    var metadataDocument = new ODocument();
+    metadataDocument.fromJSON(metajson);
+    metadata = metadataDocument.toMap();
 
     indexDef = Mockito.mock(OIndexDefinition.class);
     when(indexDef.getFields())

@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
 import com.orientechnologies.orient.core.index.OIndexDefinition;
-import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.parser.ParseException;
 import java.util.Collections;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
@@ -45,11 +44,10 @@ public class OLuceneQueryBuilderTest {
     final OLuceneQueryBuilder builder = new OLuceneQueryBuilder(OLuceneQueryBuilder.EMPTY_METADATA);
 
     final String invalidQuery = "+(song:private{}private)";
-    final ODocument queryMetadata =
-        new ODocument();
-    queryMetadata.fromMap(Collections.singletonMap("reportQueryAs", "masked"));
     try {
-      builder.buildQuery(indexDef, invalidQuery, queryMetadata, new EnglishAnalyzer());
+      builder.buildQuery(indexDef, invalidQuery,
+          Collections.singletonMap("reportQueryAs", "masked"),
+          new EnglishAnalyzer());
     } catch (ParseException e) {
       assertThat(e.getMessage()).contains("Cannot parse", "masked").doesNotContain(invalidQuery);
       return;

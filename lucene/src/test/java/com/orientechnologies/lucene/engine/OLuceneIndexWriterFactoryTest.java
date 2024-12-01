@@ -22,12 +22,13 @@ public class OLuceneIndexWriterFactoryTest {
     OLuceneIndexWriterFactory fc = new OLuceneIndexWriterFactory();
 
     // sample metadata json
-    ODocument meta = new ODocument();
+    var meta = new ODocument();
     meta.fromJSON(
         OIOUtils.readFileAsString(
             new File("./src/test/resources/index_metadata_new.json")));
 
-    IndexWriter writer = fc.createIndexWriter(new RAMDirectory(), meta, new StandardAnalyzer());
+    IndexWriter writer = fc.createIndexWriter(new RAMDirectory(), meta.toMap(),
+        new StandardAnalyzer());
 
     LiveIndexWriterConfig config = writer.getConfig();
     assertThat(config.getUseCompoundFile()).isFalse();

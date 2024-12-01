@@ -180,7 +180,7 @@ public class OLuceneIndexType {
   }
 
   public static Query createDeleteQuery(
-      OIdentifiable value, List<String> fields, Object key, ODocument metadata) {
+      OIdentifiable value, List<String> fields, Object key) {
 
     // TODO Implementation of Composite keys with Collection
     final BooleanQuery.Builder filter = new BooleanQuery.Builder();

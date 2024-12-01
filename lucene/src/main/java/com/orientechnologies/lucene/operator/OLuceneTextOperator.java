@@ -91,12 +91,11 @@ public class OLuceneTextOperator extends OQueryTargetOperator {
       return null;
     }
 
-    //noinspection resource
     return index
         .getInternal()
         .getRids(iContext.getDatabase(),
             new OLuceneKeyAndMetadata(
-                new OLuceneCompositeKey(keyParams).setContext(iContext), new ODocument()))
+                new OLuceneCompositeKey(keyParams).setContext(iContext), Collections.emptyMap()))
         .map((rid) -> new ORawPair<>(new OLuceneCompositeKey(keyParams), rid));
   }
 

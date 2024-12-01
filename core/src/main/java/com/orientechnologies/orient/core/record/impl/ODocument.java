@@ -1395,6 +1395,13 @@ public class ODocument extends ORecordAbstract
     return newDoc;
   }
 
+  public ODocument copy(ODatabaseSessionInternal session) {
+    var newDoc = copy();
+    newDoc.setup(session);
+
+    return newDoc;
+  }
+
   /**
    * Copies all the fields into iDestination document.
    */
@@ -3513,6 +3520,11 @@ public class ODocument extends ORecordAbstract
     if (iOwner == null) {
       return;
     }
+
+    if (recordId.isPersistent()) {
+      throw new ODatabaseException("Cannot add owner to a persistent element");
+    }
+
     if (owner == null) {
       if (dirtyManager != null && this.getIdentity().isNew()) {
         dirtyManager.removeNew(this);
@@ -3523,6 +3535,7 @@ public class ODocument extends ORecordAbstract
 
   void removeOwner(final ORecordElement iRecordElement) {
     if (owner != null && owner.get() == iRecordElement) {
+      assert !recordId.isPersistent();
       owner = null;
     }
   }

@@ -73,23 +73,20 @@ public abstract class OLuceneSearchFunctionTemplate extends OSQLFunctionAbstract
     return count;
   }
 
-  protected ODocument getMetadata(OExpression metadata, OCommandContext ctx) {
+  protected Map<String, ?> getMetadata(OExpression metadata, OCommandContext ctx) {
     final Object md = metadata.execute((OIdentifiable) null, ctx);
-    if (md instanceof ODocument) {
-      return (ODocument) md;
-    } else if (md instanceof Map) {
-      var doc = new ODocument();
-      //noinspection unchecked
-      doc.fromMap((Map<String, ?>) md);
-      return doc;
+    if (md instanceof ODocument document) {
+      return document.toMap();
+    } else if (md instanceof Map map) {
+      return map;
     } else if (md instanceof String) {
       var doc = new ODocument();
       doc.fromJSON((String) md);
-      return doc;
+      return doc.toMap();
     } else {
       var doc = new ODocument();
       doc.fromJSON(metadata.toString());
-      return doc;
+      return doc.toMap();
     }
   }
 

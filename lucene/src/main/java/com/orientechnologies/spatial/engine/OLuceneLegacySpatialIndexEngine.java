@@ -33,7 +33,6 @@ import com.orientechnologies.orient.core.index.OIndexEngineException;
 import com.orientechnologies.orient.core.index.OIndexKeyUpdater;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValidator;
 import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.orientechnologies.spatial.collections.OSpatialCompositeKey;
@@ -239,7 +238,7 @@ public class OLuceneLegacySpatialIndexEngine extends OLuceneSpatialIndexEngineAb
 
   @Override
   protected SpatialStrategy createSpatialStrategy(
-      OIndexDefinition indexDefinition, ODocument metadata) {
+      OIndexDefinition indexDefinition, Map<String, ?> metadata) {
     return new RecursivePrefixTreeStrategy(new GeohashPrefixTree(ctx, 11), "location");
   }
 

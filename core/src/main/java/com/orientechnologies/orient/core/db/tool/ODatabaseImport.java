@@ -1823,7 +1823,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
               indexAlgorithm);
       OGlobalConfiguration.INDEX_IGNORE_NULL_VALUES_DEFAULT.setValue(oldValue);
       if (blueprintsIndexClass != null) {
-        ODocument configuration = index.getConfiguration();
+        ODocument configuration = index.getConfiguration(database);
         configuration.field("blueprintsIndexClass", blueprintsIndexClass);
         indexManager.save(database);
       }

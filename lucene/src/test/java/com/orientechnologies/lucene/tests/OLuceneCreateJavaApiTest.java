@@ -59,9 +59,9 @@ public class OLuceneCreateJavaApiTest extends OLuceneBaseTest {
 
     assertThat(lucene).isNotNull();
 
-    assertThat(lucene.getMetadata().containsField("analyzer")).isTrue();
+    assertThat(lucene.getMetadata().containsKey("analyzer")).isTrue();
 
-    assertThat(lucene.getMetadata().<Object>field("analyzer"))
+    assertThat(lucene.getMetadata().get("analyzer"))
         .isEqualTo(StandardAnalyzer.class.getName());
   }
 
@@ -81,9 +81,9 @@ public class OLuceneCreateJavaApiTest extends OLuceneBaseTest {
 
     assertThat(lucene).isNotNull();
 
-    assertThat(lucene.getMetadata().containsField("analyzer")).isTrue();
+    assertThat(lucene.getMetadata().containsKey("analyzer")).isTrue();
 
-    assertThat(lucene.getMetadata().<Object>field("analyzer"))
+    assertThat(lucene.getMetadata().get("analyzer"))
         .isEqualTo(StandardAnalyzer.class.getName());
   }
 }

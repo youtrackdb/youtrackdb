@@ -29,18 +29,19 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-@Test(groups = {"index"})
+@Test
 public class ClassIndexTest extends DocumentDBBaseTest {
 
   private OClass oClass;
   private OClass oSuperClass;
 
   @Parameters(value = "remote")
-  public ClassIndexTest(boolean remote) {
-    super(remote);
+  public ClassIndexTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @BeforeClass

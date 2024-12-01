@@ -33,6 +33,7 @@ import com.orientechnologies.orient.core.tx.OTransactionIndexChanges.OPERATION;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -142,8 +143,8 @@ public class OIndexFullText extends OIndexMultiValues {
   }
 
   @Override
-  public ODocument updateConfiguration() {
-    ODocument document = super.updateConfiguration();
+  public ODocument updateConfiguration(ODatabaseSessionInternal session) {
+    ODocument document = super.updateConfiguration(session);
     document.field(CONFIG_SEPARATOR_CHARS, separatorChars);
     document.field(CONFIG_IGNORE_CHARS, ignoreChars);
     document.field(CONFIG_STOP_WORDS, stopWords);
@@ -161,26 +162,27 @@ public class OIndexFullText extends OIndexMultiValues {
     return false;
   }
 
-  private void configWithMetadata(ODocument metadata) {
+  private void configWithMetadata(Map<String, ?> metadata) {
     if (metadata != null) {
-      if (metadata.containsField(CONFIG_IGNORE_CHARS)) {
-        ignoreChars = metadata.field(CONFIG_IGNORE_CHARS);
+      if (metadata.containsKey(CONFIG_IGNORE_CHARS)) {
+        ignoreChars = metadata.get(CONFIG_IGNORE_CHARS).toString();
       }
 
-      if (metadata.containsField(CONFIG_INDEX_RADIX)) {
-        indexRadix = metadata.field(CONFIG_INDEX_RADIX);
+      if (metadata.containsKey(CONFIG_INDEX_RADIX)) {
+        indexRadix = (Boolean) metadata.get(CONFIG_INDEX_RADIX);
       }
 
-      if (metadata.containsField(CONFIG_SEPARATOR_CHARS)) {
-        separatorChars = metadata.field(CONFIG_SEPARATOR_CHARS);
+      if (metadata.containsKey(CONFIG_SEPARATOR_CHARS)) {
+        separatorChars = metadata.get(CONFIG_SEPARATOR_CHARS).toString();
       }
 
-      if (metadata.containsField(CONFIG_MIN_WORD_LEN)) {
-        minWordLength = metadata.field(CONFIG_MIN_WORD_LEN);
+      if (metadata.containsKey(CONFIG_MIN_WORD_LEN)) {
+        minWordLength = (Integer) metadata.get(CONFIG_MIN_WORD_LEN);
       }
 
-      if (metadata.containsField(CONFIG_STOP_WORDS)) {
-        stopWords = new HashSet<>(metadata.field(CONFIG_STOP_WORDS));
+      if (metadata.containsKey(CONFIG_STOP_WORDS)) {
+        //noinspection unchecked
+        stopWords = new HashSet<>((Set<String>) metadata.get(CONFIG_STOP_WORDS));
       }
     }
   }

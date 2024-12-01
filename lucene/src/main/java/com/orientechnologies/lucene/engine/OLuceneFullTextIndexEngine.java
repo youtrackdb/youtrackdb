@@ -41,7 +41,6 @@ import com.orientechnologies.orient.core.index.OIndexKeyUpdater;
 import com.orientechnologies.orient.core.index.OIndexMetadata;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValidator;
 import com.orientechnologies.orient.core.index.engine.IndexEngineValuesTransformer;
-import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.parser.ParseException;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
@@ -167,7 +166,7 @@ public class OLuceneFullTextIndexEngine extends OLuceneIndexEngineAbstract {
       final Query query,
       final OCommandContext context,
       final OLuceneTxChanges changes,
-      final ODocument metadata) {
+      final Map<String, ?> metadata) {
     // sort
     final List<SortField> fields = OLuceneIndexEngineUtils.buildSortFields(metadata);
     final IndexSearcher luceneSearcher = searcher();
@@ -253,7 +252,8 @@ public class OLuceneFullTextIndexEngine extends OLuceneIndexEngineAbstract {
   public Query buildQuery(final Object maybeQuery) {
     try {
       if (maybeQuery instanceof String) {
-        return queryBuilder.query(indexDefinition, maybeQuery, EMPTY_METADATA, queryAnalyzer());
+        return queryBuilder.query(indexDefinition, maybeQuery, EMPTY_METADATA,
+            queryAnalyzer());
       } else {
         OLuceneKeyAndMetadata q = (OLuceneKeyAndMetadata) maybeQuery;
         return queryBuilder.query(indexDefinition, q.key, q.metadata, queryAnalyzer());
@@ -276,7 +276,8 @@ public class OLuceneFullTextIndexEngine extends OLuceneIndexEngineAbstract {
         return getResults(query, commandContext, changes, q.metadata);
 
       } else {
-        Query query = queryBuilder.query(indexDefinition, key, EMPTY_METADATA, queryAnalyzer());
+        Query query = queryBuilder.query(indexDefinition, key, EMPTY_METADATA,
+            queryAnalyzer());
 
         OCommandContext commandContext = null;
         if (key instanceof OLuceneCompositeKey) {

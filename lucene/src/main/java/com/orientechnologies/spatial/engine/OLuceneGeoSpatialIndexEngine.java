@@ -32,6 +32,7 @@ import com.orientechnologies.orient.core.index.engine.IndexEngineValidator;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
+import com.orientechnologies.spatial.factory.OSpatialStrategyFactory;
 import com.orientechnologies.spatial.query.OSpatialQueryContext;
 import com.orientechnologies.spatial.shape.OShapeBuilder;
 import java.util.HashMap;
@@ -52,9 +53,9 @@ public class OLuceneGeoSpatialIndexEngine extends OLuceneSpatialIndexEngineAbstr
 
   @Override
   protected SpatialStrategy createSpatialStrategy(
-      OIndexDefinition indexDefinition, ODocument metadata) {
+      OIndexDefinition indexDefinition, Map<String, ?> metadata) {
 
-    return strategyFactory.createStrategy(ctx, getDatabase(), indexDefinition, metadata);
+    return OSpatialStrategyFactory.createStrategy(ctx, getDatabase(), indexDefinition);
   }
 
   @Override

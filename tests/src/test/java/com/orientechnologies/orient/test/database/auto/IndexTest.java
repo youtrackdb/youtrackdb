@@ -547,8 +547,8 @@ public class IndexTest extends DocumentDBBaseTest {
             db.getMetadata().getSchema().createClass("TestLinkClass", 1, (OClass[]) null);
         testClass
             .createProperty(db, "testLink", OType.LINK, testLinkClass)
-            .createIndex(database, INDEX_TYPE.NOTUNIQUE);
-        testClass.createProperty(db, "name", OType.STRING).createIndex(database, INDEX_TYPE.UNIQUE);
+            .createIndex(db, INDEX_TYPE.NOTUNIQUE);
+        testClass.createProperty(db, "name", OType.STRING).createIndex(db, INDEX_TYPE.UNIQUE);
         testLinkClass.createProperty(db, "testBoolean", OType.BOOLEAN);
         testLinkClass.createProperty(db, "testString", OType.STRING);
       }
@@ -712,7 +712,7 @@ public class IndexTest extends DocumentDBBaseTest {
               .getIndexManagerInternal()
               .getIndex(db, "idxTerm")
               .getInternal()
-              .getRids(database, "42")) {
+              .getRids(db, "42")) {
         result = (ORecordId) stream.findAny().orElse(null);
       }
     }
@@ -812,7 +812,7 @@ public class IndexTest extends DocumentDBBaseTest {
           db.getMetadata()
               .getSchema()
               .createClass("TransactionUniqueIndexWithDotTest", 1, (OClass[]) null);
-      termClass.createProperty(db, "label", OType.STRING).createIndex(database, INDEX_TYPE.UNIQUE);
+      termClass.createProperty(db, "label", OType.STRING).createIndex(db, INDEX_TYPE.UNIQUE);
     }
 
     db.begin();
@@ -931,7 +931,7 @@ public class IndexTest extends DocumentDBBaseTest {
 
         baseClass
             .createProperty(db, "testParentProperty", OType.LONG)
-            .createIndex(database, INDEX_TYPE.NOTUNIQUE);
+            .createIndex(db, INDEX_TYPE.NOTUNIQUE);
       }
 
       db.begin();
@@ -1401,23 +1401,25 @@ public class IndexTest extends DocumentDBBaseTest {
     Assert.assertEquals(resultOne.size(), 1);
     Assert.assertEquals(resultOne.get(0).getIdentity(), docOne.getIdentity());
 
-    ODocument explain = database.command(new OCommandSQL("explain " + queryOne)).execute(database);
-    Assert.assertTrue(
-        explain
-            .<Collection<String>>field("involvedIndexes")
-            .contains("TestCreateIndexAbstractClass.value"));
+    try (var result = database.command("explain " + queryOne)) {
+      var explain = result.next().toElement();
+      Assert.assertTrue(
+          explain
+              .<String>getProperty("executionPlanAsString")
+              .contains("FETCH FROM INDEX TestCreateIndexAbstractClass.value"));
 
-    final String queryTwo = "select from TestCreateIndexAbstractClass where value = 'val2'";
+      final String queryTwo = "select from TestCreateIndexAbstractClass where value = 'val2'";
 
-    List<ODocument> resultTwo = executeQuery(queryTwo);
-    Assert.assertEquals(resultTwo.size(), 1);
-    Assert.assertEquals(resultTwo.get(0).getIdentity(), docTwo.getIdentity());
+      List<ODocument> resultTwo = executeQuery(queryTwo);
+      Assert.assertEquals(resultTwo.size(), 1);
+      Assert.assertEquals(resultTwo.get(0).getIdentity(), docTwo.getIdentity());
 
-    explain = database.command(new OCommandSQL("explain " + queryTwo)).execute(database);
-    Assert.assertTrue(
-        explain
-            .<Collection<String>>field("involvedIndexes")
-            .contains("TestCreateIndexAbstractClass.value"));
+      explain = database.command(new OCommandSQL("explain " + queryTwo)).execute(database);
+      Assert.assertTrue(
+          explain
+              .<Collection<String>>getProperty("involvedIndexes")
+              .contains("TestCreateIndexAbstractClass.value"));
+    }
   }
 
   @Test(enabled = false)

@@ -46,6 +46,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -506,8 +507,8 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
       }
 
       if (compareIndexMetadata) {
-        final ODocument metadataOne = indexOne.getMetadata();
-        final ODocument metadataTwo = indexTwo.getMetadata();
+        final var metadataOne = indexOne.getMetadata();
+        final var metadataTwo = indexTwo.getMetadata();
 
         if (metadataOne == null && metadataTwo != null) {
           ok = false;
@@ -527,9 +528,7 @@ public class ODatabaseCompare extends ODatabaseImpExpAbstract {
             listener.onMessage("\n");
             ++differences;
           } else {
-            if (metadataOne != null
-                && !ODocumentHelper.hasSameContentOf(
-                metadataOne, databaseOne, metadataTwo, databaseTwo, ridMapper)) {
+            if (!Objects.equals(metadataOne, metadataTwo)) {
               ok = false;
               listener.onMessage(
                   "\n- ERR: Metadata for index "

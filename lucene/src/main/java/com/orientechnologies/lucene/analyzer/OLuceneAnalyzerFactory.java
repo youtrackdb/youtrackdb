@@ -4,11 +4,10 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.index.OIndexException;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.lang.reflect.Constructor;
 import java.util.Collection;
 import java.util.Locale;
+import java.util.Map;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -19,7 +18,7 @@ import org.apache.lucene.analysis.standard.StandardAnalyzer;
 public class OLuceneAnalyzerFactory {
 
   public Analyzer createAnalyzer(
-      final OIndexDefinition index, final AnalyzerKind kind, final ODocument metadata) {
+      final OIndexDefinition index, final AnalyzerKind kind, final Map<String, ?> metadata) {
     if (index == null) {
       throw new IllegalArgumentException("Index must not be null");
     }
@@ -29,7 +28,7 @@ public class OLuceneAnalyzerFactory {
     if (metadata == null) {
       throw new IllegalArgumentException("Metadata must not be null");
     }
-    final String defaultAnalyzerFQN = metadata.field("default");
+    final String defaultAnalyzerFQN = (String) metadata.get("default");
     final String prefix = index.getClassName() + ".";
 
     final OLucenePerFieldAnalyzerWrapper analyzer =
@@ -51,10 +50,10 @@ public class OLuceneAnalyzerFactory {
   private void setDefaultAnalyzerForRequestedKind(
       final OIndexDefinition index,
       final AnalyzerKind kind,
-      final ODocument metadata,
+      final Map<String, ?> metadata,
       final String prefix,
       final OLucenePerFieldAnalyzerWrapper analyzer) {
-    final String specializedAnalyzerFQN = metadata.field(kind.toString());
+    final String specializedAnalyzerFQN = (String) metadata.get(kind.toString());
     if (specializedAnalyzerFQN != null) {
       for (final String field : index.getFields()) {
         analyzer.add(field, buildAnalyzer(specializedAnalyzerFQN));
@@ -66,20 +65,21 @@ public class OLuceneAnalyzerFactory {
   private void setSpecializedAnalyzersForEachField(
       final OIndexDefinition index,
       final AnalyzerKind kind,
-      final ODocument metadata,
+      final Map<String, ?> metadata,
       final String prefix,
       final OLucenePerFieldAnalyzerWrapper analyzer) {
     for (final String field : index.getFields()) {
       final String analyzerName = field + "_" + kind.toString();
       final String analyzerStopwords = analyzerName + "_stopwords";
 
-      if (metadata.containsField(analyzerName) && metadata.containsField(analyzerStopwords)) {
-        final Collection<String> stopWords = metadata.field(analyzerStopwords, OType.EMBEDDEDLIST);
-        analyzer.add(field, buildAnalyzer(metadata.field(analyzerName), stopWords));
-        analyzer.add(prefix + field, buildAnalyzer(metadata.field(analyzerName), stopWords));
-      } else if (metadata.containsField(analyzerName)) {
-        analyzer.add(field, buildAnalyzer(metadata.field(analyzerName)));
-        analyzer.add(prefix + field, buildAnalyzer(metadata.field(analyzerName)));
+      if (metadata.containsKey(analyzerName) && metadata.containsKey(analyzerStopwords)) {
+        @SuppressWarnings("unchecked") final Collection<String> stopWords =
+            (Collection<String>) metadata.get(analyzerStopwords);
+        analyzer.add(field, buildAnalyzer((String) metadata.get(analyzerName), stopWords));
+        analyzer.add(prefix + field, buildAnalyzer((String) metadata.get(analyzerName), stopWords));
+      } else if (metadata.containsKey(analyzerName)) {
+        analyzer.add(field, buildAnalyzer((String) metadata.get(analyzerName)));
+        analyzer.add(prefix + field, buildAnalyzer((String) metadata.get(analyzerName)));
       }
     }
   }

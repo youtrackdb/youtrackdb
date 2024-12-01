@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -94,7 +95,7 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
 
     OExpression expression = args[0];
 
-    ODocument metadata = parseMetadata(args);
+    var metadata = parseMetadata(args);
 
     List<String> ridsAsString = parseRids(ctx, expression);
 
@@ -176,64 +177,65 @@ public class OLuceneSearchMoreLikeThisFunction extends OSQLFunctionAbstract
     return rids;
   }
 
-  private ODocument parseMetadata(OExpression[] args) {
+  private static Map<String, ?> parseMetadata(OExpression[] args) {
     ODocument metadata = new ODocument();
     if (args.length == 2) {
       metadata.fromJSON(args[1].toString());
     }
-    return metadata;
+    return metadata.toMap();
   }
 
   private MoreLikeThis buildMoreLikeThis(
-      OLuceneFullTextIndex index, IndexSearcher searcher, ODocument metadata) {
+      OLuceneFullTextIndex index, IndexSearcher searcher, Map<String, ?> metadata) {
 
     MoreLikeThis mlt = new MoreLikeThis(searcher.getIndexReader());
 
     mlt.setAnalyzer(index.queryAnalyzer());
 
+    //noinspection unchecked
     mlt.setFieldNames(
-        Optional.ofNullable(metadata.<List<String>>getProperty("fieldNames"))
+        Optional.ofNullable((List<String>) metadata.get("fieldNames"))
             .orElse(index.getDefinition().getFields())
             .toArray(new String[]{}));
 
     mlt.setMaxQueryTerms(
-        Optional.ofNullable(metadata.<Integer>getProperty("maxQueryTerms"))
+        Optional.ofNullable((Integer) metadata.get("maxQueryTerms"))
             .orElse(MoreLikeThis.DEFAULT_MAX_QUERY_TERMS));
 
     mlt.setMinTermFreq(
-        Optional.ofNullable(metadata.<Integer>getProperty("minTermFreq"))
+        Optional.ofNullable((Integer) metadata.get("minTermFreq"))
             .orElse(MoreLikeThis.DEFAULT_MIN_TERM_FREQ));
 
     mlt.setMaxDocFreq(
-        Optional.ofNullable(metadata.<Integer>getProperty("maxDocFreq"))
+        Optional.ofNullable((Integer) metadata.get("maxDocFreq"))
             .orElse(MoreLikeThis.DEFAULT_MAX_DOC_FREQ));
 
     mlt.setMinDocFreq(
-        Optional.ofNullable(metadata.<Integer>getProperty("minDocFreq"))
+        Optional.ofNullable((Integer) metadata.get("minDocFreq"))
             .orElse(MoreLikeThis.DEFAULT_MAX_DOC_FREQ));
 
     mlt.setBoost(
-        Optional.ofNullable(metadata.<Boolean>getProperty("boost"))
+        Optional.ofNullable((Boolean) metadata.get("boost"))
             .orElse(MoreLikeThis.DEFAULT_BOOST));
 
-    mlt.setBoostFactor(Optional.ofNullable(metadata.<Float>getProperty("boostFactor")).orElse(1f));
+    mlt.setBoostFactor(Optional.ofNullable((Float) metadata.get("boostFactor")).orElse(1f));
 
     mlt.setMaxWordLen(
-        Optional.ofNullable(metadata.<Integer>getProperty("maxWordLen"))
+        Optional.ofNullable((Integer) metadata.get("maxWordLen"))
             .orElse(MoreLikeThis.DEFAULT_MAX_WORD_LENGTH));
 
     mlt.setMinWordLen(
-        Optional.ofNullable(metadata.<Integer>getProperty("minWordLen"))
+        Optional.ofNullable((Integer) metadata.get("minWordLen"))
             .orElse(MoreLikeThis.DEFAULT_MIN_WORD_LENGTH));
 
     mlt.setMaxNumTokensParsed(
-        Optional.ofNullable(metadata.<Integer>getProperty("maxNumTokensParsed"))
+        Optional.ofNullable((Integer) metadata.get("maxNumTokensParsed"))
             .orElse(MoreLikeThis.DEFAULT_MAX_NUM_TOKENS_PARSED));
 
+    //noinspection rawtypes
     mlt.setStopWords(
-        (Set<?>)
-            Optional.ofNullable(metadata.getProperty("stopWords"))
-                .orElse(MoreLikeThis.DEFAULT_STOP_WORDS));
+        Optional.ofNullable((Set) metadata.get("stopWords"))
+            .orElse(MoreLikeThis.DEFAULT_STOP_WORDS));
 
     return mlt;
   }

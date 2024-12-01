@@ -25,6 +25,7 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -225,7 +226,7 @@ public interface OIndex extends Comparable<OIndex> {
    *
    * @return An ODocument object containing all the index properties
    */
-  ODocument getConfiguration();
+  ODocument getConfiguration(ODatabaseSessionInternal session);
 
   /**
    * Returns the internal index used.
@@ -315,7 +316,7 @@ public interface OIndex extends Comparable<OIndex> {
   OIndexCursor iterateEntriesMinor(ODatabaseSessionInternal session, Object toKey,
       boolean toInclusive, boolean ascOrder);
 
-  ODocument getMetadata();
+  Map<String, ?> getMetadata();
 
   boolean supportsOrderedIterations();
 

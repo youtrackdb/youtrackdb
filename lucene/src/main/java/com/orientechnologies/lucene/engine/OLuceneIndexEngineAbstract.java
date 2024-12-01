@@ -90,7 +90,7 @@ public abstract class OLuceneIndexEngineAbstract implements OLuceneIndexEngine {
   protected OIndexDefinition indexDefinition;
   protected String name;
   private ControlledRealTimeReopenThread<IndexSearcher> nrt;
-  protected ODocument metadata;
+  protected Map<String, ?> metadata;
   protected Version version;
   protected Map<String, Boolean> collectionFields = new HashMap<>();
   private TimerTask commitTask;
@@ -149,17 +149,17 @@ public abstract class OLuceneIndexEngineAbstract implements OLuceneIndexEngine {
     checkCollectionIndex(indexDefinition);
 
     flushIndexInterval =
-        Optional.ofNullable(metadata.<Integer>getProperty("flushIndexInterval"))
+        Optional.ofNullable((Integer) metadata.get("flushIndexInterval"))
             .orElse(10000)
             .longValue();
 
     closeAfterInterval =
-        Optional.ofNullable(metadata.<Integer>getProperty("closeAfterInterval"))
+        Optional.ofNullable((Integer) metadata.get("closeAfterInterval"))
             .orElse(120000)
             .longValue();
 
     firstFlushAfter =
-        Optional.ofNullable(metadata.<Integer>getProperty("firstFlushAfter"))
+        Optional.ofNullable((Integer) metadata.get("firstFlushAfter"))
             .orElse(10000)
             .longValue();
   }
@@ -267,16 +267,19 @@ public abstract class OLuceneIndexEngineAbstract implements OLuceneIndexEngine {
       final TopDocs topDocs =
           searcher.search(new TermQuery(new Term("_CLASS", "JSON_METADATA")), 1);
       if (topDocs.totalHits == 0) {
-        String metaAsJson = metadata.toJSON();
+        var metaDoc = new ODocument();
+        metaDoc.fromMap(metadata);
+        String metaAsJson = metaDoc.toJSON();
         String defAsJson = indexDefinition.toStream(new ODocument()).toJSON();
-        Document metaDoc = new Document();
-        metaDoc.add(new StringField("_META_JSON", metaAsJson, Field.Store.YES));
-        metaDoc.add(new StringField("_DEF_JSON", defAsJson, Field.Store.YES));
-        metaDoc.add(
+
+        Document lMetaDoc = new Document();
+        lMetaDoc.add(new StringField("_META_JSON", metaAsJson, Field.Store.YES));
+        lMetaDoc.add(new StringField("_DEF_JSON", defAsJson, Field.Store.YES));
+        lMetaDoc.add(
             new StringField(
                 "_DEF_CLASS_NAME", indexDefinition.getClass().getCanonicalName(), Field.Store.YES));
-        metaDoc.add(new StringField("_CLASS", "JSON_METADATA", Field.Store.YES));
-        addDocument(metaDoc);
+        lMetaDoc.add(new StringField("_CLASS", "JSON_METADATA", Field.Store.YES));
+        addDocument(lMetaDoc);
       }
 
     } catch (IOException e) {
@@ -524,7 +527,7 @@ public abstract class OLuceneIndexEngineAbstract implements OLuceneIndexEngine {
     updateLastAccess();
     openIfClosed();
 
-    return OLuceneIndexType.createDeleteQuery(value, indexDefinition.getFields(), key, metadata);
+    return OLuceneIndexType.createDeleteQuery(value, indexDefinition.getFields(), key);
   }
 
   @Override

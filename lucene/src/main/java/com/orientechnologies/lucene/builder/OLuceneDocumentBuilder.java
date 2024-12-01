@@ -26,7 +26,6 @@ import static com.orientechnologies.lucene.builder.OLuceneIndexType.createOldIdF
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.index.OCompositeKey;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
-import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -43,7 +42,7 @@ public class OLuceneDocumentBuilder {
       final Object key,
       final OIdentifiable value,
       final Map<String, Boolean> fieldsToStore,
-      final ODocument metadata) {
+      final Map<String, ?> metadata) {
     final Document doc = new Document();
     this.addDefaultFieldsToDocument(definition, key, value, doc);
 
@@ -95,15 +94,15 @@ public class OLuceneDocumentBuilder {
     return collectionFields.get(f) ? Field.Store.YES : Field.Store.NO;
   }
 
-  public static Boolean isSorted(String field, ODocument metadata) {
+  public static Boolean isSorted(String field, Map<String, ?> metadata) {
     if (metadata == null) {
       return true;
     }
     Boolean sorted = true;
     try {
-      Boolean localSorted = metadata.field("*_index_sorted");
+      Boolean localSorted = (Boolean) metadata.get("*_index_sorted");
       if (localSorted == null) {
-        localSorted = metadata.field(field + "_index_sorted");
+        localSorted = (Boolean) metadata.get(field + "_index_sorted");
       }
       if (localSorted != null) {
         sorted = localSorted;

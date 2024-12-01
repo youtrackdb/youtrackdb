@@ -1,7 +1,7 @@
 package com.orientechnologies.lucene.query;
 
 import com.orientechnologies.lucene.collections.OLuceneCompositeKey;
-import com.orientechnologies.orient.core.record.impl.ODocument;
+import java.util.Map;
 
 /**
  *
@@ -9,9 +9,9 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 public class OLuceneKeyAndMetadata {
 
   public final OLuceneCompositeKey key;
-  public final ODocument metadata;
+  public final Map<String, ?> metadata;
 
-  public OLuceneKeyAndMetadata(final OLuceneCompositeKey key, final ODocument metadata) {
+  public OLuceneKeyAndMetadata(final OLuceneCompositeKey key, final Map<String, ?> metadata) {
     this.key = key;
     this.metadata = metadata;
   }

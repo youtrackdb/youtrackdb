@@ -12,7 +12,6 @@ import com.orientechnologies.orient.core.index.OPropertyRidBagIndexDefinition;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import java.util.Arrays;
@@ -20,18 +19,19 @@ import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-@Test(groups = {"index"})
+@Test
 public class SQLCreateIndexTest extends DocumentDBBaseTest {
 
   private static final OType EXPECTED_PROP1_TYPE = OType.DOUBLE;
   private static final OType EXPECTED_PROP2_TYPE = OType.INTEGER;
 
   @Parameters(value = "remote")
-  public SQLCreateIndexTest(boolean remote) {
-    super(remote);
+  public SQLCreateIndexTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @BeforeClass
@@ -510,10 +510,10 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
         indexDefinition.getTypes(), new OType[]{EXPECTED_PROP1_TYPE, EXPECTED_PROP2_TYPE});
     Assert.assertEquals(index.getType(), "UNIQUE");
 
-    ODocument metadata = index.getMetadata();
+    var metadata = index.getMetadata();
 
-    Assert.assertEquals(metadata.<Object>field("v1"), 23);
-    Assert.assertEquals(metadata.field("v2"), "val2");
+    Assert.assertEquals(metadata.get("v1"), 23);
+    Assert.assertEquals(metadata.get("v2"), "val2");
   }
 
   public void testOldIndexWithMetadata() {
@@ -538,10 +538,10 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
     Assert.assertEquals(indexDefinition.getTypes(), new OType[]{OType.INTEGER});
     Assert.assertEquals(index.getType(), "NOTUNIQUE");
 
-    ODocument metadata = index.getMetadata();
+    var metadata = index.getMetadata();
 
-    Assert.assertEquals(metadata.<Object>field("v1"), 23);
-    Assert.assertEquals(metadata.field("v2"), "val2");
+    Assert.assertEquals(metadata.get("v1"), 23);
+    Assert.assertEquals(metadata.get("v2"), "val2");
   }
 
   public void testCreateCompositeIndexWithTypesAndMetadata() throws Exception {
@@ -572,8 +572,8 @@ public class SQLCreateIndexTest extends DocumentDBBaseTest {
         indexDefinition.getTypes(), new OType[]{EXPECTED_PROP1_TYPE, EXPECTED_PROP2_TYPE});
     Assert.assertEquals(index.getType(), "UNIQUE");
 
-    ODocument metadata = index.getMetadata();
-    Assert.assertEquals(metadata.<Object>field("v1"), 23);
-    Assert.assertEquals(metadata.field("v2"), "val2");
+    var metadata = index.getMetadata();
+    Assert.assertEquals(metadata.get("v1"), 23);
+    Assert.assertEquals(metadata.get("v2"), "val2");
   }
 }

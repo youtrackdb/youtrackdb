@@ -13,7 +13,6 @@ import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.OMetadataInternal;
 import com.orientechnologies.orient.core.record.OElement;
-import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.parser.OBinaryCompareOperator;
@@ -91,7 +90,7 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
       memoryIndex.addField(field, index.indexAnalyzer());
     }
 
-    ODocument metadata = getMetadata(params);
+    var metadata = getMetadata(params);
     OLuceneKeyAndMetadata keyAndMetadata =
         new OLuceneKeyAndMetadata(
             new OLuceneCompositeKey(Collections.singletonList(query)).setContext(ctx), metadata);
@@ -99,13 +98,10 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
     return memoryIndex.search(index.buildQuery(keyAndMetadata)) > 0.0f;
   }
 
-  private ODocument getMetadata(Object[] params) {
+  private Map<String, ?> getMetadata(Object[] params) {
 
     if (params.length == 3) {
-      var doc = new ODocument();
-      //noinspection unchecked
-      doc.fromMap((Map<String, ?>) params[2]);
-      return doc;
+      return (Map<String, ?>) params[2];
     }
 
     return OLuceneQueryBuilder.EMPTY_METADATA;
@@ -130,7 +126,7 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
     Object query = expression.execute((OIdentifiable) null, ctx);
     if (index != null) {
 
-      ODocument meta = getMetadata(args, ctx);
+      var meta = getMetadata(args, ctx);
       Set<OIdentifiable> luceneResultSet;
       try (Stream<ORID> rids =
           index
@@ -147,7 +143,7 @@ public class OLuceneSearchOnFieldsFunction extends OLuceneSearchFunctionTemplate
     throw new RuntimeException();
   }
 
-  private ODocument getMetadata(OExpression[] args, OCommandContext ctx) {
+  private Map<String, ?> getMetadata(OExpression[] args, OCommandContext ctx) {
     if (args.length == 3) {
       return getMetadata(args[2], ctx);
     }

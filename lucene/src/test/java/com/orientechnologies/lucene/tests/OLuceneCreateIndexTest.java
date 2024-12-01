@@ -21,7 +21,6 @@ package com.orientechnologies.lucene.tests;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.orient.core.record.OVertex;
-import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.InputStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
@@ -65,10 +64,10 @@ public class OLuceneCreateIndexTest extends OLuceneBaseTest {
 
   @Test
   public void testMetadata() {
-    final ODocument index =
+    var index =
         db.getMetadata().getIndexManagerInternal().getIndex(db, "Song.title").getMetadata();
 
-    Assert.assertEquals(index.field("analyzer"), StandardAnalyzer.class.getName());
+    Assert.assertEquals(index.get("analyzer"), StandardAnalyzer.class.getName());
   }
 
   @Test
@@ -97,7 +96,6 @@ public class OLuceneCreateIndexTest extends OLuceneBaseTest {
 
   @Test
   public void testQeuryOnAddedDocs() {
-
     String query = "select * from Song where search_fields(['title'],'local')=true ";
     OResultSet docs = db.query(query);
 

@@ -266,12 +266,12 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
   }
 
   private static boolean supportNullValues(OIndex index) {
-    final ODocument metadata = index.getMetadata();
+    var metadata = index.getMetadata();
     if (metadata == null) {
       return false;
     }
 
-    final Boolean ignoreNullValues = metadata.field("ignoreNullValues");
+    final Boolean ignoreNullValues = (Boolean) metadata.get("ignoreNullValues");
     return Boolean.FALSE.equals(ignoreNullValues);
   }
 
@@ -582,7 +582,7 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
   }
 
   @Override
-  public ODocument updateConfiguration() {
+  public ODocument updateConfiguration(ODatabaseSessionInternal session) {
     throw new UnsupportedOperationException();
   }
 
@@ -655,12 +655,12 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
     throw new UnsupportedOperationException("Not allowed operation");
   }
 
-  public ODocument getConfiguration() {
+  public ODocument getConfiguration(ODatabaseSessionInternal session) {
     throw new UnsupportedOperationException("Not allowed operation");
   }
 
   @Override
-  public ODocument getMetadata() {
+  public Map<String, ?> getMetadata() {
     throw new UnsupportedOperationException("Not allowed operation");
   }
 
