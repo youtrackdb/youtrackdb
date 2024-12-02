@@ -720,12 +720,8 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.begin();
     luke = database.bindToSession(luke);
     Assert.assertEquals(luke.<Set<OIdentifiable>>getProperty("friends").size(), 1);
-    // ============================== end 1
-
-    // ============================== step 2
-    // add new information to luke
     friends = new HashSet<>();
-    friends.add(obiWan);
+    friends.add(database.bindToSession(obiWan));
     luke.setProperty("friends", friends);
 
     database.save(database.bindToSession(luke));
@@ -786,6 +782,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "listObjectsIterationTest")
   public void mapObjectsListEmbeddedTest() {
+    database.begin();
     List<ODocument> cresult = executeQuery("select * from Child");
 
     int childSize = cresult.size();
@@ -815,19 +812,21 @@ public class CRUDTest extends DocumentDBBaseTest {
     list.add(c4);
 
     p.setProperty("embeddedList", list);
-    database.begin();
+
     database.save(p);
     database.commit();
 
+    database.begin();
     cresult = executeQuery("select * from Child");
 
     Assert.assertEquals(childSize, cresult.size());
 
     ORID rid = p.getIdentity();
-
+    database.commit();
     database.close();
 
     database = createSessionInstance();
+    database.begin();
     OElement loaded = database.load(rid);
 
     Assert.assertEquals(loaded.<List<OElement>>getProperty("embeddedList").size(), 4);
@@ -879,10 +878,12 @@ public class CRUDTest extends DocumentDBBaseTest {
         loaded.<List<OElement>>getProperty("embeddedList").get(2).getProperty("name"), "Sam");
     Assert.assertEquals(
         loaded.<List<OElement>>getProperty("embeddedList").get(3).getProperty("name"), "Dean");
+    database.commit();
   }
 
   @Test(dependsOnMethods = "mapObjectsListEmbeddedTest")
   public void mapObjectsSetEmbeddedTest() {
+    database.begin();
     List<ODocument> cresult = executeQuery("select * from Child");
 
     int childSize = cresult.size();
@@ -914,19 +915,21 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     p.setProperty("embeddedSet", embeddedSet);
 
-    database.begin();
     database.save(p);
     database.commit();
 
+    database.begin();
     cresult = executeQuery("select * from Child");
 
     Assert.assertEquals(childSize, cresult.size());
 
     ORID rid = p.getIdentity();
+    database.commit();
 
     database.close();
 
     database = createSessionInstance();
+    database.begin();
     OElement loaded = database.load(rid);
 
     Assert.assertEquals(loaded.<Set<OElement>>getProperty("embeddedSet").size(), 5);
@@ -940,10 +943,12 @@ public class CRUDTest extends DocumentDBBaseTest {
               || loadedC.<String>getProperty("name").equals("Sam")
               || loadedC.<String>getProperty("name").equals("Dean"));
     }
+    database.commit();
   }
 
   @Test(dependsOnMethods = "mapObjectsSetEmbeddedTest")
   public void mapObjectsMapEmbeddedTest() {
+    database.begin();
     List<ODocument> cresult = executeQuery("select * from Child");
 
     int childSize = cresult.size();
@@ -975,19 +980,21 @@ public class CRUDTest extends DocumentDBBaseTest {
 
     p.setProperty("embeddedChildren", embeddedChildren);
 
-    database.begin();
     database.save(p);
     database.commit();
 
+    database.begin();
     cresult = executeQuery("select * from Child");
 
     Assert.assertEquals(childSize, cresult.size());
 
     ORID rid = p.getIdentity();
+    database.commit();
 
     database.close();
 
     database = createSessionInstance();
+    database.begin();
     OElement loaded = database.load(rid);
 
     Assert.assertEquals(loaded.<Map<String, OElement>>getProperty("embeddedChildren").size(), 5);
@@ -1002,6 +1009,7 @@ public class CRUDTest extends DocumentDBBaseTest {
               || loadedC.<String>getProperty("name").equals("Sam")
               || loadedC.<String>getProperty("name").equals("Dean"));
     }
+    database.commit();
   }
 
   @Test(dependsOnMethods = "mapObjectsLinkTest")
@@ -1623,6 +1631,7 @@ public class CRUDTest extends DocumentDBBaseTest {
     OElement testClassProxy = database.save(testClass);
     database.commit();
 
+    database.begin();
     testClassProxy = database.bindToSession(testClassProxy);
     Assert.assertEquals(roles.size(), testClassProxy.<Set<String>>getProperty("stringSet").size());
     for (String referenceRole : roles) {
@@ -1632,16 +1641,17 @@ public class CRUDTest extends DocumentDBBaseTest {
     }
 
     ORID orid = testClassProxy.getIdentity();
+    database.commit();
     database.close();
     database = createSessionInstance();
 
+    database.begin();
     OElement loadedProxy = database.load(orid);
     Assert.assertEquals(roles.size(), loadedProxy.<Set<String>>getProperty("stringSet").size());
     for (String referenceRole : roles) {
       Assert.assertTrue(loadedProxy.<Set<String>>getProperty("stringSet").contains(referenceRole));
     }
 
-    database.begin();
     database.save(database.bindToSession(loadedProxy));
     database.commit();
 
@@ -1657,19 +1667,23 @@ public class CRUDTest extends DocumentDBBaseTest {
     database.save(loadedProxy);
     database.commit();
 
+    database.begin();
     loadedProxy = database.bindToSession(loadedProxy);
     Assert.assertEquals(roles.size(), loadedProxy.<Set<String>>getProperty("stringSet").size());
     for (String referenceRole : roles) {
       Assert.assertTrue(loadedProxy.<Set<String>>getProperty("stringSet").contains(referenceRole));
     }
+    database.commit();
     database.close();
     database = createSessionInstance();
 
+    database.begin();
     loadedProxy = database.bindToSession(loadedProxy);
     Assert.assertEquals(roles.size(), loadedProxy.<Set<String>>getProperty("stringSet").size());
     for (String referenceRole : roles) {
       Assert.assertTrue(loadedProxy.<Set<String>>getProperty("stringSet").contains(referenceRole));
     }
+    database.commit();
   }
 
   @Test(dependsOnMethods = "setStringTest")
@@ -1707,6 +1721,8 @@ public class CRUDTest extends DocumentDBBaseTest {
     ORID rid = p.getIdentity();
     database.close();
     database = createSessionInstance();
+
+    database.begin();
     OElement loaded = database.load(rid);
     Assert.assertNotNull(loaded.<Map<String, List<String>>>getProperty("stringListMap"));
     for (Entry<String, List<String>> entry : songAndMovies.entrySet()) {
@@ -1715,12 +1731,12 @@ public class CRUDTest extends DocumentDBBaseTest {
           loaded.<Map<String, List<String>>>getProperty("stringListMap").get(entry.getKey()));
     }
 
-    database.begin();
     database.delete(database.bindToSession(loaded));
     database.commit();
 
     // TEST WITH OBJECT DATABASE NEW INSTANCE AND MAP DIRECT SET
     p = database.newInstance("JavaComplexTestClass");
+    database.begin();
     p.setProperty("name", "Chuck");
     p.setProperty("stringListMap", songAndMovies);
 
@@ -1730,13 +1746,13 @@ public class CRUDTest extends DocumentDBBaseTest {
           p.<Map<String, List<String>>>getProperty("stringListMap").get(entry.getKey()));
     }
 
-    database.begin();
     database.save(p);
     database.commit();
 
     rid = p.getIdentity();
     database.close();
     database = createSessionInstance();
+    database.begin();
     loaded = database.load(rid);
     Assert.assertNotNull(loaded.<Map<String, List<String>>>getProperty("stringListMap"));
     for (Entry<String, List<String>> entry : songAndMovies.entrySet()) {
@@ -1745,10 +1761,10 @@ public class CRUDTest extends DocumentDBBaseTest {
           loaded.<Map<String, List<String>>>getProperty("stringListMap").get(entry.getKey()));
     }
 
-    database.begin();
     database.delete(database.bindToSession(loaded));
     database.commit();
 
+    database.begin();
     // TEST WITH OBJECT DATABASE NEW INSTANCE LIST DIRECT ADD
     p = database.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Chuck");
@@ -1773,13 +1789,14 @@ public class CRUDTest extends DocumentDBBaseTest {
           p.<Map<String, List<String>>>getProperty("stringListMap").get(entry.getKey()));
     }
 
-    database.begin();
     database.save(p);
     database.commit();
 
     rid = p.getIdentity();
     database.close();
     database = createSessionInstance();
+
+    database.begin();
     loaded = database.load(rid);
     Assert.assertNotNull(loaded.<Map<String, List<String>>>getProperty("stringListMap"));
     for (Entry<String, List<String>> entry : songAndMovies.entrySet()) {
@@ -1788,11 +1805,11 @@ public class CRUDTest extends DocumentDBBaseTest {
           loaded.<Map<String, List<String>>>getProperty("stringListMap").get(entry.getKey()));
     }
 
-    database.begin();
     database.delete(database.bindToSession(loaded));
     database.commit();
 
     // TEST WITH JAVA CONSTRUCTOR
+    database.begin();
     p = database.newInstance("JavaComplexTestClass");
     p.setProperty("name", "Chuck");
     p.setProperty("stringListMap", songAndMovies);
@@ -1803,13 +1820,13 @@ public class CRUDTest extends DocumentDBBaseTest {
           p.<Map<String, List<String>>>getProperty("stringListMap").get(entry.getKey()));
     }
 
-    database.begin();
     p = database.save(p);
     database.commit();
 
     rid = p.getIdentity();
     database.close();
     database = createSessionInstance();
+    database.begin();
     loaded = database.load(rid);
     Assert.assertNotNull(loaded.<Map<String, List<String>>>getProperty("stringListMap"));
     for (Entry<String, List<String>> entry : songAndMovies.entrySet()) {
@@ -1818,7 +1835,6 @@ public class CRUDTest extends DocumentDBBaseTest {
           loaded.<Map<String, List<String>>>getProperty("stringListMap").get(entry.getKey()));
     }
 
-    database.begin();
     database.delete(database.bindToSession(loaded));
     database.commit();
   }
@@ -2445,6 +2461,7 @@ public class CRUDTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "checkLazyLoadingOff")
   public void queryPerFloat() {
+    database.begin();
     final List<ODocument> result = executeQuery("select * from Account where salary = 500.10");
 
     Assert.assertFalse(result.isEmpty());
@@ -2454,10 +2471,12 @@ public class CRUDTest extends DocumentDBBaseTest {
       account = entries;
       Assert.assertEquals(account.<Float>getProperty("salary"), 500.10f);
     }
+    database.commit();
   }
 
   @Test(dependsOnMethods = "checkLazyLoadingOff")
   public void queryCross3Levels() {
+    database.begin();
     final List<ODocument> result =
         executeQuery("select from Profile where location.city.country.name = 'Spain'");
 
@@ -2478,6 +2497,7 @@ public class CRUDTest extends DocumentDBBaseTest {
               .getProperty("name"),
           "Spain");
     }
+    database.commit();
   }
 
   @Test(dependsOnMethods = "queryCross3Levels")
@@ -2485,12 +2505,11 @@ public class CRUDTest extends DocumentDBBaseTest {
     startRecordNumber = database.countClass("Account");
 
     // DELETE ALL THE RECORD IN THE CLASS
-    for (OElement obj : database.browseClass("Account")) {
-      database.begin();
-      database.delete(database.bindToSession(obj));
-      database.commit();
-      break;
-    }
+    database.forEachInTx((Iterator<ODocument>) database.browseClass("Account"),
+        ((session, document) -> {
+          session.delete(document);
+          return false;
+        }));
 
     Assert.assertEquals(database.countClass("Account"), startRecordNumber - 1);
   }

@@ -28,7 +28,7 @@ import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.ONoTxRecordReadException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSecurityException;
-import com.orientechnologies.orient.core.id.OEmptyRecordId;
+import com.orientechnologies.orient.core.id.ChangeableRecordId;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.security.ORole;
@@ -51,7 +51,7 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
     implements Iterator<REC>, Iterable<REC> {
 
   protected final ODatabaseSessionInternal database;
-  protected final ORecordId current = new OEmptyRecordId();
+  protected final ORecordId current = new ChangeableRecordId();
   private final OStorage dbStorage;
   protected boolean liveUpdated = false;
   protected long limit = -1;

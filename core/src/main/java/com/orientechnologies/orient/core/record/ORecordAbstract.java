@@ -25,7 +25,9 @@ import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
-import com.orientechnologies.orient.core.id.OEmptyRecordId;
+import com.orientechnologies.orient.core.id.ChangeableIdentity;
+import com.orientechnologies.orient.core.id.ChangeableRecordId;
+import com.orientechnologies.orient.core.id.IdentityChangeListener;
 import com.orientechnologies.orient.core.id.OImmutableRecordId;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -45,7 +47,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 @SuppressWarnings({"unchecked"})
-public abstract class ORecordAbstract implements ORecord, ORecordElement, OSerializableStream {
+public abstract class ORecordAbstract implements ORecord, ORecordElement, OSerializableStream,
+    ChangeableIdentity {
 
   public static final String BASE_FORMAT =
       "rid,version,class,type,attribSameRow,keepTypes,alwaysFetchEmbedded";
@@ -518,7 +521,7 @@ public abstract class ORecordAbstract implements ORecord, ORecordElement, OSeria
 
   public void setup(ODatabaseSessionInternal db) {
     if (recordId == null) {
-      recordId = new OEmptyRecordId();
+      recordId = new ChangeableRecordId();
     }
 
     this.session = db;
@@ -615,4 +618,27 @@ public abstract class ORecordAbstract implements ORecord, ORecordElement, OSeria
   }
 
   public abstract ORecordAbstract copy();
+
+  @Override
+  public void addIdentityChangeListener(IdentityChangeListener identityChangeListeners) {
+    if (recordId instanceof ChangeableIdentity) {
+      ((ChangeableIdentity) recordId).addIdentityChangeListener(identityChangeListeners);
+    }
+  }
+
+  @Override
+  public void removeIdentityChangeListener(IdentityChangeListener identityChangeListener) {
+    if (recordId instanceof ChangeableIdentity) {
+      ((ChangeableIdentity) recordId).removeIdentityChangeListener(identityChangeListener);
+    }
+  }
+
+  @Override
+  public boolean canChangeIdentity() {
+    if (recordId instanceof ChangeableIdentity) {
+      return ((ChangeableIdentity) recordId).canChangeIdentity();
+    }
+
+    return false;
+  }
 }

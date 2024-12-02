@@ -11,7 +11,7 @@ import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.OEmptyRecordId;
+import com.orientechnologies.orient.core.id.ChangeableRecordId;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
@@ -583,7 +583,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
 
     final ORecord oldRecord = oldIdentity.getRecord();
     var doc = baseDoc.copy();
-    ORecordInternal.setIdentity(doc, new OEmptyRecordId());
+    ORecordInternal.setIdentity(doc, new ChangeableRecordId());
 
     // DELETE THE OLD RECORD FIRST TO AVOID ISSUES WITH UNIQUE CONSTRAINTS
     copyRidBags(db, oldRecord, doc);
@@ -600,7 +600,7 @@ public interface OVertexInternal extends OVertex, OElementInternal {
     // SAVE THE NEW VERTEX
     doc.setDirty();
 
-    ORecordInternal.setIdentity(doc, new OEmptyRecordId());
+    ORecordInternal.setIdentity(doc, new ChangeableRecordId());
     db.save(doc, clusterName);
     if (db.getTransaction().getEntryCount() == 2) {
       System.out.println("WTF");

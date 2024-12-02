@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import javax.annotation.Nonnull;
 
-public class OEmptyRecordId extends ORecordId implements ChangeableIdentity {
+public class ChangeableRecordId extends ORecordId implements ChangeableIdentity {
 
   private Set<IdentityChangeListener> identityChangeListeners;
 
@@ -25,7 +25,7 @@ public class OEmptyRecordId extends ORecordId implements ChangeableIdentity {
    */
   private int tempId;
 
-  public OEmptyRecordId() {
+  public ChangeableRecordId() {
     tempId = tempIdCounter++;
   }
 
@@ -112,7 +112,7 @@ public class OEmptyRecordId extends ORecordId implements ChangeableIdentity {
         return true;
       }
 
-      if (other instanceof OEmptyRecordId otherRecordId) {
+      if (other instanceof ChangeableRecordId otherRecordId) {
         return tempId == otherRecordId.tempId;
       }
 
@@ -143,7 +143,7 @@ public class OEmptyRecordId extends ORecordId implements ChangeableIdentity {
 
       if (clusterPosition == otherClusterPos) {
         if ((clusterId == CLUSTER_ID_INVALID && clusterPosition == CLUSTER_POS_INVALID)
-            && otherIdentity instanceof OEmptyRecordId otherRecordId) {
+            && otherIdentity instanceof ChangeableRecordId otherRecordId) {
           return Integer.compare(tempId, otherRecordId.tempId);
         }
 
@@ -160,7 +160,7 @@ public class OEmptyRecordId extends ORecordId implements ChangeableIdentity {
 
   public ORecordId copy() {
     if (clusterId == CLUSTER_ID_INVALID && clusterPosition == CLUSTER_POS_INVALID) {
-      var recordId = new OEmptyRecordId();
+      var recordId = new ChangeableRecordId();
       recordId.clusterId = clusterId;
       recordId.clusterPosition = clusterPosition;
       recordId.tempId = tempId;

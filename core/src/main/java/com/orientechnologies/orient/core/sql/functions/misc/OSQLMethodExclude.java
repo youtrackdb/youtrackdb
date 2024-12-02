@@ -23,7 +23,7 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.OEmptyRecordId;
+import com.orientechnologies.orient.core.id.ChangeableRecordId;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -136,7 +136,7 @@ public class OSQLMethodExclude extends OAbstractSQLMethod {
   private Object copy(final ODocument document, final Object[] iFieldNames) {
     final ODocument doc = document.copy();
 
-    ORecordInternal.setIdentity(doc, new OEmptyRecordId());
+    ORecordInternal.setIdentity(doc, new ChangeableRecordId());
     ORecordInternal.setVersion(doc, -1);
     ORecordInternal.unsetDirty(doc);
     doc.setTrackingChanges(false);
@@ -169,7 +169,7 @@ public class OSQLMethodExclude extends OAbstractSQLMethod {
   private Object copy(final Map map, final Object[] iFieldNames) {
     final ODocument doc = new ODocument().fields(map);
 
-    ORecordInternal.setIdentity(doc, new OEmptyRecordId());
+    ORecordInternal.setIdentity(doc, new ChangeableRecordId());
     ORecordInternal.setVersion(doc, -1);
     ORecordInternal.unsetDirty(doc);
     doc.setTrackingChanges(false);

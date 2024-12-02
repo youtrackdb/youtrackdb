@@ -66,20 +66,10 @@ public class OList extends OTrackedList<OIdentifiable> implements OSizeable {
     }
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public boolean addAll(Collection<? extends OIdentifiable> c) {
-    final Iterator it = c.iterator();
-
-    while (it.hasNext()) {
-      Object o = it.next();
-      if (o == null) {
-        add(null);
-      } else if (o instanceof OIdentifiable) {
-        add((OIdentifiable) o);
-      } else {
-        com.orientechnologies.common.collection.OMultiValue.add(this, o);
-      }
+    for (OIdentifiable o : c) {
+      add(o);
     }
 
     return true;

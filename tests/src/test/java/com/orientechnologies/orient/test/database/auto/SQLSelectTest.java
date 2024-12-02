@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.OEmptyRecordId;
+import com.orientechnologies.orient.core.id.ChangeableRecordId;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorCluster;
@@ -1409,7 +1409,7 @@ public class SQLSelectTest extends AbstractSelectTest {
       }
 
       var query = "select from PersonMultipleClusters where @rid > ? limit 2";
-      List<ODocument> resultset = executeQuery(query, new OEmptyRecordId());
+      List<ODocument> resultset = executeQuery(query, new ChangeableRecordId());
 
       while (!resultset.isEmpty()) {
         final ORID last = resultset.get(resultset.size() - 1).getIdentity();

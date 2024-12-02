@@ -37,7 +37,7 @@ import com.orientechnologies.orient.core.db.record.OTrackedMap;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.OSerializationException;
-import com.orientechnologies.orient.core.id.OEmptyRecordId;
+import com.orientechnologies.orient.core.id.ChangeableRecordId;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -228,7 +228,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
                     iName,
                     iSourceRecord,
                     linkAsString);
-            return new OEmptyRecordId();
+            return new ChangeableRecordId();
           }
         } else {
           return null;
@@ -907,7 +907,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
         OStringSerializerHelper.smartSplit(value, OStringSerializerHelper.RECORD_SEPARATOR);
     for (String item : items) {
       if (item.isEmpty()) {
-        coll.add(new OEmptyRecordId());
+        coll.add(new ChangeableRecordId());
       } else {
         if (item.startsWith("#")) {
           coll.add(new ORecordId(item));
@@ -931,7 +931,7 @@ public abstract class ORecordSerializerCSVAbstract extends ORecordSerializerStri
         OStringSerializerHelper.smartSplit(value, OStringSerializerHelper.RECORD_SEPARATOR);
     for (String item : items) {
       if (item.isEmpty()) {
-        coll.add(new OEmptyRecordId());
+        coll.add(new ChangeableRecordId());
       } else {
         if (item.startsWith("#")) {
           coll.add(new ORecordId(item));

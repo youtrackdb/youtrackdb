@@ -9,8 +9,8 @@ import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.OMap;
 import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.OElement;
 import java.util.Set;
+import org.apache.commons.collections4.SetUtils;
 import org.junit.Test;
 
 public class CollectionOfLinkInNestedDocumentTest extends BaseMemoryDatabase {
@@ -31,14 +31,15 @@ public class CollectionOfLinkInNestedDocumentTest extends BaseMemoryDatabase {
     db.begin();
     ODocument base = new ODocument();
     base.field("nested", nested, OType.EMBEDDED);
-    OIdentifiable id = db.save(base, db.getClusterNameById(db.getDefaultClusterId()));
+    OIdentifiable id = db.save(base);
     db.commit();
 
     ODocument base1 = db.load(id.getIdentity());
     ODocument nest1 = base1.field("nested");
     assertNotNull(nest1);
 
-    assertEquals(nested.<Set<OElement>>field("set"), nest1.<Set<OElement>>field("set"));
+    assertEquals(SetUtils.hashSet(doc1.getIdentity(), doc2.getIdentity()),
+        nest1.<Set<OIdentifiable>>field("set"));
   }
 
   @Test
@@ -63,7 +64,7 @@ public class CollectionOfLinkInNestedDocumentTest extends BaseMemoryDatabase {
     ODocument base1 = db.load(id.getIdentity());
     ODocument nest1 = base1.field("nested");
     assertNotNull(nest1);
-    assertEquals(nest1.<Object>field("list"), nested.field("list"));
+    assertEquals(list, nest1.field("list"));
   }
 
   @Test
@@ -88,6 +89,6 @@ public class CollectionOfLinkInNestedDocumentTest extends BaseMemoryDatabase {
     ODocument base1 = db.load(id.getIdentity());
     ODocument nest1 = base1.field("nested");
     assertNotNull(nest1);
-    assertEquals(nest1.<Object>field("map"), nested.field("map"));
+    assertEquals(map, nest1.field("map"));
   }
 }

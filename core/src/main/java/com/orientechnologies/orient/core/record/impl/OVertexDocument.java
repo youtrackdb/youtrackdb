@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.record.impl;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -17,11 +17,11 @@ public class OVertexDocument extends ODocument implements OVertexInternal {
     super();
   }
 
-  public OVertexDocument(ODatabaseSession database, ORID rid) {
+  public OVertexDocument(ODatabaseSessionInternal database, ORID rid) {
     super(database, rid);
   }
 
-  public OVertexDocument(ODatabaseSession session, String klass) {
+  public OVertexDocument(ODatabaseSessionInternal session, String klass) {
     super(session, klass);
     if (!getImmutableSchemaClass().isVertexType()) {
       throw new IllegalArgumentException(getClassName() + " is not a vertex class");

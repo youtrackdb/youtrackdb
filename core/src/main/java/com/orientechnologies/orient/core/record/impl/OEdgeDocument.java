@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.record.impl;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -12,7 +12,7 @@ import javax.annotation.Nullable;
 
 public class OEdgeDocument extends ODocument implements OEdgeInternal {
 
-  public OEdgeDocument(ODatabaseSession session, String cl) {
+  public OEdgeDocument(ODatabaseSessionInternal session, String cl) {
     super(session, cl);
   }
 
@@ -20,11 +20,11 @@ public class OEdgeDocument extends ODocument implements OEdgeInternal {
     super();
   }
 
-  public OEdgeDocument(ODatabaseSession session) {
+  public OEdgeDocument(ODatabaseSessionInternal session) {
     super(session);
   }
 
-  public OEdgeDocument(ODatabaseSession database, ORID rid) {
+  public OEdgeDocument(ODatabaseSessionInternal database, ORID rid) {
     super(database, rid);
   }
 

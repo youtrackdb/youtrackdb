@@ -46,6 +46,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
@@ -143,6 +144,8 @@ public interface ODatabaseSession extends AutoCloseable {
    * Currently, OxygenDB accumulates all changes in single batch in memory and then commits them to
    * the storage, that causes OutOfMemoryError in case of large data sets. This method allows to
    * avoid described problems.
+   * <p>
+   * Stream is closed after processing.
    *
    * @param <T>       Type of data
    * @param stream    Data to process
@@ -153,8 +156,10 @@ public interface ODatabaseSession extends AutoCloseable {
       Stream<T> stream, int batchSize, BiConsumer<ODatabaseSession, T> consumer);
 
   /**
-   * Splits data by batches, size of each batch is specified by parameter
+   * Splits processing of  data by batches, size of each batch is specified by parameter
    * {@link com.orientechnologies.orient.core.config.OGlobalConfiguration#TX_BATCH_SIZE}.
+   * <p>
+   * Stream is closed after processing.
    *
    * @param stream   Data to process
    * @param consumer Consumer to process data
@@ -173,6 +178,90 @@ public interface ODatabaseSession extends AutoCloseable {
    * @return the result of the code execution
    */
   <T> T computeInTx(Supplier<T> supplier);
+
+  /**
+   * Executes the given code for each element in the iterator in a transaction. Starts a transaction
+   * if not already started, in this case the transaction is committed after the code is executed or
+   * rolled back if an exception is thrown.
+   *
+   * @param iterator the iterator to iterate over
+   * @param <T>      the type of the elements in the iterator
+   */
+  <T> void forEachInTx(Iterator<T> iterator, BiConsumer<ODatabaseSession, T> consumer);
+
+  /**
+   * Executes the given code for each element in the iterable in a transaction. Starts a transaction
+   * if not already started, in this case the transaction is committed after the code is executed or
+   * rolled back if an exception is thrown.
+   * <p>
+   * The consumer function should return true if it wants to continue the iteration, false
+   * otherwise.
+   *
+   * @param iterable the iterable to iterate over
+   * @param consumer the code to execute for each element
+   * @param <T>      the type of the elements in the iterable
+   */
+  <T> void forEachInTx(Iterable<T> iterable, BiConsumer<ODatabaseSession, T> consumer);
+
+  /**
+   * Executes the given code for each element in the stream in a transaction. Starts a transaction
+   * if not already started, in this case the transaction is committed after the code is executed or
+   * rolled back if an exception is thrown.
+   * <p>
+   * The consumer function should return true if it wants to continue the iteration, false
+   * otherwise.
+   * <p>
+   * The stream is closed after processing.
+   *
+   * @param stream   the stream to iterate over
+   * @param consumer the code to execute for each element
+   * @param <T>      the type of the elements in the stream
+   */
+  <T> void forEachInTx(Stream<T> stream, BiConsumer<ODatabaseSession, T> consumer);
+
+  /**
+   * Executes the given code for each element in the iterator in a transaction. Starts a transaction
+   * if not already started, in this case the transaction is committed after the code is executed or
+   * rolled back if an exception is thrown.
+   * <p>
+   * The consumer function should return true if it wants to continue the iteration, false
+   * otherwise.
+   *
+   * @param iterator the iterator to iterate over
+   * @param <T>      the type of the elements in the iterator
+   */
+  <T> void forEachInTx(Iterator<T> iterator, BiFunction<ODatabaseSession, T, Boolean> consumer);
+
+
+  /**
+   * Executes the given code for each element in the iterable in a transaction. Starts a transaction
+   * if not already started, in this case the transaction is committed after the code is executed or
+   * rolled back if an exception is thrown.
+   * <p>
+   * The consumer function should return true if it wants to continue the iteration, false
+   * otherwise.
+   *
+   * @param iterable the iterable to iterate over
+   * @param consumer the code to execute for each element
+   * @param <T>      the type of the elements in the iterable
+   */
+  <T> void forEachInTx(Iterable<T> iterable, BiFunction<ODatabaseSession, T, Boolean> consumer);
+
+  /**
+   * Executes the given code for each element in the stream in a transaction. Starts a transaction
+   * if not already started, in this case the transaction is committed after the code is executed or
+   * rolled back if an exception is thrown.
+   * <p>
+   * The consumer function should return true if it wants to continue the iteration, false
+   * otherwise.
+   * <p>
+   * The stream is closed after processing.
+   *
+   * @param stream   the stream to iterate over
+   * @param consumer the code to execute for each element
+   * @param <T>      the type of the elements in the stream
+   */
+  <T> void forEachInTx(Stream<T> stream, BiFunction<ODatabaseSession, T, Boolean> consumer);
 
   /**
    * Binds current record to the session. It is mandatory to call this method in case you use

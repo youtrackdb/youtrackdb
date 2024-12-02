@@ -22,7 +22,7 @@ package com.orientechnologies.orient.server.network.protocol.http.command.patch;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.OEmptyRecordId;
+import com.orientechnologies.orient.core.id.ChangeableRecordId;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.ORecordInternal;
@@ -59,7 +59,7 @@ public class OServerCommandPatchDocument extends OServerCommandDocumentAbstract 
                     throw new IllegalArgumentException("Invalid Record ID in request: " + recordId);
                   }
                 } else {
-                  recordId = new OEmptyRecordId();
+                  recordId = new ChangeableRecordId();
                 }
 
                 // UNMARSHALL DOCUMENT WITH REQUEST CONTENT

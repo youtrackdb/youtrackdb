@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.distributed;
 
-import com.orientechnologies.orient.core.id.OEmptyRecordId;
+import com.orientechnologies.orient.core.id.ChangeableRecordId;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.server.distributed.task.ORemoteTask;
 import java.io.DataInput;
@@ -105,7 +105,7 @@ public class ODistributedRequest {
     task.fromStream(in, taskFactory);
 
     if (in.readBoolean()) {
-      userRID = new OEmptyRecordId();
+      userRID = new ChangeableRecordId();
       userRID.fromStream(in);
       userRID = userRID.copy();
     }

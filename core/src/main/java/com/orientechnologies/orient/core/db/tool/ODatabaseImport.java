@@ -39,7 +39,7 @@ import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import com.orientechnologies.orient.core.exception.OSerializationException;
-import com.orientechnologies.orient.core.id.OEmptyRecordId;
+import com.orientechnologies.orient.core.id.ChangeableRecordId;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -1449,7 +1449,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
           recordsBeforeImport.remove(systemRecord.getIdentity());
         } else {
           ORecordInternal.setVersion(record, 0);
-          ORecordInternal.setIdentity(record, new OEmptyRecordId());
+          ORecordInternal.setIdentity(record, new ChangeableRecordId());
         }
         record.setDirty();
 
@@ -1543,7 +1543,7 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
     recordsBeforeImport.remove(new ORecordId(0, 0));
 
     ORID rid;
-    ORID lastRid = new OEmptyRecordId();
+    ORID lastRid = new ChangeableRecordId();
     final long begin = System.currentTimeMillis();
     long lastLapRecords = 0;
     long last = begin;

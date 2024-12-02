@@ -27,7 +27,7 @@ import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
 import com.orientechnologies.orient.core.db.OSystemDatabase;
 import com.orientechnologies.orient.core.db.record.OClassTrigger;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.OSet;
+import com.orientechnologies.orient.core.db.record.OTrackedSet;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
@@ -187,7 +187,7 @@ public class OSecurityShared implements OSecurityInternal {
         () -> {
           Set<OIdentifiable> field = iDocument.field(iAllowFieldName);
           if (field == null) {
-            field = new OSet(iDocument);
+            field = new OTrackedSet<>(iDocument);
             iDocument.field(iAllowFieldName, field);
           }
           field.add(iId);

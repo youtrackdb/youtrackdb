@@ -41,7 +41,7 @@ import com.orientechnologies.orient.core.fetch.OFetchHelper;
 import com.orientechnologies.orient.core.fetch.OFetchPlan;
 import com.orientechnologies.orient.core.fetch.json.OJSONFetchContext;
 import com.orientechnologies.orient.core.fetch.json.OJSONFetchListener;
-import com.orientechnologies.orient.core.id.OEmptyRecordId;
+import com.orientechnologies.orient.core.id.ChangeableRecordId;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -299,7 +299,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
                       .getRecordFactoryManager()
                       .newInstance(
                           (byte) fieldValueAsString.charAt(0),
-                          new OEmptyRecordId(),
+                          new ChangeableRecordId(),
                           ODatabaseRecordThreadLocal.instance().getIfDefined());
             }
           } else {
@@ -471,7 +471,8 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
                   }
 
                   if (v instanceof OTrackedSet<?>) {
-                    if (OMultiValue.getFirstValue(v) instanceof OIdentifiable) {
+                    if (v instanceof OSet || OMultiValue.getFirstValue(
+                        v) instanceof OIdentifiable) {
                       type = OType.LINKSET;
                     }
                   } else {

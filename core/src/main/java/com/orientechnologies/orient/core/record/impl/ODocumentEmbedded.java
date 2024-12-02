@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.record.impl;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.OVertex;
@@ -17,12 +17,12 @@ public class ODocumentEmbedded extends ODocument {
     checkEmbeddable();
   }
 
-  public ODocumentEmbedded(String clazz, ODatabaseSession session) {
+  public ODocumentEmbedded(String clazz, ODatabaseSessionInternal session) {
     super(session, clazz);
     checkEmbeddable();
   }
 
-  public ODocumentEmbedded(ODatabaseSession session) {
+  public ODocumentEmbedded(ODatabaseSessionInternal session) {
     super(session);
   }
 

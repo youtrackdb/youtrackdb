@@ -119,6 +119,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
@@ -1918,6 +1919,7 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
               + currentDatabase);
     }
   }
+
   @Override
   public boolean assertIfNotActive() {
     final ODatabaseRecordThreadLocal tl = ODatabaseRecordThreadLocal.instance();
@@ -2067,23 +2069,13 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
   @Override
   public void executeInTx(Runnable runnable) {
     var ok = false;
-    activateOnCurrentThread();
+    checkIfActive();
     begin();
     try {
       runnable.run();
       ok = true;
     } finally {
-      if (currentTx.isActive()) {
-        if (ok) {
-          commit();
-        } else {
-          if (isActiveOnCurrentThread()) {
-            rollback();
-          } else {
-            currentTx.rollback();
-          }
-        }
-      }
+      finishTx(ok);
     }
   }
 
@@ -2091,7 +2083,7 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
   public <T> void executeInTxBatches(
       Iterable<T> iterable, int batchSize, BiConsumer<ODatabaseSession, T> consumer) {
     var ok = false;
-    activateOnCurrentThread();
+    checkIfActive();
     int counter = 0;
 
     begin();
@@ -2108,15 +2100,75 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
 
       ok = true;
     } finally {
-      if (currentTx.isActive()) {
-        if (ok) {
-          commit();
+      finishTx(ok);
+    }
+  }
+
+  @Override
+  public <T> void forEachInTx(Iterator<T> iterator, BiConsumer<ODatabaseSession, T> consumer) {
+    forEachInTx(iterator, (db, t) -> {
+      consumer.accept(db, t);
+      return true;
+    });
+  }
+
+  @Override
+  public <T> void forEachInTx(Iterable<T> iterable, BiConsumer<ODatabaseSession, T> consumer) {
+    forEachInTx(iterable.iterator(), consumer);
+  }
+
+  @Override
+  public <T> void forEachInTx(Stream<T> stream, BiConsumer<ODatabaseSession, T> consumer) {
+    try (Stream<T> s = stream) {
+      forEachInTx(s.iterator(), consumer);
+    }
+  }
+
+  @Override
+  public <T> void forEachInTx(Iterator<T> iterator,
+      BiFunction<ODatabaseSession, T, Boolean> consumer) {
+    var ok = false;
+    checkIfActive();
+
+    begin();
+    try {
+      while (iterator.hasNext()) {
+        var cont = consumer.apply(this, iterator.next());
+        commit();
+        if (!cont) {
+          break;
+        }
+        begin();
+      }
+
+      ok = true;
+    } finally {
+      finishTx(ok);
+    }
+  }
+
+  @Override
+  public <T> void forEachInTx(Iterable<T> iterable,
+      BiFunction<ODatabaseSession, T, Boolean> consumer) {
+    forEachInTx(iterable.iterator(), consumer);
+  }
+
+  @Override
+  public <T> void forEachInTx(Stream<T> stream, BiFunction<ODatabaseSession, T, Boolean> consumer) {
+    try (stream) {
+      forEachInTx(stream.iterator(), consumer);
+    }
+  }
+
+  private void finishTx(boolean ok) {
+    if (currentTx.isActive()) {
+      if (ok && currentTx.getStatus() != TXSTATUS.ROLLBACKING) {
+        commit();
+      } else {
+        if (isActiveOnCurrentThread()) {
+          rollback();
         } else {
-          if (isActiveOnCurrentThread()) {
-            rollback();
-          } else {
-            currentTx.rollback();
-          }
+          currentTx.rollback();
         }
       }
     }
@@ -2126,7 +2178,7 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
   public <T> void executeInTxBatches(
       Iterator<T> iterator, int batchSize, BiConsumer<ODatabaseSession, T> consumer) {
     var ok = false;
-    activateOnCurrentThread();
+    checkIfActive();
     int counter = 0;
 
     begin();
@@ -2143,17 +2195,7 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
 
       ok = true;
     } finally {
-      if (currentTx.isActive()) {
-        if (ok) {
-          commit();
-        } else {
-          if (isActiveOnCurrentThread()) {
-            rollback();
-          } else {
-            currentTx.rollback();
-          }
-        }
-      }
+      finishTx(ok);
     }
   }
 
@@ -2178,17 +2220,21 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
   @Override
   public <T> void executeInTxBatches(
       Stream<T> stream, int batchSize, BiConsumer<ODatabaseSession, T> consumer) {
-    executeInTxBatches(stream.iterator(), batchSize, consumer);
+    try (stream) {
+      executeInTxBatches(stream.iterator(), batchSize, consumer);
+    }
   }
 
   @Override
   public <T> void executeInTxBatches(Stream<T> stream, BiConsumer<ODatabaseSession, T> consumer) {
-    executeInTxBatches(stream.iterator(), consumer);
+    try (stream) {
+      executeInTxBatches(stream.iterator(), consumer);
+    }
   }
 
   @Override
   public <T> T computeInTx(Supplier<T> supplier) {
-    activateOnCurrentThread();
+    checkIfActive();
     var ok = false;
     begin();
     try {
@@ -2196,17 +2242,7 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
       ok = true;
       return result;
     } finally {
-      if (currentTx.isActive()) {
-        if (ok && currentTx.getStatus() != TXSTATUS.ROLLBACKING) {
-          commit();
-        } else {
-          if (isActiveOnCurrentThread()) {
-            rollback();
-          } else {
-            currentTx.rollback();
-          }
-        }
-      }
+      finishTx(ok);
     }
   }
 

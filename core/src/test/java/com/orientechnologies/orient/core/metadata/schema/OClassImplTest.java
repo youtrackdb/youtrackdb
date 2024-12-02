@@ -112,9 +112,9 @@ public class OClassImplTest extends BaseMemoryInternalDatabase {
     db.executeInTx(
         () -> {
           ODocument document = new ODocument("Test5");
-          Set<ODocument> list = new HashSet<ODocument>();
-          list.add(new ODocument("Test5"));
-          document.field("somelinkset", list);
+          Set<ODocument> set = new HashSet<ODocument>();
+          set.add(new ODocument("Test5"));
+          document.field("somelinkset", set);
           db.save(document);
         });
 

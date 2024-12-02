@@ -48,10 +48,8 @@ import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-@SuppressWarnings("groupsTestNG")
-@Test(
-    groups = {"crud", "record-vobject"},
-    singleThreaded = true)
+
+@Test
 public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
@@ -129,21 +127,20 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "readAndBrowseDescendingAndCheckHoleUtilization")
   public void update() {
-    int i = 0;
-    for (ODocument rec : database.<ODocument>browseCluster("Account")) {
+    int[] i = new int[1];
 
-      if (i % 2 == 0) {
+    var iterator = (Iterator<ODocument>) database.<ODocument>browseCluster("Account");
+    database.forEachInTx(iterator, (session, rec) -> {
+      if (i[0] % 2 == 0) {
         rec.field("location", "Spain");
       }
 
-      rec.field("price", i + 100);
+      rec.field("price", i[0] + 100);
 
-      database.begin();
       rec.save();
-      database.commit();
 
-      i++;
-    }
+      i[0]++;
+    });
   }
 
   @Test(dependsOnMethods = "update")
@@ -334,16 +331,17 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
 
   @Test(dependsOnMethods = "testUnderscoreField")
   public void testUpdateLazyDirtyPropagation() {
-    for (ODocument rec : database.<ODocument>browseCluster("Profile")) {
+    var iterator = (Iterator<ODocument>) database.<ODocument>browseCluster("Profile");
+    database.forEachInTx(iterator, (session, rec) -> {
       Assert.assertFalse(rec.isDirty());
-
       Collection<?> followers = rec.field("followers");
       if (followers != null && !followers.isEmpty()) {
         followers.remove(followers.iterator().next());
         Assert.assertTrue(rec.isDirty());
-        break;
+        return false;
       }
-    }
+      return true;
+    });
   }
 
   @SuppressWarnings("unchecked")

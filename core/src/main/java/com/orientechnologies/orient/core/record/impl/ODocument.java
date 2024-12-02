@@ -51,7 +51,7 @@ import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import com.orientechnologies.orient.core.exception.OSecurityException;
 import com.orientechnologies.orient.core.exception.OValidationException;
-import com.orientechnologies.orient.core.id.OEmptyRecordId;
+import com.orientechnologies.orient.core.id.ChangeableRecordId;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.iterator.OEmptyMapEntryIterator;
@@ -148,8 +148,9 @@ public class ODocument extends ORecordAbstract
   /**
    * Internal constructor used on unmarshalling.
    */
-  public ODocument(ODatabaseSession database) {
-    setup((ODatabaseSessionInternal) database);
+  public ODocument(ODatabaseSessionInternal database) {
+    assert database == null || database.assertIfNotActive();
+    setup(database);
   }
 
   public ODocument(ODatabaseSession database, ORID rid) {
@@ -237,6 +238,7 @@ public class ODocument extends ORecordAbstract
   }
 
   public ODocument(final String iClassName, ODatabaseSessionInternal session) {
+    assert session == null || session.assertIfNotActive();
     setup(session);
     setClassName(iClassName);
   }
@@ -248,8 +250,9 @@ public class ODocument extends ORecordAbstract
    * @param session    the session the instance will be attached to
    * @param iClassName Class name
    */
-  public ODocument(ODatabaseSession session, final String iClassName) {
-    setup((ODatabaseSessionInternal) session);
+  public ODocument(ODatabaseSessionInternal session, final String iClassName) {
+    assert session == null || session.assertIfNotActive();
+    setup(session);
     setClassName(iClassName);
   }
 
@@ -2166,7 +2169,7 @@ public class ODocument extends ORecordAbstract
       setClassName(null);
     } else {
       if (ODocumentHelper.ATTRIBUTE_RID.equalsIgnoreCase(iFieldName)) {
-        recordId = new OEmptyRecordId();
+        recordId = new ChangeableRecordId();
       }
     }
 

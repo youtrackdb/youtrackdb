@@ -135,61 +135,6 @@ public class OMap extends OTrackedMap<OIdentifiable> implements OSizeable {
     this.autoConvertToRecord = convertToRecord;
   }
 
-  public void convertLinks2Records() {
-    if (multiValueStatus == MULTIVALUE_CONTENT_TYPE.ALL_RECORDS || !autoConvertToRecord)
-    // PRECONDITIONS
-    {
-      return;
-    }
-    for (Object k : keySet()) {
-      convertLink2Record(k);
-    }
-
-    multiValueStatus = MULTIVALUE_CONTENT_TYPE.ALL_RECORDS;
-  }
-
-  public boolean convertRecords2Links() {
-    if (multiValueStatus == MULTIVALUE_CONTENT_TYPE.ALL_RIDS)
-    // PRECONDITIONS
-    {
-      return true;
-    }
-
-    boolean allConverted = true;
-    for (Object k : keySet()) {
-      if (!convertRecord2Link(k)) {
-        allConverted = false;
-      }
-    }
-
-    if (allConverted) {
-      multiValueStatus = MULTIVALUE_CONTENT_TYPE.ALL_RIDS;
-    }
-
-    return allConverted;
-  }
-
-  private boolean convertRecord2Link(final Object iKey) {
-    if (multiValueStatus == MULTIVALUE_CONTENT_TYPE.ALL_RIDS) {
-      return true;
-    }
-
-    final Object value = super.get(iKey);
-    if (value != null) {
-      // ALREADY CONVERTED
-      if (value instanceof ORecord && !((ORecord) value).getIdentity().isNew()) {
-        // OVERWRITE
-        super.putInternal(iKey, ((ORecord) value).getIdentity());
-        // CONVERTED
-        return true;
-      } else {
-        return value instanceof ORID;
-      }
-    }
-
-    return false;
-  }
-
   /**
    * Convert the item with the received key to a record.
    *
@@ -208,7 +153,7 @@ public class OMap extends OTrackedMap<OIdentifiable> implements OSizeable {
       value = super.get(iKey);
     }
 
-    if (value != null && value instanceof ORID rid) {
+    if (value instanceof ORID rid) {
       try {
         // OVERWRITE IT
         ORecord record = rid.getRecord();
@@ -227,10 +172,6 @@ public class OMap extends OTrackedMap<OIdentifiable> implements OSizeable {
 
   public Iterator<OIdentifiable> rawIterator() {
     return super.values().iterator();
-  }
-
-  public boolean detach() {
-    return convertRecords2Links();
   }
 
   @Override

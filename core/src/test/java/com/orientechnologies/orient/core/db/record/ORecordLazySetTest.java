@@ -67,7 +67,7 @@ public class ORecordLazySetTest extends BaseMemoryDatabase {
     set.add(doc2);
     set.add(new ORecordId(5, 1000));
     assertEquals(set.size(), 3);
-    set.remove(null);
+    set.remove(new ORecordId(5, 1000));
     assertEquals(set.size(), 2);
   }
 

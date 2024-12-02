@@ -34,12 +34,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 /**
  * Implementation of Set bound to a source ORecord object to keep track of changes. This avoid to
  * call the makeDirty() by hand when the set is changed.
  */
-@SuppressWarnings("serial")
 public class OTrackedSet<T> extends LinkedHashSet<T>
     implements ORecordElement, OTrackedMultiValue<T, T>, Serializable {
 
@@ -108,7 +108,7 @@ public class OTrackedSet<T> extends LinkedHashSet<T>
     return modified;
   }
 
-  public boolean add(final T e) {
+  public boolean add(@Nullable final T e) {
     if (super.add(e)) {
       addEvent(e);
       return true;
@@ -142,7 +142,7 @@ public class OTrackedSet<T> extends LinkedHashSet<T>
     super.clear();
   }
 
-  private void addEvent(T added) {
+  protected void addEvent(T added) {
     addOwnerToEmbeddedDoc(added);
 
     if (tracker.isEnabled()) {
@@ -152,24 +152,11 @@ public class OTrackedSet<T> extends LinkedHashSet<T>
     }
   }
 
-  private void updateEvent(T oldValue, T newValue) {
-    if (oldValue instanceof ODocument) {
-      ODocumentInternal.removeOwner((ODocument) oldValue, this);
-    }
-
-    addOwnerToEmbeddedDoc(newValue);
-
-    if (tracker.isEnabled()) {
-      tracker.updated(oldValue, newValue, oldValue);
-    } else {
-      setDirty();
-    }
-  }
-
   private void removeEvent(T removed) {
     if (removed instanceof ODocument) {
       ODocumentInternal.removeOwner((ODocument) removed, this);
     }
+
     if (tracker.isEnabled()) {
       tracker.remove(removed, removed);
     } else {
@@ -229,6 +216,9 @@ public class OTrackedSet<T> extends LinkedHashSet<T>
   private void addOwnerToEmbeddedDoc(T e) {
     if (embeddedCollection && e instanceof ODocument && !((ODocument) e).getIdentity().isValid()) {
       ODocumentInternal.addOwner((ODocument) e, this);
+    }
+
+    if (e instanceof ODocument) {
       ORecordInternal.track(sourceRecord, (ODocument) e);
     }
   }

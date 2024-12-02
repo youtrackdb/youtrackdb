@@ -166,13 +166,11 @@ public class ODocumentHelper {
       if (!(iValue instanceof Set)) {
         // CONVERT IT TO SET
         final Collection<?> newValue;
-
         if (type.isLink()) {
           newValue = new OSet(iDocument);
         } else {
-          newValue = new OTrackedSet<Object>(iDocument);
+          newValue = new OTrackedSet<>(iDocument);
         }
-
         if (iValue instanceof Collection<?>) {
           ((Collection<Object>) newValue).addAll((Collection<Object>) iValue);
         } else if (iValue instanceof Map) {
@@ -1071,8 +1069,7 @@ public class ODocumentHelper {
         return newList;
 
       } else if (fieldValue instanceof List<?>) {
-        return new ArrayList<Object>((List<Object>) fieldValue);
-
+        return new ArrayList<>((List<Object>) fieldValue);
         // SETS
       } else if (fieldValue instanceof OSet) {
         final OSet newList = new OSet(iCloned);

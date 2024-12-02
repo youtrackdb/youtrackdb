@@ -164,7 +164,7 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     database = acquireSession();
     List<OResult> result =
         database.query("SELECT FROM MyTestClass WHERE keyField = ?", "K1").stream().toList();
-    Assert.assertEquals(1, result.size());
+    Assert.assertEquals(result.size(), 1);
     OResult doc = result.get(0);
     Assert.assertTrue(doc.hasProperty("keyField"));
     Assert.assertTrue(doc.hasProperty("dateTimeField"));
@@ -175,11 +175,11 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
   public void testUpdateDocDefined() {
     List<OResult> result =
         database.query("SELECT FROM MyTestClass WHERE keyField = ?", "K1").stream().toList();
-    Assert.assertEquals(1, result.size());
+    database.begin();
+    Assert.assertEquals(result.size(), 1);
     OElement readDoc = result.get(0).toElement();
     assert readDoc != null;
     readDoc.setProperty("keyField", "K1N");
-    database.begin();
     readDoc.save();
     database.commit();
   }
@@ -199,11 +199,11 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
 
     List<OResult> result =
         database.query("SELECT FROM MyTestClass WHERE keyField = ?", "K2").stream().toList();
-    Assert.assertEquals(1, result.size());
+    database.begin();
+    Assert.assertEquals(result.size(), 1);
     OElement readDoc = result.get(0).toElement();
     assert readDoc != null;
     readDoc.setProperty("keyField", "K2N");
-    database.begin();
     readDoc.save();
     database.commit();
   }
@@ -219,14 +219,13 @@ public class CRUDDocumentValidationTest extends DocumentDBBaseTest {
     doc.save();
     database.commit();
 
+    database.begin();
     List<OResult> result =
         database.query("SELECT FROM MyTestClass WHERE keyField = ?", "K3").stream().toList();
-    Assert.assertEquals(1, result.size());
+    Assert.assertEquals(result.size(), 1);
     OElement readDoc = result.get(0).toElement();
     assert readDoc != null;
     readDoc.setProperty("keyField", "K3N");
-
-    database.begin();
     readDoc.save();
     database.commit();
   }

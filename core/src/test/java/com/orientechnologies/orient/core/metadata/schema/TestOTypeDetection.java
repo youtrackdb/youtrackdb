@@ -13,7 +13,7 @@ import com.orientechnologies.orient.core.db.record.OTrackedMap;
 import com.orientechnologies.orient.core.db.record.OTrackedSet;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.OSerializationException;
-import com.orientechnologies.orient.core.id.OEmptyRecordId;
+import com.orientechnologies.orient.core.id.ChangeableRecordId;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -161,7 +161,7 @@ public class TestOTypeDetection extends BaseMemoryDatabase {
 
     assertEquals(OType.LINK, OType.getTypeByValue(new ODocument()));
 
-    assertEquals(OType.LINK, OType.getTypeByValue(new OEmptyRecordId()));
+    assertEquals(OType.LINK, OType.getTypeByValue(new ChangeableRecordId()));
 
     assertEquals(OType.EMBEDDEDLIST, OType.getTypeByValue(new ArrayList<Object>()));
 
@@ -196,7 +196,7 @@ public class TestOTypeDetection extends BaseMemoryDatabase {
     ODatabaseRecordThreadLocal.instance().remove();
 
     Map<String, ORecordId> linkmap = new HashMap<String, ORecordId>();
-    linkmap.put("some", new OEmptyRecordId());
+    linkmap.put("some", new ChangeableRecordId());
     assertEquals(OType.LINKMAP, OType.getTypeByValue(linkmap));
 
     Map<String, ORecord> linkmap2 = new HashMap<String, ORecord>();
@@ -204,7 +204,7 @@ public class TestOTypeDetection extends BaseMemoryDatabase {
     assertEquals(OType.LINKMAP, OType.getTypeByValue(linkmap2));
 
     List<ORecordId> linkList = new ArrayList<ORecordId>();
-    linkList.add(new OEmptyRecordId());
+    linkList.add(new ChangeableRecordId());
     assertEquals(OType.LINKLIST, OType.getTypeByValue(linkList));
 
     List<ORecord> linkList2 = new ArrayList<ORecord>();
@@ -212,7 +212,7 @@ public class TestOTypeDetection extends BaseMemoryDatabase {
     assertEquals(OType.LINKLIST, OType.getTypeByValue(linkList2));
 
     Set<ORecordId> linkSet = new HashSet<ORecordId>();
-    linkSet.add(new OEmptyRecordId());
+    linkSet.add(new ChangeableRecordId());
     assertEquals(OType.LINKSET, OType.getTypeByValue(linkSet));
 
     Set<ORecord> linkSet2 = new HashSet<ORecord>();

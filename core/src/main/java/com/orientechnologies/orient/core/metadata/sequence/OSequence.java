@@ -30,7 +30,7 @@ import com.orientechnologies.orient.core.exception.OConcurrentModificationExcept
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OSequenceException;
 import com.orientechnologies.orient.core.exception.OStorageException;
-import com.orientechnologies.orient.core.id.OEmptyRecordId;
+import com.orientechnologies.orient.core.id.ChangeableRecordId;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClassImpl;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -79,7 +79,7 @@ public abstract class OSequence {
   private static final String FIELD_NAME = "name";
   private static final String FIELD_TYPE = "type";
 
-  protected ORID docRid = new OEmptyRecordId();
+  protected ORID docRid = new ChangeableRecordId();
 
   private final ReentrantLock updateLock = new ReentrantLock();
 

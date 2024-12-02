@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.db.record;
 
-import com.orientechnologies.orient.core.id.OEmptyRecordId;
+import com.orientechnologies.orient.core.id.ChangeableRecordId;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.ORecord;
@@ -106,7 +106,7 @@ public class OPlaceholder implements OIdentifiable, OStreamable {
 
   @Override
   public void fromStream(final DataInput in) throws IOException {
-    var rid = new OEmptyRecordId();
+    var rid = new ChangeableRecordId();
     rid.fromStream(in);
 
     this.rid = rid.copy();

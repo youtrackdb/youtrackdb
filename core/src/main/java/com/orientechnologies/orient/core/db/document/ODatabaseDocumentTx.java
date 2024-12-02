@@ -82,6 +82,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
@@ -1637,5 +1638,37 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   @Override
   public int activeTxCount() {
     return internal.activeTxCount();
+  }
+
+  @Override
+  public <T> void forEachInTx(Iterator<T> iterator,
+      BiFunction<ODatabaseSession, T, Boolean> consumer) {
+    internal.forEachInTx(iterator, consumer);
+  }
+
+  @Override
+  public <T> void forEachInTx(Iterable<T> iterable,
+      BiFunction<ODatabaseSession, T, Boolean> consumer) {
+    internal.forEachInTx(iterable, consumer);
+  }
+
+  @Override
+  public <T> void forEachInTx(Stream<T> stream, BiFunction<ODatabaseSession, T, Boolean> consumer) {
+    internal.forEachInTx(stream, consumer);
+  }
+
+  @Override
+  public <T> void forEachInTx(Iterator<T> iterator, BiConsumer<ODatabaseSession, T> consumer) {
+    internal.forEachInTx(iterator, consumer);
+  }
+
+  @Override
+  public <T> void forEachInTx(Iterable<T> iterable, BiConsumer<ODatabaseSession, T> consumer) {
+    internal.forEachInTx(iterable, consumer);
+  }
+
+  @Override
+  public <T> void forEachInTx(Stream<T> stream, BiConsumer<ODatabaseSession, T> consumer) {
+    internal.forEachInTx(stream, consumer);
   }
 }
