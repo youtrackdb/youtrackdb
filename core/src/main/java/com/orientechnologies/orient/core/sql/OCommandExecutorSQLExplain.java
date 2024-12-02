@@ -19,6 +19,7 @@
  */
 package com.orientechnologies.orient.core.sql;
 
+import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
@@ -33,7 +34,6 @@ public class OCommandExecutorSQLExplain extends OCommandExecutorSQLDelegate {
 
   public static final String KEYWORD_EXPLAIN = "EXPLAIN";
 
-  @SuppressWarnings("unchecked")
   @Override
   public OCommandExecutorSQLExplain parse(OCommandRequest iCommand) {
     final OCommandRequestText textRequest = (OCommandRequestText) iCommand;
@@ -45,7 +45,13 @@ public class OCommandExecutorSQLExplain extends OCommandExecutorSQLDelegate {
       textRequest.setText(queryText);
 
       final String cmd = ((OCommandRequestText) iCommand).getText();
-      super.parse(new OCommandSQL(cmd.substring(KEYWORD_EXPLAIN.length())));
+      var command = new OCommandSQL(cmd.substring(KEYWORD_EXPLAIN.length()));
+      var context = new OBasicCommandContext();
+      context.setParent(iCommand.getContext());
+
+      command.setContext(context);
+
+      super.parse(command);
     } finally {
       textRequest.setText(originalQuery);
     }

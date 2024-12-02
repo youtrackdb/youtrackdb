@@ -4034,7 +4034,9 @@ public abstract class OAbstractPaginatedStorage
   public final Object command(ODatabaseSessionInternal database,
       final OCommandRequestText command) {
     try {
-      final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
+      var db = database;
+      assert db.assertIfNotActive();
+
       while (true) {
         try {
           final OCommandExecutor executor =

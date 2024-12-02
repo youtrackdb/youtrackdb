@@ -39,6 +39,7 @@ import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.OElement;
+import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.OElementInternal;
 import com.orientechnologies.orient.core.serialization.ODocumentSerializable;
@@ -106,12 +107,36 @@ public enum OType {
 
   EMBEDDEDMAP("EmbeddedMap", 12, Map.class, new Class<?>[]{Map.class}),
 
+  /**
+   * @deprecated Deprecated and will be removed in next major release.
+   * {@link com.orientechnologies.orient.core.record.OVertex#addEdge(OVertex, OClass)} or
+   * {@link OVertex#addLightWeightEdge(OVertex, OClass)} instead.
+   */
+  @Deprecated
   LINK("Link", 13, OIdentifiable.class, new Class<?>[]{OIdentifiable.class, ORID.class}),
 
+  /**
+   * @deprecated Deprecated and will be removed in next major release.
+   * {@link com.orientechnologies.orient.core.record.OVertex#addEdge(OVertex, OClass)} or
+   * {@link OVertex#addLightWeightEdge(OVertex, OClass)} instead.
+   */
+  @Deprecated
   LINKLIST("LinkList", 14, List.class, new Class<?>[]{List.class}),
 
+  /**
+   * @deprecated Deprecated and will be removed in next major release.
+   * {@link com.orientechnologies.orient.core.record.OVertex#addEdge(OVertex, OClass)} or
+   * {@link OVertex#addLightWeightEdge(OVertex, OClass)} instead.
+   */
+  @Deprecated
   LINKSET("LinkSet", 15, Set.class, new Class<?>[]{Set.class}),
 
+  /**
+   * @deprecated Deprecated and will be removed in next major release.
+   * {@link com.orientechnologies.orient.core.record.OVertex#addEdge(OVertex, OClass)} or
+   * {@link OVertex#addLightWeightEdge(OVertex, OClass)} instead.
+   */
+  @Deprecated
   LINKMAP("LinkMap", 16, Map.class, new Class<?>[]{Map.class}),
 
   BYTE("Byte", 17, Byte.class, new Class<?>[]{Number.class}),
@@ -120,6 +145,10 @@ public enum OType {
 
   DATE("Date", 19, Date.class, new Class<?>[]{Number.class}),
 
+  /**
+   * @deprecated Deprecated and will be removed in next major release. Use {@link #BINARY} instead.
+   */
+  @Deprecated
   CUSTOM(
       "Custom",
       20,
@@ -350,7 +379,6 @@ public enum OType {
   /**
    * Convert types based on the iTargetClass parameter.
    *
-   * @param session
    * @param value       Value to convert
    * @param targetClass Expected class
    * @return The converted value or the original if no conversion was applied
@@ -887,7 +915,7 @@ public enum OType {
    * @return The string if the conversion succeed, otherwise the IllegalArgumentException exception
    */
   @Deprecated
-  public String asString(final Object iValue) {
+  public static String asString(final Object iValue) {
     return iValue.toString();
   }
 
@@ -923,11 +951,6 @@ public enum OType {
 
   public Set<OType> getCastable() {
     return castable;
-  }
-
-  @Deprecated
-  public Class<?>[] getJavaTypes() {
-    return null;
   }
 
   public String getName() {

@@ -779,7 +779,6 @@ public class ODocument extends ORecordAbstract
       if (value instanceof ORidBag ridBag) {
         ridBag.setOwner(
             null); // in order to avoid IllegalStateException when ridBag changes the owner
-        // (ODocument.merge)
         ridBag.setOwner(this);
         ridBag.setRecordAndField(recordId, name);
       }
