@@ -22,7 +22,7 @@ public class OTraverseTest extends BaseMemoryDatabase {
     super.beforeTest();
 
     rootDocument = new ODocument();
-    traverse = new OTraverse();
+    traverse = new OTraverse(db);
     traverse.target(rootDocument).fields("*");
   }
 

@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.orderby;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.BaseMemoryDatabase;
-import com.orientechnologies.orient.core.db.ODatabaseSession.ATTRIBUTES;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYPE;
 import com.orientechnologies.orient.core.metadata.schema.OType;

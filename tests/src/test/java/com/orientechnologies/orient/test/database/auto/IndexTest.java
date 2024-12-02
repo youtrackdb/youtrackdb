@@ -842,11 +842,11 @@ public class IndexTest extends DocumentDBBaseTest {
     Assert.assertEquals(
         ((List<ODocument>)
             db.command(new OCommandSQL("select from TransactionUniqueIndexWithDotTest"))
-                .execute(database))
+                .execute(db))
             .size(),
         countClassBefore);
 
-    Assert.assertEquals(index.getInternal().size(database), 1);
+    Assert.assertEquals(index.getInternal().size(db), 1);
   }
 
   @Test(dependsOnMethods = "testTransactionUniqueIndexTestWithDotNameOne")
@@ -1911,12 +1911,11 @@ public class IndexTest extends DocumentDBBaseTest {
     database.close();
     database = acquireSession();
 
+    database.begin();
     document = database.load(rid);
-
     users = document.field("users");
     users.remove(rid1);
 
-    database.begin();
     document.save();
     database.commit();
 
@@ -1936,13 +1935,13 @@ public class IndexTest extends DocumentDBBaseTest {
     database.close();
     database = acquireSession();
 
+    database.begin();
     document = database.load(rid);
 
     users = document.field("users");
     users.remove(rid2);
     Assert.assertTrue(users.isEmpty());
 
-    database.begin();
     document.save();
     database.commit();
 
@@ -1955,12 +1954,12 @@ public class IndexTest extends DocumentDBBaseTest {
 
     database.close();
     database = acquireSession();
+    database.begin();
 
     document = database.load(rid);
     users = document.field("users");
     users.add(rid3);
 
-    database.begin();
     document.save();
     database.commit();
 

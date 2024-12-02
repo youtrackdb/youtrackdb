@@ -1061,4 +1061,37 @@ public interface ODatabaseSessionInternal extends ODatabaseSession {
   OMetadataInternal getMetadata();
 
   void afterCommitOperations();
+
+  /**
+   * Returns a database attribute value
+   *
+   * @param iAttribute Attributes between #ATTRIBUTES enum
+   * @return The attribute value
+   */
+  Object get(ATTRIBUTES iAttribute);
+
+  /**
+   * Sets a database attribute value
+   *
+   * @param iAttribute Attributes between #ATTRIBUTES enum
+   * @param iValue     Value to set
+   */
+  void set(ATTRIBUTES iAttribute, Object iValue);
+
+  enum ATTRIBUTES {
+    TYPE,
+    STATUS,
+    DEFAULTCLUSTERID,
+    DATEFORMAT,
+    DATETIMEFORMAT,
+    TIMEZONE,
+    LOCALECOUNTRY,
+    LOCALELANGUAGE,
+    CHARSET,
+    CUSTOM,
+    CLUSTERSELECTION,
+    MINIMUMCLUSTERS,
+    CONFLICTSTRATEGY,
+    VALIDATION
+  }
 }

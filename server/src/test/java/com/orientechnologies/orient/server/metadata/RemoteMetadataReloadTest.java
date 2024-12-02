@@ -6,8 +6,8 @@ import static org.junit.Assert.assertNotNull;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.Oxygen;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.server.OServer;
@@ -55,7 +55,7 @@ public class RemoteMetadataReloadTest {
   public void testStorageUpdate() throws InterruptedException {
     database.command(" ALTER DATABASE LOCALELANGUAGE  ?", Locale.GERMANY.getLanguage());
     assertEquals(
-        database.get(ODatabaseSession.ATTRIBUTES.LOCALELANGUAGE), Locale.GERMANY.getLanguage());
+        database.get(ATTRIBUTES.LOCALELANGUAGE), Locale.GERMANY.getLanguage());
   }
 
   @Test

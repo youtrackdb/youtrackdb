@@ -13,8 +13,8 @@ package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.client.remote.OStorageRemote;
 import com.orientechnologies.orient.client.remote.db.document.ODatabaseSessionRemote;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.Collections;
 import java.util.HashSet;
@@ -61,7 +61,7 @@ public class MultipleDBTest extends DocumentDBBaseTest {
             try {
               var db = createSessionInstance(dbName);
 
-              db.set(ODatabaseSession.ATTRIBUTES.MINIMUMCLUSTERS, 1);
+              db.set(ATTRIBUTES.MINIMUMCLUSTERS, 1);
               db.getMetadata().getSchema().getOrCreateClass("DummyObject");
 
               long start = System.currentTimeMillis();

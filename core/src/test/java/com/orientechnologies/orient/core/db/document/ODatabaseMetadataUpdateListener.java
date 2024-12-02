@@ -5,8 +5,8 @@ import static org.junit.Assert.assertNotNull;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -107,7 +107,7 @@ public class ODatabaseMetadataUpdateListener {
 
   @Test
   public void testIndexConfigurationUpdate() {
-    session.set(ODatabaseSession.ATTRIBUTES.LOCALECOUNTRY, Locale.GERMAN);
+    session.set(ATTRIBUTES.LOCALECOUNTRY, Locale.GERMAN);
     assertEquals(count, 1);
   }
 

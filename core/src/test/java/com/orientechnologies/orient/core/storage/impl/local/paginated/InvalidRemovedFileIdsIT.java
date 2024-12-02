@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.storage.impl.local.paginated;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.common.serialization.types.OStringSerializer;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -33,7 +33,7 @@ public class InvalidRemovedFileIdsIT {
 
     final OxygenDBConfig config =
         OxygenDBConfig.builder()
-            .addAttribute(ODatabaseSession.ATTRIBUTES.MINIMUMCLUSTERS, 1)
+            .addAttribute(ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
 
     OxygenDB oxygenDB = new OxygenDB("plocal:" + buildDirectory, config);

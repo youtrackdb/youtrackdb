@@ -411,15 +411,14 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
           .submit(
               () -> {
                 try (ODatabaseSessionInternal db = acquireSession()) {
-                  ODocument brokenDocTwo = db.load(brokenRid);
-                  brokenDocTwo.field("v", "vstr");
+                  db.executeInTx(() -> {
+                    ODocument brokenDocTwo = db.load(brokenRid);
+                    brokenDocTwo.field("v", "vstr");
 
-                  db.begin();
-                  brokenDocTwo.save();
-                  db.commit();
+                    brokenDocTwo.save();
+                  });
                 }
-              })
-          .get();
+              }).get();
 
       database.commit();
       Assert.fail();

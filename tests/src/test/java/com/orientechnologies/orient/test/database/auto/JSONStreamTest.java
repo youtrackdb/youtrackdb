@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
@@ -245,9 +245,9 @@ public class JSONStreamTest extends DocumentDBBaseTest {
   @Test
   public void testMultiLevelTypes() throws IOException {
     final String oldDataTimeFormat =
-        database.get(ODatabaseSession.ATTRIBUTES.DATETIMEFORMAT).toString();
+        database.get(ATTRIBUTES.DATETIMEFORMAT).toString();
     database.set(
-        ODatabaseSession.ATTRIBUTES.DATETIMEFORMAT, OStorageConfiguration.DEFAULT_DATETIME_FORMAT);
+        ATTRIBUTES.DATETIMEFORMAT, OStorageConfiguration.DEFAULT_DATETIME_FORMAT);
     try {
       final ODocument doc = new ODocument();
       doc.field("long", 100000000000L);
@@ -328,7 +328,7 @@ public class JSONStreamTest extends DocumentDBBaseTest {
           ((Byte) thirdLevelDoc.field("byte")).byteValue(),
           ((Byte) thirdDoc.field("byte")).byteValue());
     } finally {
-      database.set(ODatabaseSession.ATTRIBUTES.DATETIMEFORMAT, oldDataTimeFormat);
+      database.set(ATTRIBUTES.DATETIMEFORMAT, oldDataTimeFormat);
     }
   }
 

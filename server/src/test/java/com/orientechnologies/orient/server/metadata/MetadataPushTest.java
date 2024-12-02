@@ -9,6 +9,7 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.server.OServer;
@@ -76,7 +77,7 @@ public class MetadataPushTest {
         () -> {
           secondDatabase.activateOnCurrentThread();
           assertEquals(
-              secondDatabase.get(ODatabaseSession.ATTRIBUTES.LOCALELANGUAGE),
+              secondDatabase.get(ATTRIBUTES.LOCALELANGUAGE),
               Locale.GERMANY.getLanguage());
         });
   }

@@ -46,6 +46,10 @@ public class OTraverse implements OCommand, Iterable<OIdentifiable>, Iterator<OI
   private final OTraverseContext context = new OTraverseContext();
   private int maxDepth = -1;
 
+  public OTraverse(ODatabaseSessionInternal db) {
+    context.setDatabase(db);
+  }
+
   public enum STRATEGY {
     DEPTH_FIRST,
     BREADTH_FIRST

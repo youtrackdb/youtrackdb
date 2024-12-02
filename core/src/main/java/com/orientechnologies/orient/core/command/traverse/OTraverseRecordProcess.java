@@ -20,6 +20,7 @@
 package com.orientechnologies.orient.core.command.traverse;
 
 import com.orientechnologies.common.collection.OMultiValue;
+import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.ORecord;
@@ -168,7 +169,9 @@ public class OTraverseRecordProcess extends OTraverseAbstractProcess<OIdentifiab
 
       final Object fieldValue;
       if (field instanceof OSQLFilterItem) {
-        fieldValue = ((OSQLFilterItem) field).getValue(doc, null, null);
+        var context = new OBasicCommandContext();
+        context.setParent(command.getContext());
+        fieldValue = ((OSQLFilterItem) field).getValue(doc, null, context);
       } else {
         fieldValue = doc.rawField(field.toString());
       }

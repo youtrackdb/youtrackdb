@@ -202,7 +202,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     OElement doc =
         database
             .command(
-                "insert into cluster:default (equaledges, name, properties) values ('no',"
+                "insert into O (equaledges, name, properties) values ('no',"
                     + " 'circle', {'round':'eeee', 'blaaa':'zigzag'} )")
             .next()
             .getElement()
@@ -230,7 +230,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     doc =
         database
             .command(
-                "insert into cluster:default SET equaledges = 'no', name = 'circle',"
+                "insert into O SET equaledges = 'no', name = 'circle',"
                     + " properties = {'round':'eeee', 'blaaa':'zigzag'} ")
             .next()
             .getElement()
@@ -258,7 +258,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     OElement doc =
         database
             .command(
-                "insert into cluster:default (equaledges, name, list) values ('yes',"
+                "insert into O (equaledges, name, list) values ('yes',"
                     + " 'square', ['bottom', 'top','left','right'] )")
             .next()
             .getElement()
@@ -288,7 +288,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
     doc =
         database
             .command(
-                "insert into cluster:default SET equaledges = 'yes', name = 'square', list"
+                "insert into O SET equaledges = 'yes', name = 'square', list"
                     + " = ['bottom', 'top','left','right'] ")
             .next()
             .getElement()
@@ -315,7 +315,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
   public void insertWithNoSpaces() {
     database.begin();
     OResultSet res =
-        database.command("insert into cluster:default(id, title)values(10, 'NoSQL movement')");
+        database.command("insert into O (id, title)values(10, 'NoSQL movement')");
     database.commit();
 
     Assert.assertTrue(res.hasNext());
@@ -388,7 +388,7 @@ public class SQLInsertTest extends DocumentDBBaseTest {
 
     database.begin();
     for (int i = 0; i < 30; i++) {
-      database.command("insert into cluster:3 set name = 'foo" + i + "'");
+      database.command("insert into O set name = 'foo" + i + "'");
     }
     database.commit();
 

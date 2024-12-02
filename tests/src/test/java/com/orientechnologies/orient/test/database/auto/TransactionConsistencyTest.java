@@ -59,13 +59,13 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     // Create docA.
     ODocument vDocA_db1 = database1.newInstance();
     vDocA_db1.field(NAME, "docA");
-    database1.save(vDocA_db1, database1.getClusterNameById(database1.getDefaultClusterId()));
+    database1.save(vDocA_db1);
 
     // Create docB.
     ODocument vDocB_db1 = database1.newInstance();
     vDocB_db1.field(NAME, "docB");
 
-    database1.save(vDocB_db1, database1.getClusterNameById(database1.getDefaultClusterId()));
+    database1.save(vDocB_db1);
     database1.commit();
 
     // Keep the IDs.
@@ -146,7 +146,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     ODocument vDocA_db1 = database1.newInstance();
     vDocA_db1.field(NAME, "docA");
     database1.begin();
-    database1.save(vDocA_db1, database1.getClusterNameById(database1.getDefaultClusterId()));
+    database1.save(vDocA_db1);
     database1.commit();
 
     // Keep the IDs.
@@ -208,7 +208,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     ODocument vDocA_db1 = database1.newInstance();
     vDocA_db1.field(NAME, "docA");
     database1.begin();
-    database1.save(vDocA_db1, database1.getClusterNameById(database1.getDefaultClusterId()));
+    database1.save(vDocA_db1);
     database1.commit();
 
     // Keep the IDs.
@@ -270,7 +270,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database1.begin();
     ODocument vDocA_db1 = database1.newInstance();
     vDocA_db1.field(NAME, "docA");
-    database1.save(vDocA_db1, database1.getClusterNameById(database1.getDefaultClusterId()));
+    database1.save(vDocA_db1);
     database1.commit();
 
     // Keep the ID.
@@ -802,14 +802,14 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     database.begin();
     Assert.assertTrue(database.getTransaction().isActive());
     doc = orid.getRecord();
-    Assert.assertEquals("test1", doc.field("name"));
+    Assert.assertEquals(doc.field("name"), "test1");
     doc.field("name", "test2");
     doc = orid.getRecord();
-    Assert.assertEquals("test2", doc.field("name"));
+    Assert.assertEquals(doc.field("name"), "test2");
     // There is NO SAVE!
     database.commit();
 
     doc = orid.getRecord();
-    Assert.assertEquals("test1", doc.field("name"));
+    Assert.assertEquals(doc.field("name"), "test1");
   }
 }

@@ -20,8 +20,8 @@ package com.orientechnologies.lucene.tests;
 
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.orient.core.db.ODatabasePool;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
@@ -55,7 +55,7 @@ public abstract class OLuceneBaseTest {
   protected void setupDatabase(String config) {
     OxygenDBConfig cfg =
         OxygenDBConfig.builder()
-            .addAttribute(ODatabaseSession.ATTRIBUTES.MINIMUMCLUSTERS, 8)
+            .addAttribute(ATTRIBUTES.MINIMUMCLUSTERS, 8)
             .build();
 
     if ("ci".equals(config) || "release".equals(config)) {

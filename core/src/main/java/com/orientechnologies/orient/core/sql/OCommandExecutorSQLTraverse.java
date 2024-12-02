@@ -62,7 +62,7 @@ public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbs
   public static final String KEYWORD_MAXDEPTH = "MAXDEPTH";
 
   // HANDLES ITERATION IN LAZY WAY
-  private final OTraverse traverse = new OTraverse();
+  private OTraverse traverse;
 
   /**
    * Compile the filter conditions only the first time.
@@ -72,6 +72,7 @@ public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbs
     String queryText = textRequest.getText();
     String originalQuery = queryText;
     try {
+      traverse = new OTraverse(iRequest.getContext().getDatabase());
       queryText = preParse(queryText, iRequest);
       textRequest.setText(queryText);
 
@@ -208,6 +209,10 @@ public class OCommandExecutorSQLTraverse extends OCommandExecutorSQLResultsetAbs
     }
 
     try {
+      if (traverse == null) {
+        traverse = new OTraverse(querySession);
+      }
+
       // BROWSE ALL THE RECORDS AND COLLECTS RESULT
       final List<OIdentifiable> result = traverse.execute(querySession);
       for (OIdentifiable r : result) {

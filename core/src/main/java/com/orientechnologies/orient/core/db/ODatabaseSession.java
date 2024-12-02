@@ -63,23 +63,6 @@ public interface ODatabaseSession extends AutoCloseable {
     IMPORTING
   }
 
-  enum ATTRIBUTES {
-    TYPE,
-    STATUS,
-    DEFAULTCLUSTERID,
-    DATEFORMAT,
-    DATETIMEFORMAT,
-    TIMEZONE,
-    LOCALECOUNTRY,
-    LOCALELANGUAGE,
-    CHARSET,
-    CUSTOM,
-    CLUSTERSELECTION,
-    MINIMUMCLUSTERS,
-    CONFLICTSTRATEGY,
-    VALIDATION
-  }
-
   /**
    * Executes the passed in code in a transaction. Starts a transaction if not already started, in
    * this case the transaction is committed after the code is executed or rolled back if an
@@ -622,21 +605,6 @@ public interface ODatabaseSession extends AutoCloseable {
    */
   boolean dropCluster(int iClusterId);
 
-  /**
-   * Returns a database attribute value
-   *
-   * @param iAttribute Attributes between #ATTRIBUTES enum
-   * @return The attribute value
-   */
-  Object get(ATTRIBUTES iAttribute);
-
-  /**
-   * Sets a database attribute value
-   *
-   * @param iAttribute Attributes between #ATTRIBUTES enum
-   * @param iValue     Value to set
-   */
-  void set(ATTRIBUTES iAttribute, Object iValue);
 
   /**
    * Flush cached storage content to the disk.

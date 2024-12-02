@@ -887,7 +887,7 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
     }
 
     var rid = record.getIdentity();
-    if (rid == null || !rid.isPersistent()) {
+    if (rid == null) {
       throw new ODatabaseException(
           "Cannot bind record to session with not persisted rid: " + rid);
     }
@@ -908,6 +908,11 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
     if (cachedRecord == record) {
       assert !cachedRecord.isUnloaded();
       return (T) record;
+    }
+
+    if (!rid.isPersistent()) {
+      throw new ODatabaseException(
+          "Cannot bind record to session with not persisted rid: " + rid);
     }
 
     var result = executeReadRecord((ORecordId) rid);
@@ -953,6 +958,8 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
         localCache.updateRecord(record);
 
         assert !record.isUnloaded();
+        assert record.getSession() == this;
+
         return (RET) record;
       }
 
@@ -1003,7 +1010,9 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
       afterReadOperations(record);
 
       localCache.updateRecord(record);
+
       assert !record.isUnloaded();
+      assert record.getSession() == this;
 
       return (RET) record;
     } catch (OOfflineClusterException | ORecordNotFoundException t) {

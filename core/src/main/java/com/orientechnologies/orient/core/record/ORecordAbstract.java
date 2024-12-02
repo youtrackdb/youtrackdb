@@ -205,47 +205,47 @@ public abstract class ORecordAbstract implements ORecord, ORecordElement, OSeria
   }
 
   public <RET extends ORecord> RET fromJSON(final String iSource, final String iOptions) {
-    incrementLoading();
+    status = STATUS.UNMARSHALLING;
     try {
       ORecordSerializerJSON.INSTANCE.fromString(getSession(),
           iSource, this, null, iOptions, false); // Add new parameter to accommodate new API,
       // nothing change
       return (RET) this;
     } finally {
-      decrementLoading();
+      status = STATUS.LOADED;
     }
   }
 
   public void fromJSON(final String iSource) {
-    incrementLoading();
+    status = STATUS.UNMARSHALLING;
     try {
       ORecordSerializerJSON.INSTANCE.fromString(getSessionIfDefined(), iSource, this, null);
     } finally {
-      decrementLoading();
+      status = STATUS.LOADED;
     }
   }
 
   // Add New API to load record if rid exist
   public final <RET extends ORecord> RET fromJSON(final String iSource, boolean needReload) {
-    incrementLoading();
+    status = STATUS.UNMARSHALLING;
     try {
       return (RET) ORecordSerializerJSON.INSTANCE.fromString(getSession(), iSource, this, null,
           needReload);
     } finally {
-      decrementLoading();
+      status = STATUS.LOADED;
     }
   }
 
   public final <RET extends ORecord> RET fromJSON(final InputStream iContentResult)
       throws IOException {
-    incrementLoading();
+    status = STATUS.UNMARSHALLING;
     try {
       final ByteArrayOutputStream out = new ByteArrayOutputStream();
       OIOUtils.copyStream(iContentResult, out);
       ORecordSerializerJSON.INSTANCE.fromString(getSession(), out.toString(), this, null);
       return (RET) this;
     } finally {
-      decrementLoading();
+      status = STATUS.LOADED;
     }
   }
 

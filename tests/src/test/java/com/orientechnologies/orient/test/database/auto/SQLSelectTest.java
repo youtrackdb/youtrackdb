@@ -29,7 +29,6 @@ import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ORecordBytes;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
-import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -902,18 +901,7 @@ public class SQLSelectTest extends AbstractSelectTest {
 
     for (ODocument d : resultset) {
       Assert.assertFalse(d.containsField("rules"));
-    }
-  }
-
-  @Test
-  public void excludeAttributes() {
-    OResultSet resultset =
-        database.query("select expand( roles.exclude('@rid', '@class') ) from OUser");
-
-    while (resultset.hasNext()) {
-      OResult d = resultset.next();
-      Assert.assertFalse(d.getRecordId().isValid());
-      Assert.assertFalse(Objects.requireNonNull(d.asElement()).getSchemaType().isPresent());
+      Assert.assertTrue(d.containsField("name"));
     }
   }
 

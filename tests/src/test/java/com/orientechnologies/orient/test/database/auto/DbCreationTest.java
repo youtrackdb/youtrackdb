@@ -16,7 +16,8 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
@@ -122,20 +123,20 @@ public class DbCreationTest {
 
   @Test(dependsOnMethods = {"testDbOpenWithLastAsSlash"})
   public void testChangeLocale() {
-    try (var database = oxygenDB.open(DB_NAME, "admin", "admin")) {
+    try (var database = (ODatabaseSessionInternal) oxygenDB.open(DB_NAME, "admin", "admin")) {
       database.command(" ALTER DATABASE LOCALELANGUAGE  ?", Locale.GERMANY.getLanguage()).close();
       database.command(" ALTER DATABASE LOCALECOUNTRY  ?", Locale.GERMANY.getCountry()).close();
 
       Assert.assertEquals(
-          database.get(ODatabaseSession.ATTRIBUTES.LOCALELANGUAGE), Locale.GERMANY.getLanguage());
+          database.get(ATTRIBUTES.LOCALELANGUAGE), Locale.GERMANY.getLanguage());
       Assert.assertEquals(
-          database.get(ODatabaseSession.ATTRIBUTES.LOCALECOUNTRY), Locale.GERMANY.getCountry());
-      database.set(ODatabaseSession.ATTRIBUTES.LOCALECOUNTRY, Locale.ENGLISH.getCountry());
-      database.set(ODatabaseSession.ATTRIBUTES.LOCALELANGUAGE, Locale.ENGLISH.getLanguage());
+          database.get(ATTRIBUTES.LOCALECOUNTRY), Locale.GERMANY.getCountry());
+      database.set(ATTRIBUTES.LOCALECOUNTRY, Locale.ENGLISH.getCountry());
+      database.set(ATTRIBUTES.LOCALELANGUAGE, Locale.ENGLISH.getLanguage());
       Assert.assertEquals(
-          database.get(ODatabaseSession.ATTRIBUTES.LOCALECOUNTRY), Locale.ENGLISH.getCountry());
+          database.get(ATTRIBUTES.LOCALECOUNTRY), Locale.ENGLISH.getCountry());
       Assert.assertEquals(
-          database.get(ODatabaseSession.ATTRIBUTES.LOCALELANGUAGE), Locale.ENGLISH.getLanguage());
+          database.get(ATTRIBUTES.LOCALELANGUAGE), Locale.ENGLISH.getLanguage());
     }
   }
 

@@ -678,10 +678,22 @@ public class ODocument extends ORecordAbstract
           setClassName(value.toString());
           return;
         }
-        case ODocumentHelper.ATTRIBUTE_RID -> throw new ODatabaseException(
-            "Attribute " + ODocumentHelper.ATTRIBUTE_RID + " is read-only");
-        case ODocumentHelper.ATTRIBUTE_VERSION -> throw new ODatabaseException(
-            "Attribute " + ODocumentHelper.ATTRIBUTE_VERSION + " is read-only");
+        case ODocumentHelper.ATTRIBUTE_RID -> {
+          if (status == STATUS.UNMARSHALLING) {
+            recordId = new ORecordId(value.toString());
+          } else {
+            throw new ODatabaseException(
+                "Attribute " + ODocumentHelper.ATTRIBUTE_RID + " is read-only");
+          }
+
+        }
+        case ODocumentHelper.ATTRIBUTE_VERSION -> {
+          if (status == STATUS.UNMARSHALLING) {
+            setVersion(Integer.parseInt(value.toString()));
+          }
+          throw new ODatabaseException(
+              "Attribute " + ODocumentHelper.ATTRIBUTE_VERSION + " is read-only");
+        }
       }
     }
 
@@ -1858,15 +1870,24 @@ public class ODocument extends ORecordAbstract
    */
   public void fromMap(final Map<String, ?> map) {
     checkForBinding();
-    incrementLoading();
+
+    status = STATUS.UNMARSHALLING;
     try {
       if (map != null) {
         for (Entry<String, ?> entry : map.entrySet()) {
+          var key = entry.getKey();
+          if (key.isEmpty()) {
+            continue;
+          }
+          if (key.charAt(0) == '@') {
+            continue;
+          }
+
           setProperty(entry.getKey(), entry.getValue());
         }
       }
     } finally {
-      decrementLoading();
+      status = STATUS.LOADED;
     }
   }
 

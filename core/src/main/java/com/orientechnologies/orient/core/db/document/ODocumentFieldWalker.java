@@ -192,7 +192,7 @@ public class ODocumentFieldWalker {
     }
   }
 
-  private boolean updateFieldValueIfChanged(
+  private static boolean updateFieldValueIfChanged(
       ODocument document,
       String fieldName,
       Object fieldValue,

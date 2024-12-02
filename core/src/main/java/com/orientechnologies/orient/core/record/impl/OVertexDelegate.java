@@ -147,11 +147,6 @@ public class OVertexDelegate implements OVertexInternal {
   }
 
   @Override
-  public void undo() {
-    element.undo();
-  }
-
-  @Override
   public ORID getIdentity() {
     return element.getIdentity();
   }

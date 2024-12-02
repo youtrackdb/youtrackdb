@@ -34,7 +34,6 @@ import javax.annotation.Nullable;
  * values. It's schema aware.
  */
 public interface OElement extends ORecord {
-
   String DEFAULT_CLASS_NAME = "O";
 
   /**
@@ -313,9 +312,4 @@ public interface OElement extends ORecord {
    * @return true if the current element is embedded
    */
   boolean isEmbedded();
-
-  /**
-   * Rollbacks changes to the loaded version without reloading the element.
-   */
-  void undo();
 }

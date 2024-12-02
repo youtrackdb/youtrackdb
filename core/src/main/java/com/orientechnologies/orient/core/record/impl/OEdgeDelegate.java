@@ -120,15 +120,6 @@ public class OEdgeDelegate implements OEdgeInternal {
   }
 
   @Override
-  public void undo() {
-    if (element != null) {
-      element.undo();
-    } else {
-      throw new UnsupportedOperationException("undo is not supported for lightweight edges");
-    }
-  }
-
-  @Override
   public OVertex getTo() {
     if (vIn != null)
     // LIGHTWEIGHT EDGE

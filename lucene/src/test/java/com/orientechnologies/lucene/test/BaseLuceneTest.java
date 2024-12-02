@@ -19,8 +19,8 @@
 package com.orientechnologies.lucene.test;
 
 import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
@@ -69,7 +69,7 @@ public abstract class BaseLuceneTest {
         dbName);
 
     db = (ODatabaseSessionInternal) context.open(dbName, "admin", "admin");
-    db.set(ODatabaseSession.ATTRIBUTES.MINIMUMCLUSTERS, 8);
+    db.set(ATTRIBUTES.MINIMUMCLUSTERS, 8);
   }
 
   public ODatabaseSessionInternal openDatabase() {

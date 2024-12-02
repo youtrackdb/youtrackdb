@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -47,8 +48,8 @@ public class TraverseTest extends DocumentDBBaseTest {
   private OVertex nicoleKidman;
 
   @Parameters(value = "remote")
-  public TraverseTest(boolean remote) {
-    super(remote);
+  public TraverseTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   @BeforeClass
@@ -140,7 +141,7 @@ public class TraverseTest extends DocumentDBBaseTest {
 
   public void traverseAPIAllFromActorNoWhere() {
     List<OIdentifiable> result1 =
-        new OTraverse().fields("*").target(tomCruise.getIdentity()).execute(database);
+        new OTraverse(database).fields("*").target(tomCruise.getIdentity()).execute(database);
     Assert.assertEquals(result1.size(), totalElements);
   }
 
@@ -302,7 +303,7 @@ public class TraverseTest extends DocumentDBBaseTest {
   public void traverseAPIIterating() {
     int cycles = 0;
     for (OIdentifiable id :
-        new OTraverse()
+        new OTraverse(database)
             .target(database.browseClass("Movie").iterator())
             .predicate(
                 new OCommandPredicate() {
@@ -324,7 +325,7 @@ public class TraverseTest extends DocumentDBBaseTest {
     context.setDatabase(database);
 
     for (OIdentifiable id :
-        new OTraverse()
+        new OTraverse(database)
             .target(database.browseClass("Movie").iterator())
             .predicate(new OSQLPredicate(context, "$depth <= 2"))) {
       cycles++;

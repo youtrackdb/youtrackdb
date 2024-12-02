@@ -191,7 +191,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
     OElement element =
         database
             .command(
-                "insert into cluster:default (equaledges, name, properties) values ('no',"
+                "insert into O (equaledges, name, properties) values ('no',"
                     + " 'circleUpdate', {'round':'eeee', 'blaaa':'zigzag'} )")
             .next()
             .toElement();

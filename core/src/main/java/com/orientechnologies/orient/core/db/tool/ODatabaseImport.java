@@ -1888,10 +1888,10 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
             + " according to new RIDs:");
 
     final long begin = System.currentTimeMillis();
-    long last = begin;
-    long documentsLastLap = 0;
+    final long[] last = new long[]{begin};
+    final long[] documentsLastLap = new long[1];
 
-    long totalDocuments = 0;
+    long[] totalDocuments = new long[1];
     Collection<String> clusterNames = database.getClusterNames();
     for (String clusterName : clusterNames) {
       if (OMetadataDefault.CLUSTER_INDEX_NAME.equals(clusterName)
@@ -1900,8 +1900,8 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
         continue;
       }
 
-      long documents = 0;
-      String prefix = "";
+      final long[] documents = new long[1];
+      final String[] prefix = new String[]{""};
 
       listener.onMessage("\n- Cluster " + clusterName + "...");
 
@@ -1913,29 +1913,32 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
           storage.ceilingPhysicalPositions(database, clusterId, new OPhysicalPosition(0));
       while (positions.length > 0) {
         for (OPhysicalPosition position : positions) {
-          ORecord record = database.load(new ORecordId(clusterId, position.clusterPosition));
-          if (record instanceof ODocument document) {
-            rewriteLinksInDocument(database, document, brokenRids);
+          database.executeInTx(() -> {
+            ORecord record = database.load(new ORecordId(clusterId, position.clusterPosition));
+            if (record instanceof ODocument document) {
+              rewriteLinksInDocument(database, document, brokenRids);
 
-            documents++;
-            documentsLastLap++;
-            totalDocuments++;
+              documents[0]++;
+              documentsLastLap[0]++;
+              totalDocuments[0]++;
 
-            final long now = System.currentTimeMillis();
-            if (now - last > IMPORT_RECORD_DUMP_LAP_EVERY_MS) {
-              listener.onMessage(
-                  String.format(
-                      "\n--- Migrated %,d of %,d records (%,.2f/sec)",
-                      documents,
-                      clusterRecords,
-                      (float) documentsLastLap * 1000 / (float) IMPORT_RECORD_DUMP_LAP_EVERY_MS));
+              final long now = System.currentTimeMillis();
+              if (now - last[0] > IMPORT_RECORD_DUMP_LAP_EVERY_MS) {
+                listener.onMessage(
+                    String.format(
+                        "\n--- Migrated %,d of %,d records (%,.2f/sec)",
+                        documents[0],
+                        clusterRecords,
+                        (float) documentsLastLap[0] * 1000
+                            / (float) IMPORT_RECORD_DUMP_LAP_EVERY_MS));
 
-              // RESET LAP COUNTERS
-              last = now;
-              documentsLastLap = 0;
-              prefix = "\n---";
+                // RESET LAP COUNTERS
+                last[0] = now;
+                documentsLastLap[0] = 0;
+                prefix[0] = "\n---";
+              }
             }
-          }
+          });
         }
 
         positions = storage.higherPhysicalPositions(database, clusterId,
@@ -1944,10 +1947,10 @@ public class ODatabaseImport extends ODatabaseImpExpAbstract {
 
       listener.onMessage(
           String.format(
-              "%s Completed migration of %,d records in current cluster", prefix, documents));
+              "%s Completed migration of %,d records in current cluster", prefix[0], documents[0]));
     }
 
-    listener.onMessage(String.format("\nTotal links updated: %,d", totalDocuments));
+    listener.onMessage(String.format("\nTotal links updated: %,d", totalDocuments[0]));
   }
 
   protected static void rewriteLinksInDocument(

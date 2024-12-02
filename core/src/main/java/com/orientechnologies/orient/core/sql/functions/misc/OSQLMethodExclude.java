@@ -21,15 +21,16 @@ package com.orientechnologies.orient.core.sql.functions.misc;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ChangeableRecordId;
 import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
+import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.method.misc.OAbstractSQLMethod;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -90,6 +91,7 @@ public class OSQLMethodExclude extends OAbstractSQLMethod {
       OCommandContext iContext,
       Object ioResult,
       Object[] iParams) {
+    var db = iContext.getDatabase();
     if (iThis != null) {
       if (iThis instanceof ORecordId) {
         try {
@@ -104,11 +106,11 @@ public class OSQLMethodExclude extends OAbstractSQLMethod {
       }
       if (iThis instanceof ODocument) {
         // ACT ON SINGLE DOCUMENT
-        return copy((ODocument) iThis, iParams);
+        return copy(db, (ODocument) iThis, iParams);
       } else {
         if (iThis instanceof Map) {
           // ACT ON SINGLE MAP
-          return copy((Map) iThis, iParams);
+          return copy(db, (Map) iThis, iParams);
         } else {
           if (OMultiValue.isMultiValue(iThis)) {
             // ACT ON MULTIPLE DOCUMENTS
@@ -117,7 +119,7 @@ public class OSQLMethodExclude extends OAbstractSQLMethod {
               if (o instanceof OIdentifiable) {
                 try {
                   var rec = ((OIdentifiable) o).getRecord();
-                  result.add(copy((ODocument) rec, iParams));
+                  result.add(copy(db, (ODocument) rec, iParams));
                 } catch (ORecordNotFoundException rnf) {
                   // IGNORE IT
                 }
@@ -133,69 +135,62 @@ public class OSQLMethodExclude extends OAbstractSQLMethod {
     return null;
   }
 
-  private Object copy(final ODocument document, final Object[] iFieldNames) {
-    final ODocument doc = document.copy();
+  private static Object copy(ODatabaseSessionInternal db, final ODocument document,
+      final Object[] iFieldNames) {
+    var result = new OResultInternal(db);
 
-    ORecordInternal.setIdentity(doc, new ChangeableRecordId());
-    ORecordInternal.setVersion(doc, -1);
-    ORecordInternal.unsetDirty(doc);
-    doc.setTrackingChanges(false);
-
+    var propertyNames = new HashSet<>(document.getPropertyNames());
     for (Object iFieldName : iFieldNames) {
       if (iFieldName != null) {
         final String fieldName = iFieldName.toString();
         if (fieldName.endsWith("*")) {
           final String fieldPart = fieldName.substring(0, fieldName.length() - 1);
-          final List<String> toExclude = new ArrayList<String>();
-          for (String f : doc.fieldNames()) {
-            if (f.startsWith(fieldPart)) {
-              toExclude.add(f);
+
+          for (String propertyName : document.getPropertyNames()) {
+            if (propertyName.startsWith(fieldPart)) {
+              propertyNames.remove(propertyName);
             }
           }
-
-          for (String f : toExclude) {
-            doc.removeField(f);
-          }
-
         } else {
-          doc.removeField(fieldName);
+          propertyNames.remove(fieldName);
         }
       }
     }
-    doc.deserializeFields();
-    return doc;
+
+    for (String propertyName : propertyNames) {
+      result.setProperty(propertyName, document.getProperty(propertyName));
+    }
+
+    return result;
   }
 
-  private Object copy(final Map map, final Object[] iFieldNames) {
-    final ODocument doc = new ODocument().fields(map);
+  private OResult copy(ODatabaseSessionInternal database, final Map<String, ?> map,
+      final Object[] iFieldNames) {
+    var result = new OResultInternal(database);
 
-    ORecordInternal.setIdentity(doc, new ChangeableRecordId());
-    ORecordInternal.setVersion(doc, -1);
-    ORecordInternal.unsetDirty(doc);
-    doc.setTrackingChanges(false);
+    var propertyNames = new HashSet<>(map.keySet());
 
     for (Object iFieldName : iFieldNames) {
       if (iFieldName != null) {
         final String fieldName = iFieldName.toString();
-
         if (fieldName.endsWith("*")) {
           final String fieldPart = fieldName.substring(0, fieldName.length() - 1);
-          final List<String> toExclude = new ArrayList<String>();
-          for (String f : doc.fieldNames()) {
-            if (f.startsWith(fieldPart)) {
-              toExclude.add(f);
+
+          for (String propertyName : map.keySet()) {
+            if (propertyName.startsWith(fieldPart)) {
+              propertyNames.remove(propertyName);
             }
           }
-
-          for (String f : toExclude) {
-            doc.removeField(f);
-          }
-
         } else {
-          doc.removeField(fieldName);
+          propertyNames.remove(fieldName);
         }
       }
     }
-    return doc;
+
+    for (String propertyName : propertyNames) {
+      result.setProperty(propertyName, map.get(propertyName));
+    }
+
+    return result;
   }
 }

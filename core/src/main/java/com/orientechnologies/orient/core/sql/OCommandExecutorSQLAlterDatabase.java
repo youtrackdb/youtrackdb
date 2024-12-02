@@ -24,8 +24,8 @@ import com.orientechnologies.orient.core.command.OCommandDistributedReplicateReq
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
@@ -43,7 +43,7 @@ public class OCommandExecutorSQLAlterDatabase extends OCommandExecutorSQLAbstrac
   public static final String KEYWORD_ALTER = "ALTER";
   public static final String KEYWORD_DATABASE = "DATABASE";
 
-  private ODatabaseSession.ATTRIBUTES attribute;
+  private ATTRIBUTES attribute;
   private String value;
 
   public OCommandExecutorSQLAlterDatabase parse(final OCommandRequest iRequest) {
@@ -84,14 +84,14 @@ public class OCommandExecutorSQLAlterDatabase extends OCommandExecutorSQLAbstrac
 
       try {
         attribute =
-            ODatabaseSession.ATTRIBUTES.valueOf(attributeAsString.toUpperCase(Locale.ENGLISH));
+            ATTRIBUTES.valueOf(attributeAsString.toUpperCase(Locale.ENGLISH));
       } catch (IllegalArgumentException e) {
         throw OException.wrapException(
             new OCommandSQLParsingException(
                 "Unknown database's attribute '"
                     + attributeAsString
                     + "'. Supported attributes are: "
-                    + Arrays.toString(ODatabaseSession.ATTRIBUTES.values()),
+                    + Arrays.toString(ATTRIBUTES.values()),
                 parserText,
                 oldPos),
             e);

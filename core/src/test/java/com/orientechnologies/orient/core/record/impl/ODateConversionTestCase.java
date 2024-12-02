@@ -24,7 +24,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import com.orientechnologies.BaseMemoryDatabase;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -39,6 +40,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class ODateConversionTestCase extends BaseMemoryDatabase {
+
   private final ORecordSerializer serializer = new ORecordSerializerBinary();
 
   @Test
@@ -74,13 +76,13 @@ public class ODateConversionTestCase extends BaseMemoryDatabase {
   public void testDateFormantWithMethod() throws ParseException {
     try (OxygenDB ctx = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig())) {
       ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
-      try (var db = ctx.open("test", "admin", "adminpwd")) {
+      try (var db = (ODatabaseSessionInternal) ctx.open("test", "admin", "adminpwd")) {
 
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         format.setTimeZone(TimeZone.getTimeZone("GMT"));
         Date date = format.parse("2016-08-31 23:30:00");
 
-        db.set(ODatabaseSession.ATTRIBUTES.TIMEZONE, "GMT");
+        db.set(ATTRIBUTES.TIMEZONE, "GMT");
 
         ODocument doc = new ODocument();
 

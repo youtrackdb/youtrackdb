@@ -16,7 +16,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OTrackedList;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
@@ -36,8 +36,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
@@ -52,6 +52,14 @@ public class JSONTest extends DocumentDBBaseTest {
   @Parameters(value = "remote")
   public JSONTest(@Optional Boolean remote) {
     super(remote != null && remote);
+  }
+
+  @BeforeClass
+  @Override
+  public void beforeClass() throws Exception {
+    super.beforeClass();
+
+    addBarackObamaAndFollowers();
   }
 
   @Test
@@ -258,9 +266,9 @@ public class JSONTest extends DocumentDBBaseTest {
 
   @Test
   public void testMultiLevelTypes() {
-    String oldDataTimeFormat = database.get(ODatabaseSession.ATTRIBUTES.DATETIMEFORMAT).toString();
+    String oldDataTimeFormat = database.get(ATTRIBUTES.DATETIMEFORMAT).toString();
     database.set(
-        ODatabaseSession.ATTRIBUTES.DATETIMEFORMAT, OStorageConfiguration.DEFAULT_DATETIME_FORMAT);
+        ATTRIBUTES.DATETIMEFORMAT, OStorageConfiguration.DEFAULT_DATETIME_FORMAT);
     try {
       ODocument newDoc = new ODocument();
       newDoc.field("long", 100000000000L);
@@ -334,7 +342,7 @@ public class JSONTest extends DocumentDBBaseTest {
           ((Byte) thirdLevelDoc.field("byte")).byteValue(),
           ((Byte) thirdDoc.field("byte")).byteValue());
     } finally {
-      database.set(ODatabaseSession.ATTRIBUTES.DATETIMEFORMAT, oldDataTimeFormat);
+      database.set(ATTRIBUTES.DATETIMEFORMAT, oldDataTimeFormat);
     }
   }
 
@@ -443,60 +451,6 @@ public class JSONTest extends DocumentDBBaseTest {
     }
   }
 
-  @Test
-  public void testToJSONWithNoLazyLoadAndClosedDatabase() {
-    List<ODocument> result =
-        database
-            .command("select * from Profile where name = 'Barack' and surname = 'Obama'")
-            .stream()
-            .map((e) -> (ODocument) e.toElement())
-            .collect(Collectors.toList());
-
-    for (ODocument doc : result) {
-      String jsonFull = doc.toJSON();
-      ORID rid = doc.getIdentity();
-      database.close();
-      database = createSessionInstance();
-      doc = database.load(rid);
-      doc.setLazyLoad(false);
-      database.close();
-      String jsonLoaded = doc.toJSON();
-      Assert.assertEquals(jsonLoaded, jsonFull);
-      database = createSessionInstance();
-      doc = database.load(rid);
-      doc.setLazyLoad(false);
-      doc.load("*:0");
-      database.close();
-      jsonLoaded = doc.toJSON();
-
-      Assert.assertEquals(jsonLoaded, jsonFull);
-    }
-
-    if (database.isClosed()) {
-      database = createSessionInstance();
-    }
-
-    for (ODocument doc : result) {
-      String jsonFull = doc.toJSON();
-      ORID rid = doc.getIdentity();
-      database.close();
-      database = createSessionInstance();
-      doc = database.load(rid);
-      doc.setLazyLoad(false);
-      database.close();
-      String jsonLoaded = doc.toJSON();
-      Assert.assertEquals(jsonFull, jsonLoaded);
-      database = createSessionInstance();
-      doc = database.load(rid);
-      doc.setLazyLoad(false);
-      doc.load("*:1");
-      database.close();
-      jsonLoaded = doc.toJSON();
-
-      Assert.assertEquals(jsonFull, jsonLoaded);
-    }
-  }
-
   // Requires JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES
   public void testSpecialChar() {
     ODocument doc = new ODocument();
@@ -515,7 +469,8 @@ public class JSONTest extends DocumentDBBaseTest {
 
     final ODocument loadedDoc = database.load(doc.getIdentity());
 
-    Assert.assertEquals(docToCompare, loadedDoc);
+    Assert.assertTrue(
+        docToCompare.hasSameContentOf(loadedDoc));
     database.commit();
   }
 
@@ -620,9 +575,10 @@ public class JSONTest extends DocumentDBBaseTest {
       list.add(doc1);
     }
     doc.field("out", list);
+
     String json = doc.toJSON();
     ODocument newDoc = new ODocument();
-    doc.fromJSON(json);
+    newDoc.fromJSON(json);
 
     Assert.assertEquals(json, newDoc.toJSON());
     Assert.assertTrue(newDoc.hasSameContentOf(doc));

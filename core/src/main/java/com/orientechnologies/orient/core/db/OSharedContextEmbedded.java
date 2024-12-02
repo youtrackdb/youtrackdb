@@ -2,8 +2,6 @@ package com.orientechnologies.orient.core.db;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.viewmanager.ViewManager;
-import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
-import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.index.OIndexException;
 import com.orientechnologies.orient.core.index.OIndexFactory;
@@ -209,55 +207,7 @@ public class OSharedContextEmbedded extends OSharedContext {
             });
   }
 
-  /**
-   * Store a configuration with a key, without checking eventual update version.
-   */
-  public synchronized void saveConfig(
-      ODatabaseSessionInternal session, String name, Map<String, Object> value) {
-    OScenarioThreadLocal.executeAsDistributed(
-        () -> {
-          assert !session.getTransaction().isActive();
-          String propertyName = "__config__" + name;
-          String id = storage.getConfiguration().getProperty(propertyName);
-          if (id != null) {
-            ORecordId recordId = new ORecordId(id);
-            ODocument record;
-            try {
-              record = session.load(recordId);
-            } catch (ORecordNotFoundException rnfe) {
-              record = new ODocument();
-              ORecordInternal.unsetDirty(record);
-            }
-
-            var recordVersion = record.getVersion();
-            record.fromMap(value);
-
-            ORecordInternal.setIdentity(record, recordId);
-            ORecordInternal.setVersion(record, recordVersion);
-            record.setDirty();
-
-            var recordToSave = record;
-            session.executeInTx(() -> session.save(recordToSave, "internal"));
-          } else {
-            var record = new ODocument();
-            ORecordInternal.unsetDirty(record);
-            record.fromMap(value);
-            record.setDirty();
-
-            ORID recordId =
-                session.computeInTx(() -> session.save(record, "internal").getIdentity());
-            ((OStorage) storage).setProperty(propertyName, recordId.toString());
-          }
-          return null;
-        });
-  }
-
   public Map<String, Object> loadDistributedConfig(ODatabaseSessionInternal session) {
     return loadConfig(session, "ditributedConfig");
-  }
-
-  public void saveDistributedConfig(
-      ODatabaseSessionInternal session, String name, Map<String, Object> value) {
-    this.saveConfig(session, "ditributedConfig", value);
   }
 }

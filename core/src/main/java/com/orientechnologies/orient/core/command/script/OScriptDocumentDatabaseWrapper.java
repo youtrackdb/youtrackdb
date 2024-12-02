@@ -21,9 +21,9 @@ package com.orientechnologies.orient.core.command.script;
 
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSession.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.ODatabaseSession.STATUS;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.dictionary.ODictionary;
 import com.orientechnologies.orient.core.id.ORID;

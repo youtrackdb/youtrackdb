@@ -166,8 +166,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
     Assert.assertEquals(onBeforeTxBegin, baseOnBeforeTxBegin + 1);
 
     database
-        .<ODocument>newInstance()
-        .save(database.getClusterNameById(database.getDefaultClusterId()));
+        .<ODocument>newInstance().save();
     database.commit();
     Assert.assertEquals(onBeforeTxCommit, baseOnBeforeTxCommit + 1);
     Assert.assertEquals(onAfterTxCommit, baseOnAfterTxCommit + 1);
@@ -175,9 +174,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
     database.begin();
     Assert.assertEquals(onBeforeTxBegin, baseOnBeforeTxBegin + 2);
 
-    database
-        .<ODocument>newInstance()
-        .save(database.getClusterNameById(database.getDefaultClusterId()));
+    database.<ODocument>newInstance().save();
     database.rollback();
     Assert.assertEquals(onBeforeTxRollback, 1);
     Assert.assertEquals(onAfterTxRollback, 1);
@@ -236,7 +233,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
         database
             .<ODocument>newInstance()
             .field("name", "Jay");
-    rec.save(database.getClusterNameById(database.getDefaultClusterId()));
+    rec.save();
     database.commit();
 
     final DocumentChangeListener cl = new DocumentChangeListener(database);

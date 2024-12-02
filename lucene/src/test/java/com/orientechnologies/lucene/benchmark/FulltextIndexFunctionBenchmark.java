@@ -1,8 +1,8 @@
 package com.orientechnologies.lucene.benchmark;
 
 import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
@@ -88,7 +88,7 @@ public class FulltextIndexFunctionBenchmark {
         "create database " + name + " plocal users ( admin identified by 'admin' role admin)");
 
     db = (ODatabaseSessionInternal) context.open(name, "admin", "admin");
-    db.set(ODatabaseSession.ATTRIBUTES.MINIMUMCLUSTERS, 8);
+    db.set(ATTRIBUTES.MINIMUMCLUSTERS, 8);
   }
 
   private String getScriptFromStream(final InputStream scriptStream) {

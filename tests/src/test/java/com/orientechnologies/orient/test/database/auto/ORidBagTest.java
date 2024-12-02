@@ -258,7 +258,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     database.close();
 
     database = createSessionInstance();
-
+    database.begin();
     doc = database.load(rid);
     doc.setLazyLoad(false);
 
@@ -295,7 +295,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     assertEmbedded(otherBag.isEmbedded());
     doc.field("ridbag", otherBag);
-    database.begin();
+
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
@@ -339,6 +339,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     database.close();
 
     database = createSessionInstance();
+    database.begin();
     doc = database.load(rid);
     doc.setLazyLoad(false);
 
@@ -396,7 +397,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     assertEmbedded(otherBag.isEmbedded());
     doc.field("ridbag", otherBag);
 
-    database.begin();
+
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
@@ -469,6 +470,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
 
+    database.begin();
     doc = database.load(rid);
     doc.setLazyLoad(false);
 
@@ -514,7 +516,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
       rids.add(identifiable);
     }
 
-    database.begin();
+
     doc.save();
     database.commit();
 
@@ -540,6 +542,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     document.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
+    database.begin();
     document = database.bindToSession(document);
     ridBag = document.field("ridBag");
     ridBag.add(new ORecordId("#77:10"));
@@ -553,10 +556,11 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
       assertEmbedded(false);
     }
 
-    database.begin();
+
     document.save();
     database.commit();
 
+    database.begin();
     ODocument copy = new ODocument();
     ORecordInternal.unsetDirty(copy);
     document = database.bindToSession(document);
@@ -575,10 +579,8 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     ridBag.add(new ORecordId("#77:12"));
     Assert.assertTrue(document.isDirty());
 
-    database.begin();
     document.save();
     database.commit();
-
     try {
       database.begin();
       copy.save();
@@ -648,6 +650,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
 
+    database.begin();
     doc = database.load(rid);
     doc.setLazyLoad(false);
 
@@ -692,7 +695,6 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     doc.field("ridbag", otherBag);
 
-    database.begin();
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
@@ -726,6 +728,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     docTwo.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
+    database.begin();
     docOne = database.bindToSession(docOne);
     docTwo = database.bindToSession(docTwo);
 
@@ -735,7 +738,6 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     ridBagTwo = docTwo.field("ridBag");
     ridBagTwo.add(docOne);
 
-    database.begin();
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
@@ -790,6 +792,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     database = createSessionInstance();
 
+    database.begin();
     doc = database.load(rid);
     doc.setLazyLoad(false);
 
@@ -896,7 +899,6 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     doc.field("ridbag", otherBag);
 
-    database.begin();
     doc.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
@@ -1052,6 +1054,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     ORID rid = document.getIdentity();
 
     for (int i = 0; i < 10; i++) {
+      database.begin();
       document = database.load(rid);
       document.setLazyLoad(false);
 
@@ -1061,7 +1064,6 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
       massiveInsertionIteration(random, rids, bag);
       assertEmbedded(bag.isEmbedded());
 
-      database.begin();
       document.save();
       database.commit();
     }
@@ -1655,6 +1657,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
+    database.begin();
     document = database.bindToSession(document);
     ridBag = document.field("ridBag");
     Assert.assertEquals(ridBag.size(), size);
@@ -1690,7 +1693,6 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(rids.isEmpty());
 
-    database.begin();
     document.save();
     database.commit();
 

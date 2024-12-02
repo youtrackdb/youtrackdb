@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.db;
 
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession.ATTRIBUTES;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.config.ONodeConfiguration;
 import com.orientechnologies.orient.core.db.config.ONodeConfigurationBuilder;
 import com.orientechnologies.orient.core.security.OGlobalUser;

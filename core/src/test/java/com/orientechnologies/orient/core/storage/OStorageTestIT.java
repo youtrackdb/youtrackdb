@@ -4,6 +4,7 @@ import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
@@ -48,7 +49,7 @@ public class OStorageTestIT {
             .addConfig(
                 OGlobalConfiguration.STORAGE_CHECKSUM_MODE,
                 OChecksumMode.StoreAndSwitchReadOnlyMode)
-            .addAttribute(ODatabaseSession.ATTRIBUTES.MINIMUMCLUSTERS, 1)
+            .addAttribute(ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
 
     oxygenDB = new OxygenDB("embedded:" + buildPath.toFile().getAbsolutePath(), config);
@@ -114,7 +115,7 @@ public class OStorageTestIT {
             .addConfig(
                 OGlobalConfiguration.STORAGE_CHECKSUM_MODE,
                 OChecksumMode.StoreAndSwitchReadOnlyMode)
-            .addAttribute(ODatabaseSession.ATTRIBUTES.MINIMUMCLUSTERS, 1)
+            .addAttribute(ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
 
     oxygenDB = new OxygenDB("embedded:" + buildPath.toFile().getAbsolutePath(), config);
@@ -176,7 +177,7 @@ public class OStorageTestIT {
     OxygenDBConfig config =
         OxygenDBConfig.builder()
             .addConfig(OGlobalConfiguration.STORAGE_CHECKSUM_MODE, OChecksumMode.StoreAndVerify)
-            .addAttribute(ODatabaseSession.ATTRIBUTES.MINIMUMCLUSTERS, 1)
+            .addAttribute(ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
 
     oxygenDB = new OxygenDB("embedded:" + buildPath.toFile().getAbsolutePath(), config);
@@ -240,7 +241,7 @@ public class OStorageTestIT {
     OxygenDBConfig config =
         OxygenDBConfig.builder()
             .addConfig(OGlobalConfiguration.STORAGE_CHECKSUM_MODE, OChecksumMode.StoreAndVerify)
-            .addAttribute(ODatabaseSession.ATTRIBUTES.MINIMUMCLUSTERS, 1)
+            .addAttribute(ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
 
     oxygenDB = new OxygenDB("embedded:" + buildPath.toFile().getAbsolutePath(), config);
