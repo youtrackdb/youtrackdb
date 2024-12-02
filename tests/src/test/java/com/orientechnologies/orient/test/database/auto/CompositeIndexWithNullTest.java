@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.testng.Assert;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 
 /**
@@ -18,8 +19,8 @@ import org.testng.annotations.Parameters;
 public class CompositeIndexWithNullTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
-  public CompositeIndexWithNullTest(boolean remote) {
-    super(remote);
+  public CompositeIndexWithNullTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   public void testPointQuery() {

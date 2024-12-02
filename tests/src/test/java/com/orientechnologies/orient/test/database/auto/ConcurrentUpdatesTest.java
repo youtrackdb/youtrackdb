@@ -21,6 +21,7 @@ import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.concurrent.atomic.AtomicLong;
 import org.testng.Assert;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -35,8 +36,8 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
   private final AtomicLong totalRetries = new AtomicLong();
 
   @Parameters(value = "remote")
-  public ConcurrentUpdatesTest(boolean remote) {
-    super(remote);
+  public ConcurrentUpdatesTest(@Optional Boolean remote) {
+    super(remote != null && remote);
   }
 
   class OptimisticUpdateField implements Runnable {
@@ -64,11 +65,11 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
             try {
               db.begin();
 
-              ODocument vDoc1 = db.load(rid1, null, false);
+              ODocument vDoc1 = db.load(rid1);
               vDoc1.field(threadName, vDoc1.field(threadName) + ";" + i);
               vDoc1.save();
 
-              ODocument vDoc2 = db.load(rid2, null, false);
+              ODocument vDoc2 = db.load(rid2);
               vDoc2.field(threadName, vDoc2.field(threadName) + ";" + i);
               vDoc2.save();
 
@@ -153,7 +154,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
     ODocument doc1 = database.newInstance();
     doc1.field("INIT", "ok");
     database.begin();
-    database.save(doc1, database.getClusterNameById(database.getDefaultClusterId()));
+    database.save(doc1);
     database.commit();
 
     ORID rid1 = doc1.getIdentity();
@@ -162,7 +163,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
     doc2.field("INIT", "ok");
 
     database.begin();
-    database.save(doc2, database.getClusterNameById(database.getDefaultClusterId()));
+    database.save(doc2);
     database.commit();
 
     ORID rid2 = doc2.getIdentity();
@@ -225,7 +226,7 @@ public class ConcurrentUpdatesTest extends DocumentDBBaseTest {
     doc1.field("total", 0);
 
     database.begin();
-    database.save(doc1, database.getClusterNameById(database.getDefaultClusterId()));
+    database.save(doc1);
     database.commit();
 
     ORID rid1 = doc1.getIdentity();

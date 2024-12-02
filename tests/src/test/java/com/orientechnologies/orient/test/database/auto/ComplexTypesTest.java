@@ -296,8 +296,7 @@ public class ComplexTypesTest extends DocumentDBBaseTest {
     map.put("Marcus", doc2);
 
     var doc3 = new ODocument("Account");
-    doc3.field("name", "Cesare")
-        .save(database.getClusterNameById(database.getDefaultClusterId()));
+    doc3.field("name", "Cesare").save();
     map.put("Cesare", doc3);
 
     database.save(newDoc, database.getClusterNameById(database.getDefaultClusterId()));
