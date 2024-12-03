@@ -74,7 +74,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     if (database.isRemote()) {
       OServerAdmin server =
           new OServerAdmin(database.getURL())
-              .connect("root", ODatabaseHelper.getServerRootPassword());
+              .connect("root", SERVER_PASSWORD);
       server.setGlobalConfiguration(
           OGlobalConfiguration.RID_BAG_EMBEDDED_TO_SBTREEBONSAI_THRESHOLD, -1);
       server.setGlobalConfiguration(

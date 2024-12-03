@@ -108,35 +108,41 @@ public enum OType {
   EMBEDDEDMAP("EmbeddedMap", 12, Map.class, new Class<?>[]{Map.class}),
 
   /**
-   * @deprecated Deprecated and will be removed in next major release.
+   * Links do not support link consistency and can be broken if you delete elements. If you wish to
+   * keep link consistency in case you delete elements please consider to use edges instead.
    * {@link com.orientechnologies.orient.core.record.OVertex#addEdge(OVertex, OClass)} or
    * {@link OVertex#addLightWeightEdge(OVertex, OClass)} instead.
    */
-  @Deprecated
   LINK("Link", 13, OIdentifiable.class, new Class<?>[]{OIdentifiable.class, ORID.class}),
 
   /**
-   * @deprecated Deprecated and will be removed in next major release.
-   * {@link com.orientechnologies.orient.core.record.OVertex#addEdge(OVertex, OClass)} or
+   * Link lists do not support link consistency and can keep broken links if you delete elements.
+   * Also, they do not scale well if you have a high number of links.
+   * <p>
+   * If you wish to keep link consistency in case you delete elements please consider to use edges
+   * instead. {@link com.orientechnologies.orient.core.record.OVertex#addEdge(OVertex, OClass)} or
    * {@link OVertex#addLightWeightEdge(OVertex, OClass)} instead.
    */
-  @Deprecated
   LINKLIST("LinkList", 14, List.class, new Class<?>[]{List.class}),
 
   /**
-   * @deprecated Deprecated and will be removed in next major release.
-   * {@link com.orientechnologies.orient.core.record.OVertex#addEdge(OVertex, OClass)} or
+   * Link sets do not support link consistency and can keep broken links if you delete elements.
+   * Also, they do not scale well if you have a high number of links.
+   * <p>
+   * If you wish to keep link consistency in case you delete elements please consider to use edges
+   * instead. {@link com.orientechnologies.orient.core.record.OVertex#addEdge(OVertex, OClass)} or
    * {@link OVertex#addLightWeightEdge(OVertex, OClass)} instead.
    */
-  @Deprecated
   LINKSET("LinkSet", 15, Set.class, new Class<?>[]{Set.class}),
 
   /**
-   * @deprecated Deprecated and will be removed in next major release.
-   * {@link com.orientechnologies.orient.core.record.OVertex#addEdge(OVertex, OClass)} or
+   * Link maps do not support link consistency and can keep broken links if you delete elements.
+   * Also, they do not scale well if you have a high number of links.
+   * <p>
+   * If you wish to keep link consistency in case you delete elements please consider to use edges
+   * instead. {@link com.orientechnologies.orient.core.record.OVertex#addEdge(OVertex, OClass)} or
    * {@link OVertex#addLightWeightEdge(OVertex, OClass)} instead.
    */
-  @Deprecated
   LINKMAP("LinkMap", 16, Map.class, new Class<?>[]{Map.class}),
 
   BYTE("Byte", 17, Byte.class, new Class<?>[]{Number.class}),

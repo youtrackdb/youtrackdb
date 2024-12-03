@@ -458,16 +458,15 @@ public class SchemaTest extends DocumentDBBaseTest {
 
       database.begin();
       // DELETE ALL THE RECORDS
-      int deleted =
-          database.command(new OCommandSQL("delete from cluster:multipleclusters_2"))
-              .execute(database);
+      var deleted =
+          database.command("delete from cluster:multipleclusters_2").stream().
+              findFirst().orElseThrow().<Long>getProperty("count");
       database.commit();
       Assert.assertEquals(deleted, 2);
 
       // CHANGE CLASS STRATEGY to BALANCED
       database
-          .command(new OCommandSQL("alter class multipleclusters clusterselection balanced"))
-          .execute(database);
+          .command("alter class multipleclusters clusterselection balanced").close();
 
       for (int i = 0; i < 2; ++i) {
         database.begin();

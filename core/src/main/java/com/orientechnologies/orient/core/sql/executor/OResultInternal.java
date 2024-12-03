@@ -599,7 +599,11 @@ public class OResultInternal implements OResult {
 
       if (cached != null) {
         if (!cached.isDirty()) {
-          rec.copyTo(cached);
+          cached.fromStream(rec.toStream());
+          cached.setIdentity((ORecordId) rec.getIdentity());
+          cached.setVersion(rec.getVersion());
+
+          assert !cached.isDirty();
         }
         identifiable = cached;
       } else {

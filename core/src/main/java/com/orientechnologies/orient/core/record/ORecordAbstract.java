@@ -85,7 +85,7 @@ public abstract class ORecordAbstract implements ORecord, ORecordElement, OSeria
     return recordId;
   }
 
-  protected final ORecordAbstract setIdentity(final ORecordId iIdentity) {
+  public final ORecordAbstract setIdentity(final ORecordId iIdentity) {
     recordId = iIdentity;
     return this;
   }
@@ -164,8 +164,7 @@ public abstract class ORecordAbstract implements ORecord, ORecordElement, OSeria
   public ORecordAbstract setDirty() {
     if (!dirty && recordId.isPersistent()) {
       if (session == null) {
-        throw new ODatabaseException(
-            createNotBoundToSessionMessage());
+        throw new ODatabaseException(createNotBoundToSessionMessage());
       }
 
       var tx = session.getTransaction();
@@ -288,7 +287,7 @@ public abstract class ORecordAbstract implements ORecord, ORecordElement, OSeria
     return recordVersion;
   }
 
-  protected final void setVersion(final int iVersion) {
+  public final void setVersion(final int iVersion) {
     recordVersion = iVersion;
   }
 

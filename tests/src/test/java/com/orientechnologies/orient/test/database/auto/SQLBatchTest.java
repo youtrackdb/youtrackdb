@@ -15,11 +15,9 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.command.script.OCommandScript;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.List;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
@@ -31,8 +29,7 @@ public class SQLBatchTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
   public SQLBatchTest(@Optional Boolean remote) {
-    // super(remote != null && remote);
-    super(true);
+    super(remote != null && remote);
   }
 
   /**
@@ -41,25 +38,22 @@ public class SQLBatchTest extends DocumentDBBaseTest {
   public void createEdgeFailIfNoSourceOrTargetVertices() {
     try {
       executeBatch(
-          "BEGIN\n"
-              + "LET credential = INSERT INTO V SET email = '123', password = '123'\n"
-              + "LET order = SELECT FROM V WHERE cannotFindThisAttribute = true\n"
-              + "LET edge = CREATE EDGE E FROM $credential TO $order set crazyName = 'yes'\n"
-              + "COMMIT\n"
-              + "RETURN $credential");
+          "BEGIN;\n"
+              + "LET credential = INSERT INTO V SET email = '123', password = '123';\n"
+              + "LET order = SELECT FROM V WHERE cannotFindThisAttribute = true;\n"
+              + "LET edge = CREATE EDGE E FROM $credential TO $order set crazyName = 'yes';\n"
+              + "COMMIT;\n"
+              + "RETURN $credential;");
 
       Assert.fail("Tx has been committed while a rollback was expected");
     } catch (OCommandExecutionException e) {
 
-      List<OIdentifiable> result =
-          database.query(new OSQLSynchQuery<Object>("select from V where email = '123'"));
+      List<ODocument> result = executeQuery("select from V where email = '123'");
       Assert.assertTrue(result.isEmpty());
 
-      result = database.query(new OSQLSynchQuery<Object>("select from E where crazyName = 'yes'"));
+      result = executeQuery("select from E where crazyName = 'yes'");
       Assert.assertTrue(result.isEmpty());
 
-    } catch (Exception e) {
-      Assert.fail("Error but not what was expected");
     }
   }
 
@@ -87,10 +81,9 @@ public class SQLBatchTest extends DocumentDBBaseTest {
             + " SET foos=[$a,$b,$c];"
             + "COMMIT";
 
-    database.command(new OCommandScript(script)).execute(database);
+    database.execute("sql", script);
 
-    List<ODocument> result =
-        database.query(new OSQLSynchQuery<Object>("select from " + className2));
+    List<ODocument> result = executeQuery("select from " + className2);
     Assert.assertEquals(result.size(), 1);
     List foos = result.get(0).field("foos");
     Assert.assertEquals(foos.size(), 3);
@@ -108,26 +101,25 @@ public class SQLBatchTest extends DocumentDBBaseTest {
     database.command("CREATE PROPERTY " + className2 + ".foos LinkList " + className1).close();
 
     String script =
-        "BEGIN;"
+        "BEGIN;\n"
             + "LET a = CREATE VERTEX "
             + className1
-            + ";"
+            + ";\n"
             + "LET b = CREATE VERTEX "
             + className1
-            + ";"
+            + ";\n"
             + "LET c = CREATE VERTEX "
             + className1
-            + ";"
+            + ";\n"
             + "LET foos = [$a,$b,$c];"
             + "CREATE VERTEX "
             + className2
-            + " SET foos= $foos;"
-            + "COMMIT";
+            + " SET foos= $foos;\n"
+            + "COMMIT;";
 
-    database.command(new OCommandScript(script)).execute(database);
+    database.execute("SQL", script);
 
-    List<ODocument> result =
-        database.query(new OSQLSynchQuery<Object>("select from " + className2));
+    List<ODocument> result = executeQuery("select from " + className2);
     Assert.assertEquals(result.size(), 1);
     List foos = result.get(0).field("foos");
     Assert.assertEquals(foos.size(), 3);
@@ -136,7 +128,7 @@ public class SQLBatchTest extends DocumentDBBaseTest {
     Assert.assertTrue(foos.get(2) instanceof OIdentifiable);
   }
 
-  private Object executeBatch(final String batch) {
-    return database.command(new OCommandScript("sql", batch)).execute(database);
+  private void executeBatch(final String batch) {
+    database.execute("sql", batch);
   }
 }

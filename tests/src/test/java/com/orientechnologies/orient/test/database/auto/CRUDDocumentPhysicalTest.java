@@ -54,7 +54,7 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
   public CRUDDocumentPhysicalTest(@Optional Boolean remote) {
-    super(remote != null ? remote : false);
+    super(remote != null && remote);
   }
 
   @BeforeClass
@@ -486,8 +486,9 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     database.commit();
 
     for (ODocument o : database.browseClass("PersonTest")) {
-      for (OIdentifiable id :
-          new OSQLSynchQuery<ODocument>("traverse * from " + o.getIdentity().toString())) {
+      for (OIdentifiable id : database.query("traverse * from " + o.getIdentity().toString())
+          .stream().map(
+              r -> r.getIdentity().orElseThrow()).toList()) {
         database.load(id.getIdentity()).toJSON();
       }
     }
@@ -594,17 +595,9 @@ public class CRUDDocumentPhysicalTest extends DocumentDBBaseTest {
     newAccount.save();
     database.commit();
 
-    @SuppressWarnings("deprecation")
-    List<ODocument> allResult =
-        database.query(new OSQLSynchQuery<ODocument>("select from Account"));
-    @SuppressWarnings("deprecation")
-    List<ODocument> superClassResult =
-        database.query(
-            new OSQLSynchQuery<ODocument>("select from Account where @class = 'Account'"));
-    @SuppressWarnings("deprecation")
-    List<ODocument> subClassResult =
-        database.query(
-            new OSQLSynchQuery<ODocument>("select from Company where @class = 'Company'"));
+    List<ODocument> allResult = executeQuery("select from Account");
+    List<ODocument> superClassResult = executeQuery("select from Account where @class = 'Account'");
+    List<ODocument> subClassResult = executeQuery("select from Company where @class = 'Company'");
 
     Assert.assertFalse(allResult.isEmpty());
     Assert.assertFalse(superClassResult.isEmpty());

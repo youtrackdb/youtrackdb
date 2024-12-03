@@ -150,7 +150,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
   public DbListenerTest(@Optional Boolean remote) {
-    super(remote != null ? remote : false);
+    super(remote != null && remote);
   }
 
   @Test
@@ -197,7 +197,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
 
     database
         .<ODocument>newInstance()
-        .save(database.getClusterNameById(database.getDefaultClusterId()));
+        .save();
     var baseOnBeforeTxCommit = onBeforeTxCommit;
     var baseOnAfterTxCommit = onAfterTxCommit;
     database.commit();
@@ -209,7 +209,7 @@ public class DbListenerTest extends DocumentDBBaseTest {
 
     database
         .<ODocument>newInstance()
-        .save(database.getClusterNameById(database.getDefaultClusterId()));
+        .save();
     var baseOnBeforeTxRollback = onBeforeTxRollback;
     var baseOnAfterTxRollback = onAfterTxRollback;
     database.rollback();

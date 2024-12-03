@@ -27,7 +27,6 @@ import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.OSecurityShared;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.IOException;
@@ -400,8 +399,7 @@ public class RestrictedTest extends DocumentDBBaseTest {
     database = createSessionInstance();
     database.begin();
     database
-        .command(new OCommandSQL("update TestUpdateRestricted content {\"data\":\"My Test\"}"))
-        .execute(database);
+        .command("update TestUpdateRestricted content {\"data\":\"My Test\"}").close();
     database.commit();
 
     database.begin();

@@ -2513,7 +2513,7 @@ public class ODocument extends ORecordAbstract
       throw new ODatabaseException("Cannot call fromStream() on dirty records");
     }
 
-    incrementLoading();
+    status = STATUS.UNMARSHALLING;
     try {
       removeAllCollectionChangeListeners();
 
@@ -2521,16 +2521,13 @@ public class ODocument extends ORecordAbstract
       fieldSize = 0;
       contentChanged = false;
       schema = null;
+
       fetchSchemaIfCan();
       super.fromStream(iRecordBuffer);
 
-      if (!lazyLoad) {
-        checkForFields();
-      }
-
       return this;
     } finally {
-      decrementLoading();
+      status = STATUS.LOADED;
     }
   }
 
@@ -2540,7 +2537,7 @@ public class ODocument extends ORecordAbstract
       throw new ODatabaseException("Cannot call fromStream() on dirty records");
     }
 
-    incrementLoading();
+    status = STATUS.UNMARSHALLING;
     try {
       removeAllCollectionChangeListeners();
 
@@ -2551,13 +2548,9 @@ public class ODocument extends ORecordAbstract
       fetchSchemaIfCan(db);
       super.fromStream(iRecordBuffer);
 
-      if (!lazyLoad) {
-        checkForFields();
-      }
-
       return this;
     } finally {
-      decrementLoading();
+      status = STATUS.LOADED;
     }
   }
 

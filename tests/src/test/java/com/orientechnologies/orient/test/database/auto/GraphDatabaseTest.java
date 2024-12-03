@@ -15,7 +15,6 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -43,7 +42,8 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
 
   @Parameters(value = "remote")
   public GraphDatabaseTest(@Optional Boolean remote) {
-    super(remote != null && remote);
+    //super(remote != null && remote);
+    super(true);
   }
 
   @Test
@@ -261,10 +261,10 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
 
   public void testDeleteOfVerticesAndEdgesWithDeleteCommandAndUnsafe() {
     database.begin();
-    Iterable<OIdentifiable> deletedVertices =
+    var deletedVertices =
         database
-            .command(new OCommandSQL("delete from GraphVehicle return before limit 1 unsafe"))
-            .execute(database);
+            .command("delete from GraphVehicle return before limit 1 unsafe")
+            .toList();
     Assert.assertTrue(deletedVertices.iterator().hasNext());
 
     OVertex v = (OVertex) deletedVertices.iterator().next();
