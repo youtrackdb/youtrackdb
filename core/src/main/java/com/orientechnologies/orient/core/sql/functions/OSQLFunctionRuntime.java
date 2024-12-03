@@ -246,7 +246,7 @@ public class OSQLFunctionRuntime extends OSQLFilterItemAbstract {
 
     final List<String> funcParamsText = OStringSerializerHelper.getParameters(iText);
 
-    function = OSQLEngine.getInstance().getFunction(funcName);
+    function = OSQLEngine.getInstance().getFunction(session, funcName);
     if (function == null) {
       throw new OCommandSQLParsingException("Unknown function " + funcName + "()");
     }

@@ -167,7 +167,8 @@ public class OSQLEngine {
   /**
    * @return Iterator of all function factories
    */
-  public static Iterator<OSQLFunctionFactory> getFunctionFactories() {
+  public static Iterator<OSQLFunctionFactory> getFunctionFactories(
+      ODatabaseSessionInternal session) {
     if (FUNCTION_FACTORIES == null) {
       synchronized (INSTANCE) {
         if (FUNCTION_FACTORIES == null) {
@@ -176,7 +177,14 @@ public class OSQLEngine {
 
           final List<OSQLFunctionFactory> factories = new ArrayList<OSQLFunctionFactory>();
           while (ite.hasNext()) {
-            factories.add(ite.next());
+            var factory = ite.next();
+            try {
+              factory.registerDefaultFunctions(session);
+              factories.add(factory);
+            } catch (Exception e) {
+              OLogManager.instance().warn(OSQLEngine.class,
+                  "Cannot register default functions for function factory " + factory, e);
+            }
           }
           FUNCTION_FACTORIES = Collections.unmodifiableList(factories);
         }
@@ -285,9 +293,9 @@ public class OSQLEngine {
    *
    * @return Set of all function names.
    */
-  public static Set<String> getFunctionNames() {
+  public static Set<String> getFunctionNames(ODatabaseSessionInternal session) {
     final Set<String> types = new HashSet<String>();
-    final Iterator<OSQLFunctionFactory> ite = getFunctionFactories();
+    final Iterator<OSQLFunctionFactory> ite = getFunctionFactories(session);
     while (ite.hasNext()) {
       types.addAll(ite.next().getFunctionNames());
     }
@@ -490,7 +498,7 @@ public class OSQLEngine {
     ODynamicSQLElementFactory.FUNCTIONS.put(iName.toLowerCase(Locale.ENGLISH), iFunctionClass);
   }
 
-  public OSQLFunction getFunction(String iFunctionName) {
+  public OSQLFunction getFunction(ODatabaseSessionInternal session, String iFunctionName) {
     iFunctionName = iFunctionName.toLowerCase(Locale.ENGLISH);
 
     if (iFunctionName.equalsIgnoreCase("any") || iFunctionName.equalsIgnoreCase("all"))
@@ -499,7 +507,7 @@ public class OSQLEngine {
       return null;
     }
 
-    final Iterator<OSQLFunctionFactory> ite = getFunctionFactories();
+    final Iterator<OSQLFunctionFactory> ite = getFunctionFactories(session);
     while (ite.hasNext()) {
       final OSQLFunctionFactory factory = ite.next();
       if (factory.hasFunction(iFunctionName)) {
@@ -511,7 +519,7 @@ public class OSQLEngine {
         "No function with name '"
             + iFunctionName
             + "', available names are : "
-            + OCollections.toString(getFunctionNames()));
+            + OCollections.toString(getFunctionNames(session)));
   }
 
   public void unregisterFunction(String iName) {

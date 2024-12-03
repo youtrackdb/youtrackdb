@@ -245,7 +245,7 @@ public class OSecurityEngine {
     if (result == null) {
       result = OBooleanExpression.FALSE;
     }
-    security.putPredicateInCache(role.getName(session), clazz.getName(), result);
+    security.putPredicateInCache(session, role.getName(session), clazz.getName(), result);
     return result;
   }
 
@@ -275,7 +275,7 @@ public class OSecurityEngine {
       result = OBooleanExpression.FALSE;
     }
     if (role != null) {
-      security.putPredicateInCache(role.getName(session), cacheKey, result);
+      security.putPredicateInCache(session, role.getName(session), cacheKey, result);
     }
     return result;
   }

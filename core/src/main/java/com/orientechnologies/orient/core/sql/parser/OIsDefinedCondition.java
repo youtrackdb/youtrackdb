@@ -3,6 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.record.OElement;
@@ -124,8 +125,8 @@ public class OIsDefinedCondition extends OBooleanExpression implements OSimpleBo
   }
 
   @Override
-  public boolean isCacheable() {
-    return expression.isCacheable();
+  public boolean isCacheable(ODatabaseSessionInternal session) {
+    return expression.isCacheable(session);
   }
 }
 /* JavaCC - OriginalChecksum=075954b212c8cb44c8538bf5dea047d3 (do not edit this line) */

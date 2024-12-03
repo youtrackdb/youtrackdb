@@ -4,6 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -267,14 +268,14 @@ public class OBetweenCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable() {
-    if (first != null && !first.isCacheable()) {
+  public boolean isCacheable(ODatabaseSessionInternal session) {
+    if (first != null && !first.isCacheable(session)) {
       return false;
     }
-    if (second != null && !second.isCacheable()) {
+    if (second != null && !second.isCacheable(session)) {
       return false;
     }
-    return third == null || third.isCacheable();
+    return third == null || third.isCacheable(session);
   }
 }
 /* JavaCC - OriginalChecksum=f94f4779c4a6c6d09539446045ceca89 (do not edit this line) */

@@ -54,7 +54,7 @@ public class OValueExpression extends OExpression {
     return true;
   }
 
-  public boolean isIndexedFunctionCal() {
+  public boolean isIndexedFunctionCal(ODatabaseSessionInternal session) {
     return false;
   }
 
@@ -85,7 +85,7 @@ public class OValueExpression extends OExpression {
     return false;
   }
 
-  public boolean isAggregate() {
+  public boolean isAggregate(ODatabaseSessionInternal session) {
     return false;
   }
 
@@ -167,7 +167,7 @@ public class OValueExpression extends OExpression {
     return null;
   }
 
-  public boolean isCacheable() {
+  public boolean isCacheable(ODatabaseSessionInternal session) {
     return true;
   }
 }

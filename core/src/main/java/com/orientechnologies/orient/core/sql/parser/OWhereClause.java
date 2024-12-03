@@ -316,8 +316,8 @@ public class OWhereClause extends SimpleNode {
     }
   }
 
-  public boolean isCacheable() {
-    return baseExpression.isCacheable();
+  public boolean isCacheable(ODatabaseSessionInternal session) {
+    return baseExpression.isCacheable(session);
   }
 
   public Optional<OIndexCandidate> findIndex(OIndexFinder info, OCommandContext ctx) {

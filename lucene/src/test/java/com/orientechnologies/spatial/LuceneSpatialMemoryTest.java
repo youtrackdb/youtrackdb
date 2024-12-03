@@ -14,6 +14,7 @@
  */
 package com.orientechnologies.spatial;
 
+import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.id.ORID;
@@ -130,6 +131,10 @@ public class LuceneSpatialMemoryTest {
               .setOperation(SpatialOperation.IsWithin);
       OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Point.ll");
 
+      var baseContext = new OBasicCommandContext();
+      baseContext.setDatabase(db);
+      oSpatialCompositeKey.setContext(baseContext);
+
       Collection coll;
       try (Stream<ORID> stream = index.getInternal().getRids(db, oSpatialCompositeKey)) {
         coll = stream.collect(Collectors.toList());
@@ -206,6 +211,9 @@ public class LuceneSpatialMemoryTest {
                 }
               })
               .setOperation(SpatialOperation.IsWithin);
+      var context = new OBasicCommandContext();
+      context.setDatabase(db);
+      oSpatialCompositeKey.setContext(context);
 
       OIndex index = db.getMetadata().getIndexManagerInternal().getIndex(db, "Point.ll");
 

@@ -149,9 +149,9 @@ public class OLetItem extends SimpleNode {
     }
   }
 
-  public boolean isCacheable() {
+  public boolean isCacheable(ODatabaseSessionInternal session) {
     if (expression != null) {
-      return expression.isCacheable();
+      return expression.isCacheable(session);
     }
     return true;
   }

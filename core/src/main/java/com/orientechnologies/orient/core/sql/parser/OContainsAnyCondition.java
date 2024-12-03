@@ -4,6 +4,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.sql.executor.OIndexSearchInfo;
@@ -352,16 +353,16 @@ public class OContainsAnyCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable() {
-    if (left != null && !left.isCacheable()) {
+  public boolean isCacheable(ODatabaseSessionInternal session) {
+    if (left != null && !left.isCacheable(session)) {
       return false;
     }
 
-    if (right != null && !right.isCacheable()) {
+    if (right != null && !right.isCacheable(session)) {
       return false;
     }
 
-    return rightBlock == null || rightBlock.isCacheable();
+    return rightBlock == null || rightBlock.isCacheable(session);
   }
 
   @Override

@@ -56,13 +56,14 @@ public class LuceneInsertUpdateTest extends BaseLuceneTest {
 
     OSchema schema = db.getMetadata().getSchema();
 
+    db.begin();
     ODocument doc = new ODocument("City");
     doc.field("name", "Rome");
 
-    db.begin();
     db.save(doc);
     db.commit();
 
+    db.begin();
     OIndex idx = schema.getClass("City").getClassIndex(db, "City.name");
     Collection<?> coll;
     try (Stream<ORID> stream = idx.getInternal().getRids(db, "Rome")) {
@@ -75,10 +76,11 @@ public class LuceneInsertUpdateTest extends BaseLuceneTest {
     Assert.assertEquals(doc.field("name"), "Rome");
 
     doc.field("name", "London");
-    db.begin();
+
     db.save(doc);
     db.commit();
 
+    db.begin();
     try (Stream<ORID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
@@ -93,7 +95,7 @@ public class LuceneInsertUpdateTest extends BaseLuceneTest {
     Assert.assertEquals(doc.field("name"), "London");
 
     doc.field("name", "Berlin");
-    db.begin();
+
     db.save(doc);
     db.commit();
 

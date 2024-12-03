@@ -89,13 +89,13 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
   }
 
   @Override
-  public void removeCluster(ODatabaseSessionInternal session, String iClusterName) {
+  public void removeCluster(ODatabaseSessionInternal session, String clusterName) {
     acquireExclusiveLock();
     try {
-      if (clustersToIndex.remove(iClusterName)) {
-        remove(session, "_CLUSTER:" + storage.getClusterIdByName(iClusterName));
+      if (clustersToIndex.remove(clusterName)) {
+        session.executeInTx(
+            () -> remove(session, "_CLUSTER:" + storage.getClusterIdByName(clusterName)));
       }
-
     } finally {
       releaseExclusiveLock();
     }
@@ -277,23 +277,25 @@ public class OLuceneIndexNotUnique extends OIndexAbstract implements OLuceneInde
 
   @Override
   public Stream<ORID> getRids(ODatabaseSessionInternal session, Object key) {
-    var transaction = session.getTransaction();
-    while (true) {
-      try {
-        return storage
-            .callIndexEngine(
-                false,
-                indexId,
-                engine -> {
-                  OLuceneIndexEngine indexEngine = (OLuceneIndexEngine) engine;
-                  return indexEngine.getInTx(session, key, getTransactionChanges(transaction));
-                })
-            .stream()
-            .map(OIdentifiable::getIdentity);
-      } catch (OInvalidIndexEngineIdException e) {
-        doReloadIndexEngine();
+    return session.computeInTx(() -> {
+      var transaction = session.getTransaction();
+      while (true) {
+        try {
+          return storage
+              .callIndexEngine(
+                  false,
+                  indexId,
+                  engine -> {
+                    OLuceneIndexEngine indexEngine = (OLuceneIndexEngine) engine;
+                    return indexEngine.getInTx(session, key, getTransactionChanges(transaction));
+                  })
+              .stream()
+              .map(OIdentifiable::getIdentity);
+        } catch (OInvalidIndexEngineIdException e) {
+          doReloadIndexEngine();
+        }
       }
-    }
+    });
   }
 
   @Override

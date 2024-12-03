@@ -96,7 +96,7 @@ public class OLuceneTextOperator extends OQueryTargetOperator {
         .getRids(iContext.getDatabase(),
             new OLuceneKeyAndMetadata(
                 new OLuceneCompositeKey(keyParams).setContext(iContext), Collections.emptyMap()))
-        .map((rid) -> new ORawPair<>(new OLuceneCompositeKey(keyParams), rid));
+        .map((rid) -> new ORawPair<>(new OLuceneCompositeKey(keyParams).setContext(iContext), rid));
   }
 
   @Override

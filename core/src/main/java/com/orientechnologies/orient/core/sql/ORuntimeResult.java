@@ -19,33 +19,14 @@
  */
 package com.orientechnologies.orient.core.sql;
 
-import com.orientechnologies.common.util.OPair;
-import com.orientechnologies.common.util.OResettable;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
-import com.orientechnologies.orient.core.id.ORID;
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.orientechnologies.orient.core.record.ORecord;
-import com.orientechnologies.orient.core.record.ORecordInternal;
-import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.record.impl.ORecordBytes;
-import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemAbstract;
-import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemField;
-import com.orientechnologies.orient.core.sql.filter.OSQLFilterItemVariable;
+import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionRuntime;
-import com.orientechnologies.orient.core.sql.method.OSQLMethodRuntime;
-import com.orientechnologies.orient.core.sql.method.misc.OSQLMethodField;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
-import javax.annotation.Nonnull;
 
 /**
  * Handles runtime results.
@@ -54,7 +35,7 @@ public class ORuntimeResult {
 
   private final Object fieldValue;
   private final Map<String, Object> projections;
-  private final ODocument value;
+  private final OResultInternal value;
   private final OCommandContext context;
 
   public ORuntimeResult(
@@ -65,214 +46,11 @@ public class ORuntimeResult {
     fieldValue = iFieldValue;
     projections = iProjections;
     context = iContext;
-    value = createProjectionDocument(iProgressive);
+    value = new OResultInternal(iContext.getDatabase());
   }
 
-  public static ODocument createProjectionDocument(final int iProgressive) {
-    final ODocument doc = new ODocument().setOrdered(true).setTrackingChanges(false);
-    // ASSIGN A TEMPORARY RID TO ALLOW PAGINATION IF ANY
-    ((ORecordId) doc.getIdentity()).setClusterId(-2);
-    ((ORecordId) doc.getIdentity()).setClusterPosition(iProgressive);
-    ORecordInternal.unsetDirty(doc);
-    return doc;
-  }
-
-  @SuppressWarnings("unchecked")
-  public static ODocument applyRecord(
-      final ODocument iValue,
-      final Map<String, Object> iProjections,
-      final OCommandContext iContext,
-      final OIdentifiable iRecord) {
-    // APPLY PROJECTIONS
-
-    ORecord record = (iRecord != null ? iRecord.getRecord() : null);
-    // MANAGE SPECIFIC CASES FOR RECORD BYTES
-    if (ORecordBytes.RECORD_TYPE == ORecordInternal.getRecordType(record)) {
-      for (Entry<String, Object> projection : iProjections.entrySet()) {
-        if ("rid".equalsIgnoreCase(projection.getKey())) {
-          iValue.field(projection.getKey(), record.getIdentity());
-        }
-      }
-      return iValue;
-    }
-    final ODocument inputDocument = (ODocument) record;
-
-    if (iProjections.isEmpty())
-    // SELECT * CASE
-    {
-      inputDocument.copyTo(iValue);
-    } else {
-
-      for (Entry<String, Object> projection : iProjections.entrySet()) {
-        final String prjName = projection.getKey();
-
-        final Object v = projection.getValue();
-
-        if (v == null && prjName != null) {
-          iValue.field(prjName, (Object) null);
-          continue;
-        }
-
-        final Object projectionValue;
-        if (v != null && v.equals("*")) {
-          // COPY ALL
-          inputDocument.copyTo(iValue);
-          // CONTINUE WITH NEXT ITEM
-          continue;
-
-        } else {
-          if (v instanceof OSQLFilterItemVariable || v instanceof OSQLFilterItemField) {
-            final OSQLFilterItemAbstract var = (OSQLFilterItemAbstract) v;
-            final OPair<OSQLMethodRuntime, Object[]> last = var.getLastChainOperator();
-            if (last != null
-                && last.getKey().getMethod() instanceof OSQLMethodField
-                && last.getValue() != null
-                && last.getValue().length == 1
-                && last.getValue()[0].equals("*")) {
-              final Object value =
-                  ((OSQLFilterItemAbstract) v).getValue(inputDocument, iValue, iContext);
-              if (inputDocument != null
-                  && value != null
-                  && inputDocument instanceof ODocument
-                  && value instanceof ODocument) {
-                // COPY FIELDS WITH PROJECTION NAME AS PREFIX
-                for (String fieldName : ((ODocument) value).fieldNames()) {
-                  iValue.field(prjName + fieldName, ((ODocument) value).<Object>field(fieldName));
-                }
-              }
-              projectionValue = null;
-            } else
-            // RETURN A VARIABLE FROM THE CONTEXT
-            {
-              projectionValue =
-                  ((OSQLFilterItemAbstract) v).getValue(inputDocument, iValue, iContext);
-            }
-
-          } else {
-            if (v instanceof OSQLFunctionRuntime f) {
-              projectionValue = f.execute(inputDocument, inputDocument, iValue, iContext);
-            } else {
-              if (v == null) {
-                // SIMPLE NULL VALUE: SET IT IN DOCUMENT
-                iValue.field(prjName, v);
-                continue;
-              }
-              projectionValue = v;
-            }
-          }
-        }
-
-        if (projectionValue != null) {
-          if (projectionValue instanceof ORidBag) {
-            iValue.field(prjName, new ORidBag(iContext.getDatabase(), (ORidBag) projectionValue));
-          } else {
-            if (projectionValue instanceof OIdentifiable
-                && !(projectionValue instanceof ORID)
-                && !(projectionValue instanceof ORecord)) {
-              iValue.field(prjName, ((OIdentifiable) projectionValue).<ORecord>getRecord());
-            } else {
-              if (projectionValue instanceof Iterator projectionValueIterator) {
-                boolean link = true;
-                // make temporary value typical case graph database elemenet's iterator edges
-                if (projectionValue instanceof OResettable) {
-                  ((OResettable) projectionValue).reset();
-                }
-
-                final List<Object> iteratorValues = new ArrayList<Object>();
-                while (projectionValueIterator.hasNext()) {
-                  Object value = projectionValueIterator.next();
-                  if (value instanceof OIdentifiable) {
-                    value = ((OIdentifiable) value).getRecord();
-                    if (value != null && !((OIdentifiable) value).getIdentity().isPersistent()) {
-                      link = false;
-                    }
-                  }
-
-                  if (value != null) {
-                    iteratorValues.add(value);
-                  }
-                }
-
-                iValue.field(prjName, iteratorValues, link ? OType.LINKLIST : OType.EMBEDDEDLIST);
-              } else {
-                if (projectionValue instanceof ODocument
-                    && ((ODocument) projectionValue).getIdentity().getClusterId() < 0) {
-                  iValue.field(prjName, projectionValue, OType.EMBEDDED);
-                } else {
-                  if (projectionValue instanceof Set<?>) {
-                    OType type = OType.getTypeByValue(projectionValue);
-                    if (type == OType.LINKSET
-                        && !entriesPersistent((Collection<OIdentifiable>) projectionValue)) {
-                      type = OType.EMBEDDEDSET;
-                    }
-                    iValue.field(prjName, projectionValue, type);
-                  } else {
-                    if (projectionValue instanceof Map<?, ?>) {
-                      OType type = OType.getTypeByValue(projectionValue);
-                      if (type == OType.LINKMAP
-                          && !entriesPersistent(
-                          ((Map<?, OIdentifiable>) projectionValue).values())) {
-                        type = OType.EMBEDDEDMAP;
-                      }
-                      iValue.field(prjName, projectionValue, type);
-                    } else {
-                      if (projectionValue instanceof List<?>) {
-                        OType type = OType.getTypeByValue(projectionValue);
-                        if (type == OType.LINKLIST
-                            && !entriesPersistent((Collection<OIdentifiable>) projectionValue)) {
-                          type = OType.EMBEDDEDLIST;
-                        }
-                        iValue.field(prjName, projectionValue, type);
-
-                      } else {
-                        if (projectionValue instanceof Iterable
-                            && !(projectionValue instanceof OIdentifiable)) {
-                          Iterator iterator = ((Iterable) projectionValue).iterator();
-                          boolean link = true;
-                          // make temporary value typical case graph database elemenet's iterator
-                          // edges
-                          if (iterator instanceof OResettable) {
-                            ((OResettable) iterator).reset();
-                          }
-
-                          final List<Object> iteratorValues = new ArrayList<Object>();
-                          final Iterator projectionValueIterator = iterator;
-                          while (projectionValueIterator.hasNext()) {
-                            Object value = projectionValueIterator.next();
-                            if (value instanceof OIdentifiable) {
-                              value = ((OIdentifiable) value).getRecord();
-                              if (value != null
-                                  && !((OIdentifiable) value).getIdentity().isPersistent()) {
-                                link = false;
-                              }
-                            }
-
-                            if (value != null) {
-                              iteratorValues.add(value);
-                            }
-                          }
-
-                          iValue.field(
-                              prjName, iteratorValues, link ? OType.LINKLIST : OType.EMBEDDEDLIST);
-                        } else {
-                          iValue.field(prjName, projectionValue);
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    return iValue;
-  }
 
   private static boolean entriesPersistent(Collection<OIdentifiable> projectionValue) {
-
     for (OIdentifiable rec : projectionValue) {
       if (rec != null && !rec.getIdentity().isPersistent()) {
         return false;
@@ -282,57 +60,33 @@ public class ORuntimeResult {
     return true;
   }
 
-  public static ODocument getResult(
-      ODatabaseSessionInternal session, final ODocument iValue,
+  public static OResultInternal getResult(
+      ODatabaseSessionInternal session, final OResultInternal iValue,
       final Map<String, Object> iProjections) {
     if (iValue != null) {
-
       boolean canExcludeResult = false;
 
       for (Entry<String, Object> projection : iProjections.entrySet()) {
-        if (!iValue.containsField(projection.getKey())) {
+        if (!iValue.hasProperty(projection.getKey())) {
           // ONLY IF NOT ALREADY CONTAINS A VALUE, OTHERWISE HAS BEEN SET MANUALLY (INDEX?)
           final Object v = projection.getValue();
           if (v instanceof OSQLFunctionRuntime f) {
             canExcludeResult = f.filterResult();
-
             Object fieldValue = f.getResult(session);
-
             if (fieldValue != null) {
-              iValue.field(projection.getKey(), fieldValue);
+              iValue.setProperty(projection.getKey(), fieldValue);
             }
           }
         }
       }
 
-      if (canExcludeResult && iValue.isEmpty())
-      // RESULT EXCLUDED FOR EMPTY RECORD
-      {
+      if (canExcludeResult && iValue.getPropertyNames().isEmpty()) {
+        // RESULT EXCLUDED FOR EMPTY RECORD
         return null;
       }
-
-      // AVOID SAVING OF TEMP RECORD
-      ORecordInternal.unsetDirty(iValue);
     }
+
     return iValue;
-  }
-
-  public static ODocument getProjectionResult(
-      final int iId,
-      final Map<String, Object> iProjections,
-      @Nonnull final OCommandContext iContext,
-      final OIdentifiable iRecord) {
-    return ORuntimeResult.getResult(iContext.getDatabase(),
-        ORuntimeResult.applyRecord(
-            ORuntimeResult.createProjectionDocument(iId), iProjections, iContext, iRecord),
-        iProjections);
-  }
-
-  public ODocument applyRecord(final OIdentifiable iRecord) {
-    // SYNCHRONIZE ACCESS TO AVOID CONTENTION ON THE SAME INSTANCE
-    synchronized (this) {
-      return applyRecord(value, projections, context, iRecord);
-    }
   }
 
   /**
@@ -342,10 +96,10 @@ public class ORuntimeResult {
    * @param iValue Field value
    */
   public void applyValue(final String iName, final Object iValue) {
-    value.field(iName, iValue);
+    value.setProperty(iName, iValue);
   }
 
-  public ODocument getResult(ODatabaseSessionInternal session) {
+  public OResultInternal getResult(ODatabaseSessionInternal session) {
     return getResult(session, value, projections);
   }
 

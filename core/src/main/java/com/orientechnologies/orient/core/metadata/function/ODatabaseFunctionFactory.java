@@ -20,6 +20,7 @@
 package com.orientechnologies.orient.core.metadata.function;
 
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunction;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionFactory;
@@ -29,6 +30,11 @@ import java.util.Set;
  * Dynamic function factory bound to the database's functions
  */
 public class ODatabaseFunctionFactory implements OSQLFunctionFactory {
+
+  @Override
+  public void registerDefaultFunctions(ODatabaseSessionInternal db) {
+    // DO NOTHING
+  }
 
   @Override
   public boolean hasFunction(final String iName) {

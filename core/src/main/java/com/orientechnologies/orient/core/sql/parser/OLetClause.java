@@ -118,9 +118,9 @@ public class OLetClause extends SimpleNode {
     }
   }
 
-  public boolean isCacheable() {
+  public boolean isCacheable(ODatabaseSessionInternal session) {
     for (OLetItem item : items) {
-      if (!item.isCacheable()) {
+      if (!item.isCacheable(session)) {
         return false;
       }
     }

@@ -157,7 +157,7 @@ public class OStatement extends SimpleNode {
     throw new UnsupportedOperationException();
   }
 
-  public boolean executinPlanCanBeCached() {
+  public boolean executinPlanCanBeCached(ODatabaseSessionInternal session) {
     return false;
   }
 

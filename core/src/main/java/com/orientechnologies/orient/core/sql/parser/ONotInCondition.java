@@ -3,6 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.ArrayList;
@@ -255,16 +256,16 @@ public class ONotInCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable() {
-    if (left != null && !left.isCacheable()) {
+  public boolean isCacheable(ODatabaseSessionInternal session) {
+    if (left != null && !left.isCacheable(session)) {
       return false;
     }
 
-    if (rightStatement != null && !rightStatement.executinPlanCanBeCached()) {
+    if (rightStatement != null && !rightStatement.executinPlanCanBeCached(session)) {
       return false;
     }
 
-    return rightMathExpression == null || rightMathExpression.isCacheable();
+    return rightMathExpression == null || rightMathExpression.isCacheable(session);
   }
 }
 /* JavaCC - OriginalChecksum=8fb82bf72cc7d9cbdf2f9e2323ca8ee1 (do not edit this line) */

@@ -140,7 +140,7 @@ public class OFunctionCall extends SimpleNode {
         throw new OCommandExecutionException("Invalid value for $current: " + record);
       }
     }
-    OSQLFunction function = OSQLEngine.getInstance().getFunction(name);
+    OSQLFunction function = OSQLEngine.getInstance().getFunction(ctx.getDatabase(), name);
     if (function != null) {
       function.config(this.params.toArray());
 
@@ -189,8 +189,8 @@ public class OFunctionCall extends SimpleNode {
     }
   }
 
-  public boolean isIndexedFunctionCall() {
-    OSQLFunction function = OSQLEngine.getInstance().getFunction(name.getStringValue());
+  public boolean isIndexedFunctionCall(ODatabaseSessionInternal session) {
+    OSQLFunction function = OSQLEngine.getInstance().getFunction(session, name.getStringValue());
     return (function instanceof OIndexableSQLFunction);
   }
 
@@ -205,7 +205,8 @@ public class OFunctionCall extends SimpleNode {
    */
   public Iterable<OIdentifiable> executeIndexedFunction(
       OFromClause target, OCommandContext ctx, OBinaryCompareOperator operator, Object rightValue) {
-    OSQLFunction function = OSQLEngine.getInstance().getFunction(name.getStringValue());
+    OSQLFunction function = OSQLEngine.getInstance()
+        .getFunction(ctx.getDatabase(), name.getStringValue());
     if (function instanceof OIndexableSQLFunction) {
       return ((OIndexableSQLFunction) function)
           .searchFromTarget(
@@ -224,7 +225,8 @@ public class OFunctionCall extends SimpleNode {
    */
   public long estimateIndexedFunction(
       OFromClause target, OCommandContext ctx, OBinaryCompareOperator operator, Object rightValue) {
-    OSQLFunction function = OSQLEngine.getInstance().getFunction(name.getStringValue());
+    OSQLFunction function = OSQLEngine.getInstance()
+        .getFunction(ctx.getDatabase(), name.getStringValue());
     if (function instanceof OIndexableSQLFunction) {
       return ((OIndexableSQLFunction) function)
           .estimate(target, operator, rightValue, ctx, this.params.toArray(new OExpression[]{}));
@@ -245,7 +247,8 @@ public class OFunctionCall extends SimpleNode {
    */
   public boolean canExecuteIndexedFunctionWithoutIndex(
       OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
-    OSQLFunction function = OSQLEngine.getInstance().getFunction(name.getStringValue());
+    OSQLFunction function = OSQLEngine.getInstance()
+        .getFunction(context.getDatabase(), name.getStringValue());
     if (function instanceof OIndexableSQLFunction) {
       return ((OIndexableSQLFunction) function)
           .canExecuteInline(
@@ -266,7 +269,8 @@ public class OFunctionCall extends SimpleNode {
    */
   public boolean allowsIndexedFunctionExecutionOnTarget(
       OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
-    OSQLFunction function = OSQLEngine.getInstance().getFunction(name.getStringValue());
+    OSQLFunction function = OSQLEngine.getInstance()
+        .getFunction(context.getDatabase(), name.getStringValue());
     if (function instanceof OIndexableSQLFunction) {
       return ((OIndexableSQLFunction) function)
           .allowsIndexedExecution(
@@ -288,7 +292,8 @@ public class OFunctionCall extends SimpleNode {
    */
   public boolean executeIndexedFunctionAfterIndexSearch(
       OFromClause target, OCommandContext context, OBinaryCompareOperator operator, Object right) {
-    OSQLFunction function = OSQLEngine.getInstance().getFunction(name.getStringValue());
+    OSQLFunction function = OSQLEngine.getInstance()
+        .getFunction(context.getDatabase(), name.getStringValue());
     if (function instanceof OIndexableSQLFunction) {
       return ((OIndexableSQLFunction) function)
           .shouldExecuteAfterSearch(
@@ -310,13 +315,13 @@ public class OFunctionCall extends SimpleNode {
     return false;
   }
 
-  public boolean isAggregate() {
-    if (isAggregateFunction()) {
+  public boolean isAggregate(ODatabaseSessionInternal session) {
+    if (isAggregateFunction(session)) {
       return true;
     }
 
     for (OExpression exp : params) {
-      if (exp.isAggregate()) {
+      if (exp.isAggregate(session)) {
         return true;
       }
     }
@@ -326,12 +331,13 @@ public class OFunctionCall extends SimpleNode {
 
   public SimpleNode splitForAggregation(
       AggregateProjectionSplit aggregateProj, OCommandContext ctx) {
-    if (isAggregate()) {
+    var db = ctx.getDatabase();
+    if (isAggregate(db)) {
       OFunctionCall newFunct = new OFunctionCall(-1);
       newFunct.name = this.name;
       OIdentifier functionResultAlias = aggregateProj.getNextAlias();
 
-      if (isAggregateFunction()) {
+      if (isAggregateFunction(db)) {
 
         if (isStar()) {
           for (OExpression param : params) {
@@ -339,7 +345,7 @@ public class OFunctionCall extends SimpleNode {
           }
         } else {
           for (OExpression param : params) {
-            if (param.isAggregate()) {
+            if (param.isAggregate(db)) {
               throw new OCommandExecutionException(
                   "Cannot calculate an aggregate function of another aggregate function " + this);
             }
@@ -370,13 +376,13 @@ public class OFunctionCall extends SimpleNode {
     return this;
   }
 
-  private boolean isAggregateFunction() {
-    OSQLFunction function = OSQLEngine.getInstance().getFunction(name.getStringValue());
+  private boolean isAggregateFunction(ODatabaseSessionInternal session) {
+    OSQLFunction function = OSQLEngine.getInstance().getFunction(session, name.getStringValue());
     function.config(this.params.toArray());
     return function.aggregateResults();
   }
 
-  private OProjectionItem createProjection(OFunctionCall newFunct, OIdentifier alias) {
+  private static OProjectionItem createProjection(OFunctionCall newFunct, OIdentifier alias) {
     OLevelZeroIdentifier l0 = new OLevelZeroIdentifier(-1);
     l0.functionCall = newFunct;
     OBaseIdentifier l1 = new OBaseIdentifier(-1);
@@ -393,7 +399,7 @@ public class OFunctionCall extends SimpleNode {
 
   public boolean isEarlyCalculated(OCommandContext ctx) {
 
-    if (isTraverseFunction()) {
+    if (isTraverseFunction(ctx.getDatabase())) {
       return false;
     }
 
@@ -406,16 +412,17 @@ public class OFunctionCall extends SimpleNode {
     return true;
   }
 
-  private boolean isTraverseFunction() {
+  private boolean isTraverseFunction(ODatabaseSessionInternal session) {
     if (name == null) {
       return false;
     }
-    OSQLFunction function = OSQLEngine.getInstance().getFunction(name.value);
+    OSQLFunction function = OSQLEngine.getInstance().getFunction(session, name.value);
     return function instanceof OSQLFunctionMove;
   }
 
   public AggregationContext getAggregationContext(OCommandContext ctx) {
-    OSQLFunction function = OSQLEngine.getInstance().getFunction(name.getStringValue());
+    OSQLFunction function = OSQLEngine.getInstance()
+        .getFunction(ctx.getDatabase(), name.getStringValue());
     function.config(this.params.toArray());
 
     OFuncitonAggregationContext result = new OFuncitonAggregationContext(function, this.params);

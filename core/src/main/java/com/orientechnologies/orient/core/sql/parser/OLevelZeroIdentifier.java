@@ -73,9 +73,9 @@ public class OLevelZeroIdentifier extends SimpleNode {
     throw new UnsupportedOperationException();
   }
 
-  public boolean isIndexedFunctionCall() {
+  public boolean isIndexedFunctionCall(ODatabaseSessionInternal session) {
     if (functionCall != null) {
-      return functionCall.isIndexedFunctionCall();
+      return functionCall.isIndexedFunctionCall(session);
     }
     return false;
   }
@@ -83,7 +83,7 @@ public class OLevelZeroIdentifier extends SimpleNode {
   public boolean isFunctionAny() {
     if (functionCall != null) {
       return functionCall.getName().getStringValue().equalsIgnoreCase("any")
-          && functionCall.params.size() == 0;
+          && functionCall.params.isEmpty();
     }
     return false;
   }
@@ -91,7 +91,7 @@ public class OLevelZeroIdentifier extends SimpleNode {
   public boolean isFunctionAll() {
     if (functionCall != null) {
       return functionCall.getName().getStringValue().equalsIgnoreCase("all")
-          && functionCall.params.size() == 0;
+          && functionCall.params.isEmpty();
     }
     return false;
   }
@@ -191,11 +191,11 @@ public class OLevelZeroIdentifier extends SimpleNode {
     return collection != null && collection.needsAliases(aliases);
   }
 
-  public boolean isAggregate() {
-    if (functionCall != null && functionCall.isAggregate()) {
+  public boolean isAggregate(ODatabaseSessionInternal session) {
+    if (functionCall != null && functionCall.isAggregate(session)) {
       return true;
     }
-    return collection != null && collection.isAggregate();
+    return collection != null && collection.isAggregate(session);
   }
 
   public boolean isCount() {
@@ -214,7 +214,7 @@ public class OLevelZeroIdentifier extends SimpleNode {
 
   public SimpleNode splitForAggregation(
       AggregateProjectionSplit aggregateProj, OCommandContext ctx) {
-    if (isAggregate()) {
+    if (isAggregate(ctx.getDatabase())) {
       OLevelZeroIdentifier result = new OLevelZeroIdentifier(-1);
       if (functionCall != null) {
         SimpleNode node = functionCall.splitForAggregation(aggregateProj, ctx);
@@ -236,7 +236,7 @@ public class OLevelZeroIdentifier extends SimpleNode {
   }
 
   public AggregationContext getAggregationContext(OCommandContext ctx) {
-    if (isAggregate()) {
+    if (isAggregate(ctx.getDatabase())) {
       if (functionCall != null) {
         return functionCall.getAggregationContext(ctx);
       }
@@ -339,12 +339,12 @@ public class OLevelZeroIdentifier extends SimpleNode {
     }
   }
 
-  public boolean isCacheable() {
+  public boolean isCacheable(ODatabaseSessionInternal session) {
     if (functionCall != null) {
       return functionCall.isCacheable();
     }
     if (collection != null) {
-      return collection.isCacheable();
+      return collection.isCacheable(session);
     }
     return false;
   }

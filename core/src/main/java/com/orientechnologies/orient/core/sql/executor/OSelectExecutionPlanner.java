@@ -121,7 +121,7 @@ public class OSelectExecutionPlanner {
   public OInternalExecutionPlan createExecutionPlan(
       OCommandContext ctx, boolean enableProfiling, boolean useCache) {
     ODatabaseSessionInternal db = ctx.getDatabase();
-    if (useCache && !enableProfiling && statement.executinPlanCanBeCached()) {
+    if (useCache && !enableProfiling && statement.executinPlanCanBeCached(db)) {
       OExecutionPlan plan = OExecutionPlanCache.get(statement.getOriginalStatement(), ctx, db);
       if (plan != null) {
         return (OInternalExecutionPlan) plan;
@@ -170,7 +170,7 @@ public class OSelectExecutionPlanner {
 
     if (useCache
         && !enableProfiling
-        && statement.executinPlanCanBeCached()
+        && statement.executinPlanCanBeCached(db)
         && result.canBeCached()
         && OExecutionPlanCache.getLastInvalidation(db) < planningStart) {
       OExecutionPlanCache.put(statement.getOriginalStatement(), result, ctx.getDatabase());
@@ -1064,11 +1064,12 @@ public class OSelectExecutionPlanner {
 
     boolean isSplitted = false;
 
+    var db = ctx.getDatabase();
     // split for aggregate projections
     AggregateProjectionSplit result = new AggregateProjectionSplit();
     for (OProjectionItem item : info.projection.getItems()) {
       result.reset();
-      if (isAggregate(item)) {
+      if (isAggregate(db, item)) {
         isSplitted = true;
         OProjectionItem post = item.splitForAggregation(result, ctx);
         OIdentifier postAlias = item.getProjectionAlias();
@@ -1101,12 +1102,12 @@ public class OSelectExecutionPlanner {
       }
       info.projection = postAggregate;
 
-      addGroupByExpressionsToProjections(info);
+      addGroupByExpressionsToProjections(db, info);
     }
   }
 
-  private static boolean isAggregate(OProjectionItem item) {
-    return item.isAggregate();
+  private static boolean isAggregate(ODatabaseSessionInternal db, OProjectionItem item) {
+    return item.isAggregate(db);
   }
 
   private static OProjectionItem projectionFromAlias(OIdentifier oIdentifier) {
@@ -1120,7 +1121,8 @@ public class OSelectExecutionPlanner {
    * projections, then that expression has to be put in the pre-aggregate (only here, in subsequent
    * steps it's removed)
    */
-  private static void addGroupByExpressionsToProjections(QueryPlanningInfo info) {
+  private static void addGroupByExpressionsToProjections(ODatabaseSessionInternal db,
+      QueryPlanningInfo info) {
     if (info.groupBy == null
         || info.groupBy.getItems() == null
         || info.groupBy.getItems().size() == 0) {
@@ -1129,7 +1131,7 @@ public class OSelectExecutionPlanner {
     OGroupBy newGroupBy = new OGroupBy(-1);
     int i = 0;
     for (OExpression exp : info.groupBy.getItems()) {
-      if (exp.isAggregate()) {
+      if (exp.isAggregate(db)) {
         throw new OCommandExecutionException("Cannot group by an aggregate function");
       }
       boolean found = false;

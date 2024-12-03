@@ -161,11 +161,11 @@ public class OBaseExpression extends OMathExpression {
   }
 
   @Override
-  public boolean isIndexedFunctionCall() {
+  public boolean isIndexedFunctionCall(ODatabaseSessionInternal session) {
     if (this.identifier == null) {
       return false;
     }
-    return identifier.isIndexedFunctionCall();
+    return identifier.isIndexedFunctionCall(session);
   }
 
   public long estimateIndexedFunction(
@@ -298,8 +298,8 @@ public class OBaseExpression extends OMathExpression {
   }
 
   @Override
-  public boolean isAggregate() {
-    return identifier != null && identifier.isAggregate();
+  public boolean isAggregate(ODatabaseSessionInternal session) {
+    return identifier != null && identifier.isAggregate(session);
   }
 
   @Override
@@ -309,7 +309,7 @@ public class OBaseExpression extends OMathExpression {
 
   public SimpleNode splitForAggregation(
       AggregateProjectionSplit aggregateProj, OCommandContext ctx) {
-    if (isAggregate()) {
+    if (isAggregate(ctx.getDatabase())) {
       SimpleNode splitResult = identifier.splitForAggregation(aggregateProj, ctx);
       if (splitResult instanceof OBaseIdentifier) {
         OBaseExpression result = new OBaseExpression(-1);
@@ -494,12 +494,12 @@ public class OBaseExpression extends OMathExpression {
     }
   }
 
-  public boolean isCacheable() {
-    if (modifier != null && !modifier.isCacheable()) {
+  public boolean isCacheable(ODatabaseSessionInternal session) {
+    if (modifier != null && !modifier.isCacheable(session)) {
       return false;
     }
     if (identifier != null) {
-      return identifier.isCacheable();
+      return identifier.isCacheable(session);
     }
 
     return true;

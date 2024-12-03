@@ -2,6 +2,7 @@
 /* JavaCCOptions:MULTI=true,NODE_USES_PARSER=false,VISITOR=true,TRACK_TOKENS=true,NODE_PREFIX=O,NODE_EXTENDS=,NODE_FACTORY=,SUPPORT_CLASS_VISIBILITY_PUBLIC=true */
 package com.orientechnologies.orient.core.sql.parser;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -281,12 +282,12 @@ public class OInsertBody extends SimpleNode {
     content.add(json);
   }
 
-  public boolean isCacheable() {
+  public boolean isCacheable(ODatabaseSessionInternal session) {
 
     if (this.valueExpressions != null) {
       for (List<OExpression> valueExpression : valueExpressions) {
         for (OExpression oExpression : valueExpression) {
-          if (!oExpression.isCacheable()) {
+          if (!oExpression.isCacheable(session)) {
             return false;
           }
         }
@@ -294,7 +295,7 @@ public class OInsertBody extends SimpleNode {
     }
     if (setExpressions != null) {
       for (OInsertSetExpression setExpression : setExpressions) {
-        if (!setExpression.isCacheable()) {
+        if (!setExpression.isCacheable(session)) {
           return false;
         }
       }

@@ -235,7 +235,7 @@ public class OProjectionItem extends SimpleNode {
     return result;
   }
 
-  public boolean isAggregate() {
+  public boolean isAggregate(ODatabaseSessionInternal session) {
     if (aggregate != null) {
       return aggregate;
     }
@@ -243,7 +243,7 @@ public class OProjectionItem extends SimpleNode {
       aggregate = false;
       return false;
     }
-    if (expression.isAggregate()) {
+    if (expression.isAggregate(session)) {
       aggregate = true;
       return true;
     }
@@ -258,7 +258,7 @@ public class OProjectionItem extends SimpleNode {
    */
   public OProjectionItem splitForAggregation(
       AggregateProjectionSplit aggregateSplit, OCommandContext ctx) {
-    if (isAggregate()) {
+    if (isAggregate(ctx.getDatabase())) {
       OProjectionItem result = new OProjectionItem(-1);
       result.alias = getProjectionAlias();
       result.expression = expression.splitForAggregation(aggregateSplit, ctx);
@@ -362,9 +362,9 @@ public class OProjectionItem extends SimpleNode {
     this.nestedProjection = nestedProjection;
   }
 
-  public boolean isCacheable() {
+  public boolean isCacheable(ODatabaseSessionInternal session) {
     if (expression != null) {
-      return expression.isCacheable();
+      return expression.isCacheable(session);
     }
     return true;
   }

@@ -252,9 +252,9 @@ public class OOrBlock extends OBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable() {
+  public boolean isCacheable(ODatabaseSessionInternal session) {
     for (OBooleanExpression block : this.subBlocks) {
-      if (!block.isCacheable()) {
+      if (!block.isCacheable(session)) {
         return false;
       }
     }

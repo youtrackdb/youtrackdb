@@ -1797,8 +1797,9 @@ public class OSecurityShared implements OSecurityInternal {
     return null;
   }
 
-  protected void putPredicateInCache(String roleName, String key, OBooleanExpression predicate) {
-    if (predicate.isCacheable()) {
+  protected void putPredicateInCache(ODatabaseSessionInternal session, String roleName, String key,
+      OBooleanExpression predicate) {
+    if (predicate.isCacheable(session)) {
       Map<String, OBooleanExpression> roleMap = this.securityPredicateCache.get(roleName);
       if (roleMap == null) {
         roleMap = new ConcurrentHashMap<>();

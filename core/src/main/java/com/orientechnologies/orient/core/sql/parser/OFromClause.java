@@ -76,8 +76,8 @@ public class OFromClause extends SimpleNode {
     item.deserialize(fromResult.getProperty("item"));
   }
 
-  public boolean isCacheable() {
-    return item.isCacheable();
+  public boolean isCacheable(ODatabaseSessionInternal session) {
+    return item.isCacheable(session);
   }
 
   public boolean refersToParent() {

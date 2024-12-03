@@ -462,20 +462,20 @@ public class OModifier extends SimpleNode {
     }
   }
 
-  public boolean isCacheable() {
+  public boolean isCacheable(ODatabaseSessionInternal session) {
     if (arrayRange != null || arraySingleValues != null || rightBinaryCondition != null) {
       return false; // TODO enhance a bit
     }
-    if (condition != null && !condition.isCacheable()) {
+    if (condition != null && !condition.isCacheable(session)) {
       return false;
     }
-    if (methodCall != null && !methodCall.isCacheable()) {
+    if (methodCall != null && !methodCall.isCacheable(session)) {
       return false;
     }
     if (suffix != null && !suffix.isCacheable()) {
       return false;
     }
-    return next == null || next.isCacheable();
+    return next == null || next.isCacheable(session);
   }
 
   public boolean isIndexChain(OCommandContext ctx, OClass clazz) {

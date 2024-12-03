@@ -25,7 +25,6 @@ public class OLuceneMetadataFieldsTest extends OLuceneBaseTest {
   @Test
   public void shouldFetchOnlyFromACluster() throws Exception {
 
-    db.begin();
     assertThat(
         db.getMetadata()
             .getIndexManagerInternal()
@@ -33,7 +32,6 @@ public class OLuceneMetadataFieldsTest extends OLuceneBaseTest {
             .getInternal()
             .size(db))
         .isEqualTo(585);
-    db.commit();
 
     int cluster = db.getMetadata().getSchema().getClass("Song").getClusterIds()[1];
 
@@ -46,8 +44,9 @@ public class OLuceneMetadataFieldsTest extends OLuceneBaseTest {
 
   @Test
   public void shouldFetchByRid() throws Exception {
+    var songs = db.query("SELECT FROM Song limit 2").toList();
 
-    String ridQuery = doubleEscape("#26:4 #26:5");
+    String ridQuery = doubleEscape(songs.get(0).getRecordId() + " " + songs.get(1).getRecordId());
     OResultSet results =
         db.query("SELECT FROM Song WHERE search_class('RID:(" + ridQuery + ") ')=true ");
 

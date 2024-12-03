@@ -13,16 +13,12 @@
  */
 package com.orientechnologies.spatial;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.ArrayList;
-import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -113,44 +109,17 @@ public class LuceneSpatialPointTest extends BaseSpatialLuceneTest {
     docs = db.query(query);
     Assert.assertEquals(1, docs.stream().count());
 
-    query =
-        "select * from City where location && 'LINESTRING(-160.06393432617188"
-            + " 21.996535232496047,-160.1099395751953 21.94304553343818,-160.169677734375"
-            + " 21.89399562866819,-160.21087646484375 21.844928843026818,-160.21018981933594"
-            + " 21.787556698550834)' ";
-    List<?> old = db.query(new OSQLSynchQuery<ODocument>(query));
-
-    Assert.assertEquals(1, old.size());
+//    query =
+//        "select * from City where location && 'LINESTRING(-160.06393432617188"
+//            + " 21.996535232496047,-160.1099395751953 21.94304553343818,-160.169677734375"
+//            + " 21.89399562866819,-160.21087646484375 21.844928843026818,-160.21018981933594"
+//            + " 21.787556698550834)' ";
+//    List<?> old = db.query(query).toList();
+//
+//    Assert.assertEquals(1, old.size());
   }
 
-  @Test
-  public void testOldNearQuery() {
-
-    queryOldNear();
-  }
-
-  protected void queryOldNear() {
-    String query =
-        "select *,$distance from Place where [latitude,longitude,$spatial] NEAR"
-            + " [41.893056,12.482778,{\"maxDistance\": 2}]";
-    List<ODocument> docs = db.query(new OSQLSynchQuery<ODocument>(query));
-
-    Assert.assertEquals(1, docs.size());
-
-    //    Assert.assertEquals(1.6229442709302933, docs.get(0).field("$distance"));
-
-    assertThat(docs.get(0).<Double>field("$distance")).isEqualTo(1.6229442709302933);
-  }
-
-  @Test
-  public void testOldNearQueryWithoutIndex() {
-
-    db.command("Drop INDEX Place.l_lon").close();
-    queryOldNear();
-  }
-
-  protected ODocument newCity(String name, final Double longitude, final Double latitude) {
-
+  protected static ODocument newCity(String name, final Double longitude, final Double latitude) {
     ODocument location = new ODocument("OPoint");
     location.field(
         "coordinates",

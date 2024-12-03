@@ -740,15 +740,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
     if (projections != null || groupByFields != null && !groupByFields.isEmpty()) {
       if (!aggregate) {
         // APPLY PROJECTIONS IN LINE
-
-        iRecord =
-            ORuntimeResult.getProjectionResult(
-                getTemporaryRIDCounter(iContext), projections, iContext, iRecord);
-        if (iRecord == null) {
-          resultCount--; // record discarded
-          return true;
-        }
-
+        throw new UnsupportedOperationException("Projections are not supported bu old engine");
       } else {
         // GROUP BY
         return true;
@@ -833,7 +825,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
       }
     }
 
-    return getProjectionGroup(fieldValue, iContext).applyRecord(iRecord);
+    throw new UnsupportedOperationException("Group by is not supported by old engine");
   }
 
   private boolean allowsStreamedResult() {
@@ -3087,7 +3079,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
     if (parsedTarget == null && expandTarget == null)
     // ONLY LET, APPLY TO THEM
     {
-      addResult(ORuntimeResult.createProjectionDocument(getTemporaryRIDCounter(context)), context);
+      throw new UnsupportedOperationException("Projections are not supported by old engine");
     }
   }
 
@@ -3101,10 +3093,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
 
         for (Entry<Object, ORuntimeResult> g : groupedResult.entrySet()) {
           if (g.getKey() != null || (groupedResult.size() == 1 && groupByFields == null)) {
-            final ODocument doc = g.getValue().getResult(iContext.getDatabase());
-            if (doc != null) {
-              ((List<OIdentifiable>) tempResult).add(doc);
-            }
+            throw new UnsupportedOperationException("Group by not supported by old engine");
           }
         }
 

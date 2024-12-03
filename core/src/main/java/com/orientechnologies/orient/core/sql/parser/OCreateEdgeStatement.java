@@ -171,14 +171,14 @@ public class OCreateEdgeStatement extends OStatement {
   }
 
   @Override
-  public boolean executinPlanCanBeCached() {
-    if (this.leftExpression != null && !this.leftExpression.isCacheable()) {
+  public boolean executinPlanCanBeCached(ODatabaseSessionInternal session) {
+    if (this.leftExpression != null && !this.leftExpression.isCacheable(session)) {
       return false;
     }
-    if (this.rightExpression != null && !this.rightExpression.isCacheable()) {
+    if (this.rightExpression != null && !this.rightExpression.isCacheable(session)) {
       return false;
     }
-    return this.body == null || body.isCacheable();
+    return this.body == null || body.isCacheable(session);
   }
 
   @Override

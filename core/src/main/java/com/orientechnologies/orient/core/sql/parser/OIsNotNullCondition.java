@@ -3,6 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.Collections;
@@ -139,8 +140,8 @@ public class OIsNotNullCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable() {
-    return expression.isCacheable();
+  public boolean isCacheable(ODatabaseSessionInternal session) {
+    return expression.isCacheable(session);
   }
 }
 /* JavaCC - OriginalChecksum=a292fa8a629abb7f6fe72a627fc91361 (do not edit this line) */

@@ -118,7 +118,7 @@ public abstract class OSQLFilterItemAbstract implements OSQLFilterItem {
 
           } else {
             // LOOK FOR FUNCTION
-            final OSQLFunction f = OSQLEngine.getInstance().getFunction(methodName);
+            final OSQLFunction f = OSQLEngine.getInstance().getFunction(session, methodName);
 
             if (f == null)
             // ERROR: METHOD/FUNCTION NOT FOUND OR MISPELLED

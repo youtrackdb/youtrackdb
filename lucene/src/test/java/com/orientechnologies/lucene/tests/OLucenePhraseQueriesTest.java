@@ -24,9 +24,9 @@ public class OLucenePhraseQueriesTest extends OLuceneBaseTest {
         "create index Role.name on Role (name) FULLTEXT ENGINE LUCENE "
             + "METADATA{"
             + "\"name_index\": \"org.apache.lucene.analysis.standard.StandardAnalyzer\","
-            + "\"name_index_stopwords\": \"[]\","
+            + "\"name_index_stopwords\": [],"
             + "\"name_query\": \"org.apache.lucene.analysis.standard.StandardAnalyzer\","
-            + "\"name_query_stopwords\": \"[]\""
+            + "\"name_query_stopwords\": []"
             //                + "\"name_query\":
             // \"org.apache.lucene.analysis.core.KeywordAnalyzer\""
             + "} ");

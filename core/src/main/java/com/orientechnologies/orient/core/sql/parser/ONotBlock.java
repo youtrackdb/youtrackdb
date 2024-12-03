@@ -175,8 +175,8 @@ public class ONotBlock extends OBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable() {
-    return sub.isCacheable();
+  public boolean isCacheable(ODatabaseSessionInternal session) {
+    return sub.isCacheable(session);
   }
 
   @Override

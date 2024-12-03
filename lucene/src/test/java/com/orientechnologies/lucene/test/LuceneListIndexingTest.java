@@ -112,6 +112,7 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
     db.save(doc);
     db.commit();
 
+    db.begin();
     try (Stream<ORID> stream = tagsIndex.getInternal().getRids(db, "Sunny")) {
       coll = stream.collect(Collectors.toList());
     }
@@ -123,7 +124,7 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
     tags.remove("Sunny");
     tags.add("Rainy");
 
-    db.begin();
+
     db.save(doc);
     db.commit();
 
@@ -187,6 +188,7 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
     db.save(doc);
     db.commit();
 
+    db.begin();
     try (Stream<ORID> stream = idx.getInternal().getRids(db, "Jared")) {
       coll = stream.collect(Collectors.toList());
     }
@@ -199,7 +201,6 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
     tags.remove("Funny");
     tags.add("Geek");
 
-    db.begin();
     db.save(doc);
     db.commit();
 
@@ -248,10 +249,10 @@ public class LuceneListIndexingTest extends BaseLuceneTest {
 
     c1.createIndex(db, "p1", "FULLTEXT", null, metadata, "LUCENE", new String[]{"p1"});
 
+    db.begin();
     final OVertex vertex = db.newVertex("C1");
     vertex.setProperty("p1", "testing");
 
-    db.begin();
     db.save(vertex);
     db.commit();
 

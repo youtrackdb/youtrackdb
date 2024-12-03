@@ -16,6 +16,7 @@
 package com.orientechnologies.orient.core.sql;
 
 import com.orientechnologies.common.exception.OException;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunction;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionFactory;
@@ -32,13 +33,18 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ODynamicSQLElementFactory
     implements OCommandExecutorSQLFactory, OQueryOperatorFactory, OSQLFunctionFactory {
-
   // Used by SQLEngine to register on the fly new elements
   static final Map<String, Object> FUNCTIONS = new ConcurrentHashMap<String, Object>();
   static final Map<String, Class<? extends OCommandExecutorSQLAbstract>> COMMANDS =
       new ConcurrentHashMap<String, Class<? extends OCommandExecutorSQLAbstract>>();
   static final Set<OQueryOperator> OPERATORS =
       Collections.synchronizedSet(new HashSet<OQueryOperator>());
+
+
+  @Override
+  public void registerDefaultFunctions(ODatabaseSessionInternal db) {
+    // DO NOTHING
+  }
 
   public Set<String> getFunctionNames() {
     return FUNCTIONS.keySet();

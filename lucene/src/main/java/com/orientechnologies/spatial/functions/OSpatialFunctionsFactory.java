@@ -13,12 +13,16 @@
  */
 package com.orientechnologies.spatial.functions;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.functions.OSQLFunctionFactoryTemplate;
 
 public class OSpatialFunctionsFactory extends OSQLFunctionFactoryTemplate {
 
-  public OSpatialFunctionsFactory(ODatabaseSession session) {
+  public OSpatialFunctionsFactory() {
+  }
+
+  @Override
+  public void registerDefaultFunctions(ODatabaseSessionInternal session) {
     register(session, new OSTGeomFromTextFunction());
     register(session, new OSTAsTextFunction());
     register(session, new OSTWithinFunction());

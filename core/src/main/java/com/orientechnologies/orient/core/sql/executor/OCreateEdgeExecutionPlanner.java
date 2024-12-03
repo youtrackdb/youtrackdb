@@ -56,7 +56,7 @@ public class OCreateEdgeExecutionPlanner {
   public OInsertExecutionPlan createExecutionPlan(
       OCommandContext ctx, boolean enableProfiling, boolean useCache) {
     ODatabaseSessionInternal db = ctx.getDatabase();
-    if (useCache && !enableProfiling && statement.executinPlanCanBeCached()) {
+    if (useCache && !enableProfiling && statement.executinPlanCanBeCached(db)) {
       OExecutionPlan plan = OExecutionPlanCache.get(statement.getOriginalStatement(), ctx, db);
       if (plan != null) {
         return (OInsertExecutionPlan) plan;
@@ -148,7 +148,7 @@ public class OCreateEdgeExecutionPlanner {
 
     if (useCache
         && !enableProfiling
-        && statement.executinPlanCanBeCached()
+        && statement.executinPlanCanBeCached(db)
         && result.canBeCached()
         && OExecutionPlanCache.getLastInvalidation(db) < planningStart) {
       OExecutionPlanCache.put(statement.getOriginalStatement(), result, ctx.getDatabase());

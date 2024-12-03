@@ -49,14 +49,11 @@ public abstract class BaseLuceneTest {
   public void setupDatabase() throws Throwable {
     final String config =
         System.getProperty("oxygendb.test.env", ODatabaseType.MEMORY.name().toLowerCase());
-    String path;
-
+    String path = "embedded:./target/databases";
     if ("ci".equals(config) || "release".equals(config)) {
       type = ODatabaseType.PLOCAL;
-      path = "embedded:./target/databases";
     } else {
       type = ODatabaseType.MEMORY;
-      path = "embedded:.";
     }
     context = new OxygenDB(path, OxygenDBConfig.defaultConfig());
     dbName = getClass().getSimpleName() + "_" + name.getMethodName();

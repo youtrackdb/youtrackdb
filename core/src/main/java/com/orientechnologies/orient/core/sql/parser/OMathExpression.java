@@ -636,10 +636,10 @@ public class OMathExpression extends SimpleNode {
     super(p, id);
   }
 
-  public boolean isCacheable() {
+  public boolean isCacheable(ODatabaseSessionInternal session) {
     if (childExpressions != null) {
       for (OMathExpression exp : childExpressions) {
-        if (!exp.isCacheable()) {
+        if (!exp.isCacheable(session)) {
           return false;
         }
       }
@@ -931,10 +931,10 @@ public class OMathExpression extends SimpleNode {
     return true;
   }
 
-  public boolean isIndexedFunctionCall() {
+  public boolean isIndexedFunctionCall(ODatabaseSessionInternal session) {
     if (this.childExpressions != null) {
       if (this.childExpressions.size() == 1) {
-        return this.childExpressions.get(0).isIndexedFunctionCall();
+        return this.childExpressions.get(0).isIndexedFunctionCall(session);
       }
     }
     return false;
@@ -1113,10 +1113,10 @@ public class OMathExpression extends SimpleNode {
     return false;
   }
 
-  public boolean isAggregate() {
+  public boolean isAggregate(ODatabaseSessionInternal session) {
     if (this.childExpressions != null) {
       for (OMathExpression expr : this.childExpressions) {
-        if (expr.isAggregate()) {
+        if (expr.isAggregate(session)) {
           return true;
         }
       }
@@ -1136,7 +1136,8 @@ public class OMathExpression extends SimpleNode {
 
   public SimpleNode splitForAggregation(
       AggregateProjectionSplit aggregateProj, OCommandContext ctx) {
-    if (isAggregate()) {
+    var db = ctx.getDatabase();
+    if (isAggregate(db)) {
       OMathExpression result = new OMathExpression(-1);
       if (this.childExpressions != null && this.operators != null) {
         int i = 0;
@@ -1146,7 +1147,7 @@ public class OMathExpression extends SimpleNode {
           }
           SimpleNode splitResult = expr.splitForAggregation(aggregateProj, ctx);
           if (splitResult instanceof OMathExpression res) {
-            if (res.isEarlyCalculated(ctx) || res.isAggregate()) {
+            if (res.isEarlyCalculated(ctx) || res.isAggregate(db)) {
               result.addChildExpression(res);
             } else {
               throw new OCommandExecutionException(

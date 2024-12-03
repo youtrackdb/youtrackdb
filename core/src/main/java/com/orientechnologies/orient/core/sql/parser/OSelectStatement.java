@@ -263,23 +263,23 @@ public class OSelectStatement extends OStatement {
   }
 
   @Override
-  public boolean executinPlanCanBeCached() {
+  public boolean executinPlanCanBeCached(ODatabaseSessionInternal session) {
     if (originalStatement == null) {
       setOriginalStatement(this.toString());
     }
-    if (this.target != null && !this.target.isCacheable()) {
+    if (this.target != null && !this.target.isCacheable(session)) {
       return false;
     }
 
-    if (this.letClause != null && !this.letClause.isCacheable()) {
+    if (this.letClause != null && !this.letClause.isCacheable(session)) {
       return false;
     }
 
-    if (projection != null && !this.projection.isCacheable()) {
+    if (projection != null && !this.projection.isCacheable(session)) {
       return false;
     }
 
-    return whereClause == null || whereClause.isCacheable();
+    return whereClause == null || whereClause.isCacheable(session);
   }
 
   @Override

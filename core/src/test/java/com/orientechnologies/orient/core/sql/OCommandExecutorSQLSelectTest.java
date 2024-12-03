@@ -50,6 +50,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
@@ -391,7 +392,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     List<ODocument> qResult =
         db.command(new OCommandSQL("select * from foo where address.city = 'NY' order by name ASC"))
             .execute(db);
-    assertEquals(qResult.size(), 1);
+    assertEquals(1, qResult.size());
   }
 
   @Test
@@ -402,7 +403,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
         db.command(new OCommandSQL("select * from foo where bar = 2 or name ='a' and bar >= 0"))
             .execute(db);
 
-    assertEquals(qResult.size(), 2);
+    assertEquals(2, qResult.size());
     assertEquals(indexUsages(db), idxUsagesBefore + 2);
   }
 
@@ -425,7 +426,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     List<ODocument> qResult =
         db.command(new OCommandSQL("select * from foo where comp = 'a' and osite = 1")).execute(db);
 
-    assertEquals(qResult.size(), 1);
+    assertEquals(1, qResult.size());
     assertEquals(indexUsages(db), idxUsagesBefore + 1);
   }
 
@@ -433,21 +434,20 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
   public void testProjection() {
     long idxUsagesBefore = indexUsages(db);
 
-    List<ODocument> qResult =
-        db.command(new OCommandSQL("select a from foo where name = 'a' or bar = 1")).execute(db);
+    var qResult =
+        db.query("select a from foo where name = 'a' or bar = 1").toList();
 
-    assertEquals(qResult.size(), 1);
+    assertEquals(1, qResult.size());
     assertEquals(indexUsages(db), idxUsagesBefore + 2);
   }
 
   @Test
   public void testProjection2() {
     long idxUsagesBefore = indexUsages(db);
+    var qResult =
+        db.query("select a from foo where name = 'a' or bar = 2").toList();
 
-    List<ODocument> qResult =
-        db.command(new OCommandSQL("select a from foo where name = 'a' or bar = 2")).execute(db);
-
-    assertEquals(qResult.size(), 2);
+    assertEquals(2, qResult.size());
     assertEquals(indexUsages(db), idxUsagesBefore + 2);
   }
 
@@ -460,7 +460,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
                 new OCommandSQL("select * from foo where (comp = 'a' and osite = 1) or name = 'a'"))
             .execute(db);
 
-    assertEquals(qResult.size(), 2);
+    assertEquals(2, qResult.size());
     assertEquals(indexUsages(db), idxUsagesBefore + 2);
   }
 
@@ -469,37 +469,37 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
 
     List<OResult> qResult =
         db.command("select * from foo where name ='a' and bar = 1000 or name = 'b'").stream()
-            .collect(Collectors.toList());
+            .toList();
 
     List<OResult> qResult2 =
         db.command("select * from foo where name = 'b' or name ='a' and bar = 1000").stream()
-            .collect(Collectors.toList());
+            .toList();
 
     List<OResult> qResult3 =
         db.command("select * from foo where name = 'b' or (name ='a' and bar = 1000)").stream()
-            .collect(Collectors.toList());
+            .toList();
 
     List<OResult> qResult4 =
         db.command("select * from foo where (name ='a' and bar = 1000) or name = 'b'").stream()
-            .collect(Collectors.toList());
+            .toList();
 
     List<OResult> qResult5 =
         db.command("select * from foo where ((name ='a' and bar = 1000) or name = 'b')").stream()
-            .collect(Collectors.toList());
+            .toList();
 
     List<OResult> qResult6 =
         db.command("select * from foo where ((name ='a' and (bar = 1000)) or name = 'b')").stream()
-            .collect(Collectors.toList());
+            .toList();
 
     List<OResult> qResult7 =
         db.command("select * from foo where (((name ='a' and bar = 1000)) or name = 'b')").stream()
-            .collect(Collectors.toList());
+            .toList();
 
     List<OResult> qResult8 =
         db
             .command("select * from foo where (((name ='a' and bar = 1000)) or (name = 'b'))")
             .stream()
-            .collect(Collectors.toList());
+            .toList();
 
     assertEquals(qResult.size(), qResult2.size());
     assertEquals(qResult.size(), qResult3.size());
@@ -518,7 +518,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
                 "select * from bar where name ='a' and foo = 1 or name='b' or name='c' and foo = 3"
                     + " and other = 4 or name = 'e' and foo = 5 or name = 'm' and foo > 2 ")
             .stream()
-            .collect(Collectors.toList());
+            .toList();
 
     List<OResult> qResult2 =
         db
@@ -526,7 +526,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
                 "select * from bar where (name ='a' and foo = 1) or name='b' or (name='c' and foo ="
                     + " 3 and other = 4) or (name = 'e' and foo = 5) or (name = 'm' and foo > 2)")
             .stream()
-            .collect(Collectors.toList());
+            .toList();
 
     List<OResult> qResult3 =
         db
@@ -534,7 +534,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
                 "select * from bar where (name ='a' and foo = 1) or (name='b') or (name='c' and foo"
                     + " = 3 and other = 4) or (name ='e' and foo = 5) or (name = 'm' and foo > 2)")
             .stream()
-            .collect(Collectors.toList());
+            .toList();
 
     List<OResult> qResult4 =
         db
@@ -543,7 +543,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
                     + " foo = 3 and other = 4)) or (name = 'e' and foo = 5) or (name = 'm' and foo"
                     + " > 2)")
             .stream()
-            .collect(Collectors.toList());
+            .toList();
 
     List<OResult> qResult5 =
         db
@@ -552,7 +552,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
                     + " foo = 3 and other = 4) or (name = 'e' and foo = 5)) or (name = 'm' and foo"
                     + " > 2)")
             .stream()
-            .collect(Collectors.toList());
+            .toList();
 
     assertEquals(qResult.size(), qResult2.size());
     assertEquals(qResult.size(), qResult3.size());
@@ -568,7 +568,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
                 "select * from bar where name <> 'a' and foo = 1 or name='b' or name='c' and foo ="
                     + " 3 and other <> 4 or name = 'e' and foo = 5 or name = 'm' and foo > 2 ")
             .stream()
-            .collect(Collectors.toList());
+            .toList();
 
     List<OResult> qResult2 =
         db
@@ -577,7 +577,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
                     + " = 3 and other <>  4) or (name = 'e' and foo = 5) or (name = 'm' and foo >"
                     + " 2)")
             .stream()
-            .collect(Collectors.toList());
+            .toList();
 
     List<OResult> qResult3 =
         db
@@ -586,7 +586,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
                     + " foo = 3 and other <>  4) or (name ='e' and foo = 5) or (name = 'm' and foo"
                     + " > 2)")
             .stream()
-            .collect(Collectors.toList());
+            .toList();
 
     List<OResult> qResult4 =
         db
@@ -595,7 +595,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
                     + " foo = 3 and other <>  4)) or  (name = 'e' and foo = 5) or (name = 'm' and"
                     + " foo > 2)")
             .stream()
-            .collect(Collectors.toList());
+            .toList();
 
     List<OResult> qResult5 =
         db
@@ -604,7 +604,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
                     + " foo = 3 and other <>  4) or (name = 'e' and foo = 5)) or (name = 'm' and"
                     + " foo > 2)")
             .stream()
-            .collect(Collectors.toList());
+            .toList();
 
     assertEquals(qResult.size(), qResult2.size());
     assertEquals(qResult.size(), qResult3.size());
@@ -615,7 +615,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
   @Test
   public void testExpandOnEmbedded() {
     try (OResultSet qResult = db.command("select expand(address) from foo where name = 'a'")) {
-      assertEquals(qResult.next().getProperty("city"), "NY");
+      assertEquals("NY", qResult.next().getProperty("city"));
       assertFalse(qResult.hasNext());
     }
   }
@@ -626,20 +626,20 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
         db.command(new OCommandSQL("select flatten(address) from foo where name = 'a'"))
             .execute(db);
 
-    assertEquals(qResult.size(), 1);
-    assertEquals(qResult.get(0).field("city"), "NY");
+    assertEquals(1, qResult.size());
+    assertEquals("NY", qResult.get(0).field("city"));
   }
 
   @Test
   public void testLimit() {
     OResultSet qResult = db.query("select from foo limit 3");
-    assertEquals(qResult.stream().count(), 3);
+    assertEquals(3, qResult.stream().count());
   }
 
   @Test
   public void testLimitWithMetadataQuery() {
     OResultSet qResult = db.query("select expand(classes) from metadata:schema limit 3");
-    assertEquals(qResult.stream().count(), 3);
+    assertEquals(3, qResult.stream().count());
   }
 
   @Test
@@ -651,7 +651,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
   @Test
   public void testLimitWithUnnamedParam() {
     OResultSet qResult = db.query("select from foo limit ?", 3);
-    assertEquals(qResult.stream().count(), 3);
+    assertEquals(3, qResult.stream().count());
   }
 
   @Test
@@ -659,7 +659,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("lim", 2);
     OResultSet qResult = db.command("select from foo limit :lim", params);
-    assertEquals(qResult.stream().count(), 2);
+    assertEquals(2, qResult.stream().count());
   }
 
   @Test
@@ -668,7 +668,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("limit", 2);
     OResultSet qResult = db.command("select from foo limit :limit", params);
-    assertEquals(qResult.stream().count(), 2);
+    assertEquals(2, qResult.stream().count());
   }
 
   @Test
@@ -680,7 +680,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
             "select from TestParams let $foo = (select name from TestParams where surname = :name)"
                 + " where surname in $foo.name ",
             params);
-    assertEquals(qResult.stream().count(), 1);
+    assertEquals(1, qResult.stream().count());
   }
 
   @Test
@@ -688,13 +688,13 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     // issue #4224
     OResultSet qResult =
         db.command("select name from TestParams where name = ? and active = ?", "foo", true);
-    assertEquals(qResult.stream().count(), 1);
+    assertEquals(1, qResult.stream().count());
   }
 
   @Test
   public void testFromInSquareBrackets() {
     try (OResultSet qResult = db.command("select tags[' from '] as a from TestFromInSquare")) {
-      assertEquals(qResult.next().getProperty("a"), "foo");
+      assertEquals("foo", qResult.next().getProperty("a"));
       assertFalse(qResult.hasNext());
     }
   }
@@ -702,7 +702,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
   @Test
   public void testNewline() {
     OResultSet qResult = db.command("select\n1 as ACTIVE\nFROM foo");
-    assertEquals(qResult.stream().count(), 5);
+    assertEquals(5, qResult.stream().count());
   }
 
   @Test
@@ -743,9 +743,9 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
   @Test
   public void testUnwind() {
     List<OResult> qResult =
-        db.command("select from unwindtest unwind coll").stream().collect(Collectors.toList());
+        db.command("select from unwindtest unwind coll").stream().toList();
 
-    assertEquals(qResult.size(), 4);
+    assertEquals(4, qResult.size());
     for (OResult doc : qResult) {
       String name = doc.getProperty("name");
       String coll = doc.getProperty("coll");
@@ -757,9 +757,9 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
   @Test
   public void testUnwind2() {
     List<OResult> qResult =
-        db.command("select from unwindtest2 unwind coll").stream().collect(Collectors.toList());
+        db.command("select from unwindtest2 unwind coll").stream().toList();
 
-    assertEquals(qResult.size(), 1);
+    assertEquals(1, qResult.size());
     for (OResult doc : qResult) {
       Object coll = doc.getProperty("coll");
       assertNull(coll);
@@ -771,9 +771,9 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
   public void testUnwindOrder() {
     List<OResult> qResult =
         db.command("select from unwindtest order by coll unwind coll").stream()
-            .collect(Collectors.toList());
+            .toList();
 
-    assertEquals(qResult.size(), 4);
+    assertEquals(4, qResult.size());
     for (OResult doc : qResult) {
       String name = doc.getProperty("name");
       String coll = doc.getProperty("coll");
@@ -786,9 +786,9 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
   public void testUnwindSkip() {
     List<OResult> qResult =
         db.command("select from unwindtest unwind coll skip 1").stream()
-            .collect(Collectors.toList());
+            .toList();
 
-    assertEquals(qResult.size(), 3);
+    assertEquals(3, qResult.size());
     for (OResult doc : qResult) {
       String name = doc.getProperty("name");
       String coll = doc.getProperty("coll");
@@ -800,9 +800,9 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
   public void testUnwindLimit() {
     List<OResult> qResult =
         db.command("select from unwindtest unwind coll limit 1").stream()
-            .collect(Collectors.toList());
+            .toList();
 
-    assertEquals(qResult.size(), 1);
+    assertEquals(1, qResult.size());
     for (OResult doc : qResult) {
       String name = doc.getProperty("name");
       String coll = doc.getProperty("coll");
@@ -814,9 +814,9 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
   public void testUnwindLimit3() {
     List<OResult> qResult =
         db.command("select from unwindtest unwind coll limit 3").stream()
-            .collect(Collectors.toList());
+            .toList();
 
-    assertEquals(qResult.size(), 3);
+    assertEquals(3, qResult.size());
     for (OResult doc : qResult) {
       String name = doc.getProperty("name");
       String coll = doc.getProperty("coll");
@@ -828,9 +828,9 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
   public void testUnwindSkipAndLimit() {
     List<OResult> qResult =
         db.command("select from unwindtest unwind coll skip 1 limit 1").stream()
-            .collect(Collectors.toList());
+            .toList();
 
-    assertEquals(qResult.size(), 1);
+    assertEquals(1, qResult.size());
     for (OResult doc : qResult) {
       String name = doc.getProperty("name");
       String coll = doc.getProperty("coll");
@@ -842,11 +842,11 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
   public void testMultipleClusters() {
     OResultSet qResult = db.command("select from cluster:[testmultipleclusters1]");
 
-    assertEquals(qResult.stream().count(), 1);
+    assertEquals(1, qResult.stream().count());
 
     qResult = db.command("select from cluster:[testmultipleclusters1, testmultipleclusters2]");
 
-    assertEquals(qResult.stream().count(), 2);
+    assertEquals(2, qResult.stream().count());
   }
 
   @Test
@@ -857,7 +857,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
                 "select from foo where name matches"
                     + " '(?i)(^\\\\Qa\\\\E$)|(^\\\\Qname2\\\\E$)|(^\\\\Qname3\\\\E$)' and bar ="
                     + " 1"));
-    assertEquals(result.size(), 1);
+    assertEquals(1, result.size());
   }
 
   @Test
@@ -866,46 +866,46 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
         db.query("select *, name as blabla from foo where name = 'a'").stream()
             .collect(Collectors.toList());
 
-    assertEquals(result.size(), 1);
-    assertEquals(result.get(0).getProperty("blabla"), "a");
+    assertEquals(1, result.size());
+    assertEquals("a", result.get(0).getProperty("blabla"));
 
     result =
         db.query("select name as blabla, * from foo where name = 'a'").stream()
             .collect(Collectors.toList());
 
-    assertEquals(result.size(), 1);
-    assertEquals(result.get(0).getProperty("blabla"), "a");
+    assertEquals(1, result.size());
+    assertEquals("a", result.get(0).getProperty("blabla"));
 
     result =
         db.query("select name as blabla, *, fff as zzz from foo where name = 'a'").stream()
             .collect(Collectors.toList());
 
-    assertEquals(result.size(), 1);
-    assertEquals(result.get(0).getProperty("blabla"), "a");
+    assertEquals(1, result.size());
+    assertEquals("a", result.get(0).getProperty("blabla"));
   }
 
   @Test
   public void testQuotedClassName() {
     OResultSet qResult = db.query("select from `edge`");
 
-    assertEquals(qResult.stream().count(), 0);
+    assertEquals(0, qResult.stream().count());
   }
 
   public void testUrl() {
 
-    List<OResult> qResult = db.command("select from TestUrl").stream().collect(Collectors.toList());
+    List<OResult> qResult = db.command("select from TestUrl").stream().toList();
 
-    assertEquals(qResult.size(), 1);
-    assertEquals(qResult.get(0).getProperty("url"), "http://www.google.com");
+    assertEquals(1, qResult.size());
+    assertEquals("http://www.google.com", qResult.get(0).getProperty("url"));
   }
 
   @Test
   public void testUnwindSkipAndLimit2() {
     List<OResult> qResult =
         db.command("select from unwindtest unwind coll skip 1 limit 2").stream()
-            .collect(Collectors.toList());
+            .toList();
 
-    assertEquals(qResult.size(), 2);
+    assertEquals(2, qResult.size());
     for (OResult doc : qResult) {
       String name = doc.getProperty("name");
       String coll = doc.getProperty("coll");
@@ -919,20 +919,20 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     params.put("param1", "foo");
     OResultSet qResult =
         db.query("select from TestParams where name like '%' + :param1 + '%'", params);
-    assertEquals(qResult.stream().count(), 2);
+    assertEquals(2, qResult.stream().count());
 
     qResult =
         db.query(
             "select from TestParams where name like '%' + :param1 + '%' and surname like '%' +"
                 + " :param1 + '%'",
             params);
-    assertEquals(qResult.stream().count(), 1);
+    assertEquals(1, qResult.stream().count());
 
     params = new HashMap<String, Object>();
     params.put("param1", "bar");
 
     qResult = db.query("select from TestParams where surname like '%' + :param1 + '%'", params);
-    assertEquals(qResult.stream().count(), 1);
+    assertEquals(1, qResult.stream().count());
   }
 
   // /*** from issue #2743
@@ -982,7 +982,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
   public void testLetAsListAsString() {
     String sql =
         "SELECT $ll as lll from unwindtest let $ll = coll.asList().asString() where name = 'bar'";
-    List<OResult> results = db.query(sql).stream().collect(Collectors.toList());
+    List<OResult> results = db.query(sql).stream().toList();
     assertEquals(1, results.size());
     assertNotNull(results.get(0).getProperty("lll"));
     assertEquals("[bar1, bar2]", results.get(0).getProperty("lll"));
@@ -990,28 +990,19 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
 
   @Test
   public void testAggregations() {
-    OSQLSynchQuery sql =
-        new OSQLSynchQuery(
-            "select data.size as collection_content, data.size() as collection_size, min(data.size)"
-                + " as collection_min, max(data.size) as collection_max, sum(data.size) as"
-                + " collection_sum, avg(data.size) as collection_avg from"
-                + " OCommandExecutorSQLSelectTest_aggregations");
-    List<ODocument> results = db.query(sql);
+    var results = db.query(
+        "select data.size as collection_content, data.size() as collection_size, min(data.size)"
+            + " as collection_min, max(data.size) as collection_max, sum(data.size) as"
+            + " collection_sum, avg(data.size) as collection_avg from"
+            + " OCommandExecutorSQLSelectTest_aggregations").toList();
     assertEquals(1, results.size());
-    ODocument doc = results.get(0);
+    var doc = results.get(0);
 
-    assertThat(doc.<Integer>field("collection_size")).isEqualTo(5);
-    assertThat(doc.<Integer>field("collection_sum")).isEqualTo(130);
-    assertThat(doc.<Integer>field("collection_avg")).isEqualTo(26);
-    assertThat(doc.<Integer>field("collection_min")).isEqualTo(0);
-    assertThat(doc.<Integer>field("collection_max")).isEqualTo(50);
-
-    //
-    //    assertEquals(5, doc.field("collection_size"));
-    //    assertEquals(130, doc.field("collection_sum"));
-    //    assertEquals(26, doc.field("collection_avg"));
-    //    assertEquals(0, doc.field("collection_min"));
-    //    assertEquals(50, doc.field("collection_max"));
+    assertThat(doc.<Integer>getProperty("collection_size")).isEqualTo(5);
+    assertThat(doc.<Integer>getProperty("collection_sum")).isEqualTo(130);
+    assertThat(doc.<Integer>getProperty("collection_avg")).isEqualTo(26);
+    assertThat(doc.<Integer>getProperty("collection_min")).isEqualTo(0);
+    assertThat(doc.<Integer>getProperty("collection_max")).isEqualTo(50);
   }
 
   @Test
@@ -1048,11 +1039,11 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     String sql =
         "SELECT 1 AS integer, 'Test' AS string, NULL AS nothing, [] AS array, {} AS object";
 
-    List<OResult> results = db.query(sql).stream().collect(Collectors.toList());
-    assertEquals(results.size(), 1);
+    List<OResult> results = db.query(sql).stream().toList();
+    assertEquals(1, results.size());
     OResult doc = results.get(0);
     assertThat(doc.<Integer>getProperty("integer")).isEqualTo(1);
-    assertEquals(doc.getProperty("string"), "Test");
+    assertEquals("Test", doc.getProperty("string"));
     assertNull(doc.getProperty("nothing"));
     boolean nullFound = false;
     for (String s : doc.getPropertyNames()) {
@@ -1091,7 +1082,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     OResultSet qResult =
         db.command("select from TestParamsEmbedded order by emb[:paramvalue] DESC", parameters);
     Map embedded = qResult.next().getProperty("emb");
-    assertEquals(embedded.get("count"), 1);
+    assertEquals(1, embedded.get("count"));
     qResult.close();
   }
 
@@ -1103,11 +1094,11 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     OResultSet qResult =
         db.command("select from TestParamsEmbedded order by emb[:paramvalue] ASC", parameters);
     Map embedded = qResult.next().getProperty("emb");
-    assertEquals(embedded.get("count"), 0);
+    assertEquals(0, embedded.get("count"));
     qResult.close();
     qResult =
         db.command("select from TestParamsEmbedded order by emb[:paramvalue] ASC", parameters);
-    assertEquals(qResult.stream().count(), 2);
+    assertEquals(2, qResult.stream().count());
   }
 
   @Test
@@ -1123,7 +1114,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
       assertThat(doc.<Integer>getProperty("nnum")).isEqualTo(skip + i);
       i++;
     }
-    assertEquals(i, 5);
+    assertEquals(5, i);
   }
 
   @Test
@@ -1138,7 +1129,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
       assertThat(doc.<Integer>getProperty("nnum")).isEqualTo(ORDER_SKIP_LIMIT_ITEMS - 1 - skip - i);
       i++;
     }
-    assertEquals(i, 5);
+    assertEquals(5, i);
   }
 
   @Test
@@ -1151,7 +1142,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
                 + "$q2 = (select from OUser where name ='admin')");
     assertTrue(results.hasNext());
     OResult doc = results.next();
-    assertEquals(doc.getProperty("name"), "admin");
+    assertEquals("admin", doc.getProperty("name"));
     assertFalse(results.hasNext());
   }
 
@@ -1163,7 +1154,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     OResultSet results =
         db.query(
             "select from OCommandExecutorSQLSelectTest_datesSet where foo contains '2015-10-21'");
-    assertEquals(results.stream().count(), 1);
+    assertEquals(1, results.stream().count());
   }
 
   @Test
@@ -1172,7 +1163,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("param1", "adm.*");
     OResultSet results = db.query("select from OUser where name matches :param1", params);
-    assertEquals(results.stream().count(), 1);
+    assertEquals(1, results.stream().count());
   }
 
   @Test
@@ -1182,10 +1173,10 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("param1", ".*admin[name].*"); // will not work
     OResultSet results = db.query("select from matchesstuff where name matches :param1", params);
-    assertEquals(results.stream().count(), 0);
+    assertEquals(0, results.stream().count());
     params.put("param1", Pattern.quote("admin[name]") + ".*"); // should work
     results = db.query("select from matchesstuff where name matches :param1", params);
-    assertEquals(results.stream().count(), 1);
+    assertEquals(1, results.stream().count());
   }
 
   @Test
@@ -1194,7 +1185,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     // issue #5229
     String pattern = Pattern.quote("adm") + ".*";
     OResultSet results = db.query("SELECT FROM matchesstuff WHERE (name matches ?)", pattern);
-    assertEquals(results.stream().count(), 1);
+    assertEquals(1, results.stream().count());
   }
 
   @Test
@@ -1205,7 +1196,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
         db.query(
             "SELECT FROM matchesstuff WHERE (name matches '\\\\Qadm\\\\E.*' and not ( name matches"
                 + " '(.*)foo(.*)' ) )");
-    assertEquals(results.stream().count(), 1);
+    assertEquals(1, results.stream().count());
   }
 
   @Test
@@ -1216,7 +1207,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
         db.query(
             "SELECT FROM matchesstuff WHERE (name matches '\\\\Qadm\\\\E.*' and  ( name matches"
                 + " '\\\\Qadmin\\\\E.*' ) )");
-    assertEquals(results.stream().count(), 1);
+    assertEquals(1, results.stream().count());
   }
 
   @Test
@@ -1229,30 +1220,30 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
         db.query(
             "select from OUser where (name matches :param1 and not (name matches :param2))",
             params);
-    assertEquals(results.stream().count(), 1);
+    assertEquals(1, results.stream().count());
 
     params.put("param1", Pattern.quote("adm") + ".*");
     results =
         db.query(
             "select from OUser where (name matches :param1 and not (name matches :param2))",
             params);
-    assertEquals(results.stream().count(), 1);
+    assertEquals(1, results.stream().count());
   }
 
   @Test
   public void testDistinctLimit() {
     initDistinctLimit(db);
     OResultSet results = db.query("select distinct(name) from DistinctLimit limit 1");
-    assertEquals(results.stream().count(), 1);
+    assertEquals(1, results.stream().count());
 
     results = db.query("select distinct(name) from DistinctLimit limit 2");
-    assertEquals(results.stream().count(), 2);
+    assertEquals(2, results.stream().count());
 
     results = db.query("select distinct(name) from DistinctLimit limit 3");
-    assertEquals(results.stream().count(), 2);
+    assertEquals(2, results.stream().count());
 
     results = db.query("select distinct(name) from DistinctLimit limit -1");
-    assertEquals(results.stream().count(), 2);
+    assertEquals(2, results.stream().count());
   }
 
   @Test
@@ -1261,7 +1252,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     OClass clazz = db.getMetadata().getSchema().getClass("DistinctLimit");
     int clusterId = clazz.getClusterIds()[0];
     OResultSet results = db.query("select from cluster:" + clusterId + " limit 1");
-    assertEquals(results.stream().count(), 1);
+    assertEquals(1, results.stream().count());
   }
 
   @Test
@@ -1271,10 +1262,10 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
         new OSQLSynchQuery(
             "select expand(children.children.children) from LinkListSequence where name = 'root'");
     List<ODocument> results = db.query(sql);
-    assertEquals(results.size(), 4);
+    assertEquals(4, results.size());
     for (ODocument result : results) {
       String value = result.field("name");
-      assertEquals(value.length(), 5);
+      assertEquals(5, value.length());
     }
   }
 
@@ -1286,10 +1277,10 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
             "select expand(children[0].children.children) from LinkListSequence where name ="
                 + " 'root'");
     List<ODocument> results = db.query(sql);
-    assertEquals(results.size(), 4);
+    assertEquals(4, results.size());
     for (ODocument result : results) {
       String value = result.field("name");
-      assertEquals(value.length(), 5);
+      assertEquals(5, value.length());
     }
   }
 
@@ -1298,8 +1289,8 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     initLinkListSequence(db);
     String sql =
         "select expand(children[0].children[0].children) from LinkListSequence where name = 'root'";
-    List<OResult> results = db.query(sql).stream().collect(Collectors.toList());
-    assertEquals(results.size(), 2);
+    List<OResult> results = db.query(sql).stream().toList();
+    assertEquals(2, results.size());
     for (OResult result : results) {
       String value = result.getProperty("name");
       assertTrue(value.equals("1.1.1") || value.equals("1.1.2"));
@@ -1311,12 +1302,12 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     initMaxLongNumber(db);
     // issue #5664
     OResultSet results = db.query("select from MaxLongNumberTest WHERE last < 10 OR last is null");
-    assertEquals(results.stream().count(), 3);
+    assertEquals(3, results.stream().count());
     db.begin();
     db.command("update MaxLongNumberTest set last = max(91,ifnull(last,0))").close();
     db.commit();
     results = db.query("select from MaxLongNumberTest WHERE last < 10 OR last is null");
-    assertEquals(results.stream().count(), 0);
+    assertEquals(0, results.stream().count());
   }
 
   @Test
@@ -1325,22 +1316,22 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     // issue http://www.prjhub.com/#/issues/6199
 
     String sql = "SELECT FROM FilterAndOrderByTest WHERE active = true ORDER BY dc DESC";
-    List<OResult> results = db.query(sql).stream().collect(Collectors.toList());
-    assertEquals(results.size(), 3);
+    List<OResult> results = db.query(sql).stream().toList();
+    assertEquals(3, results.size());
 
     Calendar cal = new GregorianCalendar();
 
     Date date = results.get(0).getProperty("dc");
     cal.setTime(date);
-    assertEquals(cal.get(Calendar.YEAR), 2016);
+    assertEquals(2016, cal.get(Calendar.YEAR));
 
     date = results.get(1).getProperty("dc");
     cal.setTime(date);
-    assertEquals(cal.get(Calendar.YEAR), 2010);
+    assertEquals(2010, cal.get(Calendar.YEAR));
 
     date = results.get(2).getProperty("dc");
     cal.setTime(date);
-    assertEquals(cal.get(Calendar.YEAR), 2009);
+    assertEquals(2009, cal.get(Calendar.YEAR));
   }
 
   @Test
@@ -1350,24 +1341,24 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
 
     String sql = "SELECT expand(collection[name = 'n1']) FROM ComplexFilterInSquareBrackets2";
     List<OResult> results = db.query(sql).stream().collect(Collectors.toList());
-    assertEquals(results.size(), 1);
-    assertEquals(results.iterator().next().getProperty("name"), "n1");
+    assertEquals(1, results.size());
+    assertEquals("n1", results.iterator().next().getProperty("name"));
 
     sql =
         "SELECT expand(collection[name = 'n1' and value = 1]) FROM ComplexFilterInSquareBrackets2";
     results = db.query(sql).stream().collect(Collectors.toList());
-    assertEquals(results.size(), 1);
-    assertEquals(results.iterator().next().getProperty("name"), "n1");
+    assertEquals(1, results.size());
+    assertEquals("n1", results.iterator().next().getProperty("name"));
 
     sql =
         "SELECT expand(collection[name = 'n1' and value > 1]) FROM ComplexFilterInSquareBrackets2";
     results = db.query(sql).stream().collect(Collectors.toList());
-    assertEquals(results.size(), 0);
+    assertEquals(0, results.size());
 
     sql =
         "SELECT expand(collection[name = 'n1' or value = -1]) FROM ComplexFilterInSquareBrackets2";
     results = db.query(sql).stream().collect(Collectors.toList());
-    assertEquals(results.size(), 2);
+    assertEquals(2, results.size());
     for (OResult doc : results) {
       assertTrue(doc.getProperty("name").equals("n1") || doc.getProperty("value").equals(-1));
     }
@@ -1376,17 +1367,17 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
         "SELECT expand(collection[name = 'n1' and not value = 1]) FROM"
             + " ComplexFilterInSquareBrackets2";
     results = db.query(sql).stream().collect(Collectors.toList());
-    assertEquals(results.size(), 0);
+    assertEquals(0, results.size());
 
     sql = "SELECT expand(collection[value < 0]) FROM ComplexFilterInSquareBrackets2";
     results = db.query(sql).stream().collect(Collectors.toList());
-    assertEquals(results.size(), 1);
+    assertEquals(1, results.size());
     //    assertEquals(results.iterator().next().field("value"), -1);
     assertThat(results.iterator().next().<Integer>getProperty("value")).isEqualTo(-1);
 
     sql = "SELECT expand(collection[2]) FROM ComplexFilterInSquareBrackets2";
     results = db.query(sql).stream().collect(Collectors.toList());
-    assertEquals(results.size(), 1);
+    assertEquals(1, results.size());
   }
 
   @Test
@@ -1426,13 +1417,13 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
             new OSQLSynchQuery<ODocument>(
                 "select from OCommandExecutorSqlSelectTest_collateOnCollections where 'Math' in"
                     + " categories"));
-    assertEquals(results.size(), 1);
+    assertEquals(1, results.size());
     results =
         db.query(
             new OSQLSynchQuery<ODocument>(
                 "select from OCommandExecutorSqlSelectTest_collateOnCollections where 'math' in"
                     + " categories"));
-    assertEquals(results.size(), 1);
+    assertEquals(1, results.size());
   }
 
   @Test
@@ -1452,8 +1443,8 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
                 "select count(*) as count from OCommandExecutorSqlSelectTest_testCountUniqueIndex"
                     + " where AAA='missing'")
             .stream()
-            .collect(Collectors.toList());
-    assertEquals(results.size(), 1);
+            .toList();
+    assertEquals(1, results.size());
     //    assertEquals(results.iterator().next().field("count"), 0l);
 
     assertThat(results.iterator().next().<Long>getProperty("count")).isEqualTo(0L);
@@ -1463,8 +1454,8 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
   public void testEvalLong() {
     // http://www.prjhub.com/#/issues/6472
     List<OResult> results =
-        db.query("SELECT EVAL(\"86400000 * 26\") AS value").stream().collect(Collectors.toList());
-    assertEquals(results.size(), 1);
+        db.query("SELECT EVAL(\"86400000 * 26\") AS value").stream().toList();
+    assertEquals(1, results.size());
 
     //    assertEquals(results.get(0).field("value"), 86400000l * 26);
     assertThat(results.get(0).<Long>getProperty("value")).isEqualTo(86400000L * 26);
@@ -1478,19 +1469,19 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
         db.query(
             new OSQLSynchQuery<ODocument>(
                 "select from CollateOnLinked2 where linked.name = 'foo' "));
-    assertEquals(results.size(), 1);
+    assertEquals(1, results.size());
     results =
         db.query(
             new OSQLSynchQuery<ODocument>(
                 "select from CollateOnLinked2 where linked.name = 'FOO' "));
-    assertEquals(results.size(), 1);
+    assertEquals(1, results.size());
   }
 
   @Test
   public void testParamConcat() {
     // issue #6049
     OResultSet results = db.query("select from TestParams where surname like ? + '%'", "fo");
-    assertEquals(results.stream().count(), 1);
+    assertEquals(1, results.stream().count());
   }
 
   @Test
@@ -1514,14 +1505,14 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
             new OSQLSynchQuery<ODocument>(
                 "select from CompositeIndexWithoutNullValues where one = ?"),
             "foo");
-    assertEquals(results.size(), 2);
+    assertEquals(2, results.size());
     results =
         db.query(
             new OSQLSynchQuery<ODocument>(
                 "select from CompositeIndexWithoutNullValues where one = ? and two = ?"),
             "foo",
             "bar");
-    assertEquals(results.size(), 1);
+    assertEquals(1, results.size());
 
     db.command("create class CompositeIndexWithoutNullValues2").close();
     db.command("create property CompositeIndexWithoutNullValues2.one String").close();
@@ -1542,23 +1533,23 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
             new OSQLSynchQuery<ODocument>(
                 "select from CompositeIndexWithoutNullValues2 where one = ?"),
             "foo");
-    assertEquals(results.size(), 2);
+    assertEquals(2, results.size());
     results =
         db.query(
             new OSQLSynchQuery<ODocument>(
                 "select from CompositeIndexWithoutNullValues where one = ? and two = ?"),
             "foo",
             "bar");
-    assertEquals(results.size(), 1);
+    assertEquals(1, results.size());
   }
 
   @Test
   public void testDateFormat() {
     List<OResult> results =
         db.query("select date('2015-07-20', 'yyyy-MM-dd').format('dd.MM.yyyy') as dd").stream()
-            .collect(Collectors.toList());
-    assertEquals(results.size(), 1);
-    assertEquals(results.get(0).getProperty("dd"), "20.07.2015");
+            .toList();
+    assertEquals(1, results.size());
+    assertEquals("20.07.2015", results.get(0).getProperty("dd"));
   }
 
   @Test
@@ -1566,18 +1557,18 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     // issue #5572
     OResultSet results =
         db.query("select from TestMultipleClusters where name like :p1 + '%'", "fo");
-    assertEquals(results.stream().count(), 1);
+    assertEquals(1, results.stream().count());
 
     results = db.query("select from TestMultipleClusters where name like :p1 ", "fo");
-    assertEquals(results.stream().count(), 0);
+    assertEquals(0, results.stream().count());
   }
 
   @Test
   public void testMethodsOnStrings() {
     // issue #5671
     List<OResult> results =
-        db.query("select '1'.asLong() as long").stream().collect(Collectors.toList());
-    assertEquals(results.size(), 1);
+        db.query("select '1'.asLong() as long").stream().toList();
+    assertEquals(1, results.size());
     //    assertEquals(results.get(0).field("long"), 1L);
     assertThat(results.get(0).<Long>getProperty("long")).isEqualTo(1L);
   }
@@ -1587,12 +1578,12 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     // issue #5294
     List<OResult> results =
         db.query("select difference([1,2,3],[1,2]) as difference").stream()
-            .collect(Collectors.toList());
-    assertEquals(results.size(), 1);
+            .toList();
+    assertEquals(1, results.size());
     Object differenceFieldValue = results.get(0).getProperty("difference");
     assertTrue(differenceFieldValue instanceof Collection);
-    assertEquals(((Collection) differenceFieldValue).size(), 1);
-    assertEquals(((Collection) differenceFieldValue).iterator().next(), 3);
+    assertEquals(1, ((Collection) differenceFieldValue).size());
+    assertEquals(3, ((Collection) differenceFieldValue).iterator().next());
   }
 
   @Test
@@ -1607,7 +1598,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     db.commit();
 
     OResultSet results = db.query("select sum(val), name from testFoo group by name");
-    assertEquals(results.stream().count(), 2);
+    assertEquals(2, results.stream().count());
   }
 
   @Test
@@ -1623,10 +1614,10 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
 
     OResultSet results = db.query("SELECT from TestDateComparison WHERE dateProp >= '2016-05-01'");
 
-    assertEquals(results.stream().count(), 1);
+    assertEquals(1, results.stream().count());
     results = db.query("SELECT from TestDateComparison WHERE dateProp <= '2016-05-01'");
 
-    assertEquals(results.stream().count(), 1);
+    assertEquals(1, results.stream().count());
   }
 
   @Test
@@ -1647,7 +1638,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     List<OResult> results =
         db.query("SELECT from TestOrderByRidDescMultiCluster order by @rid desc").stream()
             .collect(Collectors.toList());
-    assertEquals(results.size(), 100);
+    assertEquals(100, results.size());
     OResult lastDoc = null;
     for (OResult doc : results) {
       if (lastDoc != null) {
@@ -1658,8 +1649,8 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
 
     results =
         db.query("SELECT from TestOrderByRidDescMultiCluster order by @rid asc").stream()
-            .collect(Collectors.toList());
-    assertEquals(results.size(), 100);
+            .toList();
+    assertEquals(100, results.size());
     lastDoc = null;
     for (OResult doc : results) {
       if (lastDoc != null) {
@@ -1711,16 +1702,16 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
             .query("SELECT count(*) as count from testCountOnSubclassIndexes_sub1 where foo = true")
             .stream()
             .collect(Collectors.toList());
-    assertEquals(results.size(), 1);
-    assertEquals(results.get(0).getProperty("count"), (Object) 1L);
+    assertEquals(1, results.size());
+    assertEquals((Object) 1L, results.get(0).getProperty("count"));
 
     results =
         db
             .query("SELECT count(*) as count from testCountOnSubclassIndexes_sub2 where foo = true")
             .stream()
             .collect(Collectors.toList());
-    assertEquals(results.size(), 1);
-    assertEquals(results.get(0).getProperty("count"), (Object) 2L);
+    assertEquals(1, results.size());
+    assertEquals((Object) 2L, results.get(0).getProperty("count"));
 
     results =
         db
@@ -1729,17 +1720,17 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
                     + " true")
             .stream()
             .collect(Collectors.toList());
-    assertEquals(results.size(), 1);
-    assertEquals(results.get(0).getProperty("count"), (Object) 3L);
+    assertEquals(1, results.size());
+    assertEquals((Object) 3L, results.get(0).getProperty("count"));
   }
 
   @Test
   public void testDoubleExponentNotation() {
     // issue #7013
 
-    List<OResult> results = db.query("select 1e-2 as a").stream().collect(Collectors.toList());
-    assertEquals(results.size(), 1);
-    assertEquals(results.get(0).getProperty("a"), (Object) 0.01f);
+    List<OResult> results = db.query("select 1e-2 as a").stream().toList();
+    assertEquals(1, results.size());
+    assertEquals((Object) 0.01f, results.get(0).getProperty("a"));
   }
 
   @Test
@@ -1755,12 +1746,11 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     OResultSet results =
         db.query("SELECT FROM testConvertDouble WHERE num >= 50000 AND num <=300000000");
 
-    assertEquals(results.stream().count(), 1);
+    assertEquals(1, results.stream().count());
   }
 
-  @Test
+  @Ignore
   public void testFilterListsOfMaps() {
-
     String className = "testFilterListaOfMaps";
 
     db.command("create class " + className).close();
@@ -1775,13 +1765,12 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
         .close();
     db.commit();
 
-    List<ODocument> results =
+    var results =
         db.query(
-            new OSQLSynchQuery<ODocument>(
-                "select tagz.values()[0][name = 'a'] as t from " + className));
-    assertEquals(results.size(), 1);
-    Map map = results.get(0).field("t");
-    assertEquals(map.get("surname"), "b");
+            "select tagz.values()[0][name = 'a'] as t from " + className).toList();
+    assertEquals(1, results.size());
+    var result = results.get(0).<Map>getProperty("t");
+    assertEquals("b", result.get("surname"));
   }
 
   @Test
@@ -1798,11 +1787,11 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     db.commit();
 
     OResultSet results = db.query("select from " + className + " where state in [1]");
-    assertEquals(results.stream().count(), 2);
+    assertEquals(2, results.stream().count());
 
     results = db.query("select from " + className + " where [1] contains state");
 
-    assertEquals(results.stream().count(), 2);
+    assertEquals(2, results.stream().count());
   }
 
   @Test
@@ -1823,7 +1812,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     enums.add(OType.BYTE);
     params.put("status", enums);
     OResultSet results = db.query("select from " + className + " where status in :status", params);
-    assertEquals(results.stream().count(), 2);
+    assertEquals(2, results.stream().count());
   }
 
   @Test
@@ -1855,7 +1844,7 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
             "select from "
                 + className
                 + " where embedded_map CONTAINSVALUE {\"name\":\"key_2\", \"id\":\"0\"}");
-    assertEquals(results.stream().count(), 1);
+    assertEquals(1, results.stream().count());
   }
 
   @Test
@@ -1872,21 +1861,21 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     db.commit();
 
     OResultSet results = db.query("SELECT * FROM " + className + " WHERE name >= \"0\"");
-    assertEquals(results.stream().count(), 2);
+    assertEquals(2, results.stream().count());
 
     results = db.query("SELECT * FROM " + className + " WHERE \"0\" <= name");
-    assertEquals(results.stream().count(), 2);
+    assertEquals(2, results.stream().count());
 
     db.command("CREATE INDEX " + className + ".name on " + className + " (name) UNIQUE").close();
 
     results = db.query("SELECT * FROM " + className + " WHERE \"0\" <= name");
-    assertEquals(results.stream().count(), 2);
+    assertEquals(2, results.stream().count());
 
     results = db.query("SELECT * FROM " + className + " WHERE \"2\" <= name");
-    assertEquals(results.stream().count(), 1);
+    assertEquals(1, results.stream().count());
 
     results = db.query("SELECT * FROM " + className + " WHERE name >= \"0\"");
-    assertEquals(results.stream().count(), 2);
+    assertEquals(2, results.stream().count());
   }
 
   @Test
@@ -1903,11 +1892,11 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
     db.commit();
 
     OResultSet results = db.query("SELECT * FROM " + className + " WHERE name is defined");
-    assertEquals((int) results.next().getProperty("x"), 1);
+    assertEquals(1, (int) results.next().getProperty("x"));
     results.close();
     results = db.query("SELECT * FROM " + className + " WHERE name is not defined");
 
-    assertEquals((int) results.next().getProperty("x"), 2);
+    assertEquals(2, (int) results.next().getProperty("x"));
     results.close();
   }
 

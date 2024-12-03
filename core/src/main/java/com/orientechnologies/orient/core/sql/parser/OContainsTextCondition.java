@@ -3,6 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.metadata.OIndexCandidate;
@@ -210,11 +211,11 @@ public class OContainsTextCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable() {
-    if (left != null && !left.isCacheable()) {
+  public boolean isCacheable(ODatabaseSessionInternal session) {
+    if (left != null && !left.isCacheable(session)) {
       return false;
     }
-    return right == null || right.isCacheable();
+    return right == null || right.isCacheable(session);
   }
 
   public void setLeft(OExpression left) {

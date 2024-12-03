@@ -283,9 +283,9 @@ public class OExpression extends SimpleNode {
     return true;
   }
 
-  public boolean isIndexedFunctionCal() {
+  public boolean isIndexedFunctionCal(ODatabaseSessionInternal session) {
     if (mathExpression != null) {
-      return mathExpression.isIndexedFunctionCall();
+      return mathExpression.isIndexedFunctionCall(session);
     }
     return false;
   }
@@ -409,19 +409,20 @@ public class OExpression extends SimpleNode {
     return false;
   }
 
-  public boolean isAggregate() {
-    if (mathExpression != null && mathExpression.isAggregate()) {
+  public boolean isAggregate(ODatabaseSessionInternal session) {
+    if (mathExpression != null && mathExpression.isAggregate(session)) {
       return true;
     }
-    if (arrayConcatExpression != null && arrayConcatExpression.isAggregate()) {
+    if (arrayConcatExpression != null && arrayConcatExpression.isAggregate(session)) {
       return true;
     }
-    return json != null && json.isAggregate();
+    return json != null && json.isAggregate(session);
   }
 
   public OExpression splitForAggregation(
       AggregateProjectionSplit aggregateSplit, OCommandContext ctx) {
-    if (isAggregate()) {
+    ODatabaseSessionInternal database = ctx.getDatabase();
+    if (isAggregate(database)) {
       OExpression result = new OExpression(-1);
       if (mathExpression != null) {
         SimpleNode splitResult = mathExpression.splitForAggregation(aggregateSplit, ctx);
@@ -435,7 +436,8 @@ public class OExpression extends SimpleNode {
         }
       }
       if (arrayConcatExpression != null) {
-        SimpleNode splitResult = arrayConcatExpression.splitForAggregation(aggregateSplit);
+        SimpleNode splitResult = arrayConcatExpression.splitForAggregation(database,
+            aggregateSplit);
         if (splitResult instanceof OArrayConcatExpression) {
           result.arrayConcatExpression = (OArrayConcatExpression) splitResult;
         } else if (splitResult instanceof OExpression) {
@@ -687,12 +689,12 @@ public class OExpression extends SimpleNode {
     return null;
   }
 
-  public boolean isCacheable() {
+  public boolean isCacheable(ODatabaseSessionInternal session) {
     if (mathExpression != null) {
-      return mathExpression.isCacheable();
+      return mathExpression.isCacheable(session);
     }
     if (arrayConcatExpression != null) {
-      return arrayConcatExpression.isCacheable();
+      return arrayConcatExpression.isCacheable(session);
     }
     if (json != null) {
       return json.isCacheable();

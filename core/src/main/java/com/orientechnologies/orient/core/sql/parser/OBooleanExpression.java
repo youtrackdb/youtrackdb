@@ -69,7 +69,7 @@ public abstract class OBooleanExpression extends SimpleNode {
         }
 
         @Override
-        public boolean isCacheable() {
+        public boolean isCacheable(ODatabaseSessionInternal session) {
           return true;
         }
 
@@ -154,7 +154,7 @@ public abstract class OBooleanExpression extends SimpleNode {
         }
 
         @Override
-        public boolean isCacheable() {
+        public boolean isCacheable(ODatabaseSessionInternal session) {
           return true;
         }
 
@@ -290,7 +290,7 @@ public abstract class OBooleanExpression extends SimpleNode {
     throw new UnsupportedOperationException();
   }
 
-  public abstract boolean isCacheable();
+  public abstract boolean isCacheable(ODatabaseSessionInternal session);
 
   public OBooleanExpression rewriteIndexChainsAsSubqueries(OCommandContext ctx, OClass clazz) {
     return this;

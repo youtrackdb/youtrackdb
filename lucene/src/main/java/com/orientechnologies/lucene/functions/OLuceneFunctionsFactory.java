@@ -20,7 +20,11 @@ import com.orientechnologies.orient.core.sql.functions.OSQLFunctionFactoryTempla
 
 public class OLuceneFunctionsFactory extends OSQLFunctionFactoryTemplate {
 
-  public OLuceneFunctionsFactory(ODatabaseSessionInternal session) {
+  public OLuceneFunctionsFactory() {
+  }
+
+  @Override
+  public void registerDefaultFunctions(ODatabaseSessionInternal session) {
     register(session, new OLuceneSearchOnIndexFunction());
     register(session, new OLuceneSearchOnFieldsFunction());
     register(session, new OLuceneSearchOnClassFunction());

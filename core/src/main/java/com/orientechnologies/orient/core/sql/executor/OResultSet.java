@@ -11,6 +11,7 @@ import java.util.Spliterator;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import javax.annotation.Nonnull;
 
 /**
  *
@@ -67,13 +68,48 @@ public interface OResultSet extends Spliterator<OResult>, Iterator<OResult>, Aut
    * @return
    */
   default Stream<OResult> stream() {
-    return StreamSupport.stream(this, false).onClose(() -> this.close());
+    return StreamSupport.stream(this, false).onClose(this::close);
   }
 
   default List<OResult> toList() {
     return stream().toList();
   }
 
+  @Nonnull
+  default OResult findFirst() {
+    return stream().findFirst().orElse(null);
+  }
+
+  default OResult findFirstOrThrow() {
+    return stream().findFirst().orElseThrow(() -> new IllegalStateException("No result found"));
+  }
+
+  default OElement findFirstElement() {
+    return elementStream().findFirst().orElse(null);
+  }
+
+  default OElement findFirstElementOrThrow() {
+    return elementStream().findFirst()
+        .orElseThrow(() -> new IllegalStateException("No element found"));
+  }
+
+  default OVertex findFirstVertex() {
+    return vertexStream().findFirst().orElse(null);
+  }
+
+  default OVertex findFirstVertexOrThrow() {
+    return vertexStream().findFirst()
+        .orElseThrow(() -> new IllegalStateException("No vertex found"));
+  }
+
+  default OEdge findFirstEdge() {
+    return edgeStream().findFirst().orElse(null);
+  }
+
+  default OEdge findFirstEdgeOrThrow() {
+    return edgeStream().findFirst()
+        .orElseThrow(() -> new IllegalStateException("No edge found"));
+  }
 
   /**
    * Returns the result set as a stream of elements (filters only the results that are elements -
@@ -112,7 +148,7 @@ public interface OResultSet extends Spliterator<OResult>, Iterator<OResult>, Aut
               }
             },
             false)
-        .onClose(() -> this.close());
+        .onClose(this::close);
   }
 
   default List<OElement> toElementList() {
@@ -156,7 +192,7 @@ public interface OResultSet extends Spliterator<OResult>, Iterator<OResult>, Aut
               }
             },
             false)
-        .onClose(() -> this.close());
+        .onClose(this::close);
   }
 
   default List<OVertex> toVertexList() {
@@ -200,7 +236,7 @@ public interface OResultSet extends Spliterator<OResult>, Iterator<OResult>, Aut
               }
             },
             false)
-        .onClose(() -> this.close());
+        .onClose(this::close);
   }
 
   default List<OEdge> toEdgeList() {

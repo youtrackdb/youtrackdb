@@ -13,6 +13,8 @@
  */
 package com.orientechnologies.spatial.sandbox;
 
+import com.orientechnologies.lucene.test.BaseLuceneTest;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.spatial.shape.OMultiPolygonShapeBuilder;
 import java.io.IOException;
@@ -46,7 +48,7 @@ import org.locationtech.spatial4j.shape.SpatialRelation;
 /**
  *
  */
-public class LuceneGeoTest {
+public class LuceneGeoTest extends BaseLuceneTest {
 
   @Test
   public void geoIntersectTest() throws IOException, ParseException {
@@ -163,8 +165,7 @@ public class LuceneGeoTest {
   }
 
   @Test
-  public void geoSpeedTestInternal() throws IOException, ParseException {
-
+  public void geoSpeedTestInternal() throws IOException {
     RecursivePrefixTreeStrategy strategy =
         new RecursivePrefixTreeStrategy(
             new GeohashPrefixTree(JtsSpatialContext.GEO, 11), "location");
@@ -173,7 +174,7 @@ public class LuceneGeoTest {
     final RAMDirectory directory = new RAMDirectory();
     final IndexWriter writer = new IndexWriter(directory, conf);
 
-    ODocument entries = loadMultiPolygon();
+    ODocument entries = loadMultiPolygon(db);
 
     OMultiPolygonShapeBuilder builder = new OMultiPolygonShapeBuilder();
 
@@ -191,17 +192,16 @@ public class LuceneGeoTest {
     writer.close();
   }
 
-  protected ODocument loadMultiPolygon() {
-
+  protected static ODocument loadMultiPolygon(ODatabaseSessionInternal session) {
     try {
       InputStream systemResourceAsStream = ClassLoader.getSystemResourceAsStream("italy.json");
 
-      ODocument doc = new ODocument().fromJSON(systemResourceAsStream);
+      ODocument doc = new ODocument(session).fromJSON(systemResourceAsStream);
 
       Map geometry = doc.field("geometry");
 
       String type = (String) geometry.get("type");
-      ODocument location = new ODocument("O" + type);
+      ODocument location = new ODocument(session, "O" + type);
       location.field("coordinates", geometry.get("coordinates"));
       return location;
     } catch (Exception e) {

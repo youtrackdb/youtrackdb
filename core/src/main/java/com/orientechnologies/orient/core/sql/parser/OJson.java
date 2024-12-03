@@ -215,9 +215,9 @@ public class OJson extends SimpleNode {
     return false;
   }
 
-  public boolean isAggregate() {
+  public boolean isAggregate(ODatabaseSessionInternal session) {
     for (OJsonItem item : items) {
-      if (item.isAggregate()) {
+      if (item.isAggregate(session)) {
         return true;
       }
     }
@@ -225,7 +225,7 @@ public class OJson extends SimpleNode {
   }
 
   public OJson splitForAggregation(AggregateProjectionSplit aggregateSplit, OCommandContext ctx) {
-    if (isAggregate()) {
+    if (isAggregate(ctx.getDatabase())) {
       OJson result = new OJson(-1);
       for (OJsonItem item : items) {
         result.items.add(item.splitForAggregation(aggregateSplit, ctx));

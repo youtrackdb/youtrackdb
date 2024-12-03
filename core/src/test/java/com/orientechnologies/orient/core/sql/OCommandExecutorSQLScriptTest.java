@@ -33,27 +33,34 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
   }
 
   @Test
-  public void testQuery() throws Exception {
-    String script = "begin\n" + "let $a = select from foo\n" + "commit\n" + "return $a\n";
+  public void testQuery() {
+    String script = """
+        begin
+        let $a = select from foo
+        commit
+        return $a
+        """;
     List<ODocument> qResult = db.command(new OCommandScript("sql", script)).execute(db);
 
-    Assert.assertEquals(qResult.size(), 3);
+    Assert.assertEquals(3, qResult.size());
   }
 
   @Test
-  public void testTx() throws Exception {
+  public void testTx() {
     String script =
-        "begin\n"
-            + "let $a = insert into V set test = 'sql script test'\n"
-            + "commit retry 10\n"
-            + "return $a\n";
+        """
+            begin
+            let $a = insert into V set test = 'sql script test'
+            commit retry 10
+            return $a
+            """;
     ODocument qResult = db.command(new OCommandScript("sql", script)).execute(db);
 
     Assert.assertNotNull(qResult);
   }
 
   @Test
-  public void testReturnExpanded() throws Exception {
+  public void testReturnExpanded() {
     StringBuilder script = new StringBuilder();
     script.append("begin\n");
     script.append("let $a = insert into V set test = 'sql script test'\n");
@@ -77,7 +84,7 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
   }
 
   @Test
-  public void testSleep() throws Exception {
+  public void testSleep() {
     long begin = System.currentTimeMillis();
 
     db.command(new OCommandScript("sql", "sleep 500")).execute(db);
@@ -86,45 +93,47 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
   }
 
   @Test
-  public void testConsoleLog() throws Exception {
+  public void testConsoleLog() {
     String script = "LET $a = 'log'\n" + "console.log 'This is a test of log for ${a}'";
     db.command(new OCommandScript("sql", script)).execute(db);
   }
 
   @Test
-  public void testConsoleOutput() throws Exception {
+  public void testConsoleOutput() {
     String script = "LET $a = 'output'\n" + "console.output 'This is a test of log for ${a}'";
     db.command(new OCommandScript("sql", script)).execute(db);
   }
 
   @Test
-  public void testConsoleError() throws Exception {
+  public void testConsoleError() {
     String script = "LET $a = 'error'\n" + "console.error 'This is a test of log for ${a}'";
     db.command(new OCommandScript("sql", script)).execute(db);
   }
 
   @Test
-  public void testReturnObject() throws Exception {
+  public void testReturnObject() {
     Collection<Object> result =
         db.command(new OCommandScript("sql", "return [{ a: 'b' }]")).execute(db);
 
     Assert.assertNotNull(result);
 
-    Assert.assertEquals(result.size(), 1);
+    Assert.assertEquals(1, result.size());
 
     Assert.assertTrue(result.iterator().next() instanceof Map);
   }
 
   @Test
-  public void testIncrementAndLet() throws Exception {
+  public void testIncrementAndLet() {
 
     String script =
-        "CREATE CLASS TestCounter;\n"
-            + "begin;\n"
-            + "INSERT INTO TestCounter set weight = 3;\n"
-            + "LET counter = SELECT count(*) FROM TestCounter;\n"
-            + "UPDATE TestCounter INCREMENT weight = $counter[0].count RETURN AfTER @this;\n"
-            + "commit;\n";
+        """
+            CREATE CLASS TestCounter;
+            begin;
+            INSERT INTO TestCounter set weight = 3;
+            LET counter = SELECT count(*) FROM TestCounter;
+            UPDATE TestCounter INCREMENT weight = $counter[0].count RETURN AfTER @this;
+            commit;
+            """;
     List<ODocument> qResult = db.command(new OCommandScript("sql", script)).execute(db);
 
     assertThat(db.bindToSession(qResult.get(0)).<Long>field("weight")).isEqualTo(4L);
@@ -132,154 +141,171 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
 
   @Test
   @Ignore
-  public void testIncrementAndLetNewApi() throws Exception {
+  public void testIncrementAndLetNewApi() {
 
     String script =
-        "CREATE CLASS TestCounter;\n"
-            + "begin;\n"
-            + "INSERT INTO TestCounter set weight = 3;\n"
-            + "LET counter = SELECT count(*) FROM TestCounter;\n"
-            + "UPDATE TestCounter INCREMENT weight = $counter[0].count RETURN AfTER @this;\n"
-            + "commit;\n";
+        """
+            CREATE CLASS TestCounter;
+            begin;
+            INSERT INTO TestCounter set weight = 3;
+            LET counter = SELECT count(*) FROM TestCounter;
+            UPDATE TestCounter INCREMENT weight = $counter[0].count RETURN AfTER @this;
+            commit;
+            """;
     OResultSet qResult = db.execute("sql", script);
 
-    assertThat(qResult.next().getElement().get().<Long>getProperty("weight")).isEqualTo(4L);
+    assertThat(qResult.next().getElement().orElseThrow().<Long>getProperty("weight")).isEqualTo(4L);
   }
 
   @Test
-  public void testIf1() throws Exception {
+  public void testIf1() {
 
     String script =
-        "let $a = select 1 as one\n"
-            + "if($a[0].one = 1){\n"
-            + " return 'OK'\n"
-            + "}\n"
-            + "return 'FAIL'\n";
+        """
+            let $a = select 1 as one;
+            if($a[0].one = 1){;
+             return 'OK';
+            };
+            return 'FAIL';
+            """;
+    var qResult = db.execute("sql", script).stream().findFirst().orElseThrow();
+
+    Assert.assertNotNull(qResult);
+    Assert.assertEquals("OK", qResult.getProperty("value"));
+  }
+
+  @Test
+  public void testIf2() {
+
+    String script =
+        """
+            let $a = select 1 as one;
+            if    ($a[0].one = 1)   {;
+             return 'OK';
+                 };     \s
+            return 'FAIL';
+            """;
+    var qResult = db.execute("sql", script).stream().findFirst().orElseThrow();
+
+    Assert.assertNotNull(qResult);
+    Assert.assertEquals("OK", qResult.getProperty("value"));
+  }
+
+  @Test
+  public void testIf3() {
+    var qResult =
+        db.execute(
+
+                "sql",
+                "let $a = select 1 as one; if($a[0].one = 1){return 'OK';}return 'FAIL';").stream()
+            .findFirst().orElseThrow();
+    Assert.assertNotNull(qResult);
+    Assert.assertEquals("OK", qResult.getProperty("value"));
+  }
+
+  @Test
+  public void testNestedIf2() {
+
+    String script =
+        """
+            let $a = select 1 as one;
+            if($a[0].one = 1){;
+                if($a[0].one = 'zz'){;
+                  return 'FAIL';
+                };
+              return 'OK';
+            };
+            return 'FAIL';
+            """;
+    var qResult = db.execute("sql", script).stream().findFirst().orElseThrow();
+
+    Assert.assertNotNull(qResult);
+    Assert.assertEquals("OK", qResult.getProperty("value"));
+  }
+
+  @Test
+  public void testNestedIf3() {
+
+    String script =
+        """
+            let $a = select 1 as one;
+            if($a[0].one = 'zz'){;
+                if($a[0].one = 1){;
+                  return 'FAIL';
+                };
+              return 'FAIL';
+            };
+            return 'OK';
+            """;
+    var qResult = db.execute("sql", script).stream().findFirst().orElseThrow();
+
+    Assert.assertNotNull(qResult);
+    Assert.assertEquals("OK", qResult.getProperty("value"));
+  }
+
+  @Test
+  public void testIfRealQuery() {
+
+    String script =
+        """
+            let $a = select from foo
+            if($a is not null and $a.size() = 3){
+              return $a
+            }
+            return 'FAIL'
+            """;
     Object qResult = db.command(new OCommandScript("sql", script)).execute(db);
 
     Assert.assertNotNull(qResult);
-    Assert.assertEquals(qResult, "OK");
+    Assert.assertEquals(3, ((List<?>) qResult).size());
   }
 
   @Test
-  public void testIf2() throws Exception {
+  public void testIfMultipleStatements() {
 
     String script =
-        "let $a = select 1 as one\n"
-            + "if    ($a[0].one = 1)   { \n"
-            + " return 'OK'\n"
-            + "     }      \n"
-            + "return 'FAIL'\n";
-    Object qResult = db.command(new OCommandScript("sql", script)).execute(db);
+        """
+            let $a = select 1 as one;
+            if($a[0].one = 1){;
+              let $b = select 'OK' as ok;
+              return $b[0].ok;
+            };
+            return 'FAIL';
+            """;
+    var qResult = db.execute("sql", script).stream().findFirst().orElseThrow();
 
     Assert.assertNotNull(qResult);
-    Assert.assertEquals(qResult, "OK");
+    Assert.assertEquals("OK", qResult.getProperty("value"));
   }
 
   @Test
-  public void testIf3() throws Exception {
-    Object qResult =
-        db.command(
-                new OCommandScript(
-                    "sql",
-                    "let $a = select 1 as one; if($a[0].one = 1){return 'OK';}return 'FAIL';"))
-            .execute(db);
-    Assert.assertNotNull(qResult);
-    Assert.assertEquals(qResult, "OK");
-  }
-
-  @Test
-  public void testNestedIf2() throws Exception {
+  public void testScriptSubContext() {
 
     String script =
-        "let $a = select 1 as one\n"
-            + "if($a[0].one = 1){\n"
-            + "    if($a[0].one = 'zz'){\n"
-            + "      return 'FAIL'\n"
-            + "    }\n"
-            + "  return 'OK'\n"
-            + "}\n"
-            + "return 'FAIL'\n";
-    Object qResult = db.command(new OCommandScript("sql", script)).execute(db);
+        """
+            let $a = select from foo limit 1
+            select from (traverse doesnotexist from $a)
+            """;
+    Iterable<?> qResult = db.command(new OCommandScript("sql", script)).execute(db);
 
     Assert.assertNotNull(qResult);
-    Assert.assertEquals(qResult, "OK");
-  }
-
-  @Test
-  public void testNestedIf3() throws Exception {
-
-    String script =
-        "let $a = select 1 as one\n"
-            + "if($a[0].one = 'zz'){\n"
-            + "    if($a[0].one = 1){\n"
-            + "      return 'FAIL'\n"
-            + "    }\n"
-            + "  return 'FAIL'\n"
-            + "}\n"
-            + "return 'OK'\n";
-    Object qResult = db.command(new OCommandScript("sql", script)).execute(db);
-
-    Assert.assertNotNull(qResult);
-    Assert.assertEquals(qResult, "OK");
-  }
-
-  @Test
-  public void testIfRealQuery() throws Exception {
-
-    String script =
-        "let $a = select from foo\n"
-            + "if($a is not null and $a.size() = 3){\n"
-            + "  return $a\n"
-            + "}\n"
-            + "return 'FAIL'\n";
-    Object qResult = db.command(new OCommandScript("sql", script)).execute(db);
-
-    Assert.assertNotNull(qResult);
-    Assert.assertEquals(((List) qResult).size(), 3);
-  }
-
-  @Test
-  public void testIfMultipleStatements() throws Exception {
-
-    String script =
-        "let $a = select 1 as one\n"
-            + "if($a[0].one = 1){\n"
-            + "  let $b = select 'OK' as ok\n"
-            + "  return $b[0].ok\n"
-            + "}\n"
-            + "return 'FAIL'\n";
-    Object qResult = db.command(new OCommandScript("sql", script)).execute(db);
-
-    Assert.assertNotNull(qResult);
-    Assert.assertEquals(qResult, "OK");
-  }
-
-  @Test
-  public void testScriptSubContext() throws Exception {
-
-    String script =
-        "let $a = select from foo limit 1\n" + "select from (traverse doesnotexist from $a)\n";
-    Iterable qResult = db.command(new OCommandScript("sql", script)).execute(db);
-
-    Assert.assertNotNull(qResult);
-    Iterator iterator = qResult.iterator();
+    Iterator<?> iterator = qResult.iterator();
     Assert.assertTrue(iterator.hasNext());
     iterator.next();
     Assert.assertFalse(iterator.hasNext());
   }
 
   @Test
-  public void testSemicolonInString() throws Exception {
-    // issue https://github.com/orientechnologies/orientjs/issues/133
+  public void testSemicolonInString() {
     // testing parsing problem
-
     String script =
-        "let $a = select 'foo ; bar' as one\n"
-            + "let $b = select 'foo \\'; bar' as one\n"
-            + "let $a = select \"foo ; bar\" as one\n"
-            + "let $b = select \"foo \\\"; bar\" as one\n";
-    Object qResult = db.command(new OCommandScript("sql", script)).execute(db);
+        """
+            let $a = select 'foo ; bar' as one;
+            let $b = select 'foo \\'; bar' as one;
+            let $a = select "foo ; bar" as one;
+            let $b = select "foo \\"; bar" as one;
+            """;
+    db.execute("sql", script).close();
   }
 
   @Test
@@ -291,9 +317,9 @@ public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
     db.command(new OCommandScript(batch)).execute(db);
 
     List<ODocument> result = db.query(new OSQLSynchQuery<ODocument>("SELECT FROM QuotedRegex2"));
-    Assert.assertEquals(result.size(), 1);
+    Assert.assertEquals(1, result.size());
     ODocument doc = result.get(0);
-    Assert.assertEquals(doc.field("regexp"), "'';");
+    Assert.assertEquals("'';", doc.field("regexp"));
   }
 
   @Test

@@ -434,14 +434,14 @@ public class OContainsCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable() {
-    if (left != null && !left.isCacheable()) {
+  public boolean isCacheable(ODatabaseSessionInternal session) {
+    if (left != null && !left.isCacheable(session)) {
       return false;
     }
-    if (right != null && !right.isCacheable()) {
+    if (right != null && !right.isCacheable(session)) {
       return false;
     }
-    return condition == null || condition.isCacheable();
+    return condition == null || condition.isCacheable(session);
   }
 }
 /* JavaCC - OriginalChecksum=bad1118296ea74860e88d66bfe9fa222 (do not edit this line) */

@@ -391,14 +391,14 @@ public class OInCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable() {
-    if (left != null && !left.isCacheable()) {
+  public boolean isCacheable(ODatabaseSessionInternal session) {
+    if (left != null && !left.isCacheable(session)) {
       return false;
     }
-    if (rightStatement != null && !rightStatement.executinPlanCanBeCached()) {
+    if (rightStatement != null && !rightStatement.executinPlanCanBeCached(session)) {
       return false;
     }
-    return rightMathExpression == null || rightMathExpression.isCacheable();
+    return rightMathExpression == null || rightMathExpression.isCacheable(session);
   }
 
   public OExpression getLeft() {

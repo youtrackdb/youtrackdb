@@ -77,6 +77,7 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
 
   private void aggregate(
       OResult next, OCommandContext ctx, Map<List<?>, OResultInternal> aggregateResults) {
+    var db = ctx.getDatabase();
     List<Object> key = new ArrayList<>();
     if (groupBy != null) {
       for (OExpression item : groupBy.getItems()) {
@@ -93,7 +94,7 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
 
       for (OProjectionItem proj : this.projection.getItems()) {
         String alias = proj.getProjectionAlias().getStringValue();
-        if (!proj.isAggregate()) {
+        if (!proj.isAggregate(db)) {
           preAggr.setProperty(alias, proj.execute(next, ctx));
         }
       }
@@ -102,7 +103,7 @@ public class AggregateProjectionCalculationStep extends ProjectionCalculationSte
 
     for (OProjectionItem proj : this.projection.getItems()) {
       String alias = proj.getProjectionAlias().getStringValue();
-      if (proj.isAggregate()) {
+      if (proj.isAggregate(db)) {
         AggregationContext aggrCtx = (AggregationContext) preAggr.getTemporaryProperty(alias);
         if (aggrCtx == null) {
           aggrCtx = proj.getAggregationContext(ctx);

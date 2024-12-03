@@ -64,7 +64,7 @@ public abstract class OLuceneSpatialOperator extends OQueryTargetOperator {
       OCommandContext iContext,
       final ODocumentSerializer serializer) {
 
-    OSQLFunction function = OSQLEngine.getInstance().getFunction(keyword);
+    OSQLFunction function = OSQLEngine.getInstance().getFunction(iContext.getDatabase(), keyword);
     return function.execute(
         this, iRecord, iCurrentResult, new Object[]{iLeft, iCondition.getRight()}, iContext);
   }

@@ -62,24 +62,25 @@ public class OLuceneInsertUpdateSingleDocumentNoTxTest extends OLuceneBaseTest {
     doc = db.save(doc);
     doc1 = db.save(doc1);
     db.commit();
+    db.begin();
 
     doc = db.load(doc.getIdentity());
     doc1 = db.load(doc1.getIdentity());
     doc.field("name", "Rome");
     doc1.field("name", "Rome");
 
-    db.begin();
+
     db.save(doc);
     db.save(doc1);
     db.commit();
 
+    db.begin();
     OIndex idx = schema.getClass("City").getClassIndex(db, "City.name");
     Collection<?> coll;
     try (Stream<ORID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
 
-    db.begin();
     Assert.assertEquals(2, coll.size());
     Assert.assertEquals(2, idx.getInternal().size(db));
     db.commit();

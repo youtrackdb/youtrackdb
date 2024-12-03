@@ -147,7 +147,7 @@ public class OBinaryCondition extends OBooleanExpression {
 
   public OBinaryCondition isIndexedFunctionCondition(
       OClass iSchemaClass, ODatabaseSessionInternal database) {
-    if (left.isIndexedFunctionCal()) {
+    if (left.isIndexedFunctionCal(database)) {
       return this;
     }
     return null;
@@ -213,7 +213,7 @@ public class OBinaryCondition extends OBooleanExpression {
 
   public List<OBinaryCondition> getIndexedFunctionConditions(
       OClass iSchemaClass, ODatabaseSessionInternal database) {
-    if (left.isIndexedFunctionCal()) {
+    if (left.isIndexedFunctionCal(database)) {
       return Collections.singletonList(this);
     }
     return null;
@@ -445,8 +445,8 @@ public class OBinaryCondition extends OBooleanExpression {
   }
 
   @Override
-  public boolean isCacheable() {
-    return left.isCacheable() && right.isCacheable();
+  public boolean isCacheable(ODatabaseSessionInternal session) {
+    return left.isCacheable(session) && right.isCacheable(session);
   }
 
   @Override

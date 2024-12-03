@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.sql.parser;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import java.util.Map;
 
 /**
@@ -31,8 +32,8 @@ public class OInsertSetExpression {
     return right;
   }
 
-  public boolean isCacheable() {
-    return right.isCacheable();
+  public boolean isCacheable(ODatabaseSessionInternal session) {
+    return right.isCacheable(session);
   }
 
   public void toGenericStatement(StringBuilder builder) {

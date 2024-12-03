@@ -90,9 +90,9 @@ public class OCollection extends SimpleNode {
     return false;
   }
 
-  public boolean isAggregate() {
+  public boolean isAggregate(ODatabaseSessionInternal session) {
     for (OExpression exp : this.expressions) {
-      if (exp.isAggregate()) {
+      if (exp.isAggregate(session)) {
         return true;
       }
     }
@@ -101,10 +101,11 @@ public class OCollection extends SimpleNode {
 
   public OCollection splitForAggregation(
       AggregateProjectionSplit aggregateProj, OCommandContext ctx) {
-    if (isAggregate()) {
+    var db = ctx.getDatabase();
+    if (isAggregate(db)) {
       OCollection result = new OCollection(-1);
       for (OExpression exp : this.expressions) {
-        if (exp.isAggregate() || exp.isEarlyCalculated(ctx)) {
+        if (exp.isAggregate(db) || exp.isEarlyCalculated(ctx)) {
           result.expressions.add(exp.splitForAggregation(aggregateProj, ctx));
         } else {
           throw new OCommandExecutionException(
@@ -187,9 +188,9 @@ public class OCollection extends SimpleNode {
     }
   }
 
-  public boolean isCacheable() {
+  public boolean isCacheable(ODatabaseSessionInternal session) {
     for (OExpression exp : expressions) {
-      if (!exp.isCacheable()) {
+      if (!exp.isCacheable(session)) {
         return false;
       }
     }

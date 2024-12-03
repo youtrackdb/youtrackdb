@@ -97,6 +97,7 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
     db.save(doc);
     db.commit();
 
+    db.begin();
     try (Stream<ORID> stream = tagsIndex.getInternal().getRids(db, "Sunny")) {
       coll = stream.collect(Collectors.toList());
     }
@@ -108,7 +109,7 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
     tags.remove("Sunny");
     tags.add("Rainy");
 
-    db.begin();
+
     db.save(doc);
     db.commit();
 
@@ -136,17 +137,18 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
   @Test
   @Ignore
   public void testCompositeIndexList() {
-
+    db.begin();
     OSchema schema = db.getMetadata().getSchema();
 
     ODocument doc = new ODocument("Person");
     doc.field("name", "Enrico");
     doc.field("tags", Arrays.asList("Funny", "Tall", "Geek"));
 
-    db.begin();
+
     db.save(doc);
     db.commit();
 
+    db.begin();
     OIndex idx = schema.getClass("Person").getClassIndex(db, "Person.name_tags");
     Collection<?> coll;
     try (Stream<ORID> stream = idx.getInternal().getRids(db, "Enrico")) {
@@ -159,10 +161,10 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
     doc.field("name", "Jared");
     doc.field("tags", Arrays.asList("Funny", "Tall"));
 
-    db.begin();
     db.save(doc);
     db.commit();
 
+    db.begin();
     try (Stream<ORID> stream = idx.getInternal().getRids(db, "Jared")) {
       coll = stream.collect(Collectors.toList());
     }
@@ -174,7 +176,6 @@ public class OLuceneListIndexingTest extends OLuceneBaseTest {
     tags.remove("Funny");
     tags.add("Geek");
 
-    db.begin();
     db.save(doc);
     db.commit();
 

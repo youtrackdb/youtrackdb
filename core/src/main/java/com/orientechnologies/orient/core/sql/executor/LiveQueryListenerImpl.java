@@ -64,7 +64,7 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
           "Only SELECT statement can be used as a live query: " + query);
     }
     this.statement = (OSelectStatement) stm;
-    validateStatement(statement);
+    validateStatement(statement, db);
     if (statement.getTarget().getItem().getIdentifier() != null) {
       this.className = statement.getTarget().getItem().getIdentifier().getStringValue();
       if (!db
@@ -105,9 +105,9 @@ public class LiveQueryListenerImpl implements OLiveQueryListenerV2 {
     }
   }
 
-  private void validateStatement(OSelectStatement statement) {
+  private void validateStatement(OSelectStatement statement, ODatabaseSessionInternal db) {
     if (statement.getProjection() != null) {
-      if (statement.getProjection().getItems().stream().anyMatch(x -> x.isAggregate())) {
+      if (statement.getProjection().getItems().stream().anyMatch(x -> x.isAggregate(db))) {
         throw new OCommandExecutionException(
             "Aggregate Projections cannot be used in live query " + statement);
       }

@@ -304,10 +304,10 @@ public class OProjection extends SimpleNode {
     }
   }
 
-  public boolean isCacheable() {
+  public boolean isCacheable(ODatabaseSessionInternal session) {
     if (items != null) {
       for (OProjectionItem item : items) {
-        if (!item.isCacheable()) {
+        if (!item.isCacheable(session)) {
           return false;
         }
       }

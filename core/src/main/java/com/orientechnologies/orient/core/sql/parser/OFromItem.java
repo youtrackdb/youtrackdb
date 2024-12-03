@@ -428,7 +428,7 @@ public class OFromItem extends SimpleNode {
     }
   }
 
-  public boolean isCacheable() {
+  public boolean isCacheable(ODatabaseSessionInternal session) {
     if (modifier != null) {
       return false;
     }
@@ -439,7 +439,7 @@ public class OFromItem extends SimpleNode {
       return false;
     }
     if (statement != null) {
-      return statement.executinPlanCanBeCached();
+      return statement.executinPlanCanBeCached(session);
     }
     if (functionCall != null) {
       return functionCall.isCacheable();

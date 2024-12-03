@@ -91,9 +91,9 @@ public class OBaseIdentifier extends SimpleNode {
     return false;
   }
 
-  public boolean isIndexedFunctionCall() {
+  public boolean isIndexedFunctionCall(ODatabaseSessionInternal session) {
     if (levelZero != null) {
-      return levelZero.isIndexedFunctionCall();
+      return levelZero.isIndexedFunctionCall(session);
     }
     return false;
   }
@@ -195,8 +195,8 @@ public class OBaseIdentifier extends SimpleNode {
     return suffix != null && suffix.needsAliases(aliases);
   }
 
-  public boolean isAggregate() {
-    if (levelZero != null && levelZero.isAggregate()) {
+  public boolean isAggregate(ODatabaseSessionInternal session) {
+    if (levelZero != null && levelZero.isAggregate(session)) {
       return true;
     }
     return suffix != null && suffix.isAggregate();
@@ -218,7 +218,7 @@ public class OBaseIdentifier extends SimpleNode {
 
   public SimpleNode splitForAggregation(
       AggregateProjectionSplit aggregateProj, OCommandContext ctx) {
-    if (isAggregate()) {
+    if (isAggregate(ctx.getDatabase())) {
       OBaseIdentifier result = new OBaseIdentifier(-1);
       if (levelZero != null) {
         SimpleNode splitResult = levelZero.splitForAggregation(aggregateProj, ctx);
@@ -239,8 +239,7 @@ public class OBaseIdentifier extends SimpleNode {
   }
 
   public AggregationContext getAggregationContext(OCommandContext ctx) {
-    if (isAggregate()) {
-
+    if (isAggregate(ctx.getDatabase())) {
       if (levelZero != null) {
         return levelZero.getAggregationContext(ctx);
       } else if (suffix != null) {
@@ -364,9 +363,9 @@ public class OBaseIdentifier extends SimpleNode {
     return suffix == null ? null : suffix.getCollate(currentRecord, ctx);
   }
 
-  public boolean isCacheable() {
+  public boolean isCacheable(ODatabaseSessionInternal session) {
     if (levelZero != null) {
-      return levelZero.isCacheable();
+      return levelZero.isCacheable(session);
     }
 
     if (suffix != null) {

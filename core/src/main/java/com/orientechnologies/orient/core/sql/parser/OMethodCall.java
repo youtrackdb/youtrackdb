@@ -91,7 +91,7 @@ public class OMethodCall extends SimpleNode {
     return execute(targetObjects, ctx, methodName.getStringValue(), params, iPossibleResults);
   }
 
-  private void resolveMethod() {
+  private void resolveMethod(ODatabaseSessionInternal session) {
     if (!resolved) {
       String name = methodName.getStringValue();
       for (String graphMethod : graphMethods) {
@@ -101,7 +101,7 @@ public class OMethodCall extends SimpleNode {
         }
       }
       if (this.isGraph) {
-        this.graphFunction = OSQLEngine.getInstance().getFunction(name);
+        this.graphFunction = OSQLEngine.getInstance().getFunction(session, name);
 
       } else {
         this.method = OSQLEngine.getMethod(name);
@@ -111,8 +111,8 @@ public class OMethodCall extends SimpleNode {
     }
   }
 
-  private boolean resolveIsGraphFunction() {
-    resolveMethod();
+  private boolean resolveIsGraphFunction(ODatabaseSessionInternal session) {
+    resolveMethod(session);
     return isGraph;
   }
 
@@ -127,7 +127,7 @@ public class OMethodCall extends SimpleNode {
       return null;
     }
     List<Object> paramValues = resolveParams(targetObjects, ctx, iParams, val);
-    if (resolveIsGraphFunction()) {
+    if (resolveIsGraphFunction(ctx.getDatabase())) {
       return invokeGraphFunction(
           this.graphFunction, targetObjects, ctx, iPossibleResults, paramValues);
     }
@@ -199,7 +199,7 @@ public class OMethodCall extends SimpleNode {
       return null;
     }
     List<Object> paramValues = resolveParams(targetObjects, ctx, iParams, val);
-    OSQLFunction function = OSQLEngine.getInstance().getFunction(name);
+    OSQLFunction function = OSQLEngine.getInstance().getFunction(ctx.getDatabase(), name);
     return invokeGraphFunction(function, targetObjects, ctx, iPossibleResults, paramValues);
   }
 
@@ -357,8 +357,8 @@ public class OMethodCall extends SimpleNode {
     }
   }
 
-  public boolean isCacheable() {
-    return resolveIsGraphFunction(); // TODO
+  public boolean isCacheable(ODatabaseSessionInternal session) {
+    return resolveIsGraphFunction(session); // TODO
   }
 
   public void addParam(OExpression param) {

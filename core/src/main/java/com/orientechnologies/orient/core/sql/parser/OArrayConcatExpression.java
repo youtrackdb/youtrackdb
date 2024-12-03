@@ -130,17 +130,18 @@ public class OArrayConcatExpression extends SimpleNode {
     return false;
   }
 
-  public boolean isAggregate() {
+  public boolean isAggregate(ODatabaseSessionInternal session) {
     for (OArrayConcatExpressionElement expr : this.childExpressions) {
-      if (expr.isAggregate()) {
+      if (expr.isAggregate(session)) {
         return true;
       }
     }
     return false;
   }
 
-  public SimpleNode splitForAggregation(AggregateProjectionSplit aggregateProj) {
-    if (isAggregate()) {
+  public SimpleNode splitForAggregation(ODatabaseSessionInternal session,
+      AggregateProjectionSplit aggregateProj) {
+    if (isAggregate(session)) {
       throw new OCommandExecutionException("Cannot use aggregate functions in array concatenation");
     } else {
       return this;
@@ -248,9 +249,9 @@ public class OArrayConcatExpression extends SimpleNode {
     }
   }
 
-  public boolean isCacheable() {
+  public boolean isCacheable(ODatabaseSessionInternal session) {
     for (OArrayConcatExpressionElement exp : childExpressions) {
-      if (!exp.isCacheable()) {
+      if (!exp.isCacheable(session)) {
         return false;
       }
     }

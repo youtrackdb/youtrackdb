@@ -212,15 +212,15 @@ public class ODeleteEdgeStatement extends OStatement {
   }
 
   @Override
-  public boolean executinPlanCanBeCached() {
-    if (leftExpression != null && !leftExpression.isCacheable()) {
+  public boolean executinPlanCanBeCached(ODatabaseSessionInternal session) {
+    if (leftExpression != null && !leftExpression.isCacheable(session)) {
       return false;
     }
-    if (rightExpression != null && !rightExpression.isCacheable()) {
+    if (rightExpression != null && !rightExpression.isCacheable(session)) {
       return false;
     }
 
-    return whereClause == null || whereClause.isCacheable();
+    return whereClause == null || whereClause.isCacheable(session);
   }
 
   @Override

@@ -64,13 +64,13 @@ public class OJsonItem {
     return right.needsAliases(aliases);
   }
 
-  public boolean isAggregate() {
-    return right.isAggregate();
+  public boolean isAggregate(ODatabaseSessionInternal session) {
+    return right.isAggregate(session);
   }
 
   public OJsonItem splitForAggregation(
       AggregateProjectionSplit aggregateSplit, OCommandContext ctx) {
-    if (isAggregate()) {
+    if (isAggregate(ctx.getDatabase())) {
       OJsonItem item = new OJsonItem();
       item.leftIdentifier = leftIdentifier;
       item.leftString = leftString;

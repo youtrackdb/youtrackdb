@@ -120,9 +120,9 @@ public class OParenthesisExpression extends OMathExpression {
     return false;
   }
 
-  public boolean isAggregate() {
+  public boolean isAggregate(ODatabaseSessionInternal session) {
     if (expression != null) {
-      return expression.isAggregate();
+      return expression.isAggregate(session);
     }
     return false;
   }
@@ -136,7 +136,7 @@ public class OParenthesisExpression extends OMathExpression {
 
   public SimpleNode splitForAggregation(
       AggregateProjectionSplit aggregateProj, OCommandContext ctx) {
-    if (isAggregate()) {
+    if (isAggregate(ctx.getDatabase())) {
       OParenthesisExpression result = new OParenthesisExpression(-1);
       result.expression = expression.splitForAggregation(aggregateProj, ctx);
       return result;
@@ -248,12 +248,12 @@ public class OParenthesisExpression extends OMathExpression {
   }
 
   @Override
-  public boolean isCacheable() {
+  public boolean isCacheable(ODatabaseSessionInternal session) {
     if (expression != null) {
-      return expression.isCacheable();
+      return expression.isCacheable(session);
     }
     if (statement != null) {
-      return statement.executinPlanCanBeCached();
+      return statement.executinPlanCanBeCached(session);
     }
     return true;
   }

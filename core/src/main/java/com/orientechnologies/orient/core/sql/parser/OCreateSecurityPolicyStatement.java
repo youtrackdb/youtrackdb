@@ -3,6 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityPolicyImpl;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -251,23 +252,23 @@ public class OCreateSecurityPolicyStatement extends OSimpleExecStatement {
   }
 
   @Override
-  public boolean executinPlanCanBeCached() {
-    if (create != null && !create.isCacheable()) {
+  public boolean executinPlanCanBeCached(ODatabaseSessionInternal session) {
+    if (create != null && !create.isCacheable(session)) {
       return false;
     }
-    if (read != null && !read.isCacheable()) {
+    if (read != null && !read.isCacheable(session)) {
       return false;
     }
-    if (beforeUpdate != null && !beforeUpdate.isCacheable()) {
+    if (beforeUpdate != null && !beforeUpdate.isCacheable(session)) {
       return false;
     }
-    if (afterUpdate != null && !afterUpdate.isCacheable()) {
+    if (afterUpdate != null && !afterUpdate.isCacheable(session)) {
       return false;
     }
-    if (delete != null && !delete.isCacheable()) {
+    if (delete != null && !delete.isCacheable(session)) {
       return false;
     }
-    return execute == null || execute.isCacheable();
+    return execute == null || execute.isCacheable(session);
   }
 }
 /* JavaCC - OriginalChecksum=f41480f6734998f6eac27242db146d09 (do not edit this line) */

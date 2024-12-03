@@ -15,6 +15,7 @@
  */
 package com.orientechnologies.orient.core.sql.functions;
 
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import java.util.Set;
 
@@ -22,6 +23,8 @@ import java.util.Set;
  *
  */
 public interface OSQLFunctionFactory {
+
+  void registerDefaultFunctions(ODatabaseSessionInternal db);
 
   boolean hasFunction(String iName);
 

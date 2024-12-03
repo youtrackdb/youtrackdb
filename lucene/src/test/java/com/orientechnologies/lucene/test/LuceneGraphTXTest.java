@@ -49,13 +49,13 @@ public class LuceneGraphTXTest extends BaseLuceneTest {
     db.save(v);
     db.commit();
 
+    db.begin();
     OResultSet results = db.command("select from City where name lucene 'London'");
     Assert.assertEquals(results.stream().count(), 1);
 
     v = db.bindToSession(v);
     v.setProperty("name", "Berlin");
 
-    db.begin();
     v.save();
     db.commit();
 

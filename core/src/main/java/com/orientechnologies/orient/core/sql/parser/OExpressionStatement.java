@@ -3,6 +3,7 @@
 package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
+import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
 import java.util.Map;
@@ -30,7 +31,7 @@ public class OExpressionStatement extends OSimpleExecStatement {
   }
 
   @Override
-  public boolean executinPlanCanBeCached() {
+  public boolean executinPlanCanBeCached(ODatabaseSessionInternal session) {
     return false;
   }
 

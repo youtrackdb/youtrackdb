@@ -53,7 +53,7 @@ public class LuceneInsertUpdateSingleDocumentNoTxTest extends BaseLuceneTest {
   @Test
   public void testInsertUpdateTransactionWithIndex() {
     db.close();
-    db = (ODatabaseSessionInternal) openDatabase();
+    db = openDatabase();
     OSchema schema = db.getMetadata().getSchema();
     ODocument doc = new ODocument("City");
     doc.field("name", "");
@@ -64,11 +64,12 @@ public class LuceneInsertUpdateSingleDocumentNoTxTest extends BaseLuceneTest {
     doc1 = db.save(doc1);
     db.commit();
 
+    db.begin();
     doc = db.load(doc.getIdentity());
     doc1 = db.load(doc1.getIdentity());
     doc.field("name", "Rome");
     doc1.field("name", "Rome");
-    db.begin();
+
     db.save(doc);
     db.save(doc1);
     db.commit();
