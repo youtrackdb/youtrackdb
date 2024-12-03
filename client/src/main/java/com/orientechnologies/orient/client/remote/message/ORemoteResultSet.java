@@ -7,6 +7,7 @@ import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
+import com.orientechnologies.orient.core.tx.OTransactionAbstract;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -78,8 +79,8 @@ public class ORemoteResultSet implements OResultSet {
     OResult internal = currentPage.remove(0);
 
     if (internal.isRecord() && db != null && db.getTransaction().isActive()) {
-      ORecord record = db.getTransaction().getRecord(internal.getRecord().get().getIdentity());
-      if (record != null) {
+      ORecord record = db.getTransaction().getRecord(internal.getIdentity().orElseThrow());
+      if (record != null && record != OTransactionAbstract.DELETED_RECORD) {
         internal = new OResultInternal(db, record);
       }
     }

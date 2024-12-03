@@ -50,8 +50,9 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
       if (op != null) {
         record = op.record;
       }
+      var localCache = db.getLocalCache();
       if (record == null) {
-        record = db.getLocalCache().findRecord(operation.getOldId());
+        record = localCache.findRecord(operation.getOldId());
       }
       if (record != null) {
         ORecordInternal.unsetDirty(record);
@@ -88,7 +89,14 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
 
       ORecordInternal.setVersion(record, operation.getVersion());
       ORecordInternal.setContentChanged(record, operation.isContentChanged());
-      getDatabase().getLocalCache().updateRecord(record);
+      if (operation.getType() == ORecordOperation.UPDATED
+          || operation.getType() == ORecordOperation.CREATED) {
+        localCache.updateRecord(record);
+      } else if (operation.getType() == ORecordOperation.DELETED) {
+        localCache.deleteRecord(operation.getOldId());
+      } else {
+        throw new IllegalStateException("Unsupported operation type: " + operation.getType());
+      }
 
       boolean callHook = checkCallHook(oldEntries, operation.getId(), operation.getType());
       addRecord(record, operation.getType(), null, callHook);

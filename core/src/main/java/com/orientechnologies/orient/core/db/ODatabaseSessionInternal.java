@@ -45,6 +45,7 @@ import com.orientechnologies.orient.core.query.OQuery;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.OEdgeInternal;
@@ -75,6 +76,7 @@ import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
 
 public interface ODatabaseSessionInternal extends ODatabaseSession {
+
   String TYPE = "document";
 
   /**
@@ -155,7 +157,7 @@ public interface ODatabaseSessionInternal extends ODatabaseSession {
   ORecordHook.RESULT callbackHooks(final ORecordHook.TYPE type, final OIdentifiable id);
 
   @Nonnull
-  <RET extends ORecord> RET executeReadRecord(final ORecordId rid);
+  <RET extends ORecordAbstract> RET executeReadRecord(final ORecordId rid);
 
   boolean executeExists(ORID rid);
 
@@ -770,14 +772,6 @@ public interface ODatabaseSessionInternal extends ODatabaseSession {
   void truncateCluster(String clusterName);
 
   /**
-   * Loads the entity and return it.
-   *
-   * @param record The entity to load. If the entity was already loaded it will be reloaded and all
-   *               the changes will be lost.
-   */
-  <RET extends ORecord> RET load(ORecord record);
-
-  /**
    * Counts all the entities in the specified cluster id.
    *
    * @param iCurrentClusterId Cluster id
@@ -1007,45 +1001,6 @@ public interface ODatabaseSessionInternal extends ODatabaseSession {
    * @return Cluster id
    */
   int addCluster(String iClusterName, int iRequestedId);
-
-  /**
-   * Loads a record using a fetch plan.
-   *
-   * @param record     Record to load
-   * @param iFetchPlan Fetch plan used
-   * @return The record received
-   */
-  <RET extends ORecord> RET load(ORecord record, String iFetchPlan);
-
-  /**
-   * Loads a record using a fetch plan.
-   *
-   * @param iObject      Record to load
-   * @param iFetchPlan   Fetch plan used
-   * @param iIgnoreCache Ignore cache or use it
-   * @return The record received
-   */
-  <RET extends ORecord> RET load(ORecord iObject, String iFetchPlan, boolean iIgnoreCache);
-
-  /**
-   * Loads the entity by the Record ID using a fetch plan.
-   *
-   * @param iRecordId  The unique record id of the entity to load.
-   * @param iFetchPlan Fetch plan used
-   * @return The loaded entity
-   */
-  <RET extends ORecord> RET load(ORID iRecordId, String iFetchPlan);
-
-  /**
-   * Loads the entity by the Record ID using a fetch plan and specifying if the cache must be
-   * ignored.
-   *
-   * @param iRecordId    The unique record id of the entity to load.
-   * @param iFetchPlan   Fetch plan used
-   * @param iIgnoreCache Ignore cache or use it
-   * @return The loaded entity
-   */
-  <RET extends ORecord> RET load(ORID iRecordId, String iFetchPlan, boolean iIgnoreCache);
 
   /**
    * Saves an entity in the specified cluster in synchronous mode. If the entity is not dirty, then

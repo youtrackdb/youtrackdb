@@ -155,8 +155,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
     cygni = database.bindToSession(cygni);
     scorpii = database.bindToSession(scorpii);
 
-    HashSet<ODocument> expectedResult = new HashSet<ODocument>();
-    expectedResult.addAll(Arrays.asList(scuti, scorpii));
+    HashSet<ODocument> expectedResult = new HashSet<ODocument>(Arrays.asList(scuti, scorpii));
 
     ORidBag bag = new ORidBag(database);
     bag.add(scuti);
@@ -313,7 +312,7 @@ public class OSBTreeRidBagTest extends ORidBagTest {
 
     Assert.assertEquals(testRidBagFile.length(), testRidBagSize);
 
-    realDoc = database.load(realDoc.getIdentity(), "*:*", false);
+    realDoc = database.load(realDoc.getIdentity());
     ORidBag ridBag = realDoc.field("ridBag");
     Assert.assertEquals(ridBag.size(), 10);
   }

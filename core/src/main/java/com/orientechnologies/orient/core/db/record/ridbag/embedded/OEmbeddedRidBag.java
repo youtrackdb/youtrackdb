@@ -40,6 +40,7 @@ import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.OSimpleMultiValueTracker;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OLinkSerializer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.Change;
+import com.orientechnologies.orient.core.tx.OTransactionAbstract;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -401,6 +402,9 @@ public class OEmbeddedRidBag implements ORidBagDelegate {
         if (db != null && !db.isClosed() && db.getTransaction().isActive()) {
           if (!link.getIdentity().isPersistent()) {
             link = db.getTransaction().getRecord(link.getIdentity());
+            if (link == OTransactionAbstract.DELETED_RECORD) {
+              link = null;
+            }
           }
         }
 

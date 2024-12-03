@@ -196,7 +196,7 @@ public class TransactionOptimisticTest extends DocumentDBBaseTest {
 
       db2.activateOnCurrentThread();
 
-      OBlob record2 = db2.load(record1.getIdentity(), "*:-1", false);
+      OBlob record2 = db2.load(record1.getIdentity());
       Assert.assertEquals(record2.getVersion(), v1 + 1);
       Assert.assertTrue(new String(record2.toStream()).contains("second"));
 

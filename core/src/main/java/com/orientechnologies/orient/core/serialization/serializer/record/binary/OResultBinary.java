@@ -146,6 +146,11 @@ public class OResultBinary implements OResult {
   }
 
   @Override
+  public boolean isRecord() {
+    return true;
+  }
+
+  @Override
   public Optional<OElement> getElement() {
     return Optional.of(toDocument());
   }

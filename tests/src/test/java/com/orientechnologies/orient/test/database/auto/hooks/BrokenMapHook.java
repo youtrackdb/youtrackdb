@@ -2,6 +2,7 @@ package com.orientechnologies.orient.test.database.auto.hooks;
 
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.hook.ORecordHook;
 import com.orientechnologies.orient.core.hook.ORecordHookAbstract;
 import com.orientechnologies.orient.core.record.OElement;
@@ -46,9 +47,8 @@ public class BrokenMapHook extends ORecordHookAbstract implements ORecordHook {
 
   public RESULT onRecordBeforeUpdate(ORecord newRecord) {
     OElement newElement = (OElement) newRecord;
-    OElement oldElement = database.load(newElement.getIdentity(), null, false);
-
-    if (oldElement != null) {
+    try {
+      OElement oldElement = database.load(newElement.getIdentity());
 
       var newPropertyNames = newElement.getPropertyNames();
       var oldPropertyNames = oldElement.getPropertyNames();
@@ -76,7 +76,7 @@ public class BrokenMapHook extends ORecordHookAbstract implements ORecordHook {
             });
       }
       return RESULT.RECORD_CHANGED;
-    } else {
+    } catch (ORecordNotFoundException e) {
       return RESULT.RECORD_NOT_CHANGED;
     }
   }

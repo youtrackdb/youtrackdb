@@ -287,7 +287,7 @@ public class TransactionConsistencyTest extends DocumentDBBaseTest {
     // Later... read docA with db1.
     database1.activateOnCurrentThread();
     database1.begin();
-    ODocument vDocA_db1_later = database1.load(vDocA_Rid, null, false);
+    ODocument vDocA_db1_later = database1.load(vDocA_Rid);
     Assert.assertEquals(vDocA_db1_later.field(NAME), "docA_v2");
     database1.commit();
 

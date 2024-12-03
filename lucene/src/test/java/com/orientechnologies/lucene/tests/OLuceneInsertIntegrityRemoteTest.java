@@ -67,10 +67,10 @@ public class OLuceneInsertIntegrityRemoteTest extends OLuceneBaseTest {
     try (Stream<ORID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
-    Assert.assertEquals(coll.size(), 1);
+    Assert.assertEquals(1, coll.size());
 
     doc = db.load((ORID) coll.iterator().next());
-    Assert.assertEquals(doc.field("name"), "Rome");
+    Assert.assertEquals("Rome", doc.field("name"));
 
     db.begin();
     doc.field("name", "London");
@@ -80,58 +80,58 @@ public class OLuceneInsertIntegrityRemoteTest extends OLuceneBaseTest {
     try (Stream<ORID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
-    Assert.assertEquals(coll.size(), 0);
+    Assert.assertEquals(0, coll.size());
     try (Stream<ORID> stream = idx.getInternal().getRids(db, "London")) {
       coll = stream.collect(Collectors.toList());
     }
-    Assert.assertEquals(coll.size(), 1);
+    Assert.assertEquals(1, coll.size());
 
     doc = db.load((ORID) coll.iterator().next());
-    Assert.assertEquals(doc.field("name"), "London");
+    Assert.assertEquals("London", doc.field("name"));
 
     db.begin();
     doc.field("name", "Berlin");
     db.save(doc);
     db.commit();
 
-    doc = db.load(doc.getIdentity(), null, false);
-    Assert.assertEquals(doc.field("name"), "Berlin");
+    doc = db.load(doc.getIdentity());
+    Assert.assertEquals("Berlin", doc.field("name"));
 
     try (Stream<ORID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
-    Assert.assertEquals(coll.size(), 0);
+    Assert.assertEquals(0, coll.size());
     try (Stream<ORID> stream = idx.getInternal().getRids(db, "London")) {
       coll = stream.collect(Collectors.toList());
     }
-    Assert.assertEquals(coll.size(), 0);
+    Assert.assertEquals(0, coll.size());
     try (Stream<ORID> stream = idx.getInternal().getRids(db, "Berlin")) {
       coll = stream.collect(Collectors.toList());
     }
-    Assert.assertEquals(idx.getInternal().size(db), 1);
-    Assert.assertEquals(coll.size(), 1);
+    Assert.assertEquals(1, idx.getInternal().size(db));
+    Assert.assertEquals(1, coll.size());
 
     Thread.sleep(1000);
 
-    doc = db.load(doc.getIdentity(), null, false);
+    doc = db.load(doc.getIdentity());
 
-    Assert.assertEquals(doc.field("name"), "Berlin");
+    Assert.assertEquals("Berlin", doc.field("name"));
 
     schema = db.getMetadata().getSchema();
     idx = schema.getClass("City").getClassIndex(db, "City.name");
 
-    Assert.assertEquals(idx.getInternal().size(db), 1);
+    Assert.assertEquals(1, idx.getInternal().size(db));
     try (Stream<ORID> stream = idx.getInternal().getRids(db, "Rome")) {
       coll = stream.collect(Collectors.toList());
     }
-    Assert.assertEquals(coll.size(), 0);
+    Assert.assertEquals(0, coll.size());
     try (Stream<ORID> stream = idx.getInternal().getRids(db, "London")) {
       coll = stream.collect(Collectors.toList());
     }
-    Assert.assertEquals(coll.size(), 0);
+    Assert.assertEquals(0, coll.size());
     try (Stream<ORID> stream = idx.getInternal().getRids(db, "Berlin")) {
       coll = stream.collect(Collectors.toList());
     }
-    Assert.assertEquals(coll.size(), 1);
+    Assert.assertEquals(1, coll.size());
   }
 }

@@ -20,6 +20,7 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -33,8 +34,6 @@ public class OServerCommandGetDocument extends OServerCommandAuthenticatedDbAbst
 
   @Override
   public boolean execute(final OHttpRequest iRequest, OHttpResponse iResponse) throws Exception {
-    ODatabaseSessionInternal db = null;
-
     final String[] urlParts =
         checkSyntax(
             iRequest.getUrl(), 3, "Syntax error: document/<database>/<record-id>[/fetchPlan]");
@@ -48,18 +47,20 @@ public class OServerCommandGetDocument extends OServerCommandAuthenticatedDbAbst
     final int parametersPos = urlParts[2].indexOf('?');
     final String rid = parametersPos > -1 ? urlParts[2].substring(0, parametersPos) : urlParts[2];
 
-    try {
-      db = getProfiledDatabaseInstance(iRequest);
-
-      rec = db.load(new ORecordId(rid), fetchPlan);
-      if (rec == null) {
+    try (ODatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
+      try {
+        rec = db.load(new ORecordId(rid));
+      } catch (ORecordNotFoundException e) {
         iResponse.send(
             OHttpUtils.STATUS_NOTFOUND_CODE,
             OHttpUtils.STATUS_NOTFOUND_DESCRIPTION,
             OHttpUtils.CONTENT_JSON,
             "Record with id '" + urlParts[2] + "' was not found.",
             null);
-      } else if (iRequest.getHttpMethod().equals("HEAD"))
+        return false;
+      }
+
+      if (iRequest.getHttpMethod().equals("HEAD"))
       // JUST SEND HTTP CODE 200
       {
         iResponse.send(
@@ -84,10 +85,6 @@ public class OServerCommandGetDocument extends OServerCommandAuthenticatedDbAbst
         iResponse.writeRecord(rec, fetchPlan, null);
       }
 
-    } finally {
-      if (db != null) {
-        db.close();
-      }
     }
 
     return false;

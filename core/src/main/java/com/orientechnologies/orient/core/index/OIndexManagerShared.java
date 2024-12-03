@@ -99,7 +99,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
         identity =
             new ORecordId(database.getStorageInfo().getConfiguration().getIndexMgrRecordId());
         // RELOAD IT
-        ODocument document = database.load(identity, null, false);
+        ODocument document = database.load(identity);
         fromStream(database, document);
         ORecordInternal.unsetDirty(document);
         document.unload();
@@ -850,7 +850,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
   public ODocument toStream(ODatabaseSessionInternal session) {
     internalAcquireExclusiveLock();
     try {
-      ODocument document = session.load(identity, null, false);
+      ODocument document = session.load(identity);
       final OTrackedSet<ODocument> indexes = new OTrackedSet<>(document);
 
       for (final OIndex i : this.indexes.values()) {

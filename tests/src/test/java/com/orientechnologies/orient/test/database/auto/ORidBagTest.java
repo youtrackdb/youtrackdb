@@ -741,10 +741,10 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     docOne.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    docOne = database.load(docOne.getIdentity(), "*:-1", false);
+    docOne = database.load(docOne.getIdentity());
     ridBagOne = docOne.field("ridBag");
 
-    docTwo = database.load(docTwo.getIdentity(), "*:-1", false);
+    docTwo = database.load(docTwo.getIdentity());
     ridBagTwo = docTwo.field("ridBag");
 
     Assert.assertEquals(ridBagOne.iterator().next(), docTwo);
@@ -1031,8 +1031,8 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
 
     Assert.assertTrue(result.contains(docA));
     Assert.assertFalse(result.contains(docB));
-    Assert.assertEquals(1, result.size());
-    Assert.assertEquals(1, ridBag.size());
+    Assert.assertEquals(result.size(), 1);
+    Assert.assertEquals(ridBag.size(), 1);
   }
 
   public void testMassiveChanges() {
@@ -1696,7 +1696,7 @@ public abstract class ORidBagTest extends DocumentDBBaseTest {
     document.save();
     database.commit();
 
-    document = database.load(document.getIdentity(), "*:-1", false);
+    document = database.load(document.getIdentity());
     ridBag = document.field("ridBag");
 
     rids.addAll(ridsCopy);

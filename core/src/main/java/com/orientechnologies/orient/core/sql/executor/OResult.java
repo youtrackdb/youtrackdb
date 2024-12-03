@@ -125,12 +125,9 @@ public interface OResult {
 
   Optional<ORecord> getRecord();
 
-  default boolean isRecord() {
-    return !isProjection();
-  }
+  boolean isRecord();
 
   boolean isProjection();
-
   /**
    * return metadata related to current result given a key
    *

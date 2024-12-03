@@ -91,7 +91,7 @@ public class JsonWebToken implements OJsonWebToken, OToken {
   public OUser getUser(ODatabaseSessionInternal db) {
     ORID userRid = payload.getUserRid();
     ODocument result;
-    result = db.load(userRid, "roles:1");
+    result = db.load(userRid);
     if (!ODocumentInternal.getImmutableSchemaClass(result).isOuser()) {
       result = null;
     }

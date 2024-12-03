@@ -23,7 +23,6 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.query.OQueryRuntimeValueMulti;
@@ -112,9 +111,10 @@ public class OQueryOperatorTraverse extends OQueryOperatorEqualityNotNulls {
 
       iEvaluatedRecords.add(target.getIdentity());
 
-      if (target.getInternalStatus() == ORecordElement.STATUS.NOT_LOADED) {
+      var db = iContext.getDatabase();
+      if (target.isNotBound(db)) {
         try {
-          target.getSession().load(target);
+          target = db.bindToSession(target);
         } catch (final ORecordNotFoundException ignore) {
           // INVALID RID
           return false;

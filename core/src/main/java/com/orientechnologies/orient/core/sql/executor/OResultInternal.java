@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.OContextualRecordId;
 import com.orientechnologies.orient.core.id.ORID;
@@ -70,6 +71,11 @@ public class OResultInternal implements OResult {
     } else {
       content.put(name, value);
     }
+  }
+
+  @Override
+  public boolean isRecord() {
+    return identifiable != null;
   }
 
   @Nullable
@@ -587,21 +593,36 @@ public class OResultInternal implements OResult {
     }
   }
 
+
   public void bindToCache(ODatabaseSessionInternal db) {
-    if (isRecord()) {
-      ORecordAbstract rec = identifiable.getRecord();
-      var identity = rec.getIdentity();
+    if (identifiable instanceof ORecordAbstract record) {
+      var identity = record.getIdentity();
+      var tx = db.getTransaction();
+
+      if (tx.isActive()) {
+        var recordEntry = tx.getRecordEntry(identity);
+        if (recordEntry != null) {
+          if (recordEntry.type == ORecordOperation.DELETED) {
+            identifiable = identity;
+            return;
+          }
+
+          identifiable = recordEntry.record;
+          return;
+        }
+      }
+
       ORecordAbstract cached = db.getLocalCache().findRecord(identity);
 
-      if (cached == rec) {
+      if (cached == record) {
         return;
       }
 
       if (cached != null) {
         if (!cached.isDirty()) {
-          cached.fromStream(rec.toStream());
-          cached.setIdentity((ORecordId) rec.getIdentity());
-          cached.setVersion(rec.getVersion());
+          cached.fromStream(record.toStream());
+          cached.setIdentity((ORecordId) record.getIdentity());
+          cached.setVersion(record.getVersion());
 
           assert !cached.isDirty();
         }
@@ -611,7 +632,7 @@ public class OResultInternal implements OResult {
           return;
         }
 
-        db.getLocalCache().updateRecord(rec);
+        db.getLocalCache().updateRecord(record);
       }
     }
   }

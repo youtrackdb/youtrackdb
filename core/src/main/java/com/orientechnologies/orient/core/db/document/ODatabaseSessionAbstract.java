@@ -264,14 +264,6 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
   }
 
   /**
-   * {@inheritDoc}
-   */
-  public <RET extends ORecord> RET load(
-      final ORID iRecordId, final String iFetchPlan, final boolean iIgnoreCache) {
-    return executeReadRecord((ORecordId) iRecordId);
-  }
-
-  /**
    * Deletes the record checking the version.
    */
   private void delete(final ORID iRecord, final int iVersion) {
@@ -807,20 +799,6 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
   }
 
 
-  @SuppressWarnings("unchecked")
-  @Override
-  public <RET extends ORecord> RET load(final ORecord record, final String iFetchPlan) {
-    checkIfActive();
-    return (RET) currentTx.loadRecord(record.getIdentity());
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public <RET extends ORecord> RET load(final ORecord record) {
-    checkIfActive();
-    return (RET) currentTx.loadRecord(record.getIdentity());
-  }
-
   @Nonnull
   @SuppressWarnings("unchecked")
   @Override
@@ -833,13 +811,6 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
   public boolean exists(ORID rid) {
     checkIfActive();
     return currentTx.exists(rid);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public <RET extends ORecord> RET load(final ORID iRecordId, final String iFetchPlan) {
-    checkIfActive();
-    return (RET) currentTx.loadRecord(iRecordId);
   }
 
   /**
@@ -856,14 +827,6 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
   @Override
   public OBinarySerializerFactory getSerializerFactory() {
     return componentsFactory.binarySerializerFactory;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  public <RET extends ORecord> RET load(
-      final ORecord iRecord, final String iFetchPlan, final boolean iIgnoreCache) {
-    return executeReadRecord((ORecordId) iRecord.getIdentity());
   }
 
   @Override
@@ -901,12 +864,14 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
     var txRecord = currentTx.getRecord(rid);
     if (txRecord == record) {
       assert !txRecord.isUnloaded();
+      assert txRecord.getSession() == this;
       return (T) record;
     }
 
     var cachedRecord = localCache.findRecord(rid);
     if (cachedRecord == record) {
       assert !cachedRecord.isUnloaded();
+      assert cachedRecord.getSession() == this;
       return (T) record;
     }
 
@@ -918,11 +883,13 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
     var result = executeReadRecord((ORecordId) rid);
 
     assert !result.isUnloaded();
+    assert result.getSession() == this;
+
     return (T) result;
   }
 
   @Nonnull
-  public final <RET extends ORecord> RET executeReadRecord(final ORecordId rid) {
+  public final <RET extends ORecordAbstract> RET executeReadRecord(final ORecordId rid) {
     checkOpenness();
     checkIfActive();
 

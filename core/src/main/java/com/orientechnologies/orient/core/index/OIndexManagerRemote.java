@@ -86,7 +86,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
 
         database.executeInTx(
             () -> {
-              ODocument document = database.load(id, null, false);
+              ODocument document = database.load(id);
               fromStream(document);
             });
       } finally {
@@ -104,7 +104,7 @@ public class OIndexManagerRemote implements OIndexManagerAbstract {
 
       database.executeInTx(
           () -> {
-            ODocument document = database.load(id, null, false);
+            ODocument document = database.load(id);
             fromStream(document);
           });
     } finally {

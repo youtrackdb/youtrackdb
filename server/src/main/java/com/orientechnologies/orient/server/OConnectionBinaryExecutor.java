@@ -457,36 +457,32 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
       response = new OReadRecordResponse(OBlob.RECORD_TYPE, 0, record, new HashSet<>());
 
     } else {
-      final ORecordAbstract record = connection.getDatabase()
-          .load(rid, fetchPlanString, ignoreCache);
-      assert !record.isUnloaded();
-      if (record != null) {
+      try {
+        final ORecordAbstract record = connection.getDatabase().load(rid);
+        assert !record.isUnloaded();
         byte[] bytes = getRecordBytes(connection, record);
         final Set<ORecordAbstract> recordsToSend = new HashSet<>();
-        if (record != null) {
-          if (fetchPlanString.length() > 0) {
-            // BUILD THE SERVER SIDE RECORD TO ACCES TO THE FETCH
-            // PLAN
-            if (record instanceof ODocument doc) {
-              final OFetchPlan fetchPlan = OFetchHelper.buildFetchPlan(fetchPlanString);
+        if (!fetchPlanString.isEmpty()) {
+          // BUILD THE SERVER SIDE RECORD TO ACCES TO THE FETCH
+          // PLAN
+          if (record instanceof ODocument doc) {
+            final OFetchPlan fetchPlan = OFetchHelper.buildFetchPlan(fetchPlanString);
 
-              final OFetchListener listener =
-                  new ORemoteFetchListener() {
-                    @Override
-                    protected void sendRecord(ORecordAbstract iLinked) {
-                      recordsToSend.add(iLinked);
-                    }
-                  };
-              final OFetchContext context = new ORemoteFetchContext();
-              OFetchHelper.fetch(doc, doc, fetchPlan, listener, context, "");
-            }
+            final OFetchListener listener =
+                new ORemoteFetchListener() {
+                  @Override
+                  protected void sendRecord(ORecordAbstract iLinked) {
+                    recordsToSend.add(iLinked);
+                  }
+                };
+            final OFetchContext context = new ORemoteFetchContext();
+            OFetchHelper.fetch(doc, doc, fetchPlan, listener, context, "");
           }
         }
         response =
             new OReadRecordResponse(
                 ORecordInternal.getRecordType(record), record.getVersion(), bytes, recordsToSend);
-      } else {
-        // No Record to send
+      } catch (ORecordNotFoundException e) {
         response = new OReadRecordResponse((byte) 0, 0, null, null);
       }
     }

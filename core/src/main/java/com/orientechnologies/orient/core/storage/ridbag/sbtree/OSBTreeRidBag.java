@@ -47,6 +47,7 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoper
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OBonsaiBucketPointer;
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OSBTreeBonsai;
 import com.orientechnologies.orient.core.storage.index.sbtreebonsai.local.OSBTreeBonsaiLocal;
+import com.orientechnologies.orient.core.tx.OTransactionAbstract;
 import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -670,7 +671,7 @@ public class OSBTreeRidBag implements ORidBagDelegate {
       if (db != null && db.getTransaction().isActive()) {
         if (!key.getIdentity().isPersistent()) {
           OIdentifiable newKey = db.getTransaction().getRecord(key.getIdentity());
-          if (newKey != null) {
+          if (newKey != null && newKey != OTransactionAbstract.DELETED_RECORD) {
             changes.remove(key);
             changes.put(newKey, change.getValue());
           }

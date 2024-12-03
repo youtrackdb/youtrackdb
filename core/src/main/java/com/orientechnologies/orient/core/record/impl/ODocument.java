@@ -1471,41 +1471,6 @@ public class ODocument extends ORecordAbstract
     return destination;
   }
 
-  /**
-   * Loads the record using a fetch plan. Example:
-   *
-   * <p><code>doc.load( "*:3" ); // LOAD THE DOCUMENT BY EARLY FETCHING UP TO 3rd
-   * LEVEL OF CONNECTIONS</code>
-   *
-   * @param iFetchPlan Fetch plan to use
-   */
-  public ODocument load(final String iFetchPlan) {
-    return load(iFetchPlan, false);
-  }
-
-  /**
-   * Loads the record using a fetch plan. Example:
-   *
-   * <p><code>doc.load( "*:3", true ); // LOAD THE DOCUMENT BY EARLY FETCHING UP TO
-   * 3rd LEVEL OF CONNECTIONS IGNORING THE CACHE</code>
-   *
-   * @param iIgnoreCache Ignore the cache or use it
-   */
-  public ODocument load(final String iFetchPlan, boolean iIgnoreCache) {
-    Object result;
-    try {
-      result = getSession().load(this, iFetchPlan, iIgnoreCache);
-    } catch (Exception e) {
-      throw OException.wrapException(new ORecordNotFoundException(getIdentity()), e);
-    }
-
-    if (result == null) {
-      throw new ORecordNotFoundException(getIdentity());
-    }
-
-    return (ODocument) result;
-  }
-
   public boolean hasSameContentOf(final ODocument iOther) {
     iOther.checkForBinding();
     checkForBinding();

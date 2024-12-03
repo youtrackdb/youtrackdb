@@ -20,6 +20,7 @@
 package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
+import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -33,8 +34,6 @@ public class OServerCommandGetDocumentByClass extends OServerCommandAuthenticate
 
   @Override
   public boolean execute(final OHttpRequest iRequest, OHttpResponse iResponse) throws Exception {
-    ODatabaseSessionInternal db = null;
-
     final String[] urlParts =
         checkSyntax(
             iRequest.getUrl(),
@@ -46,23 +45,23 @@ public class OServerCommandGetDocumentByClass extends OServerCommandAuthenticate
     iRequest.getData().commandInfo = "Load document";
 
     final ORecord rec;
-    try {
-
-      db = getProfiledDatabaseInstance(iRequest);
+    try (ODatabaseSessionInternal db = getProfiledDatabaseInstance(iRequest)) {
       if (db.getMetadata().getImmutableSchemaSnapshot().getClass(urlParts[2]) == null) {
         throw new IllegalArgumentException("Invalid class '" + urlParts[2] + "'");
       }
       final String rid = db.getClusterIdByName(urlParts[2]) + ":" + urlParts[3];
-      rec = db.load(new ORecordId(rid), fetchPlan);
-
-      if (rec == null) {
+      try {
+        rec = db.load(new ORecordId(rid));
+      } catch (ORecordNotFoundException e) {
         iResponse.send(
             OHttpUtils.STATUS_NOTFOUND_CODE,
             OHttpUtils.STATUS_NOTFOUND_DESCRIPTION,
             OHttpUtils.CONTENT_JSON,
             "Record with id '" + rid + "' was not found.",
             null);
-      } else if (iRequest.getHttpMethod().equals("HEAD"))
+        return false;
+      }
+      if (iRequest.getHttpMethod().equals("HEAD"))
       // JUST SEND HTTP CODE 200
       {
         iResponse.send(
@@ -73,10 +72,6 @@ public class OServerCommandGetDocumentByClass extends OServerCommandAuthenticate
         iResponse.writeRecord(rec, fetchPlan, null);
       }
 
-    } finally {
-      if (db != null) {
-        db.close();
-      }
     }
 
     return false;

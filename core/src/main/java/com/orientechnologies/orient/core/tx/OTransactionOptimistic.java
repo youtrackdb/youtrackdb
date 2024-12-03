@@ -171,6 +171,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
       if (e.type == ORecordOperation.DELETED) {
         return OTransactionAbstract.DELETED_RECORD;
       } else {
+        assert e.record.getSession() == database;
         return e.record;
       }
     }
@@ -454,7 +455,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
     }
 
     // DELEGATE TO THE STORAGE, NO TOMBSTONES SUPPORT IN TX MODE
-    return database.<ORecordAbstract>executeReadRecord((ORecordId) rid);
+    return database.executeReadRecord((ORecordId) rid);
   }
 
   public void deleteRecord(final ORecordAbstract iRecord) {
@@ -961,8 +962,8 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
         changeDoc.field("o", e.getOperation().ordinal());
 
         if (e.getValue() instanceof ORecord && e.getValue().getIdentity().isNew()) {
-          final ORecord saved = getRecord(e.getValue().getIdentity());
-          if (saved != null) {
+          ORecord saved = getRecord(e.getValue().getIdentity());
+          if (saved != null && saved != OTransactionAbstract.DELETED_RECORD) {
             e.setValue(saved);
           } else {
             ((ORecord) e.getValue()).save();

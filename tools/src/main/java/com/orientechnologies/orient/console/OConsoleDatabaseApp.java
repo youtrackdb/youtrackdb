@@ -673,19 +673,6 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     sqlCommand("truncate", iCommandText, "\nTruncated %d record(s) in %f sec(s).\n", true);
   }
 
-  @ConsoleCommand(description = "Load a record in memory using passed fetch plan")
-  public void loadRecord(
-      @ConsoleParameter(
-          name = "record-id",
-          description =
-              "The unique Record Id of the record to load. If you do not have the Record Id,"
-                  + " execute a query first")
-      String iRecordId,
-      @ConsoleParameter(name = "fetch-plan", description = "The fetch plan to load the record with")
-      String iFetchPlan) {
-    loadRecordInternal(iRecordId, iFetchPlan);
-  }
-
   @ConsoleCommand(description = "Load a record in memory and set it as the current")
   public void loadRecord(
       @ConsoleParameter(
@@ -694,7 +681,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
               "The unique Record Id of the record to load. If you do not have the Record Id,"
                   + " execute a query first")
       String iRecordId) {
-    loadRecordInternal(iRecordId, null);
+    loadRecordInternal(iRecordId);
   }
 
   @ConsoleCommand(
@@ -2990,10 +2977,10 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   /**
    * Should be used only by console commands
    */
-  public void loadRecordInternal(String iRecordId, String iFetchPlan) {
+  public void loadRecordInternal(String recordId) {
     checkForDatabase();
 
-    currentRecord = currentDatabase.load(new ORecordId(iRecordId), iFetchPlan);
+    currentRecord = currentDatabase.load(new ORecordId(recordId));
     displayRecord(null);
 
     message("\nOK");

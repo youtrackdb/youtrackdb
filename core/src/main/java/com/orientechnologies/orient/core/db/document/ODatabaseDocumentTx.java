@@ -44,6 +44,7 @@ import com.orientechnologies.orient.core.query.OQuery;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.ORecord;
+import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.OBlob;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -291,7 +292,7 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
 
   @Nonnull
   @Override
-  public <RET extends ORecord> RET executeReadRecord(ORecordId rid) {
+  public <RET extends ORecordAbstract> RET executeReadRecord(ORecordId rid) {
     checkOpenness();
 
     return internal.executeReadRecord(rid);
@@ -596,41 +597,12 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
     return null;
   }
 
-  @Override
-  public <RET extends ORecord> RET load(ORecord record) {
-    checkOpenness();
-    return internal.load(record);
-  }
-
-  @Override
-  public <RET extends ORecord> RET load(ORecord record, String iFetchPlan) {
-    checkOpenness();
-    return internal.load(record, iFetchPlan);
-  }
-
-  @Override
-  public <RET extends ORecord> RET load(ORecord iObject, String iFetchPlan, boolean iIgnoreCache) {
-    checkOpenness();
-    return internal.load(iObject, iFetchPlan, iIgnoreCache);
-  }
 
   @Nonnull
   @Override
   public <RET extends ORecord> RET load(ORID recordId) {
     checkOpenness();
     return internal.load(recordId);
-  }
-
-  @Override
-  public <RET extends ORecord> RET load(ORID iRecordId, String iFetchPlan) {
-    checkOpenness();
-    return internal.load(iRecordId, iFetchPlan);
-  }
-
-  @Override
-  public <RET extends ORecord> RET load(ORID iRecordId, String iFetchPlan, boolean iIgnoreCache) {
-    checkOpenness();
-    return internal.load(iRecordId, iFetchPlan, iIgnoreCache);
   }
 
   @Override

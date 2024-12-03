@@ -78,16 +78,6 @@ public class ODocumentEmbedded extends ODocument {
   }
 
   @Override
-  public ODocument load(String iFetchPlan) {
-    throw new UnsupportedOperationException("Cannot load embedded document");
-  }
-
-  @Override
-  public ODocument load(String iFetchPlan, boolean iIgnoreCache) {
-    return super.load(iFetchPlan, iIgnoreCache);
-  }
-
-  @Override
   public void unload() {
     throw new UnsupportedOperationException("Cannot unload embedded document");
   }

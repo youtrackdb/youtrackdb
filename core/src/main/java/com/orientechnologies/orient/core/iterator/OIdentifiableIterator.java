@@ -61,7 +61,6 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
   protected int currentTxEntryPosition = -1;
   protected long firstClusterEntry = 0;
   protected long lastClusterEntry = Long.MAX_VALUE;
-  private String fetchPlan;
   // REUSE IT
   private Boolean directionForward;
   private long currentEntry = ORID.CLUSTER_POS_INVALID;
@@ -97,16 +96,8 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
     return readCurrentRecord(0);
   }
 
-  public String getFetchPlan() {
-    return fetchPlan;
-  }
-
   public Set<ORID> getBrokenRIDs() {
     return brokenRIDs;
-  }
-
-  public void setFetchPlan(String fetchPlan) {
-    this.fetchPlan = fetchPlan;
   }
 
   public void remove() {
@@ -235,7 +226,7 @@ public abstract class OIdentifiableIterator<REC extends OIdentifiable>
 
     ORecord record;
     try {
-      record = database.load(current, fetchPlan, false);
+      record = database.load(current);
     } catch (ORecordNotFoundException rne) {
       record = null;
     } catch (ODatabaseException e) {

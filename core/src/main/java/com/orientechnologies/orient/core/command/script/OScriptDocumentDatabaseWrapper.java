@@ -268,13 +268,6 @@ public class OScriptDocumentDatabaseWrapper {
     return database.load(iRecordId);
   }
 
-  public <RET extends ORecord> RET load(ORID iRecordId, String iFetchPlan) {
-    return database.load(iRecordId, iFetchPlan);
-  }
-
-  public <RET extends ORecord> RET load(ORID iRecordId, String iFetchPlan, boolean iIgnoreCache) {
-    return database.load(iRecordId, iFetchPlan, iIgnoreCache);
-  }
 
   public int getDefaultClusterId() {
     return database.getDefaultClusterId();
@@ -282,14 +275,6 @@ public class OScriptDocumentDatabaseWrapper {
 
   public <RET extends ORecord> RET load(final String iRidAsString) {
     return database.load(new ORecordId(iRidAsString));
-  }
-
-  public <RET extends ORecord> RET load(ORecord iRecord, String iFetchPlan) {
-    return database.load(iRecord, iFetchPlan);
-  }
-
-  public <RET extends ORecord> RET load(ORecord iRecord, String iFetchPlan, boolean iIgnoreCache) {
-    return database.load(iRecord, iFetchPlan, iIgnoreCache);
   }
 
   public ODatabaseSession setDatabaseOwner(ODatabaseSessionInternal iOwner) {

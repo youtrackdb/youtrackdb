@@ -50,6 +50,7 @@ import com.orientechnologies.orient.core.storage.ridbag.sbtree.ChangeSerializati
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OBonsaiCollectionPointer;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeCollectionManager;
 import com.orientechnologies.orient.core.storage.ridbag.sbtree.OSBTreeRidBag;
+import com.orientechnologies.orient.core.tx.OTransactionAbstract;
 import com.orientechnologies.orient.core.tx.OTransactionOptimistic;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -385,7 +386,7 @@ public class HelperClasses {
             && !itemValue.getIdentity().isPersistent()) {
           itemValue = db.getTransaction().getRecord(itemValue.getIdentity());
         }
-        if (itemValue == null) {
+        if (itemValue == null || itemValue == OTransactionAbstract.DELETED_RECORD) {
           entries[i] = null;
           // Decrease size, nulls are ignored
           size--;

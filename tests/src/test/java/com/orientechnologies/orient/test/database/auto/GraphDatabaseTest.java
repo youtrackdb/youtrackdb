@@ -31,7 +31,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
 import org.testng.Assert;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
@@ -257,35 +256,6 @@ public class GraphDatabaseTest extends DocumentDBBaseTest {
     } catch (OCommandExecutionException e) {
       Assert.assertTrue(true);
     }
-  }
-
-  public void testDeleteOfVerticesAndEdgesWithDeleteCommandAndUnsafe() {
-    database.begin();
-    var deletedVertices =
-        database
-            .command("delete from GraphVehicle return before limit 1 unsafe")
-            .toList();
-    Assert.assertTrue(deletedVertices.iterator().hasNext());
-
-    OVertex v = (OVertex) deletedVertices.iterator().next();
-    List<OEdge> edges = IterableUtils.toList(v.getEdges(ODirection.BOTH));
-    database.commit();
-
-    database.begin();
-    Integer confirmDeleted =
-        database.command(new OCommandSQL("delete from " + v.getIdentity() + " unsafe"))
-            .execute(database);
-    Assert.assertEquals(confirmDeleted.intValue(), 0);
-    database.commit();
-
-    database.begin();
-    for (OEdge e : edges) {
-      Integer deletedEdges =
-          database.command(new OCommandSQL("delete from " + e.getIdentity() + " unsafe"))
-              .execute(database);
-      Assert.assertEquals(deletedEdges.intValue(), 1);
-    }
-    database.commit();
   }
 
   public void testInsertOfEdgeWithInsertCommand() {

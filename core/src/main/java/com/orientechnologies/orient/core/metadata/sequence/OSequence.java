@@ -365,7 +365,7 @@ public abstract class OSequence {
   }
 
   public String getName() {
-    return getSequenceName(getDatabase().load(docRid, null, false));
+    return getSequenceName(getDatabase().load(docRid));
   }
 
   protected void setName(ODocument doc, final String name) {

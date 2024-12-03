@@ -54,12 +54,6 @@ public class ODocumentWrapper implements Serializable {
     return getDocument(session);
   }
 
-  public <RET extends ODocumentWrapper> RET load(
-      final String iFetchPlan, final boolean iIgnoreCache) {
-    document = document.load(iFetchPlan, iIgnoreCache);
-    return (RET) this;
-  }
-
   public <RET extends ODocumentWrapper> RET save(ODatabaseSessionInternal session) {
     document.save();
     return (RET) this;

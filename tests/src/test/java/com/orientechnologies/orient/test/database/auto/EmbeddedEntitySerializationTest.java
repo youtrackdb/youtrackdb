@@ -33,7 +33,7 @@ public class EmbeddedEntitySerializationTest extends DocumentDBBaseTest {
     originalDoc.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    final ODocument loadedDoc = database.load(originalDoc.getIdentity(), null, false);
+    final ODocument loadedDoc = database.load(originalDoc.getIdentity());
     Assert.assertNotSame(loadedDoc, originalDoc);
 
     final OCompositeKey loadedCompositeKey = loadedDoc.field("compositeKey");
@@ -82,7 +82,7 @@ public class EmbeddedEntitySerializationTest extends DocumentDBBaseTest {
     originalDoc.save(database.getClusterNameById(database.getDefaultClusterId()));
     database.commit();
 
-    final ODocument loadedDocument = database.load(originalDoc.getIdentity(), null, false);
+    final ODocument loadedDocument = database.load(originalDoc.getIdentity());
     Assert.assertNotSame(loadedDocument, originalDoc);
 
     final ODocument loadedEmbeddedDocOne = loadedDocument.field("embeddedDoc");
