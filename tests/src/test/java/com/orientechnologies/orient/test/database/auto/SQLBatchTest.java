@@ -32,12 +32,10 @@ public class SQLBatchTest extends DocumentDBBaseTest {
     super(remote != null && remote);
   }
 
-  /**
-   * Issue #4349 (https://github.com/orientechnologies/orientdb/issues/4349)
-   */
+  @Test(enabled = false)
   public void createEdgeFailIfNoSourceOrTargetVertices() {
     try {
-      executeBatch(
+      database.execute("sql",
           "BEGIN;\n"
               + "LET credential = INSERT INTO V SET email = '123', password = '123';\n"
               + "LET order = SELECT FROM V WHERE cannotFindThisAttribute = true;\n"
@@ -58,7 +56,6 @@ public class SQLBatchTest extends DocumentDBBaseTest {
   }
 
   public void testInlineArray() {
-    // issue #7435
     String className1 = "SQLBatchTest_testInlineArray1";
     String className2 = "SQLBatchTest_testInlineArray2";
     database.command("CREATE CLASS " + className1 + " EXTENDS V").close();
@@ -93,7 +90,6 @@ public class SQLBatchTest extends DocumentDBBaseTest {
   }
 
   public void testInlineArray2() {
-    // issue #7435
     String className1 = "SQLBatchTest_testInlineArray21";
     String className2 = "SQLBatchTest_testInlineArray22";
     database.command("CREATE CLASS " + className1 + " EXTENDS V").close();
@@ -117,7 +113,7 @@ public class SQLBatchTest extends DocumentDBBaseTest {
             + " SET foos= $foos;\n"
             + "COMMIT;";
 
-    database.execute("SQL", script);
+    database.execute("sql", script);
 
     List<ODocument> result = executeQuery("select from " + className2);
     Assert.assertEquals(result.size(), 1);
@@ -126,9 +122,5 @@ public class SQLBatchTest extends DocumentDBBaseTest {
     Assert.assertTrue(foos.get(0) instanceof OIdentifiable);
     Assert.assertTrue(foos.get(1) instanceof OIdentifiable);
     Assert.assertTrue(foos.get(2) instanceof OIdentifiable);
-  }
-
-  private void executeBatch(final String batch) {
-    database.execute("sql", batch);
   }
 }

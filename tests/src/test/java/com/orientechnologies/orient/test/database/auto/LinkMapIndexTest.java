@@ -1089,9 +1089,8 @@ public class LinkMapIndexTest extends DocumentDBBaseTest {
     Assert.assertEquals(map, document.field("linkMap"));
 
     final List<ODocument> resultByValue =
-        database.query(
-            new OSQLSynchQuery<ODocument>(
-                "select * from LinkMapIndexTestClass where linkMap  containsvalue ?"),
+        executeQuery(
+            "select * from LinkMapIndexTestClass where linkMap  containsvalue ?",
             docOne.getIdentity());
     Assert.assertNotNull(resultByValue);
     Assert.assertEquals(resultByValue.size(), 1);

@@ -169,6 +169,7 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
               .getProperty("count");
       database.commit();
 
+      database.begin();
       Assert.assertEquals(records, 1);
 
       ODocument loadedDoc = database.load(doc.getRecordId());
@@ -178,7 +179,6 @@ public class SQLUpdateTest extends DocumentDBBaseTest {
           positions.get(0));
       loadedDoc.field("addresses", doc.<Object>getProperty("addresses"));
 
-      database.begin();
       database.save(database.bindToSession(loadedDoc));
       database.commit();
     }

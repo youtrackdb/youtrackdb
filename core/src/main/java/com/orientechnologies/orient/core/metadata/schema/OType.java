@@ -390,122 +390,122 @@ public enum OType {
    * @return The converted value or the original if no conversion was applied
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public static Object convert(@Nullable ODatabaseSession session, final Object value,
-      final Class<?> targetClass) {
+  public static <T> T convert(@Nullable ODatabaseSession session, final Object value,
+      final Class<? extends T> targetClass) {
     if (value == null) {
       return null;
     }
 
     if (targetClass == null) {
-      return value;
+      return (T) value;
     }
 
     if (value.getClass().equals(targetClass))
     // SAME TYPE: DON'T CONVERT IT
     {
-      return value;
+      return (T) value;
     }
 
     if (targetClass.isAssignableFrom(value.getClass()))
     // COMPATIBLE TYPES: DON'T CONVERT IT
     {
-      return value;
+      return (T) value;
     }
 
     try {
       if (byte[].class.isAssignableFrom(targetClass)) {
-        return OStringSerializerHelper.getBinaryContent(value);
+        return (T) OStringSerializerHelper.getBinaryContent(value);
       } else if (byte[].class.isAssignableFrom(value.getClass())) {
-        return value;
+        return (T) value;
       } else if (targetClass.isEnum()) {
         if (value instanceof Number) {
-          return ((Class<Enum>) targetClass).getEnumConstants()[((Number) value).intValue()];
+          return (T) ((Class<Enum>) targetClass).getEnumConstants()[((Number) value).intValue()];
         }
-        return Enum.valueOf((Class<Enum>) targetClass, value.toString());
+        return (T) Enum.valueOf((Class<Enum>) targetClass, value.toString());
       } else if (targetClass.equals(Byte.TYPE) || targetClass.equals(Byte.class)) {
         if (value instanceof Byte) {
-          return value;
+          return (T) value;
         } else if (value instanceof String) {
-          return Byte.parseByte((String) value);
+          return (T) Byte.valueOf((String) value);
         } else {
           assert value instanceof Number;
-          return ((Number) value).byteValue();
+          return (T) (Byte) ((Number) value).byteValue();
         }
 
       } else if (targetClass.equals(Short.TYPE) || targetClass.equals(Short.class)) {
         if (value instanceof Short) {
-          return value;
+          return (T) value;
         } else if (value instanceof String) {
-          return Short.parseShort((String) value);
+          return (T) Short.valueOf((String) value);
         } else if (value instanceof Number number) {
-          return number.shortValue();
+          return (T) (Short) number.shortValue();
         }
 
       } else if (targetClass.equals(Integer.TYPE) || targetClass.equals(Integer.class)) {
         if (value instanceof Integer) {
-          return value;
+          return (T) value;
         } else if (value instanceof String) {
           if (value.toString().isEmpty()) {
             return null;
           }
-          return Integer.parseInt((String) value);
+          return (T) Integer.valueOf((String) value);
         } else if (value instanceof Number number) {
-          return number.intValue();
+          return (T) (Integer) number.intValue();
         }
 
       } else if (targetClass.equals(Long.TYPE) || targetClass.equals(Long.class)) {
         if (value instanceof Long) {
-          return value;
+          return (T) value;
         } else if (value instanceof String) {
-          return Long.parseLong((String) value);
+          return (T) Long.valueOf((String) value);
         } else if (value instanceof Date) {
-          return ((Date) value).getTime();
+          return (T) (Long) ((Date) value).getTime();
         } else if (value instanceof Number number) {
-          return number.longValue();
+          return (T) (Long) number.longValue();
         }
 
       } else if (targetClass.equals(Float.TYPE) || targetClass.equals(Float.class)) {
         if (value instanceof Float) {
-          return value;
+          return (T) value;
         } else if (value instanceof String) {
-          return Float.parseFloat((String) value);
+          return (T) Float.valueOf((String) value);
         } else if (value instanceof Number number) {
-          return number.floatValue();
+          return (T) (Float) number.floatValue();
         }
 
       } else if (targetClass.equals(BigDecimal.class)) {
         if (value instanceof String) {
-          return new BigDecimal((String) value);
+          return (T) new BigDecimal((String) value);
         } else if (value instanceof Number) {
-          return new BigDecimal(value.toString());
+          return (T) new BigDecimal(value.toString());
         }
 
       } else if (targetClass.equals(Double.TYPE) || targetClass.equals(Double.class)) {
         if (value instanceof Double) {
-          return value;
+          return (T) value;
         } else if (value instanceof String) {
-          return Double.parseDouble((String) value);
+          return (T) Double.valueOf((String) value);
         } else if (value instanceof Float)
         // THIS IS NECESSARY DUE TO A BUG/STRANGE BEHAVIOR OF JAVA BY LOSSING PRECISION
         {
-          return Double.parseDouble(value.toString());
+          return (T) Double.valueOf(value.toString());
         } else if (value instanceof Number number) {
-          return number.doubleValue();
+          return (T) (Double) number.doubleValue();
         }
 
       } else if (targetClass.equals(Boolean.TYPE) || targetClass.equals(Boolean.class)) {
         if (value instanceof Boolean) {
-          return value;
+          return (T) value;
         } else if (value instanceof String) {
           if (((String) value).equalsIgnoreCase("true")) {
-            return Boolean.TRUE;
+            return (T) Boolean.TRUE;
           } else if (((String) value).equalsIgnoreCase("false")) {
-            return Boolean.FALSE;
+            return (T) Boolean.FALSE;
           }
           throw new ODatabaseException(
               String.format("Error in conversion of value '%s' to type '%s'", value, targetClass));
         } else if (value instanceof Number) {
-          return ((Number) value).intValue() != 0;
+          return (T) (Boolean) (((Number) value).intValue() != 0);
         }
 
       } else if (Set.class.isAssignableFrom(targetClass)) {
@@ -513,9 +513,9 @@ public enum OType {
         // we will add all of the items in the collection to a set.  Otherwise
         // we will create a singleton set with only the value in it.
         if (value instanceof Collection<?>) {
-          return new HashSet<Object>((Collection<?>) value);
+          return (T) new HashSet<Object>((Collection<?>) value);
         } else {
-          return Collections.singleton(value);
+          return (T) Collections.singleton(value);
         }
 
       } else if (List.class.isAssignableFrom(targetClass)) {
@@ -523,9 +523,9 @@ public enum OType {
         // we will add all of the items in the collection to a List.  Otherwise
         // we will create a singleton List with only the value in it.
         if (value instanceof Collection<?>) {
-          return new ArrayList<>((Collection<Object>) value);
+          return (T) new ArrayList<>((Collection<Object>) value);
         } else {
-          return Collections.singletonList(value);
+          return (T) Collections.singletonList(value);
         }
 
       } else if (Collection.class.equals(targetClass)) {
@@ -533,25 +533,26 @@ public enum OType {
         // we will return a list if the value is a collection or
         // a singleton set if the value is not a collection.
         if (value instanceof Collection<?>) {
-          return new ArrayList<Object>((Collection<?>) value);
+          return (T) new ArrayList<Object>((Collection<?>) value);
         } else {
-          return Collections.singleton(value);
+          return (T) Collections.singleton(value);
         }
 
       } else if (targetClass.equals(Date.class)) {
         if (value instanceof Number) {
-          return new Date(((Number) value).longValue());
+          return (T) new Date(((Number) value).longValue());
         }
         if (value instanceof String) {
           if (OIOUtils.isLong(value.toString())) {
-            return new Date(Long.parseLong(value.toString()));
+            return (T) new Date(Long.parseLong(value.toString()));
           }
           try {
-            return ODateHelper.getDateTimeFormatInstance(
+            return (T) ODateHelper.getDateTimeFormatInstance(
                     ODatabaseRecordThreadLocal.instance().get())
                 .parse((String) value);
           } catch (ParseException ignore) {
-            return ODateHelper.getDateFormatInstance(ODatabaseRecordThreadLocal.instance().get())
+            return (T) ODateHelper.getDateFormatInstance(
+                    ODatabaseRecordThreadLocal.instance().get())
                 .parse((String) value);
           }
         }
@@ -559,9 +560,9 @@ public enum OType {
         if (value instanceof Collection
             && ((Collection) value).size() == 1
             && ((Collection) value).iterator().next() instanceof String) {
-          return ((Collection) value).iterator().next();
+          return (T) ((Collection) value).iterator().next();
         }
-        return value.toString();
+        return (T) value.toString();
       } else if (OIdentifiable.class.isAssignableFrom(targetClass)) {
         if (OMultiValue.isMultiValue(value)) {
           List<OIdentifiable> result = new ArrayList<>();
@@ -578,12 +579,24 @@ public enum OType {
                             "Error in conversion of value '%s' to type '%s'", value, targetClass)),
                     e);
               }
+            } else if (o instanceof OResult res && res.isElement()) {
+              result.add(res.getRecordId());
             }
           }
-          return result;
+
+          if (result.isEmpty()) {
+            return null;
+          }
+          if (result.size() == 1) {
+            return (T) result.get(0);
+          }
+
+          throw new ODatabaseException(
+              String.format(
+                  "Error in conversion of value '%s' to type '%s'", value, targetClass));
         } else if (value instanceof String) {
           try {
-            return new ORecordId((String) value);
+            return (T) new ORecordId((String) value);
           } catch (Exception e) {
             throw new ClassCastException(
                 String.format(
@@ -603,11 +616,11 @@ public enum OType {
           }
         }
 
-        return ridBag;
+        return (T) ridBag;
       }
 
       if (value instanceof Serializable && targetClass.equals(OSerializableStream.class)) {
-        return value;
+        return (T) value;
       }
 
       if (targetClass.equals(OIdentifiable.class) && value instanceof ODocumentWrapper wrapper) {
@@ -615,7 +628,7 @@ public enum OType {
           throw new ODatabaseException(
               "Cannot convert ODocumentWrapper to OIdentifiable without a session");
         }
-        return wrapper.getDocument(session);
+        return (T) wrapper.getDocument(session);
       }
     } catch (IllegalArgumentException e) {
       // PASS THROUGH

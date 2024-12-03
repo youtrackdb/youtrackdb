@@ -4,6 +4,9 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
+import com.orientechnologies.orient.core.db.record.OList;
+import com.orientechnologies.orient.core.db.record.OSet;
+import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
@@ -137,15 +140,15 @@ public class OUpdateItem extends SimpleNode {
 
   public void applyUpdate(OResultInternal doc, OCommandContext ctx) {
     Object rightValue = right.execute(doc, ctx);
-    OType type = calculateTypeForThisItem(doc, ctx);
     OClass linkedType = calculateLinkedTypeForThisItem(doc, ctx);
-    rightValue = convertToType(rightValue, type, linkedType, ctx);
     if (leftModifier == null) {
       applyOperation(doc, left, rightValue, ctx);
     } else {
-      Object val = doc.getProperty(left.getStringValue());
+      var propertyName = left.getStringValue();
+      rightValue = convertToType(rightValue, null, linkedType, ctx);
+      Object val = doc.getProperty(propertyName);
       if (val == null) {
-        val = initSchemafullCollections(doc, left.getStringValue());
+        val = initSchemafullCollections(doc, propertyName);
       }
       leftModifier.setValue(doc, val, rightValue, ctx);
     }
@@ -180,10 +183,15 @@ public class OUpdateItem extends SimpleNode {
   }
 
   private OClass calculateLinkedTypeForThisItem(OResultInternal doc, OCommandContext ctx) {
-    return null; // TODO
+    if (doc.isElement()) {
+      var elem = doc.toElement();
+
+    }
+    return null;
   }
 
-  private OType calculateTypeForThisItem(OResultInternal doc, OCommandContext ctx) {
+  private OType calculateTypeForThisItem(OResultInternal doc, String propertyName,
+      OCommandContext ctx) {
     OElement elem = doc.toElement();
     OClass clazz = elem.getSchemaType().orElse(null);
     if (clazz == null) {
@@ -270,6 +278,7 @@ public class OUpdateItem extends SimpleNode {
     return convertToType(newValue, type, linkedClass, ctx);
   }
 
+  @SuppressWarnings("unchecked")
   private static Object convertToType(
       Object value, OType type, OClass linkedClass, OCommandContext ctx) {
     if (type == null) {
@@ -277,26 +286,47 @@ public class OUpdateItem extends SimpleNode {
     }
     if (value instanceof Collection) {
       if (type == OType.LINK) {
-        if (((Collection) value).size() == 0) {
+        if (((Collection<?>) value).isEmpty()) {
           value = null;
-        } else if (((Collection) value).size() == 1) {
-          value = ((Collection) value).iterator().next();
+        } else if (((Collection<?>) value).size() == 1) {
+          value = ((Collection<?>) value).iterator().next();
         } else {
           throw new OCommandExecutionException("Cannot assign a collection to a LINK property");
         }
       } else {
-
         if (type == OType.EMBEDDEDLIST && linkedClass != null) {
-          return ((Collection) value)
+          return ((Collection<?>) value)
               .stream()
               .map(item -> convertToType(item, linkedClass, ctx))
               .collect(Collectors.toList());
 
         } else if (type == OType.EMBEDDEDSET && linkedClass != null) {
-          return ((Collection) value)
+          return ((Collection<?>) value)
               .stream()
               .map(item -> convertToType(item, linkedClass, ctx))
               .collect(Collectors.toSet());
+        }
+        if (type == OType.LINKSET && !(value instanceof OSet)) {
+          var db = ctx.getDatabase();
+          return ((Collection<?>) value)
+              .stream()
+              .map(item -> OType.convert(db, item, OIdentifiable.class))
+              .collect(Collectors.toSet());
+        } else if (type == OType.LINKLIST && !(value instanceof OList)) {
+          var db = ctx.getDatabase();
+          return ((Collection<?>) value)
+              .stream()
+              .map(item -> OType.convert(db, item, OIdentifiable.class))
+              .collect(Collectors.toList());
+        } else if (type == OType.LINKBAG && !(value instanceof ORidBag)) {
+          var db = ctx.getDatabase();
+          var bag = new ORidBag(db);
+
+          ((Collection<?>) value)
+              .stream()
+              .map(item -> (OIdentifiable) OType.convert(db, item, OIdentifiable.class))
+              .forEach(bag::add);
+
         }
       }
     }

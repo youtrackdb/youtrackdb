@@ -366,13 +366,11 @@ public class SQLInsertTest extends DocumentDBBaseTest {
   @Test(dependsOnMethods = "insertOperator")
   public void insertCluster() {
     database.begin();
-    ODocument doc =
+    var doc =
         database
             .command(
-                new OCommandSQL(
                     "insert into Account cluster anotherdefault (id, title) values (10, 'NoSQL"
-                        + " movement')"))
-            .execute(database);
+                        + " movement')").stream().findFirst().orElseThrow().toElement();
     database.commit();
 
     Assert.assertNotNull(doc);
