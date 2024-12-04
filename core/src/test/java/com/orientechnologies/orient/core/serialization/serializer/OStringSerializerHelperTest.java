@@ -10,14 +10,14 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OIOUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.junit.Test;
 
-public class OStringSerializerHelperTest extends BaseMemoryDatabase {
+public class OStringSerializerHelperTest extends DBTestBase {
 
   @Test
   public void test() {

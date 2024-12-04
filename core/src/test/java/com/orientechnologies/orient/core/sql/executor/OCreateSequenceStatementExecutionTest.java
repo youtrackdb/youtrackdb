@@ -2,14 +2,14 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
  *
  */
-public class OCreateSequenceStatementExecutionTest extends BaseMemoryDatabase {
+public class OCreateSequenceStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testSimple() {

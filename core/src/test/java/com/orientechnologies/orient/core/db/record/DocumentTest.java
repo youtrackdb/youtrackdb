@@ -20,7 +20,7 @@
 
 package com.orientechnologies.orient.core.db.record;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -28,7 +28,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class DocumentTest extends BaseMemoryDatabase {
+public class DocumentTest extends DBTestBase {
 
   @Test
   public void testFromMapNotSaved() {

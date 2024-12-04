@@ -2,14 +2,14 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import static com.orientechnologies.orient.core.sql.executor.ExecutionPlanPrintUtils.printExecutionPlan;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
  *
  */
-public class ORollbackStatementExecutionTest extends BaseMemoryDatabase {
+public class ORollbackStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testBegin() {

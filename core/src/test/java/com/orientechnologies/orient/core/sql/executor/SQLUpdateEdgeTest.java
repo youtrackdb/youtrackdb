@@ -18,14 +18,14 @@ package com.orientechnologies.orient.core.sql.executor;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.OVertex;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class SQLUpdateEdgeTest extends BaseMemoryDatabase {
+public class SQLUpdateEdgeTest extends DBTestBase {
 
   @Test
   public void testUpdateEdge() {

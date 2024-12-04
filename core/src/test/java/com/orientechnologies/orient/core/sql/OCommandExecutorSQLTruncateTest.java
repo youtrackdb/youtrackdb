@@ -2,14 +2,14 @@ package com.orientechnologies.orient.core.sql;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.IOException;
 import org.junit.Test;
 
-public class OCommandExecutorSQLTruncateTest extends BaseMemoryDatabase {
+public class OCommandExecutorSQLTruncateTest extends DBTestBase {
 
   @Test
   public void testTruncatePlain() {

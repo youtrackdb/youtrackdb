@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.index;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -17,7 +17,7 @@ import org.junit.Test;
 /**
  * @since 20.12.11
  */
-public class OPropertyListIndexDefinitionTest extends BaseMemoryDatabase {
+public class OPropertyListIndexDefinitionTest extends DBTestBase {
 
   private OPropertyListIndexDefinition propertyIndex;
 

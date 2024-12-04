@@ -4,7 +4,7 @@ import static com.orientechnologies.orient.core.sql.executor.ExecutionPlanPrintU
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -20,7 +20,7 @@ import org.junit.Test;
 /**
  *
  */
-public class OInsertStatementExecutionTest extends BaseMemoryDatabase {
+public class OInsertStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testInsertSet() {

@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYPE;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
@@ -11,7 +11,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Test;
 
-public class OChainIndexFetchTest extends BaseMemoryDatabase {
+public class OChainIndexFetchTest extends DBTestBase {
 
   @Test
   public void testFetchChaninedIndex() {

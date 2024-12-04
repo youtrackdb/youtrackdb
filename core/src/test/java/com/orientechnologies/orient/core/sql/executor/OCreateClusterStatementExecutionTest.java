@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import org.junit.Assert;
@@ -9,7 +9,7 @@ import org.junit.Test;
 /**
  *
  */
-public class OCreateClusterStatementExecutionTest extends BaseMemoryDatabase {
+public class OCreateClusterStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testPlain() {

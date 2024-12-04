@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.storage.index.sbtree.local.v1;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
@@ -25,7 +25,7 @@ import org.junit.Test;
 /**
  * @since 15.08.13
  */
-public class SBTreeV1CompositeKeyTest extends BaseMemoryDatabase {
+public class SBTreeV1CompositeKeyTest extends DBTestBase {
 
   private OSBTreeV1<OCompositeKey, OIdentifiable> localSBTree;
   private OAtomicOperationsManager atomicOperationsManager;

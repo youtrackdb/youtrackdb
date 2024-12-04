@@ -17,7 +17,7 @@ public class HashTableDirectoryV3Test extends BaseMemoryInternalDatabase {
 
   private static OHashTableDirectory directory;
 
-  public void beforeTest() {
+  public void beforeTest() throws Exception {
     super.beforeTest();
     OAbstractPaginatedStorage storage = (OAbstractPaginatedStorage) db.getStorage();
     directory =

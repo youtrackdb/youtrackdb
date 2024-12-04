@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.metadata.sequence.OSequence;
@@ -11,7 +11,7 @@ import org.junit.Test;
 /**
  *
  */
-public class ODropSequenceStatementExecutionTest extends BaseMemoryDatabase {
+public class ODropSequenceStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testPlain() {

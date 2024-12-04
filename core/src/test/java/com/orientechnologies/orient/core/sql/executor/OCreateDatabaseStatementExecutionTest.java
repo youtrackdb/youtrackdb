@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
@@ -20,7 +21,7 @@ public class OCreateDatabaseStatementExecutionTest {
 
     final OxygenDB oxygenDb =
         new OxygenDB(
-            "embedded:./target/",
+            DBTestBase.embeddedDBUrl(getClass()),
             OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
@@ -51,7 +52,8 @@ public class OCreateDatabaseStatementExecutionTest {
   @Test
   public void testNoDefaultUsers() {
     String dbName = "OCreateDatabaseStatementExecutionTest_testNoDefaultUsers";
-    OxygenDB oxygenDb = new OxygenDB("embedded:./target/", OxygenDBConfig.defaultConfig());
+    OxygenDB oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
+        OxygenDBConfig.defaultConfig());
     try (OResultSet result =
         oxygenDb.execute(
             "create database "

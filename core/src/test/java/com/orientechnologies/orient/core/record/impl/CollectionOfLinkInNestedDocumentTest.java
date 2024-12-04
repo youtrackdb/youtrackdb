@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.record.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
 import com.orientechnologies.orient.core.db.record.OMap;
@@ -13,7 +13,7 @@ import java.util.Set;
 import org.apache.commons.collections4.SetUtils;
 import org.junit.Test;
 
-public class CollectionOfLinkInNestedDocumentTest extends BaseMemoryDatabase {
+public class CollectionOfLinkInNestedDocumentTest extends DBTestBase {
 
   @Test
   public void nestedLinkSet() {

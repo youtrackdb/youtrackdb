@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.db.document;
 
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommitSerializationException;
@@ -23,7 +23,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ODatabaseDocumentTxTest extends BaseMemoryDatabase {
+public class ODatabaseDocumentTxTest extends DBTestBase {
 
   @Test
   public void testCountClass() throws Exception {

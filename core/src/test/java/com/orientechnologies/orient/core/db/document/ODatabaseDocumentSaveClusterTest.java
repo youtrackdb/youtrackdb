@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.db.document;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.record.ORecord;
@@ -11,7 +11,7 @@ import org.junit.Test;
 /**
  *
  */
-public class ODatabaseDocumentSaveClusterTest extends BaseMemoryDatabase {
+public class ODatabaseDocumentSaveClusterTest extends DBTestBase {
 
   @Test(expected = IllegalArgumentException.class)
   public void testSaveWrongCluster() {

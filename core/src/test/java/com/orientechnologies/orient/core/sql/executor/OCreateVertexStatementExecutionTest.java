@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import static com.orientechnologies.orient.core.sql.executor.ExecutionPlanPrintUtils.printExecutionPlan;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import java.util.HashSet;
@@ -13,7 +13,7 @@ import org.junit.Test;
 /**
  *
  */
-public class OCreateVertexStatementExecutionTest extends BaseMemoryDatabase {
+public class OCreateVertexStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testInsertSet() {

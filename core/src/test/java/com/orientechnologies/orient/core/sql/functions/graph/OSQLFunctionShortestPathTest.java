@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.sql.functions.graph;
 
 import static java.util.Arrays.asList;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
@@ -40,7 +41,8 @@ public class OSQLFunctionShortestPathTest {
   private void setUpDatabase() {
     oxygenDB =
         OCreateDatabaseUtil.createDatabase(
-            "OSQLFunctionShortestPath", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
+            "OSQLFunctionShortestPath", DBTestBase.embeddedDBUrl(getClass()),
+            OCreateDatabaseUtil.TYPE_MEMORY);
     graph =
         oxygenDB.open("OSQLFunctionShortestPath", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 

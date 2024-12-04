@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.core.sql;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class SQLAlterClassTest extends BaseMemoryDatabase {
+public class SQLAlterClassTest extends DBTestBase {
 
   @Test
   public void alterClassRenameTest() {

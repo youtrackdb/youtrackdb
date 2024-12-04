@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.sql;
 
 import static org.junit.Assert.assertEquals;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
@@ -15,7 +16,7 @@ public class InsertUnionValueTest {
 
   @Before
   public void before() {
-    oxygenDB = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
+    oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), OxygenDBConfig.defaultConfig());
     oxygenDB
         .execute(
             "create database ? memory users (admin identified by 'admpwd' role admin)",

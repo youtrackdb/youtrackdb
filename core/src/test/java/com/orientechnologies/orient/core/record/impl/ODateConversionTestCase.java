@@ -23,7 +23,7 @@ package com.orientechnologies.orient.core.record.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.OxygenDB;
@@ -39,7 +39,7 @@ import java.util.TimeZone;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ODateConversionTestCase extends BaseMemoryDatabase {
+public class ODateConversionTestCase extends DBTestBase {
 
   private final ORecordSerializer serializer = new ORecordSerializerBinary();
 
@@ -74,7 +74,8 @@ public class ODateConversionTestCase extends BaseMemoryDatabase {
 
   @Test
   public void testDateFormantWithMethod() throws ParseException {
-    try (OxygenDB ctx = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig())) {
+    try (OxygenDB ctx = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
+        OxygenDBConfig.defaultConfig())) {
       ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
       try (var db = (ODatabaseSessionInternal) ctx.open("test", "admin", "adminpwd")) {
 

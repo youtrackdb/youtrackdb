@@ -1,13 +1,13 @@
 package com.orientechnologies.orient.core.sql;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.serialization.serializer.record.ORecordSerializerFactory;
 import com.orientechnologies.orient.core.sql.query.OSQLQuery;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class CommandSerializationUTF8Test extends BaseMemoryDatabase {
+public class CommandSerializationUTF8Test extends DBTestBase {
 
   @Test
   public void testRightSerializationEncoding() {

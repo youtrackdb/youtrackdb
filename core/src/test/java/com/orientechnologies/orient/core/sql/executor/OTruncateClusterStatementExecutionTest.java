@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -13,7 +13,7 @@ import org.junit.Test;
 /**
  *
  */
-public class OTruncateClusterStatementExecutionTest extends BaseMemoryDatabase {
+public class OTruncateClusterStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testClusterWithIndex() {

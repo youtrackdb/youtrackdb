@@ -3,7 +3,7 @@ package com.orientechnologies.orient.client.remote.message;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.exception.OErrorCode;
 import java.io.IOException;
 import java.util.HashMap;
@@ -13,7 +13,7 @@ import org.junit.Test;
 /**
  *
  */
-public class ORemoteErrorMessageTest extends BaseMemoryDatabase {
+public class ORemoteErrorMessageTest extends DBTestBase {
 
   @Test
   public void testReadWriteErrorMessage() throws IOException {

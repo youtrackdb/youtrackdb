@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.sql;
 
 import static org.junit.Assert.assertEquals;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
@@ -23,7 +24,7 @@ public class CreateLightWeightEdgesSQLTest {
     oxygenDB =
         OCreateDatabaseUtil.createDatabase(
             CreateLightWeightEdgesSQLTest.class.getSimpleName(),
-            "embedded:",
+            DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_MEMORY);
   }
 

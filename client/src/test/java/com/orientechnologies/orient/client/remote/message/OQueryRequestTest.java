@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
 import java.io.IOException;
 import java.util.HashMap;
@@ -11,7 +11,7 @@ import org.junit.Test;
 /**
  *
  */
-public class OQueryRequestTest extends BaseMemoryDatabase {
+public class OQueryRequestTest extends DBTestBase {
 
   @Test
   public void testWithPositionalParams() throws IOException {

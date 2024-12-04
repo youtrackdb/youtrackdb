@@ -1,12 +1,12 @@
 package com.orientechnologies.orient.core.sql.select;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestSqlForeach extends BaseMemoryDatabase {
+public class TestSqlForeach extends DBTestBase {
 
   @Test
   public void testForeach() {

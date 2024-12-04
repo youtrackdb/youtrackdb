@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityPolicyImpl;
 import org.junit.Assert;
@@ -9,7 +9,7 @@ import org.junit.Test;
 /**
  *
  */
-public class OAlterRoleStatementExecutionTest extends BaseMemoryDatabase {
+public class OAlterRoleStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testAddPolicy() {

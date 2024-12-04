@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.serialization.serializer.result.binary
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OxygenDB;
@@ -26,7 +26,7 @@ import org.junit.Test;
 /**
  *
  */
-public class OResultSerializationTest extends BaseMemoryDatabase {
+public class OResultSerializationTest extends DBTestBase {
 
   protected OResultSerializerNetwork serializer;
 

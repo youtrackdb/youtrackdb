@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import static com.orientechnologies.orient.core.sql.executor.ExecutionPlanPrintUtils.printExecutionPlan;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
@@ -40,7 +40,7 @@ import org.junit.Test;
 /**
  *
  */
-public class OSelectStatementExecutionTest extends BaseMemoryDatabase {
+public class OSelectStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testSelectNoTarget() {

@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.method.misc;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,7 +19,7 @@ import org.junit.Test;
  * the execute() method from the OSQLMethod interface that is used is the ioResult argument (the 4th
  * argument).
  */
-public class OSQLMethodAsSetTest extends BaseMemoryDatabase {
+public class OSQLMethodAsSetTest extends DBTestBase {
 
   private OSQLMethodAsSet function;
 

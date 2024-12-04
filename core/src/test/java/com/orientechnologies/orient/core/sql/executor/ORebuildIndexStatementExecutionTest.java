@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -13,7 +13,7 @@ import org.junit.Test;
 /**
  *
  */
-public class ORebuildIndexStatementExecutionTest extends BaseMemoryDatabase {
+public class ORebuildIndexStatementExecutionTest extends DBTestBase {
 
   @Test
   public void indexAfterRebuildShouldIncludeAllClusters() {

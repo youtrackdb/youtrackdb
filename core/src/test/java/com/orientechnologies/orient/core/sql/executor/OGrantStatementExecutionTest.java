@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
@@ -12,7 +12,7 @@ import org.junit.Test;
 /**
  *
  */
-public class OGrantStatementExecutionTest extends BaseMemoryDatabase {
+public class OGrantStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testSimple() {

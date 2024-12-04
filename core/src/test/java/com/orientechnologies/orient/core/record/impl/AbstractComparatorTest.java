@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.record.impl;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.collate.OCollate;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -11,7 +11,7 @@ import com.orientechnologies.orient.core.serialization.serializer.record.binary.
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerBinary;
 import org.junit.Assert;
 
-public abstract class AbstractComparatorTest extends BaseMemoryDatabase {
+public abstract class AbstractComparatorTest extends DBTestBase {
 
   protected ODocumentSerializer serializer =
       ORecordSerializerBinary.INSTANCE.getCurrentSerializer();

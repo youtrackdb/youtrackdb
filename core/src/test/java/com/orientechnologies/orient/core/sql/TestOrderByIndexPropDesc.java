@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYPE;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -9,12 +9,12 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestOrderByIndexPropDesc extends BaseMemoryDatabase {
+public class TestOrderByIndexPropDesc extends DBTestBase {
 
   private static final String DOCUMENT_CLASS_NAME = "MyDocument";
   private static final String PROP_INDEXED_STRING = "dateProperty";
 
-  public void beforeTest() {
+  public void beforeTest() throws Exception {
     super.beforeTest();
     OClass oclass = db.getMetadata().getSchema().createClass(DOCUMENT_CLASS_NAME);
     oclass.createProperty(db, PROP_INDEXED_STRING, OType.INTEGER);

@@ -3,14 +3,14 @@ package com.orientechnologies.orient.core.db.record;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.Test;
 
-public class ORecordLazySetPersistentTest extends BaseMemoryDatabase {
+public class ORecordLazySetPersistentTest extends DBTestBase {
 
   @Test
   public void test1() {

@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.db;
 
 import static org.junit.Assert.assertEquals;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
@@ -61,7 +62,7 @@ public class ODatabasePoolRemoteTest {
   public void testPoolDoubleClose() {
     OxygenDB oxygenDb =
         new OxygenDB(
-            "embedded:",
+            DBTestBase.embeddedDBUrl(getClass()),
             OxygenDBConfig.builder().addConfig(OGlobalConfiguration.DB_POOL_MAX, 1).build());
 
     if (!oxygenDb.exists("test")) {

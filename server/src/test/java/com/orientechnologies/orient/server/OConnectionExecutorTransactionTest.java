@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.message.OBeginTransactionRequest;
 import com.orientechnologies.orient.client.remote.message.OBeginTransactionResponse;
@@ -32,9 +33,6 @@ import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.server.network.protocol.ONetworkProtocolData;
 import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -62,11 +60,8 @@ public class OConnectionExecutorTransactionTest {
   @Before
   public void before() throws IOException {
     MockitoAnnotations.initMocks(this);
-    Path path =
-        FileSystems.getDefault()
-            .getPath("./target/" + OConnectionExecutorTransactionTest.class.getSimpleName());
-    Files.createDirectories(path);
-    oxygenDb = new OxygenDB("embedded:" + path, OxygenDBConfig.defaultConfig());
+    oxygenDb = new OxygenDB("embedded:" + DBTestBase.embeddedDBUrl(getClass()),
+        OxygenDBConfig.defaultConfig());
     oxygenDb.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         OConnectionExecutorTransactionTest.class.getSimpleName());

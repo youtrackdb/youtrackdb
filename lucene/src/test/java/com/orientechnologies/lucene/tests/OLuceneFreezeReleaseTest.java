@@ -2,6 +2,7 @@ package com.orientechnologies.lucene.tests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -19,7 +20,7 @@ public class OLuceneFreezeReleaseTest extends OLuceneBaseTest {
   public void setUp() throws Exception {
 
     dropDatabase();
-    super.setupDatabase("ci");
+    createDatabase(ODatabaseType.PLOCAL);
   }
 
   @Test

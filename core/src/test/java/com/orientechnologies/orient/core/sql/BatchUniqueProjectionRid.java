@@ -2,13 +2,13 @@ package com.orientechnologies.orient.core.sql;
 
 import static org.junit.Assert.assertNotEquals;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.command.script.OCommandScript;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.List;
 import org.junit.Test;
 
-public class BatchUniqueProjectionRid extends BaseMemoryDatabase {
+public class BatchUniqueProjectionRid extends DBTestBase {
 
   @Test
   public void testBatchUniqueRid() {

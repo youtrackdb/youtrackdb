@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
@@ -18,7 +19,7 @@ public class ODropDatabaseStatementExecutionTest {
     String dbName = "ODropDatabaseStatementExecutionTest_testPlain";
     OxygenDB oxygenDb =
         new OxygenDB(
-            "embedded:./target/",
+            DBTestBase.embeddedDBUrl(getClass()),
             OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
@@ -53,7 +54,7 @@ public class ODropDatabaseStatementExecutionTest {
     String dbName = "ODropDatabaseStatementExecutionTest_testIfExists1";
     final OxygenDB oxygenDb =
         new OxygenDB(
-            "embedded:./target/",
+            DBTestBase.embeddedDBUrl(getClass()),
             OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
@@ -86,17 +87,13 @@ public class ODropDatabaseStatementExecutionTest {
   @Test
   public void testIfExists2() {
     String dbName = "ODropDatabaseStatementExecutionTest_testIfExists2";
-    OxygenDB oxygenDb =
-        new OxygenDB(
-            "embedded:./target/",
-            OxygenDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
-                .build());
-    try {
+    try (OxygenDB oxygenDb = new OxygenDB(
+        DBTestBase.embeddedDBUrl(getClass()) + getClass().getSimpleName(),
+        OxygenDBConfig.builder()
+            .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
+            .build())) {
       oxygenDb.execute("drop database " + dbName + " if exists");
       Assert.assertFalse(oxygenDb.exists(dbName));
-    } finally {
-      oxygenDb.close();
     }
   }
 }

@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.metadata.schema;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.Collection;
 import org.junit.Assert;
@@ -9,7 +9,7 @@ import org.junit.Test;
 /**
  *
  */
-public class SaveLinkedTypeAnyTest extends BaseMemoryDatabase {
+public class SaveLinkedTypeAnyTest extends DBTestBase {
 
   @Test
   public void testRemoveLinkedType() {

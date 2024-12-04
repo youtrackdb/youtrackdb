@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
 import java.math.BigDecimal;
@@ -10,7 +10,7 @@ import org.junit.Test;
 /**
  *
  */
-public class OScriptExecutionTest extends BaseMemoryDatabase {
+public class OScriptExecutionTest extends DBTestBase {
 
   @Test
   public void testTwoInserts() {

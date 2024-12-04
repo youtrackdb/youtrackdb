@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -10,7 +10,7 @@ import org.junit.Test;
 /**
  *
  */
-public class OUpdateEdgeStatementExecutionTest extends BaseMemoryDatabase {
+public class OUpdateEdgeStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testUpdateEdge() {

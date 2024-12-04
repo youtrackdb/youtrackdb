@@ -3,13 +3,13 @@ package com.orientechnologies.orient.core.metadata.function;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import org.junit.Test;
 
 /**
  *
  */
-public class OFunctionLibraryTest extends BaseMemoryDatabase {
+public class OFunctionLibraryTest extends DBTestBase {
 
   @Test
   public void testSimpleFunctionCreate() {

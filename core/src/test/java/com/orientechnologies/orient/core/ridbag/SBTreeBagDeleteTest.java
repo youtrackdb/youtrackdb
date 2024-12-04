@@ -22,7 +22,7 @@ import org.junit.Test;
  */
 public class SBTreeBagDeleteTest extends BaseMemoryInternalDatabase {
 
-  public void beforeTest() {
+  public void beforeTest() throws Exception {
     super.beforeTest();
     db.getConfiguration().setValue(RID_BAG_SBTREEBONSAI_DELETE_DELAY, 50);
   }

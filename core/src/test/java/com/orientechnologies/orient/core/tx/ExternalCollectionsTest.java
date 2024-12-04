@@ -19,7 +19,7 @@
 
 package com.orientechnologies.orient.core.tx;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ import org.junit.Test;
 /**
  *
  */
-public class ExternalCollectionsTest extends BaseMemoryDatabase {
+public class ExternalCollectionsTest extends DBTestBase {
 
   @Ignore // re-enable or remove after decision on #6370 is made
   @Test

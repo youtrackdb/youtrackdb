@@ -23,7 +23,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.lucene.OLuceneIndexFactory;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExport;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -87,7 +86,7 @@ public class LuceneExportImportTest extends BaseLuceneTest {
 
       createDatabase();
 
-      db = (ODatabaseSessionInternal) openDatabase();
+      db = openDatabase();
 
       GZIPInputStream stream = new GZIPInputStream(new FileInputStream(file + ".gz"));
       new ODatabaseImport(

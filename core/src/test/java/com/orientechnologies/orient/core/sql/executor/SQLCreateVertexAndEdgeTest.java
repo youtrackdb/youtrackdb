@@ -17,7 +17,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.OVertex;
@@ -28,7 +28,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 @RunWith(JUnit4.class)
-public class SQLCreateVertexAndEdgeTest extends BaseMemoryDatabase {
+public class SQLCreateVertexAndEdgeTest extends DBTestBase {
 
   @Test
   public void testCreateEdgeDefaultClass() {

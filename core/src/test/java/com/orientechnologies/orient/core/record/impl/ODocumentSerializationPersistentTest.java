@@ -18,7 +18,8 @@ import org.junit.Test;
  * @since 12/20/12
  */
 public class ODocumentSerializationPersistentTest extends BaseMemoryInternalDatabase {
-  public void beforeTest() {
+
+  public void beforeTest() throws Exception {
     super.beforeTest();
 
     db.begin();

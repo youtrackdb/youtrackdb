@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.ridbag;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.db.record.ridbag.embedded.OEmbeddedRidBag;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -19,7 +19,7 @@ import java.util.Set;
 import java.util.UUID;
 import org.junit.Test;
 
-public class ORidBagBasicTest extends BaseMemoryDatabase {
+public class ORidBagBasicTest extends DBTestBase {
 
   @Test
   public void embeddedRidBagSerializationTest() {

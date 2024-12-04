@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.db.document;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OxygenDB;
@@ -13,7 +14,9 @@ public class DefaultClusterTest {
   @Test
   public void defaultClusterTest() {
     final OxygenDB context =
-        OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
+        OCreateDatabaseUtil.createDatabase("test",
+            DBTestBase.embeddedDBUrl(getClass()),
+            OCreateDatabaseUtil.TYPE_MEMORY);
     try (final ODatabaseSession db =
         context.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
       var v =

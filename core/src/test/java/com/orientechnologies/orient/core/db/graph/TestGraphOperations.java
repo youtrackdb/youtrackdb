@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.db.graph;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -13,7 +13,7 @@ import org.junit.Test;
 /**
  *
  */
-public class TestGraphOperations extends BaseMemoryDatabase {
+public class TestGraphOperations extends DBTestBase {
 
   @Test
   public void testEdgeUniqueConstraint() {

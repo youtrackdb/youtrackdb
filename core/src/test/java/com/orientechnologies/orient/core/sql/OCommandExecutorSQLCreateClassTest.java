@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.sql;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import java.util.List;
@@ -29,9 +29,9 @@ import org.junit.Test;
 /**
  *
  */
-public class OCommandExecutorSQLCreateClassTest extends BaseMemoryDatabase {
+public class OCommandExecutorSQLCreateClassTest extends DBTestBase {
 
-  public void beforeTest() {
+  public void beforeTest() throws Exception {
     super.beforeTest();
     final OSchema schema = db.getMetadata().getSchema();
     schema.createClass("User", schema.getClass("V"));

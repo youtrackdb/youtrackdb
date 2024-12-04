@@ -78,7 +78,7 @@ public class OLuceneExportImportTest extends OLuceneBaseTest {
 
       // import
       dropDatabase();
-      setupDatabase();
+      createDatabase();
 
       GZIPInputStream stream = new GZIPInputStream(new FileInputStream(file + ".gz"));
       new ODatabaseImport(db, stream, s -> {

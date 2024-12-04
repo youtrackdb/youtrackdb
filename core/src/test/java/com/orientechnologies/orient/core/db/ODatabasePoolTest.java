@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.db;
 
 import static org.junit.Assert.assertEquals;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -12,7 +13,8 @@ public class ODatabasePoolTest {
   @Test
   public void testPool() {
     final OxygenDB oxygenDb =
-        OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
+        OCreateDatabaseUtil.createDatabase("test", DBTestBase.embeddedDBUrl(getClass()),
+            OCreateDatabaseUtil.TYPE_MEMORY);
     final ODatabasePool pool =
         new ODatabasePool(oxygenDb, "test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     var db = (ODatabaseSessionInternal) pool.acquire();
@@ -26,7 +28,7 @@ public class ODatabasePoolTest {
   public void testPoolCloseTx() {
     final OxygenDB oxygenDb =
         new OxygenDB(
-            "embedded:",
+            DBTestBase.embeddedDBUrl(getClass()),
             OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.DB_POOL_MAX, 1)
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
@@ -61,7 +63,7 @@ public class ODatabasePoolTest {
   public void testPoolDoubleClose() {
     final OxygenDB oxygenDb =
         new OxygenDB(
-            "embedded:",
+            DBTestBase.embeddedDBUrl(getClass()),
             OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.DB_POOL_MAX, 1)
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)

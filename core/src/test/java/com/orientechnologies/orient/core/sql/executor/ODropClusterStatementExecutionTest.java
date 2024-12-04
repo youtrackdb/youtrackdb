@@ -1,13 +1,13 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
  *
  */
-public class ODropClusterStatementExecutionTest extends BaseMemoryDatabase {
+public class ODropClusterStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testPlain() {

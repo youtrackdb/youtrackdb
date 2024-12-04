@@ -5,12 +5,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class AlterPropertyTest extends BaseMemoryDatabase {
+public class AlterPropertyTest extends DBTestBase {
 
   @Test
   public void testPropertyRenaming() {

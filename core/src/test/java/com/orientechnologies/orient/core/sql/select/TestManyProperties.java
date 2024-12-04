@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.sql.select;
 
 import static org.junit.Assert.assertEquals;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
@@ -16,7 +17,8 @@ public class TestManyProperties {
   @Test
   @Ignore
   public void test() {
-    try (OxygenDB orientdb = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig())) {
+    try (OxygenDB orientdb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
+        OxygenDBConfig.defaultConfig())) {
       orientdb
           .execute("create database test memory users(admin identified by 'admin' role admin)")
           .close();

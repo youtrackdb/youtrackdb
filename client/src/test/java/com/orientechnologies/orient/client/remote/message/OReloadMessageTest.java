@@ -2,47 +2,26 @@ package com.orientechnologies.orient.client.remote.message;
 
 import static org.junit.Assert.assertEquals;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.client.remote.message.push.OStorageConfigurationPayload;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.enterprise.channel.binary.OChannelBinaryProtocol;
 import java.io.IOException;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
-public class OReloadMessageTest {
-
-  private OxygenDB oxygenDB;
-  private ODatabaseSession session;
-
-  @Before
-  public void before() {
-    oxygenDB = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
-    oxygenDB.execute("create database test memory users (admin identified by 'admin' role admin)");
-    session = oxygenDB.open("test", "admin", "admin");
-  }
-
-  @After
-  public void after() {
-    session.close();
-    oxygenDB.close();
-  }
+public class OReloadMessageTest extends DBTestBase {
 
   @Test
   public void testWriteReadResponse() throws IOException {
     OStorageConfiguration configuration =
-        ((ODatabaseSessionInternal) session).getStorage().getConfiguration();
+        db.getStorage().getConfiguration();
     OReloadResponse37 responseWrite = new OReloadResponse37(configuration);
     MockChannel channel = new MockChannel();
-    responseWrite.write((ODatabaseSessionInternal) session, channel,
+    responseWrite.write(db, channel,
         OChannelBinaryProtocol.CURRENT_PROTOCOL_VERSION, null);
     channel.close();
     OReloadResponse37 responseRead = new OReloadResponse37();
-    responseRead.read((ODatabaseSessionInternal) session, channel, null);
+    responseRead.read(db, channel, null);
     OStorageConfigurationPayload payload = responseRead.getPayload();
     assertEquals(configuration.getProperties().size(), payload.getProperties().size());
     for (int i = 0; i < configuration.getProperties().size(); i++) {

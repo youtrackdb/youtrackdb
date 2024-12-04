@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.index;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
@@ -19,7 +19,7 @@ import org.junit.Test;
 /**
  * @since 1/30/14
  */
-public abstract class OPropertyRidBagAbstractIndexDefinition extends BaseMemoryDatabase {
+public abstract class OPropertyRidBagAbstractIndexDefinition extends DBTestBase {
 
   private OPropertyRidBagIndexDefinition propertyIndex;
 

@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.storage.index.versionmap;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
@@ -19,7 +20,7 @@ import org.junit.Test;
 
 public class VersionPositionMapTestIT {
 
-  public static final String DIR_NAME = "/versionPositionMapTest";
+  public static final String DIR_NAME = "/" + VersionPositionMapTestIT.class.getSimpleName();
   public static final String DB_NAME = "versionPositionMapTest";
   private static OxygenDB oxygenDB;
   private static OAtomicOperationsManager atomicOperationsManager;
@@ -32,7 +33,7 @@ public class VersionPositionMapTestIT {
   public static void beforeClass() {
     buildDirectory = System.getProperty("buildDirectory");
     if (buildDirectory == null) {
-      buildDirectory = "./target" + DIR_NAME;
+      buildDirectory = "./target/databases" + DIR_NAME;
     } else {
       buildDirectory += DIR_NAME;
     }
@@ -40,7 +41,8 @@ public class VersionPositionMapTestIT {
 
     oxygenDB =
         OCreateDatabaseUtil.createDatabase(
-            DB_NAME, "embedded:" + buildDirectory, OCreateDatabaseUtil.TYPE_PLOCAL);
+            DB_NAME, DBTestBase.embeddedDBUrl(VersionPositionMapTestIT.class),
+            OCreateDatabaseUtil.TYPE_PLOCAL);
     if (oxygenDB.exists(DB_NAME)) {
       oxygenDB.drop(DB_NAME);
     }

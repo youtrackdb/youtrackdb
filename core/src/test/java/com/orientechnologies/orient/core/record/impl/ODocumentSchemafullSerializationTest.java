@@ -19,9 +19,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestName;
 
 public abstract class ODocumentSchemafullSerializationTest extends BaseMemoryInternalDatabase {
 
@@ -58,8 +56,7 @@ public abstract class ODocumentSchemafullSerializationTest extends BaseMemoryInt
   private static final String RECORDID_FIELD = "recordField";
   private static final String EMBEDDED_FIELD = "embeddedField";
   private static final String ANY_FIELD = "anyField";
-  @Rule
-  public TestName name = new TestName();
+
   private OClass simple;
   private final ORecordSerializer serializer;
   private OClass embSimp;
@@ -70,12 +67,7 @@ public abstract class ODocumentSchemafullSerializationTest extends BaseMemoryInt
     this.serializer = serializer;
   }
 
-  @Override
-  protected String getDatabaseName() {
-    return ODocumentSchemafullSerializationTest.class.getSimpleName();
-  }
-
-  public void beforeTest() {
+  public void beforeTest() throws Exception {
     ODatabaseSessionAbstract.setDefaultSerializer(serializer);
     super.beforeTest();
     // databaseDocument.getMetadata().

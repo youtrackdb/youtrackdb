@@ -5,7 +5,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OxygenDB;
@@ -43,7 +43,7 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
-public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDatabase {
+public class ODocumentSchemalessBinarySerializationTest extends DBTestBase {
 
   @Parameters
   public static Collection<Object[]> generateParams() {
@@ -344,7 +344,8 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void testSimpleLiteralSet() throws InterruptedException {
-    try (OxygenDB ctx = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig())) {
+    try (OxygenDB ctx = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
+        OxygenDBConfig.defaultConfig())) {
       ctx.execute(
           "create database testSimpleLiteralSet memory users(admin identified by 'adminpwd' role"
               + " admin)");
@@ -445,7 +446,8 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
 
   @Test
   public void testLinkCollections() {
-    try (OxygenDB ctx = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig())) {
+    try (OxygenDB ctx = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
+        OxygenDBConfig.defaultConfig())) {
       ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
       try (var db = (ODatabaseSessionInternal) ctx.open("test", "admin", "adminpwd")) {
         ODocument document = new ODocument();
@@ -632,7 +634,8 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
   @Test
   public void testMapOfLink() {
     // needs a database because of the lazy loading
-    try (OxygenDB ctx = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig())) {
+    try (OxygenDB ctx = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
+        OxygenDBConfig.defaultConfig())) {
       ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
       try (var db = (ODatabaseSessionInternal) ctx.open("test", "admin", "adminpwd")) {
         ODocument document = new ODocument();
@@ -653,7 +656,8 @@ public class ODocumentSchemalessBinarySerializationTest extends BaseMemoryDataba
 
   @Test
   public void testDocumentSimple() {
-    try (OxygenDB ctx = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig())) {
+    try (OxygenDB ctx = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
+        OxygenDBConfig.defaultConfig())) {
       ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
       try (var db = (ODatabaseSessionInternal) ctx.open("test", "admin", "adminpwd")) {
         ODocument document = new ODocument("TestClass");

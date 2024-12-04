@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.db.graph;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OxygenDB;
@@ -23,7 +24,8 @@ public class LightWeightEdgesTest {
   @Before
   public void before() {
     oxygenDB =
-        OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
+        OCreateDatabaseUtil.createDatabase("test", DBTestBase.embeddedDBUrl(getClass()),
+            OCreateDatabaseUtil.TYPE_MEMORY);
     session = oxygenDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     session.createVertexClass("Vertex");

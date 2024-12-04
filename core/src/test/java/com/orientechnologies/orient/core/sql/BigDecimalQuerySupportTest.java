@@ -2,12 +2,12 @@ package com.orientechnologies.orient.core.sql;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.math.BigDecimal;
 import org.junit.Test;
 
-public class BigDecimalQuerySupportTest extends BaseMemoryDatabase {
+public class BigDecimalQuerySupportTest extends DBTestBase {
 
   @Test
   public void testDecimalPrecision() {

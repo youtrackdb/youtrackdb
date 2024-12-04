@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.sql.parser.operators;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.sql.parser.OContainsCondition;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,7 +31,7 @@ import org.junit.Test;
 /**
  *
  */
-public class OContainsConditionTest extends BaseMemoryDatabase {
+public class OContainsConditionTest extends DBTestBase {
 
   @Test
   public void test() {

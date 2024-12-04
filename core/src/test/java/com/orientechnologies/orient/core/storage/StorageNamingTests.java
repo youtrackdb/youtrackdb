@@ -19,6 +19,7 @@
 
 package com.orientechnologies.orient.core.storage;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
@@ -34,7 +35,8 @@ public class StorageNamingTests {
 
   @Test
   public void testSpecialLettersOne() {
-    try (OxygenDB oxygenDB = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig())) {
+    try (OxygenDB oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
+        OxygenDBConfig.defaultConfig())) {
       try {
         oxygenDB.create("name%", ODatabaseType.MEMORY);
         Assert.fail();
@@ -46,7 +48,8 @@ public class StorageNamingTests {
 
   @Test
   public void testSpecialLettersTwo() {
-    try (OxygenDB oxygenDB = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig())) {
+    try (OxygenDB oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
+        OxygenDBConfig.defaultConfig())) {
       try {
         oxygenDB.create("na.me", ODatabaseType.MEMORY);
         Assert.fail();
@@ -58,7 +61,8 @@ public class StorageNamingTests {
 
   @Test
   public void testSpecialLettersThree() {
-    try (OxygenDB oxygenDB = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig())) {
+    try (OxygenDB oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
+        OxygenDBConfig.defaultConfig())) {
       oxygenDB.create("na_me$", ODatabaseType.MEMORY);
       oxygenDB.drop("na_me$");
     }

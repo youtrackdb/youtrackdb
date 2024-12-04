@@ -2,10 +2,10 @@ package com.orientechnologies.orient.core.metadata.schema;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import org.junit.Test;
 
-public class CreateClassMultipleClusterTest extends BaseMemoryDatabase {
+public class CreateClassMultipleClusterTest extends DBTestBase {
 
   @Test
   public void testCreateClassSQL() {

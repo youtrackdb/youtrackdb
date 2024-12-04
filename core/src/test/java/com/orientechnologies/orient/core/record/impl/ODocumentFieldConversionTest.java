@@ -22,7 +22,7 @@ public class ODocumentFieldConversionTest extends BaseMemoryInternalDatabase {
 
   private OClass clazz;
 
-  public void beforeTest() {
+  public void beforeTest() throws Exception {
     super.beforeTest();
     clazz = db.getMetadata().getSchema().createClass("testClass");
     clazz.createProperty(db, "integer", OType.INTEGER);

@@ -2,11 +2,11 @@ package com.orientechnologies.orient.core.metadata.schema;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import org.junit.Test;
 
-public class OSchemaSharedGlobalPropertyTest extends BaseMemoryDatabase {
+public class OSchemaSharedGlobalPropertyTest extends DBTestBase {
 
   @Test
   public void testGlobalPropertyCreate() {

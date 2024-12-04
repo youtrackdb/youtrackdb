@@ -21,6 +21,7 @@ package com.orientechnologies.orient.core.sql.functions.graph;
 
 import static org.junit.Assert.assertEquals;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
@@ -77,7 +78,8 @@ public class OSQLFunctionAstarTest {
 
     oxygenDB =
         OCreateDatabaseUtil.createDatabase(
-            "OSQLFunctionAstarTest", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
+            "OSQLFunctionAstarTest", DBTestBase.embeddedDBUrl(getClass()),
+            OCreateDatabaseUtil.TYPE_MEMORY);
     graph =
         (ODatabaseSessionInternal)
             oxygenDB.open("OSQLFunctionAstarTest", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);

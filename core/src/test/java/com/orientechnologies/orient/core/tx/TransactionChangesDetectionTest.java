@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OxygenDB;
@@ -26,7 +27,7 @@ public class TransactionChangesDetectionTest {
     factory =
         OCreateDatabaseUtil.createDatabase(
             TransactionChangesDetectionTest.class.getSimpleName(),
-            "embedded:",
+            DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_MEMORY);
     database =
         (ODatabaseSessionInternal)

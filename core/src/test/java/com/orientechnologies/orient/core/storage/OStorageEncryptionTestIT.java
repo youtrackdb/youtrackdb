@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.storage;
 
 import static org.junit.Assert.assertTrue;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
@@ -36,7 +37,7 @@ public class OStorageEncryptionTestIT {
             .addConfig(OGlobalConfiguration.STORAGE_ENCRYPTION_KEY, "T1JJRU5UREJfSVNfQ09PTA==")
             .build();
     try (final OxygenDB oxygenDB =
-        new OxygenDB("embedded:" + dbDirectoryFile.getAbsolutePath(), oxygenDBConfig)) {
+        new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), oxygenDBConfig)) {
       oxygenDB.execute(
           "create database encryption plocal users ( admin identified by 'admin' role admin)");
       try (var session = (ODatabaseSessionInternal) oxygenDB.open("encryption", "admin", "admin")) {
@@ -75,7 +76,7 @@ public class OStorageEncryptionTestIT {
 
     try (final OxygenDB oxygenDB =
         new OxygenDB(
-            "embedded:" + dbDirectoryFile.getAbsolutePath(), OxygenDBConfig.defaultConfig())) {
+            DBTestBase.embeddedDBUrl(getClass()), OxygenDBConfig.defaultConfig())) {
       try {
         try (final ODatabaseSession session = oxygenDB.open("encryption", "admin", "admin")) {
           Assert.fail();
@@ -92,7 +93,7 @@ public class OStorageEncryptionTestIT {
                 "DD0ViGecppQOx4ijWL4XGBwun9NAfbqFaDnVpn9+lj8=")
             .build();
     try (final OxygenDB oxygenDB =
-        new OxygenDB("embedded:" + dbDirectoryFile.getAbsolutePath(), wrongKeyOneOxygenDBConfig)) {
+        new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), wrongKeyOneOxygenDBConfig)) {
       try {
         try (final ODatabaseSession session = oxygenDB.open("encryption", "admin", "admin")) {
           Assert.fail();
@@ -109,7 +110,7 @@ public class OStorageEncryptionTestIT {
                 "DD0ViGecppQOx4ijWL4XGBwun9NAfbqFaDnVpn9+lj8")
             .build();
     try (final OxygenDB oxygenDB =
-        new OxygenDB("embedded:" + dbDirectoryFile.getAbsolutePath(), wrongKeyTwoOxygenDBConfig)) {
+        new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), wrongKeyTwoOxygenDBConfig)) {
       try {
         try (final ODatabaseSession session = oxygenDB.open("encryption", "admin", "admin")) {
           Assert.fail();
@@ -120,7 +121,7 @@ public class OStorageEncryptionTestIT {
     }
 
     try (final OxygenDB oxygenDB =
-        new OxygenDB("embedded:" + dbDirectoryFile.getAbsolutePath(), oxygenDBConfig)) {
+        new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), oxygenDBConfig)) {
       try (final ODatabaseSessionInternal session =
           (ODatabaseSessionInternal) oxygenDB.open("encryption", "admin", "admin")) {
         final OIndexManagerAbstract indexManager = session.getMetadata().getIndexManagerInternal();
@@ -151,9 +152,8 @@ public class OStorageEncryptionTestIT {
   }
 
   private File cleanAndGetDirectory() {
-    final String buildDirectory = System.getProperty("buildDirectory", ".");
     final String dbDirectory =
-        buildDirectory + File.separator + OStorageEncryptionTestIT.class.getSimpleName();
+        "./target/databases" + File.separator + OStorageEncryptionTestIT.class.getSimpleName();
     final File dbDirectoryFile = new File(dbDirectory);
     OFileUtils.deleteRecursively(dbDirectoryFile);
     return dbDirectoryFile;
@@ -165,7 +165,7 @@ public class OStorageEncryptionTestIT {
 
     try (final OxygenDB oxygenDB =
         new OxygenDB(
-            "embedded:" + dbDirectoryFile.getAbsolutePath(), OxygenDBConfig.defaultConfig())) {
+            DBTestBase.embeddedDBUrl(getClass()), OxygenDBConfig.defaultConfig())) {
       final OxygenDBConfig oxygenDBConfig =
           OxygenDBConfig.builder()
               .addConfig(OGlobalConfiguration.STORAGE_ENCRYPTION_KEY, "T1JJRU5UREJfSVNfQ09PTA==")
@@ -176,7 +176,7 @@ public class OStorageEncryptionTestIT {
     }
     try (final OxygenDB oxygenDB =
         new OxygenDB(
-            "embedded:" + dbDirectoryFile.getAbsolutePath(), OxygenDBConfig.defaultConfig())) {
+            DBTestBase.embeddedDBUrl(getClass()), OxygenDBConfig.defaultConfig())) {
       final OxygenDBConfig oxygenDBConfig =
           OxygenDBConfig.builder()
               .addConfig(OGlobalConfiguration.STORAGE_ENCRYPTION_KEY, "T1JJRU5UREJfSVNfQ09PTA==")

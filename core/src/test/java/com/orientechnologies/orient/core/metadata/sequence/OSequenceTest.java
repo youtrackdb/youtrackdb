@@ -38,7 +38,8 @@ public class OSequenceTest {
     var builder = OxygenDBConfig.builder();
 
     builder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
-    oxygenDB = OxygenDB.embedded(OSequenceTest.class.getSimpleName(), builder.build());
+    oxygenDB = OxygenDB.embedded("./target/databases/" + OSequenceTest.class.getSimpleName(),
+        builder.build());
   }
 
   @AfterClass

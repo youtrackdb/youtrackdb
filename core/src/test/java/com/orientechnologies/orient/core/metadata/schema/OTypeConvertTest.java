@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -19,7 +19,7 @@ import org.junit.Test;
 /**
  * Test the covert method of the OType class.
  */
-public class OTypeConvertTest extends BaseMemoryDatabase {
+public class OTypeConvertTest extends DBTestBase {
 
   //
   // General cases

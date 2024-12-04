@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.db.OxygenDBConfigBuilder;
@@ -12,7 +12,7 @@ import org.junit.Test;
 /**
  *
  */
-public class OAlterSequenceStatementExecutionTest extends BaseMemoryDatabase {
+public class OAlterSequenceStatementExecutionTest extends DBTestBase {
 
   @Override
   protected OxygenDBConfig createConfig(OxygenDBConfigBuilder builder) {

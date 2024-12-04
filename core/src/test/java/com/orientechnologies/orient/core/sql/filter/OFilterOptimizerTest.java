@@ -1,13 +1,13 @@
 package com.orientechnologies.orient.core.sql.filter;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.sql.OIndexSearchResult;
 import com.orientechnologies.orient.core.sql.OSQLEngine;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class OFilterOptimizerTest extends BaseMemoryDatabase {
+public class OFilterOptimizerTest extends DBTestBase {
 
   private final OFilterOptimizer optimizer = new OFilterOptimizer();
 

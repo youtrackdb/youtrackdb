@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.storage.impl.local.paginated;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
@@ -31,7 +32,8 @@ public class TransactionMetadataTest {
   @Before
   public void before() {
 
-    oxygenDB = new OxygenDB("embedded:./target/", OxygenDBConfig.defaultConfig());
+    oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
+        OxygenDBConfig.defaultConfig());
     oxygenDB.execute(
         "create database `" + DB_NAME + "` plocal users(admin identified by 'admin' role admin)");
     db = (ODatabaseSessionInternal) oxygenDB.open(DB_NAME, "admin", "admin");

@@ -16,42 +16,42 @@ public class OURLHelperTest {
   @Test
   public void testSimpleUrl() {
     OURLConnection parsed = OURLHelper.parse("plocal:/path/test/to");
-    assertEquals(parsed.getType(), "plocal");
+    assertEquals("plocal", parsed.getType());
     assertEquals(parsed.getPath(), new File("/path/test").getAbsolutePath());
-    assertEquals(parsed.getDbName(), "to");
+    assertEquals("to", parsed.getDbName());
 
     parsed = OURLHelper.parse("memory:some");
-    assertEquals(parsed.getType(), "memory");
+    assertEquals("memory", parsed.getType());
     // assertEquals(parsed.getPath(), "");
-    assertEquals(parsed.getDbName(), "some");
+    assertEquals("some", parsed.getDbName());
 
     parsed = OURLHelper.parse("remote:localhost/to");
-    assertEquals(parsed.getType(), "remote");
-    assertEquals(parsed.getPath(), "localhost");
-    assertEquals(parsed.getDbName(), "to");
+    assertEquals("remote", parsed.getType());
+    assertEquals("localhost", parsed.getPath());
+    assertEquals("to", parsed.getDbName());
   }
 
   @Test
   public void testSimpleNewUrl() {
     OURLConnection parsed = OURLHelper.parseNew("plocal:/path/test/to");
-    assertEquals(parsed.getType(), "embedded");
+    assertEquals("embedded", parsed.getType());
     assertEquals(parsed.getPath(), new File("/path/test").getAbsolutePath());
-    assertEquals(parsed.getDbName(), "to");
+    assertEquals("to", parsed.getDbName());
 
     parsed = OURLHelper.parseNew("memory:some");
-    assertEquals(parsed.getType(), "embedded");
-    assertEquals(parsed.getPath(), "");
-    assertEquals(parsed.getDbName(), "some");
+    assertEquals("embedded", parsed.getType());
+    assertEquals("", parsed.getPath());
+    assertEquals("some", parsed.getDbName());
 
     parsed = OURLHelper.parseNew("embedded:/path/test/to");
-    assertEquals(parsed.getType(), "embedded");
+    assertEquals("embedded", parsed.getType());
     assertEquals(parsed.getPath(), new File("/path/test").getAbsolutePath());
-    assertEquals(parsed.getDbName(), "to");
+    assertEquals("to", parsed.getDbName());
 
     parsed = OURLHelper.parseNew("remote:localhost/to");
-    assertEquals(parsed.getType(), "remote");
-    assertEquals(parsed.getPath(), "localhost");
-    assertEquals(parsed.getDbName(), "to");
+    assertEquals("remote", parsed.getType());
+    assertEquals("localhost", parsed.getPath());
+    assertEquals("to", parsed.getDbName());
   }
 
   @Test(expected = OConfigurationException.class)
@@ -67,18 +67,18 @@ public class OURLHelperTest {
   @Test()
   public void testRemoteNoDatabase() {
     OURLConnection parsed = OURLHelper.parseNew("remote:localhost");
-    assertEquals(parsed.getType(), "remote");
-    assertEquals(parsed.getPath(), "localhost");
-    assertEquals(parsed.getDbName(), "");
+    assertEquals("remote", parsed.getType());
+    assertEquals("localhost", parsed.getPath());
+    assertEquals("", parsed.getDbName());
 
     parsed = OURLHelper.parseNew("remote:localhost:2424");
-    assertEquals(parsed.getType(), "remote");
-    assertEquals(parsed.getPath(), "localhost:2424");
-    assertEquals(parsed.getDbName(), "");
+    assertEquals("remote", parsed.getType());
+    assertEquals("localhost:2424", parsed.getPath());
+    assertEquals("", parsed.getDbName());
 
     parsed = OURLHelper.parseNew("remote:localhost:2424/db1");
-    assertEquals(parsed.getType(), "remote");
-    assertEquals(parsed.getPath(), "localhost:2424");
-    assertEquals(parsed.getDbName(), "db1");
+    assertEquals("remote", parsed.getType());
+    assertEquals("localhost:2424", parsed.getPath());
+    assertEquals("db1", parsed.getDbName());
   }
 }

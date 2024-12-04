@@ -2,14 +2,14 @@ package com.orientechnologies.orient.core.db.document;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.junit.Test;
 
 /**
  *
  */
-public class RecursiveLinkedSaveTest extends BaseMemoryDatabase {
+public class RecursiveLinkedSaveTest extends DBTestBase {
 
   @Test
   public void testTxLinked() {

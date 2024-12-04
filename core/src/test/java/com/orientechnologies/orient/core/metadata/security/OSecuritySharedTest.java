@@ -1,10 +1,10 @@
 package com.orientechnologies.orient.core.metadata.security;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class OSecuritySharedTest extends BaseMemoryDatabase {
+public class OSecuritySharedTest extends DBTestBase {
 
   @Test
   public void testCreateSecurityPolicy() {

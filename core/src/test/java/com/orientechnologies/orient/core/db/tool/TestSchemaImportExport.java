@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.db.tool;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
@@ -13,7 +13,7 @@ import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestSchemaImportExport extends BaseMemoryDatabase {
+public class TestSchemaImportExport extends DBTestBase {
 
   @Test
   public void testExportImportCustomData() throws IOException {

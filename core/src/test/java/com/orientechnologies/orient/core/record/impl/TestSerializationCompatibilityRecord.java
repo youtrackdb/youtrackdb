@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.record.impl;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
 
-public class TestSerializationCompatibilityRecord extends BaseMemoryDatabase {
+public class TestSerializationCompatibilityRecord extends DBTestBase {
 
   @Test
   public void testDataNotMatchSchema() {

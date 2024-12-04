@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.index;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.Random;
 import org.junit.Test;
 
-public class OCompositeIndexGrowShrinkIT extends BaseMemoryDatabase {
+public class OCompositeIndexGrowShrinkIT extends DBTestBase {
 
   private final Random random = new Random();
 

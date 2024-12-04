@@ -18,86 +18,10 @@
 
 package com.orientechnologies.lucene.tests;
 
-import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.orient.core.db.ODatabasePool;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
-import java.io.IOException;
-import java.io.InputStream;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TestName;
+import com.orientechnologies.lucene.test.BaseLuceneTest;
 
 /**
  *
  */
-public abstract class OLuceneBaseTest {
-
-  @Rule
-  public TestName name = new TestName();
-
-  protected ODatabaseSessionInternal db;
-
-  protected OxygenDB orient;
-  protected ODatabasePool pool;
-
-  @Before
-  public void setupDatabase() {
-    final String config =
-        System.getProperty("oxygendb.test.env", ODatabaseType.MEMORY.name().toLowerCase());
-    setupDatabase(config);
-  }
-
-  protected void setupDatabase(String config) {
-    OxygenDBConfig cfg =
-        OxygenDBConfig.builder()
-            .addAttribute(ATTRIBUTES.MINIMUMCLUSTERS, 8)
-            .build();
-
-    if ("ci".equals(config) || "release".equals(config)) {
-      orient = new OxygenDB("embedded:./target/databases/", cfg);
-      if (orient.exists(name.getMethodName())) {
-        orient.drop(name.getMethodName());
-      }
-
-      orient.execute(
-          "create database ? plocal users(admin identified by 'admin' role admin) ",
-          name.getMethodName());
-
-    } else {
-      orient = new OxygenDB("embedded:", cfg);
-      if (orient.exists(name.getMethodName())) {
-        orient.drop(name.getMethodName());
-      }
-
-      orient.execute(
-          "create database ? memory users(admin identified by 'admin' role admin) ",
-          name.getMethodName());
-    }
-
-    pool = new ODatabasePool(orient, name.getMethodName(), "admin", "admin");
-    db = (ODatabaseSessionInternal) pool.acquire();
-  }
-
-  @After
-  public void dropDatabase() {
-
-    db.activateOnCurrentThread();
-    db.close();
-    pool.close();
-    orient.drop(name.getMethodName());
-    orient.close();
-  }
-
-  protected String getScriptFromStream(InputStream in) {
-    try {
-      return OIOUtils.readStreamAsString(in);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
+public abstract class OLuceneBaseTest extends BaseLuceneTest {
 }

@@ -19,6 +19,7 @@
  */
 package com.orientechnologies.orient.core.sql;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
@@ -134,7 +135,8 @@ public class OLiveQueryV2Test {
   public void testLiveInsertOnCluster() {
     final OxygenDB context =
         OCreateDatabaseUtil.createDatabase(
-            "testLiveInsertOnCluster", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
+            "testLiveInsertOnCluster", DBTestBase.embeddedDBUrl(getClass()),
+            OCreateDatabaseUtil.TYPE_MEMORY);
     try (ODatabaseSessionInternal db =
         (ODatabaseSessionInternal)
             context.open(
@@ -173,7 +175,8 @@ public class OLiveQueryV2Test {
   public void testLiveWithWhereCondition() {
     final OxygenDB context =
         OCreateDatabaseUtil.createDatabase(
-            "testLiveWithWhereCondition", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
+            "testLiveWithWhereCondition", DBTestBase.embeddedDBUrl(getClass()),
+            OCreateDatabaseUtil.TYPE_MEMORY);
     try (ODatabaseSessionInternal db =
         (ODatabaseSessionInternal)
             context.open(

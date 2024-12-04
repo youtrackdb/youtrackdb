@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.db.record;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.record.ORecordInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.OMemoryStream;
@@ -16,7 +16,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TrackedMapTest extends BaseMemoryDatabase {
+public class TrackedMapTest extends DBTestBase {
 
   @Test
   public void testPutOne() {

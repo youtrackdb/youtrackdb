@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.metadata.security;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -9,7 +9,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class OSecurityPolicyTest extends BaseMemoryDatabase {
+public class OSecurityPolicyTest extends DBTestBase {
 
   @Test
   public void testSecurityPolicyCreate() {

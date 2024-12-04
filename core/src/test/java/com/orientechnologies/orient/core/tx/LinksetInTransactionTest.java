@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.tx;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.OElement;
 import java.util.HashSet;
@@ -8,7 +8,7 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class LinksetInTransactionTest extends BaseMemoryDatabase {
+public class LinksetInTransactionTest extends DBTestBase {
 
   @Test
   public void test() {

@@ -2,14 +2,14 @@ package com.orientechnologies.orient.core.sql;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.List;
 import org.junit.Test;
 
-public class UpdateWithRidParameters extends BaseMemoryDatabase {
+public class UpdateWithRidParameters extends DBTestBase {
 
   @Test
   public void testRidParameters() {

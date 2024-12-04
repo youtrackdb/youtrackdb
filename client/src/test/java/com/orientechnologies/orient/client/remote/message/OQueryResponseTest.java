@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.client.remote.message;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkFactory;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
@@ -17,7 +17,7 @@ import org.junit.Test;
 /**
  *
  */
-public class OQueryResponseTest extends BaseMemoryDatabase {
+public class OQueryResponseTest extends DBTestBase {
 
   @Test
   public void test() throws IOException {

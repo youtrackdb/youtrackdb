@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import static com.orientechnologies.orient.core.sql.executor.ExecutionPlanPrintUtils.printExecutionPlan;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -12,7 +12,7 @@ import org.junit.Test;
 /**
  *
  */
-public class OAlterPropertyStatementExecutionTest extends BaseMemoryDatabase {
+public class OAlterPropertyStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testSetProperty() {

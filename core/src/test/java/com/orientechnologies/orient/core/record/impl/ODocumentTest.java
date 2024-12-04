@@ -7,7 +7,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OxygenDB;
@@ -28,7 +28,7 @@ import org.junit.Test;
 /**
  *
  */
-public class ODocumentTest extends BaseMemoryDatabase {
+public class ODocumentTest extends DBTestBase {
 
   private static final String dbName = ODocumentTest.class.getSimpleName();
   private static final String defaultDbAdminCredentials = "admin";

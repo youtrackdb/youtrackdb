@@ -1,9 +1,8 @@
 package com.orientechnologies.orient.core.command.script;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBInternal;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -16,116 +15,75 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.script.ScriptException;
 import org.junit.Assert;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestName;
 
 /**
  *
  */
-public class JSScriptTest {
-
-  @Rule
-  public TestName name = new TestName();
+public class JSScriptTest extends DBTestBase {
 
   @Test
   public void jsSimpleTest() {
-    final OxygenDB oxygenDB =
-        OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    var db = oxygenDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    try {
-      OResultSet resultSet = db.execute("javascript", "'foo'");
-      Assert.assertTrue(resultSet.hasNext());
-      OResult result = resultSet.next();
-      String ret = result.getProperty("value");
-      Assert.assertEquals("foo", ret);
-    } finally {
-      oxygenDB.drop("test");
-    }
-    oxygenDB.close();
+    OResultSet resultSet = db.execute("javascript", "'foo'");
+    Assert.assertTrue(resultSet.hasNext());
+    OResult result = resultSet.next();
+    String ret = result.getProperty("value");
+    Assert.assertEquals("foo", ret);
   }
 
   @Test
   public void jsQueryTest() {
-    final OxygenDB oxygenDB =
-        OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    var db = oxygenDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    try {
-      String script = "db.query('select from OUser')";
-      OResultSet resultSet = db.execute("javascript", script);
-      Assert.assertTrue(resultSet.hasNext());
+    String script = "db.query('select from OUser')";
+    OResultSet resultSet = db.execute("javascript", script);
+    Assert.assertTrue(resultSet.hasNext());
 
-      List<OResult> results = resultSet.stream().collect(Collectors.toList());
-      Assert.assertEquals(1, results.size()); // no default users anymore, 'admin' created
+    List<OResult> results = resultSet.stream().collect(Collectors.toList());
+    Assert.assertEquals(1, results.size()); // no default users anymore, 'admin' created
 
-      results.stream()
-          .map(r -> r.getElement().get())
-          .forEach(
-              oElement -> {
-                Assert.assertEquals("OUser", oElement.getSchemaType().get().getName());
-              });
+    results.stream()
+        .map(r -> r.getElement().get())
+        .forEach(
+            oElement -> {
+              Assert.assertEquals("OUser", oElement.getSchemaType().get().getName());
+            });
 
-    } finally {
-      oxygenDB.drop("test");
-    }
-    oxygenDB.close();
   }
 
   @Test
   public void jsScriptTest() throws IOException {
-    final OxygenDB oxygenDB =
-        OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    var db = oxygenDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    try {
-      InputStream stream = ClassLoader.getSystemResourceAsStream("fixtures/scriptTest.js");
-      OResultSet resultSet = db.execute("javascript", OIOUtils.readStreamAsString(stream));
-      Assert.assertTrue(resultSet.hasNext());
+    InputStream stream = ClassLoader.getSystemResourceAsStream("fixtures/scriptTest.js");
+    OResultSet resultSet = db.execute("javascript", OIOUtils.readStreamAsString(stream));
+    Assert.assertTrue(resultSet.hasNext());
 
-      List<OResult> results = resultSet.stream().collect(Collectors.toList());
-      Assert.assertEquals(1, results.size());
+    List<OResult> results = resultSet.stream().collect(Collectors.toList());
+    Assert.assertEquals(1, results.size());
 
-      Object value = results.get(0).getProperty("value");
-      Collection<OResult> values = (Collection<OResult>) value;
-      values.stream()
-          .map(r -> r.getElement().get())
-          .forEach(
-              oElement -> {
-                Assert.assertEquals("OUser", oElement.getSchemaType().get().getName());
-              });
+    Object value = results.get(0).getProperty("value");
+    Collection<OResult> values = (Collection<OResult>) value;
+    values.stream()
+        .map(r -> r.getElement().get())
+        .forEach(
+            oElement -> {
+              Assert.assertEquals("OUser", oElement.getSchemaType().get().getName());
+            });
 
-    } finally {
-      oxygenDB.drop("test");
-    }
-    oxygenDB.close();
   }
 
   @Test
   public void jsScriptCountTest() throws IOException {
-    final OxygenDB oxygenDB =
-        OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    var db = oxygenDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    try {
-      InputStream stream = ClassLoader.getSystemResourceAsStream("fixtures/scriptCountTest.js");
-      OResultSet resultSet = db.execute("javascript", OIOUtils.readStreamAsString(stream));
-      Assert.assertTrue(resultSet.hasNext());
+    InputStream stream = ClassLoader.getSystemResourceAsStream("fixtures/scriptCountTest.js");
+    OResultSet resultSet = db.execute("javascript", OIOUtils.readStreamAsString(stream));
+    Assert.assertTrue(resultSet.hasNext());
 
-      List<OResult> results = resultSet.stream().collect(Collectors.toList());
-      Assert.assertEquals(1, results.size());
+    List<OResult> results = resultSet.stream().collect(Collectors.toList());
+    Assert.assertEquals(1, results.size());
 
-      Number value = results.get(0).getProperty("value");
-      Assert.assertEquals(1, value.intValue()); // no default users anymore, 'admin' created
-    } finally {
-      oxygenDB.drop("test");
-    }
-    oxygenDB.close();
+    Number value = results.get(0).getProperty("value");
+    Assert.assertEquals(1, value.intValue()); // no default users anymore, 'admin' created
   }
 
   @Test
   public void jsSandboxTestWithJavaType() {
-    final OxygenDB oxygenDB =
-        OCreateDatabaseUtil.createDatabase(
-            name.getMethodName(), "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    var db = oxygenDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     try {
       final OResultSet result =
           db.execute(
@@ -138,21 +96,13 @@ public class JSScriptTest {
               ? ScriptException.class
               : ClassNotFoundException.class,
           e.getCause().getClass());
-    } finally {
-      oxygenDB.drop(name.getMethodName());
     }
-    oxygenDB.close();
   }
 
   // @Test
   // THIS TEST WONT PASS WITH GRAALVM
   public void jsSandboxWithNativeTest() {
-    final OxygenDB oxygenDB =
-        OCreateDatabaseUtil.createDatabase(
-            name.getMethodName(), "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    var db = oxygenDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    OScriptManager scriptManager = OxygenDBInternal.extract(oxygenDB).getScriptManager();
-
+    OScriptManager scriptManager = OxygenDBInternal.extract(context).getScriptManager();
     try {
       scriptManager.addAllowedPackages(new HashSet<>(List.of("java.lang.System")));
 
@@ -161,55 +111,37 @@ public class JSScriptTest {
               "javascript", "var System = Java.type('java.lang.System'); System.nanoTime();");
       Assert.assertEquals(0, resultSet.stream().count());
     } finally {
-      oxygenDB.drop(name.getMethodName());
-      oxygenDB.close();
-
       scriptManager.removeAllowedPackages(new HashSet<>(List.of("java.lang.System")));
     }
   }
 
   @Test
   public void jsSandboxWithMathTest() {
-    final OxygenDB oxygenDB =
-        OCreateDatabaseUtil.createDatabase(
-            name.getMethodName(), "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    var db = oxygenDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    try {
-      OResultSet resultSet = db.execute("javascript", "Math.random()");
-      Assert.assertEquals(1, resultSet.stream().count());
-    } finally {
-      oxygenDB.drop(name.getMethodName());
-      oxygenDB.close();
-    }
+    OResultSet resultSet = db.execute("javascript", "Math.random()");
+    Assert.assertEquals(1, resultSet.stream().count());
+    resultSet.close();
   }
 
   @Test
   public void jsSandboxWithDB() {
-    final OxygenDB oxygenDB =
-        OCreateDatabaseUtil.createDatabase(
-            name.getMethodName(), "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    var db = oxygenDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    try {
-      OResultSet resultSet =
-          db.execute(
-              "javascript",
-              "var elem = db.query(\"select from OUser\").stream().findFirst().get();"
-                  + " elem.getProperty(\"name\")");
-      Assert.assertEquals(1, resultSet.stream().count());
-    } finally {
-      oxygenDB.drop(name.getMethodName());
-      oxygenDB.close();
-    }
+    OResultSet resultSet =
+        db.execute(
+            "javascript",
+            """
+                var rs = db.query("select from OUser");
+                var elem = rs.next();
+                var prop = elem.getProperty("name");
+                rs.close();
+                prop;
+                """);
+    Assert.assertEquals(1, resultSet.stream().count());
+    resultSet.close();
   }
 
   @Test
   public void jsSandboxWithBigDecimal() {
-    final OxygenDB oxygenDB =
-        OCreateDatabaseUtil.createDatabase(
-            name.getMethodName(), "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    final OScriptManager scriptManager = OxygenDBInternal.extract(oxygenDB).getScriptManager();
-    try (var db =
-        oxygenDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
+    final OScriptManager scriptManager = OxygenDBInternal.extract(context).getScriptManager();
+    try {
       scriptManager.addAllowedPackages(new HashSet<>(List.of("java.math.BigDecimal")));
 
       try (OResultSet resultSet =
@@ -242,53 +174,42 @@ public class JSScriptTest {
     } finally {
       scriptManager.removeAllowedPackages(
           new HashSet<>(Arrays.asList("java.math.BigDecimal", "java.math.*")));
-      oxygenDB.drop(name.getMethodName());
-      oxygenDB.close();
     }
   }
 
   @Test
   public void jsSandboxWithOrient() {
-    final OxygenDB oxygenDB =
-        OCreateDatabaseUtil.createDatabase(
-            name.getMethodName(), "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
-    try (var db =
-        oxygenDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
-      try (OResultSet resultSet =
-          db.execute("javascript", "Orient.instance().getScriptManager().addAllowedPackages([])")) {
-        Assert.assertEquals(1, resultSet.stream().count());
-      } catch (Exception e) {
-        Assert.assertEquals(ScriptException.class, e.getCause().getClass());
-      }
+    try (OResultSet resultSet =
+        db.execute("javascript", "Orient.instance().getScriptManager().addAllowedPackages([])")) {
+      Assert.assertEquals(1, resultSet.stream().count());
+    } catch (Exception e) {
+      Assert.assertEquals(ScriptException.class, e.getCause().getClass());
+    }
 
-      try (OResultSet resultSet =
-          db.execute(
-              "javascript",
-              "com.orientechnologies.orient.core.Orient.instance().getScriptManager().addAllowedPackages([])")) {
-        Assert.assertEquals(1, resultSet.stream().count());
-      } catch (Exception e) {
-        Assert.assertEquals(
-            OGlobalConfiguration.SCRIPT_POLYGLOT_USE_GRAAL.getValueAsBoolean()
-                ? ScriptException.class
-                : ClassNotFoundException.class,
-            e.getCause().getClass());
-      }
+    try (OResultSet resultSet =
+        db.execute(
+            "javascript",
+            "com.orientechnologies.orient.core.Orient.instance().getScriptManager().addAllowedPackages([])")) {
+      Assert.assertEquals(1, resultSet.stream().count());
+    } catch (Exception e) {
+      Assert.assertEquals(
+          OGlobalConfiguration.SCRIPT_POLYGLOT_USE_GRAAL.getValueAsBoolean()
+              ? ScriptException.class
+              : ClassNotFoundException.class,
+          e.getCause().getClass());
+    }
 
-      try (OResultSet resultSet =
-          db.execute(
-              "javascript",
-              "Java.type('com.orientechnologies.orient.core.Orient').instance().getScriptManager().addAllowedPackages([])")) {
-        Assert.assertEquals(1, resultSet.stream().count());
-      } catch (Exception e) {
-        Assert.assertEquals(
-            OGlobalConfiguration.SCRIPT_POLYGLOT_USE_GRAAL.getValueAsBoolean()
-                ? ScriptException.class
-                : ClassNotFoundException.class,
-            e.getCause().getClass());
-      }
-    } finally {
-      oxygenDB.drop(name.getMethodName());
-      oxygenDB.close();
+    try (OResultSet resultSet =
+        db.execute(
+            "javascript",
+            "Java.type('com.orientechnologies.orient.core.Orient').instance().getScriptManager().addAllowedPackages([])")) {
+      Assert.assertEquals(1, resultSet.stream().count());
+    } catch (Exception e) {
+      Assert.assertEquals(
+          OGlobalConfiguration.SCRIPT_POLYGLOT_USE_GRAAL.getValueAsBoolean()
+              ? ScriptException.class
+              : ClassNotFoundException.class,
+          e.getCause().getClass());
     }
   }
 }

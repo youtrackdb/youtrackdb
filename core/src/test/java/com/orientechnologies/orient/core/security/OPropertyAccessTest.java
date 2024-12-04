@@ -7,7 +7,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.metadata.security.OPropertyAccess;
 import com.orientechnologies.orient.core.record.ORecordInternal;
@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
 
-public class OPropertyAccessTest extends BaseMemoryDatabase {
+public class OPropertyAccessTest extends DBTestBase {
 
   @Test
   public void testNotAccessible() {

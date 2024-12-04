@@ -21,6 +21,7 @@ package com.orientechnologies.orient.core.security;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
@@ -38,7 +39,7 @@ public class ResourceDerivedTest {
 
   @Before
   public void before() {
-    oxygenDB = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
+    oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), OxygenDBConfig.defaultConfig());
     oxygenDB.execute("create database test memory users (admin identified by 'admin' role admin)");
     ODatabaseSession db = oxygenDB.open("test", "admin", "admin");
 

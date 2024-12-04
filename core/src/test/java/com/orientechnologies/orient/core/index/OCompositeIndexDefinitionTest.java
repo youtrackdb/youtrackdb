@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.index;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
@@ -26,7 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 @SuppressWarnings("unchecked")
-public class OCompositeIndexDefinitionTest extends BaseMemoryDatabase {
+public class OCompositeIndexDefinitionTest extends DBTestBase {
 
   private OCompositeIndexDefinition compositeIndex;
 

@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.sql.executor;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -19,13 +19,13 @@ import org.junit.runners.JUnit4;
  *
  */
 @RunWith(JUnit4.class)
-public class OCommandExecutorSQLDeleteEdgeTest extends BaseMemoryDatabase {
+public class OCommandExecutorSQLDeleteEdgeTest extends DBTestBase {
 
   private static ORID folderId1;
   private static ORID userId1;
   private List<OIdentifiable> edges;
 
-  public void beforeTest() {
+  public void beforeTest() throws Exception {
     super.beforeTest();
     final OSchema schema = db.getMetadata().getSchema();
     schema.createClass("User", schema.getClass("V"));

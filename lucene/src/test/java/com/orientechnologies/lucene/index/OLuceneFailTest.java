@@ -1,5 +1,6 @@
 package com.orientechnologies.lucene.index;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
@@ -13,7 +14,7 @@ public class OLuceneFailTest {
 
   @Before
   public void before() {
-    odb = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
+    odb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), OxygenDBConfig.defaultConfig());
     odb.execute("create database tdb memory users (admin identified by 'admpwd' role admin)")
         .close();
   }

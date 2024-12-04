@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.record.impl;
 
 import static org.junit.Assert.assertEquals;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
@@ -53,7 +54,7 @@ public class OJsonWithCustom {
     OGlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(true);
     try (final OxygenDB oxygenDB =
         OCreateDatabaseUtil.createDatabase(
-            "testJson", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY)) {
+            "testJson", DBTestBase.embeddedDBUrl(getClass()), OCreateDatabaseUtil.TYPE_MEMORY)) {
       // oxygenDB.create("testJson", ODatabaseType.MEMORY);
       try (var db = (ODatabaseSessionInternal) oxygenDB.open("testJson", "admin",
           OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {

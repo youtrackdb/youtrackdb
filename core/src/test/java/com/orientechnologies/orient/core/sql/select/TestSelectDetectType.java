@@ -2,11 +2,11 @@ package com.orientechnologies.orient.core.sql.select;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Test;
 
-public class TestSelectDetectType extends BaseMemoryDatabase {
+public class TestSelectDetectType extends DBTestBase {
 
   @Test
   public void testFloatDetection() {

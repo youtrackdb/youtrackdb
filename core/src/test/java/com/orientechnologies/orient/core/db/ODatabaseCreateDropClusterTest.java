@@ -1,11 +1,11 @@
 package com.orientechnologies.orient.core.db;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ODatabaseCreateDropClusterTest extends BaseMemoryDatabase {
+public class ODatabaseCreateDropClusterTest extends DBTestBase {
 
   @Test
   public void createDropCluster() {

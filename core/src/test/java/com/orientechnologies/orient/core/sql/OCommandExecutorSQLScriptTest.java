@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.command.script.OCommandScript;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -16,9 +16,9 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class OCommandExecutorSQLScriptTest extends BaseMemoryDatabase {
+public class OCommandExecutorSQLScriptTest extends DBTestBase {
 
-  public void beforeTest() {
+  public void beforeTest() throws Exception {
     super.beforeTest();
 
     db.command("CREATE class foo").close();

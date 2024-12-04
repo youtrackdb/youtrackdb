@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.sql;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -27,7 +27,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class OCommandExecutorSQLCreateLinkTest extends BaseMemoryDatabase {
+public class OCommandExecutorSQLCreateLinkTest extends DBTestBase {
 
   @Test
   public void testBasic() {

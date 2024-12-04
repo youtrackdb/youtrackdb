@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.sql.executor;
 import static com.orientechnologies.orient.core.sql.executor.ExecutionPlanPrintUtils.printExecutionPlan;
 import static org.junit.Assert.assertEquals;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OxygenDB;
@@ -40,7 +41,8 @@ public class OUpdateStatementExecutionTest {
   public void before() {
     oxygenDB =
         OCreateDatabaseUtil.createDatabase(
-            name.getMethodName(), "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
+            name.getMethodName(), DBTestBase.embeddedDBUrl(getClass()),
+            OCreateDatabaseUtil.TYPE_MEMORY);
     db =
         (ODatabaseSessionInternal)
             oxygenDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);

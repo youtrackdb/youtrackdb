@@ -1,5 +1,6 @@
 package com.orientechnologies.lucene.benchmark;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
@@ -70,13 +71,11 @@ public class FulltextIndexFunctionBenchmark {
   private void setupDatabase() {
     final String config =
         System.getProperty("oxygendb.test.env", ODatabaseType.MEMORY.name().toLowerCase());
-    String path;
+    String path = DBTestBase.embeddedDBUrl(getClass());
     if ("ci".equals(config) || "release".equals(config)) {
       type = ODatabaseType.PLOCAL;
-      path = "embedded:./target/databases";
     } else {
       type = ODatabaseType.MEMORY;
-      path = "embedded:.";
     }
     context = new OxygenDB(path, OxygenDBConfig.defaultConfig());
 

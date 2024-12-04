@@ -27,7 +27,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.profiler.OProfiler;
 import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
@@ -37,6 +37,10 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.sql.executor.FetchFromIndexStep;
+import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
+import com.orientechnologies.orient.core.sql.executor.OExecutionStep;
+import com.orientechnologies.orient.core.sql.executor.OExecutionStepInternal;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
@@ -53,11 +57,11 @@ import java.util.stream.Collectors;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
+public class OCommandExecutorSQLSelectTest extends DBTestBase {
 
   private static final int ORDER_SKIP_LIMIT_ITEMS = 100 * 1000;
 
-  public void beforeTest() {
+  public void beforeTest() throws Exception {
     super.beforeTest();
     getProfilerInstance().startRecording();
 
@@ -432,23 +436,26 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
 
   @Test
   public void testProjection() {
-    long idxUsagesBefore = indexUsages(db);
+    try (var rs = db.query("select a from foo where name = 'a' or bar = 1")) {
+      if (!db.isRemote()) {
+        assertEquals(2, indexUsages(rs.getExecutionPlan().orElseThrow()));
+      }
 
-    var qResult =
-        db.query("select a from foo where name = 'a' or bar = 1").toList();
-
-    assertEquals(1, qResult.size());
-    assertEquals(indexUsages(db), idxUsagesBefore + 2);
+      var qResult = rs.toList();
+      assertEquals(1, qResult.size());
+    }
   }
 
   @Test
   public void testProjection2() {
-    long idxUsagesBefore = indexUsages(db);
-    var qResult =
-        db.query("select a from foo where name = 'a' or bar = 2").toList();
+    try (var rs = db.query("select a from foo where name = 'a' or bar = 2")) {
+      if (!db.isRemote()) {
+        assertEquals(2, indexUsages(rs.getExecutionPlan().orElseThrow()));
+      }
 
-    assertEquals(2, qResult.size());
-    assertEquals(indexUsages(db), idxUsagesBefore + 2);
+      var qResult = rs.toList();
+      assertEquals(2, qResult.size());
+    }
   }
 
   @Test
@@ -1909,5 +1916,35 @@ public class OCommandExecutorSQLSelectTest extends BaseMemoryDatabase {
       fail();
     }
     return -1L;
+  }
+
+  private int indexUsages(OExecutionPlan executionPlan) {
+    var executionStep = executionPlan.getSteps();
+    var usages = 0;
+
+    for (var step : executionStep) {
+      usages += indexUsages(step);
+    }
+
+    return usages;
+  }
+
+  private int indexUsages(OExecutionStep executionStep) {
+    var usages = 0;
+    if (executionStep instanceof FetchFromIndexStep) {
+      usages++;
+    }
+
+    for (var step : executionStep.getSubSteps()) {
+      usages += indexUsages(step);
+    }
+
+    if (executionStep instanceof OExecutionStepInternal internal) {
+      for (var plan : internal.getSubExecutionPlans()) {
+        usages += indexUsages(plan);
+      }
+    }
+
+    return usages;
   }
 }

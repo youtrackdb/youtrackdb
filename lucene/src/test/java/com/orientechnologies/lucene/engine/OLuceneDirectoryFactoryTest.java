@@ -46,18 +46,21 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
   public void shouldCreateNioFsDirectory() throws Exception {
     meta.put(DIRECTORY_TYPE, DIRECTORY_NIO);
     try (OxygenDB ctx =
-        new OxygenDB("embedded:./target/testDatabase/", OxygenDBConfig.defaultConfig())) {
+        new OxygenDB(embeddedDBUrl(getClass()),
+            OxygenDBConfig.defaultConfig())) {
       ctx.execute(
           "create database "
-              + dbName
+              + databaseName
               + " plocal users (admin identified by 'adminpwd' role admin)");
       ODatabaseSessionInternal db =
-          (ODatabaseSessionInternal) ctx.open(dbName, "admin", "adminpwd");
+          (ODatabaseSessionInternal) ctx.open(databaseName, "admin", "adminpwd");
       Directory directory = fc.createDirectory(db.getStorage(), "index.name", meta).getDirectory();
       assertThat(directory).isInstanceOf(NIOFSDirectory.class);
-      assertThat(new File("./target/testDatabase/" + dbName + "/luceneIndexes/index.name"))
+      assertThat(new File(
+          getDirectoryPath(getClass()) + File.separator + databaseName
+              + "/luceneIndexes/index.name"))
           .exists();
-      ctx.drop(dbName);
+      ctx.drop(databaseName);
     }
   }
 
@@ -65,18 +68,21 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
   public void shouldCreateMMapFsDirectory() throws Exception {
     meta.put(DIRECTORY_TYPE, DIRECTORY_MMAP);
     try (OxygenDB ctx =
-        new OxygenDB("embedded:./target/testDatabase/", OxygenDBConfig.defaultConfig())) {
+        new OxygenDB(embeddedDBUrl(getClass()),
+            OxygenDBConfig.defaultConfig())) {
       ctx.execute(
           "create database "
-              + dbName
+              + databaseName
               + " plocal users (admin identified by 'adminpwd' role admin)");
       ODatabaseSessionInternal db =
-          (ODatabaseSessionInternal) ctx.open(dbName, "admin", "adminpwd");
+          (ODatabaseSessionInternal) ctx.open(databaseName, "admin", "adminpwd");
       Directory directory = fc.createDirectory(db.getStorage(), "index.name", meta).getDirectory();
       assertThat(directory).isInstanceOf(MMapDirectory.class);
-      assertThat(new File("./target/testDatabase/" + dbName + "/luceneIndexes/index.name"))
+      assertThat(new File(
+          getDirectoryPath(getClass()) + File.separator + databaseName
+              + "/luceneIndexes/index.name"))
           .exists();
-      ctx.drop(dbName);
+      ctx.drop(databaseName);
     }
   }
 
@@ -84,16 +90,16 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
   public void shouldCreateRamDirectory() throws Exception {
     meta.put(DIRECTORY_TYPE, DIRECTORY_RAM);
     try (OxygenDB ctx =
-        new OxygenDB("embedded:./target/testDatabase/", OxygenDBConfig.defaultConfig())) {
+        new OxygenDB(embeddedDBUrl(getClass()), OxygenDBConfig.defaultConfig())) {
       ctx.execute(
           "create database "
-              + dbName
+              + databaseName
               + " plocal users (admin identified by 'adminpwd' role admin)");
       ODatabaseSessionInternal db =
-          (ODatabaseSessionInternal) ctx.open(dbName, "admin", "adminpwd");
+          (ODatabaseSessionInternal) ctx.open(databaseName, "admin", "adminpwd");
       Directory directory = fc.createDirectory(db.getStorage(), "index.name", meta).getDirectory();
       assertThat(directory).isInstanceOf(RAMDirectory.class);
-      ctx.drop(dbName);
+      ctx.drop(databaseName);
     }
   }
 
@@ -101,18 +107,18 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
   public void shouldCreateRamDirectoryOnMemoryDatabase() {
     meta.put(DIRECTORY_TYPE, DIRECTORY_RAM);
     try (OxygenDB ctx =
-        new OxygenDB("embedded:./target/testDatabase/", OxygenDBConfig.defaultConfig())) {
+        new OxygenDB(embeddedDBUrl(getClass()), OxygenDBConfig.defaultConfig())) {
       ctx.execute(
           "create database "
-              + dbName
+              + databaseName
               + " memory users (admin identified by 'adminpwd' role admin)");
       ODatabaseSessionInternal db =
-          (ODatabaseSessionInternal) ctx.open(dbName, "admin", "adminpwd");
+          (ODatabaseSessionInternal) ctx.open(databaseName, "admin", "adminpwd");
       final Directory directory =
           fc.createDirectory(db.getStorage(), "index.name", meta).getDirectory();
       // 'ODatabaseType.MEMORY' and 'DIRECTORY_RAM' determines the RAMDirectory.
       assertThat(directory).isInstanceOf(RAMDirectory.class);
-      ctx.drop(dbName);
+      ctx.drop(databaseName);
     }
   }
 
@@ -120,19 +126,19 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
   public void shouldCreateRamDirectoryOnMemoryFromMmapDatabase() {
     meta.put(DIRECTORY_TYPE, DIRECTORY_MMAP);
     try (OxygenDB ctx =
-        new OxygenDB("embedded:./target/testDatabase/", OxygenDBConfig.defaultConfig())) {
+        new OxygenDB(embeddedDBUrl(getClass()), OxygenDBConfig.defaultConfig())) {
       ctx.execute(
           "create database "
-              + dbName
+              + databaseName
               + " memory users (admin identified by 'adminpwd' role admin)");
       ODatabaseSessionInternal db =
-          (ODatabaseSessionInternal) ctx.open(dbName, "admin", "adminpwd");
+          (ODatabaseSessionInternal) ctx.open(databaseName, "admin", "adminpwd");
       final Directory directory =
           fc.createDirectory(db.getStorage(), "index.name", meta).getDirectory();
       // 'ODatabaseType.MEMORY' plus 'DIRECTORY_MMAP' leads to the same result as just
       // 'DIRECTORY_RAM'.
       assertThat(directory).isInstanceOf(RAMDirectory.class);
-      ctx.drop(dbName);
+      ctx.drop(databaseName);
     }
   }
 }

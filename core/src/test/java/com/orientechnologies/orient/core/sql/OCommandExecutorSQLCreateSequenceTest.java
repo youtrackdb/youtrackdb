@@ -22,14 +22,14 @@ package com.orientechnologies.orient.core.sql;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.Test;
 
-public class OCommandExecutorSQLCreateSequenceTest extends BaseMemoryDatabase {
+public class OCommandExecutorSQLCreateSequenceTest extends DBTestBase {
 
   @Test
   public void testSimple() {

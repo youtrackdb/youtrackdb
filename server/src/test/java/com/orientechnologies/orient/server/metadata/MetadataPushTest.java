@@ -4,7 +4,7 @@ import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
@@ -72,7 +72,7 @@ public class MetadataPushTest {
     database.command(" ALTER DATABASE LOCALELANGUAGE  ?", Locale.GERMANY.getLanguage());
     // Push done in background for now, do not guarantee update before command return.
     secondDatabase.activateOnCurrentThread();
-    BaseMemoryDatabase.assertWithTimeout(
+    DBTestBase.assertWithTimeout(
         secondDatabase,
         () -> {
           secondDatabase.activateOnCurrentThread();
@@ -89,7 +89,7 @@ public class MetadataPushTest {
 
     // Push done in background for now, do not guarantee update before command return.
     secondDatabase.activateOnCurrentThread();
-    BaseMemoryDatabase.assertWithTimeout(
+    DBTestBase.assertWithTimeout(
         secondDatabase,
         () -> {
           secondDatabase.activateOnCurrentThread();
@@ -105,7 +105,7 @@ public class MetadataPushTest {
     database.command(" create index X.y on X(y) NOTUNIQUE");
     // Push done in background for now, do not guarantee update before command return.
     secondDatabase.activateOnCurrentThread();
-    BaseMemoryDatabase.assertWithTimeout(
+    DBTestBase.assertWithTimeout(
         secondDatabase,
         () ->
             assertTrue(secondDatabase.getMetadata().getIndexManagerInternal().existsIndex("X.y")));
@@ -120,7 +120,7 @@ public class MetadataPushTest {
 
     // Push done in background for now, do not guarantee update before command return.
     secondDatabase.activateOnCurrentThread();
-    BaseMemoryDatabase.assertWithTimeout(
+    DBTestBase.assertWithTimeout(
         secondDatabase,
         () -> {
           secondDatabase.activateOnCurrentThread();
@@ -136,7 +136,7 @@ public class MetadataPushTest {
     database.commit();
     // Push done in background for now, do not guarantee update before command return.
     secondDatabase.activateOnCurrentThread();
-    BaseMemoryDatabase.assertWithTimeout(
+    DBTestBase.assertWithTimeout(
         secondDatabase,
         () -> {
           secondDatabase.activateOnCurrentThread();

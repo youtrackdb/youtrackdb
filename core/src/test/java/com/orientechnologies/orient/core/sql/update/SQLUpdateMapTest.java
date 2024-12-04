@@ -2,13 +2,13 @@ package com.orientechnologies.orient.core.sql.update;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.Map;
 import org.junit.Test;
 
-public class SQLUpdateMapTest extends BaseMemoryDatabase {
+public class SQLUpdateMapTest extends DBTestBase {
 
   @Test
   public void testMapPut() {

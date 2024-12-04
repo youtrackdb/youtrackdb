@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.storage.ridbag.sbtree;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -20,7 +20,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ORidBagAtomicUpdateTest extends BaseMemoryDatabase {
+public class ORidBagAtomicUpdateTest extends DBTestBase {
 
   private int topThreshold;
   private int bottomThreshold;

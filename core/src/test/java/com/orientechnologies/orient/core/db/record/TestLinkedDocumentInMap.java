@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.db.record;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.List;
@@ -8,7 +8,7 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestLinkedDocumentInMap extends BaseMemoryDatabase {
+public class TestLinkedDocumentInMap extends DBTestBase {
 
   @Test
   public void testLinkedValue() {

@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.iterator;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -14,7 +14,7 @@ import org.junit.Test;
 /**
  *
  */
-public class ClassIteratorTest extends BaseMemoryDatabase {
+public class ClassIteratorTest extends DBTestBase {
 
   private Set<String> names;
 
@@ -27,7 +27,7 @@ public class ClassIteratorTest extends BaseMemoryDatabase {
     db.commit();
   }
 
-  public void beforeTest() {
+  public void beforeTest() throws Exception {
     super.beforeTest();
 
     final OSchema schema = db.getMetadata().getSchema();

@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.comparator.ODefaultComparator;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.id.ORID;
@@ -30,7 +30,7 @@ import java.util.UUID;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class ORemoteTransactionMessagesTest extends BaseMemoryDatabase {
+public class ORemoteTransactionMessagesTest extends DBTestBase {
 
   @Test
   public void testBeginTransactionEmptyWriteRead() throws IOException {

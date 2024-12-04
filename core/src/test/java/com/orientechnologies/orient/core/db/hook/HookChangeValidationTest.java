@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.db.hook;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.OValidationException;
 import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -12,7 +12,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class HookChangeValidationTest extends BaseMemoryDatabase {
+public class HookChangeValidationTest extends DBTestBase {
 
   @Test
   public void testHookCreateChangeTx() {

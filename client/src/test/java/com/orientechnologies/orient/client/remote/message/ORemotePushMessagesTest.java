@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.client.remote.message.push.OStorageConfigurationPayload;
 import com.orientechnologies.orient.core.config.OStorageClusterConfiguration;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
@@ -24,7 +24,7 @@ import org.junit.Test;
 /**
  *
  */
-public class ORemotePushMessagesTest extends BaseMemoryDatabase {
+public class ORemotePushMessagesTest extends DBTestBase {
 
   @Test
   public void testDistributedConfig() throws IOException {
@@ -45,8 +45,8 @@ public class ORemotePushMessagesTest extends BaseMemoryDatabase {
 
   @Test
   public void testSchema() throws IOException {
-
-    OxygenDB oxygenDB = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
+    OxygenDB oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
+        OxygenDBConfig.defaultConfig());
     oxygenDB.execute("create database test memory users (admin identified by 'admin' role admin)");
     var session = (ODatabaseSessionInternal) oxygenDB.open("test", "admin", "admin");
 
@@ -61,13 +61,14 @@ public class ORemotePushMessagesTest extends BaseMemoryDatabase {
     channel.close();
 
     OPushSchemaRequest readRequest = new OPushSchemaRequest();
-    readRequest.read(db, channel);
+    readRequest.read(session, channel);
     assertNotNull(readRequest.getSchema());
   }
 
   @Test
   public void testIndexManager() throws IOException {
-    try (OxygenDB oxygenDB = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig())) {
+    try (OxygenDB oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
+        OxygenDBConfig.defaultConfig())) {
       oxygenDB.execute(
           "create database test memory users (admin identified by 'admin' role admin)");
       try (ODatabaseSession session = oxygenDB.open("test", "admin", "admin")) {
@@ -92,7 +93,8 @@ public class ORemotePushMessagesTest extends BaseMemoryDatabase {
 
   @Test
   public void testStorageConfiguration() throws IOException {
-    OxygenDB oxygenDB = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
+    OxygenDB oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
+        OxygenDBConfig.defaultConfig());
     oxygenDB.execute("create database test memory users (admin identified by 'admin' role admin)");
     ODatabaseSession session = oxygenDB.open("test", "admin", "admin");
     OStorageConfiguration configuration =

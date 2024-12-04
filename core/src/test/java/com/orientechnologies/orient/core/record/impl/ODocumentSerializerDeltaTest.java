@@ -6,7 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
@@ -33,7 +33,7 @@ import java.util.Set;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
-public class ODocumentSerializerDeltaTest extends BaseMemoryDatabase {
+public class ODocumentSerializerDeltaTest extends DBTestBase {
 
   @Test
   public void testGetFromOriginalSimpleDelta() {

@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import static com.orientechnologies.orient.core.sql.executor.ExecutionPlanPrintUtils.printExecutionPlan;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import java.util.HashSet;
@@ -13,7 +13,7 @@ import org.junit.Test;
 /**
  *
  */
-public class OFindReferencesStatementExecutionTest extends BaseMemoryDatabase {
+public class OFindReferencesStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testLink() {

@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.index;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -12,7 +12,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class OPropertyIndexDefinitionTest extends BaseMemoryDatabase {
+public class OPropertyIndexDefinitionTest extends DBTestBase {
 
   private OPropertyIndexDefinition propertyIndex;
 

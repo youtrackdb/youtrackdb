@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.List;
@@ -10,7 +10,7 @@ import org.junit.Test;
 /**
  *
  */
-public class OSelectStatementExecutionTestIT extends BaseMemoryDatabase {
+public class OSelectStatementExecutionTestIT extends DBTestBase {
 
   @Test
   public void stressTestNew() {

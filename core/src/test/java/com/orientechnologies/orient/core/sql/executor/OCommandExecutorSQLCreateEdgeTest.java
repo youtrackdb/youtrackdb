@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -14,12 +14,12 @@ import org.junit.runners.JUnit4;
  *
  */
 @RunWith(JUnit4.class)
-public class OCommandExecutorSQLCreateEdgeTest extends BaseMemoryDatabase {
+public class OCommandExecutorSQLCreateEdgeTest extends DBTestBase {
 
   private ODocument owner1;
   private ODocument owner2;
 
-  public void beforeTest() {
+  public void beforeTest() throws Exception {
     super.beforeTest();
 
     final OSchema schema = db.getMetadata().getSchema();

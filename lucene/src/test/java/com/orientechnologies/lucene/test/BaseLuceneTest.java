@@ -18,73 +18,17 @@
 
 package com.orientechnologies.lucene.test;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import java.io.IOException;
 import java.io.InputStream;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.rules.TestName;
 
 /**
  *
  */
-public abstract class BaseLuceneTest {
+public abstract class BaseLuceneTest extends DBTestBase {
 
-  @Rule
-  public TestName name = new TestName();
-
-  protected ODatabaseSessionInternal db;
-  protected OxygenDB context;
-
-  protected ODatabaseType type;
-  protected String dbName;
-
-  @Before
-  public void setupDatabase() throws Throwable {
-    final String config =
-        System.getProperty("oxygendb.test.env", ODatabaseType.MEMORY.name().toLowerCase());
-    String path = "embedded:./target/databases";
-    if ("ci".equals(config) || "release".equals(config)) {
-      type = ODatabaseType.PLOCAL;
-    } else {
-      type = ODatabaseType.MEMORY;
-    }
-    context = new OxygenDB(path, OxygenDBConfig.defaultConfig());
-    dbName = getClass().getSimpleName() + "_" + name.getMethodName();
-
-    if (context.exists(dbName)) {
-      context.drop(dbName);
-    }
-    context.execute(
-        "create database ? " + type.toString() + " users(admin identified by 'admin' role admin) ",
-        dbName);
-
-    db = (ODatabaseSessionInternal) context.open(dbName, "admin", "admin");
-    db.set(ATTRIBUTES.MINIMUMCLUSTERS, 8);
-  }
-
-  public ODatabaseSessionInternal openDatabase() {
-    return (ODatabaseSessionInternal) context.open(dbName, "admin", "admin");
-  }
-
-  public void createDatabase() {
-    context.execute(
-        "create database ? " + type + " users(admin identified by 'admin' role admin) ", dbName);
-  }
-
-  @After
-  public void dropDatabase() {
-    db.activateOnCurrentThread();
-    context.drop(dbName);
-  }
-
-  protected String getScriptFromStream(final InputStream scriptStream) {
+  protected static String getScriptFromStream(final InputStream scriptStream) {
     try {
       return OIOUtils.readStreamAsString(scriptStream);
     } catch (final IOException e) {

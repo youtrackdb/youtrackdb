@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.db.tool;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
@@ -81,7 +82,8 @@ public class GraphRecoveringTest {
 
   @Test
   public void testRecoverPerfectGraphNonLW() {
-    try (OxygenDB oxygenDB = new OxygenDB("embedded:./", OxygenDBConfig.defaultConfig())) {
+    try (OxygenDB oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
+        OxygenDBConfig.defaultConfig())) {
       oxygenDB.execute(
           "create database testRecoverPerfectGraphNonLW"
               + " memory users ( admin identified by 'admin' role admin)");
@@ -104,7 +106,8 @@ public class GraphRecoveringTest {
 
   @Test
   public void testRecoverBrokenGraphAllEdges() {
-    try (OxygenDB oxygenDB = new OxygenDB("embedded:./", OxygenDBConfig.defaultConfig())) {
+    try (OxygenDB oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
+        OxygenDBConfig.defaultConfig())) {
       oxygenDB.execute(
           "create database testRecoverBrokenGraphAllEdges"
               + " memory users ( admin identified by 'admin' role admin)");
@@ -140,7 +143,8 @@ public class GraphRecoveringTest {
 
   @Test
   public void testRecoverBrokenGraphLinksInVerticesNonLW() {
-    try (OxygenDB oxygenDB = new OxygenDB("embedded:./", OxygenDBConfig.defaultConfig())) {
+    try (OxygenDB oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
+        OxygenDBConfig.defaultConfig())) {
       oxygenDB.execute(
           "create database testRecoverBrokenGraphLinksInVerticesNonLW"
               + " memory users ( admin identified by 'admin' role admin)");

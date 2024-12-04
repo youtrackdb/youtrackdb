@@ -8,6 +8,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import com.orientechnologies.DBTestBase;
+import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -16,6 +18,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
+import java.io.File;
 import java.util.List;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -36,9 +39,13 @@ public class OxygenDBEmbeddedTests {
 
   @Test
   public void testCompatibleUrl() {
-    try (OxygenDB oxygenDb = new OxygenDB("plocal:", OxygenDBConfig.defaultConfig())) {
+    try (OxygenDB oxygenDb = new OxygenDB(
+        "plocal:" + DBTestBase.getDirectoryPath(getClass()) + "compatibleUrl",
+        OxygenDBConfig.defaultConfig())) {
     }
-    try (OxygenDB oxygenDb = new OxygenDB("memory:", OxygenDBConfig.defaultConfig())) {
+    try (OxygenDB oxygenDb = new OxygenDB(
+        "memory:" + DBTestBase.getDirectoryPath(getClass()) + "compatibleUrl",
+        OxygenDBConfig.defaultConfig())) {
     }
   }
 
@@ -52,7 +59,8 @@ public class OxygenDBEmbeddedTests {
   public void createAndUseEmbeddedDatabase() {
     try (final OxygenDB oxygenDb =
         OCreateDatabaseUtil.createDatabase(
-            "createAndUseEmbeddedDatabase", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY)) {
+            "createAndUseEmbeddedDatabase", DBTestBase.embeddedDBUrl(getClass()),
+            OCreateDatabaseUtil.TYPE_MEMORY)) {
       final var db =
           (ODatabaseSessionInternal)
               oxygenDb.open(
@@ -65,7 +73,8 @@ public class OxygenDBEmbeddedTests {
 
   @Test(expected = ODatabaseException.class)
   public void testEmbeddedDoubleCreate() {
-    OxygenDB oxygenDb = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
+    OxygenDB oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
+        OxygenDBConfig.defaultConfig());
     try {
       oxygenDb.create("test", ODatabaseType.MEMORY);
       oxygenDb.create("test", ODatabaseType.MEMORY);
@@ -76,7 +85,9 @@ public class OxygenDBEmbeddedTests {
 
   @Test
   public void createDropEmbeddedDatabase() {
-    OxygenDB oxygenDb = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
+    OxygenDB oxygenDb = new OxygenDB(
+        DBTestBase.embeddedDBUrl(getClass()) + "createDropEmbeddedDatabase",
+        OxygenDBConfig.defaultConfig());
     try {
       oxygenDb.create("test", ODatabaseType.MEMORY);
       assertTrue(oxygenDb.exists("test"));
@@ -91,7 +102,8 @@ public class OxygenDBEmbeddedTests {
   public void testMultiThread() {
     try (final OxygenDB oxygenDb =
         OCreateDatabaseUtil.createDatabase(
-            "testMultiThread", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY)) {
+            "testMultiThread", DBTestBase.embeddedDBUrl(getClass()),
+            OCreateDatabaseUtil.TYPE_MEMORY)) {
       final ODatabasePool pool =
           new ODatabasePool(
               oxygenDb, "testMultiThread", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -124,7 +136,8 @@ public class OxygenDBEmbeddedTests {
 
   @Test
   public void testListDatabases() {
-    OxygenDB oxygenDb = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
+    OxygenDB oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()) + "listTest1",
+        OxygenDBConfig.defaultConfig());
     assertEquals(0, oxygenDb.list().size());
     oxygenDb.create("test", ODatabaseType.MEMORY);
     List<String> databases = oxygenDb.list();
@@ -135,7 +148,8 @@ public class OxygenDBEmbeddedTests {
 
   @Test
   public void testListDatabasesPersistent() {
-    OxygenDB oxygenDb = new OxygenDB("embedded:./target/listTest", OxygenDBConfig.defaultConfig());
+    OxygenDB oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()) + "listTest2",
+        OxygenDBConfig.defaultConfig());
     assertEquals(0, oxygenDb.list().size());
     oxygenDb.create("testListDatabase", ODatabaseType.PLOCAL);
     List<String> databases = oxygenDb.list();
@@ -147,29 +161,42 @@ public class OxygenDBEmbeddedTests {
 
   @Test
   public void testRegisterDatabase() {
-    final OxygenDB orient = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
-    orient.execute("create system user admin identified by 'admin' role root");
-    final OxygenDBEmbedded oxygenDB = (OxygenDBEmbedded) orient.getInternal();
-    assertEquals(0, oxygenDB.listDatabases("", "").size());
-    oxygenDB.initCustomStorage("database1", "./target/databases/database1", "", "");
-    try (final ODatabaseSession db = oxygenDB.open("database1", "admin", "admin")) {
-      assertEquals("database1", db.getName());
-    }
-    oxygenDB.initCustomStorage("database2", "./target/databases/database2", "", "");
+    final OxygenDB youtrack = new OxygenDB(
+        DBTestBase.embeddedDBUrl(getClass()) + "testRegisterDatabase",
+        OxygenDBConfig.defaultConfig());
+    try {
+      youtrack.execute("create system user admin identified by 'admin' role root");
 
-    try (final ODatabaseSession db = oxygenDB.open("database2", "admin", "admin")) {
-      assertEquals("database2", db.getName());
+      final OxygenDBEmbedded youtrackEmbedded = (OxygenDBEmbedded) youtrack.getInternal();
+      assertEquals(0, youtrackEmbedded.listDatabases("", "").size());
+      youtrackEmbedded.initCustomStorage("database1", DBTestBase.getDirectoryPath(getClass()) +
+              "testRegisterDatabase/database1",
+          "", "");
+      try (final ODatabaseSession db = youtrackEmbedded.open("database1", "admin", "admin")) {
+        assertEquals("database1", db.getName());
+      }
+      youtrackEmbedded.initCustomStorage("database2", DBTestBase.getDirectoryPath(getClass()) +
+              "testRegisterDatabase/database2",
+          "", "");
+
+      try (final ODatabaseSession db = youtrackEmbedded.open("database2", "admin", "admin")) {
+        assertEquals("database2", db.getName());
+      }
+      youtrackEmbedded.drop("database1", null, null);
+      youtrackEmbedded.drop("database2", null, null);
+      youtrackEmbedded.close();
+    } finally {
+      OFileUtils.deleteRecursively(
+          new File(DBTestBase.getDirectoryPath(getClass()) + "testRegisterDatabase"));
     }
-    oxygenDB.drop("database1", null, null);
-    oxygenDB.drop("database2", null, null);
-    oxygenDB.close();
   }
 
   @Test
   public void testCopyOpenedDatabase() {
     try (final OxygenDB oxygenDb =
         OCreateDatabaseUtil.createDatabase(
-            "testCopyOpenedDatabase", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY)) {
+            "testCopyOpenedDatabase", DBTestBase.embeddedDBUrl(getClass()),
+            OCreateDatabaseUtil.TYPE_MEMORY)) {
       ODatabaseSession db1;
       try (ODatabaseSessionInternal db =
           (ODatabaseSessionInternal)
@@ -185,42 +212,48 @@ public class OxygenDBEmbeddedTests {
 
   @Test(expected = ODatabaseException.class)
   public void testUseAfterCloseCreate() {
-    OxygenDB oxygenDb = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
+    OxygenDB oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
+        OxygenDBConfig.defaultConfig());
     oxygenDb.close();
     oxygenDb.create("test", ODatabaseType.MEMORY);
   }
 
   @Test(expected = ODatabaseException.class)
   public void testUseAfterCloseOpen() {
-    OxygenDB oxygenDb = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
+    OxygenDB oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
+        OxygenDBConfig.defaultConfig());
     oxygenDb.close();
     oxygenDb.open("testUseAfterCloseOpen", "", "");
   }
 
   @Test(expected = ODatabaseException.class)
   public void testUseAfterCloseList() {
-    OxygenDB oxygenDb = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
+    OxygenDB oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
+        OxygenDBConfig.defaultConfig());
     oxygenDb.close();
     oxygenDb.list();
   }
 
   @Test(expected = ODatabaseException.class)
   public void testUseAfterCloseExists() {
-    OxygenDB oxygenDb = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
+    OxygenDB oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
+        OxygenDBConfig.defaultConfig());
     oxygenDb.close();
     oxygenDb.exists("");
   }
 
   @Test(expected = ODatabaseException.class)
   public void testUseAfterCloseOpenPoolInternal() {
-    OxygenDB oxygenDb = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
+    OxygenDB oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
+        OxygenDBConfig.defaultConfig());
     oxygenDb.close();
     oxygenDb.openPool("", "", "", OxygenDBConfig.defaultConfig());
   }
 
   @Test(expected = ODatabaseException.class)
   public void testUseAfterCloseDrop() {
-    OxygenDB oxygenDb = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
+    OxygenDB oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
+        OxygenDBConfig.defaultConfig());
     oxygenDb.close();
     oxygenDb.drop("");
   }
@@ -229,12 +262,14 @@ public class OxygenDBEmbeddedTests {
   public void testPoolByUrl() {
     final OxygenDB oxygenDb =
         OCreateDatabaseUtil.createDatabase(
-            "some", "embedded:./target", OCreateDatabaseUtil.TYPE_PLOCAL);
+            "some", DBTestBase.embeddedDBUrl(getClass()) + "poolTest",
+            OCreateDatabaseUtil.TYPE_PLOCAL);
     oxygenDb.close();
 
     final ODatabasePool pool =
         new ODatabasePool(
-            "embedded:./target/some", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+            DBTestBase.embeddedDBUrl(getClass()) + "poolTest/some", "admin",
+            OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     pool.close();
   }
 
@@ -242,7 +277,7 @@ public class OxygenDBEmbeddedTests {
   public void testDropTL() {
     final OxygenDB oxygenDb =
         new OxygenDB(
-            "embedded:",
+            DBTestBase.embeddedDBUrl(getClass()),
             OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
@@ -274,17 +309,23 @@ public class OxygenDBEmbeddedTests {
 
   @Test
   public void testClosePool() {
+    try (var oxygendb = OxygenDB.embedded(DBTestBase.getDirectoryPath(getClass()) + "testClosePool",
+        OxygenDBConfig.defaultConfig())) {
+      if (!oxygendb.exists("test")) {
+        oxygendb.create("test", ODatabaseType.PLOCAL, "admin",
+            OCreateDatabaseUtil.NEW_ADMIN_PASSWORD, "admin");
+      }
+    }
+
     final ODatabasePool pool =
         new ODatabasePool(
-            "embedded:./target/some",
+            DBTestBase.embeddedDBUrl(getClass()) + "testClosePool/test",
             "admin",
-            OCreateDatabaseUtil.NEW_ADMIN_PASSWORD,
-            OxygenDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
-                .build());
+            OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     assertFalse(pool.isClosed());
     pool.close();
     assertTrue(pool.isClosed());
+
   }
 
   @Test
@@ -294,7 +335,7 @@ public class OxygenDBEmbeddedTests {
             .addConfig(OGlobalConfiguration.DB_CACHED_POOL_CAPACITY, 2)
             .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
             .build();
-    OxygenDB oxygenDB = new OxygenDB("embedded:", config);
+    OxygenDB oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), config);
     if (!oxygenDB.exists("testdb")) {
       oxygenDB.execute(
           "create database "
@@ -361,7 +402,7 @@ public class OxygenDBEmbeddedTests {
             .addConfig(OGlobalConfiguration.DB_CACHED_POOL_CLEAN_UP_TIMEOUT, 1_000)
             .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
             .build();
-    OxygenDB oxygenDB = new OxygenDB("embedded:", config);
+    OxygenDB oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), config);
     if (!oxygenDB.exists("testdb")) {
       oxygenDB.execute(
           "create database "
@@ -448,7 +489,7 @@ public class OxygenDBEmbeddedTests {
             .addConfig(OGlobalConfiguration.DB_CACHED_POOL_CAPACITY, 2)
             .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
             .build();
-    final OxygenDB oxygenDB = new OxygenDB("embedded:", config);
+    final OxygenDB oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), config);
     oxygenDB.execute(
         "create database "
             + "testdb"
@@ -476,7 +517,7 @@ public class OxygenDBEmbeddedTests {
   public void testOpenKeepClean() {
     OxygenDB oxygenDb =
         new OxygenDB(
-            "embedded:",
+            DBTestBase.embeddedDBUrl(getClass()) + "keepClean",
             OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
@@ -491,9 +532,11 @@ public class OxygenDBEmbeddedTests {
   }
 
   @Test
-  public void testOxygenDBDatabaseOnlyMemory() {
+  public void testYouTrackDBDatabaseOnlyMemory() {
     final OxygenDB oxygenDb =
-        OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
+        OCreateDatabaseUtil.createDatabase("test",
+            DBTestBase.embeddedDBUrl(getClass()) + "testYouTrackDBDatabaseOnlyMemory",
+            OCreateDatabaseUtil.TYPE_MEMORY);
     final var db =
         (ODatabaseSessionInternal)
             oxygenDb.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -502,23 +545,12 @@ public class OxygenDBEmbeddedTests {
     oxygenDb.close();
   }
 
-  @Test(expected = ODatabaseException.class)
-  public void testOxygenDBDatabaseOnlyMemoryFailPlocal() {
-    try (OxygenDB oxygenDb =
-        new OxygenDB(
-            "embedded:",
-            OxygenDBConfig.builder()
-                .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
-                .build())) {
-      oxygenDb.create("test", ODatabaseType.PLOCAL);
-    }
-  }
-
   @Test
   public void createForceCloseOpen() {
     try (final OxygenDB oxygenDB =
         OCreateDatabaseUtil.createDatabase(
-            "testCreateForceCloseOpen", "embedded:./target/", OCreateDatabaseUtil.TYPE_PLOCAL)) {
+            "testCreateForceCloseOpen", DBTestBase.embeddedDBUrl(getClass()),
+            OCreateDatabaseUtil.TYPE_PLOCAL)) {
       oxygenDB.getInternal().forceDatabaseClose("test");
       ODatabaseSession db1 =
           oxygenDB.open(
@@ -534,7 +566,7 @@ public class OxygenDBEmbeddedTests {
   public void autoClose() throws InterruptedException {
     OxygenDB oxygenDB =
         new OxygenDB(
-            "embedded:./target/",
+            DBTestBase.embeddedDBUrl(getClass()),
             OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
@@ -562,7 +594,7 @@ public class OxygenDBEmbeddedTests {
   public void testOpenNotExistDatabase() {
     try (OxygenDB oxygenDB =
         new OxygenDB(
-            "embedded:./target/",
+            DBTestBase.embeddedDBUrl(getClass()),
             OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build())) {
@@ -572,7 +604,8 @@ public class OxygenDBEmbeddedTests {
 
   @Test
   public void testExecutor() throws ExecutionException, InterruptedException {
-    try (OxygenDB oxygenDb = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig())) {
+    try (OxygenDB oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
+        OxygenDBConfig.defaultConfig())) {
       oxygenDb.create("testExecutor", ODatabaseType.MEMORY);
       OxygenDBInternal internal = OxygenDBInternal.extract(oxygenDb);
       Future<Boolean> result =
@@ -588,7 +621,8 @@ public class OxygenDBEmbeddedTests {
   @Test
   public void testExecutorNoAuthorization() throws ExecutionException, InterruptedException {
 
-    try (OxygenDB oxygenDb = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig())) {
+    try (OxygenDB oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
+        OxygenDBConfig.defaultConfig())) {
       oxygenDb.create("testExecutorNoAuthorization", ODatabaseType.MEMORY);
       OxygenDBInternal internal = OxygenDBInternal.extract(oxygenDb);
       Future<Boolean> result =
@@ -604,7 +638,7 @@ public class OxygenDBEmbeddedTests {
   public void testScheduler() throws InterruptedException {
     OxygenDB oxygenDb =
         new OxygenDB(
-            "embedded:",
+            DBTestBase.embeddedDBUrl(getClass()),
             OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
@@ -639,7 +673,7 @@ public class OxygenDBEmbeddedTests {
   public void testUUID() {
     try (final OxygenDB oxygenDb =
         OCreateDatabaseUtil.createDatabase(
-            "testUUID", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY)) {
+            "testUUID", DBTestBase.embeddedDBUrl(getClass()), OCreateDatabaseUtil.TYPE_MEMORY)) {
       final ODatabaseSession session =
           oxygenDb.open("testUUID", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       assertNotNull(
@@ -653,7 +687,8 @@ public class OxygenDBEmbeddedTests {
   public void testPersistentUUID() {
     final OxygenDB oxygenDb =
         OCreateDatabaseUtil.createDatabase(
-            "testPersistentUUID", "embedded:./target/", OCreateDatabaseUtil.TYPE_PLOCAL);
+            "testPersistentUUID", DBTestBase.embeddedDBUrl(getClass()),
+            OCreateDatabaseUtil.TYPE_PLOCAL);
     final ODatabaseSession session =
         oxygenDb.open("testPersistentUUID", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     UUID uuid =
@@ -664,7 +699,7 @@ public class OxygenDBEmbeddedTests {
 
     OxygenDB oxygenDb1 =
         new OxygenDB(
-            "embedded:./target/",
+            DBTestBase.embeddedDBUrl(getClass()),
             OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
@@ -681,7 +716,8 @@ public class OxygenDBEmbeddedTests {
   @Test
   public void testCreateDatabaseViaSQL() {
     String dbName = "testCreateDatabaseViaSQL";
-    OxygenDB oxygenDb = new OxygenDB("embedded:./target/", OxygenDBConfig.defaultConfig());
+    OxygenDB oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
+        OxygenDBConfig.defaultConfig());
     try (OResultSet result = oxygenDb.execute("create database " + dbName + " plocal")) {
       Assert.assertTrue(result.hasNext());
       OResult item = result.next();
@@ -697,7 +733,7 @@ public class OxygenDBEmbeddedTests {
   public void testCreateDatabaseViaSQLWithUsers() {
     OxygenDB oxygenDB =
         new OxygenDB(
-            "embedded:",
+            DBTestBase.embeddedDBUrl(getClass()) + "testCreateDatabaseViaSQLWithUsers",
             OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
@@ -713,7 +749,7 @@ public class OxygenDBEmbeddedTests {
   public void testCreateDatabaseViaSQLIfNotExistsWithUsers() {
     final OxygenDB oxygenDB =
         new OxygenDB(
-            "embedded:",
+            DBTestBase.embeddedDBUrl(getClass()) + "testCreateDatabaseViaSQLIfNotExistsWithUsers",
             OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());

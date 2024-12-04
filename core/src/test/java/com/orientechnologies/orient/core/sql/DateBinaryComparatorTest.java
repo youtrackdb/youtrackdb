@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -13,12 +13,12 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
 
-public class DateBinaryComparatorTest extends BaseMemoryDatabase {
+public class DateBinaryComparatorTest extends DBTestBase {
 
   private final String dateFormat = "yyyy-MM-dd";
   private final String dateValue = "2017-07-18";
 
-  public void beforeTest() {
+  public void beforeTest() throws Exception {
     super.beforeTest();
     initSchema();
   }

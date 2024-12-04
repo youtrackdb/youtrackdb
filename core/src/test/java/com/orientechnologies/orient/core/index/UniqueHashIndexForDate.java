@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.index;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYPE;
@@ -11,7 +11,7 @@ import java.text.ParseException;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class UniqueHashIndexForDate extends BaseMemoryDatabase {
+public class UniqueHashIndexForDate extends DBTestBase {
 
   @Test
   public void testSimpleUniqueDateIndex() throws ParseException {

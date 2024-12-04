@@ -13,38 +13,18 @@
  */
 package com.orientechnologies.spatial;
 
-import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.HashMap;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
  *
  */
-public class LuceneSpatialFunctionAsGeoJSONTest {
+public class LuceneSpatialFunctionAsGeoJSONTest extends DBTestBase {
 
-  ODatabaseSession db;
-  OxygenDB oxygenDB;
-
-  @Before
-  public void before() {
-    oxygenDB = new OxygenDB("embedded:.", OxygenDBConfig.defaultConfig());
-    oxygenDB.execute("create database test memory users(admin identified by 'admin' role admin)");
-    db = oxygenDB.open("test", "admin", "admin");
-  }
-
-  @After
-  public void after() {
-    db.close();
-    oxygenDB.drop("test");
-    oxygenDB.close();
-  }
 
   @Test
   public void geoPointTest() {

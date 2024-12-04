@@ -1,13 +1,13 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import org.junit.Assert;
 import org.junit.Test;
 
 /**
  *
  */
-public class OForEachBlockExecutionTest extends BaseMemoryDatabase {
+public class OForEachBlockExecutionTest extends DBTestBase {
 
   @Test
   public void testPlain() {

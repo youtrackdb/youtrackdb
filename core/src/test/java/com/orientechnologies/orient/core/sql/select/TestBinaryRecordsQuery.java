@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.select;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.record.ORecord;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -15,10 +15,10 @@ import org.junit.Test;
 /**
  *
  */
-public class TestBinaryRecordsQuery extends BaseMemoryDatabase {
+public class TestBinaryRecordsQuery extends DBTestBase {
 
   @Before
-  public void beforeTest() {
+  public void beforeTest() throws Exception {
     super.beforeTest();
     db.addBlobCluster("BlobCluster");
   }

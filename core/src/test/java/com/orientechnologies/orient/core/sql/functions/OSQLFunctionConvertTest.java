@@ -5,7 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.math.BigDecimal;
@@ -15,7 +15,7 @@ import org.junit.Test;
 /**
  *
  */
-public class OSQLFunctionConvertTest extends BaseMemoryDatabase {
+public class OSQLFunctionConvertTest extends DBTestBase {
 
   @Test
   public void testSQLConversions() {

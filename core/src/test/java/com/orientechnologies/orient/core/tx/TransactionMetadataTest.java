@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.tx;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
@@ -25,7 +26,8 @@ public class TransactionMetadataTest {
   public void before() {
     oxygenDB =
         OCreateDatabaseUtil.createDatabase(
-            DB_NAME, "embedded:./target/", OCreateDatabaseUtil.TYPE_PLOCAL);
+            DB_NAME, DBTestBase.embeddedDBUrl(getClass()),
+            OCreateDatabaseUtil.TYPE_PLOCAL);
     db =
         (ODatabaseSessionInternal)
             oxygenDB.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -46,7 +48,7 @@ public class TransactionMetadataTest {
 
     oxygenDB =
         new OxygenDB(
-            "embedded:./target/",
+            DBTestBase.embeddedDBUrl(getClass()),
             OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());

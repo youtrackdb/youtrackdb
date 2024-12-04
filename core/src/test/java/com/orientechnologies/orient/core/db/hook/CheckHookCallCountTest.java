@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.db.hook;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -13,7 +13,7 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.UUID;
 import org.junit.Test;
 
-public class CheckHookCallCountTest extends BaseMemoryDatabase {
+public class CheckHookCallCountTest extends DBTestBase {
 
   private final String CLASS_NAME = "Data";
   private final String FIELD_ID = "ID";

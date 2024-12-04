@@ -41,7 +41,7 @@ public class CountFromIndexStepTest extends TestUtilsFixture {
         });
   }
 
-  public void beforeTest() {
+  public void beforeTest() throws Exception {
     super.beforeTest();
     OClass clazz = createClassInstance();
     clazz.createProperty(db, PROPERTY_NAME, OType.STRING);

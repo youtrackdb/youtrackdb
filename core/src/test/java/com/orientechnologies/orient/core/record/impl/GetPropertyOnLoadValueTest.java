@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.record.impl;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.OVertex;
@@ -17,7 +17,7 @@ import java.util.stream.IntStream;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class GetPropertyOnLoadValueTest extends BaseMemoryDatabase {
+public class GetPropertyOnLoadValueTest extends DBTestBase {
 
   @Test
   public void testOnloadValue() {

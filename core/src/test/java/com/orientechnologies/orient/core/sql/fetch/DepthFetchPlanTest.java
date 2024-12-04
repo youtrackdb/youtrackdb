@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.fetch;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.fetch.OFetchContext;
 import com.orientechnologies.orient.core.fetch.OFetchHelper;
 import com.orientechnologies.orient.core.fetch.remote.ORemoteFetchContext;
@@ -11,7 +11,7 @@ import com.orientechnologies.orient.core.record.ORecordAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.junit.Test;
 
-public class DepthFetchPlanTest extends BaseMemoryDatabase {
+public class DepthFetchPlanTest extends DBTestBase {
 
   @Test
   public void testFetchPlanDepth() {

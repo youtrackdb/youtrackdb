@@ -3,12 +3,12 @@ package com.orientechnologies.orient.core.sql.functions.sql;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.OQueryParsingException;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Test;
 
-public class OCustomSQLFunctionsTest extends BaseMemoryDatabase {
+public class OCustomSQLFunctionsTest extends DBTestBase {
 
   @Test
   public void testRandom() {

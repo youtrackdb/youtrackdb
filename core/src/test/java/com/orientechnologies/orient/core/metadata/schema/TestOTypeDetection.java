@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.metadata.schema;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OList;
@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
 
-public class TestOTypeDetection extends BaseMemoryDatabase {
+public class TestOTypeDetection extends DBTestBase {
 
   @Test
   public void testOTypeFromClass() {

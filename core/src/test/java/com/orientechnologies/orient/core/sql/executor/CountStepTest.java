@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.concur.OTimeoutException;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
@@ -13,7 +13,7 @@ import org.junit.Test;
 /**
  *
  */
-public class CountStepTest extends BaseMemoryDatabase {
+public class CountStepTest extends DBTestBase {
 
   private static final String PROPERTY_NAME = "testPropertyName";
   private static final String PROPERTY_VALUE = "testPropertyValue";

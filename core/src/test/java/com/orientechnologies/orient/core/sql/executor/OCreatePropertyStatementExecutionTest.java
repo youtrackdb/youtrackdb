@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
@@ -15,7 +15,7 @@ import org.junit.Test;
 /**
  *
  */
-public class OCreatePropertyStatementExecutionTest extends BaseMemoryDatabase {
+public class OCreatePropertyStatementExecutionTest extends DBTestBase {
 
   private static final String PROP_NAME = "name";
 

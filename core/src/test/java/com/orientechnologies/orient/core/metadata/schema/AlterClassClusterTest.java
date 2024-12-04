@@ -3,12 +3,12 @@ package com.orientechnologies.orient.core.metadata.schema;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import org.junit.Test;
 
-public class AlterClassClusterTest extends BaseMemoryDatabase {
+public class AlterClassClusterTest extends DBTestBase {
 
   @Test
   public void testRemoveClusterDefaultCluster() {

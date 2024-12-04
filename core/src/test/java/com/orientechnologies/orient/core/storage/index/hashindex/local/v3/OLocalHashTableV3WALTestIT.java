@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.storage.index.hashindex.local.v3;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
@@ -77,7 +78,7 @@ public class OLocalHashTableV3WALTestIT extends OLocalHashTableV3Base {
 
     oxygenDB =
         new OxygenDB(
-            "embedded:" + buildDirectory,
+            DBTestBase.embeddedDBUrl(getClass()),
             OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());

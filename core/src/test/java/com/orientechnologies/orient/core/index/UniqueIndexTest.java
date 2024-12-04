@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.index;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -16,7 +16,7 @@ import org.junit.Test;
 /**
  *
  */
-public class UniqueIndexTest extends BaseMemoryDatabase {
+public class UniqueIndexTest extends DBTestBase {
 
   @Test
   public void compositeIndexWithEdgesTestOne() {

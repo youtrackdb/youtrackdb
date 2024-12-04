@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -15,7 +15,7 @@ import com.orientechnologies.orient.core.util.ODateHelper;
 import java.util.Date;
 import org.junit.Test;
 
-public class DefaultValueTest extends BaseMemoryDatabase {
+public class DefaultValueTest extends DBTestBase {
 
   @Test
   public void testKeepValueSerialization() {

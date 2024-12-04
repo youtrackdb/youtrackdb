@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.index;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OMultiValueChangeEvent;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -21,7 +21,7 @@ import org.junit.Test;
 /**
  * @since 20.12.11
  */
-public class OPropertyMapIndexDefinitionTest extends BaseMemoryDatabase {
+public class OPropertyMapIndexDefinitionTest extends DBTestBase {
 
   private final Map<String, Integer> mapToTest = new HashMap<String, Integer>();
   private OPropertyMapIndexDefinition propertyIndexByKey;

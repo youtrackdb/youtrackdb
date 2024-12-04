@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.db.record.impl;
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.OSet;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
@@ -21,7 +21,7 @@ import java.util.Set;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class ODirtyManagerTest extends BaseMemoryDatabase {
+public class ODirtyManagerTest extends DBTestBase {
 
   public ODirtyManagerTest() {
   }

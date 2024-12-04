@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import org.junit.Assert;
@@ -28,9 +28,9 @@ import org.junit.Test;
 /**
  *
  */
-public class OCommandExecutorSQLDeleteVertexTest extends BaseMemoryDatabase {
+public class OCommandExecutorSQLDeleteVertexTest extends DBTestBase {
 
-  public void beforeTest() {
+  public void beforeTest() throws Exception {
     super.beforeTest();
     final OSchema schema = db.getMetadata().getSchema();
     schema.createClass("User", schema.getClass("V"));

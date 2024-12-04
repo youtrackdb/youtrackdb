@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.functions.sql;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -12,7 +12,7 @@ import org.junit.Test;
 /**
  *
  */
-public class OFunctionSqlTest extends BaseMemoryDatabase {
+public class OFunctionSqlTest extends DBTestBase {
 
   @Test
   public void functionSqlWithParameters() {

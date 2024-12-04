@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.db.tool;
 import static com.orientechnologies.orient.core.db.tool.ODatabaseImport.EXPORT_IMPORT_CLASS_NAME;
 import static com.orientechnologies.orient.core.db.tool.ODatabaseImport.EXPORT_IMPORT_INDEX_NAME;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OxygenDB;
@@ -29,7 +30,7 @@ public class TestImportRewriteLinks {
   public void testNestedLinkRewrite() {
     try (final OxygenDB oxygenDb =
         OCreateDatabaseUtil.createDatabase(
-            "testDB", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY)) {
+            "testDB", DBTestBase.embeddedDBUrl(getClass()), OCreateDatabaseUtil.TYPE_MEMORY)) {
       try (var session =
           (ODatabaseSessionInternal) oxygenDb.open("testDB", "admin",
               OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {

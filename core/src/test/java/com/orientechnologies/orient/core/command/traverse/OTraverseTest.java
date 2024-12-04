@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.command.traverse;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -13,12 +13,12 @@ import org.junit.Test;
 /**
  *
  */
-public class OTraverseTest extends BaseMemoryDatabase {
+public class OTraverseTest extends DBTestBase {
 
   private ODocument rootDocument;
   private OTraverse traverse;
 
-  public void beforeTest() {
+  public void beforeTest() throws Exception {
     super.beforeTest();
 
     rootDocument = new ODocument();

@@ -7,7 +7,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.profiler.OProfiler;
 import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -25,9 +25,9 @@ import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class OMatchStatementExecutionTest extends BaseMemoryDatabase {
+public class OMatchStatementExecutionTest extends DBTestBase {
 
-  public void beforeTest() {
+  public void beforeTest() throws Exception {
     super.beforeTest();
     getProfilerInstance().startRecording();
 

@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.schedule;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.concur.ONeedRetryException;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.Oxygen;
@@ -38,7 +38,7 @@ public class OSchedulerTest {
               OCreateDatabaseUtil.NEW_ADMIN_PASSWORD).acquire();
       createLogEvent(db);
 
-      BaseMemoryDatabase.assertWithTimeout(
+      DBTestBase.assertWithTimeout(
           db,
           () -> {
             Long count = getLogCounter(db);
@@ -58,7 +58,7 @@ public class OSchedulerTest {
     }
 
     var db = context.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    BaseMemoryDatabase.assertWithTimeout(
+    DBTestBase.assertWithTimeout(
         db,
         () -> {
           Long count = getLogCounter(db);
@@ -124,7 +124,7 @@ public class OSchedulerTest {
   public void testScheduleEventWithMultipleActiveDatabaseConnections() {
     final OxygenDB oxygenDb =
         new OxygenDB(
-            "embedded:",
+            DBTestBase.embeddedDBUrl(getClass()),
             OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.DB_POOL_MAX, 1)
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
@@ -166,7 +166,7 @@ public class OSchedulerTest {
           .close();
       db.commit();
 
-      BaseMemoryDatabase.assertWithTimeout(
+      DBTestBase.assertWithTimeout(
           db,
           () -> {
             long count = getLogCounter(db);
@@ -194,7 +194,7 @@ public class OSchedulerTest {
         Assert.assertTrue(retryCount >= 0);
       }
 
-      BaseMemoryDatabase.assertWithTimeout(
+      DBTestBase.assertWithTimeout(
           db,
           () -> {
             long newCount = getLogCounter(db);
@@ -220,7 +220,7 @@ public class OSchedulerTest {
         Assert.assertTrue(retryCount >= 0);
       }
 
-      BaseMemoryDatabase.assertWithTimeout(
+      DBTestBase.assertWithTimeout(
           db,
           () -> {
             var counter = getLogCounter(db);
@@ -231,7 +231,8 @@ public class OSchedulerTest {
 
   private OxygenDB createContext() {
     final OxygenDB oxygenDB =
-        OCreateDatabaseUtil.createDatabase("test", "embedded:", OCreateDatabaseUtil.TYPE_MEMORY);
+        OCreateDatabaseUtil.createDatabase("test", DBTestBase.embeddedDBUrl(getClass()),
+            OCreateDatabaseUtil.TYPE_MEMORY);
     Oxygen.instance()
         .registerThreadDatabaseFactory(
             new TestScheduleDatabaseFactory(

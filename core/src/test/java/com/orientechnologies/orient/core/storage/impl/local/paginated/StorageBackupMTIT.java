@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.storage.impl.local.paginated;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.concur.lock.OModificationOperationProhibitedException;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.log.OLogManager;
@@ -38,7 +39,8 @@ public class StorageBackupMTIT {
   public void testParallelBackup() throws Exception {
     final String buildDirectory = System.getProperty("buildDirectory", ".");
     dbName = StorageBackupMTIT.class.getSimpleName();
-    final String dbDirectory = buildDirectory + File.separator + dbName;
+    final String dbDirectory =
+        buildDirectory + File.separator + "databases" + File.separator + dbName;
     final File backupDir = new File(buildDirectory, "backupDir");
     final String backupDbName = StorageBackupMTIT.class.getSimpleName() + "BackUp";
 
@@ -46,7 +48,7 @@ public class StorageBackupMTIT {
 
     try {
 
-      oxygenDB = new OxygenDB("embedded:" + buildDirectory, OxygenDBConfig.defaultConfig());
+      oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), OxygenDBConfig.defaultConfig());
       oxygenDB.execute(
           "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
 
@@ -106,7 +108,7 @@ public class StorageBackupMTIT {
           OxygenDBConfig.defaultConfig());
       embedded.close();
 
-      oxygenDB = new OxygenDB("embedded:" + buildDirectory, OxygenDBConfig.defaultConfig());
+      oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), OxygenDBConfig.defaultConfig());
       final ODatabaseCompare compare =
           new ODatabaseCompare(
               (ODatabaseSessionInternal) oxygenDB.open(dbName, "admin", "admin"),
@@ -126,7 +128,8 @@ public class StorageBackupMTIT {
         }
       }
       try {
-        oxygenDB = new OxygenDB("embedded:" + buildDirectory, OxygenDBConfig.defaultConfig());
+        oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
+            OxygenDBConfig.defaultConfig());
         oxygenDB.drop(dbName);
         oxygenDB.drop(backupDbName);
 
@@ -158,7 +161,7 @@ public class StorageBackupMTIT {
 
       OFileUtils.deleteRecursively(new File(dbDirectory));
 
-      oxygenDB = new OxygenDB("embedded:" + buildDirectory, config);
+      oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), config);
       oxygenDB.execute(
           "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
 
@@ -211,7 +214,7 @@ public class StorageBackupMTIT {
       embedded.close();
 
       OGlobalConfiguration.STORAGE_ENCRYPTION_KEY.setValue("T1JJRU5UREJfSVNfQ09PTA==");
-      oxygenDB = new OxygenDB("embedded:" + buildDirectory, OxygenDBConfig.defaultConfig());
+      oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), OxygenDBConfig.defaultConfig());
       final ODatabaseCompare compare =
           new ODatabaseCompare(
               (ODatabaseSessionInternal) oxygenDB.open(dbName, "admin", "admin"),
@@ -231,7 +234,7 @@ public class StorageBackupMTIT {
         }
       }
       try {
-        oxygenDB = new OxygenDB("embedded:" + buildDirectory, config);
+        oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), config);
         oxygenDB.drop(dbName);
         oxygenDB.drop(backupDbName);
 

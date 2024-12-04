@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.orderby;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYPE;
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class TestOrderBy extends BaseMemoryDatabase {
+public class TestOrderBy extends DBTestBase {
 
   @Test
   public void testGermanOrderBy() {

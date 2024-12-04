@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.select;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class TestSqlEmbeddedResult extends BaseMemoryDatabase {
+public class TestSqlEmbeddedResult extends DBTestBase {
 
   @Test
   public void testEmbeddedRusultTypeNotLink() {

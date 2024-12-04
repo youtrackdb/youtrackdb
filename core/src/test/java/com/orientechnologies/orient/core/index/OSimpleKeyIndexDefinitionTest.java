@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.index;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -14,7 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 @SuppressWarnings("unchecked")
-public class OSimpleKeyIndexDefinitionTest extends BaseMemoryDatabase {
+public class OSimpleKeyIndexDefinitionTest extends DBTestBase {
 
   private OSimpleKeyIndexDefinition simpleKeyIndexDefinition;
 

@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.functions.misc;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class OSQLFunctionIndexKeySizeTest extends BaseMemoryDatabase {
+public class OSQLFunctionIndexKeySizeTest extends DBTestBase {
 
   @Test
   public void test() {

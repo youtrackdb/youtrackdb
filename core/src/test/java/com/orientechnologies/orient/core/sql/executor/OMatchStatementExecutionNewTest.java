@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.profiler.OProfiler;
 import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -14,11 +14,11 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
+public class OMatchStatementExecutionNewTest extends DBTestBase {
 
   private static final String DB_NAME = "OMatchStatementExecutionNewTest";
 
-  public void beforeTest() {
+  public void beforeTest() throws Exception {
     super.beforeTest();
 
     getProfilerInstance().startRecording();
@@ -274,7 +274,7 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     for (int i = 0; i < 6; i++) {
       OResult item = qResult.next();
       Assert.assertEquals(1, item.getPropertyNames().size());
-      OElement person = db.load((ORID) item.getProperty("person"));
+      OElement person = db.load(item.getProperty("person"));
 
       String name = person.getProperty("name");
       Assert.assertTrue(name.startsWith("n"));
@@ -291,7 +291,7 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     for (int i = 0; i < 2; i++) {
       OResult item = qResult.next();
       Assert.assertEquals(1, item.getPropertyNames().size());
-      OElement personId = db.load((ORID) item.getProperty("person"));
+      OElement personId = db.load(item.getProperty("person"));
 
       ODocument person = personId.getRecord();
       String name = person.field("name");
@@ -352,7 +352,7 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
 
       OResult item = qResult.next();
       Assert.assertEquals(1, item.getPropertyNames().size());
-      OElement person = db.load((ORID) item.getProperty("person"));
+      OElement person = db.load(item.getProperty("person"));
 
       String name = person.getProperty("name");
       Assert.assertTrue(name.equals("n1") || name.equals("n2"));
@@ -1231,9 +1231,9 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     printExecutionPlan(result);
     Assert.assertTrue(result.hasNext());
     OResult doc = result.next();
-    OElement friend1 = db.load((ORID) doc.getProperty("friend1"));
-    OElement friend2 = db.load((ORID) doc.getProperty("friend2"));
-    OElement friend3 = db.load((ORID) doc.getProperty("friend3"));
+    OElement friend1 = db.load(doc.getProperty("friend1"));
+    OElement friend2 = db.load(doc.getProperty("friend2"));
+    OElement friend3 = db.load(doc.getProperty("friend3"));
     Assert.assertEquals(0, friend1.<Object>getProperty("uid"));
     Assert.assertEquals(1, friend2.<Object>getProperty("uid"));
     Assert.assertEquals(2, friend3.<Object>getProperty("uid"));
@@ -1256,9 +1256,9 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     Assert.assertTrue(result.hasNext());
     OResult doc = result.next();
     Assert.assertFalse(result.hasNext());
-    OElement friend1 = db.load((ORID) doc.getProperty("friend1"));
-    OElement friend2 = db.load((ORID) doc.getProperty("friend2"));
-    OElement friend3 = db.load((ORID) doc.getProperty("friend3"));
+    OElement friend1 = db.load(doc.getProperty("friend1"));
+    OElement friend2 = db.load(doc.getProperty("friend2"));
+    OElement friend3 = db.load(doc.getProperty("friend3"));
     Assert.assertEquals(0, friend1.<Object>getProperty("uid"));
     Assert.assertEquals(1, friend2.<Object>getProperty("uid"));
     Assert.assertEquals(2, friend3.<Object>getProperty("uid"));
@@ -1281,9 +1281,9 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     Assert.assertTrue(result.hasNext());
     OResult doc = result.next();
     Assert.assertFalse(result.hasNext());
-    OElement friend1 = db.load((ORID) doc.getProperty("friend1"));
-    OElement friend2 = db.load((ORID) doc.getProperty("friend2"));
-    OElement friend3 = db.load((ORID) doc.getProperty("friend3"));
+    OElement friend1 = db.load(doc.getProperty("friend1"));
+    OElement friend2 = db.load(doc.getProperty("friend2"));
+    OElement friend3 = db.load(doc.getProperty("friend3"));
     Assert.assertEquals(0, friend1.<Object>getProperty("uid"));
     Assert.assertEquals(1, friend2.<Object>getProperty("uid"));
     Assert.assertEquals(2, friend3.<Object>getProperty("uid"));
@@ -1382,7 +1382,7 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     for (int i = 0; i < 2; i++) {
       Assert.assertTrue(result.hasNext());
       OResult doc = result.next();
-      OElement friend1 = db.load((ORID) doc.getProperty("friend1"));
+      OElement friend1 = db.load(doc.getProperty("friend1"));
       Assert.assertEquals(friend1.<Object>getProperty("uid"), 1);
     }
     Assert.assertFalse(result.hasNext());
@@ -1426,7 +1426,7 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
 
     Assert.assertTrue(result.hasNext());
     OResult d = result.next();
-    OElement friend1 = db.load((ORID) d.getProperty("friend1"));
+    OElement friend1 = db.load(d.getProperty("friend1"));
     Assert.assertEquals(friend1.<Object>getProperty("uid"), 1);
     Assert.assertFalse(result.hasNext());
     result.close();
@@ -1445,7 +1445,7 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
     Assert.assertTrue(result.hasNext());
 
     OResult doc = result.next();
-    Object foo = db.load((ORID) doc.getProperty("foo"));
+    Object foo = db.load(doc.getProperty("foo"));
     Assert.assertNotNull(foo);
     Assert.assertTrue(((OElement) foo).isVertex());
     result.close();
@@ -1788,7 +1788,7 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
       Assert.assertTrue(qResult.hasNext());
       OResult doc = qResult.next();
       Assert.assertEquals(2, doc.getPropertyNames().size());
-      OElement person = db.load((ORID) doc.getProperty("person"));
+      OElement person = db.load(doc.getProperty("person"));
 
       String name = person.getProperty("name");
       Assert.assertTrue(name.startsWith("n"));
@@ -1806,7 +1806,7 @@ public class OMatchStatementExecutionNewTest extends BaseMemoryDatabase {
       Assert.assertTrue(qResult.hasNext());
       OResult doc = qResult.next();
       Assert.assertEquals(2, doc.getPropertyNames().size());
-      OElement person = db.load((ORID) doc.getProperty("person"));
+      OElement person = db.load(doc.getProperty("person"));
 
       String name = person.getProperty("name");
       Assert.assertTrue(name.startsWith("n"));

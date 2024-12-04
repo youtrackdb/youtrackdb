@@ -16,6 +16,7 @@ package com.orientechnologies.orient.jdbc;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import java.sql.Connection;
@@ -140,7 +141,8 @@ public class OxygenDataSourceTest extends OrientJdbcDbPerClassTemplateTest {
     final String dbName = "test";
 
     OxygenDB oxygenDB =
-        new OxygenDB("embedded:.", serverUser, serverPassword, OxygenDBConfig.defaultConfig());
+        new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), serverUser, serverPassword,
+            OxygenDBConfig.defaultConfig());
     oxygenDB.execute(
         "create database ? memory users(admin identified by 'admin' role admin)", dbName);
 

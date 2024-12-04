@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.db.record;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -12,10 +12,10 @@ import org.junit.Test;
 /**
  *
  */
-public class TestTypeGuessingWorkingWithSQLAndMultiValues extends BaseMemoryDatabase {
+public class TestTypeGuessingWorkingWithSQLAndMultiValues extends DBTestBase {
 
   @Before
-  public void beforeTest() {
+  public void beforeTest() throws Exception {
     super.beforeTest();
 
     db.execute(

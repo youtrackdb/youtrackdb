@@ -2,6 +2,7 @@ package com.orientechnologies.orient.core.metadata.index;
 
 import static org.junit.Assert.fail;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
@@ -21,7 +22,7 @@ public class TestImmutableIndexLoad {
     OxygenDB oxygenDB =
         OCreateDatabaseUtil.createDatabase(
             TestImmutableIndexLoad.class.getSimpleName(),
-            "embedded:./target/",
+            DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_PLOCAL);
     ODatabaseSession db =
         oxygenDB.open(
@@ -36,7 +37,7 @@ public class TestImmutableIndexLoad {
 
     oxygenDB =
         new OxygenDB(
-            "embedded:./target/",
+            DBTestBase.embeddedDBUrl(getClass()),
             OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());

@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.sql;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.security.OSecurityRole;
@@ -30,7 +30,7 @@ import org.junit.Test;
 /**
  *
  */
-public class OCommandExecutorSQLGrantRevokeTest extends BaseMemoryDatabase {
+public class OCommandExecutorSQLGrantRevokeTest extends DBTestBase {
 
   @Test
   public void grantServerRemove() {

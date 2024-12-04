@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.db.record.impl;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.record.ORecordInternal;
@@ -11,7 +11,7 @@ import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.record.impl.ODocumentInternal;
 import org.junit.Test;
 
-public class ODirtyManagerRidbagTest extends BaseMemoryDatabase {
+public class ODirtyManagerRidbagTest extends DBTestBase {
 
   @Test
   public void testRidBagTree() {

@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.index;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.OElement;
@@ -34,9 +34,9 @@ import org.junit.Test;
 /**
  *
  */
-public class TxUniqueIndexWithCollationTest extends BaseMemoryDatabase {
+public class TxUniqueIndexWithCollationTest extends DBTestBase {
 
-  public void beforeTest() {
+  public void beforeTest() throws Exception {
     super.beforeTest();
     db.getMetadata()
         .getSchema()

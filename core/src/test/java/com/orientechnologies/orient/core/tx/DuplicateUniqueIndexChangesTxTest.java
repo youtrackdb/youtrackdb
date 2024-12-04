@@ -19,7 +19,7 @@
 
 package com.orientechnologies.orient.core.tx;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -33,11 +33,11 @@ import org.junit.Test;
 /**
  *
  */
-public class DuplicateUniqueIndexChangesTxTest extends BaseMemoryDatabase {
+public class DuplicateUniqueIndexChangesTxTest extends DBTestBase {
 
   private OIndex index;
 
-  public void beforeTest() {
+  public void beforeTest() throws Exception {
     super.beforeTest();
     final OClass class_ = db.getMetadata().getSchema().createClass("Person");
     index =

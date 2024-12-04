@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.select;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -12,7 +12,7 @@ import org.junit.Test;
 /**
  *
  */
-public class TestNullFieldQuery extends BaseMemoryDatabase {
+public class TestNullFieldQuery extends DBTestBase {
 
   @Test
   public void testQueryNullValue() {

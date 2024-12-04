@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
 import java.util.List;
@@ -10,7 +10,7 @@ import org.junit.Test;
 /**
  *
  */
-public class OAlterDatabaseStatementExecutionTest extends BaseMemoryDatabase {
+public class OAlterDatabaseStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testSetProperty() {

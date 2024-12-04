@@ -1,5 +1,6 @@
 package com.orientechnologies.orient.core.storage;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
@@ -37,7 +38,8 @@ public class OStorageTestIT {
   @BeforeClass
   public static void beforeClass() throws IOException {
     String buildDirectory = System.getProperty("buildDirectory", ".");
-    buildPath = Paths.get(buildDirectory);
+    buildPath = Paths.get(buildDirectory).resolve("databases")
+        .resolve(OStorageTestIT.class.getSimpleName());
     Files.createDirectories(buildPath);
   }
 
@@ -52,7 +54,7 @@ public class OStorageTestIT {
             .addAttribute(ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
 
-    oxygenDB = new OxygenDB("embedded:" + buildPath.toFile().getAbsolutePath(), config);
+    oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), config);
     oxygenDB.execute(
         "create database "
             + OStorageTestIT.class.getSimpleName()
@@ -103,7 +105,7 @@ public class OStorageTestIT {
       Assert.fail();
     } catch (OStorageException e) {
       oxygenDB.close();
-      oxygenDB = new OxygenDB("embedded:" + buildPath.toFile().getAbsolutePath(), config);
+      oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), config);
       oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");
     }
   }
@@ -118,7 +120,7 @@ public class OStorageTestIT {
             .addAttribute(ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
 
-    oxygenDB = new OxygenDB("embedded:" + buildPath.toFile().getAbsolutePath(), config);
+    oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), config);
     oxygenDB.execute(
         "create database "
             + OStorageTestIT.class.getSimpleName()
@@ -166,7 +168,7 @@ public class OStorageTestIT {
       Assert.fail();
     } catch (OStorageException e) {
       oxygenDB.close();
-      oxygenDB = new OxygenDB("embedded:" + buildPath.toFile().getAbsolutePath(), config);
+      oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), config);
       oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");
     }
   }
@@ -180,7 +182,7 @@ public class OStorageTestIT {
             .addAttribute(ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
 
-    oxygenDB = new OxygenDB("embedded:" + buildPath.toFile().getAbsolutePath(), config);
+    oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), config);
     oxygenDB.execute(
         "create database "
             + OStorageTestIT.class.getSimpleName()
@@ -244,7 +246,7 @@ public class OStorageTestIT {
             .addAttribute(ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
 
-    oxygenDB = new OxygenDB("embedded:" + buildPath.toFile().getAbsolutePath(), config);
+    oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), config);
     oxygenDB.execute(
         "create database "
             + OStorageTestIT.class.getSimpleName()
@@ -306,7 +308,7 @@ public class OStorageTestIT {
   public void testCreatedVersionIsStored() {
     oxygenDB =
         new OxygenDB(
-            "embedded:" + buildPath.toFile().getAbsolutePath(), OxygenDBConfig.defaultConfig());
+            DBTestBase.embeddedDBUrl(getClass()), OxygenDBConfig.defaultConfig());
     oxygenDB.execute(
         "create database "
             + OStorageTestIT.class.getSimpleName()

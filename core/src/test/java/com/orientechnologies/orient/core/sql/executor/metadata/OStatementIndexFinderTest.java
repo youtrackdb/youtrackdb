@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OxygenDB;
@@ -31,7 +32,8 @@ public class OStatementIndexFinderTest {
 
   @Before
   public void before() {
-    this.oxygenDb = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
+    this.oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
+        OxygenDBConfig.defaultConfig());
     this.oxygenDb.execute(
         "create database "
             + OStatementIndexFinderTest.class.getSimpleName()

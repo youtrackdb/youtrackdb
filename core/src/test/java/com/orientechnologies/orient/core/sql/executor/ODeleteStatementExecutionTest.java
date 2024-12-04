@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import static com.orientechnologies.orient.core.sql.executor.ExecutionPlanPrintUtils.printExecutionPlan;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -13,7 +13,7 @@ import org.junit.Test;
 /**
  *
  */
-public class ODeleteStatementExecutionTest extends BaseMemoryDatabase {
+public class ODeleteStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testSimple() {

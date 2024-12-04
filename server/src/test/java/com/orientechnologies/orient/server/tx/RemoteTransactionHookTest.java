@@ -2,9 +2,11 @@ package com.orientechnologies.orient.server.tx;
 
 import static org.junit.Assert.assertEquals;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.Oxygen;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
+import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OxygenDB;
 import com.orientechnologies.orient.core.db.OxygenDBConfig;
 import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
@@ -21,15 +23,13 @@ import org.junit.Test;
 /**
  *
  */
-public class RemoteTransactionHookTest {
+public class RemoteTransactionHookTest extends DBTestBase {
 
   private static final String SERVER_DIRECTORY = "./target/hook-transaction";
   private OServer server;
-  private OxygenDB oxygenDB;
-  private ODatabaseSession db;
 
   @Before
-  public void before() throws Exception {
+  public void beforeTest() throws Exception {
     server = new OServer(false);
     server.setServerRootDirectory(SERVER_DIRECTORY);
     server.startup(getClass().getResourceAsStream("orientdb-server-config.xml"));
@@ -38,18 +38,32 @@ public class RemoteTransactionHookTest {
     server.getHookManager().addHook(hookConfig);
     server.activate();
 
-    oxygenDB = new OxygenDB("remote:localhost", "root", "root", OxygenDBConfig.defaultConfig());
-    oxygenDB.execute(
-        "create database ? memory users (admin identified by 'admin' role admin)",
-        RemoteTransactionHookTest.class.getSimpleName());
-    db = oxygenDB.open(RemoteTransactionHookTest.class.getSimpleName(), "admin", "admin");
     db.createClass("SomeTx");
+
+    super.beforeTest();
+  }
+
+  @Override
+  protected OxygenDB createContext() {
+    var builder = OxygenDBConfig.builder();
+    var config = createConfig(builder);
+
+    final String testConfig =
+        System.getProperty("oxygendb.test.env", ODatabaseType.MEMORY.name().toLowerCase());
+
+    if ("ci".equals(testConfig) || "release".equals(testConfig)) {
+      dbType = ODatabaseType.PLOCAL;
+    } else {
+      dbType = ODatabaseType.MEMORY;
+    }
+
+    return OxygenDB.embedded("remote:localhost", config);
   }
 
   @After
-  public void after() {
-    db.close();
-    oxygenDB.close();
+  public void afterTest() {
+    super.afterTest();
+
     server.shutdown();
 
     Oxygen.instance().shutdown();

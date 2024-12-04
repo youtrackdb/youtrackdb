@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import java.util.Collection;
 import org.junit.Assert;
 import org.junit.Test;
@@ -8,7 +8,7 @@ import org.junit.Test;
 /**
  *
  */
-public class OTraverseStatementExecutionTest extends BaseMemoryDatabase {
+public class OTraverseStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testPlainTraverse() {

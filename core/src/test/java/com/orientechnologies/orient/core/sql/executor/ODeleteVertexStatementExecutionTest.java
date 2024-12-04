@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.record.OVertex;
 import org.junit.Assert;
 import org.junit.Test;
@@ -8,7 +8,7 @@ import org.junit.Test;
 /**
  *
  */
-public class ODeleteVertexStatementExecutionTest extends BaseMemoryDatabase {
+public class ODeleteVertexStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testDeleteSingleVertex() {

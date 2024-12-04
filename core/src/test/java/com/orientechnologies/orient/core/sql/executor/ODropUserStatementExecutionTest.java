@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.sql.executor;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
@@ -8,7 +8,7 @@ import org.junit.Test;
 /**
  *
  */
-public class ODropUserStatementExecutionTest extends BaseMemoryDatabase {
+public class ODropUserStatementExecutionTest extends DBTestBase {
 
   @Test
   public void testPlain() {

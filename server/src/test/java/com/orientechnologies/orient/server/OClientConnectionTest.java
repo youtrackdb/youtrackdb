@@ -33,7 +33,7 @@ public class OClientConnectionTest extends BaseMemoryInternalDatabase {
   @Mock
   private OServer server;
 
-  public void beforeTest() {
+  public void beforeTest() throws Exception {
     super.beforeTest();
     MockitoAnnotations.initMocks(this);
     Mockito.when(protocol.getServer()).thenReturn(server);

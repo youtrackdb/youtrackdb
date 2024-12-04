@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.OValidationException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -13,7 +13,7 @@ import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.junit.Test;
 
-public class ORecordLazySetTest extends BaseMemoryDatabase {
+public class ORecordLazySetTest extends DBTestBase {
 
   private ODocument doc1;
   private ODocument doc2;
@@ -22,7 +22,7 @@ public class ORecordLazySetTest extends BaseMemoryDatabase {
   private ORID rid2;
   private ORID rid3;
 
-  public void beforeTest() {
+  public void beforeTest() throws Exception {
     super.beforeTest();
     db.begin();
     doc1 =

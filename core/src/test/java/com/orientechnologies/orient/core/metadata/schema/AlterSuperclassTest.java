@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.metadata.schema;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.exception.OSchemaException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -12,7 +12,7 @@ import org.junit.Test;
 /**
  *
  */
-public class AlterSuperclassTest extends BaseMemoryDatabase {
+public class AlterSuperclassTest extends DBTestBase {
 
   @Test
   public void testSamePropertyCheck() {

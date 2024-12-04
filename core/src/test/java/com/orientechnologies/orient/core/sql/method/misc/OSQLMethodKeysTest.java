@@ -2,14 +2,14 @@ package com.orientechnologies.orient.core.sql.method.misc;
 
 import static org.junit.Assert.assertEquals;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import org.junit.Before;
 import org.junit.Test;
 
-public class OSQLMethodKeysTest extends BaseMemoryDatabase {
+public class OSQLMethodKeysTest extends DBTestBase {
 
   private OSQLMethodKeys function;
 

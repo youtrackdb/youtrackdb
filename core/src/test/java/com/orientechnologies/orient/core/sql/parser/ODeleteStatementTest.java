@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import static org.junit.Assert.fail;
 
-import com.orientechnologies.BaseMemoryDatabase;
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -13,7 +13,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ODeleteStatementTest extends BaseMemoryDatabase {
+public class ODeleteStatementTest extends DBTestBase {
 
   protected SimpleNode checkRightSyntax(String query) {
     return checkSyntax(query, true);

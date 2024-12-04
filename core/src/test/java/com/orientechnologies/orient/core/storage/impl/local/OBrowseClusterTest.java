@@ -3,6 +3,7 @@ package com.orientechnologies.orient.core.storage.impl.local;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 
+import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
@@ -24,7 +25,7 @@ public class OBrowseClusterTest {
   public void before() {
     oxygenDb =
         new OxygenDB(
-            "embedded:",
+            DBTestBase.embeddedDBUrl(getClass()),
             OxygenDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CLASS_MINIMUM_CLUSTERS, 1)
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
