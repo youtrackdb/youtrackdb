@@ -32,7 +32,7 @@ The full Server distribution is a few MBs without the demo database.
 
 ## Licensing
 
-OxygenDB is licensed under the Apache 2 license. 
+YouTrackDB is licensed under the Apache 2 license. 
 
 ## Build status
 
