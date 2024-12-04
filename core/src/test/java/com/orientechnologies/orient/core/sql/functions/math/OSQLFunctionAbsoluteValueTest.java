@@ -6,8 +6,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -159,8 +159,8 @@ public class OSQLFunctionAbsoluteValueTest {
 
   @Test
   public void testFromQuery() {
-    try (OxygenDB ctx = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-        OxygenDBConfig.defaultConfig())) {
+    try (YouTrackDB ctx = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig())) {
       ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
       try (var db = ctx.open("test", "admin", "adminpwd")) {
         try (OResultSet result = db.query("select abs(-45.4) as abs")) {

@@ -22,7 +22,7 @@ package com.orientechnologies.common.concur.resource;
 import com.orientechnologies.common.concur.lock.OLockException;
 import com.orientechnologies.orient.core.OOrientShutdownListener;
 import com.orientechnologies.orient.core.OOrientStartupListener;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,8 +54,8 @@ public class OReentrantResourcePool<K, V> extends OResourcePool<K, V>
       final int maxResources, final OResourcePoolListener<K, V> listener) {
     super(maxResources, listener);
 
-    Oxygen.instance().registerWeakOrientShutdownListener(this);
-    Oxygen.instance().registerWeakOrientStartupListener(this);
+    YouTrackDBManager.instance().registerWeakOrientShutdownListener(this);
+    YouTrackDBManager.instance().registerWeakOrientStartupListener(this);
   }
 
   @Override

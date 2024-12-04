@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.metadata.security;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.exception.OSecurityException;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
@@ -24,15 +24,15 @@ import org.junit.Test;
 public class PredicateSecurityTest {
 
   private static final String DB_NAME = PredicateSecurityTest.class.getSimpleName();
-  private static OxygenDB orient;
+  private static YouTrackDB orient;
   private ODatabaseSessionInternal db;
 
   @BeforeClass
   public static void beforeClass() {
     orient =
-        new OxygenDB(
+        new YouTrackDB(
             "plocal:.",
-            OxygenDBConfig.builder()
+            YouTrackDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
   }

@@ -42,7 +42,7 @@ public class ODemoDbFromDocumentationBusinessOpportunitiesIT extends OIntegratio
     final OResult result = results.iterator().next();
 
     Assert.assertEquals(result.getProperty("Friend_Name"), "Emanuele");
-    Assert.assertEquals(result.getProperty("Friend_Surname"), "OxygenDB");
+    Assert.assertEquals(result.getProperty("Friend_Surname"), "YouTrackDB");
 
     resultSet.close();
   }

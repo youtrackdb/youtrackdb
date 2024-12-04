@@ -1,7 +1,7 @@
 package com.orientechnologies.common.collection.closabledictionary;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
@@ -823,7 +823,7 @@ public class OClosableLinkedContainer<K, V extends OClosableItem> {
   }
 
   private void evict() {
-    final long start = Oxygen.instance().getProfiler().startChrono();
+    final long start = YouTrackDBManager.instance().getProfiler().startChrono();
 
     final int initialSize = lruList.size();
     int closedFiles = 0;
@@ -865,7 +865,7 @@ public class OClosableLinkedContainer<K, V extends OClosableItem> {
               OGlobalConfiguration.OPEN_FILES_LIMIT.getKey());
     }
 
-    Oxygen.instance()
+    YouTrackDBManager.instance()
         .getProfiler()
         .stopChrono(
             "disk.closeFiles",

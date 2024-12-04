@@ -5,8 +5,8 @@ import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OLinkSerializer;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
 import com.orientechnologies.orient.core.storage.cache.OReadCache;
@@ -73,7 +73,7 @@ public class SBTreeV1WALTestIT extends SBTreeV1TestIT {
     final java.io.File buildDir = new java.io.File(buildDirectory);
     OFileUtils.deleteRecursively(buildDir);
 
-    oxygenDB = new OxygenDB("plocal:" + buildDir, OxygenDBConfig.defaultConfig());
+    youTrackDB = new YouTrackDB("plocal:" + buildDir, YouTrackDBConfig.defaultConfig());
     storage =
         (OAbstractPaginatedStorage) ((ODatabaseSessionInternal) databaseDocumentTx).getStorage();
     createExpectedSBTree();
@@ -83,18 +83,18 @@ public class SBTreeV1WALTestIT extends SBTreeV1TestIT {
   @After
   @Override
   public void afterMethod() throws Exception {
-    oxygenDB.drop(ACTUAL_DB_NAME);
-    oxygenDB.drop(EXPECTED_DB_NAME);
-    oxygenDB.close();
+    youTrackDB.drop(ACTUAL_DB_NAME);
+    youTrackDB.drop(EXPECTED_DB_NAME);
+    youTrackDB.close();
   }
 
   private void createActualSBTree() throws Exception {
-    oxygenDB.execute(
+    youTrackDB.execute(
         "create database "
             + ACTUAL_DB_NAME
             + " plocal users ( admin identified by 'admin' role admin)");
 
-    databaseDocumentTx = oxygenDB.open(ACTUAL_DB_NAME, "admin", "admin");
+    databaseDocumentTx = youTrackDB.open(ACTUAL_DB_NAME, "admin", "admin");
     actualStorage =
         (OLocalPaginatedStorage) ((ODatabaseSessionInternal) databaseDocumentTx).getStorage();
     actualStorageDir = actualStorage.getStoragePath().toString();
@@ -121,12 +121,12 @@ public class SBTreeV1WALTestIT extends SBTreeV1TestIT {
   }
 
   private void createExpectedSBTree() {
-    oxygenDB.execute(
+    youTrackDB.execute(
         "create database "
             + EXPECTED_DB_NAME
             + " plocal users ( admin identified by 'admin' role admin)");
 
-    expectedDatabaseDocumentTx = oxygenDB.open(EXPECTED_DB_NAME, "admin", "admin");
+    expectedDatabaseDocumentTx = youTrackDB.open(EXPECTED_DB_NAME, "admin", "admin");
     expectedStorage =
         (OLocalPaginatedStorage)
             ((ODatabaseSessionInternal) expectedDatabaseDocumentTx).getStorage();

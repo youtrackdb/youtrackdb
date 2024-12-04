@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright OxygenDB
+ *  *  Copyright YouTrackDB
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -24,8 +24,8 @@ import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.id.ORID;
@@ -55,12 +55,12 @@ import org.junit.Test;
  */
 public class OLiveQueryTest {
 
-  private OxygenDB odb;
+  private YouTrackDB odb;
   private ODatabaseSessionInternal db;
 
   @Before
   public void before() {
-    odb = new OxygenDB("memory:", OxygenDBConfig.defaultConfig());
+    odb = new YouTrackDB("memory:", YouTrackDBConfig.defaultConfig());
     odb.execute(
         "create database OLiveQueryTest memory users ( admin identified by 'admin' role admin,"
             + " reader identified by 'reader' role reader)");

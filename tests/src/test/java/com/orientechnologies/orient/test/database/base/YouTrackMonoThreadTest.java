@@ -15,15 +15,23 @@
  */
 package com.orientechnologies.orient.test.database.base;
 
-import com.orientechnologies.common.test.SpeedTestMultiThreads;
-import com.orientechnologies.common.test.SpeedTestThread;
+import com.orientechnologies.common.test.SpeedTestMonoThread;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import org.testng.annotations.Test;
 
 @Test(enabled = false)
-public abstract class OxygenMultiThreadTest extends SpeedTestMultiThreads {
+public abstract class YouTrackMonoThreadTest extends SpeedTestMonoThread {
 
-  public OxygenMultiThreadTest(
-      int iCycles, int iThreads, Class<? extends SpeedTestThread> iThreadClass) {
-    super(iCycles, iThreads, iThreadClass);
+  public YouTrackMonoThreadTest(int iCycles) {
+    super(iCycles);
+  }
+
+  public YouTrackMonoThreadTest() {
+    super(1);
+  }
+
+  @Override
+  public void deinit() {
+    System.out.println(YouTrackDBManager.instance().getProfiler().dump());
   }
 }

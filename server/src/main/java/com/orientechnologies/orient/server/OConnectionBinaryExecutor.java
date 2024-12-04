@@ -149,8 +149,8 @@ import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
@@ -1047,7 +1047,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
     if (connection.getServerUser() == null) {
       throw new OSecurityAccessException(
-          "Wrong user/password to [connect] to the remote OxygenDB Server instance");
+          "Wrong user/password to [connect] to the remote YouTrackDB Server instance");
     }
     byte[] token = null;
     if (connection.getData().protocolVersion > OChannelBinaryProtocol.PROTOCOL_VERSION_26) {
@@ -1080,7 +1080,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
     if (connection.getServerUser() == null) {
       throw new OSecurityAccessException(
-          "Wrong user/password to [connect] to the remote OxygenDB Server instance");
+          "Wrong user/password to [connect] to the remote YouTrackDB Server instance");
     }
 
     byte[] token = null;
@@ -1263,7 +1263,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   private void runShutdownInNonDaemonThread() {
     Thread shutdownThread =
-        new Thread("OxygenDB server shutdown thread") {
+        new Thread("YouTrackDB server shutdown thread") {
           public void run() {
             server.shutdown();
           }
@@ -1315,14 +1315,14 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
   @Override
   public OBinaryResponse executeServerQuery(OServerQueryRequest request) {
-    OxygenDB oxygenDB = server.getContext();
+    YouTrackDB youTrackDB = server.getContext();
 
     OResultSet rs;
 
     if (request.isNamedParams()) {
-      rs = oxygenDB.execute(request.getStatement(), request.getNamedParameters());
+      rs = youTrackDB.execute(request.getStatement(), request.getNamedParameters());
     } else {
-      rs = oxygenDB.execute(request.getStatement(), request.getPositionalParameters());
+      rs = youTrackDB.execute(request.getStatement(), request.getPositionalParameters());
     }
 
     // copy the result-set to make sure that the execution is successful
@@ -1416,7 +1416,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
   @Override
   public OBinaryResponse executeQueryNextPage(OQueryNextPageRequest request) {
     ODatabaseSessionInternal database = connection.getDatabase();
-    OxygenDBInternal orientDB = database.getSharedContext().getOxygenDB();
+    YouTrackDBInternal orientDB = database.getSharedContext().getOxygenDB();
     OLocalResultSetLifecycleDecorator rs =
         (OLocalResultSetLifecycleDecorator) database.getActiveQuery(request.getQueryId());
 
@@ -1800,7 +1800,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     OPushManager manager = server.getPushManager();
     manager.subscribeDistributeConfig((ONetworkProtocolBinary) connection.getProtocol());
 
-    OxygenDBInternal databases = server.getDatabases();
+    YouTrackDBInternal databases = server.getDatabases();
     Set<String> dbs = databases.listLodadedDatabases();
     ODistributedServerManager plugin = server.getPlugin("cluster");
     if (plugin != null) {
@@ -1878,7 +1878,7 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
     HandshakeInfo handshakeInfo =
         new HandshakeInfo(
             (short) OChannelBinaryProtocol.PROTOCOL_VERSION_38,
-            "OxygenDB Distributed",
+            "YouTrackDB Distributed",
             "",
             (byte) 0,
             OChannelBinaryProtocol.ERROR_MESSAGE_JAVA);
@@ -1890,11 +1890,11 @@ public final class OConnectionBinaryExecutor implements OBinaryRequestExecutor {
 
     if (serverUser == null) {
       throw new OSecurityAccessException(
-          "Wrong user/password to [connect] to the remote OxygenDB Server instance");
+          "Wrong user/password to [connect] to the remote YouTrackDB Server instance");
     }
 
-    connection.getData().driverName = "OxygenDB Distributed";
-    connection.getData().clientId = "OxygenDB Distributed";
+    connection.getData().driverName = "YouTrackDB Distributed";
+    connection.getData().clientId = "YouTrackDB Distributed";
     connection.getData().setSerializer(ORecordSerializerNetworkV37.INSTANCE);
     connection.setTokenBased(true);
     connection.getData().supportsLegacyPushMessages = false;

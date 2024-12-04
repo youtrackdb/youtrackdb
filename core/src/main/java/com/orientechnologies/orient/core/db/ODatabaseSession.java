@@ -74,7 +74,7 @@ public interface ODatabaseSession extends AutoCloseable {
 
   /**
    * Splits data provided by iterator in batches and execute every batch in separate transaction.
-   * Currently, OxygenDB accumulates all changes in single batch in memory and then commits them to
+   * Currently, YouTrackDB accumulates all changes in single batch in memory and then commits them to
    * the storage, that causes OutOfMemoryError in case of large data sets. This method allows to
    * avoid described problems.
    *
@@ -99,7 +99,7 @@ public interface ODatabaseSession extends AutoCloseable {
 
   /**
    * Splits data provided by iterator in batches and execute every batch in separate transaction.
-   * Currently, OxygenDB accumulates all changes in single batch in memory and then commits them to
+   * Currently, YouTrackDB accumulates all changes in single batch in memory and then commits them to
    * the storage, that causes OutOfMemoryError in case of large data sets. This method allows to
    * avoid described problems.
    *
@@ -124,7 +124,7 @@ public interface ODatabaseSession extends AutoCloseable {
 
   /**
    * Splits data provided by stream in batches and execute every batch in separate transaction.
-   * Currently, OxygenDB accumulates all changes in single batch in memory and then commits them to
+   * Currently, YouTrackDB accumulates all changes in single batch in memory and then commits them to
    * the storage, that causes OutOfMemoryError in case of large data sets. This method allows to
    * avoid described problems.
    * <p>

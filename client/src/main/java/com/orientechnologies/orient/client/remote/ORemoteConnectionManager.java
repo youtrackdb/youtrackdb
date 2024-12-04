@@ -38,7 +38,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Manages network connections against OxygenDB servers. All the connection pools are managed in a
+ * Manages network connections against YouTrackDB servers. All the connection pools are managed in a
  * Map<url,pool>, but in the future we could have a unique pool per sever and manage database
  * connections over the protocol.
  */

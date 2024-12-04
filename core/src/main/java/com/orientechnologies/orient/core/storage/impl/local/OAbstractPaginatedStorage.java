@@ -41,7 +41,7 @@ import com.orientechnologies.common.util.OCallable;
 import com.orientechnologies.common.util.OCommonConst;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.OConstants;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandExecutor;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
@@ -56,7 +56,7 @@ import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -251,7 +251,7 @@ public abstract class OAbstractPaginatedStorage
     boolean found = false;
 
     while (parentThreadGroup.getParent() != null) {
-      if (parentThreadGroup.equals(Oxygen.instance().getThreadGroup())) {
+      if (parentThreadGroup.equals(YouTrackDBManager.instance().getThreadGroup())) {
         parentThreadGroup = parentThreadGroup.getParent();
         found = true;
         break;
@@ -264,7 +264,7 @@ public abstract class OAbstractPaginatedStorage
       parentThreadGroup = parentThreadGroupBackup;
     }
 
-    storageThreadGroup = new ThreadGroup(parentThreadGroup, "OxygenDB Storage");
+    storageThreadGroup = new ThreadGroup(parentThreadGroup, "YouTrackDB Storage");
 
     fuzzyCheckpointExecutor =
         OThreadPoolExecutors.newSingleThreadScheduledPool("Fuzzy Checkpoint", storageThreadGroup);
@@ -291,7 +291,7 @@ public abstract class OAbstractPaginatedStorage
   protected volatile OWriteCache writeCache;
 
   private volatile ORecordConflictStrategy recordConflictStrategy =
-      Oxygen.instance().getRecordConflictStrategy().getDefaultImplementation();
+      YouTrackDBManager.instance().getRecordConflictStrategy().getDefaultImplementation();
 
   private volatile int defaultClusterId = -1;
   protected volatile OAtomicOperationsManager atomicOperationsManager;
@@ -335,7 +335,7 @@ public abstract class OAbstractPaginatedStorage
   protected volatile STATUS status = STATUS.CLOSED;
 
   protected AtomicReference<Throwable> error = new AtomicReference<>(null);
-  protected OxygenDBInternal context;
+  protected YouTrackDBInternal context;
   private volatile CountDownLatch migration = new CountDownLatch(1);
 
   private volatile int backupRunning = 0;
@@ -345,7 +345,7 @@ public abstract class OAbstractPaginatedStorage
   protected final Condition backupIsDone = backupLock.newCondition();
 
   public OAbstractPaginatedStorage(
-      final String name, final String filePath, final int id, OxygenDBInternal context) {
+      final String name, final String filePath, final int id, YouTrackDBInternal context) {
     this.context = context;
     this.name = checkName(name);
 
@@ -638,7 +638,7 @@ public abstract class OAbstractPaginatedStorage
                 if (cs != null) {
                   // SET THE CONFLICT STORAGE STRATEGY FROM THE LOADED CONFIGURATION
                   doSetConflictStrategy(
-                      Oxygen.instance().getRecordConflictStrategy().getStrategy(cs),
+                      YouTrackDBManager.instance().getRecordConflictStrategy().getStrategy(cs),
                       atomicOperation);
                 }
                 if (lastMetadata == null) {
@@ -732,7 +732,7 @@ public abstract class OAbstractPaginatedStorage
 
     final Object[] additionalArgs = new Object[]{getURL(), OConstants.getVersion()};
     OLogManager.instance()
-        .info(this, "Storage '%s' is opened under OxygenDB distribution : %s", additionalArgs);
+        .info(this, "Storage '%s' is opened under YouTrackDB distribution : %s", additionalArgs);
   }
 
   protected abstract void readIv() throws IOException;
@@ -879,7 +879,7 @@ public abstract class OAbstractPaginatedStorage
 
     final Object[] additionalArgs = new Object[]{getURL(), OConstants.getVersion()};
     OLogManager.instance()
-        .info(this, "Storage '%s' is created under OxygenDB distribution : %s", additionalArgs);
+        .info(this, "Storage '%s' is created under YouTrackDB distribution : %s", additionalArgs);
   }
 
   protected void doCreate(OContextConfiguration contextConfiguration)
@@ -1090,13 +1090,13 @@ public abstract class OAbstractPaginatedStorage
   @Override
   public final void delete() {
     try {
-      final long timer = Oxygen.instance().getProfiler().startChrono();
+      final long timer = YouTrackDBManager.instance().getProfiler().startChrono();
       stateLock.writeLock().lock();
       try {
         doDelete();
       } finally {
         stateLock.writeLock().unlock();
-        Oxygen.instance()
+        YouTrackDBManager.instance()
             .getProfiler()
             .stopChrono("db." + name + ".drop", "Drop a database", timer, "db.*.drop");
       }
@@ -3685,7 +3685,7 @@ public abstract class OAbstractPaginatedStorage
       stateLock.readLock().lock();
       try {
 
-        final long timer = Oxygen.instance().getProfiler().startChrono();
+        final long timer = YouTrackDBManager.instance().getProfiler().startChrono();
         final long lockId = atomicOperationsManager.freezeAtomicOperations(null, null);
         try {
           checkOpennessAndMigration();
@@ -3719,7 +3719,7 @@ public abstract class OAbstractPaginatedStorage
 
         } finally {
           atomicOperationsManager.releaseAtomicOperations(lockId);
-          Oxygen.instance()
+          YouTrackDBManager.instance()
               .getProfiler()
               .stopChrono("db." + name + ".synch", "Synch a database", timer, "db.*.synch");
         }
@@ -4074,7 +4074,7 @@ public abstract class OAbstractPaginatedStorage
       if (iCommand.isIdempotent() && !executor.isIdempotent()) {
         throw new OCommandExecutionException("Cannot execute non idempotent command");
       }
-      final long beginTime = Oxygen.instance().getProfiler().startChrono();
+      final long beginTime = YouTrackDBManager.instance().getProfiler().startChrono();
       try {
         final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().get();
         // CALL BEFORE COMMAND
@@ -4104,12 +4104,12 @@ public abstract class OAbstractPaginatedStorage
             new OCommandExecutionException("Error on execution of command: " + iCommand), e);
 
       } finally {
-        if (Oxygen.instance().getProfiler().isRecording()) {
+        if (YouTrackDBManager.instance().getProfiler().isRecording()) {
           final ODatabaseSessionInternal db = ODatabaseRecordThreadLocal.instance().getIfDefined();
           if (db != null) {
             final OSecurityUser user = db.getUser();
             final String userString = Optional.ofNullable(user).map(Object::toString).orElse(null);
-            Oxygen.instance()
+            YouTrackDBManager.instance()
                 .getProfiler()
                 .stopChrono(
                     "db."
@@ -4784,7 +4784,7 @@ public abstract class OAbstractPaginatedStorage
       final ORecordCallback<Integer> callback,
       final OCluster cluster) {
 
-    Oxygen.instance().getProfiler().startChrono();
+    YouTrackDBManager.instance().getProfiler().startChrono();
     try {
 
       final OPhysicalPosition ppos =
@@ -4868,7 +4868,7 @@ public abstract class OAbstractPaginatedStorage
       final ORecordId rid,
       final int version,
       final OCluster cluster) {
-    Oxygen.instance().getProfiler().startChrono();
+    YouTrackDBManager.instance().getProfiler().startChrono();
     try {
 
       final OPhysicalPosition ppos =
@@ -5156,7 +5156,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   protected void doShutdown() throws IOException {
-    final long timer = Oxygen.instance().getProfiler().startChrono();
+    final long timer = YouTrackDBManager.instance().getProfiler().startChrono();
     try {
       if (status == STATUS.CLOSED) {
         return;
@@ -5226,7 +5226,7 @@ public abstract class OAbstractPaginatedStorage
       migration = new CountDownLatch(1);
       status = STATUS.CLOSED;
     } finally {
-      Oxygen.instance()
+      YouTrackDBManager.instance()
           .getProfiler()
           .stopChrono("db." + name + ".close", "Close a database", timer, "db.*.close");
     }
@@ -5889,7 +5889,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   private void registerProfilerHooks() {
-    Oxygen.instance()
+    YouTrackDBManager.instance()
         .getProfiler()
         .registerHookValue(
             "db." + this.name + ".createRecord",
@@ -5898,7 +5898,7 @@ public abstract class OAbstractPaginatedStorage
             new ModifiableLongProfileHookValue(recordCreated),
             "db.*.createRecord");
 
-    Oxygen.instance()
+    YouTrackDBManager.instance()
         .getProfiler()
         .registerHookValue(
             "db." + this.name + ".readRecord",
@@ -5907,7 +5907,7 @@ public abstract class OAbstractPaginatedStorage
             new ModifiableLongProfileHookValue(recordRead),
             "db.*.readRecord");
 
-    Oxygen.instance()
+    YouTrackDBManager.instance()
         .getProfiler()
         .registerHookValue(
             "db." + this.name + ".updateRecord",
@@ -5916,7 +5916,7 @@ public abstract class OAbstractPaginatedStorage
             new ModifiableLongProfileHookValue(recordUpdated),
             "db.*.updateRecord");
 
-    Oxygen.instance()
+    YouTrackDBManager.instance()
         .getProfiler()
         .registerHookValue(
             "db." + this.name + ".deleteRecord",
@@ -5925,7 +5925,7 @@ public abstract class OAbstractPaginatedStorage
             new ModifiableLongProfileHookValue(recordDeleted),
             "db.*.deleteRecord");
 
-    Oxygen.instance()
+    YouTrackDBManager.instance()
         .getProfiler()
         .registerHookValue(
             "db." + this.name + ".scanRecord",
@@ -5934,7 +5934,7 @@ public abstract class OAbstractPaginatedStorage
             new ModifiableLongProfileHookValue(recordScanned),
             "db.*.scanRecord");
 
-    Oxygen.instance()
+    YouTrackDBManager.instance()
         .getProfiler()
         .registerHookValue(
             "db." + this.name + ".recyclePosition",
@@ -5943,7 +5943,7 @@ public abstract class OAbstractPaginatedStorage
             new ModifiableLongProfileHookValue(recordRecycled),
             "db.*.recyclePosition");
 
-    Oxygen.instance()
+    YouTrackDBManager.instance()
         .getProfiler()
         .registerHookValue(
             "db." + this.name + ".conflictRecord",
@@ -5952,7 +5952,7 @@ public abstract class OAbstractPaginatedStorage
             new ModifiableLongProfileHookValue(recordConflict),
             "db.*.conflictRecord");
 
-    Oxygen.instance()
+    YouTrackDBManager.instance()
         .getProfiler()
         .registerHookValue(
             "db." + this.name + ".txBegun",
@@ -5961,7 +5961,7 @@ public abstract class OAbstractPaginatedStorage
             new ModifiableLongProfileHookValue(txBegun),
             "db.*.txBegun");
 
-    Oxygen.instance()
+    YouTrackDBManager.instance()
         .getProfiler()
         .registerHookValue(
             "db." + this.name + ".txCommit",
@@ -5970,7 +5970,7 @@ public abstract class OAbstractPaginatedStorage
             new ModifiableLongProfileHookValue(txCommit),
             "db.*.txCommit");
 
-    Oxygen.instance()
+    YouTrackDBManager.instance()
         .getProfiler()
         .registerHookValue(
             "db." + this.name + ".txRollback",
@@ -6708,7 +6708,7 @@ public abstract class OAbstractPaginatedStorage
   }
 
   @Override
-  public OxygenDBInternal getContext() {
+  public YouTrackDBInternal getContext() {
     return this.context;
   }
 

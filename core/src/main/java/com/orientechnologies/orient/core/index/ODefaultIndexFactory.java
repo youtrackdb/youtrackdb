@@ -32,7 +32,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Default OxygenDB index factory for indexes based on SBTree.<br> Supports index types:
+ * Default YouTrackDB index factory for indexes based on SBTree.<br> Supports index types:
  *
  * <ul>
  *   <li>UNIQUE

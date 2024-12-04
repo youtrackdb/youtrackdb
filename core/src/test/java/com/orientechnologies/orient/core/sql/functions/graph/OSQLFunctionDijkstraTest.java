@@ -7,7 +7,7 @@ import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OVertex;
 import java.util.List;
@@ -17,7 +17,7 @@ import org.junit.Test;
 
 public class OSQLFunctionDijkstraTest {
 
-  private OxygenDB oxygenDB;
+  private YouTrackDB youTrackDB;
   private ODatabaseSession graph;
 
   private OVertex v1;
@@ -36,16 +36,17 @@ public class OSQLFunctionDijkstraTest {
   @After
   public void tearDown() throws Exception {
     graph.close();
-    oxygenDB.close();
+    youTrackDB.close();
   }
 
   private void setUpDatabase() {
-    oxygenDB =
+    youTrackDB =
         OCreateDatabaseUtil.createDatabase(
             "OSQLFunctionDijkstraTest", DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_MEMORY);
     graph =
-        oxygenDB.open("OSQLFunctionDijkstraTest", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        youTrackDB.open("OSQLFunctionDijkstraTest", "admin",
+            OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     graph.createEdgeClass("weight");
 

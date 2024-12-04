@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.db;
 
 import com.orientechnologies.common.thread.OSoftThread;
 import com.orientechnologies.orient.core.OOrientListenerAbstract;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.replication.OAsyncReplicationError;
 import com.orientechnologies.orient.core.replication.OAsyncReplicationOk;
 
@@ -65,7 +65,7 @@ public class OExecutionThreadLocal extends ThreadLocal<OExecutionThreadLocal.OEx
   }
 
   static {
-    final Oxygen inst = Oxygen.instance();
+    final YouTrackDBManager inst = YouTrackDBManager.instance();
     inst.registerListener(
         new OOrientListenerAbstract() {
           @Override

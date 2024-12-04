@@ -32,7 +32,7 @@ public class OServerUserTokenTest {
     server.getTokenHandler().validateServerUserToken(token, "", "");
 
     Assert.assertEquals("root", token.getUserName());
-    Assert.assertEquals("OxygenDBServer", token.getPayload().getAudience());
+    Assert.assertEquals("YouTrackDBServer", token.getPayload().getAudience());
   }
 
   @After

@@ -25,7 +25,7 @@ import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.parser.OStringParser;
 import com.orientechnologies.common.util.OCommonConst;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
@@ -295,7 +295,7 @@ public class ORecordSerializerJSON extends ORecordSerializerStringAbstract {
                 || ORecordInternal.getRecordType(record) != fieldValueAsString.charAt(0)) {
               // CREATE THE RIGHT RECORD INSTANCE
               record =
-                  Oxygen.instance()
+                  YouTrackDBManager.instance()
                       .getRecordFactoryManager()
                       .newInstance(
                           (byte) fieldValueAsString.charAt(0),

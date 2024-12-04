@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2013 OxygenDB LTD (info--at--orientdb.com)
+ * Copyright 2010-2013 YouTrackDB LTD (info--at--orientdb.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.orientechnologies.orient.core.storage.impl.local.paginated.wal;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.common.types.OModifiableLong;
 import com.orientechnologies.orient.core.OOrientListenerAbstract;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -35,7 +35,7 @@ public class OOperationUnitId {
   public static final int SERIALIZED_SIZE = 2 * OLongSerializer.LONG_SIZE;
 
   static {
-    Oxygen.instance()
+    YouTrackDBManager.instance()
         .registerListener(
             new OOrientListenerAbstract() {
               @Override

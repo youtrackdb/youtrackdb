@@ -21,7 +21,7 @@ package com.orientechnologies.orient.client.remote;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTxInternal;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -30,7 +30,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Remote administration class of OxygenDB Server instances.
+ * Remote administration class of YouTrackDB Server instances.
  */
 @Deprecated
 public class OServerAdmin {
@@ -39,7 +39,7 @@ public class OServerAdmin {
   protected String clientType = OStorageRemote.DRIVER_NAME;
   protected boolean collectStats = true;
   private final ORemoteURLs urls;
-  private final OxygenDBRemote remote;
+  private final YouTrackDBRemote remote;
   private String user;
   private String password;
   private final Optional<String> database;
@@ -61,7 +61,7 @@ public class OServerAdmin {
       url += "/";
     }
 
-    remote = (OxygenDBRemote) ODatabaseDocumentTxInternal.getOrCreateRemoteFactory(url);
+    remote = (YouTrackDBRemote) ODatabaseDocumentTxInternal.getOrCreateRemoteFactory(url);
     urls = new ORemoteURLs(new String[]{}, remote.getContextConfiguration());
     String name = urls.parseServerUrls(url, remote.getContextConfiguration());
     if (name != null && name.length() != 0) {
@@ -71,7 +71,7 @@ public class OServerAdmin {
     }
   }
 
-  public OServerAdmin(OxygenDBRemote remote, String url) throws IOException {
+  public OServerAdmin(YouTrackDBRemote remote, String url) throws IOException {
     this.remote = remote;
     urls = new ORemoteURLs(new String[]{}, remote.getContextConfiguration());
     String name = urls.parseServerUrls(url, remote.getContextConfiguration());
@@ -201,8 +201,9 @@ public class OServerAdmin {
     } else {
       storageMode = ODatabaseType.valueOf(iStorageMode.toUpperCase());
     }
-    OxygenDBConfig config =
-        OxygenDBConfig.builder().addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, true).build();
+    YouTrackDBConfig config =
+        YouTrackDBConfig.builder().addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, true)
+            .build();
     if (backupPath != null) {
       remote.restore(iDatabaseName, user, password, storageMode, backupPath, null);
     } else {

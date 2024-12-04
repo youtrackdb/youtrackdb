@@ -25,7 +25,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import org.junit.Test;
 
-public class OxygenJdbcStatementDMLtest extends OxygenJdbcDbPerMethodTemplateTest {
+public class YouTrackDbJdbcStatementDMLtest extends YouTrackDbJdbcDbPerMethodTemplateTest {
 
   @Test
   public void shouldInsertANewItem() throws Exception {

@@ -23,7 +23,7 @@ import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.util.OPair;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
@@ -883,7 +883,7 @@ public class ODocumentHelper {
         } else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_CLASS)) {
           return ((ODocument) iCurrent.getRecord()).getClassName();
         } else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_TYPE)) {
-          return Oxygen.instance()
+          return YouTrackDBManager.instance()
               .getRecordFactoryManager()
               .getRecordTypeName(ORecordInternal.getRecordType(iCurrent.getRecord()));
         } else if (iFieldName.equalsIgnoreCase(ATTRIBUTE_SIZE)) {

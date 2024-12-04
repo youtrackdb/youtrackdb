@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.cache;
 
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
@@ -39,7 +39,7 @@ public class OLocalRecordCache extends OAbstractRecordCache {
 
   public OLocalRecordCache() {
     super(
-        Oxygen.instance()
+        YouTrackDBManager.instance()
             .getLocalRecordCache()
             .newInstance(OGlobalConfiguration.CACHE_LOCAL_IMPL.getValueAsString()));
   }
@@ -95,12 +95,12 @@ public class OLocalRecordCache extends OAbstractRecordCache {
     record = underlying.get(rid);
 
     if (record != null) {
-      Oxygen.instance()
+      YouTrackDBManager.instance()
           .getProfiler()
           .updateCounter(
               cacheHit, "Record found in Level1 Cache", 1L, "db.*.cache.level1.cache.found");
     } else {
-      Oxygen.instance()
+      YouTrackDBManager.instance()
           .getProfiler()
           .updateCounter(
               cacheMiss,

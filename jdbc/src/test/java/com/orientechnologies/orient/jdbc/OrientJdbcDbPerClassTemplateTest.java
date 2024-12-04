@@ -17,7 +17,7 @@ import static com.orientechnologies.orient.jdbc.OrientDbCreationHelper.createSch
 import static com.orientechnologies.orient.jdbc.OrientDbCreationHelper.loadDB;
 
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.YouTrackDB;
 import java.util.Properties;
 import javax.sql.DataSource;
 import org.assertj.db.type.DataSourceWithLetterCase;
@@ -31,7 +31,7 @@ public abstract class OrientJdbcDbPerClassTemplateTest {
 
   protected static OrientJdbcConnection conn;
   protected static ODatabaseSessionInternal db;
-  protected static OxygenDB oxygenDB;
+  protected static YouTrackDB youTrackDB;
   protected static DataSource ds;
 
   @Rule
@@ -53,7 +53,7 @@ public abstract class OrientJdbcDbPerClassTemplateTest {
         new DataSourceWithLetterCase(
             ods, LetterCase.TABLE_DEFAULT, LetterCase.TABLE_DEFAULT, LetterCase.TABLE_DEFAULT);
     conn = (OrientJdbcConnection) ds.getConnection();
-    oxygenDB = conn.getOrientDB();
+    youTrackDB = conn.getOrientDB();
 
     db = (ODatabaseSessionInternal) ((OrientJdbcConnection) ds.getConnection()).getDatabase();
 
@@ -72,6 +72,6 @@ public abstract class OrientJdbcDbPerClassTemplateTest {
     if (conn != null && !conn.isClosed()) {
       conn.close();
     }
-    oxygenDB.close();
+    youTrackDB.close();
   }
 }

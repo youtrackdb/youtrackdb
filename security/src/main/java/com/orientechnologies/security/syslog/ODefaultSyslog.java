@@ -32,7 +32,7 @@ public class ODefaultSyslog extends OServerPluginAbstract implements OSyslog {
   private boolean debug = false;
   private String hostname = "localhost";
   private int port = 514; // Default syslog UDP port.
-  private String appName = "OxygenDB";
+  private String appName = "YouTrackDB";
 
   private UdpSyslogMessageSender messageSender;
 

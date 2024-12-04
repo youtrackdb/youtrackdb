@@ -9,8 +9,8 @@ import static org.mockito.Mockito.when;
 
 import com.orientechnologies.lucene.test.BaseLuceneTest;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import java.io.File;
 import java.util.Collections;
@@ -45,9 +45,9 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
   @Test
   public void shouldCreateNioFsDirectory() throws Exception {
     meta.put(DIRECTORY_TYPE, DIRECTORY_NIO);
-    try (OxygenDB ctx =
-        new OxygenDB(embeddedDBUrl(getClass()),
-            OxygenDBConfig.defaultConfig())) {
+    try (YouTrackDB ctx =
+        new YouTrackDB(embeddedDBUrl(getClass()),
+            YouTrackDBConfig.defaultConfig())) {
       ctx.execute(
           "create database "
               + databaseName
@@ -67,9 +67,9 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
   @Test
   public void shouldCreateMMapFsDirectory() throws Exception {
     meta.put(DIRECTORY_TYPE, DIRECTORY_MMAP);
-    try (OxygenDB ctx =
-        new OxygenDB(embeddedDBUrl(getClass()),
-            OxygenDBConfig.defaultConfig())) {
+    try (YouTrackDB ctx =
+        new YouTrackDB(embeddedDBUrl(getClass()),
+            YouTrackDBConfig.defaultConfig())) {
       ctx.execute(
           "create database "
               + databaseName
@@ -89,8 +89,8 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
   @Test
   public void shouldCreateRamDirectory() throws Exception {
     meta.put(DIRECTORY_TYPE, DIRECTORY_RAM);
-    try (OxygenDB ctx =
-        new OxygenDB(embeddedDBUrl(getClass()), OxygenDBConfig.defaultConfig())) {
+    try (YouTrackDB ctx =
+        new YouTrackDB(embeddedDBUrl(getClass()), YouTrackDBConfig.defaultConfig())) {
       ctx.execute(
           "create database "
               + databaseName
@@ -106,8 +106,8 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
   @Test
   public void shouldCreateRamDirectoryOnMemoryDatabase() {
     meta.put(DIRECTORY_TYPE, DIRECTORY_RAM);
-    try (OxygenDB ctx =
-        new OxygenDB(embeddedDBUrl(getClass()), OxygenDBConfig.defaultConfig())) {
+    try (YouTrackDB ctx =
+        new YouTrackDB(embeddedDBUrl(getClass()), YouTrackDBConfig.defaultConfig())) {
       ctx.execute(
           "create database "
               + databaseName
@@ -125,8 +125,8 @@ public class OLuceneDirectoryFactoryTest extends BaseLuceneTest {
   @Test
   public void shouldCreateRamDirectoryOnMemoryFromMmapDatabase() {
     meta.put(DIRECTORY_TYPE, DIRECTORY_MMAP);
-    try (OxygenDB ctx =
-        new OxygenDB(embeddedDBUrl(getClass()), OxygenDBConfig.defaultConfig())) {
+    try (YouTrackDB ctx =
+        new YouTrackDB(embeddedDBUrl(getClass()), YouTrackDBConfig.defaultConfig())) {
       ctx.execute(
           "create database "
               + databaseName

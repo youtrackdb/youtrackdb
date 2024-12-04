@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.tx;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.record.OVertex;
 import org.junit.After;
 import org.junit.Assert;
@@ -15,15 +15,15 @@ import org.junit.Test;
  */
 public class TransactionTest {
 
-  private OxygenDB oxygenDB;
+  private YouTrackDB youTrackDB;
   private ODatabaseSession db;
 
   @Before
   public void before() {
-    oxygenDB =
+    youTrackDB =
         OCreateDatabaseUtil.createDatabase("test", DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_MEMORY);
-    db = oxygenDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    db = youTrackDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
 
   @Test
@@ -47,6 +47,6 @@ public class TransactionTest {
   @After
   public void after() {
     db.close();
-    oxygenDB.close();
+    youTrackDB.close();
   }
 }

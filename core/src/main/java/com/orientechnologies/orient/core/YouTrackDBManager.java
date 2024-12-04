@@ -35,8 +35,8 @@ import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategyFactory;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseThreadLocalFactory;
-import com.orientechnologies.orient.core.db.OxygenDBEmbedded;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDBEmbedded;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.engine.OEngine;
 import com.orientechnologies.orient.core.record.ORecordFactoryManager;
 import com.orientechnologies.orient.core.shutdown.OShutdownHandler;
@@ -66,13 +66,13 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class Oxygen extends OListenerManger<OOrientListener> {
+public class YouTrackDBManager extends OListenerManger<OOrientListener> {
 
-  public static final String OXYGENDB_HOME = "OXYGENDB_HOME";
+  public static final String YOU_TRACK_DB_HOME = "YOU_TRACK_DB_HOME";
   public static final String URL_SYNTAX =
       "<engine>:<db-type>:<db-name>[?<db-param>=<db-value>[&]]*";
 
-  private static volatile Oxygen instance;
+  private static volatile YouTrackDBManager instance;
   private static final Lock initLock = new ReentrantLock();
 
   private static volatile boolean registerDatabaseByPath = false;
@@ -119,10 +119,10 @@ public class Oxygen extends OListenerManger<OOrientListener> {
 
   private final OLocalRecordCacheFactory localRecordCache = new OLocalRecordCacheFactoryImpl();
 
-  private final Set<OxygenDBEmbedded> factories =
+  private final Set<YouTrackDBEmbedded> factories =
       Collections.newSetFromMap(new ConcurrentHashMap<>());
 
-  private final Set<OxygenDBInternal> runningInstances = new HashSet<>();
+  private final Set<YouTrackDBInternal> runningInstances = new HashSet<>();
 
   private final String os;
 
@@ -187,11 +187,11 @@ public class Oxygen extends OListenerManger<OOrientListener> {
     }
   }
 
-  Oxygen(boolean insideWebContainer) {
+  YouTrackDBManager(boolean insideWebContainer) {
     super(true);
     this.insideWebContainer = insideWebContainer;
     this.os = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
-    threadGroup = new ThreadGroup("OxygenDB");
+    threadGroup = new ThreadGroup("YouTrackDB");
     threadGroup.setDaemon(false);
   }
 
@@ -199,7 +199,7 @@ public class Oxygen extends OListenerManger<OOrientListener> {
     return insideWebContainer;
   }
 
-  public static Oxygen instance() {
+  public static YouTrackDBManager instance() {
     if (instance != null) {
       return instance;
     }
@@ -207,7 +207,7 @@ public class Oxygen extends OListenerManger<OOrientListener> {
     return startUp(false);
   }
 
-  public static Oxygen startUp(boolean insideWebContainer) {
+  public static YouTrackDBManager startUp(boolean insideWebContainer) {
     initLock.lock();
     try {
       if (initInProgress) {
@@ -219,10 +219,10 @@ public class Oxygen extends OListenerManger<OOrientListener> {
         return instance;
       }
 
-      final Oxygen oxygen = new Oxygen(insideWebContainer);
-      oxygen.startup();
+      final YouTrackDBManager youTrack = new YouTrackDBManager(insideWebContainer);
+      youTrack.startup();
 
-      instance = oxygen;
+      instance = youTrack;
     } finally {
       initInProgress = false;
       initLock.unlock();
@@ -235,7 +235,7 @@ public class Oxygen extends OListenerManger<OOrientListener> {
     String v = System.getProperty("orient.home");
 
     if (v == null) {
-      v = OSystemVariableResolver.resolveVariable(OXYGENDB_HOME);
+      v = OSystemVariableResolver.resolveVariable(YOU_TRACK_DB_HOME);
     }
 
     return OFileUtils.getPath(v);
@@ -267,7 +267,7 @@ public class Oxygen extends OListenerManger<OOrientListener> {
     return recordConflictStrategy;
   }
 
-  public Oxygen startup() {
+  public YouTrackDBManager startup() {
     engineLock.writeLock().lock();
     try {
       if (active)
@@ -355,7 +355,7 @@ public class Oxygen extends OListenerManger<OOrientListener> {
   }
 
   /**
-   * Shutdown whole OxygenDB ecosystem. Usually is called during JVM shutdown by JVM shutdown
+   * Shutdown whole YouTrackDB ecosystem. Usually is called during JVM shutdown by JVM shutdown
    * handler. During shutdown all handlers which were registered by the call of
    * {@link #addShutdownHandler(OShutdownHandler)} are called together with pre-registered system
    * shoutdown handlers according to their priority.
@@ -364,7 +364,7 @@ public class Oxygen extends OListenerManger<OOrientListener> {
    * @see
    */
   private void registerEngines() {
-    ClassLoader classLoader = Oxygen.class.getClassLoader();
+    ClassLoader classLoader = YouTrackDBManager.class.getClassLoader();
 
     Iterator<OEngine> engines =
         OClassLoaderHelper.lookupProviderWithOrientClassLoader(OEngine.class, classLoader);
@@ -382,7 +382,7 @@ public class Oxygen extends OListenerManger<OOrientListener> {
     }
   }
 
-  public Oxygen shutdown() {
+  public YouTrackDBManager shutdown() {
     engineLock.writeLock().lock();
     try {
       if (!active) {
@@ -411,7 +411,7 @@ public class Oxygen extends OListenerManger<OOrientListener> {
       OByteBufferPool.instance(null).checkMemoryLeaks();
       ODirectMemoryAllocator.instance().checkMemoryLeaks();
 
-      OLogManager.instance().info(this, "OxygenDB Engine shutdown complete");
+      OLogManager.instance().info(this, "YouTrackDB Engine shutdown complete");
       OLogManager.instance().flush();
     } finally {
       try {
@@ -461,7 +461,7 @@ public class Oxygen extends OListenerManger<OOrientListener> {
           timer.schedule(timerTask, delay);
         }
       } else {
-        OLogManager.instance().warn(this, "OxygenDB engine is down. Task will not be scheduled.");
+        OLogManager.instance().warn(this, "YouTrackDB engine is down. Task will not be scheduled.");
       }
 
       return timerTask;
@@ -503,7 +503,7 @@ public class Oxygen extends OListenerManger<OOrientListener> {
           timer.schedule(timerTask, firstTime);
         }
       } else {
-        OLogManager.instance().warn(this, "OxygenDB engine is down. Task will not be scheduled.");
+        OLogManager.instance().warn(this, "YouTrackDB engine is down. Task will not be scheduled.");
       }
 
       return timerTask;
@@ -601,7 +601,7 @@ public class Oxygen extends OListenerManger<OOrientListener> {
 
   public Collection<OStorage> getStorages() {
     List<OStorage> storages = new ArrayList<>();
-    for (OxygenDBEmbedded factory : factories) {
+    for (YouTrackDBEmbedded factory : factories) {
       storages.addAll(factory.getStorages());
     }
     return storages;
@@ -808,7 +808,7 @@ public class Oxygen extends OListenerManger<OOrientListener> {
 
     @Override
     public void shutdown() throws Exception {
-      for (OxygenDBInternal internal : runningInstances) {
+      for (YouTrackDBInternal internal : runningInstances) {
         internal.internalClose();
       }
       runningInstances.clear();
@@ -821,7 +821,7 @@ public class Oxygen extends OListenerManger<OOrientListener> {
   }
 
   /**
-   * Interrupts all threads in OxygenDB thread group and stops timer is used in methods
+   * Interrupts all threads in YouTrackDB thread group and stops timer is used in methods
    * {@link #scheduleTask(Runnable, Date, long)} and {@link #scheduleTask(Runnable, long, long)}.
    */
   private class OShutdownPendingThreadsHandler implements OShutdownHandler {
@@ -854,7 +854,7 @@ public class Oxygen extends OListenerManger<OOrientListener> {
   }
 
   /**
-   * Shutdown OxygenDB profiler.
+   * Shutdown YouTrackDB profiler.
    */
   private class OShutdownProfilerHandler implements OShutdownHandler {
 
@@ -922,7 +922,7 @@ public class Oxygen extends OListenerManger<OOrientListener> {
     }
   }
 
-  public void onEmbeddedFactoryInit(OxygenDBEmbedded embeddedFactory) {
+  public void onEmbeddedFactoryInit(YouTrackDBEmbedded embeddedFactory) {
     OEngine memory = engines.get("memory");
     if (memory != null && !memory.isRunning()) {
       memory.startup();
@@ -934,7 +934,7 @@ public class Oxygen extends OListenerManger<OOrientListener> {
     factories.add(embeddedFactory);
   }
 
-  public void onEmbeddedFactoryClose(OxygenDBEmbedded embeddedFactory) {
+  public void onEmbeddedFactoryClose(YouTrackDBEmbedded embeddedFactory) {
     factories.remove(embeddedFactory);
     if (factories.isEmpty()) {
       OEngine memory = engines.get("memory");
@@ -948,7 +948,7 @@ public class Oxygen extends OListenerManger<OOrientListener> {
     }
   }
 
-  public void addOxygenDB(OxygenDBInternal internal) {
+  public void addOxygenDB(YouTrackDBInternal internal) {
     engineLock.writeLock().lock();
     try {
       runningInstances.add(internal);
@@ -957,7 +957,7 @@ public class Oxygen extends OListenerManger<OOrientListener> {
     }
   }
 
-  public void removeOxygenDB(OxygenDBInternal internal) {
+  public void removeOxygenDB(YouTrackDBInternal internal) {
     engineLock.writeLock().lock();
     try {
       runningInstances.remove(internal);

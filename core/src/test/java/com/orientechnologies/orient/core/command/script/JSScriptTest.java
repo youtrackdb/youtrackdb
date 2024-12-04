@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.command.script;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.IOException;
@@ -102,7 +102,7 @@ public class JSScriptTest extends DBTestBase {
   // @Test
   // THIS TEST WONT PASS WITH GRAALVM
   public void jsSandboxWithNativeTest() {
-    OScriptManager scriptManager = OxygenDBInternal.extract(context).getScriptManager();
+    OScriptManager scriptManager = YouTrackDBInternal.extract(context).getScriptManager();
     try {
       scriptManager.addAllowedPackages(new HashSet<>(List.of("java.lang.System")));
 
@@ -140,7 +140,7 @@ public class JSScriptTest extends DBTestBase {
 
   @Test
   public void jsSandboxWithBigDecimal() {
-    final OScriptManager scriptManager = OxygenDBInternal.extract(context).getScriptManager();
+    final OScriptManager scriptManager = YouTrackDBInternal.extract(context).getScriptManager();
     try {
       scriptManager.addAllowedPackages(new HashSet<>(List.of("java.math.BigDecimal")));
 

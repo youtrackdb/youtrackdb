@@ -19,7 +19,7 @@ package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
 import com.orientechnologies.orient.core.command.script.OScriptManager;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpResponse;
@@ -47,7 +47,7 @@ public class OServerCommandGetSupportedLanguages extends OServerCommandAuthentic
       Set<String> languages = new HashSet<String>();
 
       OScriptManager scriptManager =
-          OxygenDBInternal.extract(server.getContext()).getScriptManager();
+          YouTrackDBInternal.extract(server.getContext()).getScriptManager();
       for (String language : scriptManager.getSupportedLanguages()) {
         if (scriptManager.getFormatters() != null
             && scriptManager.getFormatters().get(language) != null) {

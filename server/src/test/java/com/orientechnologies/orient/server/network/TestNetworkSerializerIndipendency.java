@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.document.ODatabaseSessionAbstract;
@@ -115,12 +115,12 @@ public class TestNetworkSerializerIndipendency {
   public void after() {
     server.shutdown();
 
-    Oxygen.instance().shutdown();
+    YouTrackDBManager.instance().shutdown();
     File directory = new File(server.getDatabaseDirectory());
     OFileUtils.deleteRecursively(directory);
     ODatabaseSessionAbstract.setDefaultSerializer(
         ORecordSerializerFactory.instance().getFormat(ORecordSerializerBinary.NAME));
-    Oxygen.instance().startup();
+    YouTrackDBManager.instance().startup();
   }
 
   private void deleteDirectory(File iDirectory) {

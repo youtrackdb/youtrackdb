@@ -24,7 +24,7 @@ import java.sql.Statement;
 import java.util.Properties;
 import org.junit.Test;
 
-public class OxygenJdbcConnectionTest extends OrientJdbcDbPerClassTemplateTest {
+public class YouTrackJdbcConnectionTest extends OrientJdbcDbPerClassTemplateTest {
 
   @Test
   public void shouldCreateStatement() throws Exception {

@@ -39,10 +39,10 @@ public class OSystemDatabase {
   public static final String SERVER_INFO_CLASS = "ServerInfo";
   public static final String SERVER_ID_PROPERTY = "serverId";
 
-  private final OxygenDBInternal context;
+  private final YouTrackDBInternal context;
   private String serverId;
 
-  public OSystemDatabase(final OxygenDBInternal context) {
+  public OSystemDatabase(final YouTrackDBInternal context) {
     this.context = context;
   }
 
@@ -152,8 +152,8 @@ public class OSystemDatabase {
         OLogManager.instance()
             .info(this, "Creating the system database '%s' for current server", SYSTEM_DB_NAME);
 
-        OxygenDBConfig config =
-            OxygenDBConfig.builder()
+        YouTrackDBConfig config =
+            YouTrackDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .addConfig(OGlobalConfiguration.CLASS_MINIMUM_CLUSTERS, 1)
                 .build();

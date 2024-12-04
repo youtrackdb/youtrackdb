@@ -23,7 +23,7 @@ package com.orientechnologies.orient.server.handler;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.OConstants;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
@@ -66,7 +66,7 @@ public class OJMXPlugin extends OServerPluginAbstract {
         if (mBeanServer.isRegistered(onProfiler)) {
           mBeanServer.unregisterMBean(onProfiler);
         }
-        mBeanServer.registerMBean(Oxygen.instance().getProfiler(), onProfiler);
+        mBeanServer.registerMBean(YouTrackDBManager.instance().getProfiler(), onProfiler);
       }
 
     } catch (Exception e) {
@@ -92,7 +92,8 @@ public class OJMXPlugin extends OServerPluginAbstract {
 
     } catch (Exception e) {
       OLogManager.instance()
-          .error(this, "OxygenDB Server v" + OConstants.getVersion() + " unregisterMBean error", e);
+          .error(this, "YouTrackDB Server v" + OConstants.getVersion() + " unregisterMBean error",
+              e);
     }
   }
 

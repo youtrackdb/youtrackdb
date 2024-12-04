@@ -7,7 +7,7 @@ rem 2012-07-31: Added -w option
 rem
 rem
 
-rem Guess OXYGENDB_HOME if not defined
+rem Guess YOU_TRACK_DB_HOME if not defined
 set CURRENT_DIR=%cd%
 
 if exist "%JAVA_HOME%\bin\java.exe" goto setJavaHome
@@ -18,16 +18,16 @@ goto okJava
 set JAVA="%JAVA_HOME%\bin\java"
 
 :okJava
-if not "%OXYGENDB_HOME%" == "" goto gotHome
-set OXYGENDB_HOME=%CURRENT_DIR%
-if exist "%OXYGENDB_HOME%\bin\server.bat" goto okHome
+if not "%YOU_TRACK_DB_HOME%" == "" goto gotHome
+set YOU_TRACK_DB_HOME=%CURRENT_DIR%
+if exist "%YOU_TRACK_DB_HOME%\bin\server.bat" goto okHome
 cd ..
-set OXYGENDB_HOME=%cd%
+set YOU_TRACK_DB_HOME=%cd%
 cd %CURRENT_DIR%
 
 :gotHome
-if exist "%OXYGENDB_HOME%\bin\server.bat" goto okHome
-echo The OXYGENDB_HOME environment variable is not defined correctly
+if exist "%YOU_TRACK_DB_HOME%\bin\server.bat" goto okHome
+echo The YOU_TRACK_DB_HOME environment variable is not defined correctly
 echo This environment variable is needed to run this program
 goto end
 
@@ -42,13 +42,13 @@ shift
 goto setArgs
 
 :doneSetArgs
-if NOT exist "%CONFIG_FILE%" set CONFIG_FILE=%OXYGENDB_HOME%/config/orientdb-server-config.xml
+if NOT exist "%CONFIG_FILE%" set CONFIG_FILE=%YOU_TRACK_DB_HOME%/config/orientdb-server-config.xml
 
-set LOG_FILE=%OXYGENDB_HOME%/config/orientdb-server-log.properties
+set LOG_FILE=%YOU_TRACK_DB_HOME%/config/orientdb-server-log.properties
 set LOG_LEVEL=warning
-set WWW_PATH=%OXYGENDB_HOME%/www
+set WWW_PATH=%YOU_TRACK_DB_HOME%/www
 set JAVA_OPTS=-Djava.awt.headless=true
 
-call %JAVA% -client %JAVA_OPTS% -Dorientdb.config.file="%CONFIG_FILE%" -cp "%OXYGENDB_HOME%\lib\orientdb-tools-@VERSION@.jar;%OXYGENDB_HOME%\lib\*" com.orientechnologies.orient.server.OServerShutdownMain %CMD_LINE_ARGS%
+call %JAVA% -client %JAVA_OPTS% -Dorientdb.config.file="%CONFIG_FILE%" -cp "%YOU_TRACK_DB_HOME%\lib\orientdb-tools-@VERSION@.jar;%YOU_TRACK_DB_HOME%\lib\*" com.orientechnologies.orient.server.OServerShutdownMain %CMD_LINE_ARGS%
 
 :end

@@ -8,7 +8,7 @@ import java.util.TimerTask;
 /**
  * Default implementation of {@link OCachedDatabasePoolFactory}
  *
- * <p>Used in {@link OxygenDBEmbedded} by default
+ * <p>Used in {@link YouTrackDBEmbedded} by default
  *
  * <p>Works like LRU cache
  *
@@ -25,23 +25,23 @@ public class OCachedDatabasePoolFactoryImpl implements OCachedDatabasePoolFactor
 
   private volatile boolean closed;
   private final ConcurrentLinkedHashMap<String, ODatabasePoolInternal> poolCache;
-  private final OxygenDBInternal oxygenDB;
+  private final YouTrackDBInternal oxygenDB;
   private final long timeout;
 
   /**
-   * @param oxygenDB instance of {@link OxygenDB} which will be used for create new database pools
+   * @param youtrackDB instance of {@link YouTrackDB} which will be used for create new database pools
    *                 {@link ODatabasePoolInternal}
    * @param capacity capacity of pool cache, by default is 100
    * @param timeout  timeout in milliseconds which means that every timeout will be executed task
    *                 for clean up cache from closed pools
    */
-  public OCachedDatabasePoolFactoryImpl(OxygenDBInternal oxygenDB, int capacity, long timeout) {
+  public OCachedDatabasePoolFactoryImpl(YouTrackDBInternal youtrackDB, int capacity, long timeout) {
     poolCache =
         new ConcurrentLinkedHashMap.Builder<String, ODatabasePoolInternal>()
             .maximumWeightedCapacity(capacity)
             .listener((identity, databasePool) -> databasePool.close())
             .build();
-    this.oxygenDB = oxygenDB;
+    this.oxygenDB = youtrackDB;
     this.timeout = timeout;
     scheduleCleanUpCache(createCleanUpTask());
   }
@@ -91,7 +91,7 @@ public class OCachedDatabasePoolFactoryImpl implements OCachedDatabasePoolFactor
    */
   @Override
   public ODatabasePoolInternal get(
-      String database, String username, String password, OxygenDBConfig parentConfig) {
+      String database, String username, String password, YouTrackDBConfig parentConfig) {
     checkForClose();
 
     String key = OSecurityManager.createSHA256(database + username + password);
@@ -101,8 +101,8 @@ public class OCachedDatabasePoolFactoryImpl implements OCachedDatabasePoolFactor
       return pool;
     }
 
-    OxygenDBConfig config =
-        OxygenDBConfig.builder().addConfig(OGlobalConfiguration.DB_POOL_MAX, maxPoolSize).build();
+    YouTrackDBConfig config =
+        YouTrackDBConfig.builder().addConfig(OGlobalConfiguration.DB_POOL_MAX, maxPoolSize).build();
 
     if (parentConfig != null) {
       config.setParent(parentConfig);

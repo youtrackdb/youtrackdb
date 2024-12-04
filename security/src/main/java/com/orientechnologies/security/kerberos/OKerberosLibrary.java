@@ -69,7 +69,7 @@ public class OKerberosLibrary {
 
     //						Oid spnegoOidX = new Oid("1.3.6.1.5.5.2");
 
-    						GSSName serviceName = managerX.createName("OxygenDB@AD.SDICLOUD.COM", GSSName.NT_USER_NAME);
+    						GSSName serviceName = managerX.createName("YouTrackDB@AD.SDICLOUD.COM", GSSName.NT_USER_NAME);
 
     						GSSCredential serverCredsX = managerX.createCredential(null, GSSCredential.DEFAULT_LIFETIME, (Oid)null, GSSCredential.INITIATE_ONLY);
 

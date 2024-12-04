@@ -70,7 +70,8 @@ public class OServerNetworkListener extends Thread {
       final OServerCommandConfiguration[] iCommands) {
     super(
         iServer.getThreadGroup(),
-        "OxygenDB " + iProtocol.getSimpleName() + " listen at " + iHostName + ":" + iHostPortRange);
+        "YouTrackDB " + iProtocol.getSimpleName() + " listen at " + iHostName + ":"
+            + iHostPortRange);
     server = iServer;
 
     socketFactory = iSocketFactory == null ? OServerSocketFactory.getDefault() : iSocketFactory;

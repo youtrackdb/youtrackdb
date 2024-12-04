@@ -9,7 +9,7 @@ import static org.junit.Assert.fail;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.profiler.OProfiler;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -1903,6 +1903,6 @@ public class OMatchStatementExecutionTest extends DBTestBase {
   }
 
   private OProfiler getProfilerInstance() {
-    return Oxygen.instance().getProfiler();
+    return YouTrackDBManager.instance().getProfiler();
   }
 }

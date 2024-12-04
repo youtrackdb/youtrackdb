@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.db.document;
 
 import static com.orientechnologies.orient.core.db.document.ODatabaseDocumentTxInternal.closeAllOnShutdown;
 
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.script.OCommandScriptException;
@@ -17,10 +17,10 @@ import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.OSharedContext;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
-import com.orientechnologies.orient.core.db.OxygenDBConfigBuilder;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.dictionary.ODictionary;
@@ -94,15 +94,15 @@ import javax.annotation.Nonnull;
 @Deprecated
 public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
 
-  protected static ConcurrentMap<String, OxygenDBInternal> embedded = new ConcurrentHashMap<>();
-  protected static ConcurrentMap<String, OxygenDBInternal> remote = new ConcurrentHashMap<>();
+  protected static ConcurrentMap<String, YouTrackDBInternal> embedded = new ConcurrentHashMap<>();
+  protected static ConcurrentMap<String, YouTrackDBInternal> remote = new ConcurrentHashMap<>();
 
   protected static final Lock embeddedLock = new ReentrantLock();
   protected static final Lock remoteLock = new ReentrantLock();
 
   protected ODatabaseSessionInternal internal;
   private final String url;
-  private OxygenDBInternal factory;
+  private YouTrackDBInternal factory;
   private final String type;
   private final String dbName;
   private final String baseUrl;
@@ -131,15 +131,16 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
       };
 
   static {
-    Oxygen.instance()
-        .registerOrientStartupListener(() -> Oxygen.instance().addShutdownHandler(shutdownHandler));
-    Oxygen.instance().addShutdownHandler(shutdownHandler);
+    YouTrackDBManager.instance()
+        .registerOrientStartupListener(
+            () -> YouTrackDBManager.instance().addShutdownHandler(shutdownHandler));
+    YouTrackDBManager.instance().addShutdownHandler(shutdownHandler);
   }
 
   public static void closeAll() {
     embeddedLock.lock();
     try {
-      for (OxygenDBInternal factory : embedded.values()) {
+      for (YouTrackDBInternal factory : embedded.values()) {
         factory.close();
       }
       embedded.clear();
@@ -149,7 +150,7 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
 
     remoteLock.lock();
     try {
-      for (OxygenDBInternal factory : remote.values()) {
+      for (YouTrackDBInternal factory : remote.values()) {
         factory.close();
       }
       remote.clear();
@@ -158,14 +159,14 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
     }
   }
 
-  protected static OxygenDBInternal getOrCreateRemoteFactory(String baseUrl) {
-    OxygenDBInternal factory;
+  protected static YouTrackDBInternal getOrCreateRemoteFactory(String baseUrl) {
+    YouTrackDBInternal factory;
 
     remoteLock.lock();
     try {
       factory = remote.get(baseUrl);
       if (factory == null || !factory.isOpen()) {
-        factory = OxygenDBInternal.fromUrl("remote:" + baseUrl, null);
+        factory = YouTrackDBInternal.fromUrl("remote:" + baseUrl, null);
         remote.put(baseUrl, factory);
       }
     } finally {
@@ -184,20 +185,20 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
     return false;
   }
 
-  protected static OxygenDBInternal getOrCreateEmbeddedFactory(
-      String baseUrl, OxygenDBConfig config) {
+  protected static YouTrackDBInternal getOrCreateEmbeddedFactory(
+      String baseUrl, YouTrackDBConfig config) {
     if (!baseUrl.endsWith("/")) {
       baseUrl += "/";
     }
-    OxygenDBInternal factory;
+    YouTrackDBInternal factory;
     embeddedLock.lock();
     try {
       factory = embedded.get(baseUrl);
       if (factory == null || !factory.isOpen()) {
         try {
-          factory = OxygenDBInternal.distributed(baseUrl, config);
+          factory = YouTrackDBInternal.distributed(baseUrl, config);
         } catch (ODatabaseException ignore) {
-          factory = OxygenDBInternal.embedded(baseUrl, config);
+          factory = YouTrackDBInternal.embedded(baseUrl, config);
         }
         embedded.put(baseUrl, factory);
       }
@@ -209,7 +210,7 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   }
 
   /**
-   * @Deprecated use {{@link OxygenDB}} instead.
+   * @Deprecated use {{@link YouTrackDB}} instead.
    */
   @Deprecated
   public ODatabaseDocumentTx(String url) {
@@ -370,7 +371,8 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
     if (internal != null) {
       internal.setConflictStrategy(iStrategyName);
     } else {
-      conflictStrategy = Oxygen.instance().getRecordConflictStrategy().getStrategy(iStrategyName);
+      conflictStrategy = YouTrackDBManager.instance().getRecordConflictStrategy()
+          .getStrategy(iStrategyName);
     }
     return this;
   }
@@ -818,12 +820,12 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
     try {
       if ("remote".equals(type)) {
         factory = getOrCreateRemoteFactory(baseUrl);
-        OxygenDBConfig config = buildConfig(null);
+        YouTrackDBConfig config = buildConfig(null);
         internal = factory.open(dbName, iUserName, iUserPassword, config);
 
       } else {
         factory = getOrCreateEmbeddedFactory(baseUrl, null);
-        OxygenDBConfig config = buildConfig(null);
+        YouTrackDBConfig config = buildConfig(null);
         internal = factory.open(dbName, iUserName, iUserPassword, config);
       }
       if (databaseOwner != null) {
@@ -881,14 +883,14 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
   public ODatabaseSession create(Map<OGlobalConfiguration, Object> iInitialSettings) {
     setupThreadOwner();
     try {
-      OxygenDBConfig config = buildConfig(iInitialSettings);
+      YouTrackDBConfig config = buildConfig(iInitialSettings);
       if ("remote".equals(type)) {
         throw new UnsupportedOperationException();
       } else if ("memory".equals(type)) {
         factory = getOrCreateEmbeddedFactory(baseUrl, null);
         factory.create(dbName, null, null, ODatabaseType.MEMORY, config);
-        OxygenDBConfig openConfig =
-            OxygenDBConfig.builder().fromContext(config.getConfigurations()).build();
+        YouTrackDBConfig openConfig =
+            YouTrackDBConfig.builder().fromContext(config.getConfigurations()).build();
         internal = factory.open(dbName, "admin", "admin", openConfig);
         for (Map.Entry<ATTRIBUTES, Object> attr : preopenAttributes.entrySet()) {
           internal.set(attr.getKey(), attr.getValue());
@@ -901,8 +903,8 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
       } else {
         factory = getOrCreateEmbeddedFactory(baseUrl, null);
         factory.create(dbName, null, null, ODatabaseType.PLOCAL, config);
-        OxygenDBConfig openConfig =
-            OxygenDBConfig.builder().fromContext(config.getConfigurations()).build();
+        YouTrackDBConfig openConfig =
+            YouTrackDBConfig.builder().fromContext(config.getConfigurations()).build();
         internal = factory.open(dbName, "admin", "admin", openConfig);
         for (Map.Entry<ATTRIBUTES, Object> attr : preopenAttributes.entrySet()) {
           internal.set(attr.getKey(), attr.getValue());
@@ -1279,14 +1281,14 @@ public class ODatabaseDocumentTx implements ODatabaseSessionInternal {
     return internal.query(query, args);
   }
 
-  private OxygenDBConfig buildConfig(final Map<OGlobalConfiguration, Object> iProperties) {
+  private YouTrackDBConfig buildConfig(final Map<OGlobalConfiguration, Object> iProperties) {
     Map<String, Object> pars = new HashMap<>(preopenProperties);
     if (iProperties != null) {
       for (Map.Entry<OGlobalConfiguration, Object> par : iProperties.entrySet()) {
         pars.put(par.getKey().getKey(), par.getValue());
       }
     }
-    OxygenDBConfigBuilder builder = OxygenDBConfig.builder();
+    YouTrackDBConfigBuilder builder = YouTrackDBConfig.builder();
     final String connectionStrategy =
         pars != null
             ? (String) pars.get(OGlobalConfiguration.CLIENT_CONNECTION_STRATEGY.getKey())

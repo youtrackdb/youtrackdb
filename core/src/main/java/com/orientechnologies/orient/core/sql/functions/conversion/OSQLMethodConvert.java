@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.sql.method.misc.OAbstractSQLMethod;
 import java.util.Locale;
 
 /**
- * Converts a value to another type in Java or OxygenDB's supported types.
+ * Converts a value to another type in Java or YouTrackDB's supported types.
  */
 public class OSQLMethodConvert extends OAbstractSQLMethod {
 

@@ -14,9 +14,9 @@
 package com.orientechnologies.security.auditing;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -31,15 +31,15 @@ public class OSystemDBImporter extends Thread {
   private final String auditingClass = "AuditingLog";
   private int limit = 1000; // How many records to import during each iteration.
   private int sleepPeriod = 1000; // How long to sleep (in ms) after importing 'limit' records.
-  private final OxygenDBInternal context;
+  private final YouTrackDBInternal context;
   private boolean isRunning = true;
 
   public boolean isEnabled() {
     return enabled;
   }
 
-  public OSystemDBImporter(final OxygenDBInternal context, final ODocument jsonConfig) {
-    super(Oxygen.instance().getThreadGroup(), "OxygenDB Auditing Log Importer Thread");
+  public OSystemDBImporter(final YouTrackDBInternal context, final ODocument jsonConfig) {
+    super(YouTrackDBManager.instance().getThreadGroup(), "YouTrackDB Auditing Log Importer Thread");
 
     this.context = context;
 

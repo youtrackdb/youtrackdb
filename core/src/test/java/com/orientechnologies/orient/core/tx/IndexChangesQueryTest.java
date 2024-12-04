@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.tx;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -26,17 +26,17 @@ public class IndexChangesQueryTest {
   public static final String CLASS_NAME = "idxTxAwareMultiValueGetEntriesTest";
   private static final String FIELD_NAME = "value";
   private static final String INDEX_NAME = "idxTxAwareMultiValueGetEntriesTestIndex";
-  private OxygenDB oxygenDB;
+  private YouTrackDB youTrackDB;
   private ODatabaseSessionInternal database;
 
   @Before
   public void before() {
-    oxygenDB =
+    youTrackDB =
         OCreateDatabaseUtil.createDatabase("test", DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_MEMORY);
     database =
         (ODatabaseSessionInternal)
-            oxygenDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+            youTrackDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     final OSchema schema = database.getMetadata().getSchema();
     final OClass cls = schema.createClass(CLASS_NAME);
@@ -47,7 +47,7 @@ public class IndexChangesQueryTest {
   @After
   public void after() {
     database.close();
-    oxygenDB.close();
+    youTrackDB.close();
   }
 
   @Test

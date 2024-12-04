@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.sql.operator;
 
 import com.orientechnologies.common.profiler.OProfiler;
 import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -261,7 +261,7 @@ public abstract class OQueryOperator {
       iContext.updateMetric("compositeIndexUsed", +1);
     }
 
-    final OProfiler profiler = Oxygen.instance().getProfiler();
+    final OProfiler profiler = YouTrackDBManager.instance().getProfiler();
     if (profiler.isRecording()) {
       profiler.updateCounter(
           profiler.getDatabaseMetric(index.getDatabaseName(), "query.indexUsed"),

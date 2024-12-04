@@ -23,7 +23,7 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.profiler.OProfiler;
 import com.orientechnologies.orient.core.OConstants;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.index.OIndexDefinition;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerBinary;
 import com.orientechnologies.orient.core.storage.OChecksumMode;
@@ -72,7 +72,7 @@ public enum OGlobalConfiguration {
 
   MEMORY_PROFILING(
       "memory.profiling",
-      "Switches on profiling of allocations of direct memory inside of OxygenDB.",
+      "Switches on profiling of allocations of direct memory inside of YouTrackDB.",
       Boolean.class,
       false),
 
@@ -84,10 +84,10 @@ public enum OGlobalConfiguration {
 
   MEMORY_LEFT_TO_OS(
       "memory.leftToOS",
-      "Amount of free memory which should be left unallocated in case of OxygenDB is started"
-          + " outside of container. Value can be set as % of total memory provided to OxygenDB or"
+      "Amount of free memory which should be left unallocated in case of YouTrackDB is started"
+          + " outside of container. Value can be set as % of total memory provided to YouTrackDB or"
           + " as absolute value in bytes, kilobytes, megabytes or gigabytes. If you set value as"
-          + " 10% it means that 10% of memory will not be allocated by OxygenDB and will be left to"
+          + " 10% it means that 10% of memory will not be allocated by YouTrackDB and will be left to"
           + " use by the rest of applications, if 2g value is provided it means that 2 gigabytes of"
           + " memory will be left to use by the rest of applications. Default value is 2g",
       String.class,
@@ -95,10 +95,10 @@ public enum OGlobalConfiguration {
 
   MEMORY_LEFT_TO_CONTAINER(
       "memory.leftToContainer",
-      "Amount of free memory which should be left unallocated in case of OxygenDB is started inside"
-          + " of container. Value can be set as % of total memory provided to OxygenDB or as"
+      "Amount of free memory which should be left unallocated in case of YouTrackDB is started inside"
+          + " of container. Value can be set as % of total memory provided to YouTrackDB or as"
           + " absolute value in bytes, kilobytes, megabytes or gigabytes. If you set value as 10%"
-          + " it means that 10% of memory will not be allocated by OxygenDB and will be left to use"
+          + " it means that 10% of memory will not be allocated by YouTrackDB and will be left to use"
           + " by the rest of applications, if 2g value is provided it means that 2 gigabytes of"
           + " memory will be left to use by the rest of applications. Default value is 256m",
       String.class,
@@ -676,7 +676,7 @@ public enum OGlobalConfiguration {
 
   INDEX_ALLOW_MANUAL_INDEXES(
       "index.allowManualIndexes",
-      "Switch which allows usage of manual indexes inside OxygenDB. It is not recommended to switch"
+      "Switch which allows usage of manual indexes inside YouTrackDB. It is not recommended to switch"
           + " it on, because manual indexes are deprecated, not supported and will be removed in"
           + " next versions",
       Boolean.class,
@@ -929,9 +929,9 @@ public enum OGlobalConfiguration {
   NETWORK_HTTP_SERVER_INFO(
       "network.http.serverInfo",
       "Server info to send in HTTP responses. Change the default if you want to hide it is a"
-          + " OxygenDB Server",
+          + " YouTrackDB Server",
       String.class,
-      "OxygenDB Server v." + OConstants.getVersion(),
+      "YouTrackDB Server v." + OConstants.getVersion(),
       true),
 
   NETWORK_HTTP_MAX_CONTENT_LENGTH(
@@ -991,7 +991,7 @@ public enum OGlobalConfiguration {
 
   INIT_IN_SERVLET_CONTEXT_LISTENER(
       "orient.initInServletContextListener",
-      "If this value set to ture (default) OxygenDB engine "
+      "If this value set to ture (default) YouTrackDB engine "
           + "will be initialzed using embedded ServletContextListener",
       Boolean.class,
       true),
@@ -1654,7 +1654,7 @@ public enum OGlobalConfiguration {
    */
   SERVER_SECURITY_FILE(
       "server.security.file",
-      "Location of the OxygenDB security.json configuration file",
+      "Location of the YouTrackDB security.json configuration file",
       String.class,
       null),
 
@@ -1697,7 +1697,7 @@ public enum OGlobalConfiguration {
    */
   DISTRIBUTED_NODE_NAME(
       "distributed.nodeName",
-      "Name of the OxygenDB node in the cluster",
+      "Name of the YouTrackDB node in the cluster",
       String.class,
       null,
       false,
@@ -1841,7 +1841,7 @@ public enum OGlobalConfiguration {
   }
 
   public static void dumpConfiguration(final PrintStream out) {
-    out.print("OxygenDB ");
+    out.print("YouTrackDB ");
     out.print(OConstants.getVersion());
     out.println(" configuration dump:");
 
@@ -2049,7 +2049,7 @@ public enum OGlobalConfiguration {
   private static class OProfileEnabledChangeCallbac implements OConfigurationChangeCallback {
 
     public void change(final Object iCurrentValue, final Object iNewValue) {
-      Oxygen instance = Oxygen.instance();
+      YouTrackDBManager instance = YouTrackDBManager.instance();
       if (instance != null) {
         final OProfiler prof = instance.getProfiler();
         if (prof != null) {
@@ -2066,14 +2066,14 @@ public enum OGlobalConfiguration {
   private static class OProfileConfigChangeCallback implements OConfigurationChangeCallback {
 
     public void change(final Object iCurrentValue, final Object iNewValue) {
-      Oxygen.instance().getProfiler().configure(iNewValue.toString());
+      YouTrackDBManager.instance().getProfiler().configure(iNewValue.toString());
     }
   }
 
   private static class OProfileDumpIntervalChangeCallback implements OConfigurationChangeCallback {
 
     public void change(final Object iCurrentValue, final Object iNewValue) {
-      Oxygen.instance().getProfiler().setAutoDump((Integer) iNewValue);
+      YouTrackDBManager.instance().getProfiler().setAutoDump((Integer) iNewValue);
     }
   }
 }

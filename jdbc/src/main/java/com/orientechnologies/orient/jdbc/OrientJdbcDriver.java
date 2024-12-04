@@ -36,7 +36,7 @@ public class OrientJdbcDriver implements java.sql.Driver {
   }
 
   public static String getVersion() {
-    return "OxygenDB " + OConstants.getVersion() + " JDBC Driver";
+    return "YouTrackDB " + OConstants.getVersion() + " JDBC Driver";
   }
 
   @Override

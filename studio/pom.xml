@@ -12,31 +12,17 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
   <groupId>io.oxygendb</groupId>
-  <artifactId>oxygendb-studio</artifactId>
+  <artifactId>youtrackdb-studio</artifactId>
   <version>1.0.0-SNAPSHOT</version>
-  <name>OxygenDB Studio</name>
-  <description>OxygenDB Studio - web interface for OxygenDB server</description>
+  <name>YouTrackDB Studio</name>
+  <description>YouTrackDB Studio - web interface for YouTrackDB server</description>
 	<url>https://www.orientdb.com</url>
-	<organization>
-    <name>OxygenDB</name>
-	</organization>
 	<licenses>
 		<license>
 			<name>Apache 2</name>
 			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
 		</license>
 	</licenses>
-	<scm>
-		<connection>scm:git:git@github.com:orientechnologies/orientdb-studio.git</connection>
-		<developerConnection>
-			scm:git:git@github.com:orientechnologies/orientdb-studio.git</developerConnection>
-		<url>scm:git:git@github.com:orientechnologies/orientdb-studio.git</url>
-		<tag>HEAD</tag>
-	</scm>
-	<issueManagement>
-		<system>GitHub Issues</system>
-		<url>https://github.com/orientechnologies/orientdb-studio/issues</url>
-	</issueManagement>
   <distributionManagement>
     <snapshotRepository>
       <id>space-orientdb-daily</id>
@@ -153,7 +139,7 @@
 							<arguments>
 								<argument>
 									${project.build.directory}/orientdb-community-${project.version}/bin/server.sh</argument>
-								<argument>-DORIENTDB_ROOT_PASSWORD=root</argument>
+                <argument>-DYOU_TRACK_DB_ROOT_PASSWORD=root</argument>
 							</arguments>
 						</configuration>
 					</execution>
@@ -239,7 +225,7 @@
 				<configuration>
 					<pushChanges>false</pushChanges>
 					<tagNameFormat>@{project.version}</tagNameFormat>
-					<scmCommentPrefix>OrientDB</scmCommentPrefix>
+          <scmCommentPrefix>YouTrackDB</scmCommentPrefix>
 					<localCheckout>true</localCheckout>
 				</configuration>
 			</plugin>

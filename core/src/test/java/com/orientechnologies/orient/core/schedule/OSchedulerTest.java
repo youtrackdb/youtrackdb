@@ -6,15 +6,15 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.concur.ONeedRetryException;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseThreadLocalFactory;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -32,7 +32,7 @@ public class OSchedulerTest {
 
   @Test
   public void scheduleSQLFunction() throws Exception {
-    try (OxygenDB context = createContext()) {
+    try (YouTrackDB context = createContext()) {
       var db =
           (ODatabaseSessionInternal) context.cachedPool("test", "admin",
               OCreateDatabaseUtil.NEW_ADMIN_PASSWORD).acquire();
@@ -49,7 +49,7 @@ public class OSchedulerTest {
 
   @Test
   public void scheduleWithDbClosed() throws Exception {
-    OxygenDB context = createContext();
+    YouTrackDB context = createContext();
     {
       var db = (ODatabaseSessionInternal) context.open("test", "admin",
           OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -71,7 +71,7 @@ public class OSchedulerTest {
 
   @Test
   public void eventLifecycle() throws Exception {
-    try (OxygenDB context = createContext()) {
+    try (YouTrackDB context = createContext()) {
       var db =
           (ODatabaseSessionInternal) context.cachedPool("test", "admin",
               OCreateDatabaseUtil.NEW_ADMIN_PASSWORD).acquire();
@@ -98,7 +98,7 @@ public class OSchedulerTest {
 
   @Test
   public void eventSavedAndLoaded() throws Exception {
-    OxygenDB context = createContext();
+    YouTrackDB context = createContext();
     var db =
         (ODatabaseSessionInternal) context.open("test", "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -122,15 +122,15 @@ public class OSchedulerTest {
 
   @Test
   public void testScheduleEventWithMultipleActiveDatabaseConnections() {
-    final OxygenDB oxygenDb =
-        new OxygenDB(
+    final YouTrackDB youTrackDb =
+        new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()),
-            OxygenDBConfig.builder()
+            YouTrackDBConfig.builder()
                 .addConfig(OGlobalConfiguration.DB_POOL_MAX, 1)
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
-    if (!oxygenDb.exists("test")) {
-      oxygenDb.execute(
+    if (!youTrackDb.exists("test")) {
+      youTrackDb.execute(
           "create database "
               + "test"
               + " "
@@ -140,19 +140,19 @@ public class OSchedulerTest {
               + "' role admin)");
     }
     final ODatabasePool pool =
-        oxygenDb.cachedPool("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        youTrackDb.cachedPool("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     var db = (ODatabaseSessionInternal) pool.acquire();
 
     assertEquals(db, ODatabaseRecordThreadLocal.instance().getIfDefined());
     createLogEvent(db);
     assertEquals(db, ODatabaseRecordThreadLocal.instance().getIfDefined());
 
-    oxygenDb.close();
+    youTrackDb.close();
   }
 
   @Test
   public void eventBySQL() throws Exception {
-    OxygenDB context = createContext();
+    YouTrackDB context = createContext();
     try (context;
         var db =
             (ODatabaseSessionInternal) context.open("test", "admin",
@@ -229,15 +229,15 @@ public class OSchedulerTest {
     }
   }
 
-  private OxygenDB createContext() {
-    final OxygenDB oxygenDB =
+  private YouTrackDB createContext() {
+    final YouTrackDB youTrackDB =
         OCreateDatabaseUtil.createDatabase("test", DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_MEMORY);
-    Oxygen.instance()
+    YouTrackDBManager.instance()
         .registerThreadDatabaseFactory(
             new TestScheduleDatabaseFactory(
-                oxygenDB, "test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD));
-    return oxygenDB;
+                youTrackDB, "test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD));
+    return youTrackDB;
   }
 
   private void createLogEvent(ODatabaseSessionInternal db) {
@@ -283,13 +283,13 @@ public class OSchedulerTest {
 
   private static class TestScheduleDatabaseFactory implements ODatabaseThreadLocalFactory {
 
-    private final OxygenDB context;
+    private final YouTrackDB context;
     private final String database;
     private final String username;
     private final String password;
 
     public TestScheduleDatabaseFactory(
-        OxygenDB context, String database, String username, String password) {
+        YouTrackDB context, String database, String username, String password) {
       this.context = context;
       this.database = database;
       this.username = username;

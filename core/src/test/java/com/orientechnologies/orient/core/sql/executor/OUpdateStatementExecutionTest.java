@@ -6,7 +6,7 @@ import static org.junit.Assert.assertEquals;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -35,17 +35,17 @@ public class OUpdateStatementExecutionTest {
   private ODatabaseSessionInternal db;
 
   private String className;
-  private OxygenDB oxygenDB;
+  private YouTrackDB youTrackDB;
 
   @Before
   public void before() {
-    oxygenDB =
+    youTrackDB =
         OCreateDatabaseUtil.createDatabase(
             name.getMethodName(), DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_MEMORY);
     db =
         (ODatabaseSessionInternal)
-            oxygenDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+            youTrackDB.open(name.getMethodName(), "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     className = name.getMethodName();
     db.getMetadata().getSchema().createClass(className);
@@ -78,7 +78,7 @@ public class OUpdateStatementExecutionTest {
   public void after() {
     db.close();
 
-    oxygenDB.close();
+    youTrackDB.close();
   }
 
   @Test

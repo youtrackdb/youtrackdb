@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.server.OServer;
@@ -38,24 +38,25 @@ public class ORemoteBasicSecurityTest {
     OGlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY.setValue(false);
     server = OServer.startFromClasspathConfig("abstract-orientdb-server-config.xml");
 
-    OxygenDB oxygenDB =
-        new OxygenDB("remote:localhost", "root", "root", OxygenDBConfig.defaultConfig());
-    oxygenDB.execute(
+    YouTrackDB youTrackDB =
+        new YouTrackDB("remote:localhost", "root", "root", YouTrackDBConfig.defaultConfig());
+    youTrackDB.execute(
         "create database test memory users (admin identified by 'admin' role admin, reader"
             + " identified by 'reader' role reader, writer identified by 'writer' role writer)");
-    try (ODatabaseSession session = oxygenDB.open("test", "admin", "admin")) {
+    try (ODatabaseSession session = youTrackDB.open("test", "admin", "admin")) {
       session.createClass("one");
       session.begin();
       session.save(new ODocument("one"));
       session.commit();
     }
-    oxygenDB.close();
+    youTrackDB.close();
   }
 
   @Test
   public void testCreateAndConnectWriter() {
     // CREATE A SEPARATE CONTEXT TO MAKE SURE IT LOAD STAFF FROM SCRATCH
-    try (OxygenDB writerOrient = new OxygenDB("remote:localhost", OxygenDBConfig.defaultConfig())) {
+    try (YouTrackDB writerOrient = new YouTrackDB("remote:localhost",
+        YouTrackDBConfig.defaultConfig())) {
       try (ODatabaseSession writer = writerOrient.open("test", "writer", "writer")) {
         writer.begin();
         writer.save(new ODocument("one"));
@@ -70,7 +71,8 @@ public class ORemoteBasicSecurityTest {
   @Test
   public void testCreateAndConnectReader() {
     // CREATE A SEPARATE CONTEXT TO MAKE SURE IT LOAD STAFF FROM SCRATCH
-    try (OxygenDB writerOrient = new OxygenDB("remote:localhost", OxygenDBConfig.defaultConfig())) {
+    try (YouTrackDB writerOrient = new YouTrackDB("remote:localhost",
+        YouTrackDBConfig.defaultConfig())) {
       try (ODatabaseSession writer = writerOrient.open("test", "reader", "reader")) {
         try (OResultSet rs = writer.query("select from one")) {
           assertEquals(rs.stream().count(), 1);

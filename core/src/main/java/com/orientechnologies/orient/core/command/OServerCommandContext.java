@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.command;
 
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 
 public interface OServerCommandContext extends OCommandContext {
 
-  OxygenDBInternal getServer();
+  YouTrackDBInternal getServer();
 }

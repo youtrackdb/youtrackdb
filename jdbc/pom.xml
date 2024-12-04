@@ -16,7 +16,7 @@
 
   <parent>
     <groupId>io.oxygendb</groupId>
-    <artifactId>oxygendb-parent</artifactId>
+    <artifactId>youtrackdb-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
@@ -26,16 +26,16 @@
     <project.build.outputTimestamp>2023-01-01T00:00:00Z</project.build.outputTimestamp>
   </properties>
 
-  <name>OxygenDB JDBC Driver</name>
-  <artifactId>oxygendb-jdbc</artifactId>
+  <name>YouTrackDB JDBC Driver</name>
+  <artifactId>youtrackdb-jdbc</artifactId>
 
-  <description>JDBC Driver for OxygenDB NoSQL document graph dbms</description>
+  <description>JDBC Driver for YouTrackDB NoSQL document graph dbms</description>
   <inceptionYear>2012</inceptionYear>
 
   <dependencies>
     <dependency>
       <groupId>io.oxygendb</groupId>
-      <artifactId>oxygendb-test-commons</artifactId>
+      <artifactId>youtrackdb-test-commons</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
@@ -49,18 +49,18 @@
 
     <dependency>
       <groupId>io.oxygendb</groupId>
-      <artifactId>oxygendb-server</artifactId>
+      <artifactId>youtrackdb-server</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>io.oxygendb</groupId>
-      <artifactId>oxygendb-client</artifactId>
+      <artifactId>youtrackdb-client</artifactId>
       <version>${project.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
       <groupId>io.oxygendb</groupId>
-      <artifactId>oxygendb-core</artifactId>
+      <artifactId>youtrackdb-core</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>

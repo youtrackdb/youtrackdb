@@ -23,7 +23,7 @@ import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.common.profiler.OProfiler;
 import com.orientechnologies.common.profiler.OProfilerStub;
 import com.orientechnologies.common.util.ORawPair;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
@@ -453,9 +453,9 @@ public class OChainedIndexProxy<T> implements OIndexInternal {
    */
   private static void updateStatistic(OIndex index) {
 
-    final OProfiler profiler = Oxygen.instance().getProfiler();
+    final OProfiler profiler = YouTrackDBManager.instance().getProfiler();
     if (profiler.isRecording()) {
-      Oxygen.instance()
+      YouTrackDBManager.instance()
           .getProfiler()
           .updateCounter(
               profiler.getDatabaseMetric(index.getDatabaseName(), "query.indexUsed"),

@@ -21,7 +21,7 @@ package com.orientechnologies.orient.server.network.protocol.http.command.get;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.OConstants;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
@@ -195,7 +195,8 @@ public class OServerCommandGetDatabase extends OServerCommandGetConnect {
       json.beginCollection("conflictStrategies");
 
       Set<String> strategies =
-          Oxygen.instance().getRecordConflictStrategy().getRegisteredImplementationNames();
+          YouTrackDBManager.instance().getRecordConflictStrategy()
+              .getRegisteredImplementationNames();
 
       int i = 0;
       for (String strategy : strategies) {

@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.ODirection;
@@ -59,8 +59,8 @@ public abstract class DocumentDBBaseTest extends BaseTest<ODatabaseSessionIntern
 
   @Override
   protected ODatabaseSessionInternal createSessionInstance(
-      OxygenDB oxygenDB, String dbName, String user, String password) {
-    var session = oxygenDB.open(dbName, user, password);
+      YouTrackDB youTrackDB, String dbName, String user, String password) {
+    var session = youTrackDB.open(dbName, user, password);
     return (ODatabaseSessionInternal) session;
   }
 

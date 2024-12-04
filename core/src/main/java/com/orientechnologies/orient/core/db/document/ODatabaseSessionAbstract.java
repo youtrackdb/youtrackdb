@@ -25,7 +25,7 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.exception.OHighLevelException;
 import com.orientechnologies.common.listener.OListenerManger;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestInternal;
@@ -203,7 +203,8 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
   }
 
   private void wakeupOnOpenDbLifecycleListeners() {
-    for (Iterator<ODatabaseLifecycleListener> it = Oxygen.instance().getDbLifecycleListeners();
+    for (Iterator<ODatabaseLifecycleListener> it = YouTrackDBManager.instance()
+        .getDbLifecycleListeners();
         it.hasNext(); ) {
       it.next().onOpen(getDatabaseOwner());
     }
@@ -221,7 +222,8 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
   }
 
   private void wakeupOnCloseDbLifecycleListeners() {
-    for (Iterator<ODatabaseLifecycleListener> it = Oxygen.instance().getDbLifecycleListeners();
+    for (Iterator<ODatabaseLifecycleListener> it = YouTrackDBManager.instance()
+        .getDbLifecycleListeners();
         it.hasNext(); ) {
       it.next().onClose(getDatabaseOwner());
     }
@@ -952,7 +954,7 @@ public abstract class ODatabaseSessionAbstract extends OListenerManger<ODatabase
 
       if (record == null) {
         record =
-            Oxygen.instance()
+            YouTrackDBManager.instance()
                 .getRecordFactoryManager()
                 .newInstance(recordBuffer.recordType, rid, this);
         ORecordInternal.unsetDirty(record);

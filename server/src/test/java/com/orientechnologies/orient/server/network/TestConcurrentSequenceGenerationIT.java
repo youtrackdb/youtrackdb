@@ -3,10 +3,10 @@ package com.orientechnologies.orient.server.network;
 import static org.junit.Assert.assertNotNull;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
@@ -22,19 +22,20 @@ public class TestConcurrentSequenceGenerationIT {
   static final int THREADS = 20;
   static final int RECORDS = 100;
   private OServer server;
-  private OxygenDB oxygenDB;
+  private YouTrackDB youTrackDB;
 
   @Before
   public void before() throws Exception {
     server = new OServer(false);
     server.startup(getClass().getResourceAsStream("orientdb-server-config.xml"));
     server.activate();
-    oxygenDB = new OxygenDB("remote:localhost", "root", "root", OxygenDBConfig.defaultConfig());
-    oxygenDB.execute(
+    youTrackDB = new YouTrackDB("remote:localhost", "root", "root",
+        YouTrackDBConfig.defaultConfig());
+    youTrackDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         TestConcurrentSequenceGenerationIT.class.getSimpleName());
     ODatabaseSession databaseSession =
-        oxygenDB.open(TestConcurrentSequenceGenerationIT.class.getSimpleName(), "admin", "admin");
+        youTrackDB.open(TestConcurrentSequenceGenerationIT.class.getSimpleName(), "admin", "admin");
     databaseSession.execute(
         "sql",
         """
@@ -49,7 +50,7 @@ public class TestConcurrentSequenceGenerationIT {
   @Test
   public void test() throws Exception {
 
-    try (var pool = oxygenDB.cachedPool(TestConcurrentSequenceGenerationIT.class.getSimpleName(),
+    try (var pool = youTrackDB.cachedPool(TestConcurrentSequenceGenerationIT.class.getSimpleName(),
         "admin", "admin")) {
       var executorService = Executors.newFixedThreadPool(THREADS);
       var futures = new ArrayList<Future<Object>>();
@@ -83,12 +84,12 @@ public class TestConcurrentSequenceGenerationIT {
 
   @After
   public void after() {
-    oxygenDB.drop(TestConcurrentSequenceGenerationIT.class.getSimpleName());
-    oxygenDB.close();
+    youTrackDB.drop(TestConcurrentSequenceGenerationIT.class.getSimpleName());
+    youTrackDB.close();
     server.shutdown();
 
-    Oxygen.instance().shutdown();
+    YouTrackDBManager.instance().shutdown();
     OFileUtils.deleteRecursively(new File(server.getDatabaseDirectory()));
-    Oxygen.instance().startup();
+    YouTrackDBManager.instance().startup();
   }
 }

@@ -32,7 +32,7 @@ import com.orientechnologies.common.util.OPair;
 import com.orientechnologies.common.util.OPatternConst;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.common.util.OSizeable;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OCommandRequest;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
@@ -908,7 +908,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
    * Report the tip to the profiler and collect it in context to be reported by tools like Studio
    */
   protected void reportTip(final String iMessage) {
-    Oxygen.instance().getProfiler().reportTip(iMessage);
+    YouTrackDBManager.instance().getProfiler().reportTip(iMessage);
     List<String> tips = (List<String>) context.getVariable("tips");
     if (tips == null) {
       tips = new ArrayList<String>(3);
@@ -1418,7 +1418,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
   }
 
   protected void revertSubclassesProfiler(final OCommandContext iContext, int num) {
-    final OProfiler profiler = Oxygen.instance().getProfiler();
+    final OProfiler profiler = YouTrackDBManager.instance().getProfiler();
     if (profiler.isRecording()) {
       profiler.updateCounter(
           profiler.getDatabaseMetric(getDatabase().getName(), "query.indexUseAttemptedAndReverted"),
@@ -1436,7 +1436,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
       iContext.updateMetric("compositeIndexUsed", -1);
     }
 
-    final OProfiler profiler = Oxygen.instance().getProfiler();
+    final OProfiler profiler = YouTrackDBManager.instance().getProfiler();
     if (profiler.isRecording()) {
       profiler.updateCounter(
           profiler.getDatabaseMetric(index.getDatabaseName(), "query.indexUsed"),
@@ -2450,7 +2450,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
                 }
               }
 
-              final OProfiler profiler = Oxygen.instance().getProfiler();
+              final OProfiler profiler = YouTrackDBManager.instance().getProfiler();
               if (profiler.isRecording()) {
                 profiler.updateCounter(
                     profiler.getDatabaseMetric(session.getName(), "query.indexUsed"),

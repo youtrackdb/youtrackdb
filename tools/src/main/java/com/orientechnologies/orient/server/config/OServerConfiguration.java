@@ -30,7 +30,7 @@ import java.util.List;
 public class OServerConfiguration {
 
   public static final String FILE_NAME = "server-config.xml";
-  // private static final String HEADER = "OxygenDB Server configuration";
+  // private static final String HEADER = "YouTrackDB Server configuration";
   public static final OServerStorageConfiguration[] EMPTY_CONFIG_ARRAY =
       new OServerStorageConfiguration[0];
   @XmlTransient

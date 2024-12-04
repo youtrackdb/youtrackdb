@@ -22,7 +22,7 @@ import java.sql.Statement;
 import java.sql.Types;
 import org.junit.Test;
 
-public class OxygenJdbcResultSetTest extends OxygenJdbcDbPerMethodTemplateTest {
+public class YouTrackDbJdbcResultSetTest extends YouTrackDbJdbcDbPerMethodTemplateTest {
 
   @Test
   public void shouldNavigateResultSet() throws Exception {
@@ -173,8 +173,8 @@ public class OxygenJdbcResultSetTest extends OxygenJdbcDbPerMethodTemplateTest {
 
     assertThat(rs.getFetchSize()).isEqualTo(1);
 
-    assertThat(rs.getBigDecimal(1).intValue()).isEqualTo(3438);
-    assertThat(rs.getBigDecimal("totalScore").intValue()).isEqualTo(3438);
+    assertThat(rs.getBigDecimal(1).intValue()).isEqualTo(3462);
+    assertThat(rs.getBigDecimal("totalScore").intValue()).isEqualTo(3462);
 
     stmt.close();
     stmt = conn.createStatement();
@@ -187,8 +187,8 @@ public class OxygenJdbcResultSetTest extends OxygenJdbcDbPerMethodTemplateTest {
 
     assertThat(rs.getFetchSize()).isEqualTo(1);
 
-    assertThat(rs.getBigDecimal(1).intValue()).isEqualTo(3438);
-    assertThat(rs.getBigDecimal("totalScore").intValue()).isEqualTo(3438);
+    assertThat(rs.getBigDecimal(1).intValue()).isEqualTo(3462);
+    assertThat(rs.getBigDecimal("totalScore").intValue()).isEqualTo(3462);
   }
 
   @Test

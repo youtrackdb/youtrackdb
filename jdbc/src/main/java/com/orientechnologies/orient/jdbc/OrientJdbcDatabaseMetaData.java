@@ -98,7 +98,7 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
   }
 
   public String getDatabaseProductName() throws SQLException {
-    return "OxygenDB";
+    return "YouTrackDB";
   }
 
   public String getDatabaseProductVersion() throws SQLException {
@@ -106,7 +106,7 @@ public class OrientJdbcDatabaseMetaData implements DatabaseMetaData {
   }
 
   public String getDriverName() throws SQLException {
-    return "OxygenDB JDBC Driver";
+    return "YouTrackDB JDBC Driver";
   }
 
   public String getDriverVersion() throws SQLException {

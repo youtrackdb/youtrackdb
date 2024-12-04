@@ -21,7 +21,7 @@
 package com.orientechnologies.orient.core.db;
 
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.command.script.OScriptManager;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -42,7 +42,7 @@ import java.util.concurrent.Future;
 /**
  *
  */
-public interface OxygenDBInternal extends AutoCloseable, OSchedulerInternal {
+public interface YouTrackDBInternal extends AutoCloseable, OSchedulerInternal {
 
   /**
    * Create a new factory from a given url.
@@ -55,7 +55,7 @@ public interface OxygenDBInternal extends AutoCloseable, OSchedulerInternal {
    *                      {@see OGlobalConfiguration}.
    * @return the new Orient Factory.
    */
-  static OxygenDBInternal fromUrl(String url, OxygenDBConfig configuration) {
+  static YouTrackDBInternal fromUrl(String url, YouTrackDBConfig configuration) {
     String what = url.substring(0, url.indexOf(':'));
     if ("embedded".equals(what)) {
       return embedded(url.substring(url.indexOf(':') + 1), configuration);
@@ -65,12 +65,12 @@ public interface OxygenDBInternal extends AutoCloseable, OSchedulerInternal {
     throw new ODatabaseException("not supported database type");
   }
 
-  default OxygenDB newOrientDB() {
-    return new OxygenDB(this);
+  default YouTrackDB newOrientDB() {
+    return new YouTrackDB(this);
   }
 
-  default OxygenDB newOrientDBNoClose() {
-    return new OxygenDB(this) {
+  default YouTrackDB newOrientDBNoClose() {
+    return new YouTrackDB(this) {
       @Override
       public void close() {
       }
@@ -85,30 +85,32 @@ public interface OxygenDBInternal extends AutoCloseable, OSchedulerInternal {
    *                      {@see OGlobalConfiguration}.
    * @return a new remote databases factory
    */
-  static OxygenDBInternal remote(String[] hosts, OxygenDBConfig configuration) {
-    OxygenDBInternal factory;
+  static YouTrackDBInternal remote(String[] hosts, YouTrackDBConfig configuration) {
+    YouTrackDBInternal factory;
 
     try {
-      String className = "com.orientechnologies.orient.client.remote.OxygenDBRemote";
+      String className = "com.orientechnologies.orient.client.remote.YouTrackDBRemote";
       ClassLoader loader;
       if (configuration != null) {
         loader = configuration.getClassLoader();
       } else {
-        loader = OxygenDBInternal.class.getClassLoader();
+        loader = YouTrackDBInternal.class.getClassLoader();
       }
       Class<?> kass = loader.loadClass(className);
       Constructor<?> constructor =
-          kass.getConstructor(String[].class, OxygenDBConfig.class, Oxygen.class);
-      factory = (OxygenDBInternal) constructor.newInstance(hosts, configuration, Oxygen.instance());
+          kass.getConstructor(String[].class, YouTrackDBConfig.class, YouTrackDBManager.class);
+      factory = (YouTrackDBInternal) constructor.newInstance(hosts, configuration,
+          YouTrackDBManager.instance());
     } catch (ClassNotFoundException
              | NoSuchMethodException
              | IllegalAccessException
              | InstantiationException e) {
-      throw OException.wrapException(new ODatabaseException("OxygenDB client API missing"), e);
+      throw OException.wrapException(new ODatabaseException("YouTrackDB client API missing"), e);
     } catch (InvocationTargetException e) {
       //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
       throw OException.wrapException(
-          new ODatabaseException("Error creating OxygenDB remote factory"), e.getTargetException());
+          new ODatabaseException("Error creating YouTrackDB remote factory"),
+          e.getTargetException());
     }
     return factory;
   }
@@ -121,19 +123,19 @@ public interface OxygenDBInternal extends AutoCloseable, OSchedulerInternal {
    *                      {@see OGlobalConfiguration}
    * @return a new embedded databases factory
    */
-  static OxygenDBInternal embedded(String directoryPath, OxygenDBConfig config) {
-    return new OxygenDBEmbedded(directoryPath, config, Oxygen.instance());
+  static YouTrackDBInternal embedded(String directoryPath, YouTrackDBConfig config) {
+    return new YouTrackDBEmbedded(directoryPath, config, YouTrackDBManager.instance());
   }
 
-  static OxygenDBInternal distributed(String directoryPath, OxygenDBConfig configuration) {
-    OxygenDBInternal factory;
+  static YouTrackDBInternal distributed(String directoryPath, YouTrackDBConfig configuration) {
+    YouTrackDBInternal factory;
 
     try {
       ClassLoader loader;
       if (configuration != null) {
         loader = configuration.getClassLoader();
       } else {
-        loader = OxygenDBInternal.class.getClassLoader();
+        loader = YouTrackDBInternal.class.getClassLoader();
       }
       Class<?> kass;
       try {
@@ -144,19 +146,21 @@ public interface OxygenDBInternal extends AutoCloseable, OSchedulerInternal {
         kass = loader.loadClass(className);
       }
       Constructor<?> constructor =
-          kass.getConstructor(String.class, OxygenDBConfig.class, Oxygen.class);
+          kass.getConstructor(String.class, YouTrackDBConfig.class, YouTrackDBManager.class);
       factory =
-          (OxygenDBInternal)
-              constructor.newInstance(directoryPath, configuration, Oxygen.instance());
+          (YouTrackDBInternal)
+              constructor.newInstance(directoryPath, configuration, YouTrackDBManager.instance());
     } catch (ClassNotFoundException
              | NoSuchMethodException
              | IllegalAccessException
              | InstantiationException e) {
-      throw OException.wrapException(new ODatabaseException("OxygenDB distributed API missing"), e);
+      throw OException.wrapException(new ODatabaseException("YouTrackDB distributed API missing"),
+          e);
     } catch (InvocationTargetException e) {
       //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
       throw OException.wrapException(
-          new ODatabaseException("Error creating OxygenDB remote factory"), e.getTargetException());
+          new ODatabaseException("Error creating YouTrackDB remote factory"),
+          e.getTargetException());
     }
     return factory;
   }
@@ -182,7 +186,7 @@ public interface OxygenDBInternal extends AutoCloseable, OSchedulerInternal {
    *                 needed.
    * @return the opened database
    */
-  ODatabaseSessionInternal open(String name, String user, String password, OxygenDBConfig config);
+  ODatabaseSessionInternal open(String name, String user, String password, YouTrackDBConfig config);
 
   /**
    * Open a database specified by name using the authentication info provided, with specific
@@ -193,7 +197,7 @@ public interface OxygenDBInternal extends AutoCloseable, OSchedulerInternal {
    *                           settings where needed.
    * @return the opened database
    */
-  ODatabaseSessionInternal open(OAuthenticationInfo authenticationInfo, OxygenDBConfig config);
+  ODatabaseSessionInternal open(OAuthenticationInfo authenticationInfo, YouTrackDBConfig config);
 
   /**
    * Create a new database
@@ -217,7 +221,8 @@ public interface OxygenDBInternal extends AutoCloseable, OSchedulerInternal {
    *                 needed.
    * @param type     can be plocal or memory
    */
-  void create(String name, String user, String password, ODatabaseType type, OxygenDBConfig config);
+  void create(String name, String user, String password, ODatabaseType type,
+      YouTrackDBConfig config);
 
   /**
    * Check if a database exists
@@ -270,12 +275,13 @@ public interface OxygenDBInternal extends AutoCloseable, OSchedulerInternal {
    *                 needed.
    * @return a new pool of databases.
    */
-  ODatabasePoolInternal openPool(String name, String user, String password, OxygenDBConfig config);
+  ODatabasePoolInternal openPool(String name, String user, String password,
+      YouTrackDBConfig config);
 
   ODatabasePoolInternal cachedPool(String database, String user, String password);
 
   ODatabasePoolInternal cachedPool(
-      String database, String user, String password, OxygenDBConfig config);
+      String database, String user, String password, YouTrackDBConfig config);
 
   /**
    * Internal api for request to open a database with a pool
@@ -289,7 +295,7 @@ public interface OxygenDBInternal extends AutoCloseable, OSchedulerInternal {
       String password,
       ODatabaseType type,
       String path,
-      OxygenDBConfig config);
+      YouTrackDBConfig config);
 
   void restore(
       String name,
@@ -324,12 +330,12 @@ public interface OxygenDBInternal extends AutoCloseable, OSchedulerInternal {
     return false;
   }
 
-  static OxygenDBInternal extract(OxygenDB oxygenDB) {
-    return oxygenDB.internal;
+  static YouTrackDBInternal extract(YouTrackDB youTrackDB) {
+    return youTrackDB.internal;
   }
 
-  static String extractUser(OxygenDB oxygenDB) {
-    return oxygenDB.serverUser;
+  static String extractUser(YouTrackDB youTrackDB) {
+    return youTrackDB.serverUser;
   }
 
   ODatabaseSessionInternal openNoAuthenticate(String iDbUrl, String user);
@@ -356,11 +362,11 @@ public interface OxygenDBInternal extends AutoCloseable, OSchedulerInternal {
 
   <X> X executeNoAuthorizationSync(ODatabaseSessionInternal database, ODatabaseTask<X> task);
 
-  default OStorage fullSync(String dbName, InputStream backupStream, OxygenDBConfig config) {
+  default OStorage fullSync(String dbName, InputStream backupStream, YouTrackDBConfig config) {
     throw new UnsupportedOperationException();
   }
 
-  default void deltaSync(String dbName, InputStream backupStream, OxygenDBConfig config) {
+  default void deltaSync(String dbName, InputStream backupStream, YouTrackDBConfig config) {
     throw new UnsupportedOperationException();
   }
 
@@ -400,10 +406,10 @@ public interface OxygenDBInternal extends AutoCloseable, OSchedulerInternal {
       String user,
       String password,
       ODatabaseType type,
-      OxygenDBConfig config,
+      YouTrackDBConfig config,
       ODatabaseTask<Void> createOps);
 
-  OxygenDBConfig getConfigurations();
+  YouTrackDBConfig getConfigurations();
 
   OSecuritySystem getSecuritySystem();
 
@@ -419,7 +425,7 @@ public interface OxygenDBInternal extends AutoCloseable, OSchedulerInternal {
   default void endCommand() {
   }
 
-  static OxygenDBInternal getInternal(OxygenDB oxygenDB) {
-    return oxygenDB.internal;
+  static YouTrackDBInternal getInternal(YouTrackDB youTrackDB) {
+    return youTrackDB.internal;
   }
 }

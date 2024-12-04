@@ -2,9 +2,8 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.profiler.OProfiler;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
-import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -2384,7 +2383,7 @@ public class OMatchStatementExecutionNewTest extends DBTestBase {
   }
 
   private OProfiler getProfilerInstance() {
-    return Oxygen.instance().getProfiler();
+    return YouTrackDBManager.instance().getProfiler();
   }
 
   private void printExecutionPlan(OResultSet result) {

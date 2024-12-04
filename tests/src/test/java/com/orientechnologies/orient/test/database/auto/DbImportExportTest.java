@@ -21,9 +21,9 @@ import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
-import com.orientechnologies.orient.core.db.OxygenDBConfigBuilder;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExport;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
@@ -83,12 +83,12 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
       importDir.mkdir();
     }
 
-    try (OxygenDB oxygenDBImport =
-        OxygenDB.embedded(
-            testPath + File.separator + IMPORT_DB_PATH, OxygenDBConfig.defaultConfig())) {
-      oxygenDBImport.createIfNotExists(
+    try (YouTrackDB youTrackDBImport =
+        YouTrackDB.embedded(
+            testPath + File.separator + IMPORT_DB_PATH, YouTrackDBConfig.defaultConfig())) {
+      youTrackDBImport.createIfNotExists(
           IMPORT_DB_NAME, ODatabaseType.PLOCAL, "admin", "admin", "admin");
-      try (var importDB = oxygenDBImport.open(IMPORT_DB_NAME, "admin", "admin")) {
+      try (var importDB = youTrackDBImport.open(IMPORT_DB_NAME, "admin", "admin")) {
         final ODatabaseImport dbImport =
             new ODatabaseImport(
                 (ODatabaseSessionInternal) importDB, testPath + "/" + exportFilePath, this);
@@ -112,10 +112,10 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
       }
       // EXECUTES ONLY IF NOT REMOTE ON CI/RELEASE TEST ENV
     }
-    try (OxygenDB oxygenDBImport =
-        OxygenDB.embedded(
-            testPath + File.separator + IMPORT_DB_PATH, OxygenDBConfig.defaultConfig())) {
-      try (var importDB = oxygenDBImport.open(IMPORT_DB_NAME, "admin", "admin")) {
+    try (YouTrackDB youTrackDBImport =
+        YouTrackDB.embedded(
+            testPath + File.separator + IMPORT_DB_PATH, YouTrackDBConfig.defaultConfig())) {
+      try (var importDB = youTrackDBImport.open(IMPORT_DB_NAME, "admin", "admin")) {
         final ODatabaseCompare databaseCompare =
             new ODatabaseCompare(database, (ODatabaseSessionInternal) importDB, this);
         databaseCompare.setCompareEntriesForAutomaticIndexes(true);
@@ -137,14 +137,15 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
 
     final File exportPath = new File(localTesPath, "export.json.gz");
 
-    final OxygenDBConfig config =
-        new OxygenDBConfigBuilder()
+    final YouTrackDBConfig config =
+        new YouTrackDBConfigBuilder()
             .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, true)
             .build();
-    try (final OxygenDB oxygenDB = new OxygenDB("embedded:" + localTesPath.getPath(), config)) {
-      oxygenDB.create("original", ODatabaseType.PLOCAL);
+    try (final YouTrackDB youTrackDB = new YouTrackDB("embedded:" + localTesPath.getPath(),
+        config)) {
+      youTrackDB.create("original", ODatabaseType.PLOCAL);
 
-      try (final ODatabaseSessionInternal session = (ODatabaseSessionInternal) oxygenDB.open(
+      try (final ODatabaseSessionInternal session = (ODatabaseSessionInternal) youTrackDB.open(
           "original", "admin", "admin")) {
         final OSchema schema = session.getMetadata().getSchema();
 
@@ -195,9 +196,9 @@ public class DbImportExportTest extends DocumentDBBaseTest implements OCommandOu
         databaseExport.exportDatabase();
       }
 
-      oxygenDB.create("imported", ODatabaseType.PLOCAL);
+      youTrackDB.create("imported", ODatabaseType.PLOCAL);
       try (final ODatabaseSessionInternal session =
-          (ODatabaseSessionInternal) oxygenDB.open("imported", "admin", "admin")) {
+          (ODatabaseSessionInternal) youTrackDB.open("imported", "admin", "admin")) {
         final ODatabaseImport databaseImport =
             new ODatabaseImport(session, exportPath.getPath(), System.out::println);
         databaseImport.run();

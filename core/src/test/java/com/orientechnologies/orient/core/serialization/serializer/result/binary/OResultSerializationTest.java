@@ -6,8 +6,8 @@ import static org.junit.Assert.assertNotNull;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.BytesContainer;
 import com.orientechnologies.orient.core.sql.executor.OResult;
@@ -41,7 +41,7 @@ public class OResultSerializationTest extends DBTestBase {
 
   @Test
   public void testSimpleSerialization() {
-    try (var orientDB = new OxygenDB("memory", OxygenDBConfig.defaultConfig())) {
+    try (var orientDB = new YouTrackDB("memory", YouTrackDBConfig.defaultConfig())) {
       orientDB.createIfNotExists("test", ODatabaseType.MEMORY, "admin", "admin", "admin");
       try (var db = (ODatabaseSessionInternal) orientDB.open("test", "admin", "admin")) {
         OResultInternal document = new OResultInternal(db);

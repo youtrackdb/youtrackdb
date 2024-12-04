@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright OxygenDB
+ *  *  Copyright YouTrackDB
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -151,7 +151,7 @@ public class ONative {
    * @param printSteps Print all steps of discovering of memory limit in the log with {@code INFO}
    *                   level.
    * @return Amount of memory which are allowed to be consumed by application, and detects whether
-   * OxygenDB instance is running inside container. If <code>null</code> is returned then it was
+   * YouTrackDB instance is running inside container. If <code>null</code> is returned then it was
    * impossible to detect amount of memory on machine.
    */
   public MemoryLimitResult getMemoryLimit(final boolean printSteps) {

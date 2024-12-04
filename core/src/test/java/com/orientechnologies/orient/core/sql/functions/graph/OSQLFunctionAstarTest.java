@@ -25,7 +25,7 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.function.OFunction;
 import com.orientechnologies.orient.core.record.ODirection;
@@ -47,7 +47,7 @@ public class OSQLFunctionAstarTest {
 
   private static int dbCounter = 0;
 
-  private OxygenDB oxygenDB;
+  private YouTrackDB youTrackDB;
   private ODatabaseSessionInternal graph;
 
   private OVertex v0;
@@ -70,19 +70,20 @@ public class OSQLFunctionAstarTest {
   @After
   public void tearDown() throws Exception {
     graph.close();
-    oxygenDB.close();
+    youTrackDB.close();
   }
 
   private void setUpDatabase() {
     dbCounter++;
 
-    oxygenDB =
+    youTrackDB =
         OCreateDatabaseUtil.createDatabase(
             "OSQLFunctionAstarTest", DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_MEMORY);
     graph =
         (ODatabaseSessionInternal)
-            oxygenDB.open("OSQLFunctionAstarTest", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+            youTrackDB.open("OSQLFunctionAstarTest", "admin",
+                OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     graph.createEdgeClass("has_path");
 

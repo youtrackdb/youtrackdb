@@ -8,7 +8,7 @@ import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.OScenarioThreadLocal;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseSessionEmbedded;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -57,7 +57,7 @@ import java.util.stream.Collectors;
 
 public class ViewManager {
 
-  private final OxygenDBInternal oxygenDB;
+  private final YouTrackDBInternal oxygenDB;
   private final String dbName;
   private final boolean viewsExist = false;
 
@@ -87,7 +87,7 @@ public class ViewManager {
   private volatile TimerTask timerTask;
   private volatile boolean closed = false;
 
-  public ViewManager(OxygenDBInternal orientDb, String dbName) {
+  public ViewManager(YouTrackDBInternal orientDb, String dbName) {
     this.oxygenDB = orientDb;
     this.dbName = dbName;
   }

@@ -7,8 +7,8 @@ import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.OSharedContext;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.metadata.OMetadata;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -31,7 +31,7 @@ import org.junit.Test;
 
 public class OStorageTestIT {
 
-  private OxygenDB oxygenDB;
+  private YouTrackDB youTrackDB;
 
   private static Path buildPath;
 
@@ -46,22 +46,22 @@ public class OStorageTestIT {
   @Test
   public void testCheckSumFailureReadOnly() throws Exception {
 
-    OxygenDBConfig config =
-        OxygenDBConfig.builder()
+    YouTrackDBConfig config =
+        YouTrackDBConfig.builder()
             .addConfig(
                 OGlobalConfiguration.STORAGE_CHECKSUM_MODE,
                 OChecksumMode.StoreAndSwitchReadOnlyMode)
             .addAttribute(ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
 
-    oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), config);
-    oxygenDB.execute(
+    youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()), config);
+    youTrackDB.execute(
         "create database "
             + OStorageTestIT.class.getSimpleName()
             + " plocal users ( admin identified by 'admin' role admin)");
 
     var session =
-        (ODatabaseSessionInternal) oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin",
+        (ODatabaseSessionInternal) youTrackDB.open(OStorageTestIT.class.getSimpleName(), "admin",
             "admin", config);
     OMetadata metadata = session.getMetadata();
     OSchema schema = metadata.getSchema();
@@ -98,36 +98,36 @@ public class OStorageTestIT {
     file.write(bt + 1);
     file.close();
 
-    session = (ODatabaseSessionInternal) oxygenDB.open(OStorageTestIT.class.getSimpleName(),
+    session = (ODatabaseSessionInternal) youTrackDB.open(OStorageTestIT.class.getSimpleName(),
         "admin", "admin");
     try {
       session.query("select from PageBreak").close();
       Assert.fail();
     } catch (OStorageException e) {
-      oxygenDB.close();
-      oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), config);
-      oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");
+      youTrackDB.close();
+      youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()), config);
+      youTrackDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");
     }
   }
 
   @Test
   public void testCheckMagicNumberReadOnly() throws Exception {
-    OxygenDBConfig config =
-        OxygenDBConfig.builder()
+    YouTrackDBConfig config =
+        YouTrackDBConfig.builder()
             .addConfig(
                 OGlobalConfiguration.STORAGE_CHECKSUM_MODE,
                 OChecksumMode.StoreAndSwitchReadOnlyMode)
             .addAttribute(ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
 
-    oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), config);
-    oxygenDB.execute(
+    youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()), config);
+    youTrackDB.execute(
         "create database "
             + OStorageTestIT.class.getSimpleName()
             + " plocal users ( admin identified by 'admin' role admin)");
 
     var session =
-        (ODatabaseSessionInternal) oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin",
+        (ODatabaseSessionInternal) youTrackDB.open(OStorageTestIT.class.getSimpleName(), "admin",
             "admin", config);
     OMetadata metadata = session.getMetadata();
     OSchema schema = metadata.getSchema();
@@ -161,35 +161,35 @@ public class OStorageTestIT {
     file.write(1);
     file.close();
 
-    session = (ODatabaseSessionInternal) oxygenDB.open(OStorageTestIT.class.getSimpleName(),
+    session = (ODatabaseSessionInternal) youTrackDB.open(OStorageTestIT.class.getSimpleName(),
         "admin", "admin");
     try {
       session.query("select from PageBreak").close();
       Assert.fail();
     } catch (OStorageException e) {
-      oxygenDB.close();
-      oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), config);
-      oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");
+      youTrackDB.close();
+      youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()), config);
+      youTrackDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");
     }
   }
 
   @Test
   public void testCheckMagicNumberVerify() throws Exception {
 
-    OxygenDBConfig config =
-        OxygenDBConfig.builder()
+    YouTrackDBConfig config =
+        YouTrackDBConfig.builder()
             .addConfig(OGlobalConfiguration.STORAGE_CHECKSUM_MODE, OChecksumMode.StoreAndVerify)
             .addAttribute(ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
 
-    oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), config);
-    oxygenDB.execute(
+    youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()), config);
+    youTrackDB.execute(
         "create database "
             + OStorageTestIT.class.getSimpleName()
             + " plocal users ( admin identified by 'admin' role admin)");
 
     var session =
-        (ODatabaseSessionInternal) oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin",
+        (ODatabaseSessionInternal) youTrackDB.open(OStorageTestIT.class.getSimpleName(), "admin",
             "admin", config);
     OMetadata metadata = session.getMetadata();
     OSchema schema = metadata.getSchema();
@@ -223,7 +223,7 @@ public class OStorageTestIT {
     file.write(1);
     file.close();
 
-    session = (ODatabaseSessionInternal) oxygenDB.open(OStorageTestIT.class.getSimpleName(),
+    session = (ODatabaseSessionInternal) youTrackDB.open(OStorageTestIT.class.getSimpleName(),
         "admin", "admin");
     session.query("select from PageBreak").close();
 
@@ -240,20 +240,20 @@ public class OStorageTestIT {
   @Test
   public void testCheckSumFailureVerifyAndLog() throws Exception {
 
-    OxygenDBConfig config =
-        OxygenDBConfig.builder()
+    YouTrackDBConfig config =
+        YouTrackDBConfig.builder()
             .addConfig(OGlobalConfiguration.STORAGE_CHECKSUM_MODE, OChecksumMode.StoreAndVerify)
             .addAttribute(ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
 
-    oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), config);
-    oxygenDB.execute(
+    youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()), config);
+    youTrackDB.execute(
         "create database "
             + OStorageTestIT.class.getSimpleName()
             + " plocal users ( admin identified by 'admin' role admin)");
 
     var session =
-        (ODatabaseSessionInternal) oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin",
+        (ODatabaseSessionInternal) youTrackDB.open(OStorageTestIT.class.getSimpleName(), "admin",
             "admin", config);
     OMetadata metadata = session.getMetadata();
     OSchema schema = metadata.getSchema();
@@ -290,7 +290,7 @@ public class OStorageTestIT {
     file.write(bt + 1);
     file.close();
 
-    session = (ODatabaseSessionInternal) oxygenDB.open(OStorageTestIT.class.getSimpleName(),
+    session = (ODatabaseSessionInternal) youTrackDB.open(OStorageTestIT.class.getSimpleName(),
         "admin", "admin");
     session.query("select from PageBreak").close();
 
@@ -306,16 +306,16 @@ public class OStorageTestIT {
 
   @Test
   public void testCreatedVersionIsStored() {
-    oxygenDB =
-        new OxygenDB(
-            DBTestBase.embeddedDBUrl(getClass()), OxygenDBConfig.defaultConfig());
-    oxygenDB.execute(
+    youTrackDB =
+        new YouTrackDB(
+            DBTestBase.embeddedDBUrl(getClass()), YouTrackDBConfig.defaultConfig());
+    youTrackDB.execute(
         "create database "
             + OStorageTestIT.class.getSimpleName()
             + " plocal users ( admin identified by 'admin' role admin)");
 
     final ODatabaseSession session =
-        oxygenDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");
+        youTrackDB.open(OStorageTestIT.class.getSimpleName(), "admin", "admin");
     try (OResultSet resultSet = session.query("SELECT FROM metadata:storage")) {
       Assert.assertTrue(resultSet.hasNext());
 
@@ -326,6 +326,6 @@ public class OStorageTestIT {
 
   @After
   public void after() {
-    oxygenDB.drop(OStorageTestIT.class.getSimpleName());
+    youTrackDB.drop(OStorageTestIT.class.getSimpleName());
   }
 }

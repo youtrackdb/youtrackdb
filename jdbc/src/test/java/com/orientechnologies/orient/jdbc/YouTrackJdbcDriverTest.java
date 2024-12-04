@@ -21,7 +21,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 import org.junit.Test;
 
-public class OxygenJdbcDriverTest {
+public class YouTrackJdbcDriverTest {
 
   @Test
   public void shouldAcceptsWellFormattedURLOnly() throws ClassNotFoundException, SQLException {

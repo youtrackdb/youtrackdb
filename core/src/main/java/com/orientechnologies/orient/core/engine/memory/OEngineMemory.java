@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.engine.memory;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.engine.OEngineAbstract;
 import com.orientechnologies.orient.core.engine.OMemoryAndLocalPaginatedEnginesInitializer;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -41,7 +41,7 @@ public class OEngineMemory extends OEngineAbstract {
       long maxWalSegSize,
       long doubleWriteLogMaxSegSize,
       int storageId,
-      OxygenDBInternal context) {
+      YouTrackDBInternal context) {
     try {
       return new ODirectMemoryStorage(url, url, storageId, context);
     } catch (Exception e) {

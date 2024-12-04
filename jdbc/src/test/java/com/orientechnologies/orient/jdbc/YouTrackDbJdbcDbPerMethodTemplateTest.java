@@ -18,7 +18,7 @@ import static com.orientechnologies.orient.jdbc.OrientDbCreationHelper.loadDB;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.YouTrackDB;
 import java.io.File;
 import java.util.Properties;
 import javax.sql.DataSource;
@@ -29,14 +29,14 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 
-public abstract class OxygenJdbcDbPerMethodTemplateTest {
+public abstract class YouTrackDbJdbcDbPerMethodTemplateTest {
 
   @Rule
   public TestName name = new TestName();
 
   protected OrientJdbcConnection conn;
   protected ODatabaseSessionInternal db;
-  protected OxygenDB oxygenDB;
+  protected YouTrackDB youTrackDB;
   protected DataSource ds;
 
   @Before
@@ -55,7 +55,7 @@ public abstract class OxygenJdbcDbPerMethodTemplateTest {
         new DataSourceWithLetterCase(
             ods, LetterCase.TABLE_DEFAULT, LetterCase.TABLE_DEFAULT, LetterCase.TABLE_DEFAULT);
     conn = (OrientJdbcConnection) ds.getConnection();
-    oxygenDB = conn.getOrientDB();
+    youTrackDB = conn.getOrientDB();
 
     db = (ODatabaseSessionInternal) ((OrientJdbcConnection) ds.getConnection()).getDatabase();
 
@@ -75,6 +75,6 @@ public abstract class OxygenJdbcDbPerMethodTemplateTest {
     if (conn != null && !conn.isClosed()) {
       conn.close();
     }
-    oxygenDB.close();
+    youTrackDB.close();
   }
 }

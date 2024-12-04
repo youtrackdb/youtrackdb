@@ -21,7 +21,7 @@ package com.orientechnologies.orient.server.network.protocol.http;
 
 import com.orientechnologies.common.concur.lock.OLockException;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
@@ -211,7 +211,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
             request.getHttpVersion(),
             additionalResponseHeaders,
             responseCharSet,
-            "OxygenDB",
+            "YouTrackDB",
             request.getSessionId(),
             callbackF,
             request.isKeepAlive(),
@@ -590,7 +590,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
     writeLine("Pragma: no-cache");
     writeLine("Date: " + new Date());
     writeLine("Content-Type: " + iContentType + "; charset=" + responseCharSet);
-    writeLine("Server: OxygenDB");
+    writeLine("Server: YouTrackDB");
     writeLine("Connection: " + (iKeepAlive ? "Keep-Alive" : "close"));
     if (getAdditionalResponseHeaders() != null) {
       for (String h : getAdditionalResponseHeaders()) {
@@ -916,7 +916,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
       readAllContent(request);
     } finally {
       if (connection.getStats().lastCommandReceived > -1) {
-        Oxygen.instance()
+        YouTrackDBManager.instance()
             .getProfiler()
             .stopChrono(
                 "server.network.requests",
@@ -968,7 +968,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
   }
 
   protected void connectionClosed() {
-    Oxygen.instance()
+    YouTrackDBManager.instance()
         .getProfiler()
         .updateCounter(
             "server.http." + listeningAddress + ".closed",
@@ -979,7 +979,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
   }
 
   protected void timeout() {
-    Oxygen.instance()
+    YouTrackDBManager.instance()
         .getProfiler()
         .updateCounter(
             "server.http." + listeningAddress + ".timeout",
@@ -990,7 +990,7 @@ public abstract class ONetworkProtocolHttpAbstract extends ONetworkProtocol
   }
 
   protected void connectionError() {
-    Oxygen.instance()
+    YouTrackDBManager.instance()
         .getProfiler()
         .updateCounter(
             "server.http." + listeningAddress + ".errors",

@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.db.tool;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.YouTrackDB;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,7 +17,7 @@ import org.junit.Test;
 
 public class ODatabaseImportSimpleCompatibilityTest {
 
-  private OxygenDB oxygenDB;
+  private YouTrackDB youTrackDB;
 
   private ODatabaseSessionInternal importDatabase;
   private ODatabaseImport importer;
@@ -98,10 +98,10 @@ public class ODatabaseImportSimpleCompatibilityTest {
   private void setup(
       final String databaseName, final InputStream input, final OutputStream output) {
     final String importDbUrl = "embedded:target/import_" + this.getClass().getSimpleName();
-    oxygenDB =
+    youTrackDB =
         OCreateDatabaseUtil.createDatabase(
             databaseName, importDbUrl, OCreateDatabaseUtil.TYPE_MEMORY);
-    importDatabase = (ODatabaseSessionInternal) oxygenDB.open(databaseName, "admin",
+    importDatabase = (ODatabaseSessionInternal) youTrackDB.open(databaseName, "admin",
         OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     try {
       importer = new ODatabaseImport(importDatabase, input, iText -> {
@@ -115,8 +115,8 @@ public class ODatabaseImportSimpleCompatibilityTest {
 
   private void tearDown(final String databaseName) {
     try {
-      oxygenDB.drop(databaseName);
-      oxygenDB.close();
+      youTrackDB.drop(databaseName);
+      youTrackDB.close();
     } catch (final Exception e) {
       System.out.println("Issues during teardown " + e.getMessage());
     }

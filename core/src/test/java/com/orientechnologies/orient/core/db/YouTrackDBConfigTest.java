@@ -27,12 +27,12 @@ import java.util.HashMap;
 import java.util.Map;
 import org.junit.Test;
 
-public class OxygenDBConfigTest {
+public class YouTrackDBConfigTest {
 
   @Test
   public void testBuildSettings() {
-    OxygenDBConfig settings =
-        OxygenDBConfig.builder()
+    YouTrackDBConfig settings =
+        YouTrackDBConfig.builder()
             .addConfig(OGlobalConfiguration.DB_POOL_MAX, 20)
             .addAttribute(ATTRIBUTES.VALIDATION, true)
             .build();
@@ -45,7 +45,7 @@ public class OxygenDBConfigTest {
   public void testBuildSettingsFromMap() {
     Map<String, Object> configs = new HashMap<>();
     configs.put(OGlobalConfiguration.DB_POOL_MAX.getKey(), 20);
-    OxygenDBConfig settings = OxygenDBConfig.builder().fromMap(configs).build();
+    YouTrackDBConfig settings = YouTrackDBConfig.builder().fromMap(configs).build();
     assertEquals(settings.getConfigurations().getValue(OGlobalConfiguration.DB_POOL_MAX), 20);
   }
 
@@ -53,20 +53,20 @@ public class OxygenDBConfigTest {
   public void testBuildSettingsFromGlobalMap() {
     Map<OGlobalConfiguration, Object> configs = new HashMap<>();
     configs.put(OGlobalConfiguration.DB_POOL_MAX, 20);
-    OxygenDBConfig settings = OxygenDBConfig.builder().fromGlobalMap(configs).build();
+    YouTrackDBConfig settings = YouTrackDBConfig.builder().fromGlobalMap(configs).build();
     assertEquals(settings.getConfigurations().getValue(OGlobalConfiguration.DB_POOL_MAX), 20);
   }
 
   @Test
   public void testParentConfig() {
-    OxygenDBConfig parent =
-        OxygenDBConfig.builder()
+    YouTrackDBConfig parent =
+        YouTrackDBConfig.builder()
             .addConfig(OGlobalConfiguration.DB_POOL_MAX, 20)
             .addAttribute(ATTRIBUTES.VALIDATION, true)
             .build();
 
-    OxygenDBConfig settings =
-        OxygenDBConfig.builder()
+    YouTrackDBConfig settings =
+        YouTrackDBConfig.builder()
             .addConfig(OGlobalConfiguration.CLIENT_CONNECTION_STRATEGY, "ROUND_ROBIN_CONNECT")
             .addAttribute(ATTRIBUTES.VALIDATION, false)
             .build();

@@ -2,14 +2,14 @@ package com.orientechnologies.orient.server.network;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -42,7 +42,7 @@ import org.junit.Test;
 public class OLiveQueryRemoteTest {
 
   private OServer server;
-  private OxygenDB oxygenDB;
+  private YouTrackDB youTrackDB;
   private ODatabaseSessionInternal db;
 
   @Before
@@ -55,23 +55,24 @@ public class OLiveQueryRemoteTest {
             .getResourceAsStream(
                 "com/orientechnologies/orient/server/network/orientdb-server-config.xml"));
     server.activate();
-    oxygenDB = new OxygenDB("remote:localhost:", "root", "root", OxygenDBConfig.defaultConfig());
-    oxygenDB.execute(
+    youTrackDB = new YouTrackDB("remote:localhost:", "root", "root",
+        YouTrackDBConfig.defaultConfig());
+    youTrackDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         OLiveQueryRemoteTest.class.getSimpleName());
-    db = (ODatabaseSessionInternal) oxygenDB.open(OLiveQueryRemoteTest.class.getSimpleName(),
+    db = (ODatabaseSessionInternal) youTrackDB.open(OLiveQueryRemoteTest.class.getSimpleName(),
         "admin", "admin");
   }
 
   @After
   public void after() {
     db.close();
-    oxygenDB.close();
+    youTrackDB.close();
     server.shutdown();
 
-    Oxygen.instance().shutdown();
+    YouTrackDBManager.instance().shutdown();
     OFileUtils.deleteRecursively(new File(server.getDatabaseDirectory()));
-    Oxygen.instance().startup();
+    YouTrackDBManager.instance().startup();
   }
 
   static class MyLiveQueryListener implements OLiveQueryResultListener {
@@ -191,7 +192,7 @@ public class OLiveQueryRemoteTest {
               @Override
               public Integer call() throws Exception {
                 ODatabaseSession db =
-                    oxygenDB.open(OLiveQueryRemoteTest.class.getSimpleName(), "reader", "reader");
+                    youTrackDB.open(OLiveQueryRemoteTest.class.getSimpleName(), "reader", "reader");
 
                 final AtomicInteger integer = new AtomicInteger(0);
                 db.live(

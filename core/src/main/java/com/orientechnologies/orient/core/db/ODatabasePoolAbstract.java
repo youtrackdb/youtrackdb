@@ -26,7 +26,7 @@ import com.orientechnologies.common.concur.resource.OResourcePoolListener;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.OOrientListener;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.storage.OStorage;
 import it.unimi.dsi.fastutil.objects.Object2LongMap;
@@ -139,7 +139,7 @@ public abstract class ODatabasePoolAbstract extends OAdaptiveLock
     maxSize = iMaxSize;
     timeout = iTimeout;
     owner = iOwner;
-    Oxygen.instance().registerListener(this);
+    YouTrackDBManager.instance().registerListener(this);
 
     if (idleTimeoutMillis > 0 && timeBetweenEvictionRunsMillis > 0) {
       this.evictionTask = new Timer();

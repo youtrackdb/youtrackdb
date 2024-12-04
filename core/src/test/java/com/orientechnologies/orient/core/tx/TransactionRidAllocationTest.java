@@ -7,7 +7,7 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.OConcurrentCreateException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
@@ -29,17 +29,17 @@ import org.junit.Test;
  */
 public class TransactionRidAllocationTest {
 
-  private OxygenDB oxygenDB;
+  private YouTrackDB youTrackDB;
   private ODatabaseSessionInternal db;
 
   @Before
   public void before() {
-    oxygenDB =
+    youTrackDB =
         OCreateDatabaseUtil.createDatabase("test", DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_MEMORY);
     db =
         (ODatabaseSessionInternal)
-            oxygenDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+            youTrackDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
 
   @Test
@@ -53,7 +53,7 @@ public class TransactionRidAllocationTest {
     ORID generated = v.getIdentity();
     assertTrue(generated.isValid());
 
-    var db1 = oxygenDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db1 = youTrackDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     try {
       db1.load(generated);
@@ -77,7 +77,7 @@ public class TransactionRidAllocationTest {
     ((OAbstractPaginatedStorage) db.getStorage())
         .commitPreAllocated((OTransactionOptimistic) db.getTransaction());
 
-    var db1 = oxygenDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db1 = youTrackDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     assertNotNull(db1.load(generated));
     db1.close();
@@ -86,7 +86,7 @@ public class TransactionRidAllocationTest {
   @Test
   public void testMultipleDbAllocationAndCommit() {
     ODatabaseSessionInternal second;
-    oxygenDB.execute(
+    youTrackDB.execute(
         "create database "
             + "secondTest"
             + " "
@@ -96,7 +96,7 @@ public class TransactionRidAllocationTest {
             + "' role admin)");
     second =
         (ODatabaseSessionInternal)
-            oxygenDB.open("secondTest", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+            youTrackDB.open("secondTest", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     db.activateOnCurrentThread();
     db.begin();
@@ -127,7 +127,7 @@ public class TransactionRidAllocationTest {
     ((OAbstractPaginatedStorage) db.getStorage())
         .commitPreAllocated((OTransactionOptimistic) db.getTransaction());
 
-    var db1 = oxygenDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db1 = youTrackDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     assertNotNull(db1.load(generated));
 
     db1.close();
@@ -135,7 +135,7 @@ public class TransactionRidAllocationTest {
     ((OAbstractPaginatedStorage) second.getStorage())
         .commitPreAllocated((OTransactionOptimistic) second.getTransaction());
     second.close();
-    var db2 = oxygenDB.open("secondTest", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db2 = youTrackDB.open("secondTest", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     assertNotNull(db2.load(generated));
     db2.close();
   }
@@ -143,7 +143,7 @@ public class TransactionRidAllocationTest {
   @Test(expected = OConcurrentCreateException.class)
   public void testMultipleDbAllocationNotAlignedFailure() {
     ODatabaseSessionInternal second;
-    oxygenDB.execute(
+    youTrackDB.execute(
         "create database "
             + "secondTest"
             + " "
@@ -153,7 +153,7 @@ public class TransactionRidAllocationTest {
             + "' role admin)");
     second =
         (ODatabaseSessionInternal)
-            oxygenDB.open("secondTest", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+            youTrackDB.open("secondTest", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     // THIS OFFSET FIRST DB FROM THE SECOND
     for (int i = 0; i < 20; i++) {
       second.begin();
@@ -209,7 +209,7 @@ public class TransactionRidAllocationTest {
     ((OAbstractPaginatedStorage) db.getStorage())
         .commitPreAllocated((OTransactionOptimistic) db.getTransaction());
 
-    var db1 = oxygenDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    var db1 = youTrackDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     for (final ORID id : allocated) {
       assertNotNull(db1.load(id));
     }
@@ -220,6 +220,6 @@ public class TransactionRidAllocationTest {
   public void after() {
     db.activateOnCurrentThread();
     db.close();
-    oxygenDB.close();
+    youTrackDB.close();
   }
 }

@@ -8,7 +8,7 @@ import static org.junit.Assert.fail;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.junit.After;
 import org.junit.Before;
@@ -19,7 +19,7 @@ import org.junit.Test;
  */
 public class TransactionChangesDetectionTest {
 
-  private OxygenDB factory;
+  private YouTrackDB factory;
   private ODatabaseSessionInternal database;
 
   @Before

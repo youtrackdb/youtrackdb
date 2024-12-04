@@ -17,8 +17,8 @@ import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.util.OURLConnection;
 import com.orientechnologies.orient.core.util.OURLHelper;
 import java.sql.Array;
@@ -50,7 +50,7 @@ public class OrientJdbcConnection implements Connection {
   private ODatabaseSession database;
   private String dbUrl;
   private final Properties info;
-  private final OxygenDB oxygenDB;
+  private final YouTrackDB youTrackDB;
   private boolean readOnly;
   private boolean autoCommit;
   private ODatabaseSession.STATUS status;
@@ -71,15 +71,15 @@ public class OrientJdbcConnection implements Connection {
     final String serverPassword = info.getProperty("serverPassword", "");
 
     OURLConnection connUrl = OURLHelper.parseNew(dbUrl);
-    oxygenDB =
-        new OxygenDB(
+    youTrackDB =
+        new YouTrackDB(
             connUrl.getType() + ":" + connUrl.getPath(),
             serverUsername,
             serverPassword,
-            OxygenDBConfig.defaultConfig());
+            YouTrackDBConfig.defaultConfig());
 
     if (!serverUsername.isEmpty() && !serverPassword.isEmpty()) {
-      oxygenDB.createIfNotExists(
+      youTrackDB.createIfNotExists(
           connUrl.getDbName(),
           connUrl.getDbType().orElse(ODatabaseType.MEMORY),
           username,
@@ -87,22 +87,22 @@ public class OrientJdbcConnection implements Connection {
           "admin");
     }
 
-    database = oxygenDB.open(connUrl.getDbName(), username, password);
+    database = youTrackDB.open(connUrl.getDbName(), username, password);
 
     oxygenDBisPrivate = true;
     status = ODatabaseSession.STATUS.OPEN;
   }
 
-  public OrientJdbcConnection(ODatabaseSession database, OxygenDB oxygenDB, Properties info) {
+  public OrientJdbcConnection(ODatabaseSession database, YouTrackDB youTrackDB, Properties info) {
     this.database = database;
-    this.oxygenDB = oxygenDB;
+    this.youTrackDB = youTrackDB;
     this.info = info;
     oxygenDBisPrivate = false;
     status = ODatabaseSession.STATUS.OPEN;
   }
 
-  protected OxygenDB getOrientDB() {
-    return oxygenDB;
+  protected YouTrackDB getOrientDB() {
+    return youTrackDB;
   }
 
   public Statement createStatement() throws SQLException {
@@ -148,7 +148,7 @@ public class OrientJdbcConnection implements Connection {
     }
     if (oxygenDBisPrivate) {
 
-      oxygenDB.close();
+      youTrackDB.close();
     }
   }
 

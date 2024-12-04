@@ -139,6 +139,6 @@ public class OBinaryTokenPayloadImpl implements OBinaryTokenPayload {
 
   @Override
   public String getPayloadType() {
-    return "OxygenDB";
+    return "YouTrackDB";
   }
 }

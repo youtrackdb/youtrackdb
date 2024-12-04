@@ -47,7 +47,7 @@ public class OServerCommandPostInstallDatabase extends OServerCommandAuthenticat
         } else {
           final URL uri = new URL(url);
           final URLConnection conn = uri.openConnection();
-          conn.setRequestProperty("User-Agent", "OxygenDB-Studio");
+          conn.setRequestProperty("User-Agent", "YouTrackDB-Studio");
           conn.setDefaultUseCaches(false);
           server
               .getDatabases()

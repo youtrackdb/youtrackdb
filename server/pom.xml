@@ -15,14 +15,14 @@
 
   <parent>
     <groupId>io.oxygendb</groupId>
-    <artifactId>oxygendb-parent</artifactId>
+    <artifactId>youtrackdb-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>oxygendb-server</artifactId>
+  <artifactId>youtrackdb-server</artifactId>
 
-  <name>OxygenDB Server</name>
+  <name>YouTrackDB Server</name>
 
   <properties>
     <javac.src.version>${maven.compiler.source}</javac.src.version>
@@ -36,23 +36,23 @@
   <dependencies>
     <dependency>
       <groupId>io.oxygendb</groupId>
-      <artifactId>oxygendb-test-commons</artifactId>
+      <artifactId>youtrackdb-test-commons</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.oxygendb</groupId>
-      <artifactId>oxygendb-client</artifactId>
+      <artifactId>youtrackdb-client</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>io.oxygendb</groupId>
-      <artifactId>oxygendb-tools</artifactId>
+      <artifactId>youtrackdb-tools</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>io.oxygendb</groupId>
-      <artifactId>oxygendb-core</artifactId>
+      <artifactId>youtrackdb-core</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>

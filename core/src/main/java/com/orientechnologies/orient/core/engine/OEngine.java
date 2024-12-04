@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.core.engine;
 
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.storage.OStorage;
 
 public interface OEngine {
@@ -31,7 +31,7 @@ public interface OEngine {
       long maxWalSegSize,
       long doubleWriteLogMaxSegSize,
       int storageId,
-      OxygenDBInternal context);
+      YouTrackDBInternal context);
 
   void shutdown();
 

@@ -2,8 +2,8 @@ package com.orientechnologies.orient.server.security;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.exception.OSecurityException;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.server.OServer;
@@ -36,19 +36,20 @@ public class ORemoteScriptSecurityTest {
     OGlobalConfiguration.SERVER_BACKWARD_COMPATIBILITY.setValue(false);
     server = OServer.startFromClasspathConfig("abstract-orientdb-server-config.xml");
 
-    OxygenDB oxygenDB =
-        new OxygenDB("remote:localhost", "root", "root", OxygenDBConfig.defaultConfig());
-    oxygenDB.execute(
+    YouTrackDB youTrackDB =
+        new YouTrackDB("remote:localhost", "root", "root", YouTrackDBConfig.defaultConfig());
+    youTrackDB.execute(
         "create database ORemoteScriptSecurityTest memory users (admin identified by 'admin' role"
             + " admin)");
 
-    oxygenDB.close();
+    youTrackDB.close();
   }
 
   @Test(expected = OSecurityException.class)
   public void testRunJavascript() {
     // CREATE A SEPARATE CONTEXT TO MAKE SURE IT LOAD STAFF FROM SCRATCH
-    try (OxygenDB writerOrient = new OxygenDB("remote:localhost", OxygenDBConfig.defaultConfig())) {
+    try (YouTrackDB writerOrient = new YouTrackDB("remote:localhost",
+        YouTrackDBConfig.defaultConfig())) {
       try (ODatabaseSession writer =
           writerOrient.open("ORemoteScriptSecurityTest", "reader", "reader")) {
         try (OResultSet rs = writer.execute("javascript", "1+1;")) {
@@ -60,7 +61,8 @@ public class ORemoteScriptSecurityTest {
   @Test(expected = OSecurityException.class)
   public void testRunEcmascript() {
     // CREATE A SEPARATE CONTEXT TO MAKE SURE IT LOAD STAFF FROM SCRATCH
-    try (OxygenDB writerOrient = new OxygenDB("remote:localhost", OxygenDBConfig.defaultConfig())) {
+    try (YouTrackDB writerOrient = new YouTrackDB("remote:localhost",
+        YouTrackDBConfig.defaultConfig())) {
       try (ODatabaseSession writer =
           writerOrient.open("ORemoteScriptSecurityTest", "reader", "reader")) {
 

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright OxygenDB
+ *  *  Copyright YouTrackDB
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ public class JournaledTxStreamingTest {
 
   private File buildDir;
   private Process serverProcess;
-  private OxygenDB ctx;
+  private YouTrackDB ctx;
   private ODatabaseSessionInternal db;
   private DataInputStream stream;
 
@@ -67,7 +67,7 @@ public class JournaledTxStreamingTest {
 
     spawnServer();
 
-    ctx = new OxygenDB("remote:localhost:3500", "root", "root", OxygenDBConfig.defaultConfig());
+    ctx = new YouTrackDB("remote:localhost:3500", "root", "root", YouTrackDBConfig.defaultConfig());
     ctx.execute("create database " + JournaledTxStreamingTest.class.getSimpleName() + " plocal ")
         .close();
 
@@ -138,14 +138,14 @@ public class JournaledTxStreamingTest {
     String javaExec = System.getProperty("java.home") + "/bin/java";
     javaExec = new File(javaExec).getCanonicalPath();
 
-    System.setProperty("OXYGENDB_HOME", buildDir.getCanonicalPath());
+    System.setProperty("YOU_TRACK_DB_HOME", buildDir.getCanonicalPath());
 
     ProcessBuilder processBuilder =
         new ProcessBuilder(
             javaExec,
             "-classpath",
             System.getProperty("java.class.path"),
-            "-DOXYGENDB_HOME=" + buildDir.getCanonicalPath(),
+            "-DYOU_TRACK_DB_HOME=" + buildDir.getCanonicalPath(),
             "-DmutexFile=" + mutexFile.getCanonicalPath(),
             "-Dstorage.internal.journaled.tx.streaming.port=3600",
             RemoteDBRunner.class.getName());

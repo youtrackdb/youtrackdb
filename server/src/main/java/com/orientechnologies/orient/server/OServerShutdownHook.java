@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server;
 
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 
 public class OServerShutdownHook extends Thread {
 
@@ -27,7 +27,7 @@ public class OServerShutdownHook extends Thread {
 
   protected OServerShutdownHook(final OServer server) {
     this.server = server;
-    Oxygen.instance().removeShutdownHook();
+    YouTrackDBManager.instance().removeShutdownHook();
     Runtime.getRuntime().addShutdownHook(this);
   }
 

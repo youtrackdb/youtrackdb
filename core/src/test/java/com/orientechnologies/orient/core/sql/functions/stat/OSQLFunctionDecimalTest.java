@@ -4,8 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.functions.math.OSQLFunctionDecimal;
 import java.math.BigDecimal;
@@ -50,8 +50,8 @@ public class OSQLFunctionDecimalTest {
   }
 
   public void testFromQuery() {
-    try (OxygenDB ctx = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-        OxygenDBConfig.defaultConfig())) {
+    try (YouTrackDB ctx = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig())) {
       ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
       try (var db = ctx.open("test", "admin", "adminpwd")) {
         String initial = "12324124321234543256758654.76543212345676543254356765434567654";

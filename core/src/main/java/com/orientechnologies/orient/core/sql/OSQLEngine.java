@@ -33,7 +33,7 @@ import com.orientechnologies.orient.core.command.OCommandExecutor;
 import com.orientechnologies.orient.core.command.OCommandExecutorAbstract;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -83,7 +83,7 @@ public class OSQLEngine {
     return OStatementCache.get(query, db);
   }
 
-  public static OServerStatement parseServerStatement(String query, OxygenDBInternal db) {
+  public static OServerStatement parseServerStatement(String query, YouTrackDBInternal db) {
     return OStatementCache.getServerStatement(query, db);
   }
 

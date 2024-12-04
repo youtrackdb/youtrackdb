@@ -2,8 +2,8 @@ package com.orientechnologies.orient.server;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import java.io.File;
 import org.junit.After;
 import org.junit.Before;
@@ -13,7 +13,7 @@ import org.junit.rules.TestName;
 public class BaseServerMemoryDatabase {
 
   protected ODatabaseSessionInternal db;
-  protected OxygenDB context;
+  protected YouTrackDB context;
   @Rule
   public TestName name = new TestName();
   protected OServer server;
@@ -28,7 +28,7 @@ public class BaseServerMemoryDatabase {
       throw new RuntimeException(e);
     }
 
-    context = new OxygenDB("remote:localhost", "root", "root", OxygenDBConfig.defaultConfig());
+    context = new YouTrackDB("remote:localhost", "root", "root", YouTrackDBConfig.defaultConfig());
     context
         .execute(
             "create database "

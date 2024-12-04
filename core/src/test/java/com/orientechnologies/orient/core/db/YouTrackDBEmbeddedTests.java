@@ -35,35 +35,35 @@ import org.junit.Test;
 /**
  *
  */
-public class OxygenDBEmbeddedTests {
+public class YouTrackDBEmbeddedTests {
 
   @Test
   public void testCompatibleUrl() {
-    try (OxygenDB oxygenDb = new OxygenDB(
+    try (YouTrackDB youTrackDb = new YouTrackDB(
         "plocal:" + DBTestBase.getDirectoryPath(getClass()) + "compatibleUrl",
-        OxygenDBConfig.defaultConfig())) {
+        YouTrackDBConfig.defaultConfig())) {
     }
-    try (OxygenDB oxygenDb = new OxygenDB(
+    try (YouTrackDB youTrackDb = new YouTrackDB(
         "memory:" + DBTestBase.getDirectoryPath(getClass()) + "compatibleUrl",
-        OxygenDBConfig.defaultConfig())) {
+        YouTrackDBConfig.defaultConfig())) {
     }
   }
 
   @Test(expected = IllegalArgumentException.class)
   public void testWrongUrlFalure() {
-    try (OxygenDB wrong = new OxygenDB("wrong", OxygenDBConfig.defaultConfig())) {
+    try (YouTrackDB wrong = new YouTrackDB("wrong", YouTrackDBConfig.defaultConfig())) {
     }
   }
 
   @Test
   public void createAndUseEmbeddedDatabase() {
-    try (final OxygenDB oxygenDb =
+    try (final YouTrackDB youTrackDb =
         OCreateDatabaseUtil.createDatabase(
             "createAndUseEmbeddedDatabase", DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_MEMORY)) {
       final var db =
           (ODatabaseSessionInternal)
-              oxygenDb.open(
+              youTrackDb.open(
                   "createAndUseEmbeddedDatabase", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       db.executeInTx(
           () -> db.save(new ODocument(), db.getClusterNameById(db.getDefaultClusterId())));
@@ -73,40 +73,40 @@ public class OxygenDBEmbeddedTests {
 
   @Test(expected = ODatabaseException.class)
   public void testEmbeddedDoubleCreate() {
-    OxygenDB oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-        OxygenDBConfig.defaultConfig());
+    YouTrackDB youTrackDb = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig());
     try {
-      oxygenDb.create("test", ODatabaseType.MEMORY);
-      oxygenDb.create("test", ODatabaseType.MEMORY);
+      youTrackDb.create("test", ODatabaseType.MEMORY);
+      youTrackDb.create("test", ODatabaseType.MEMORY);
     } finally {
-      oxygenDb.close();
+      youTrackDb.close();
     }
   }
 
   @Test
   public void createDropEmbeddedDatabase() {
-    OxygenDB oxygenDb = new OxygenDB(
+    YouTrackDB youTrackDb = new YouTrackDB(
         DBTestBase.embeddedDBUrl(getClass()) + "createDropEmbeddedDatabase",
-        OxygenDBConfig.defaultConfig());
+        YouTrackDBConfig.defaultConfig());
     try {
-      oxygenDb.create("test", ODatabaseType.MEMORY);
-      assertTrue(oxygenDb.exists("test"));
-      oxygenDb.drop("test");
-      assertFalse(oxygenDb.exists("test"));
+      youTrackDb.create("test", ODatabaseType.MEMORY);
+      assertTrue(youTrackDb.exists("test"));
+      youTrackDb.drop("test");
+      assertFalse(youTrackDb.exists("test"));
     } finally {
-      oxygenDb.close();
+      youTrackDb.close();
     }
   }
 
   @Test
   public void testMultiThread() {
-    try (final OxygenDB oxygenDb =
+    try (final YouTrackDB youTrackDb =
         OCreateDatabaseUtil.createDatabase(
             "testMultiThread", DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_MEMORY)) {
       final ODatabasePool pool =
           new ODatabasePool(
-              oxygenDb, "testMultiThread", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+              youTrackDb, "testMultiThread", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
       // do a query and assert on other thread
       Runnable acquirer =
@@ -136,38 +136,38 @@ public class OxygenDBEmbeddedTests {
 
   @Test
   public void testListDatabases() {
-    OxygenDB oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()) + "listTest1",
-        OxygenDBConfig.defaultConfig());
-    assertEquals(0, oxygenDb.list().size());
-    oxygenDb.create("test", ODatabaseType.MEMORY);
-    List<String> databases = oxygenDb.list();
+    YouTrackDB youTrackDb = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()) + "listTest1",
+        YouTrackDBConfig.defaultConfig());
+    assertEquals(0, youTrackDb.list().size());
+    youTrackDb.create("test", ODatabaseType.MEMORY);
+    List<String> databases = youTrackDb.list();
     assertEquals(1, databases.size());
     assertTrue(databases.contains("test"));
-    oxygenDb.close();
+    youTrackDb.close();
   }
 
   @Test
   public void testListDatabasesPersistent() {
-    OxygenDB oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()) + "listTest2",
-        OxygenDBConfig.defaultConfig());
-    assertEquals(0, oxygenDb.list().size());
-    oxygenDb.create("testListDatabase", ODatabaseType.PLOCAL);
-    List<String> databases = oxygenDb.list();
+    YouTrackDB youTrackDb = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()) + "listTest2",
+        YouTrackDBConfig.defaultConfig());
+    assertEquals(0, youTrackDb.list().size());
+    youTrackDb.create("testListDatabase", ODatabaseType.PLOCAL);
+    List<String> databases = youTrackDb.list();
     assertEquals(1, databases.size());
     assertTrue(databases.contains("testListDatabase"));
-    oxygenDb.drop("testListDatabase");
-    oxygenDb.close();
+    youTrackDb.drop("testListDatabase");
+    youTrackDb.close();
   }
 
   @Test
   public void testRegisterDatabase() {
-    final OxygenDB youtrack = new OxygenDB(
+    final YouTrackDB youtrack = new YouTrackDB(
         DBTestBase.embeddedDBUrl(getClass()) + "testRegisterDatabase",
-        OxygenDBConfig.defaultConfig());
+        YouTrackDBConfig.defaultConfig());
     try {
       youtrack.execute("create system user admin identified by 'admin' role root");
 
-      final OxygenDBEmbedded youtrackEmbedded = (OxygenDBEmbedded) youtrack.getInternal();
+      final YouTrackDBEmbedded youtrackEmbedded = (YouTrackDBEmbedded) youtrack.getInternal();
       assertEquals(0, youtrackEmbedded.listDatabases("", "").size());
       youtrackEmbedded.initCustomStorage("database1", DBTestBase.getDirectoryPath(getClass()) +
               "testRegisterDatabase/database1",
@@ -193,14 +193,14 @@ public class OxygenDBEmbeddedTests {
 
   @Test
   public void testCopyOpenedDatabase() {
-    try (final OxygenDB oxygenDb =
+    try (final YouTrackDB youTrackDb =
         OCreateDatabaseUtil.createDatabase(
             "testCopyOpenedDatabase", DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_MEMORY)) {
       ODatabaseSession db1;
       try (ODatabaseSessionInternal db =
           (ODatabaseSessionInternal)
-              oxygenDb.open(
+              youTrackDb.open(
                   "testCopyOpenedDatabase", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
         db1 = db.copy();
       }
@@ -212,59 +212,59 @@ public class OxygenDBEmbeddedTests {
 
   @Test(expected = ODatabaseException.class)
   public void testUseAfterCloseCreate() {
-    OxygenDB oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-        OxygenDBConfig.defaultConfig());
-    oxygenDb.close();
-    oxygenDb.create("test", ODatabaseType.MEMORY);
+    YouTrackDB youTrackDb = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig());
+    youTrackDb.close();
+    youTrackDb.create("test", ODatabaseType.MEMORY);
   }
 
   @Test(expected = ODatabaseException.class)
   public void testUseAfterCloseOpen() {
-    OxygenDB oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-        OxygenDBConfig.defaultConfig());
-    oxygenDb.close();
-    oxygenDb.open("testUseAfterCloseOpen", "", "");
+    YouTrackDB youTrackDb = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig());
+    youTrackDb.close();
+    youTrackDb.open("testUseAfterCloseOpen", "", "");
   }
 
   @Test(expected = ODatabaseException.class)
   public void testUseAfterCloseList() {
-    OxygenDB oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-        OxygenDBConfig.defaultConfig());
-    oxygenDb.close();
-    oxygenDb.list();
+    YouTrackDB youTrackDb = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig());
+    youTrackDb.close();
+    youTrackDb.list();
   }
 
   @Test(expected = ODatabaseException.class)
   public void testUseAfterCloseExists() {
-    OxygenDB oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-        OxygenDBConfig.defaultConfig());
-    oxygenDb.close();
-    oxygenDb.exists("");
+    YouTrackDB youTrackDb = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig());
+    youTrackDb.close();
+    youTrackDb.exists("");
   }
 
   @Test(expected = ODatabaseException.class)
   public void testUseAfterCloseOpenPoolInternal() {
-    OxygenDB oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-        OxygenDBConfig.defaultConfig());
-    oxygenDb.close();
-    oxygenDb.openPool("", "", "", OxygenDBConfig.defaultConfig());
+    YouTrackDB youTrackDb = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig());
+    youTrackDb.close();
+    youTrackDb.openPool("", "", "", YouTrackDBConfig.defaultConfig());
   }
 
   @Test(expected = ODatabaseException.class)
   public void testUseAfterCloseDrop() {
-    OxygenDB oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-        OxygenDBConfig.defaultConfig());
-    oxygenDb.close();
-    oxygenDb.drop("");
+    YouTrackDB youTrackDb = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig());
+    youTrackDb.close();
+    youTrackDb.drop("");
   }
 
   @Test
   public void testPoolByUrl() {
-    final OxygenDB oxygenDb =
+    final YouTrackDB youTrackDb =
         OCreateDatabaseUtil.createDatabase(
             "some", DBTestBase.embeddedDBUrl(getClass()) + "poolTest",
             OCreateDatabaseUtil.TYPE_PLOCAL);
-    oxygenDb.close();
+    youTrackDb.close();
 
     final ODatabasePool pool =
         new ODatabasePool(
@@ -275,14 +275,14 @@ public class OxygenDBEmbeddedTests {
 
   @Test
   public void testDropTL() {
-    final OxygenDB oxygenDb =
-        new OxygenDB(
+    final YouTrackDB youTrackDb =
+        new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()),
-            OxygenDBConfig.builder()
+            YouTrackDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
-    if (!oxygenDb.exists("some")) {
-      oxygenDb.execute(
+    if (!youTrackDb.exists("some")) {
+      youTrackDb.execute(
           "create database "
               + "some"
               + " "
@@ -291,8 +291,8 @@ public class OxygenDBEmbeddedTests {
               + OCreateDatabaseUtil.NEW_ADMIN_PASSWORD
               + "' role admin)");
     }
-    if (!oxygenDb.exists("some1")) {
-      oxygenDb.execute(
+    if (!youTrackDb.exists("some1")) {
+      youTrackDb.execute(
           "create database "
               + "some1"
               + " "
@@ -301,16 +301,17 @@ public class OxygenDBEmbeddedTests {
               + OCreateDatabaseUtil.NEW_ADMIN_PASSWORD
               + "' role admin)");
     }
-    var db = oxygenDb.open("some", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
-    oxygenDb.drop("some1");
+    var db = youTrackDb.open("some", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    youTrackDb.drop("some1");
     db.close();
-    oxygenDb.close();
+    youTrackDb.close();
   }
 
   @Test
   public void testClosePool() {
-    try (var oxygendb = OxygenDB.embedded(DBTestBase.getDirectoryPath(getClass()) + "testClosePool",
-        OxygenDBConfig.defaultConfig())) {
+    try (var oxygendb = YouTrackDB.embedded(
+        DBTestBase.getDirectoryPath(getClass()) + "testClosePool",
+        YouTrackDBConfig.defaultConfig())) {
       if (!oxygendb.exists("test")) {
         oxygendb.create("test", ODatabaseType.PLOCAL, "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD, "admin");
@@ -330,14 +331,14 @@ public class OxygenDBEmbeddedTests {
 
   @Test
   public void testPoolFactory() {
-    OxygenDBConfig config =
-        OxygenDBConfig.builder()
+    YouTrackDBConfig config =
+        YouTrackDBConfig.builder()
             .addConfig(OGlobalConfiguration.DB_CACHED_POOL_CAPACITY, 2)
             .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
             .build();
-    OxygenDB oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), config);
-    if (!oxygenDB.exists("testdb")) {
-      oxygenDB.execute(
+    YouTrackDB youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()), config);
+    if (!youTrackDB.exists("testdb")) {
+      youTrackDB.execute(
           "create database "
               + "testdb"
               + " "
@@ -351,60 +352,60 @@ public class OxygenDBEmbeddedTests {
               + "' role writer)");
     }
     ODatabasePool poolAdmin1 =
-        oxygenDB.cachedPool(
+        youTrackDB.cachedPool(
             "testdb",
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD,
-            OxygenDBConfig.builder()
+            YouTrackDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     ODatabasePool poolAdmin2 =
-        oxygenDB.cachedPool(
+        youTrackDB.cachedPool(
             "testdb",
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD,
-            OxygenDBConfig.builder()
+            YouTrackDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     ODatabasePool poolReader1 =
-        oxygenDB.cachedPool("testdb", "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        youTrackDB.cachedPool("testdb", "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     ODatabasePool poolReader2 =
-        oxygenDB.cachedPool("testdb", "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        youTrackDB.cachedPool("testdb", "reader", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     assertEquals(poolAdmin1, poolAdmin2);
     assertEquals(poolReader1, poolReader2);
     assertNotEquals(poolAdmin1, poolReader1);
 
     ODatabasePool poolWriter1 =
-        oxygenDB.cachedPool("testdb", "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        youTrackDB.cachedPool("testdb", "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     ODatabasePool poolWriter2 =
-        oxygenDB.cachedPool("testdb", "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        youTrackDB.cachedPool("testdb", "writer", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     assertEquals(poolWriter1, poolWriter2);
 
     ODatabasePool poolAdmin3 =
-        oxygenDB.cachedPool(
+        youTrackDB.cachedPool(
             "testdb",
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD,
-            OxygenDBConfig.builder()
+            YouTrackDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     assertNotEquals(poolAdmin1, poolAdmin3);
 
-    oxygenDB.close();
+    youTrackDB.close();
   }
 
   @Test
   public void testPoolFactoryCleanUp() throws Exception {
-    OxygenDBConfig config =
-        OxygenDBConfig.builder()
+    YouTrackDBConfig config =
+        YouTrackDBConfig.builder()
             .addConfig(OGlobalConfiguration.DB_CACHED_POOL_CAPACITY, 2)
             .addConfig(OGlobalConfiguration.DB_CACHED_POOL_CLEAN_UP_TIMEOUT, 1_000)
             .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
             .build();
-    OxygenDB oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), config);
-    if (!oxygenDB.exists("testdb")) {
-      oxygenDB.execute(
+    YouTrackDB youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()), config);
+    if (!youTrackDB.exists("testdb")) {
+      youTrackDB.execute(
           "create database "
               + "testdb"
               + " "
@@ -413,8 +414,8 @@ public class OxygenDBEmbeddedTests {
               + OCreateDatabaseUtil.NEW_ADMIN_PASSWORD
               + "' role admin)");
     }
-    if (!oxygenDB.exists("testdb1")) {
-      oxygenDB.execute(
+    if (!youTrackDB.exists("testdb1")) {
+      youTrackDB.execute(
           "create database "
               + "testdb1"
               + " "
@@ -425,27 +426,27 @@ public class OxygenDBEmbeddedTests {
     }
 
     ODatabasePool poolNotUsed =
-        oxygenDB.cachedPool(
+        youTrackDB.cachedPool(
             "testdb1",
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD,
-            OxygenDBConfig.builder()
+            YouTrackDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     ODatabasePool poolAdmin1 =
-        oxygenDB.cachedPool(
+        youTrackDB.cachedPool(
             "testdb",
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD,
-            OxygenDBConfig.builder()
+            YouTrackDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     ODatabasePool poolAdmin2 =
-        oxygenDB.cachedPool(
+        youTrackDB.cachedPool(
             "testdb",
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD,
-            OxygenDBConfig.builder()
+            YouTrackDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     assertFalse(poolAdmin1.isClosed());
@@ -458,39 +459,39 @@ public class OxygenDBEmbeddedTests {
     Thread.sleep(3_000);
 
     ODatabasePool poolAdmin3 =
-        oxygenDB.cachedPool(
+        youTrackDB.cachedPool(
             "testdb",
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD,
-            OxygenDBConfig.builder()
+            YouTrackDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     assertNotEquals(poolAdmin1, poolAdmin3);
     assertFalse(poolAdmin3.isClosed());
 
     ODatabasePool poolOther =
-        oxygenDB.cachedPool(
+        youTrackDB.cachedPool(
             "testdb",
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD,
-            OxygenDBConfig.builder()
+            YouTrackDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     assertNotEquals(poolNotUsed, poolOther);
     assertTrue(poolNotUsed.isClosed());
 
-    oxygenDB.close();
+    youTrackDB.close();
   }
 
   @Test
   public void testInvalidatePoolCache() {
-    final OxygenDBConfig config =
-        OxygenDBConfig.builder()
+    final YouTrackDBConfig config =
+        YouTrackDBConfig.builder()
             .addConfig(OGlobalConfiguration.DB_CACHED_POOL_CAPACITY, 2)
             .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
             .build();
-    final OxygenDB oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), config);
-    oxygenDB.execute(
+    final YouTrackDB youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()), config);
+    youTrackDB.execute(
         "create database "
             + "testdb"
             + " "
@@ -500,79 +501,79 @@ public class OxygenDBEmbeddedTests {
             + "' role admin)");
 
     ODatabasePool poolAdmin1 =
-        oxygenDB.cachedPool("testdb", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        youTrackDB.cachedPool("testdb", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     ODatabasePool poolAdmin2 =
-        oxygenDB.cachedPool("testdb", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        youTrackDB.cachedPool("testdb", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     assertEquals(poolAdmin1, poolAdmin2);
 
-    oxygenDB.invalidateCachedPools();
+    youTrackDB.invalidateCachedPools();
 
-    poolAdmin1 = oxygenDB.cachedPool("testdb", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    poolAdmin1 = youTrackDB.cachedPool("testdb", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     assertNotEquals(poolAdmin2, poolAdmin1);
-    oxygenDB.close();
+    youTrackDB.close();
   }
 
   @Test
   public void testOpenKeepClean() {
-    OxygenDB oxygenDb =
-        new OxygenDB(
+    YouTrackDB youTrackDb =
+        new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()) + "keepClean",
-            OxygenDBConfig.builder()
+            YouTrackDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     try {
-      oxygenDb.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+      youTrackDb.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     } catch (Exception e) {
       // ignore
     }
-    assertFalse(oxygenDb.exists("test"));
+    assertFalse(youTrackDb.exists("test"));
 
-    oxygenDb.close();
+    youTrackDb.close();
   }
 
   @Test
   public void testYouTrackDBDatabaseOnlyMemory() {
-    final OxygenDB oxygenDb =
+    final YouTrackDB youTrackDb =
         OCreateDatabaseUtil.createDatabase("test",
             DBTestBase.embeddedDBUrl(getClass()) + "testYouTrackDBDatabaseOnlyMemory",
             OCreateDatabaseUtil.TYPE_MEMORY);
     final var db =
         (ODatabaseSessionInternal)
-            oxygenDb.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+            youTrackDb.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     db.executeInTx(() -> db.save(new ODocument(), db.getClusterNameById(db.getDefaultClusterId())));
     db.close();
-    oxygenDb.close();
+    youTrackDb.close();
   }
 
   @Test
   public void createForceCloseOpen() {
-    try (final OxygenDB oxygenDB =
+    try (final YouTrackDB youTrackDB =
         OCreateDatabaseUtil.createDatabase(
             "testCreateForceCloseOpen", DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_PLOCAL)) {
-      oxygenDB.getInternal().forceDatabaseClose("test");
+      youTrackDB.getInternal().forceDatabaseClose("test");
       ODatabaseSession db1 =
-          oxygenDB.open(
+          youTrackDB.open(
               "testCreateForceCloseOpen", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       assertFalse(db1.isClosed());
       db1.close();
-      oxygenDB.drop("testCreateForceCloseOpen");
+      youTrackDB.drop("testCreateForceCloseOpen");
     }
   }
 
   @Test
   @Ignore
   public void autoClose() throws InterruptedException {
-    OxygenDB oxygenDB =
-        new OxygenDB(
+    YouTrackDB youTrackDB =
+        new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()),
-            OxygenDBConfig.builder()
+            YouTrackDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
-    OxygenDBEmbedded embedded = ((OxygenDBEmbedded) OxygenDBInternal.extract(oxygenDB));
+    YouTrackDBEmbedded embedded = ((YouTrackDBEmbedded) YouTrackDBInternal.extract(youTrackDB));
     embedded.initAutoClose(3000);
-    oxygenDB.execute(
+    youTrackDB.execute(
         "create database "
             + "test"
             + " "
@@ -580,34 +581,34 @@ public class OxygenDBEmbeddedTests {
             + " users ( admin identified by '"
             + OCreateDatabaseUtil.NEW_ADMIN_PASSWORD
             + "' role admin)");
-    ODatabaseSession db1 = oxygenDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    ODatabaseSession db1 = youTrackDB.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     assertFalse(db1.isClosed());
     db1.close();
     assertNotNull(embedded.getStorage("test"));
     Thread.sleep(4100);
     assertNull(embedded.getStorage("test"));
-    oxygenDB.drop("test");
-    oxygenDB.close();
+    youTrackDB.drop("test");
+    youTrackDB.close();
   }
 
   @Test(expected = OStorageDoesNotExistException.class)
   public void testOpenNotExistDatabase() {
-    try (OxygenDB oxygenDB =
-        new OxygenDB(
+    try (YouTrackDB youTrackDB =
+        new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()),
-            OxygenDBConfig.builder()
+            YouTrackDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build())) {
-      oxygenDB.open("testOpenNotExistDatabase", "two", "three");
+      youTrackDB.open("testOpenNotExistDatabase", "two", "three");
     }
   }
 
   @Test
   public void testExecutor() throws ExecutionException, InterruptedException {
-    try (OxygenDB oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-        OxygenDBConfig.defaultConfig())) {
-      oxygenDb.create("testExecutor", ODatabaseType.MEMORY);
-      OxygenDBInternal internal = OxygenDBInternal.extract(oxygenDb);
+    try (YouTrackDB youTrackDb = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig())) {
+      youTrackDb.create("testExecutor", ODatabaseType.MEMORY);
+      YouTrackDBInternal internal = YouTrackDBInternal.extract(youTrackDb);
       Future<Boolean> result =
           internal.execute(
               "testExecutor",
@@ -621,10 +622,10 @@ public class OxygenDBEmbeddedTests {
   @Test
   public void testExecutorNoAuthorization() throws ExecutionException, InterruptedException {
 
-    try (OxygenDB oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-        OxygenDBConfig.defaultConfig())) {
-      oxygenDb.create("testExecutorNoAuthorization", ODatabaseType.MEMORY);
-      OxygenDBInternal internal = OxygenDBInternal.extract(oxygenDb);
+    try (YouTrackDB youTrackDb = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig())) {
+      youTrackDb.create("testExecutorNoAuthorization", ODatabaseType.MEMORY);
+      YouTrackDBInternal internal = YouTrackDBInternal.extract(youTrackDb);
       Future<Boolean> result =
           internal.executeNoAuthorizationAsync(
               "testExecutorNoAuthorization",
@@ -636,13 +637,13 @@ public class OxygenDBEmbeddedTests {
 
   @Test
   public void testScheduler() throws InterruptedException {
-    OxygenDB oxygenDb =
-        new OxygenDB(
+    YouTrackDB youTrackDb =
+        new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()),
-            OxygenDBConfig.builder()
+            YouTrackDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
-    OxygenDBInternal internal = OxygenDBInternal.extract(oxygenDb);
+    YouTrackDBInternal internal = YouTrackDBInternal.extract(youTrackDb);
     CountDownLatch latch = new CountDownLatch(2);
     internal.schedule(
         new TimerTask() {
@@ -671,11 +672,11 @@ public class OxygenDBEmbeddedTests {
 
   @Test
   public void testUUID() {
-    try (final OxygenDB oxygenDb =
+    try (final YouTrackDB youTrackDb =
         OCreateDatabaseUtil.createDatabase(
             "testUUID", DBTestBase.embeddedDBUrl(getClass()), OCreateDatabaseUtil.TYPE_MEMORY)) {
       final ODatabaseSession session =
-          oxygenDb.open("testUUID", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+          youTrackDb.open("testUUID", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       assertNotNull(
           ((OAbstractPaginatedStorage) ((ODatabaseSessionInternal) session).getStorage())
               .getUuid());
@@ -685,85 +686,85 @@ public class OxygenDBEmbeddedTests {
 
   @Test
   public void testPersistentUUID() {
-    final OxygenDB oxygenDb =
+    final YouTrackDB youTrackDb =
         OCreateDatabaseUtil.createDatabase(
             "testPersistentUUID", DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_PLOCAL);
     final ODatabaseSession session =
-        oxygenDb.open("testPersistentUUID", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        youTrackDb.open("testPersistentUUID", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     UUID uuid =
         ((OAbstractPaginatedStorage) ((ODatabaseSessionInternal) session).getStorage()).getUuid();
     assertNotNull(uuid);
     session.close();
-    oxygenDb.close();
+    youTrackDb.close();
 
-    OxygenDB oxygenDb1 =
-        new OxygenDB(
+    YouTrackDB youTrackDb1 =
+        new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()),
-            OxygenDBConfig.builder()
+            YouTrackDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     ODatabaseSession session1 =
-        oxygenDb1.open("testPersistentUUID", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        youTrackDb1.open("testPersistentUUID", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     assertEquals(
         uuid,
         ((OAbstractPaginatedStorage) ((ODatabaseSessionInternal) session1).getStorage()).getUuid());
     session1.close();
-    oxygenDb1.drop("testPersistentUUID");
-    oxygenDb1.close();
+    youTrackDb1.drop("testPersistentUUID");
+    youTrackDb1.close();
   }
 
   @Test
   public void testCreateDatabaseViaSQL() {
     String dbName = "testCreateDatabaseViaSQL";
-    OxygenDB oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-        OxygenDBConfig.defaultConfig());
-    try (OResultSet result = oxygenDb.execute("create database " + dbName + " plocal")) {
+    YouTrackDB youTrackDb = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig());
+    try (OResultSet result = youTrackDb.execute("create database " + dbName + " plocal")) {
       Assert.assertTrue(result.hasNext());
       OResult item = result.next();
       Assert.assertEquals(true, item.getProperty("created"));
     }
-    Assert.assertTrue(oxygenDb.exists(dbName));
+    Assert.assertTrue(youTrackDb.exists(dbName));
 
-    oxygenDb.drop(dbName);
-    oxygenDb.close();
+    youTrackDb.drop(dbName);
+    youTrackDb.close();
   }
 
   @Test
   public void testCreateDatabaseViaSQLWithUsers() {
-    OxygenDB oxygenDB =
-        new OxygenDB(
+    YouTrackDB youTrackDB =
+        new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()) + "testCreateDatabaseViaSQLWithUsers",
-            OxygenDBConfig.builder()
+            YouTrackDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
-    oxygenDB.execute(
+    youTrackDB.execute(
         "create database test memory users(admin identified by 'adminpwd' role admin)");
-    try (ODatabaseSession session = oxygenDB.open("test", "admin", "adminpwd")) {
+    try (ODatabaseSession session = youTrackDB.open("test", "admin", "adminpwd")) {
     }
 
-    oxygenDB.close();
+    youTrackDB.close();
   }
 
   @Test
   public void testCreateDatabaseViaSQLIfNotExistsWithUsers() {
-    final OxygenDB oxygenDB =
-        new OxygenDB(
+    final YouTrackDB youTrackDB =
+        new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()) + "testCreateDatabaseViaSQLIfNotExistsWithUsers",
-            OxygenDBConfig.builder()
+            YouTrackDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
-    oxygenDB.execute(
+    youTrackDB.execute(
         "create database test memory if not exists users(admin identified by 'adminpwd' role"
             + " admin)");
 
-    oxygenDB.execute(
+    youTrackDB.execute(
         "create database test memory if not exists users(admin identified by 'adminpwd' role"
             + " admin)");
 
-    try (ODatabaseSession session = oxygenDB.open("test", "admin", "adminpwd")) {
+    try (ODatabaseSession session = youTrackDB.open("test", "admin", "adminpwd")) {
     }
 
-    oxygenDB.close();
+    youTrackDB.close();
   }
 }

@@ -21,8 +21,8 @@ import com.orientechnologies.orient.client.remote.message.ORollbackTransactionRe
 import com.orientechnologies.orient.client.remote.message.OUpdateRecordRequest;
 import com.orientechnologies.orient.client.remote.message.OUpdateRecordResponse;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.record.ORecordElement;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -54,20 +54,20 @@ public class OConnectionExecutorTransactionTest {
   @Mock
   private OClientConnection connection;
 
-  private OxygenDB oxygenDb;
+  private YouTrackDB youTrackDb;
   private ODatabaseSessionInternal database;
 
   @Before
   public void before() throws IOException {
     MockitoAnnotations.initMocks(this);
-    oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-        OxygenDBConfig.defaultConfig());
-    oxygenDb.execute(
+    youTrackDb = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig());
+    youTrackDb.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         OConnectionExecutorTransactionTest.class.getSimpleName());
     database =
         (ODatabaseSessionInternal)
-            oxygenDb.open(
+            youTrackDb.open(
                 OConnectionExecutorTransactionTest.class.getSimpleName(), "admin", "admin");
     database.createClass("test");
     ONetworkProtocolData protocolData = new ONetworkProtocolData();
@@ -79,8 +79,8 @@ public class OConnectionExecutorTransactionTest {
   @After
   public void after() {
     database.close();
-    oxygenDb.drop(OConnectionExecutorTransactionTest.class.getSimpleName());
-    oxygenDb.close();
+    youTrackDb.drop(OConnectionExecutorTransactionTest.class.getSimpleName());
+    youTrackDb.close();
   }
 
   @Test

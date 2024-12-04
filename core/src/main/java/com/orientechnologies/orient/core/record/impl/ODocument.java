@@ -1539,7 +1539,7 @@ public class ODocument extends ORecordAbstract
 
   /**
    * Fills the ODocument directly with the string representation of the document itself. Use it for
-   * faster insertion but pay attention to respect the OxygenDB record format.
+   * faster insertion but pay attention to respect the YouTrackDB record format.
    *
    * <p><code> record.reset();<br> record.setClassName("Account");<br>
    * record.fromString(new String("Account@id:" + data.getCyclesDone() +

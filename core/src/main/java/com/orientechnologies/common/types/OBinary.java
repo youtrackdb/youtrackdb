@@ -20,7 +20,7 @@
 package com.orientechnologies.common.types;
 
 /**
- * Binary wrapper to let to byte[] to be managed inside OxygenDB where comparable is needed, like
+ * Binary wrapper to let to byte[] to be managed inside YouTrackDB where comparable is needed, like
  * for indexes.
  *
  *

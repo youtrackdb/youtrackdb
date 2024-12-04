@@ -22,7 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.junit.Test;
 
-public class OxygenJdbcPreparedStatementTest extends OxygenJdbcDbPerMethodTemplateTest {
+public class YouTrackDbJdbcPreparedStatementTest extends YouTrackDbJdbcDbPerMethodTemplateTest {
 
   @Test
   public void shouldCreateStatement() throws Exception {

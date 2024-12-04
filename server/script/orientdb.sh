@@ -1,13 +1,13 @@
 #!/bin/sh
-# OxygenDB service script
+# YouTrackDB service script
 #
-# Copyright (c) OxygenDB LTD (http://http://orientdb.com/)
+# Copyright (c) YouTrackDB LTD (http://http://orientdb.com/)
 
 # chkconfig: 2345 20 80
 # description: OrientDb init script
 # processname: orientdb.sh
 
-# You have to SET the OxygenDB installation directory here
+# You have to SET the YouTrackDB installation directory here
 ORIENTDB_DIR="YOUR_ORIENTDB_INSTALLATION_PATH"
 ORIENTDB_USER="USER_YOU_WANT_ORIENTDB_RUN_WITH"
 LOG_DIR="../log"
@@ -53,7 +53,7 @@ status() {
 		PID=0
 	fi
 
-	# if PID is greater than 0 then OxygenDB is running, else it is not
+	# if PID is greater than 0 then YouTrackDB is running, else it is not
 	return $PID
 }
 

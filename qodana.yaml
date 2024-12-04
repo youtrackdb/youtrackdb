@@ -1,6 +1,6 @@
 version: "1.0"
 projectJDK: 21
 profile:
-  path: .idea/inspectionProfiles/oxygendb.xml
+  path: .idea/inspectionProfiles/youtrackdb.xml
 include:
   - name: IncorrectFormatting

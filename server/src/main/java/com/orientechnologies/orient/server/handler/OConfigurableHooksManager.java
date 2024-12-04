@@ -21,7 +21,7 @@
 package com.orientechnologies.orient.server.handler;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
@@ -52,14 +52,14 @@ public class OConfigurableHooksManager implements ODatabaseLifecycleListener {
   public OConfigurableHooksManager(final OServerConfiguration iCfg) {
     configuredHooks = iCfg.hooks;
     if (configuredHooks != null && !configuredHooks.isEmpty()) {
-      Oxygen.instance().addDbLifecycleListener(this);
+      YouTrackDBManager.instance().addDbLifecycleListener(this);
     }
   }
 
   public void addHook(OServerHookConfiguration configuration) {
     if (this.configuredHooks == null) {
       configuredHooks = new ArrayList<>();
-      Oxygen.instance().addDbLifecycleListener(this);
+      YouTrackDBManager.instance().addDbLifecycleListener(this);
     }
     configuredHooks.add(configuration);
   }

@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class OxygenDBConfigBuilder {
+public class YouTrackDBConfigBuilder {
 
   private OContextConfiguration configurations = new OContextConfiguration();
   private final Map<ATTRIBUTES, Object> attributes = new HashMap<>();
@@ -45,37 +45,37 @@ public class OxygenDBConfigBuilder {
   private OSecurityConfig securityConfig;
   private final List<OGlobalUser> users = new ArrayList<OGlobalUser>();
 
-  public OxygenDBConfigBuilder fromGlobalMap(Map<OGlobalConfiguration, Object> values) {
+  public YouTrackDBConfigBuilder fromGlobalMap(Map<OGlobalConfiguration, Object> values) {
     for (Map.Entry<OGlobalConfiguration, Object> entry : values.entrySet()) {
       addConfig(entry.getKey(), entry.getValue());
     }
     return this;
   }
 
-  public OxygenDBConfigBuilder fromMap(Map<String, Object> values) {
+  public YouTrackDBConfigBuilder fromMap(Map<String, Object> values) {
     for (Map.Entry<String, Object> entry : values.entrySet()) {
       configurations.setValue(entry.getKey(), entry.getValue());
     }
     return this;
   }
 
-  public OxygenDBConfigBuilder addListener(ODatabaseListener listener) {
+  public YouTrackDBConfigBuilder addListener(ODatabaseListener listener) {
     listeners.add(listener);
     return this;
   }
 
-  public OxygenDBConfigBuilder addConfig(
+  public YouTrackDBConfigBuilder addConfig(
       final OGlobalConfiguration configuration, final Object value) {
     configurations.setValue(configuration, value);
     return this;
   }
 
-  public OxygenDBConfigBuilder addAttribute(final ATTRIBUTES attribute, final Object value) {
+  public YouTrackDBConfigBuilder addAttribute(final ATTRIBUTES attribute, final Object value) {
     attributes.put(attribute, value);
     return this;
   }
 
-  public OxygenDBConfigBuilder setClassLoader(ClassLoader classLoader) {
+  public YouTrackDBConfigBuilder setClassLoader(ClassLoader classLoader) {
     this.classLoader = classLoader;
     return this;
   }
@@ -84,13 +84,13 @@ public class OxygenDBConfigBuilder {
     return nodeConfigurationBuilder;
   }
 
-  public OxygenDBConfigBuilder setSecurityConfig(OSecurityConfig securityConfig) {
+  public YouTrackDBConfigBuilder setSecurityConfig(OSecurityConfig securityConfig) {
     this.securityConfig = securityConfig;
     return this;
   }
 
-  public OxygenDBConfig build() {
-    return new OxygenDBConfig(
+  public YouTrackDBConfig build() {
+    return new YouTrackDBConfig(
         configurations,
         attributes,
         listeners,
@@ -100,12 +100,12 @@ public class OxygenDBConfigBuilder {
         users);
   }
 
-  public OxygenDBConfigBuilder fromContext(final OContextConfiguration contextConfiguration) {
+  public YouTrackDBConfigBuilder fromContext(final OContextConfiguration contextConfiguration) {
     configurations = contextConfiguration;
     return this;
   }
 
-  public OxygenDBConfigBuilder addGlobalUser(
+  public YouTrackDBConfigBuilder addGlobalUser(
       final String user, final String password, final String resource) {
     users.add(new OGlobalUserImpl(user, password, resource));
     return this;

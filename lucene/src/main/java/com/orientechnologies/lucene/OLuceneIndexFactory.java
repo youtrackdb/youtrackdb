@@ -21,7 +21,7 @@ import static com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYP
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.lucene.engine.OLuceneFullTextIndexEngine;
 import com.orientechnologies.lucene.index.OLuceneFullTextIndex;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.IndexEngineData;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
@@ -63,7 +63,7 @@ public class OLuceneIndexFactory implements OIndexFactory, ODatabaseLifecycleLis
 
   public OLuceneIndexFactory(boolean manual) {
     if (!manual) {
-      Oxygen.instance().addDbLifecycleListener(this);
+      YouTrackDBManager.instance().addDbLifecycleListener(this);
     }
   }
 

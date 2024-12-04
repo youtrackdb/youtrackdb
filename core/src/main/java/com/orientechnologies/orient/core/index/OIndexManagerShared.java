@@ -877,7 +877,7 @@ public class OIndexManagerShared implements OIndexManagerAbstract {
       }
 
       Runnable recreateIndexesTask = new ORecreateIndexesTask(this, database.getSharedContext());
-      recreateIndexesThread = new Thread(recreateIndexesTask, "OxygenDB rebuild indexes");
+      recreateIndexesThread = new Thread(recreateIndexesTask, "YouTrackDB rebuild indexes");
       recreateIndexesThread.setUncaughtExceptionHandler(new OUncaughtExceptionHandler());
       recreateIndexesThread.start();
     } finally {

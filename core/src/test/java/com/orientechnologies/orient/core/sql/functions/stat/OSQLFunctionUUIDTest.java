@@ -25,8 +25,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.functions.misc.OSQLFunctionUUID;
 import org.junit.Before;
@@ -55,8 +55,8 @@ public class OSQLFunctionUUIDTest {
 
   @Test
   public void testQuery() {
-    try (OxygenDB ctx = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-        OxygenDBConfig.defaultConfig())) {
+    try (YouTrackDB ctx = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig())) {
       ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
       try (var db = ctx.open("test", "admin", "adminpwd")) {
 

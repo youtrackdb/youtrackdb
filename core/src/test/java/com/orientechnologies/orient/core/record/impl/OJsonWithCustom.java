@@ -6,7 +6,7 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -52,11 +52,11 @@ public class OJsonWithCustom {
   public void testCustomSerialization() {
     boolean old = OGlobalConfiguration.DB_CUSTOM_SUPPORT.getValueAsBoolean();
     OGlobalConfiguration.DB_CUSTOM_SUPPORT.setValue(true);
-    try (final OxygenDB oxygenDB =
+    try (final YouTrackDB youTrackDB =
         OCreateDatabaseUtil.createDatabase(
             "testJson", DBTestBase.embeddedDBUrl(getClass()), OCreateDatabaseUtil.TYPE_MEMORY)) {
-      // oxygenDB.create("testJson", ODatabaseType.MEMORY);
-      try (var db = (ODatabaseSessionInternal) oxygenDB.open("testJson", "admin",
+      // youTrackDB.create("testJson", ODatabaseType.MEMORY);
+      try (var db = (ODatabaseSessionInternal) youTrackDB.open("testJson", "admin",
           OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
         OClass klass = db.getMetadata().getSchema().createClass("TestCustom");
         klass.createProperty(db, "test", OType.CUSTOM);

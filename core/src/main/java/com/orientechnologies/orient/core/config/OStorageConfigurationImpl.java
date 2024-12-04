@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.config;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategyFactory;
 import com.orientechnologies.orient.core.exception.OSerializationException;
 import com.orientechnologies.orient.core.exception.OStorageException;
@@ -453,7 +453,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
       this.charset = read(values[index++]);
 
       final ORecordConflictStrategyFactory conflictStrategyFactory =
-          Oxygen.instance().getRecordConflictStrategy();
+          YouTrackDBManager.instance().getRecordConflictStrategy();
       conflictStrategy = conflictStrategyFactory.getStrategy(read(values[index++])).getName();
 
       // @COMPATIBILITY
@@ -1287,7 +1287,7 @@ public class OStorageConfigurationImpl implements OSerializableStream, OStorageC
         // @COMPATIBILITY 0.9.25
         int pos = fileName.indexOf("/databases");
         if (pos > -1) {
-          fileName = "${" + Oxygen.OXYGENDB_HOME + "}" + fileName.substring(pos);
+          fileName = "${" + YouTrackDBManager.YOU_TRACK_DB_HOME + "}" + fileName.substring(pos);
         }
       }
 

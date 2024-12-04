@@ -25,16 +25,16 @@ import com.orientechnologies.common.parser.OSystemVariableResolver;
 import com.orientechnologies.common.profiler.OAbstractProfiler.OProfilerHookValue;
 import com.orientechnologies.common.profiler.OProfiler.METRIC_TYPE;
 import com.orientechnologies.orient.core.OConstants;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OSystemDatabase;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
-import com.orientechnologies.orient.core.db.OxygenDBConfigBuilder;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTxInternal;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -85,7 +85,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class OServer {
 
-  private static final String ROOT_PASSWORD_VAR = "OXYGENDB_ROOT_PASSWORD";
+  private static final String ROOT_PASSWORD_VAR = "YOU_TRACK_DB_ROOT_PASSWORD";
   private static ThreadGroup threadGroup;
   private static final Map<String, OServer> distributedServers =
       new ConcurrentHashMap<String, OServer>();
@@ -116,43 +116,44 @@ public class OServer {
   private OPushManager pushManager;
   private ClassLoader extensionClassLoader;
   private OTokenHandler tokenHandler;
-  private OxygenDB context;
-  private OxygenDBInternal databases;
+  private YouTrackDB context;
+  private YouTrackDBInternal databases;
   protected Date startedOn = new Date();
 
   public OServer() {
-    this(!Oxygen.instance().isInsideWebContainer());
+    this(!YouTrackDBManager.instance().isInsideWebContainer());
   }
 
   public OServer(boolean shutdownEngineOnExit) {
-    final boolean insideWebContainer = Oxygen.instance().isInsideWebContainer();
+    final boolean insideWebContainer = YouTrackDBManager.instance().isInsideWebContainer();
 
     if (insideWebContainer && shutdownEngineOnExit) {
       OLogManager.instance()
           .warn(
               this,
-              "OxygenDB instance is running inside of web application, it is highly unrecommended"
-                  + " to force to shutdown OxygenDB engine on server shutdown");
+              "YouTrackDB instance is running inside of web application, it is highly unrecommended"
+                  + " to force to shutdown YouTrackDB engine on server shutdown");
     }
 
     this.shutdownEngineOnExit = shutdownEngineOnExit;
 
     serverRootDirectory =
-        OSystemVariableResolver.resolveSystemVariables("${" + Oxygen.OXYGENDB_HOME + "}", ".");
+        OSystemVariableResolver.resolveSystemVariables(
+            "${" + YouTrackDBManager.YOU_TRACK_DB_HOME + "}", ".");
 
     OLogManager.instance().installCustomFormatter();
 
     defaultSettings();
 
-    threadGroup = new ThreadGroup("OxygenDB Server");
+    threadGroup = new ThreadGroup("YouTrackDB Server");
 
     System.setProperty("com.sun.management.jmxremote", "true");
 
-    Oxygen.instance().startup();
+    YouTrackDBManager.instance().startup();
 
     if (OGlobalConfiguration.PROFILER_ENABLED.getValueAsBoolean()
-        && !Oxygen.instance().getProfiler().isRecording()) {
-      Oxygen.instance().getProfiler().startRecording();
+        && !YouTrackDBManager.instance().getProfiler().isRecording()) {
+      YouTrackDBManager.instance().getProfiler().startRecording();
     }
 
     if (shutdownEngineOnExit) {
@@ -258,7 +259,7 @@ public class OServer {
     try {
       deinit();
     } finally {
-      Oxygen.instance().startup();
+      YouTrackDBManager.instance().startup();
       startup(serverCfg.getConfiguration());
       activate();
     }
@@ -310,7 +311,7 @@ public class OServer {
       config = System.getProperty(OServerConfiguration.PROPERTY_CONFIG_FILE);
     }
 
-    Oxygen.instance().startup();
+    YouTrackDBManager.instance().startup();
 
     startup(new File(OSystemVariableResolver.resolveSystemVariables(config)));
 
@@ -354,9 +355,9 @@ public class OServer {
 
   public OServer startupFromConfiguration() throws IOException {
     OLogManager.instance()
-        .info(this, "OxygenDB Server v" + OConstants.getVersion() + " is starting up...");
+        .info(this, "YouTrackDB Server v" + OConstants.getVersion() + " is starting up...");
 
-    Oxygen.instance();
+    YouTrackDBManager.instance();
 
     if (startupLatch == null) {
       startupLatch = new CountDownLatch(1);
@@ -392,11 +393,11 @@ public class OServer {
       databaseDirectory += "/";
     }
 
-    OxygenDBConfigBuilder builder = OxygenDBConfig.builder();
+    YouTrackDBConfigBuilder builder = YouTrackDBConfig.builder();
     for (OServerUserConfiguration user : serverCfg.getUsers()) {
       builder.addGlobalUser(user.getName(), user.getPassword(), user.getResources());
     }
-    OxygenDBConfig config =
+    YouTrackDBConfig config =
         builder
             .fromContext(contextConfiguration)
             .setSecurityConfig(new OServerSecurityConfig(this, this.serverCfg))
@@ -412,18 +413,18 @@ public class OServer {
 
       if (configuration.distributed != null && configuration.distributed.enabled) {
         try {
-          OxygenDBConfig oxygenDBConfig =
+          YouTrackDBConfig youTrackDBConfig =
               ODistributedConfig.buildConfig(
                   contextConfiguration, ODistributedConfig.fromEnv(configuration.distributed));
-          databases = OxygenDBInternal.distributed(this.databaseDirectory, oxygenDBConfig);
+          databases = YouTrackDBInternal.distributed(this.databaseDirectory, youTrackDBConfig);
         } catch (ODatabaseException ex) {
-          databases = OxygenDBInternal.embedded(this.databaseDirectory, config);
+          databases = YouTrackDBInternal.embedded(this.databaseDirectory, config);
         }
       } else {
         try {
-          databases = OxygenDBInternal.distributed(this.databaseDirectory, config);
+          databases = YouTrackDBInternal.distributed(this.databaseDirectory, config);
         } catch (ODatabaseException ex) {
-          databases = OxygenDBInternal.embedded(this.databaseDirectory, config);
+          databases = YouTrackDBInternal.embedded(this.databaseDirectory, config);
         }
       }
     }
@@ -437,7 +438,7 @@ public class OServer {
     OLogManager.instance()
         .info(this, "Databases directory: " + new File(databaseDirectory).getAbsolutePath());
 
-    Oxygen.instance()
+    YouTrackDBManager.instance()
         .getProfiler()
         .registerHookValue(
             "system.databases",
@@ -465,7 +466,7 @@ public class OServer {
       throws ClassNotFoundException, InstantiationException, IllegalAccessException {
     lock.lock();
     try {
-      // Checks to see if the OxygenDB System Database exists and creates it if not.
+      // Checks to see if the YouTrackDB System Database exists and creates it if not.
       // Make sure this happens after setSecurity() is called.
       initSystemDatabase();
 
@@ -556,13 +557,13 @@ public class OServer {
       OLogManager.instance()
           .info(
               this,
-              "OxygenDB Studio available at $ANSI{blue %s://%s/studio/index.html}",
+              "YouTrackDB Studio available at $ANSI{blue %s://%s/studio/index.html}",
               proto,
               httpAddress);
       OLogManager.instance()
           .info(
               this,
-              "$ANSI{green:italic OxygenDB Server is active} v" + OConstants.getVersion() + ".");
+              "$ANSI{green:italic YouTrackDB Server is active} v" + OConstants.getVersion() + ".");
     } catch (ClassNotFoundException
              | InstantiationException
              | IllegalAccessException
@@ -612,13 +613,13 @@ public class OServer {
     try {
       running = false;
 
-      OLogManager.instance().info(this, "OxygenDB Server is shutting down...");
+      OLogManager.instance().info(this, "YouTrackDB Server is shutting down...");
 
       if (shutdownHook != null) {
         shutdownHook.cancel();
       }
 
-      Oxygen.instance().getProfiler().unregisterHookValue("system.databases");
+      YouTrackDBManager.instance().getProfiler().unregisterHookValue("system.databases");
 
       for (OServerLifecycleListener l : lifecycleListeners) {
         l.onBeforeDeactivate();
@@ -669,12 +670,12 @@ public class OServer {
         lock.unlock();
       }
 
-      if (shutdownEngineOnExit && !Oxygen.isRegisterDatabaseByPath()) {
+      if (shutdownEngineOnExit && !YouTrackDBManager.isRegisterDatabaseByPath()) {
         try {
           OLogManager.instance().info(this, "Shutting down databases:");
-          Oxygen.instance().shutdown();
+          YouTrackDBManager.instance().shutdown();
         } catch (Exception e) {
-          OLogManager.instance().error(this, "Error during OxygenDB shutdown", e);
+          OLogManager.instance().error(this, "Error during YouTrackDB shutdown", e);
         }
       }
       if (!contextConfiguration.getValueAsBoolean(
@@ -684,7 +685,7 @@ public class OServer {
         databases = null;
       }
     } finally {
-      OLogManager.instance().info(this, "OxygenDB Server shutdown complete\n");
+      OLogManager.instance().info(this, "YouTrackDB Server shutdown complete\n");
       OLogManager.instance().flush();
     }
 
@@ -701,7 +702,7 @@ public class OServer {
         shutdownLatch.await();
       }
     } catch (InterruptedException e) {
-      OLogManager.instance().error(this, "Error during waiting for OxygenDB shutdown", e);
+      OLogManager.instance().error(this, "Error during waiting for YouTrackDB shutdown", e);
     }
   }
 
@@ -918,7 +919,7 @@ public class OServer {
   }
 
   public ODatabaseSessionInternal openDatabase(final String iDbUrl, final OParsedToken iToken) {
-    return databases.open(new OTokenAuthInfo(iToken), OxygenDBConfig.defaultConfig());
+    return databases.open(new OTokenAuthInfo(iToken), YouTrackDBConfig.defaultConfig());
   }
 
   public ODatabaseSessionInternal openDatabase(
@@ -1008,7 +1009,7 @@ public class OServer {
         if (typeIndex <= 0) {
           throw new OConfigurationException(
               "Error in database URL: the engine was not specified. Syntax is: "
-                  + Oxygen.URL_SYNTAX
+                  + YouTrackDBManager.URL_SYNTAX
                   + ". URL was: "
                   + url);
         }
@@ -1033,7 +1034,7 @@ public class OServer {
       return;
     }
 
-    // OXYGENDB_ROOT_PASSWORD ENV OR JVM SETTING
+    // YOU_TRACK_DB_ROOT_PASSWORD ENV OR JVM SETTING
     String rootPassword = OSystemVariableResolver.resolveVariable(ROOT_PASSWORD_VAR);
 
     if (rootPassword != null) {
@@ -1081,7 +1082,7 @@ public class OServer {
               "$ANSI{yellow | To avoid this message set the environment variable or JVM     |}"));
       System.out.println(
           OAnsiCode.format(
-              "$ANSI{yellow | setting OXYGENDB_ROOT_PASSWORD to the root password to use.   |}"));
+              "$ANSI{yellow | setting YOU_TRACK_DB_ROOT_PASSWORD to the root password to use.   |}"));
       System.out.println(
           OAnsiCode.format(
               "$ANSI{yellow +---------------------------------------------------------------+}"));
@@ -1144,7 +1145,7 @@ public class OServer {
       OLogManager.instance()
           .info(
               this,
-              "Found OXYGENDB_ROOT_PASSWORD variable, using this value as root's password",
+              "Found YOU_TRACK_DB_ROOT_PASSWORD variable, using this value as root's password",
               rootPassword);
     }
 
@@ -1246,18 +1247,18 @@ public class OServer {
   }
 
   public ThreadGroup getThreadGroup() {
-    return Oxygen.instance().getThreadGroup();
+    return YouTrackDBManager.instance().getThreadGroup();
   }
 
   private void initSystemDatabase() {
     databases.getSystemDatabase().init();
   }
 
-  public OxygenDBInternal getDatabases() {
+  public YouTrackDBInternal getDatabases() {
     return databases;
   }
 
-  public OxygenDB getContext() {
+  public YouTrackDB getContext() {
     return context;
   }
 
@@ -1273,7 +1274,7 @@ public class OServer {
     return databases.exists(databaseName, null, null);
   }
 
-  public void createDatabase(String databaseName, ODatabaseType type, OxygenDBConfig config) {
+  public void createDatabase(String databaseName, ODatabaseType type, YouTrackDBConfig config) {
     databases.create(databaseName, null, null, type, config);
   }
 
@@ -1284,7 +1285,7 @@ public class OServer {
   }
 
   public void restore(String name, String path) {
-    databases.restore(name, null, null, null, path, OxygenDBConfig.defaultConfig());
+    databases.restore(name, null, null, null, path, YouTrackDBConfig.defaultConfig());
   }
 
   public Date getStartedOn() {

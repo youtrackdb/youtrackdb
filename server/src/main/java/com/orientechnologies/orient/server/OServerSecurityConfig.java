@@ -36,7 +36,7 @@ public class OServerSecurityConfig implements OSecurityConfig {
   public String getConfigurationFile() {
     // Default
     String configFile =
-        OSystemVariableResolver.resolveSystemVariables("${OXYGENDB_HOME}/config/security.json");
+        OSystemVariableResolver.resolveSystemVariables("${YOU_TRACK_DB_HOME}/config/security.json");
 
     String ssf =
         server

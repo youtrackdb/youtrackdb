@@ -24,7 +24,7 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -59,7 +59,7 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
   private static final String DBNAME = "OLuceneAutomaticBackupRestoreTest";
 
   public File tempFolder;
-  private OxygenDB oxygenDB;
+  private YouTrackDB youTrackDB;
   private String URL = null;
   private String BACKUPDIR = null;
   private String BACKUFILE = null;
@@ -92,10 +92,10 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
         };
     server.startup();
 
-    System.setProperty("OXYGENDB_HOME", tempFolder.getAbsolutePath());
+    System.setProperty("YOU_TRACK_DB_HOME", tempFolder.getAbsolutePath());
 
     String path = tempFolder.getAbsolutePath() + File.separator + "databases";
-    oxygenDB = server.getContext();
+    youTrackDB = server.getContext();
 
     URL = "plocal:" + path + File.separator + DBNAME;
 
@@ -108,10 +108,10 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
 
     dropIfExists();
 
-    oxygenDB.execute(
+    youTrackDB.execute(
         "create database ? plocal users(admin identified by 'admin' role admin)", DBNAME);
 
-    db = (ODatabaseSessionInternal) oxygenDB.open(DBNAME, "admin", "admin");
+    db = (ODatabaseSessionInternal) youTrackDB.open(DBNAME, "admin", "admin");
 
     db.command("create class City ").close();
     db.command("create property City.name string").close();
@@ -148,8 +148,8 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
 
   private void dropIfExists() {
 
-    if (oxygenDB.exists(DBNAME)) {
-      oxygenDB.drop(DBNAME);
+    if (youTrackDB.exists(DBNAME)) {
+      youTrackDB.drop(DBNAME);
     }
   }
 
@@ -247,12 +247,12 @@ public class LuceneSpatialAutomaticBackupRestoreTest {
   }
 
   private ODatabaseSessionInternal createAndOpen() {
-    oxygenDB.execute(
+    youTrackDB.execute(
         "create database ? plocal users(admin identified by 'admin' role admin)", DBNAME);
     return open();
   }
 
   private ODatabaseSessionInternal open() {
-    return (ODatabaseSessionInternal) oxygenDB.open(DBNAME, "admin", "admin");
+    return (ODatabaseSessionInternal) youTrackDB.open(DBNAME, "admin", "admin");
   }
 }

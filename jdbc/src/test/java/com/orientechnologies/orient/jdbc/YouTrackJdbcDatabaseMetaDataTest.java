@@ -36,7 +36,7 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 
-public class OxygenJdbcDatabaseMetaDataTest extends OrientJdbcDbPerClassTemplateTest {
+public class YouTrackJdbcDatabaseMetaDataTest extends OrientJdbcDbPerClassTemplateTest {
 
   private DatabaseMetaData metaData;
 
@@ -48,14 +48,14 @@ public class OxygenJdbcDatabaseMetaDataTest extends OrientJdbcDbPerClassTemplate
   @Test
   public void verifyDriverAndDatabaseVersions() throws SQLException {
     assertEquals("admin", metaData.getUserName());
-    assertEquals("OxygenDB", metaData.getDatabaseProductName());
+    assertEquals("YouTrackDB", metaData.getDatabaseProductName());
     assertEquals(OConstants.getVersion(), metaData.getDatabaseProductVersion());
     assertEquals(1, metaData.getDatabaseMajorVersion());
     assertEquals(0, metaData.getDatabaseMinorVersion());
 
-    assertEquals("OxygenDB JDBC Driver", metaData.getDriverName());
+    assertEquals("YouTrackDB JDBC Driver", metaData.getDriverName());
     assertEquals(
-        "OxygenDB " + OConstants.getVersion() + " JDBC Driver", metaData.getDriverVersion());
+        "YouTrackDB " + OConstants.getVersion() + " JDBC Driver", metaData.getDriverVersion());
     assertEquals(1, metaData.getDriverMajorVersion());
     assertEquals(0, metaData.getDriverMinorVersion());
   }

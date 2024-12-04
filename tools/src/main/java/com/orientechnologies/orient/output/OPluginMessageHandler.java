@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright OxygenDB
+ *  *  Copyright YouTrackDB
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
 package com.orientechnologies.orient.output;
 
 /**
- * Interface used by OxygenDB plugins to handle application messages for different outputs.
+ * Interface used by YouTrackDB plugins to handle application messages for different outputs.
  *
  * @email gabriele.ponzi--at--gmail.com
  */

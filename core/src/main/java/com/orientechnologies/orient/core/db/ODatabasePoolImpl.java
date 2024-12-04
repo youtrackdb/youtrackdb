@@ -34,16 +34,16 @@ import com.orientechnologies.orient.core.exception.ODatabaseException;
 public class ODatabasePoolImpl implements ODatabasePoolInternal {
 
   private volatile OResourcePool<Void, ODatabaseSessionInternal> pool;
-  private final OxygenDBInternal factory;
-  private final OxygenDBConfig config;
+  private final YouTrackDBInternal factory;
+  private final YouTrackDBConfig config;
   private volatile long lastCloseTime = System.currentTimeMillis();
 
   public ODatabasePoolImpl(
-      OxygenDBInternal factory,
+      YouTrackDBInternal factory,
       String database,
       String user,
       String password,
-      OxygenDBConfig config) {
+      YouTrackDBConfig config) {
     int max = config.getConfigurations().getValueAsInteger(DB_POOL_MAX);
     int min = config.getConfigurations().getValueAsInteger(DB_POOL_MIN);
     this.factory = factory;
@@ -128,7 +128,7 @@ public class ODatabasePoolImpl implements ODatabasePoolInternal {
     return lastCloseTime;
   }
 
-  public OxygenDBConfig getConfig() {
+  public YouTrackDBConfig getConfig() {
     return config;
   }
 

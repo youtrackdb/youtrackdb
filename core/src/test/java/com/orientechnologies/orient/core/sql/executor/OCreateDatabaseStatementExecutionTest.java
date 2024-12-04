@@ -4,8 +4,8 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.exception.OSecurityAccessException;
 import org.junit.Assert;
 import org.junit.Test;
@@ -19,14 +19,14 @@ public class OCreateDatabaseStatementExecutionTest {
   public void testPlain() {
     final String dbName = "OCreateDatabaseStatementExecutionTest_testPlain";
 
-    final OxygenDB oxygenDb =
-        new OxygenDB(
+    final YouTrackDB youTrackDb =
+        new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()),
-            OxygenDBConfig.builder()
+            YouTrackDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     try (OResultSet result =
-        oxygenDb.execute(
+        youTrackDb.execute(
             "create database "
                 + dbName
                 + " plocal"
@@ -37,25 +37,25 @@ public class OCreateDatabaseStatementExecutionTest {
       OResult item = result.next();
       Assert.assertEquals(true, item.getProperty("created"));
     }
-    Assert.assertTrue(oxygenDb.exists(dbName));
+    Assert.assertTrue(youTrackDb.exists(dbName));
 
     try {
       final ODatabaseSession session =
-          oxygenDb.open(dbName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+          youTrackDb.open(dbName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       session.close();
     } finally {
-      oxygenDb.drop(dbName);
-      oxygenDb.close();
+      youTrackDb.drop(dbName);
+      youTrackDb.close();
     }
   }
 
   @Test
   public void testNoDefaultUsers() {
     String dbName = "OCreateDatabaseStatementExecutionTest_testNoDefaultUsers";
-    OxygenDB oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-        OxygenDBConfig.defaultConfig());
+    YouTrackDB youTrackDb = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig());
     try (OResultSet result =
-        oxygenDb.execute(
+        youTrackDb.execute(
             "create database "
                 + dbName
                 + " plocal {'config':{'security.createDefaultUsers': false}}")) {
@@ -63,16 +63,16 @@ public class OCreateDatabaseStatementExecutionTest {
       OResult item = result.next();
       Assert.assertEquals(true, item.getProperty("created"));
     }
-    Assert.assertTrue(oxygenDb.exists(dbName));
+    Assert.assertTrue(youTrackDb.exists(dbName));
 
     try {
       ODatabaseSession session =
-          oxygenDb.open(dbName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+          youTrackDb.open(dbName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
       Assert.fail();
     } catch (OSecurityAccessException e) {
     } finally {
-      oxygenDb.drop(dbName);
-      oxygenDb.close();
+      youTrackDb.drop(dbName);
+      youTrackDb.close();
     }
   }
 }

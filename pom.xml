@@ -15,12 +15,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>io.oxygendb</groupId>
-  <artifactId>oxygendb-parent</artifactId>
+  <artifactId>youtrackdb-parent</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <name>OxygenDB</name>
-  <description>OxygenDB NoSQL document graph DB</description>
+  <name>YouTrackDB</name>
+  <description>YouTrackDB NoSQL document graph DB</description>
   <inceptionYear>2009</inceptionYear>
   <licenses>
     <license>
@@ -43,9 +43,9 @@
   </modules>
 
   <scm>
-    <connection>scm:git:git@github.com:oxygendb/oxygendb.git</connection>
-    <developerConnection>scm:git:git@github.com:oxygendb/oxygendb.git</developerConnection>
-    <url>scm:git:git@github.com:oxygendb/oxygendb.git</url>
+    <connection>scm:git:git@github.com:youtrackdb/youtrackdb.git</connection>
+    <developerConnection>scm:git:git@github.com:youtrackdb/youtrackdb.git</developerConnection>
+    <url>scm:git:git@github.com:youtrackdb/youtrackdb.git</url>
     <tag>HEAD</tag>
   </scm>
   <issueManagement>
@@ -266,7 +266,7 @@
             <allowTimestampedSnapshots>true</allowTimestampedSnapshots>
             <pushChanges>false</pushChanges>
             <tagNameFormat>@{project.version}</tagNameFormat>
-            <scmCommentPrefix>OxygenDB</scmCommentPrefix>
+            <scmCommentPrefix>YouTrackDB</scmCommentPrefix>
             <localCheckout>true</localCheckout>
           </configuration>
         </plugin>

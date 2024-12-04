@@ -2,8 +2,8 @@ package com.orientechnologies.orient.test.database.security;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import java.io.File;
 import org.junit.Test;
 
@@ -13,14 +13,16 @@ public class SystemUsersTest {
   public void test() {
     final String buildDirectory = System.getProperty("buildDirectory", ".");
     System.setProperty(
-        "OXYGENDB_HOME", buildDirectory + File.separator + SystemUsersTest.class.getSimpleName());
+        "YOU_TRACK_DB_HOME",
+        buildDirectory + File.separator + SystemUsersTest.class.getSimpleName());
 
-    OLogManager.instance().info(this, "OXYGENDB_HOME: " + System.getProperty("OXYGENDB_HOME"));
+    OLogManager.instance()
+        .info(this, "YOU_TRACK_DB_HOME: " + System.getProperty("YOU_TRACK_DB_HOME"));
 
-    OxygenDB orient =
-        new OxygenDB(
+    YouTrackDB orient =
+        new YouTrackDB(
             "plocal:target/" + SystemUsersTest.class.getSimpleName(),
-            OxygenDBConfig.defaultConfig());
+            YouTrackDBConfig.defaultConfig());
 
     try {
       orient.execute(

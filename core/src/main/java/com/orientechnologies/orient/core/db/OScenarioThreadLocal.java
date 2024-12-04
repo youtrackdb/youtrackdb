@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.db;
 
 import com.orientechnologies.orient.core.OOrientListenerAbstract;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import java.util.concurrent.Callable;
 
 /**
@@ -41,7 +41,7 @@ public class OScenarioThreadLocal extends ThreadLocal<OScenarioThreadLocal.RunCo
   }
 
   static {
-    Oxygen.instance()
+    YouTrackDBManager.instance()
         .registerListener(
             new OOrientListenerAbstract() {
               @Override

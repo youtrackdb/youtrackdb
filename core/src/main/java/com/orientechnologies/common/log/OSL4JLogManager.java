@@ -14,7 +14,7 @@ import org.slf4j.MarkerFactory;
 import org.slf4j.event.Level;
 
 /**
- * Centralized Log Manager used in OxygenDB. All the log messages are routed through this class. It
+ * Centralized Log Manager used in YouTrackDB. All the log messages are routed through this class. It
  * uses SLF4J as the logging facade. Logging methods are accepting messages formatted as in
  * {@link String#format(String, Object...)} It is strongly recommended to use specialized logging
  * methods from this class instead of generic

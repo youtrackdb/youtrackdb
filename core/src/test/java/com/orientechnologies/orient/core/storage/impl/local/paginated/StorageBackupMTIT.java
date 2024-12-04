@@ -6,10 +6,10 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
-import com.orientechnologies.orient.core.db.OxygenDBEmbedded;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDBEmbedded;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -32,7 +32,7 @@ public class StorageBackupMTIT {
 
   private final CountDownLatch latch = new CountDownLatch(1);
   private volatile boolean stop = false;
-  private OxygenDB oxygenDB;
+  private YouTrackDB youTrackDB;
   private String dbName;
 
   @Test
@@ -48,11 +48,12 @@ public class StorageBackupMTIT {
 
     try {
 
-      oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), OxygenDBConfig.defaultConfig());
-      oxygenDB.execute(
+      youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+          YouTrackDBConfig.defaultConfig());
+      youTrackDB.execute(
           "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
 
-      var db = (ODatabaseSessionInternal) oxygenDB.open(dbName, "admin", "admin");
+      var db = (ODatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
 
       final OSchema schema = db.getMetadata().getSchema();
       final OClass backupClass = schema.createClass("BackupClass");
@@ -89,30 +90,31 @@ public class StorageBackupMTIT {
       System.out.println("do inc backup last time");
       db.incrementalBackup(backupDir.getAbsolutePath());
 
-      oxygenDB.close();
+      youTrackDB.close();
 
       final String backedUpDbDirectory = buildDirectory + File.separator + backupDbName;
       OFileUtils.deleteRecursively(new File(backedUpDbDirectory));
 
       System.out.println("create and restore");
 
-      OxygenDBEmbedded embedded =
-          (OxygenDBEmbedded)
-              OxygenDBInternal.embedded(buildDirectory, OxygenDBConfig.defaultConfig());
+      YouTrackDBEmbedded embedded =
+          (YouTrackDBEmbedded)
+              YouTrackDBInternal.embedded(buildDirectory, YouTrackDBConfig.defaultConfig());
       embedded.restore(
           backupDbName,
           null,
           null,
           null,
           backupDir.getAbsolutePath(),
-          OxygenDBConfig.defaultConfig());
+          YouTrackDBConfig.defaultConfig());
       embedded.close();
 
-      oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), OxygenDBConfig.defaultConfig());
+      youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+          YouTrackDBConfig.defaultConfig());
       final ODatabaseCompare compare =
           new ODatabaseCompare(
-              (ODatabaseSessionInternal) oxygenDB.open(dbName, "admin", "admin"),
-              (ODatabaseSessionInternal) oxygenDB.open(backupDbName, "admin", "admin"),
+              (ODatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin"),
+              (ODatabaseSessionInternal) youTrackDB.open(backupDbName, "admin", "admin"),
               System.out::println);
 
       System.out.println("compare");
@@ -120,20 +122,20 @@ public class StorageBackupMTIT {
       Assert.assertTrue(areSame);
 
     } finally {
-      if (oxygenDB != null && oxygenDB.isOpen()) {
+      if (youTrackDB != null && youTrackDB.isOpen()) {
         try {
-          oxygenDB.close();
+          youTrackDB.close();
         } catch (Exception ex) {
           OLogManager.instance().error(this, "", ex);
         }
       }
       try {
-        oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-            OxygenDBConfig.defaultConfig());
-        oxygenDB.drop(dbName);
-        oxygenDB.drop(backupDbName);
+        youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+            YouTrackDBConfig.defaultConfig());
+        youTrackDB.drop(dbName);
+        youTrackDB.drop(backupDbName);
 
-        oxygenDB.close();
+        youTrackDB.close();
 
         OFileUtils.deleteRecursively(backupDir);
       } catch (Exception ex) {
@@ -152,8 +154,8 @@ public class StorageBackupMTIT {
     dbName = StorageBackupMTIT.class.getSimpleName();
     String dbDirectory = buildDirectory + File.separator + dbName;
 
-    final OxygenDBConfig config =
-        OxygenDBConfig.builder()
+    final YouTrackDBConfig config =
+        YouTrackDBConfig.builder()
             .addConfig(OGlobalConfiguration.STORAGE_ENCRYPTION_KEY, "T1JJRU5UREJfSVNfQ09PTA==")
             .build();
 
@@ -161,11 +163,11 @@ public class StorageBackupMTIT {
 
       OFileUtils.deleteRecursively(new File(dbDirectory));
 
-      oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), config);
-      oxygenDB.execute(
+      youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()), config);
+      youTrackDB.execute(
           "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
 
-      var db = (ODatabaseSessionInternal) oxygenDB.open(dbName, "admin", "admin");
+      var db = (ODatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
 
       final OSchema schema = db.getMetadata().getSchema();
       final OClass backupClass = schema.createClass("BackupClass");
@@ -202,23 +204,24 @@ public class StorageBackupMTIT {
       System.out.println("do inc backup last time");
       db.incrementalBackup(backupDir.getAbsolutePath());
 
-      oxygenDB.close();
+      youTrackDB.close();
 
       OFileUtils.deleteRecursively(new File(backedUpDbDirectory));
 
       System.out.println("create and restore");
 
-      OxygenDBEmbedded embedded =
-          (OxygenDBEmbedded) OxygenDBInternal.embedded(buildDirectory, config);
+      YouTrackDBEmbedded embedded =
+          (YouTrackDBEmbedded) YouTrackDBInternal.embedded(buildDirectory, config);
       embedded.restore(backupDbName, null, null, null, backupDir.getAbsolutePath(), config);
       embedded.close();
 
       OGlobalConfiguration.STORAGE_ENCRYPTION_KEY.setValue("T1JJRU5UREJfSVNfQ09PTA==");
-      oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), OxygenDBConfig.defaultConfig());
+      youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+          YouTrackDBConfig.defaultConfig());
       final ODatabaseCompare compare =
           new ODatabaseCompare(
-              (ODatabaseSessionInternal) oxygenDB.open(dbName, "admin", "admin"),
-              (ODatabaseSessionInternal) oxygenDB.open(backupDbName, "admin", "admin"),
+              (ODatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin"),
+              (ODatabaseSessionInternal) youTrackDB.open(backupDbName, "admin", "admin"),
               System.out::println);
       System.out.println("compare");
 
@@ -226,19 +229,19 @@ public class StorageBackupMTIT {
       Assert.assertTrue(areSame);
 
     } finally {
-      if (oxygenDB != null && oxygenDB.isOpen()) {
+      if (youTrackDB != null && youTrackDB.isOpen()) {
         try {
-          oxygenDB.close();
+          youTrackDB.close();
         } catch (Exception ex) {
           OLogManager.instance().error(this, "", ex);
         }
       }
       try {
-        oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), config);
-        oxygenDB.drop(dbName);
-        oxygenDB.drop(backupDbName);
+        youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()), config);
+        youTrackDB.drop(dbName);
+        youTrackDB.drop(backupDbName);
 
-        oxygenDB.close();
+        youTrackDB.close();
 
         OFileUtils.deleteRecursively(backupDir);
       } catch (Exception ex) {
@@ -255,7 +258,7 @@ public class StorageBackupMTIT {
 
       System.out.println(Thread.currentThread() + " - start writing");
 
-      try (var ignored = oxygenDB.open(dbName, "admin", "admin")) {
+      try (var ignored = youTrackDB.open(dbName, "admin", "admin")) {
         final Random random = new Random();
         while (!stop) {
           try {
@@ -298,7 +301,7 @@ public class StorageBackupMTIT {
     public Void call() throws Exception {
       latch.await();
 
-      try (var db = oxygenDB.open(dbName, "admin", "admin")) {
+      try (var db = youTrackDB.open(dbName, "admin", "admin")) {
         System.out.println(Thread.currentThread() + " - start backup");
         while (!stop) {
           TimeUnit.MINUTES.sleep(1);

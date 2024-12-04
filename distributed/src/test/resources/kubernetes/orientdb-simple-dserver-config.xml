@@ -5,10 +5,10 @@
       class="com.orientechnologies.orient.server.hazelcast.OHazelcastPlugin">
       <parameters>
         <parameter value="true" name="enabled"/>
-        <parameter value="${OXYGENDB_HOME}/config/hazelcast.xml"
+        <parameter value="${YOU_TRACK_DB_HOME}/config/hazelcast.xml"
           name="configuration.hazelcast"/>
         <parameter name="configuration.db.default"
-          value="${OXYGENDB_HOME}/config/default-distributed-db-config.json"/>
+          value="${YOU_TRACK_DB_HOME}/config/default-distributed-db-config.json"/>
       </parameters>
     </handler>
     <handler

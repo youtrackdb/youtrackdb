@@ -23,7 +23,7 @@ import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -59,7 +59,7 @@ import org.junit.Test;
  */
 public class PostponedEngineStartTest {
 
-  private static Oxygen OXYGEN;
+  private static YouTrackDBManager YOU_TRACK;
 
   private static OEngine ENGINE1;
   private static OEngine ENGINE2;
@@ -67,31 +67,31 @@ public class PostponedEngineStartTest {
 
   @BeforeClass
   public static void before() {
-    OXYGEN =
-        new Oxygen(false) {
+    YOU_TRACK =
+        new YouTrackDBManager(false) {
           @Override
-          public Oxygen startup() {
-            OXYGEN.registerEngine(ENGINE1 = new NamedEngine("engine1"));
-            OXYGEN.registerEngine(ENGINE2 = new NamedEngine("engine2"));
-            OXYGEN.registerEngine(FAULTY_ENGINE = new FaultyEngine());
+          public YouTrackDBManager startup() {
+            YOU_TRACK.registerEngine(ENGINE1 = new NamedEngine("engine1"));
+            YOU_TRACK.registerEngine(ENGINE2 = new NamedEngine("engine2"));
+            YOU_TRACK.registerEngine(FAULTY_ENGINE = new FaultyEngine());
             return this;
           }
 
           @Override
-          public Oxygen shutdown() {
+          public YouTrackDBManager shutdown() {
             ODatabaseDocumentTx.closeAll();
             return this;
           }
         };
 
-    OXYGEN.startup();
+    YOU_TRACK.startup();
   }
 
   @Test
   public void test() {
     // XXX: There is a known problem in TestNG runner with hardly controllable test methods
     // interleaving from different
-    // test classes. This test case touches internals of OxygenDB runtime, interleaving with foreign
+    // test classes. This test case touches internals of YouTrackDB runtime, interleaving with foreign
     // methods is not acceptable
     // here. So I just invoke "test" methods manually from a single test method.
     //
@@ -114,42 +114,42 @@ public class PostponedEngineStartTest {
 
   // @Test
   public void testEngineShouldNotStartAtRuntimeStart() {
-    final OEngine engine = OXYGEN.getEngine(ENGINE1.getName());
+    final OEngine engine = YOU_TRACK.getEngine(ENGINE1.getName());
     Assert.assertFalse(engine.isRunning());
   }
 
   // @Test(dependsOnMethods = "testEngineShouldNotStartAtRuntimeStart")
   public void testGetEngineIfRunningShouldReturnNullEngineIfNotRunning() {
-    final OEngine engine = OXYGEN.getEngineIfRunning(ENGINE1.getName());
+    final OEngine engine = YOU_TRACK.getEngineIfRunning(ENGINE1.getName());
     Assert.assertNull(engine);
   }
 
   // @Test(dependsOnMethods = "testGetEngineIfRunningShouldReturnNullEngineIfNotRunning")
   public void testGetRunningEngineShouldStartEngine() {
-    final OEngine engine = OXYGEN.getRunningEngine(ENGINE1.getName());
+    final OEngine engine = YOU_TRACK.getRunningEngine(ENGINE1.getName());
     Assert.assertNotNull(engine);
     Assert.assertTrue(engine.isRunning());
   }
 
   // @Test(dependsOnMethods = "testGetRunningEngineShouldStartEngine")
   public void testEngineRestart() {
-    OEngine engine = OXYGEN.getRunningEngine(ENGINE1.getName());
+    OEngine engine = YOU_TRACK.getRunningEngine(ENGINE1.getName());
     engine.shutdown();
     Assert.assertFalse(engine.isRunning());
 
-    engine = OXYGEN.getEngineIfRunning(ENGINE1.getName());
+    engine = YOU_TRACK.getEngineIfRunning(ENGINE1.getName());
     Assert.assertNull(engine);
 
-    engine = OXYGEN.getEngine(ENGINE1.getName());
+    engine = YOU_TRACK.getEngine(ENGINE1.getName());
     Assert.assertFalse(engine.isRunning());
 
-    engine = OXYGEN.getRunningEngine(ENGINE1.getName());
+    engine = YOU_TRACK.getRunningEngine(ENGINE1.getName());
     Assert.assertTrue(engine.isRunning());
   }
 
   // @Test
   public void testStoppedEngineShouldStartAndCreateStorage() {
-    OEngine engine = OXYGEN.getEngineIfRunning(ENGINE2.getName());
+    OEngine engine = YOU_TRACK.getEngineIfRunning(ENGINE2.getName());
     Assert.assertNull(engine);
 
     final OStorage storage =
@@ -162,7 +162,7 @@ public class PostponedEngineStartTest {
 
     Assert.assertNotNull(storage);
 
-    engine = OXYGEN.getRunningEngine(ENGINE2.getName());
+    engine = YOU_TRACK.getRunningEngine(ENGINE2.getName());
     Assert.assertTrue(engine.isRunning());
   }
 
@@ -175,7 +175,7 @@ public class PostponedEngineStartTest {
     //      }
     //    });
     try {
-      OXYGEN.getRunningEngine("unknown engine");
+      YOU_TRACK.getRunningEngine("unknown engine");
       Assert.fail();
     } catch (Exception e) {
       // exception expected
@@ -184,7 +184,7 @@ public class PostponedEngineStartTest {
 
   // @Test(expected = IllegalStateException.class)
   public void testGetRunningEngineShouldThrowIfEngineIsUnableToStart() {
-    OEngine engine = OXYGEN.getEngine(FAULTY_ENGINE.getName());
+    OEngine engine = YOU_TRACK.getEngine(FAULTY_ENGINE.getName());
     Assert.assertNotNull(engine);
 
     //    Assert.assertThrows(IllegalStateException.class, new Assert.ThrowingRunnable() {
@@ -195,9 +195,9 @@ public class PostponedEngineStartTest {
     //    });
     try {
 
-      OXYGEN.getRunningEngine(FAULTY_ENGINE.getName());
+      YOU_TRACK.getRunningEngine(FAULTY_ENGINE.getName());
 
-      engine = OXYGEN.getEngine(FAULTY_ENGINE.getName());
+      engine = YOU_TRACK.getEngine(FAULTY_ENGINE.getName());
       Assert.assertNull(engine);
       Assert.fail();
     } catch (Exception e) {
@@ -224,7 +224,7 @@ public class PostponedEngineStartTest {
         long maxWalSegSize,
         long doubleWriteLogMaxSegSize,
         int storageId,
-        OxygenDBInternal context) {
+        YouTrackDBInternal context) {
       return new OStorage() {
 
         @Override
@@ -670,7 +670,7 @@ public class PostponedEngineStartTest {
         }
 
         @Override
-        public OxygenDBInternal getContext() {
+        public YouTrackDBInternal getContext() {
           return null;
         }
       };
@@ -701,7 +701,7 @@ public class PostponedEngineStartTest {
         long maxWalSegSize,
         long doubleWriteLogMaxSegSize,
         int storageId,
-        OxygenDBInternal context) {
+        YouTrackDBInternal context) {
       throw new UnsupportedOperationException();
     }
 

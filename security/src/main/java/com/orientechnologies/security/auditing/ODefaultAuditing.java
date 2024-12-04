@@ -14,12 +14,12 @@
 package com.orientechnologies.security.auditing;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OSystemDatabase;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -53,7 +53,7 @@ public class ODefaultAuditing
 
   private boolean enabled = true;
   private Integer globalRetentionDays = -1;
-  private OxygenDBInternal context;
+  private YouTrackDBInternal context;
 
   private final Timer timer = new Timer();
   private OAuditingHook globalHook;
@@ -492,7 +492,7 @@ public class ODefaultAuditing
 
     timer.scheduleAtFixedRate(retainTask, delay, period);
 
-    Oxygen.instance().addDbLifecycleListener(this);
+    YouTrackDBManager.instance().addDbLifecycleListener(this);
     if (context instanceof OServerAware) {
       if (((OServerAware) context).getDistributedManager() != null) {
         ((OServerAware) context).getDistributedManager().registerLifecycleListener(this);
@@ -565,7 +565,7 @@ public class ODefaultAuditing
       }
     }
 
-    Oxygen.instance().removeDbLifecycleListener(this);
+    YouTrackDBManager.instance().removeDbLifecycleListener(this);
 
     if (globalHook != null) {
       globalHook.shutdown(false);

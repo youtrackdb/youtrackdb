@@ -4,10 +4,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import org.junit.After;
@@ -18,7 +18,7 @@ public class RemoteSimpleSchemaTest {
 
   private static final String SERVER_DIRECTORY = "./target/metadata-push";
   private OServer server;
-  private OxygenDB oxygenDB;
+  private YouTrackDB youTrackDB;
   private ODatabaseSessionInternal database;
 
   @Before
@@ -28,11 +28,12 @@ public class RemoteSimpleSchemaTest {
     server.startup(getClass().getResourceAsStream("orientdb-server-config.xml"));
     server.activate();
 
-    oxygenDB = new OxygenDB("remote:localhost", "root", "root", OxygenDBConfig.defaultConfig());
-    oxygenDB.execute(
+    youTrackDB = new YouTrackDB("remote:localhost", "root", "root",
+        YouTrackDBConfig.defaultConfig());
+    youTrackDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         RemoteSimpleSchemaTest.class.getSimpleName());
-    database = (ODatabaseSessionInternal) oxygenDB.open(
+    database = (ODatabaseSessionInternal) youTrackDB.open(
         RemoteSimpleSchemaTest.class.getSimpleName(), "admin", "admin");
   }
 
@@ -64,11 +65,11 @@ public class RemoteSimpleSchemaTest {
   @After
   public void after() {
     database.close();
-    oxygenDB.close();
+    youTrackDB.close();
     server.shutdown();
 
-    Oxygen.instance().shutdown();
+    YouTrackDBManager.instance().shutdown();
     OFileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
-    Oxygen.instance().startup();
+    YouTrackDBManager.instance().startup();
   }
 }

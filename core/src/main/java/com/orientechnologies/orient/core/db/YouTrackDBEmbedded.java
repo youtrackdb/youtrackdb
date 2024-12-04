@@ -29,7 +29,7 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.thread.OSourceTraceExecutorService;
 import com.orientechnologies.common.thread.OThreadPoolExecutors;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.command.script.OScriptManager;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
@@ -82,7 +82,7 @@ import org.apache.commons.lang.NullArgumentException;
 /**
  *
  */
-public class OxygenDBEmbedded implements OxygenDBInternal {
+public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
   /**
    * Keeps track of next possible storage id.
@@ -99,11 +99,11 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
   protected final Map<String, OSharedContext> sharedContexts = new ConcurrentHashMap<>();
   protected final Set<ODatabasePoolInternal> pools =
       Collections.newSetFromMap(new ConcurrentHashMap<>());
-  protected final OxygenDBConfig configurations;
+  protected final YouTrackDBConfig configurations;
   protected final String basePath;
   protected final OEngine memory;
   protected final OEngine disk;
-  protected final Oxygen oxygen;
+  protected final YouTrackDBManager youTrack;
   protected final OCachedDatabasePoolFactory cachedPoolFactory;
   private volatile boolean open = true;
   private final ExecutorService executor;
@@ -118,12 +118,13 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
   protected final long maxWALSegmentSize;
   protected final long doubleWriteLogMaxSegSize;
 
-  public OxygenDBEmbedded(String directoryPath, OxygenDBConfig configurations, Oxygen oxygen) {
+  public YouTrackDBEmbedded(String directoryPath, YouTrackDBConfig configurations,
+      YouTrackDBManager youTrack) {
     super();
-    this.oxygen = oxygen;
-    oxygen.onEmbeddedFactoryInit(this);
-    memory = oxygen.getEngine("memory");
-    disk = oxygen.getEngine("plocal");
+    this.youTrack = youTrack;
+    youTrack.onEmbeddedFactoryInit(this);
+    memory = youTrack.getEngine("memory");
+    disk = youTrack.getEngine("plocal");
     directoryPath = directoryPath.trim();
     if (directoryPath.length() != 0) {
       final File dirFile = new File(directoryPath);
@@ -140,7 +141,8 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
       this.basePath = null;
     }
 
-    this.configurations = configurations != null ? configurations : OxygenDBConfig.defaultConfig();
+    this.configurations =
+        configurations != null ? configurations : YouTrackDBConfig.defaultConfig();
 
     if (basePath == null) {
       maxWALSegmentSize = -1;
@@ -160,13 +162,13 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
                 this, "WAL maximum segment size is set to %,d MB", maxWALSegmentSize / 1024 / 1024);
       } catch (IOException e) {
         throw OException.wrapException(
-            new ODatabaseException("Cannot initialize OxygenDB engine"), e);
+            new ODatabaseException("Cannot initialize YouTrackDB engine"), e);
       }
     }
 
     OMemoryAndLocalPaginatedEnginesInitializer.INSTANCE.initialize();
 
-    oxygen.addOxygenDB(this);
+    youTrack.addOxygenDB(this);
     executor = newExecutor();
     ioExecutor = newIoExecutor();
     String timerName;
@@ -175,7 +177,7 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
     } else {
       timerName = "memory:";
     }
-    timer = new Timer("OxygenDB Timer[" + timerName + "]");
+    timer = new Timer("YouTrackDB Timer[" + timerName + "]");
 
     cachedPoolFactory = createCachedDatabasePoolFactory(this.configurations);
 
@@ -204,7 +206,7 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
       int ioSize = excutorMaxSize(OGlobalConfiguration.EXECUTOR_POOL_IO_MAX_SIZE);
       ExecutorService exec =
           OThreadPoolExecutors.newScalingThreadPool(
-              "OxygenDB-IO", 1, excutorBaseSize(ioSize), ioSize, 30, TimeUnit.MINUTES);
+              "YouTrackDB-IO", 1, excutorBaseSize(ioSize), ioSize, 30, TimeUnit.MINUTES);
       if (getBoolConfig(OGlobalConfiguration.EXECUTOR_DEBUG_TRACE_SOURCE)) {
         exec = new OSourceTraceExecutorService(exec);
       }
@@ -218,7 +220,7 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
     int size = excutorMaxSize(OGlobalConfiguration.EXECUTOR_POOL_MAX_SIZE);
     ExecutorService exec =
         OThreadPoolExecutors.newScalingThreadPool(
-            "OxygenDBEmbedded", 1, excutorBaseSize(size), size, 30, TimeUnit.MINUTES);
+            "YouTrackDBEmbedded", 1, excutorBaseSize(size), size, 30, TimeUnit.MINUTES);
     if (getBoolConfig(OGlobalConfiguration.EXECUTOR_DEBUG_TRACE_SOURCE)) {
       exec = new OSourceTraceExecutorService(exec);
     }
@@ -266,7 +268,7 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
     return baseSize;
   }
 
-  protected OCachedDatabasePoolFactory createCachedDatabasePoolFactory(OxygenDBConfig config) {
+  protected OCachedDatabasePoolFactory createCachedDatabasePoolFactory(YouTrackDBConfig config) {
     int capacity = getIntConfig(OGlobalConfiguration.DB_CACHED_POOL_CAPACITY);
     long timeout = getIntConfig(OGlobalConfiguration.DB_CACHED_POOL_CLEAN_UP_TIMEOUT);
     return new OCachedDatabasePoolFactoryImpl(this, capacity, timeout);
@@ -278,7 +280,7 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
         new TimerTask() {
           @Override
           public void run() {
-            OxygenDBEmbedded.this.execute(() -> checkAndCloseStorages(delay));
+            YouTrackDBEmbedded.this.execute(() -> checkAndCloseStorages(delay));
           }
         };
     schedule(autoCloseTimer, scheduleTime, scheduleTime);
@@ -425,7 +427,7 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
     checkDatabaseName(name);
     try {
       final ODatabaseSessionEmbedded embedded;
-      OxygenDBConfig config = solveConfig(null);
+      YouTrackDBConfig config = solveConfig(null);
       synchronized (this) {
         checkOpen();
         OAbstractPaginatedStorage storage = getAndOpenStorage(name, config);
@@ -442,14 +444,14 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
   }
 
   protected ODatabaseSessionEmbedded newSessionInstance(
-      OAbstractPaginatedStorage storage, OxygenDBConfig config, OSharedContext sharedContext) {
+      OAbstractPaginatedStorage storage, YouTrackDBConfig config, OSharedContext sharedContext) {
     ODatabaseSessionEmbedded embedded = new ODatabaseSessionEmbedded(storage);
     embedded.init(config, getOrCreateSharedContext(storage));
     return embedded;
   }
 
   protected ODatabaseSessionEmbedded newCreateSessionInstance(
-      OAbstractPaginatedStorage storage, OxygenDBConfig config, OSharedContext sharedContext) {
+      OAbstractPaginatedStorage storage, YouTrackDBConfig config, OSharedContext sharedContext) {
     ODatabaseSessionEmbedded embedded = new ODatabaseSessionEmbedded(storage);
     embedded.internalCreate(config, sharedContext);
     return embedded;
@@ -459,7 +461,7 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
     checkDatabaseName(name);
     try {
       final ODatabaseSessionEmbedded embedded;
-      OxygenDBConfig config = solveConfig(null);
+      YouTrackDBConfig config = solveConfig(null);
       synchronized (this) {
         checkOpen();
         OAbstractPaginatedStorage storage = getAndOpenStorage(name, config);
@@ -476,7 +478,7 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
 
   @Override
   public ODatabaseSessionInternal open(
-      String name, String user, String password, OxygenDBConfig config) {
+      String name, String user, String password, YouTrackDBConfig config) {
     checkDatabaseName(name);
     checkDefaultPassword(name, user, password);
     try {
@@ -500,7 +502,7 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
 
   @Override
   public ODatabaseSessionInternal open(
-      OAuthenticationInfo authenticationInfo, OxygenDBConfig config) {
+      OAuthenticationInfo authenticationInfo, YouTrackDBConfig config) {
     try {
       final ODatabaseSessionEmbedded embedded;
       synchronized (this) {
@@ -524,7 +526,7 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
     }
   }
 
-  private OAbstractPaginatedStorage getAndOpenStorage(String name, OxygenDBConfig config) {
+  private OAbstractPaginatedStorage getAndOpenStorage(String name, YouTrackDBConfig config) {
     OAbstractPaginatedStorage storage = getOrInitStorage(name);
     // THIS OPEN THE STORAGE ONLY THE FIRST TIME
     try {
@@ -557,12 +559,12 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
     }
   }
 
-  protected OxygenDBConfig solveConfig(OxygenDBConfig config) {
+  protected YouTrackDBConfig solveConfig(YouTrackDBConfig config) {
     if (config != null) {
       config.setParent(this.configurations);
       return config;
     } else {
-      OxygenDBConfig cfg = OxygenDBConfig.defaultConfig();
+      YouTrackDBConfig cfg = YouTrackDBConfig.defaultConfig();
       cfg.setParent(this.configurations);
       return cfg;
     }
@@ -635,7 +637,7 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
   protected String buildName(String name) {
     if (basePath == null) {
       throw new ODatabaseException(
-          "OxygenDB instanced created without physical path, only memory databases are allowed");
+          "YouTrackDB instanced created without physical path, only memory databases are allowed");
     }
     return basePath + "/" + name;
   }
@@ -646,7 +648,7 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
 
   @Override
   public void create(
-      String name, String user, String password, ODatabaseType type, OxygenDBConfig config) {
+      String name, String user, String password, ODatabaseType type, YouTrackDBConfig config) {
     create(name, user, password, type, config, null);
   }
 
@@ -656,7 +658,7 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
       String user,
       String password,
       ODatabaseType type,
-      OxygenDBConfig config,
+      YouTrackDBConfig config,
       ODatabaseTask<Void> createOps) {
     checkDatabaseName(name);
     final ODatabaseSessionEmbedded embedded;
@@ -755,7 +757,7 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
       String password,
       ODatabaseType type,
       String path,
-      OxygenDBConfig config) {
+      YouTrackDBConfig config) {
     checkDatabaseName(name);
     config = solveConfig(config);
     final ODatabaseSessionEmbedded embedded;
@@ -822,7 +824,7 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
   }
 
   protected ODatabaseSessionEmbedded internalCreate(
-      OxygenDBConfig config, OAbstractPaginatedStorage storage) {
+      YouTrackDBConfig config, OAbstractPaginatedStorage storage) {
     storage.create(config.getConfigurations());
     return newCreateSessionInstance(storage, config, getOrCreateSharedContext(storage));
   }
@@ -869,7 +871,7 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
     ODatabaseSessionInternal current = ODatabaseRecordThreadLocal.instance().getIfDefined();
     try {
       ODatabaseSessionInternal db = openNoAuthenticate(name, user);
-      for (Iterator<ODatabaseLifecycleListener> it = oxygen.getDbLifecycleListeners();
+      for (Iterator<ODatabaseLifecycleListener> it = youTrack.getDbLifecycleListeners();
           it.hasNext(); ) {
         it.next().onDrop(db);
       }
@@ -936,7 +938,7 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
 
   @Override
   public ODatabasePoolInternal openPool(
-      String name, String user, String password, OxygenDBConfig config) {
+      String name, String user, String password, YouTrackDBConfig config) {
     checkDatabaseName(name);
     checkOpen();
     ODatabasePoolImpl pool = new ODatabasePoolImpl(this, name, user, password, solveConfig(config));
@@ -951,7 +953,7 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
 
   @Override
   public ODatabasePoolInternal cachedPool(
-      String database, String user, String password, OxygenDBConfig config) {
+      String database, String user, String password, YouTrackDBConfig config) {
     checkDatabaseName(database);
     checkOpen();
     ODatabasePoolInternal pool =
@@ -1028,7 +1030,7 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
     }
     this.sharedContexts.clear();
     storages.clear();
-    oxygen.onEmbeddedFactoryClose(this);
+    youTrack.onEmbeddedFactoryClose(this);
     if (autoCloseTimer != null) {
       autoCloseTimer.cancel();
     }
@@ -1039,7 +1041,7 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
     }
   }
 
-  public OxygenDBConfig getConfigurations() {
+  public YouTrackDBConfig getConfigurations() {
     return configurations;
   }
 
@@ -1091,7 +1093,7 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
   }
 
   public void removeShutdownHook() {
-    oxygen.removeOxygenDB(this);
+    youTrack.removeOxygenDB(this);
   }
 
   public synchronized Collection<OStorage> getStorages() {
@@ -1118,7 +1120,7 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
 
   protected void checkOpen() {
     if (!open) {
-      throw new ODatabaseException("OxygenDB Instance is closed");
+      throw new ODatabaseException("YouTrackDB Instance is closed");
     }
   }
 
@@ -1169,7 +1171,7 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
             }
           } else {
             OLogManager.instance()
-                .warn(this, " Cancelled execution of task, OxygenDB instance is closed");
+                .warn(this, " Cancelled execution of task, YouTrackDB instance is closed");
             return null;
           }
         });
@@ -1186,7 +1188,7 @@ public class OxygenDBEmbedded implements OxygenDBInternal {
         database.activateOnCurrentThread();
       }
     } else {
-      throw new ODatabaseException("OxygenDB instance is closed");
+      throw new ODatabaseException("YouTrackDB instance is closed");
     }
   }
 

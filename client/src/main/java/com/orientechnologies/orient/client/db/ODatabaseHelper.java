@@ -23,7 +23,7 @@ import com.orientechnologies.common.parser.OSystemVariableResolver;
 import com.orientechnologies.orient.client.remote.OEngineRemote;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.core.OConstants;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
@@ -159,7 +159,7 @@ public class ODatabaseHelper {
 
   @Deprecated
   protected static String getServerRootPassword(final String iDirectory) throws IOException {
-    String passwd = System.getProperty("OXYGENDB_ROOT_PASSWORD");
+    String passwd = System.getProperty("YOU_TRACK_DB_ROOT_PASSWORD");
     if (passwd != null) {
       return passwd;
     }
@@ -225,7 +225,8 @@ public class ODatabaseHelper {
       file =
           new File(
               OSystemVariableResolver.resolveSystemVariables(
-                  "${" + Oxygen.OXYGENDB_HOME + "}/config/orientdb-server-config.xml"));
+                  "${" + YouTrackDBManager.YOU_TRACK_DB_HOME
+                      + "}/config/orientdb-server-config.xml"));
     }
     if (!file.exists()) {
       throw new OConfigurationException(

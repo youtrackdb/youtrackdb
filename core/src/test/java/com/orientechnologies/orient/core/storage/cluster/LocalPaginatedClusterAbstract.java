@@ -4,7 +4,7 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.exception.OHighLevelException;
 import com.orientechnologies.common.types.OModifiableInteger;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.storage.OPhysicalPosition;
 import com.orientechnologies.orient.core.storage.ORawBuffer;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -31,7 +31,7 @@ public abstract class LocalPaginatedClusterAbstract {
   protected static String buildDirectory;
   protected static OPaginatedCluster paginatedCluster;
   protected static ODatabaseSessionInternal databaseDocumentTx;
-  protected static OxygenDB oxygenDB;
+  protected static YouTrackDB youTrackDB;
   protected static String dbName;
   protected static OAbstractPaginatedStorage storage;
   private static OAtomicOperationsManager atomicOperationsManager;
@@ -53,8 +53,8 @@ public abstract class LocalPaginatedClusterAbstract {
     atomicOperationsManager.executeInsideAtomicOperation(
         null, atomicOperation -> paginatedCluster.delete(atomicOperation));
 
-    oxygenDB.drop(dbName);
-    oxygenDB.close();
+    youTrackDB.drop(dbName);
+    youTrackDB.close();
   }
 
   @Before

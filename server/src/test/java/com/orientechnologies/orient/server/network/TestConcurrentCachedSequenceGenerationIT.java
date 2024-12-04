@@ -3,11 +3,11 @@ package com.orientechnologies.orient.server.network;
 import static org.junit.Assert.assertNotNull;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
@@ -24,19 +24,20 @@ public class TestConcurrentCachedSequenceGenerationIT {
   static final int THREADS = 20;
   static final int RECORDS = 100;
   private OServer server;
-  private OxygenDB oxygenDB;
+  private YouTrackDB youTrackDB;
 
   @Before
   public void before() throws Exception {
     server = new OServer(false);
     server.startup(getClass().getResourceAsStream("orientdb-server-config.xml"));
     server.activate();
-    oxygenDB = new OxygenDB("remote:localhost", "root", "root", OxygenDBConfig.defaultConfig());
-    oxygenDB.execute(
+    youTrackDB = new YouTrackDB("remote:localhost", "root", "root",
+        YouTrackDBConfig.defaultConfig());
+    youTrackDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         TestConcurrentCachedSequenceGenerationIT.class.getSimpleName());
     ODatabaseSession databaseSession =
-        oxygenDB.open(
+        youTrackDB.open(
             TestConcurrentCachedSequenceGenerationIT.class.getSimpleName(), "admin", "admin");
     databaseSession.execute(
         "sql",
@@ -56,7 +57,7 @@ public class TestConcurrentCachedSequenceGenerationIT {
     AtomicLong failures = new AtomicLong(0);
     ODatabasePool pool =
         new ODatabasePool(
-            oxygenDB,
+            youTrackDB,
             TestConcurrentCachedSequenceGenerationIT.class.getSimpleName(),
             "admin",
             "admin");
@@ -92,12 +93,12 @@ public class TestConcurrentCachedSequenceGenerationIT {
 
   @After
   public void after() {
-    oxygenDB.drop(TestConcurrentCachedSequenceGenerationIT.class.getSimpleName());
-    oxygenDB.close();
+    youTrackDB.drop(TestConcurrentCachedSequenceGenerationIT.class.getSimpleName());
+    youTrackDB.close();
     server.shutdown();
 
-    Oxygen.instance().shutdown();
+    YouTrackDBManager.instance().shutdown();
     OFileUtils.deleteRecursively(new File(server.getDatabaseDirectory()));
-    Oxygen.instance().startup();
+    YouTrackDBManager.instance().startup();
   }
 }

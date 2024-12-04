@@ -23,7 +23,7 @@ import com.orientechnologies.orient.client.binary.OBinaryRequestExecutor;
 import com.orientechnologies.orient.client.remote.OBinaryAsyncRequest;
 import com.orientechnologies.orient.client.remote.OBinaryResponse;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -92,7 +92,7 @@ public class OCreateRecordRequest implements OBinaryAsyncRequest<OCreateRecordRe
     recordType = channel.readByte();
     mode = channel.readByte();
     content =
-        Oxygen.instance()
+        YouTrackDBManager.instance()
             .getRecordFactoryManager()
             .newInstance(recordType, rid, db);
     serializer.fromStream(db, rec, content, null);

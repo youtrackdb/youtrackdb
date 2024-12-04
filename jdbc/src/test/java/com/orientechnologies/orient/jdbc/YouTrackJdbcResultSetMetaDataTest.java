@@ -29,7 +29,7 @@ import org.assertj.db.type.Request;
 import org.assertj.db.type.ValueType;
 import org.junit.Test;
 
-public class OxygenJdbcResultSetMetaDataTest extends OrientJdbcDbPerClassTemplateTest {
+public class YouTrackJdbcResultSetMetaDataTest extends OrientJdbcDbPerClassTemplateTest {
 
   @Test
   public void shouldMapOrientTypesToJavaSQLTypes() throws Exception {
@@ -102,7 +102,7 @@ public class OxygenJdbcResultSetMetaDataTest extends OrientJdbcDbPerClassTemplat
     assertThat(rs.getDate(5).toString()).isEqualTo(date.toString());
 
     // DECIMAL
-    assertThat(rs.getBigDecimal("score")).isEqualTo(BigDecimal.valueOf(959));
+    assertThat(rs.getBigDecimal("score")).isEqualTo(BigDecimal.valueOf(965));
   }
 
   @Test

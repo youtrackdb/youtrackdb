@@ -35,7 +35,7 @@ import com.orientechnologies.orient.client.remote.message.OBinaryPushRequest;
 import com.orientechnologies.orient.client.remote.message.OBinaryPushResponse;
 import com.orientechnologies.orient.client.remote.message.OError37Response;
 import com.orientechnologies.orient.client.remote.message.OErrorResponse;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
@@ -107,7 +107,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
       ONetworkBinaryProtocolFactory.defaultProtocol();
 
   public ONetworkProtocolBinary(OServer server) {
-    this(server, "OxygenDB <- BinaryClient/?");
+    this(server, "YouTrackDB <- BinaryClient/?");
   }
 
   public ONetworkProtocolBinary(OServer server, final String iThreadName) {
@@ -152,7 +152,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
 
     start();
     setName(
-        "OxygenDB ("
+        "YouTrackDB ("
             + iSocket.getLocalSocketAddress()
             + ") <- BinaryClient ("
             + iSocket.getRemoteSocketAddress()
@@ -296,7 +296,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
       int clientTxId) {
     long timer;
 
-    timer = Oxygen.instance().getProfiler().startChrono();
+    timer = YouTrackDBManager.instance().getProfiler().startChrono();
     OLogManager.instance().debug(this, "Request id:" + clientTxId + " type:" + requestType);
 
     try {
@@ -436,7 +436,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
 
     } finally {
 
-      Oxygen.instance()
+      YouTrackDBManager.instance()
           .getProfiler()
           .stopChrono(
               "server.network.requests",
@@ -501,7 +501,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
     long timer = 0;
     try {
 
-      timer = Oxygen.instance().getProfiler().startChrono();
+      timer = YouTrackDBManager.instance().getProfiler().startChrono();
       byte[] tokenBytes = channel.readBytes();
       connection = onBeforeOperationalRequest(connection, tokenBytes);
       OLogManager.instance().debug(this, "Request id:" + clientTxId + " type:" + requestType);
@@ -532,7 +532,7 @@ public class ONetworkProtocolBinary extends ONetworkProtocol {
               requestType);
       sendShutdown();
     } finally {
-      Oxygen.instance()
+      YouTrackDBManager.instance()
           .getProfiler()
           .stopChrono(
               "server.network.requests",

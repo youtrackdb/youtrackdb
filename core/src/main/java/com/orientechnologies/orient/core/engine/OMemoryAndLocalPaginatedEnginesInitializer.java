@@ -106,7 +106,7 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
       OLogManager.instance()
           .info(
               this,
-              "Because OxygenDB is running inside a container %s of memory will be left unallocated"
+              "Because YouTrackDB is running inside a container %s of memory will be left unallocated"
                   + " according to the setting '%s' not taking into account heap memory",
               additionalArgs);
 
@@ -126,7 +126,7 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
       OLogManager.instance()
           .info(
               this,
-              "Because OxygenDB is running outside a container %s of memory will be left "
+              "Because YouTrackDB is running outside a container %s of memory will be left "
                   + "unallocated according to the setting '%s' not taking into account heap memory",
               additionalArgs);
 
@@ -143,7 +143,7 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
       OLogManager.instance()
           .info(
               this,
-              "OxygenDB auto-config DISKCACHE=%,dMB (heap=%,dMB os=%,dMB)",
+              "YouTrackDB auto-config DISKCACHE=%,dMB (heap=%,dMB os=%,dMB)",
               diskCacheInMB,
               jvmMaxMemory / 1024 / 1024,
               osMemory.memoryLimit / 1024 / 1024);
@@ -156,7 +156,7 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
           .warn(
               this,
               "Not enough physical memory available for DISKCACHE: %,dMB (heap=%,dMB). Set lower"
-                  + " Maximum Heap (-Xmx setting on JVM) and restart OxygenDB. Now running with"
+                  + " Maximum Heap (-Xmx setting on JVM) and restart YouTrackDB. Now running with"
                   + " DISKCACHE="
                   + diskCacheInMB
                   + "MB",
@@ -167,7 +167,7 @@ public class OMemoryAndLocalPaginatedEnginesInitializer {
       OLogManager.instance()
           .info(
               this,
-              "OxygenDB config DISKCACHE=%,dMB (heap=%,dMB os=%,dMB)",
+              "YouTrackDB config DISKCACHE=%,dMB (heap=%,dMB os=%,dMB)",
               diskCacheInMB,
               jvmMaxMemory / 1024 / 1024,
               osMemory.memoryLimit / 1024 / 1024);

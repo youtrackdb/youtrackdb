@@ -23,7 +23,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.OScriptInterceptor;
 import com.orientechnologies.orient.core.command.script.OCommandExecutorScript;
 import com.orientechnologies.orient.core.command.script.OCommandScript;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.exception.OSecurityException;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
@@ -59,7 +59,7 @@ public class OServerSideScriptInterpreter extends OServerPluginAbstract {
         allowedLanguages =
             new HashSet<>(Arrays.asList(param.value.toLowerCase(Locale.ENGLISH).split(",")));
       } else if (param.name.equalsIgnoreCase("allowedPackages")) {
-        OxygenDBInternal.extract(iServer.getContext())
+        YouTrackDBInternal.extract(iServer.getContext())
             .getScriptManager()
             .addAllowedPackages(new HashSet<>(Arrays.asList(param.value.split(","))));
       }
@@ -78,7 +78,7 @@ public class OServerSideScriptInterpreter extends OServerPluginAbstract {
       return;
     }
 
-    OxygenDBInternal.extract(server.getContext())
+    YouTrackDBInternal.extract(server.getContext())
         .getScriptManager()
         .getCommandManager()
         .registerExecutor(
@@ -97,7 +97,7 @@ public class OServerSideScriptInterpreter extends OServerPluginAbstract {
           checkLanguage(language);
         };
 
-    OxygenDBInternal.extract(server.getContext())
+    YouTrackDBInternal.extract(server.getContext())
         .getScriptManager()
         .getCommandManager()
         .getScriptExecutors()
@@ -118,7 +118,7 @@ public class OServerSideScriptInterpreter extends OServerPluginAbstract {
     }
 
     if (interceptor != null) {
-      OxygenDBInternal.extract(server.getContext())
+      YouTrackDBInternal.extract(server.getContext())
           .getScriptManager()
           .getCommandManager()
           .getScriptExecutors()
@@ -126,7 +126,7 @@ public class OServerSideScriptInterpreter extends OServerPluginAbstract {
           .forEach(e -> e.getValue().unregisterInterceptor(interceptor));
     }
 
-    OxygenDBInternal.extract(server.getContext())
+    YouTrackDBInternal.extract(server.getContext())
         .getScriptManager()
         .getCommandManager()
         .unregisterExecutor(OCommandScript.class);

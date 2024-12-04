@@ -6,7 +6,7 @@ import static com.orientechnologies.orient.core.db.tool.ODatabaseImport.EXPORT_I
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -28,11 +28,11 @@ public class TestImportRewriteLinks {
 
   @Test
   public void testNestedLinkRewrite() {
-    try (final OxygenDB oxygenDb =
+    try (final YouTrackDB youTrackDb =
         OCreateDatabaseUtil.createDatabase(
             "testDB", DBTestBase.embeddedDBUrl(getClass()), OCreateDatabaseUtil.TYPE_MEMORY)) {
       try (var session =
-          (ODatabaseSessionInternal) oxygenDb.open("testDB", "admin",
+          (ODatabaseSessionInternal) youTrackDb.open("testDB", "admin",
               OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
         final OSchema schema = session.getMetadata().getSchema();
 

@@ -5,8 +5,8 @@ import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.common.serialization.types.OStringSerializer;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.storage.OStorage;
 import com.orientechnologies.orient.core.storage.cache.OWriteCache;
@@ -31,15 +31,15 @@ public class InvalidRemovedFileIdsIT {
 
     deleteDirectory(new File(dbPath));
 
-    final OxygenDBConfig config =
-        OxygenDBConfig.builder()
+    final YouTrackDBConfig config =
+        YouTrackDBConfig.builder()
             .addAttribute(ATTRIBUTES.MINIMUMCLUSTERS, 1)
             .build();
 
-    OxygenDB oxygenDB = new OxygenDB("plocal:" + buildDirectory, config);
-    oxygenDB.execute(
+    YouTrackDB youTrackDB = new YouTrackDB("plocal:" + buildDirectory, config);
+    youTrackDB.execute(
         "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
-    var db = (ODatabaseSessionInternal) oxygenDB.open(dbName, "admin", "admin");
+    var db = (ODatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
 
     OStorage storage = db.getStorage();
     OWriteCache writeCache = ((OAbstractPaginatedStorage) storage).getWriteCache();
@@ -52,7 +52,7 @@ public class InvalidRemovedFileIdsIT {
     }
 
     db.close();
-    oxygenDB.close();
+    youTrackDB.close();
 
     // create file map of v1 binary format because but with incorrect negative file ids is present
     // only there
@@ -77,8 +77,8 @@ public class InvalidRemovedFileIdsIT {
 
     fileMap.close();
 
-    oxygenDB = new OxygenDB("plocal:" + buildDirectory, config);
-    db = (ODatabaseSessionInternal) oxygenDB.open(dbName, "admin", "admin");
+    youTrackDB = new YouTrackDB("plocal:" + buildDirectory, config);
+    db = (ODatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
 
     final OSchema schema = db.getMetadata().getSchema();
     schema.createClass("c1");
@@ -135,7 +135,7 @@ public class InvalidRemovedFileIdsIT {
     Assert.assertTrue(ids.add(c4_pcl_id));
 
     db.close();
-    oxygenDB.close();
+    youTrackDB.close();
   }
 
   private static void writeNameIdEntry(RandomAccessFile file, String name, int fileId)

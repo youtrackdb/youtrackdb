@@ -6,9 +6,9 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.core.command.OServerCommandContext;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
-import com.orientechnologies.orient.core.db.OxygenDBConfigBuilder;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.sql.executor.OResultInternal;
 import com.orientechnologies.orient.core.sql.executor.resultset.OExecutionStream;
@@ -44,7 +44,7 @@ public class OCreateDatabaseStatement extends OSimpleExecServerStatement {
 
   @Override
   public OExecutionStream executeSimple(OServerCommandContext ctx) {
-    OxygenDBInternal server = ctx.getServer();
+    YouTrackDBInternal server = ctx.getServer();
     OResultInternal result = new OResultInternal(ctx.getDatabase());
     result.setProperty("operation", "create database");
     String dbName =
@@ -65,7 +65,7 @@ public class OCreateDatabaseStatement extends OSimpleExecServerStatement {
       result.setProperty("existing", true);
     } else {
       try {
-        OxygenDBConfigBuilder configBuilder = OxygenDBConfig.builder();
+        YouTrackDBConfigBuilder configBuilder = YouTrackDBConfig.builder();
 
         if (config != null) {
           configBuilder = mapOrientDBConfig(this.config, ctx, configBuilder);
@@ -104,8 +104,8 @@ public class OCreateDatabaseStatement extends OSimpleExecServerStatement {
     return OExecutionStream.singleton(result);
   }
 
-  private OxygenDBConfigBuilder mapOrientDBConfig(
-      OJson config, OServerCommandContext ctx, OxygenDBConfigBuilder builder) {
+  private YouTrackDBConfigBuilder mapOrientDBConfig(
+      OJson config, OServerCommandContext ctx, YouTrackDBConfigBuilder builder) {
     Map<String, Object> configMap = config.toMap(new OResultInternal(ctx.getDatabase()), ctx);
 
     Object globalConfig = configMap.get("config");

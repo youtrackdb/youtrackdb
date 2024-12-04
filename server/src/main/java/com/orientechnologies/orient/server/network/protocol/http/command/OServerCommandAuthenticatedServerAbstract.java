@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * Server based authenticated commands. Authenticates against the OxygenDB server users found in
+ * Server based authenticated commands. Authenticates against the YouTrackDB server users found in
  * configuration.
  */
 public abstract class OServerCommandAuthenticatedServerAbstract extends OServerCommandAbstract {

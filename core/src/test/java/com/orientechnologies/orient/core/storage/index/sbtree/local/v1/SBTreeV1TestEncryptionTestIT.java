@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.storage.index.sbtree.local.v1;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.encryption.OEncryption;
 import com.orientechnologies.orient.core.encryption.OEncryptionFactory;
 import com.orientechnologies.orient.core.serialization.serializer.binary.impl.OLinkSerializer;
@@ -21,11 +21,11 @@ public class SBTreeV1TestEncryptionTestIT extends SBTreeV1TestIT {
     final File dbDirectory = new File(buildDirectory, dbName);
     OFileUtils.deleteRecursively(dbDirectory);
 
-    oxygenDB = new OxygenDB("plocal:" + buildDirectory, OxygenDBConfig.defaultConfig());
+    youTrackDB = new YouTrackDB("plocal:" + buildDirectory, YouTrackDBConfig.defaultConfig());
 
-    oxygenDB.execute(
+    youTrackDB.execute(
         "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
-    databaseDocumentTx = oxygenDB.open(dbName, "admin", "admin");
+    databaseDocumentTx = youTrackDB.open(dbName, "admin", "admin");
 
     sbTree =
         new OSBTreeV1<>(

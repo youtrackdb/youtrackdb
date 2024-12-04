@@ -4,11 +4,11 @@ import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -44,8 +44,8 @@ public class RemoteTransactionHookTest extends DBTestBase {
   }
 
   @Override
-  protected OxygenDB createContext() {
-    var builder = OxygenDBConfig.builder();
+  protected YouTrackDB createContext() {
+    var builder = YouTrackDBConfig.builder();
     var config = createConfig(builder);
 
     final String testConfig =
@@ -57,7 +57,7 @@ public class RemoteTransactionHookTest extends DBTestBase {
       dbType = ODatabaseType.MEMORY;
     }
 
-    return OxygenDB.remote("localhost", "root", "root", config);
+    return YouTrackDB.remote("localhost", "root", "root", config);
   }
 
   @After
@@ -66,9 +66,9 @@ public class RemoteTransactionHookTest extends DBTestBase {
 
     server.shutdown();
 
-    Oxygen.instance().shutdown();
+    YouTrackDBManager.instance().shutdown();
     OFileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
-    Oxygen.instance().startup();
+    YouTrackDBManager.instance().startup();
   }
 
   @Test
@@ -98,9 +98,10 @@ public class RemoteTransactionHookTest extends DBTestBase {
 
   @Test
   public void testCalledInClientTx() {
-    OxygenDB oxygenDB = new OxygenDB("embedded:", OxygenDBConfig.defaultConfig());
-    oxygenDB.execute("create database test memory users (admin identified by 'admin' role admin)");
-    var database = oxygenDB.open("test", "admin", "admin");
+    YouTrackDB youTrackDB = new YouTrackDB("embedded:", YouTrackDBConfig.defaultConfig());
+    youTrackDB.execute(
+        "create database test memory users (admin identified by 'admin' role admin)");
+    var database = youTrackDB.open("test", "admin", "admin");
     CountCallHook calls = new CountCallHook(database);
     database.registerHook(calls);
     database.createClassIfNotExist("SomeTx");
@@ -122,7 +123,7 @@ public class RemoteTransactionHookTest extends DBTestBase {
     assertEquals(1, calls.getBeforeDelete());
     assertEquals(1, calls.getAfterDelete());
     database.close();
-    oxygenDB.close();
+    youTrackDB.close();
     this.db.activateOnCurrentThread();
   }
 

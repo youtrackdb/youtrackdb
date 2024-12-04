@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.db;
 import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.record.ODirection;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.server.OServer;
@@ -19,7 +19,7 @@ public class CountRealationshipsTest {
 
   private static final String SERVER_DIRECTORY = "./target/cluster";
   private OServer server;
-  private OxygenDB oxygenDB;
+  private YouTrackDB youTrackDB;
 
   @Before
   public void before() throws Exception {
@@ -28,8 +28,9 @@ public class CountRealationshipsTest {
     server.startup(getClass().getResourceAsStream("orientdb-server-config-tree-ridbag.xml"));
     server.activate();
 
-    oxygenDB = new OxygenDB("remote:localhost", "root", "root", OxygenDBConfig.defaultConfig());
-    oxygenDB.execute(
+    youTrackDB = new YouTrackDB("remote:localhost", "root", "root",
+        YouTrackDBConfig.defaultConfig());
+    youTrackDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         CountRealationshipsTest.class.getSimpleName());
   }
@@ -37,7 +38,7 @@ public class CountRealationshipsTest {
   @Test
   public void test() throws Exception {
     ODatabaseSession g =
-        oxygenDB.open(CountRealationshipsTest.class.getSimpleName(), "admin", "admin");
+        youTrackDB.open(CountRealationshipsTest.class.getSimpleName(), "admin", "admin");
     g.begin();
     OVertex vertex1 = g.newVertex("V");
     vertex1.save();
@@ -95,7 +96,7 @@ public class CountRealationshipsTest {
 
     g.close();
 
-    g = oxygenDB.open(CountRealationshipsTest.class.getSimpleName(), "admin", "admin");
+    g = youTrackDB.open(CountRealationshipsTest.class.getSimpleName(), "admin", "admin");
     vertex1 = g.load(vertex1.getIdentity());
     vertex2 = g.load(vertex2.getIdentity());
 
@@ -121,10 +122,10 @@ public class CountRealationshipsTest {
 
   @After
   public void after() {
-    oxygenDB.close();
+    youTrackDB.close();
     server.shutdown();
-    Oxygen.instance().shutdown();
+    YouTrackDBManager.instance().shutdown();
     OFileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
-    Oxygen.instance().startup();
+    YouTrackDBManager.instance().startup();
   }
 }

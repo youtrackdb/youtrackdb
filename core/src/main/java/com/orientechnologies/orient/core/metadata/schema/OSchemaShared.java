@@ -615,7 +615,7 @@ public abstract class OSchemaShared implements OCloseable {
         // HANDLE SCHEMA UPGRADE
         throw new OConfigurationException(
             "Database schema is different. Please export your old database with the previous"
-                + " version of OxygenDB and reimport it using the current one.");
+                + " version of YouTrackDB and reimport it using the current one.");
       }
 
       properties.clear();

@@ -7,8 +7,8 @@ import com.orientechnologies.orient.core.exception.OQueryParsingException;
 import java.lang.reflect.InvocationTargetException;
 
 /**
- * Enumeration with the error managed by OxygenDB. This class has been introduced in v.2.2 and
- * little by little will contain all the OxygenDB managed errors.
+ * Enumeration with the error managed by YouTrackDB. This class has been introduced in v.2.2 and
+ * little by little will contain all the YouTrackDB managed errors.
  */
 public enum OErrorCode {
 

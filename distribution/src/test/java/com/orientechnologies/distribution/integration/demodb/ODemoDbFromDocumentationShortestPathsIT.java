@@ -22,7 +22,7 @@ public class ODemoDbFromDocumentationShortestPathsIT extends OIntegrationTestTem
             "SELECT expand(path) FROM (\n"
                 + "  SELECT shortestPath($from, $to) AS path \n"
                 + "  LET \n"
-                + "    $from = (SELECT FROM Profiles WHERE Name='Santo' and Surname='OxygenDB'), \n"
+                + "    $from = (SELECT FROM Profiles WHERE Name='Santo' and Surname='YouTrackDB'), \n"
                 + "    $to = (SELECT FROM Countries WHERE Name='United States') \n"
                 + "  UNWIND path\n"
                 + ")");
@@ -41,7 +41,7 @@ public class ODemoDbFromDocumentationShortestPathsIT extends OIntegrationTestTem
             "SELECT expand(path) FROM (\n"
                 + "  SELECT shortestPath($from, $to) AS path \n"
                 + "  LET \n"
-                + "    $from = (SELECT FROM Profiles WHERE Name='Santo' and Surname='OxygenDB'), \n"
+                + "    $from = (SELECT FROM Profiles WHERE Name='Santo' and Surname='YouTrackDB'), \n"
                 + "    $to = (SELECT FROM Restaurants WHERE Name='Malga Granezza') \n"
                 + "  UNWIND path\n"
                 + ")");

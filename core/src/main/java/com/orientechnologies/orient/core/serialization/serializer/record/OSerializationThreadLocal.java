@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.serialization.serializer.record;
 
 import com.orientechnologies.orient.core.OOrientListenerAbstract;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 
@@ -29,7 +29,7 @@ public class OSerializationThreadLocal extends ThreadLocal<IntSet> {
   public static volatile OSerializationThreadLocal INSTANCE = new OSerializationThreadLocal();
 
   static {
-    Oxygen.instance()
+    YouTrackDBManager.instance()
         .registerListener(
             new OOrientListenerAbstract() {
               @Override

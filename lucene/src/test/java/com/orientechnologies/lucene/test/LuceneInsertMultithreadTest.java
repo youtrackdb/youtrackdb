@@ -21,8 +21,8 @@ package com.orientechnologies.lucene.test;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.engine.local.OEngineLocalPaginated;
 import com.orientechnologies.orient.core.engine.memory.OEngineMemory;
 import com.orientechnologies.orient.core.id.ORID;
@@ -47,7 +47,7 @@ public class LuceneInsertMultithreadTest {
   private static String buildDirectory;
   private static final String dbName;
   private static final ODatabaseType databaseType;
-  private static final OxygenDB OXYGEN_DB;
+  private static final YouTrackDB OXYGEN_DB;
 
   static {
     System.getProperty("buildDirectory", ".");
@@ -67,7 +67,8 @@ public class LuceneInsertMultithreadTest {
     }
 
     dbName = "multiThread";
-    OXYGEN_DB = new OxygenDB(storageType + ":" + buildDirectory, OxygenDBConfig.defaultConfig());
+    OXYGEN_DB = new YouTrackDB(storageType + ":" + buildDirectory,
+        YouTrackDBConfig.defaultConfig());
   }
 
   public LuceneInsertMultithreadTest() {

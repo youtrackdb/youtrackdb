@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.server;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import java.io.File;
 import java.io.InputStream;
 import org.junit.After;
@@ -24,7 +24,7 @@ public class AbstractRemoteTest {
   @Before
   public void setup() throws Exception {
 
-    System.setProperty("OXYGENDB_HOME", SERVER_DIRECTORY);
+    System.setProperty("YOU_TRACK_DB_HOME", SERVER_DIRECTORY);
 
     InputStream stream =
         ClassLoader.getSystemResourceAsStream("abstract-orientdb-server-config.xml");
@@ -45,8 +45,8 @@ public class AbstractRemoteTest {
   public void teardown() {
     server.shutdown();
 
-    Oxygen.instance().shutdown();
+    YouTrackDBManager.instance().shutdown();
     OFileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
-    Oxygen.instance().startup();
+    YouTrackDBManager.instance().startup();
   }
 }

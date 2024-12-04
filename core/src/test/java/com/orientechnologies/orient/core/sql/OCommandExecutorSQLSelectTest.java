@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright OxygenDB
+ *  *  Copyright YouTrackDB
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import static org.junit.Assert.fail;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.profiler.OProfiler;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.iterator.ORecordIteratorClass;
@@ -386,7 +386,7 @@ public class OCommandExecutorSQLSelectTest extends DBTestBase {
   }
 
   private static OProfiler getProfilerInstance() {
-    return Oxygen.instance().getProfiler();
+    return YouTrackDBManager.instance().getProfiler();
   }
 
   @Test

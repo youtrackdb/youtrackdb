@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.db;
 
 import com.orientechnologies.orient.core.OOrientListenerAbstract;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nonnull;
@@ -49,9 +49,9 @@ public class ODatabaseRecordThreadLocal extends ThreadLocal<ODatabaseSessionInte
   private static void registerCleanUpHandler() {
     // we can do that to avoid thread local memory leaks in containers
     if (INSTANCE.get() == null) {
-      final Oxygen inst = Oxygen.instance();
+      final YouTrackDBManager inst = YouTrackDBManager.instance();
       if (inst == null) {
-        throw new ODatabaseException("OxygenDB API is not active.");
+        throw new ODatabaseException("YouTrackDB API is not active.");
       }
       inst.registerListener(
           new OOrientListenerAbstract() {
@@ -73,12 +73,12 @@ public class ODatabaseRecordThreadLocal extends ThreadLocal<ODatabaseSessionInte
   public ODatabaseSessionInternal get() {
     ODatabaseSessionInternal db = super.get();
     if (db == null) {
-      if (Oxygen.instance().getDatabaseThreadFactory() == null) {
+      if (YouTrackDBManager.instance().getDatabaseThreadFactory() == null) {
         throw new ODatabaseException(
             "The database instance is not set in the current thread. Be sure to set it with:"
                 + " ODatabaseRecordThreadLocal.instance().set(db);");
       } else {
-        db = Oxygen.instance().getDatabaseThreadFactory().getThreadDatabase();
+        db = YouTrackDBManager.instance().getDatabaseThreadFactory().getThreadDatabase();
         if (db == null) {
           throw new ODatabaseException(
               "The database instance is not set in the current thread. Be sure to set it with:"

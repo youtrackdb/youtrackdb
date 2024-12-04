@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright OxygenDB
+ *  *  Copyright YouTrackDB
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ package com.orientechnologies.orient.server.distributed;
 
 import com.orientechnologies.common.collection.OMultiValue;
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.command.OCommandDistributedReplicateRequest;
 import com.orientechnologies.orient.core.exception.OConcurrentCreateException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -130,7 +130,7 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
             request,
             getExpectedNodes());
 
-        Oxygen.instance()
+        YouTrackDBManager.instance()
             .getProfiler()
             .updateCounter(
                 "distributed.node.unexpectedNodeResponse",
@@ -392,7 +392,7 @@ public class ODistributedResponseManagerImpl implements ODistributedResponseMana
       return isMinimumQuorumReached(reachedTimeout);
 
     } finally {
-      Oxygen.instance()
+      YouTrackDBManager.instance()
           .getProfiler()
           .stopChrono(
               "distributed.synchResponses",

@@ -24,7 +24,7 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OWALCh
 import java.nio.ByteBuffer;
 
 /**
- * This interface is used for serializing OxygenDB datatypes in binary format. Serialized content is
+ * This interface is used for serializing YouTrackDB datatypes in binary format. Serialized content is
  * written into buffer that will contain not only given object presentation but all binary content.
  * Such approach prevents creation of separate byte array for each object and decreased GC
  * overhead.

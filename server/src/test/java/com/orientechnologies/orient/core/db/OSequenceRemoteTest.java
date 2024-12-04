@@ -16,8 +16,8 @@ public class OSequenceRemoteTest extends AbstractRemoteTest {
   @Override
   public void setup() throws Exception {
     super.setup();
-    OxygenDB factory =
-        new OxygenDB("remote:localhost", "root", "root", OxygenDBConfig.defaultConfig());
+    YouTrackDB factory =
+        new YouTrackDB("remote:localhost", "root", "root", YouTrackDBConfig.defaultConfig());
     db = (ODatabaseSessionInternal) factory.open(name.getMethodName(), "admin", "admin");
   }
 

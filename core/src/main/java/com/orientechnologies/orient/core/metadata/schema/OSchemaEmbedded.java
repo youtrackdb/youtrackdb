@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.metadata.schema;
 
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
@@ -123,7 +123,8 @@ public class OSchemaEmbedded extends OSchemaShared {
 
       result = classes.get(className.toLowerCase(Locale.ENGLISH));
       // WAKE UP DB LIFECYCLE LISTENER
-      for (Iterator<ODatabaseLifecycleListener> it = Oxygen.instance().getDbLifecycleListeners();
+      for (Iterator<ODatabaseLifecycleListener> it = YouTrackDBManager.instance()
+          .getDbLifecycleListeners();
           it.hasNext(); ) {
         //noinspection deprecation
         it.next().onCreateClass(database, result);
@@ -354,7 +355,8 @@ public class OSchemaEmbedded extends OSchemaShared {
       result = views.get(config.getName().toLowerCase(Locale.ENGLISH));
 
       // WAKE UP DB LIFECYCLE LISTENER
-      for (Iterator<ODatabaseLifecycleListener> it = Oxygen.instance().getDbLifecycleListeners();
+      for (Iterator<ODatabaseLifecycleListener> it = YouTrackDBManager.instance()
+          .getDbLifecycleListeners();
           it.hasNext(); ) {
         it.next().onCreateView(database, result);
       }
@@ -550,7 +552,8 @@ public class OSchemaEmbedded extends OSchemaShared {
       result = classes.get(className.toLowerCase(Locale.ENGLISH));
 
       // WAKE UP DB LIFECYCLE LISTENER
-      for (Iterator<ODatabaseLifecycleListener> it = Oxygen.instance().getDbLifecycleListeners();
+      for (Iterator<ODatabaseLifecycleListener> it = YouTrackDBManager.instance()
+          .getDbLifecycleListeners();
           it.hasNext(); ) {
         //noinspection deprecation
         it.next().onCreateClass(database, result);
@@ -734,7 +737,8 @@ public class OSchemaEmbedded extends OSchemaShared {
       removeClusterClassMap(cls);
 
       // WAKE UP DB LIFECYCLE LISTENER
-      for (Iterator<ODatabaseLifecycleListener> it = Oxygen.instance().getDbLifecycleListeners();
+      for (Iterator<ODatabaseLifecycleListener> it = YouTrackDBManager.instance()
+          .getDbLifecycleListeners();
           it.hasNext(); ) {
         //noinspection deprecation
         it.next().onDropClass(database, cls);
@@ -842,7 +846,8 @@ public class OSchemaEmbedded extends OSchemaShared {
       removeClusterViewMap(cls);
 
       // WAKE UP DB LIFECYCLE LISTENER
-      for (Iterator<ODatabaseLifecycleListener> it = Oxygen.instance().getDbLifecycleListeners();
+      for (Iterator<ODatabaseLifecycleListener> it = YouTrackDBManager.instance()
+          .getDbLifecycleListeners();
           it.hasNext(); ) {
         it.next().onDropView(database, cls);
       }

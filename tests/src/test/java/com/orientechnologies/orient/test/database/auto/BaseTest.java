@@ -3,9 +3,9 @@ package com.orientechnologies.orient.test.database.auto;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
-import com.orientechnologies.orient.core.db.OxygenDBConfigBuilder;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.server.OServer;
 import java.util.Locale;
@@ -34,7 +34,7 @@ public abstract class BaseTest<T extends ODatabaseSessionInternal> {
   protected boolean remoteDB = false;
   protected ODatabaseType databaseType;
 
-  public static OxygenDB oxygenDB;
+  public static YouTrackDB youTrackDB;
 
   protected BaseTest() {
   }
@@ -71,14 +71,14 @@ public abstract class BaseTest<T extends ODatabaseSessionInternal> {
         server.activate();
       }
 
-      if (oxygenDB == null) {
-        var builder = new OxygenDBConfigBuilder();
+      if (youTrackDB == null) {
+        var builder = new YouTrackDBConfigBuilder();
         if (remoteDB) {
-          oxygenDB =
-              new OxygenDB("remote:localhost", "root", SERVER_PASSWORD, createConfig(builder));
+          youTrackDB =
+              new YouTrackDB("remote:localhost", "root", SERVER_PASSWORD, createConfig(builder));
         } else {
           final String buildDirectory = System.getProperty("buildDirectory", ".");
-          oxygenDB = OxygenDB.embedded(buildDirectory + "/test-db", createConfig(builder));
+          youTrackDB = YouTrackDB.embedded(buildDirectory + "/test-db", createConfig(builder));
         }
       }
 
@@ -90,7 +90,7 @@ public abstract class BaseTest<T extends ODatabaseSessionInternal> {
   }
 
   protected void createDatabase(String dbName) {
-    oxygenDB.createIfNotExists(
+    youTrackDB.createIfNotExists(
         dbName,
         databaseType,
         "admin",
@@ -109,17 +109,17 @@ public abstract class BaseTest<T extends ODatabaseSessionInternal> {
   }
 
   protected void dropDatabase(String dbName) {
-    if (oxygenDB.exists(dbName)) {
-      oxygenDB.drop(dbName);
+    if (youTrackDB.exists(dbName)) {
+      youTrackDB.drop(dbName);
     }
   }
 
   @AfterSuite
   public void afterSuite() {
     try {
-      if (oxygenDB != null) {
-        oxygenDB.close();
-        oxygenDB = null;
+      if (youTrackDB != null) {
+        youTrackDB.close();
+        youTrackDB = null;
       }
 
       if (remoteDB && server != null) {
@@ -182,7 +182,7 @@ public abstract class BaseTest<T extends ODatabaseSessionInternal> {
   }
 
   protected abstract T createSessionInstance(
-      OxygenDB oxygenDB, String dbName, String user, String password);
+      YouTrackDB youTrackDB, String dbName, String user, String password);
 
   protected final T createSessionInstance() {
     return createSessionInstance("admin", "admin");
@@ -193,7 +193,7 @@ public abstract class BaseTest<T extends ODatabaseSessionInternal> {
   }
 
   protected final T createSessionInstance(String dbName, String user, String password) {
-    return createSessionInstance(oxygenDB, dbName, user, password);
+    return createSessionInstance(youTrackDB, dbName, user, password);
   }
 
   protected final T createSessionInstance(String user, String password) {
@@ -205,10 +205,10 @@ public abstract class BaseTest<T extends ODatabaseSessionInternal> {
   }
 
   protected ODatabaseSessionInternal acquireSession(String dbName) {
-    return (ODatabaseSessionInternal) oxygenDB.open(dbName, "admin", "admin");
+    return (ODatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
   }
 
-  protected OxygenDBConfig createConfig(OxygenDBConfigBuilder builder) {
+  protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilder builder) {
     builder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "SILENT");
     return builder.build();
   }

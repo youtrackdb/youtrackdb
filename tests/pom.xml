@@ -16,14 +16,14 @@
 
   <parent>
     <groupId>io.oxygendb</groupId>
-    <artifactId>oxygendb-parent</artifactId>
+    <artifactId>youtrackdb-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>oxygendb-tests</artifactId>
+  <artifactId>youtrackdb-tests</artifactId>
 
-  <name>OxygenDB Tests</name>
+  <name>YouTrackDB Tests</name>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!--This property is updated automatically and is needed to make build reproducible-->
@@ -49,25 +49,25 @@
     </dependency>
     <dependency>
       <groupId>io.oxygendb</groupId>
-      <artifactId>oxygendb-client</artifactId>
+      <artifactId>youtrackdb-client</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.oxygendb</groupId>
-      <artifactId>oxygendb-tools</artifactId>
+      <artifactId>youtrackdb-tools</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.oxygendb</groupId>
-      <artifactId>oxygendb-server</artifactId>
+      <artifactId>youtrackdb-server</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.oxygendb</groupId>
-      <artifactId>oxygendb-test-commons</artifactId>
+      <artifactId>youtrackdb-test-commons</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
@@ -86,14 +86,14 @@
 
     <dependency>
       <groupId>io.oxygendb</groupId>
-      <artifactId>oxygendb-core</artifactId>
+      <artifactId>youtrackdb-core</artifactId>
       <version>${project.version}</version>
       <type>jar</type>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>io.oxygendb</groupId>
-      <artifactId>oxygendb-core</artifactId>
+      <artifactId>youtrackdb-core</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
@@ -183,7 +183,7 @@
               <systemPropertyVariables>
                 <oxygendb.config.file>target/test-classes/orientdb-server-config.xml
                 </oxygendb.config.file>
-                <OXYGENDB_HOME>${project.build.directory}/remote-server</OXYGENDB_HOME>
+                <YOU_TRACK_DB_HOME>${project.build.directory}/remote-server</YOU_TRACK_DB_HOME>
               </systemPropertyVariables>
               <suiteXmlFiles>
                 <suiteXmlFile>

@@ -23,7 +23,7 @@ import com.orientechnologies.common.concur.lock.OInterruptedException;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.OOrientListenerAbstract;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OStorageExistsException;
@@ -117,8 +117,8 @@ public class OPartitionedDatabasePool extends OOrientListenerAbstract {
 
     partitions = pts;
 
-    Oxygen.instance().registerWeakOrientStartupListener(this);
-    Oxygen.instance().registerWeakOrientShutdownListener(this);
+    YouTrackDBManager.instance().registerWeakOrientStartupListener(this);
+    YouTrackDBManager.instance().registerWeakOrientShutdownListener(this);
   }
 
   private static int nextHashCode() {

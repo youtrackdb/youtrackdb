@@ -23,7 +23,7 @@ package com.orientechnologies.orient.core.db.document;
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OScriptExecutor;
@@ -40,7 +40,7 @@ import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.OSharedContext;
 import com.orientechnologies.orient.core.db.OSharedContextEmbedded;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.record.OClassTrigger;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -128,7 +128,7 @@ import java.util.concurrent.ExecutionException;
 public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
     implements OQueryLifecycleListener {
 
-  private OxygenDBConfig config;
+  private YouTrackDBConfig config;
   private OStorage storage;
 
   private OTransactionNoTx.NonTxReadMode nonTxReadMode;
@@ -185,10 +185,10 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
   }
 
   public ODatabaseSession open(final String iUserName, final String iUserPassword) {
-    throw new UnsupportedOperationException("Use OxygenDB");
+    throw new UnsupportedOperationException("Use YouTrackDB");
   }
 
-  public void init(OxygenDBConfig config, OSharedContext sharedContext) {
+  public void init(YouTrackDBConfig config, OSharedContext sharedContext) {
     this.sharedContext = sharedContext;
     activateOnCurrentThread();
     this.config = config;
@@ -304,7 +304,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
         });
   }
 
-  private void applyListeners(OxygenDBConfig config) {
+  private void applyListeners(YouTrackDBConfig config) {
     if (config != null) {
       for (ODatabaseListener listener : config.getListeners()) {
         registerListener(listener);
@@ -332,7 +332,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
   /**
    * {@inheritDoc}
    */
-  public void internalCreate(OxygenDBConfig config, OSharedContext ctx) {
+  public void internalCreate(YouTrackDBConfig config, OSharedContext ctx) {
     ORecordSerializer serializer = ORecordSerializerFactory.instance().getDefaultRecordSerializer();
     if (serializer.toString().equals("ORecordDocument2csv")) {
       throw new ODatabaseException(
@@ -355,7 +355,8 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
 
   public void callOnCreateListeners() {
     // WAKE UP DB LIFECYCLE LISTENER
-    for (Iterator<ODatabaseLifecycleListener> it = Oxygen.instance().getDbLifecycleListeners();
+    for (Iterator<ODatabaseLifecycleListener> it = YouTrackDBManager.instance()
+        .getDbLifecycleListeners();
         it.hasNext(); ) {
       it.next().onCreate(getDatabaseOwner());
     }
@@ -384,7 +385,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
         });
   }
 
-  private void applyAttributes(OxygenDBConfig config) {
+  private void applyAttributes(YouTrackDBConfig config) {
     if (config != null) {
       for (Entry<ATTRIBUTES, Object> attrs : config.getAttributes().entrySet()) {
         this.set(attrs.getKey(), attrs.getValue());
@@ -450,7 +451,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
           throw new IllegalArgumentException("Timezone can't be null");
         }
 
-        // for backward compatibility, until 2.1.13 OxygenDB accepted timezones in lowercase as well
+        // for backward compatibility, until 2.1.13 YouTrackDB accepted timezones in lowercase as well
         TimeZone timeZoneValue = TimeZone.getTimeZone(stringValue.toUpperCase(Locale.ENGLISH));
         if (timeZoneValue.equals(TimeZone.getTimeZone("GMT"))) {
           timeZoneValue = TimeZone.getTimeZone(stringValue);
@@ -512,7 +513,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
 
       case CONFLICTSTRATEGY:
         storage.setConflictStrategy(
-            Oxygen.instance().getRecordConflictStrategy().getStrategy(stringValue));
+            YouTrackDBManager.instance().getRecordConflictStrategy().getStrategy(stringValue));
         break;
 
       case VALIDATION:
@@ -569,12 +570,12 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
    */
   @Override
   public ODatabaseSession create(String incrementalBackupPath) {
-    throw new UnsupportedOperationException("use OxygenDB");
+    throw new UnsupportedOperationException("use YouTrackDB");
   }
 
   @Override
   public ODatabaseSession create(final Map<OGlobalConfiguration, Object> iInitialSettings) {
-    throw new UnsupportedOperationException("use OxygenDB");
+    throw new UnsupportedOperationException("use YouTrackDB");
   }
 
   /**
@@ -582,7 +583,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
    */
   @Override
   public void drop() {
-    throw new UnsupportedOperationException("use OxygenDB");
+    throw new UnsupportedOperationException("use YouTrackDB");
   }
 
   /**
@@ -609,7 +610,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
 
   @Override
   public boolean exists() {
-    throw new UnsupportedOperationException("use OxygenDB");
+    throw new UnsupportedOperationException("use YouTrackDB");
   }
 
   @Override
@@ -877,7 +878,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
     // to nothing just compatibility
   }
 
-  public OxygenDBConfig getConfig() {
+  public YouTrackDBConfig getConfig() {
     return config;
   }
 
@@ -1510,7 +1511,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
   public ODatabaseSessionEmbedded setConflictStrategy(final String iStrategyName) {
     checkIfActive();
     storage.setConflictStrategy(
-        Oxygen.instance().getRecordConflictStrategy().getStrategy(iStrategyName));
+        YouTrackDBManager.instance().getRecordConflictStrategy().getStrategy(iStrategyName));
     return this;
   }
 
@@ -1723,14 +1724,14 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
       return;
     }
 
-    final long startTime = Oxygen.instance().getProfiler().startChrono();
+    final long startTime = YouTrackDBManager.instance().getProfiler().startChrono();
 
     final OFreezableStorageComponent storage = getFreezableStorage();
     if (storage != null) {
       storage.freeze(throwException);
     }
 
-    Oxygen.instance()
+    YouTrackDBManager.instance()
         .getProfiler()
         .stopChrono(
             "db." + getName() + ".freeze", "Time to freeze the database", startTime, "db.*.freeze");
@@ -1760,14 +1761,14 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
       return;
     }
 
-    final long startTime = Oxygen.instance().getProfiler().startChrono();
+    final long startTime = YouTrackDBManager.instance().getProfiler().startChrono();
 
     final OFreezableStorageComponent storage = getFreezableStorage();
     if (storage != null) {
       storage.release();
     }
 
-    Oxygen.instance()
+    YouTrackDBManager.instance()
         .getProfiler()
         .stopChrono(
             "db." + getName() + ".release",

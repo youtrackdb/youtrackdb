@@ -24,7 +24,7 @@ import com.orientechnologies.common.concur.resource.OCloseable;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.OOrientShutdownListener;
 import com.orientechnologies.orient.core.OOrientStartupListener;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
@@ -51,8 +51,8 @@ public class OSBTreeCollectionManagerRemote
 
   public OSBTreeCollectionManagerRemote() {
 
-    Oxygen.instance().registerWeakOrientStartupListener(this);
-    Oxygen.instance().registerWeakOrientShutdownListener(this);
+    YouTrackDBManager.instance().registerWeakOrientStartupListener(this);
+    YouTrackDBManager.instance().registerWeakOrientShutdownListener(this);
   }
 
   @Override

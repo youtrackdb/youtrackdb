@@ -6,8 +6,8 @@ import com.orientechnologies.orient.client.remote.message.MockChannel;
 import com.orientechnologies.orient.client.remote.message.OMessageHelper;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -33,13 +33,13 @@ public class OMessageHelperTest {
   @Test
   public void testOIdentifiable() throws IOException {
 
-    OxygenDB oxygenDB = new OxygenDB("embedded", OxygenDBConfig.defaultConfig());
+    YouTrackDB youTrackDB = new YouTrackDB("embedded", YouTrackDBConfig.defaultConfig());
 
-    oxygenDB.execute(
+    youTrackDB.execute(
         "create database testOIdentifiable memory users (admin identified by 'admin' role admin)");
 
     ODatabaseSessionInternal db =
-        (ODatabaseSessionInternal) oxygenDB.open("testOIdentifiable", "admin", "admin");
+        (ODatabaseSessionInternal) youTrackDB.open("testOIdentifiable", "admin", "admin");
     int id = db.getClusterIdByName("V");
     try {
       MockChannel channel = new MockChannel();
@@ -69,7 +69,7 @@ public class OMessageHelperTest {
 
     } finally {
       db.close();
-      oxygenDB.close();
+      youTrackDB.close();
     }
   }
 

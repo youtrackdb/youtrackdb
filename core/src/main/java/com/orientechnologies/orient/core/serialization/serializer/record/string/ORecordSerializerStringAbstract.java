@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.serialization.serializer.record.string
 
 import com.orientechnologies.common.io.OIOUtils;
 import com.orientechnologies.common.profiler.OProfiler;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
@@ -50,7 +50,7 @@ import java.util.Set;
 @SuppressWarnings("serial")
 public abstract class ORecordSerializerStringAbstract implements ORecordSerializer, Serializable {
 
-  protected static final OProfiler PROFILER = Oxygen.instance().getProfiler();
+  protected static final OProfiler PROFILER = YouTrackDBManager.instance().getProfiler();
   private static final char DECIMAL_SEPARATOR = '.';
   private static final String MAX_INTEGER_AS_STRING = String.valueOf(Integer.MAX_VALUE);
   private static final int MAX_INTEGER_DIGITS = MAX_INTEGER_AS_STRING.length();

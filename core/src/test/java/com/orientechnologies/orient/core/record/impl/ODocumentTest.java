@@ -10,7 +10,7 @@ import static org.junit.Assert.assertTrue;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.document.ODatabaseSessionAbstract;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -40,7 +40,7 @@ public class ODocumentTest extends DBTestBase {
     ODocument doc2 =
         new ODocument()
             .field("integer2", 123)
-            .field("string", "OxygenDB")
+            .field("string", "YouTrackDB")
             .field("a", 123.3)
             .setFieldType("integer", OType.INTEGER)
             .setFieldType("string", OType.STRING)
@@ -49,7 +49,7 @@ public class ODocumentTest extends DBTestBase {
     ODocumentInternal.addOwner(doc2, owner);
 
     assertEquals(doc2.<Object>field("integer2"), 123);
-    assertEquals(doc2.field("string"), "OxygenDB");
+    assertEquals(doc2.field("string"), "YouTrackDB");
 
     Assertions.assertThat(doc2.<Double>field("a")).isEqualTo(123.3d);
     assertEquals(doc2.fieldType("integer"), OType.INTEGER);
@@ -174,7 +174,7 @@ public class ODocumentTest extends DBTestBase {
   @Test
   public void testKeepSchemafullFieldTypeSerialization() throws Exception {
     ODatabaseSessionInternal db = null;
-    OxygenDB odb = null;
+    YouTrackDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = (ODatabaseSessionInternal) odb.open(dbName, defaultDbAdminCredentials,
@@ -231,7 +231,7 @@ public class ODocumentTest extends DBTestBase {
   @Test
   public void testRemovingReadonlyField() {
     ODatabaseSessionInternal db = null;
-    OxygenDB odb = null;
+    YouTrackDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = (ODatabaseSessionInternal) odb.open(dbName, defaultDbAdminCredentials,
@@ -272,7 +272,7 @@ public class ODocumentTest extends DBTestBase {
   @Test
   public void testUndo() {
     ODatabaseSessionInternal db = null;
-    OxygenDB odb = null;
+    YouTrackDB odb = null;
     try {
       odb = OCreateDatabaseUtil.createDatabase(dbName, "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
       db = (ODatabaseSessionInternal) odb.open(dbName, defaultDbAdminCredentials,

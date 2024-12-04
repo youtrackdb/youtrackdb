@@ -122,7 +122,7 @@ public class OServerShutdownMain {
     if ("NOT_PRESENT".equals(rootPassword) || printUsage) {
       System.out.println("allowed parameters");
       System.out.println(
-          "-h | --host hostname : name or ip of the host where OxygenDB is running. Deafult to"
+          "-h | --host hostname : name or ip of the host where YouTrackDB is running. Deafult to"
               + " localhost ");
       System.out.println(
           "-P | --ports  ports : ports in the form of single value or range. Default to 2424-2430");
@@ -132,7 +132,7 @@ public class OServerShutdownMain {
           "example: shutdown.sh -h orientserver.mydomain -P 2424-2430 -u root -p securePassword");
     }
 
-    System.out.println("Sending shutdown command to remote OxygenDB Server instance...");
+    System.out.println("Sending shutdown command to remote YouTrackDB Server instance...");
 
     try {
       new OServerShutdownMain(serverHost, serverPorts, rootUser, rootPassword).connect(5000);

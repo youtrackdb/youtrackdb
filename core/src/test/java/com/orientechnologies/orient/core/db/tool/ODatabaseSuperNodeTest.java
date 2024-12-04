@@ -4,7 +4,7 @@ import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OVertex;
 import java.io.ByteArrayInputStream;
@@ -29,31 +29,31 @@ public class ODatabaseSuperNodeTest {
       final String databaseName = "superNode_export";
       final String exportDbUrl =
           "embedded:target/export_" + ODatabaseSuperNodeTest.class.getSimpleName();
-      OxygenDB oxygenDB =
+      YouTrackDB youTrackDB =
           OCreateDatabaseUtil.createDatabase(
               databaseName, exportDbUrl, OCreateDatabaseUtil.TYPE_MEMORY);
 
       final ByteArrayOutputStream output = new ByteArrayOutputStream();
       try {
-        testExportDatabase(numberEdge, exportStats, databaseName, oxygenDB, output);
+        testExportDatabase(numberEdge, exportStats, databaseName, youTrackDB, output);
         Thread.sleep(2000);
       } catch (final InterruptedException e) {
         e.printStackTrace();
       } finally {
-        oxygenDB.drop(databaseName);
-        oxygenDB.close();
+        youTrackDB.drop(databaseName);
+        youTrackDB.close();
       }
 
       final String importDbUrl =
           "memory:target/import_" + ODatabaseSuperNodeTest.class.getSimpleName();
-      oxygenDB =
+      youTrackDB =
           OCreateDatabaseUtil.createDatabase(
               databaseName + "_reImport", importDbUrl, OCreateDatabaseUtil.TYPE_PLOCAL);
       try {
-        testImportDatabase(numberEdge, databaseName, oxygenDB, output, importStats);
+        testImportDatabase(numberEdge, databaseName, youTrackDB, output, importStats);
       } finally {
-        oxygenDB.drop(databaseName + "_reImport");
-        oxygenDB.close();
+        youTrackDB.drop(databaseName + "_reImport");
+        youTrackDB.close();
       }
     }
 
@@ -67,11 +67,11 @@ public class ODatabaseSuperNodeTest {
       final int edgeNumber,
       final List<Long> stats,
       final String databaseName,
-      final OxygenDB oxygenDB,
+      final YouTrackDB youTrackDB,
       final OutputStream output) {
 
     try (final ODatabaseSession session =
-        oxygenDB.open(databaseName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
+        youTrackDB.open(databaseName, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
       session.createClassIfNotExist("SuperNodeClass", "V");
       session.createClassIfNotExist("NonSuperEdgeClass", "E");
 
@@ -112,11 +112,11 @@ public class ODatabaseSuperNodeTest {
   private static void testImportDatabase(
       int numberEdge,
       final String databaseName,
-      final OxygenDB oxygenDB,
+      final YouTrackDB youTrackDB,
       final ByteArrayOutputStream output,
       List<Long> stats) {
     try (var db =
-        (ODatabaseSessionInternal) oxygenDB.open(
+        (ODatabaseSessionInternal) youTrackDB.open(
             databaseName + "_reImport", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD)) {
       final ODatabaseImport importer =
           new ODatabaseImport(

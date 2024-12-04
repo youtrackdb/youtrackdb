@@ -26,7 +26,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.parser.OSystemVariableResolver;
 import com.orientechnologies.common.parser.OVariableParser;
 import com.orientechnologies.common.parser.OVariableParserListener;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExport;
@@ -74,7 +74,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
     EXPORT
   }
 
-  private String configFile = "${OXYGENDB_HOME}/config/automatic-backup.json";
+  private String configFile = "${YOU_TRACK_DB_HOME}/config/automatic-backup.json";
   private Date firstTime = null;
   private long delay = -1;
   private int bufferSize = 1048576;
@@ -273,7 +273,7 @@ public class OAutomaticBackup extends OServerPluginAbstract implements OServerPl
       if (firstTime == null) {
         serverInstance.getDatabases().schedule(task, delay, delay);
       } else {
-        Oxygen.instance().scheduleTask(task, firstTime, delay);
+        YouTrackDBManager.instance().scheduleTask(task, firstTime, delay);
       }
     } else {
       OLogManager.instance().info(this, "Automatic Backup plugin is disabled");

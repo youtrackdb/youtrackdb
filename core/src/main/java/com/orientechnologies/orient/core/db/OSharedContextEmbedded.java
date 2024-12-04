@@ -34,7 +34,7 @@ public class OSharedContextEmbedded extends OSharedContext {
   protected Map<String, DistributedQueryContext> activeDistributedQueries;
   protected ViewManager viewManager;
 
-  public OSharedContextEmbedded(OStorage storage, OxygenDBEmbedded oxygenDB) {
+  public OSharedContextEmbedded(OStorage storage, YouTrackDBEmbedded oxygenDB) {
     this.oxygenDB = oxygenDB;
     this.storage = storage;
     init(storage);

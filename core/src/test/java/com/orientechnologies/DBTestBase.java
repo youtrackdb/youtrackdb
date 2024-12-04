@@ -4,9 +4,9 @@ import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
-import com.orientechnologies.orient.core.db.OxygenDBConfigBuilder;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,7 +23,7 @@ public class DBTestBase {
 
   protected ODatabaseSessionInternal db;
   protected ODatabasePool pool;
-  protected OxygenDB context;
+  protected YouTrackDB context;
   @Rule
   public TestName name = new TestName();
   protected String databaseName;
@@ -78,9 +78,9 @@ public class DBTestBase {
     return ids.computeIfAbsent(testClass, k -> counter.incrementAndGet());
   }
 
-  protected OxygenDB createContext() {
+  protected YouTrackDB createContext() {
     var directoryPath = getDirectoryPath(getClass());
-    var builder = OxygenDBConfig.builder();
+    var builder = YouTrackDBConfig.builder();
     var config = createConfig(builder);
 
     final String testConfig =
@@ -92,7 +92,7 @@ public class DBTestBase {
       dbType = ODatabaseType.MEMORY;
     }
 
-    return OxygenDB.embedded(directoryPath, config);
+    return YouTrackDB.embedded(directoryPath, config);
   }
 
   @SuppressWarnings("SameParameterValue")
@@ -113,7 +113,7 @@ public class DBTestBase {
     return (ODatabaseSessionInternal) context.open(this.databaseName, user, password);
   }
 
-  protected OxygenDBConfig createConfig(OxygenDBConfigBuilder builder) {
+  protected YouTrackDBConfig createConfig(YouTrackDBConfigBuilder builder) {
     return builder.build();
   }
 

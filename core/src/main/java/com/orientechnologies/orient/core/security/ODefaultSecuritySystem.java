@@ -24,7 +24,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.parser.OSystemVariableResolver;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.metadata.security.OImmutableUser;
 import com.orientechnologies.orient.core.metadata.security.ORole;
@@ -82,7 +82,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   // current JSON
   // configuration.
   private OSecurityConfig serverConfig;
-  private OxygenDBInternal context;
+  private YouTrackDBInternal context;
 
   private ODocument auditingDoc;
   private ODocument serverDoc;
@@ -105,7 +105,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
   public ODefaultSecuritySystem() {
   }
 
-  public void activate(final OxygenDBInternal context,
+  public void activate(final YouTrackDBInternal context,
       final OSecurityConfig serverCfg) {
     this.context = context;
     this.serverConfig = serverCfg;
@@ -290,7 +290,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     return null;
   }
 
-  public OxygenDBInternal getContext() {
+  public YouTrackDBInternal getContext() {
     return context;
   }
 
@@ -301,9 +301,9 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
 
     // Default to Basic.
     if (databaseName != null) {
-      header = "WWW-Authenticate: Basic realm=\"OxygenDB db-" + databaseName + "\"";
+      header = "WWW-Authenticate: Basic realm=\"YouTrackDB db-" + databaseName + "\"";
     } else {
-      header = "WWW-Authenticate: Basic realm=\"OxygenDB Server\"";
+      header = "WWW-Authenticate: Basic realm=\"YouTrackDB Server\"";
     }
 
     if (enabled) {
@@ -336,9 +336,9 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
 
     // Default to Basic.
     if (databaseName != null) {
-      headers.put("WWW-Authenticate", "Basic realm=\"OxygenDB db-" + databaseName + "\"");
+      headers.put("WWW-Authenticate", "Basic realm=\"YouTrackDB db-" + databaseName + "\"");
     } else {
-      headers.put("WWW-Authenticate", "Basic realm=\"OxygenDB Server\"");
+      headers.put("WWW-Authenticate", "Basic realm=\"YouTrackDB Server\"");
     }
 
     if (enabled) {
@@ -864,7 +864,8 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
 
         configDoc.field(section, sectionDoc);
         String configFile =
-            OSystemVariableResolver.resolveSystemVariables("${OXYGENDB_HOME}/config/security.json");
+            OSystemVariableResolver.resolveSystemVariables(
+                "${YOU_TRACK_DB_HOME}/config/security.json");
 
         String ssf = OGlobalConfiguration.SERVER_SECURITY_FILE.getValueAsString();
         if (ssf != null) {
@@ -880,7 +881,7 @@ public class ODefaultSecuritySystem implements OSecuritySystem {
     }
   }
 
-  // "${OXYGENDB_HOME}/config/security.json"
+  // "${YOU_TRACK_DB_HOME}/config/security.json"
   private ODocument loadConfig(final String cfgPath) {
     ODocument securityDoc = null;
 

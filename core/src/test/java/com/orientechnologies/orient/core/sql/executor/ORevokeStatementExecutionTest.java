@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.sql.executor;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.metadata.security.ORole;
 import com.orientechnologies.orient.core.metadata.security.ORule;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
@@ -21,12 +21,12 @@ import org.junit.Test;
  */
 public class ORevokeStatementExecutionTest {
 
-  static OxygenDB orient;
+  static YouTrackDB orient;
   private ODatabaseSessionInternal db;
 
   @BeforeClass
   public static void beforeClass() {
-    orient = new OxygenDB("plocal:.", OxygenDBConfig.defaultConfig());
+    orient = new YouTrackDB("plocal:.", YouTrackDBConfig.defaultConfig());
   }
 
   @AfterClass

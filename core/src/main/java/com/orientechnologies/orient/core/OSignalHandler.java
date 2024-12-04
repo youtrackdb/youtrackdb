@@ -64,20 +64,20 @@ public class OSignalHandler implements SignalHandler {
 
     final String s = signal.toString().trim();
 
-    if (Oxygen.instance().isSelfManagedShutdown()
+    if (YouTrackDBManager.instance().isSelfManagedShutdown()
         && (s.equals("SIGKILL")
         || s.equals("SIGHUP")
         || s.equals("SIGINT")
         || s.equals("SIGTERM"))) {
-      Oxygen.instance().shutdown();
+      YouTrackDBManager.instance().shutdown();
       System.exit(1);
     } else if (s.equals("SIGTRAP")) {
       System.out.println();
       OGlobalConfiguration.dumpConfiguration(System.out);
       System.out.println();
-      Oxygen.instance().getProfiler().dump(System.out);
+      YouTrackDBManager.instance().getProfiler().dump(System.out);
       System.out.println();
-      System.out.println(Oxygen.instance().getProfiler().threadDump());
+      System.out.println(YouTrackDBManager.instance().getProfiler().threadDump());
     } else {
       SignalHandler redefinedHandler = redefinedHandlers.get(signal);
       if (redefinedHandler != null) {

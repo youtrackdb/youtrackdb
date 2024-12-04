@@ -36,12 +36,12 @@ import java.util.Set;
 /**
  *
  */
-public class OxygenDBConfig {
+public class YouTrackDBConfig {
 
   public static final String LOCK_TYPE_MODIFICATION = "modification";
   public static final String LOCK_TYPE_READWRITE = "readwrite";
 
-  private OxygenDBConfig parent;
+  private YouTrackDBConfig parent;
   private OContextConfiguration configurations;
   private Map<ATTRIBUTES, Object> attributes;
   private Set<ODatabaseListener> listeners;
@@ -50,7 +50,7 @@ public class OxygenDBConfig {
   private final OSecurityConfig securityConfig;
   private final List<OGlobalUser> users;
 
-  protected OxygenDBConfig() {
+  protected YouTrackDBConfig() {
     configurations = new OContextConfiguration();
     attributes = new HashMap<>();
     parent = null;
@@ -60,7 +60,7 @@ public class OxygenDBConfig {
     this.users = new ArrayList<OGlobalUser>();
   }
 
-  protected OxygenDBConfig(
+  protected YouTrackDBConfig(
       OContextConfiguration configurations,
       Map<ATTRIBUTES, Object> attributes,
       Set<ODatabaseListener> listeners,
@@ -86,12 +86,12 @@ public class OxygenDBConfig {
     this.users = users;
   }
 
-  public static OxygenDBConfig defaultConfig() {
-    return new OxygenDBConfig();
+  public static YouTrackDBConfig defaultConfig() {
+    return new YouTrackDBConfig();
   }
 
-  public static OxygenDBConfigBuilder builder() {
-    return new OxygenDBConfigBuilder();
+  public static YouTrackDBConfigBuilder builder() {
+    return new YouTrackDBConfigBuilder();
   }
 
   public Set<ODatabaseListener> getListeners() {
@@ -122,7 +122,7 @@ public class OxygenDBConfig {
     return users;
   }
 
-  public void setParent(OxygenDBConfig parent) {
+  public void setParent(YouTrackDBConfig parent) {
     this.parent = parent;
     if (parent != null) {
       if (parent.attributes != null) {

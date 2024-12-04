@@ -23,7 +23,7 @@ import com.orientechnologies.orient.core.storage.impl.local.paginated.wal.OLogSe
 import java.io.IOException;
 
 /**
- * This class is heart of OxygenDB storage model it presents disk backed data cache which works with
+ * This class is heart of YouTrackDB storage model it presents disk backed data cache which works with
  * direct memory.
  *
  * <p>Model of this cache is based on page model. All direct memory area is mapped to disk files

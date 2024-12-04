@@ -14,13 +14,13 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>io.oxygendb</groupId>
-    <artifactId>oxygendb-parent</artifactId>
+    <artifactId>youtrackdb-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>oxygendb-core</artifactId>
-  <name>OxygenDB Core</name>
+  <artifactId>youtrackdb-core</artifactId>
+  <name>YouTrackDB Core</name>
 
   <properties>
     <jna.version>4.0.0</jna.version>
@@ -234,7 +234,7 @@
     <!-- test -->
     <dependency>
       <groupId>io.oxygendb</groupId>
-      <artifactId>oxygendb-test-commons</artifactId>
+      <artifactId>youtrackdb-test-commons</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>

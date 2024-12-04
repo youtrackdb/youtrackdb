@@ -23,7 +23,7 @@ import com.orientechnologies.orient.core.command.script.OCommandScriptException;
 import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.tool.ODatabaseExportException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.id.ORecordId;
@@ -134,7 +134,7 @@ public class OScheduledEvent extends ODocumentWrapper {
     return this.running.get();
   }
 
-  public OScheduledEvent schedule(String database, String user, OxygenDBInternal oxygenDB) {
+  public OScheduledEvent schedule(String database, String user, YouTrackDBInternal oxygenDB) {
     if (isRunning()) {
       interrupt();
     }
@@ -209,10 +209,10 @@ public class OScheduledEvent extends ODocumentWrapper {
     private final OScheduledEvent event;
     private final String database;
     private final String user;
-    private final OxygenDBInternal oxygenDB;
+    private final YouTrackDBInternal oxygenDB;
 
     private ScheduledTimerTask(
-        OScheduledEvent event, String database, String user, OxygenDBInternal oxygenDB) {
+        OScheduledEvent event, String database, String user, YouTrackDBInternal oxygenDB) {
       this.event = event;
       this.database = database;
       this.user = user;

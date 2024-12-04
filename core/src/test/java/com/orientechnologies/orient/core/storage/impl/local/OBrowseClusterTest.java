@@ -8,8 +8,8 @@ import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.record.OVertex;
 import java.util.Iterator;
 import org.junit.After;
@@ -19,18 +19,18 @@ import org.junit.Test;
 public class OBrowseClusterTest {
 
   private ODatabaseSession db;
-  private OxygenDB oxygenDb;
+  private YouTrackDB youTrackDb;
 
   @Before
   public void before() {
-    oxygenDb =
-        new OxygenDB(
+    youTrackDb =
+        new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()),
-            OxygenDBConfig.builder()
+            YouTrackDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CLASS_MINIMUM_CLUSTERS, 1)
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
-    oxygenDb.execute(
+    youTrackDb.execute(
         "create database "
             + "test"
             + " "
@@ -38,7 +38,7 @@ public class OBrowseClusterTest {
             + " users ( admin identified by '"
             + OCreateDatabaseUtil.NEW_ADMIN_PASSWORD
             + "' role admin)");
-    db = oxygenDb.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+    db = youTrackDb.open("test", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     db.createVertexClass("One");
   }
 
@@ -72,6 +72,6 @@ public class OBrowseClusterTest {
   @After
   public void after() {
     db.close();
-    oxygenDb.close();
+    youTrackDb.close();
   }
 }

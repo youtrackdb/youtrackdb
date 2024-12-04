@@ -93,9 +93,9 @@ public abstract class OSecurityAuthenticatorAbstract implements OSecurityAuthent
 
     // Default to Basic.
     if (databaseName != null) {
-      header = "WWW-Authenticate: Basic realm=\"OxygenDB db-" + databaseName + "\"";
+      header = "WWW-Authenticate: Basic realm=\"YouTrackDB db-" + databaseName + "\"";
     } else {
-      header = "WWW-Authenticate: Basic realm=\"OxygenDB Server\"";
+      header = "WWW-Authenticate: Basic realm=\"YouTrackDB Server\"";
     }
 
     return header;

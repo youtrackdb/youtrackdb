@@ -15,7 +15,7 @@ public interface OCachedDatabasePoolFactory {
    * @return {@link ODatabasePoolInternal} cached database pool
    */
   ODatabasePoolInternal get(
-      String database, String username, String password, OxygenDBConfig config);
+      String database, String username, String password, YouTrackDBConfig config);
 
   /**
    * Close all cached pools and clear cache

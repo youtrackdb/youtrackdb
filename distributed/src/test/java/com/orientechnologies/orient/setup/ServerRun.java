@@ -167,7 +167,7 @@ public class ServerRun {
     System.out.println(
         "Starting server with serverId " + serverId + " from " + getServerHome() + "...");
 
-    System.setProperty("OXYGENDB_HOME", getServerHome());
+    System.setProperty("YOU_TRACK_DB_HOME", getServerHome());
 
     if (server == null) {
       server = OServerMain.create(false);

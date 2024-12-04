@@ -4,20 +4,21 @@ import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 public class InsertUnionValueTest {
 
-  private OxygenDB oxygenDB;
+  private YouTrackDB youTrackDB;
 
   @Before
   public void before() {
-    oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), OxygenDBConfig.defaultConfig());
-    oxygenDB
+    youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig());
+    youTrackDB
         .execute(
             "create database ? memory users (admin identified by 'admpwd' role admin)",
             InsertUnionValueTest.class.getSimpleName())
@@ -26,13 +27,13 @@ public class InsertUnionValueTest {
 
   @After
   public void after() {
-    oxygenDB.close();
+    youTrackDB.close();
   }
 
   @Test
   public void testUnionInsert() {
     try (ODatabaseSession session =
-        oxygenDB.open(InsertUnionValueTest.class.getSimpleName(), "admin", "admpwd")) {
+        youTrackDB.open(InsertUnionValueTest.class.getSimpleName(), "admin", "admpwd")) {
       session.command("create class example extends V").close();
       session.command("create property example.metadata EMBEDDEDMAP").close();
       session

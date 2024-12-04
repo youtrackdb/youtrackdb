@@ -67,7 +67,7 @@ public class TTYConsoleReader implements OConsoleReader {
   private static final int MAX_HISTORY_ENTRIES = 50;
   private static final Object signalLock = new Object();
   private static final String HISTORY_FILE_NAME = ".oxgendb_history";
-  private static final String OXYGENDB_HOME_DIR = ".oxgendb";
+  private static final String YOU_TRACK_DB_HOME_DIR = ".oxgendb";
   private static int cachedConsoleWidth = -1; // -1 for no cached value, -2 to indicate the error
 
   static {
@@ -588,11 +588,11 @@ public class TTYConsoleReader implements OConsoleReader {
 
   private File getHistoryFile(boolean read) {
 
-    final Path orientDBDir = Paths.get(System.getProperty("user.home"), OXYGENDB_HOME_DIR);
+    final Path orientDBDir = Paths.get(System.getProperty("user.home"), YOU_TRACK_DB_HOME_DIR);
     try {
       Files.createDirectories(orientDBDir);
     } catch (IOException e) {
-      OLogManager.instance().error(this, "Error creating OxygenDB directory", e);
+      OLogManager.instance().error(this, "Error creating YouTrackDB directory", e);
     }
 
     Path history = orientDBDir.resolve(HISTORY_FILE_NAME);

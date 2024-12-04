@@ -5,12 +5,12 @@ import static org.junit.Assert.assertFalse;
 
 import com.orientechnologies.orient.client.remote.ORemoteConnectionManager;
 import com.orientechnologies.orient.client.remote.ORemoteConnectionPool;
-import com.orientechnologies.orient.client.remote.OxygenDBRemote;
+import com.orientechnologies.orient.client.remote.YouTrackDBRemote;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -47,17 +47,17 @@ public class SocketIdleCleanupIT {
 
   @Test
   public void test() throws InterruptedException {
-    OxygenDBConfig config =
-        OxygenDBConfig.builder()
+    YouTrackDBConfig config =
+        YouTrackDBConfig.builder()
             .addConfig(OGlobalConfiguration.CLIENT_CHANNEL_IDLE_CLOSE, true)
             .addConfig(OGlobalConfiguration.CLIENT_CHANNEL_IDLE_TIMEOUT, 1)
             .build();
-    OxygenDB orientdb = new OxygenDB("remote:localhost", "root", "root", config);
+    YouTrackDB orientdb = new YouTrackDB("remote:localhost", "root", "root", config);
     orientdb.execute("create database test memory users (admin identified by 'admin' role admin)");
     ODatabaseSession session = orientdb.open("test", "admin", "admin");
     session.save(session.newVertex("V"));
     Thread.sleep(2000);
-    OxygenDBRemote remote = (OxygenDBRemote) OxygenDBInternal.extract(orientdb);
+    YouTrackDBRemote remote = (YouTrackDBRemote) YouTrackDBInternal.extract(orientdb);
     ORemoteConnectionManager connectionManager = remote.getConnectionManager();
     ORemoteConnectionPool pool =
         connectionManager.getPool(connectionManager.getURLs().iterator().next());

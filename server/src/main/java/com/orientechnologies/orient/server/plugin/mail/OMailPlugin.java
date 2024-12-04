@@ -22,7 +22,7 @@ package com.orientechnologies.orient.server.plugin.mail;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.command.script.OScriptInjection;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.server.OServer;
 import com.orientechnologies.orient.server.config.OServerParameterConfiguration;
@@ -46,7 +46,7 @@ public class OMailPlugin extends OServerPluginAbstract
 
   private final Map<String, OMailProfile> profiles = new HashMap<String, OMailProfile>();
 
-  private final String configFile = "${OXYGENDB_HOME}/config/mail.json";
+  private final String configFile = "${YOU_TRACK_DB_HOME}/config/mail.json";
 
   public OMailPlugin() {
   }
@@ -54,7 +54,7 @@ public class OMailPlugin extends OServerPluginAbstract
   @Override
   public void config(final OServer oServer, final OServerParameterConfiguration[] iParams) {
 
-    OxygenDBInternal.extract(oServer.getContext()).getScriptManager().registerInjection(this);
+    YouTrackDBInternal.extract(oServer.getContext()).getScriptManager().registerInjection(this);
   }
 
   public void writeConfiguration() throws IOException {
@@ -68,7 +68,7 @@ public class OMailPlugin extends OServerPluginAbstract
    * @throws ParseException
    */
   public void send(final Map<String, Object> iMessage) {
-    OLogManager.instance().warn(this, "Mail send is non available in this OxygenDB version");
+    OLogManager.instance().warn(this, "Mail send is non available in this YouTrackDB version");
   }
 
   @Override

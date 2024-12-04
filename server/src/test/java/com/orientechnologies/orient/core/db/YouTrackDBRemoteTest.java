@@ -7,7 +7,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -28,12 +28,12 @@ import org.junit.Test;
 /**
  *
  */
-public class OxygenDBRemoteTest {
+public class YouTrackDBRemoteTest {
 
   private static final String SERVER_DIRECTORY = "./target/dbfactory";
   private OServer server;
 
-  private OxygenDB factory;
+  private YouTrackDB factory;
 
   @Before
   public void before() throws Exception {
@@ -49,13 +49,13 @@ public class OxygenDBRemoteTest {
                 "com/orientechnologies/orient/server/network/orientdb-server-config.xml"));
     server.activate();
 
-    OxygenDBConfig config =
-        OxygenDBConfig.builder()
+    YouTrackDBConfig config =
+        YouTrackDBConfig.builder()
             .addConfig(OGlobalConfiguration.DB_CACHED_POOL_CAPACITY, 2)
             .addConfig(OGlobalConfiguration.DB_CACHED_POOL_CLEAN_UP_TIMEOUT, 300_000)
             .build();
 
-    factory = new OxygenDB("remote:localhost", "root", "root", config);
+    factory = new YouTrackDB("remote:localhost", "root", "root", config);
   }
 
   @Test
@@ -213,7 +213,7 @@ public class OxygenDBRemoteTest {
     factory.create(
         "noUser",
         ODatabaseType.MEMORY,
-        OxygenDBConfig.builder()
+        YouTrackDBConfig.builder()
             .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
             .build());
     try (ODatabaseSession session = factory.open("noUser", "root", "root")) {
@@ -226,7 +226,7 @@ public class OxygenDBRemoteTest {
     factory.create(
         "noUser",
         ODatabaseType.MEMORY,
-        OxygenDBConfig.builder()
+        YouTrackDBConfig.builder()
             .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, true)
             .build());
     try (ODatabaseSession session = factory.open("noUser", "root", "root")) {
@@ -269,9 +269,9 @@ public class OxygenDBRemoteTest {
     factory.close();
     server.shutdown();
 
-    Oxygen.instance().shutdown();
+    YouTrackDBManager.instance().shutdown();
     OFileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
-    Oxygen.instance().startup();
+    YouTrackDBManager.instance().startup();
 
     ODatabaseRecordThreadLocal.instance().remove();
   }

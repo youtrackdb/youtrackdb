@@ -45,8 +45,8 @@ import com.orientechnologies.orient.core.compression.impl.OZIPCompressionUtil;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDBEmbedded;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDBEmbedded;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.engine.local.OEngineLocalPaginated;
 import com.orientechnologies.orient.core.exception.OBackupInProgressException;
@@ -235,7 +235,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
       final OClosableLinkedContainer<Long, OFile> files,
       final long walMaxSegSize,
       long doubleWriteLogMaxSegSize,
-      OxygenDBInternal context) {
+      YouTrackDBInternal context) {
     super(name, filePath, id, context);
 
     this.walMaxSegSize = walMaxSegSize;
@@ -284,7 +284,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
 
     final Object[] additionalArgs = new Object[]{getURL(), OConstants.getVersion()};
     OLogManager.instance()
-        .info(this, "Storage '%s' is created under OxygenDB distribution : %s", additionalArgs);
+        .info(this, "Storage '%s' is created under YouTrackDB distribution : %s", additionalArgs);
   }
 
   protected void doCreate(OContextConfiguration contextConfiguration)
@@ -362,7 +362,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
           final OutputStream bo = bufferSize > 0 ? new BufferedOutputStream(out, bufferSize) : out;
           try {
             try (final ZipOutputStream zos = new ZipOutputStream(bo)) {
-              zos.setComment("OxygenDB Backup executed on " + new Date());
+              zos.setComment("YouTrackDB Backup executed on " + new Date());
               zos.setLevel(compressionLevel);
 
               final List<String> names =
@@ -731,7 +731,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
       OLogManager.instance()
           .debug(
               OLocalPaginatedStorage.class,
-              "Cannot delete database files because they are still locked by the OxygenDB process:"
+              "Cannot delete database files because they are still locked by the YouTrackDB process:"
                   + " waiting %d ms and retrying %d/%d...",
               waitTime,
               i,
@@ -917,7 +917,7 @@ public class OLocalPaginatedStorage extends OAbstractPaginatedStorage {
             iv,
             aesKey,
             contextConfiguration.getValueAsBoolean(OGlobalConfiguration.STORAGE_CALL_FSYNC),
-            ((OxygenDBEmbedded) context).getIoExecutor());
+            ((YouTrackDBEmbedded) context).getIoExecutor());
 
     wowCache.loadRegisteredFiles();
     wowCache.addBackgroundExceptionListener(this);

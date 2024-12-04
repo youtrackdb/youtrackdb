@@ -8,8 +8,8 @@ import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.server.OServer;
@@ -38,7 +38,7 @@ public class OLuceneIndexCrashRestoreIT {
   private Process serverProcess;
   private List<String> names;
   private List<String> surnames;
-  private OxygenDB oxygenDB;
+  private YouTrackDB youTrackDB;
   private ODatabasePool databasePool;
   private static final String BUILD_DIRECTORY = "./target/testLuceneCrash";
 
@@ -48,12 +48,12 @@ public class OLuceneIndexCrashRestoreIT {
     idGen = new AtomicLong();
     spawnServer();
 
-    oxygenDB =
-        new OxygenDB("remote:localhost:3900", "root", "root", OxygenDBConfig.defaultConfig());
-    oxygenDB.execute(
+    youTrackDB =
+        new YouTrackDB("remote:localhost:3900", "root", "root", YouTrackDBConfig.defaultConfig());
+    youTrackDB.execute(
         "create database testLuceneCrash plocal users (admin identified by 'admin' role admin)");
 
-    databasePool = new ODatabasePool(oxygenDB, "testLuceneCrash", "admin", "admin");
+    databasePool = new ODatabasePool(youTrackDB, "testLuceneCrash", "admin", "admin");
 
     // names to be used for person to be indexed
     names =
@@ -101,7 +101,7 @@ public class OLuceneIndexCrashRestoreIT {
             "-classpath",
             System.getProperty("java.class.path"),
             "-DmutexFile=" + mutexFile.getAbsolutePath(),
-            "-DOXYGENDB_HOME=" + BUILD_DIRECTORY,
+            "-DYOU_TRACK_DB_HOME=" + BUILD_DIRECTORY,
             RemoteDBRunner.class.getName());
 
     processBuilder.inheritIO();
@@ -179,7 +179,7 @@ public class OLuceneIndexCrashRestoreIT {
     System.out.println("All loaders done");
 
     databasePool.close();
-    oxygenDB.close();
+    youTrackDB.close();
 
     // now we start embedded
     System.out.println("START AGAIN");
@@ -198,9 +198,9 @@ public class OLuceneIndexCrashRestoreIT {
       TimeUnit.SECONDS.sleep(1);
     }
 
-    oxygenDB =
-        new OxygenDB("remote:localhost:3900", "root", "root", OxygenDBConfig.defaultConfig());
-    databasePool = new ODatabasePool(oxygenDB, "testLuceneCrash", "admin", "admin");
+    youTrackDB =
+        new YouTrackDB("remote:localhost:3900", "root", "root", YouTrackDBConfig.defaultConfig());
+    databasePool = new ODatabasePool(youTrackDB, "testLuceneCrash", "admin", "admin");
 
     // test query
     db = (ODatabaseSessionInternal) databasePool.acquire();

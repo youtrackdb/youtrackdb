@@ -56,7 +56,7 @@ import com.orientechnologies.orient.client.remote.message.OServerQueryRequest;
 import com.orientechnologies.orient.client.remote.message.OServerQueryResponse;
 import com.orientechnologies.orient.client.remote.message.OSetGlobalConfigurationRequest;
 import com.orientechnologies.orient.client.remote.message.OSetGlobalConfigurationResponse;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
@@ -68,8 +68,8 @@ import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseTask;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.db.OSharedContext;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OStorageException;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
@@ -100,14 +100,14 @@ import java.util.concurrent.TimeUnit;
 /**
  *
  */
-public class OxygenDBRemote implements OxygenDBInternal {
+public class YouTrackDBRemote implements YouTrackDBInternal {
 
   protected final Map<String, OSharedContext> sharedContexts = new HashMap<>();
   private final Map<String, OStorageRemote> storages = new HashMap<>();
   private final Set<ODatabasePoolInternal> pools = new HashSet<>();
   private final String[] hosts;
-  private final OxygenDBConfig configurations;
-  private final Oxygen oxygen;
+  private final YouTrackDBConfig configurations;
+  private final YouTrackDBManager youTrack;
   private final OCachedDatabasePoolFactory cachedPoolFactory;
   protected volatile ORemoteConnectionManager connectionManager;
   private volatile boolean open = true;
@@ -115,16 +115,18 @@ public class OxygenDBRemote implements OxygenDBInternal {
   private final ORemoteURLs urls;
   private final ExecutorService executor;
 
-  public OxygenDBRemote(String[] hosts, OxygenDBConfig configurations, Oxygen oxygen) {
+  public YouTrackDBRemote(String[] hosts, YouTrackDBConfig configurations,
+      YouTrackDBManager youTrack) {
     super();
 
     this.hosts = hosts;
-    this.oxygen = oxygen;
-    this.configurations = configurations != null ? configurations : OxygenDBConfig.defaultConfig();
+    this.youTrack = youTrack;
+    this.configurations =
+        configurations != null ? configurations : YouTrackDBConfig.defaultConfig();
     timer = new Timer("Remote background operations timer", true);
     connectionManager =
         new ORemoteConnectionManager(this.configurations.getConfigurations(), timer);
-    oxygen.addOxygenDB(this);
+    youTrack.addOxygenDB(this);
     cachedPoolFactory = createCachedDatabasePoolFactory(this.configurations);
     urls = new ORemoteURLs(hosts, this.configurations.getConfigurations());
     int size =
@@ -140,10 +142,10 @@ public class OxygenDBRemote implements OxygenDBInternal {
 
     executor =
         OThreadPoolExecutors.newScalingThreadPool(
-            "OxygenDBRemote", 0, size, 100, 1, TimeUnit.MINUTES);
+            "YouTrackDBRemote", 0, size, 100, 1, TimeUnit.MINUTES);
   }
 
-  protected OCachedDatabasePoolFactory createCachedDatabasePoolFactory(OxygenDBConfig config) {
+  protected OCachedDatabasePoolFactory createCachedDatabasePoolFactory(YouTrackDBConfig config) {
     int capacity =
         config.getConfigurations().getValueAsInteger(OGlobalConfiguration.DB_CACHED_POOL_CAPACITY);
     long timeout =
@@ -167,9 +169,9 @@ public class OxygenDBRemote implements OxygenDBInternal {
 
   @Override
   public ODatabaseSessionInternal open(
-      String name, String user, String password, OxygenDBConfig config) {
+      String name, String user, String password, YouTrackDBConfig config) {
     checkOpen();
-    OxygenDBConfig resolvedConfig = solveConfig(config);
+    YouTrackDBConfig resolvedConfig = solveConfig(config);
     try {
       OStorageRemote storage;
       synchronized (this) {
@@ -191,7 +193,7 @@ public class OxygenDBRemote implements OxygenDBInternal {
 
   @Override
   public ODatabaseSessionInternal open(
-      OAuthenticationInfo authenticationInfo, OxygenDBConfig config) {
+      OAuthenticationInfo authenticationInfo, YouTrackDBConfig config) {
     throw new UnsupportedOperationException();
   }
 
@@ -206,7 +208,7 @@ public class OxygenDBRemote implements OxygenDBInternal {
       String user,
       String password,
       ODatabaseType databaseType,
-      OxygenDBConfig config) {
+      YouTrackDBConfig config) {
 
     config = solveConfig(config);
 
@@ -350,7 +352,7 @@ public class OxygenDBRemote implements OxygenDBInternal {
       String password,
       ODatabaseType type,
       String path,
-      OxygenDBConfig config) {
+      YouTrackDBConfig config) {
     if (name == null || name.length() <= 0) {
       final String message = "Cannot create unnamed remote storage. Check your syntax";
       OLogManager.instance().error(this, message, null);
@@ -381,7 +383,7 @@ public class OxygenDBRemote implements OxygenDBInternal {
 
   @Override
   public ODatabasePoolInternal openPool(
-      String name, String user, String password, OxygenDBConfig config) {
+      String name, String user, String password, YouTrackDBConfig config) {
     checkOpen();
     ODatabasePoolImpl pool = new ODatabasePoolImpl(this, name, user, password, solveConfig(config));
     pools.add(pool);
@@ -395,7 +397,7 @@ public class OxygenDBRemote implements OxygenDBInternal {
 
   @Override
   public ODatabasePoolInternal cachedPool(
-      String database, String user, String password, OxygenDBConfig config) {
+      String database, String user, String password, YouTrackDBConfig config) {
     checkOpen();
     ODatabasePoolInternal pool =
         cachedPoolFactory.get(database, user, password, solveConfig(config));
@@ -452,12 +454,12 @@ public class OxygenDBRemote implements OxygenDBInternal {
     }
   }
 
-  private OxygenDBConfig solveConfig(OxygenDBConfig config) {
+  private YouTrackDBConfig solveConfig(YouTrackDBConfig config) {
     if (config != null) {
       config.setParent(this.configurations);
       return config;
     } else {
-      OxygenDBConfig cfg = OxygenDBConfig.defaultConfig();
+      YouTrackDBConfig cfg = YouTrackDBConfig.defaultConfig();
       cfg.setParent(this.configurations);
       return cfg;
     }
@@ -465,7 +467,7 @@ public class OxygenDBRemote implements OxygenDBInternal {
 
   private void checkOpen() {
     if (!open) {
-      throw new ODatabaseException("OxygenDB Instance is closed");
+      throw new ODatabaseException("YouTrackDB Instance is closed");
     }
   }
 
@@ -481,7 +483,7 @@ public class OxygenDBRemote implements OxygenDBInternal {
 
   @Override
   public void removeShutdownHook() {
-    oxygen.removeOxygenDB(this);
+    youTrack.removeOxygenDB(this);
   }
 
   @Override
@@ -771,7 +773,7 @@ public class OxygenDBRemote implements OxygenDBInternal {
   }
 
   @Override
-  public OxygenDBConfig getConfigurations() {
+  public YouTrackDBConfig getConfigurations() {
     return configurations;
   }
 
@@ -786,7 +788,7 @@ public class OxygenDBRemote implements OxygenDBInternal {
       String user,
       String password,
       ODatabaseType type,
-      OxygenDBConfig config,
+      YouTrackDBConfig config,
       ODatabaseTask<Void> createOps) {
     throw new UnsupportedOperationException();
   }

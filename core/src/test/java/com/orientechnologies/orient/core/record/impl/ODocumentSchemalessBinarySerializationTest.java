@@ -8,8 +8,8 @@ import static org.junit.Assert.assertTrue;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.exception.OSerializationException;
@@ -344,8 +344,8 @@ public class ODocumentSchemalessBinarySerializationTest extends DBTestBase {
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void testSimpleLiteralSet() throws InterruptedException {
-    try (OxygenDB ctx = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-        OxygenDBConfig.defaultConfig())) {
+    try (YouTrackDB ctx = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig())) {
       ctx.execute(
           "create database testSimpleLiteralSet memory users(admin identified by 'adminpwd' role"
               + " admin)");
@@ -446,8 +446,8 @@ public class ODocumentSchemalessBinarySerializationTest extends DBTestBase {
 
   @Test
   public void testLinkCollections() {
-    try (OxygenDB ctx = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-        OxygenDBConfig.defaultConfig())) {
+    try (YouTrackDB ctx = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig())) {
       ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
       try (var db = (ODatabaseSessionInternal) ctx.open("test", "admin", "adminpwd")) {
         ODocument document = new ODocument();
@@ -634,8 +634,8 @@ public class ODocumentSchemalessBinarySerializationTest extends DBTestBase {
   @Test
   public void testMapOfLink() {
     // needs a database because of the lazy loading
-    try (OxygenDB ctx = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-        OxygenDBConfig.defaultConfig())) {
+    try (YouTrackDB ctx = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig())) {
       ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
       try (var db = (ODatabaseSessionInternal) ctx.open("test", "admin", "adminpwd")) {
         ODocument document = new ODocument();
@@ -656,8 +656,8 @@ public class ODocumentSchemalessBinarySerializationTest extends DBTestBase {
 
   @Test
   public void testDocumentSimple() {
-    try (OxygenDB ctx = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-        OxygenDBConfig.defaultConfig())) {
+    try (YouTrackDB ctx = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig())) {
       ctx.execute("create database test memory users(admin identified by 'adminpwd' role admin)");
       try (var db = (ODatabaseSessionInternal) ctx.open("test", "admin", "adminpwd")) {
         ODocument document = new ODocument("TestClass");

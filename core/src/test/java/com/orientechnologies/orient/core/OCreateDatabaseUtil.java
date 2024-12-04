@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core;
 
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 
 /**
  * Used as part of the security test refactoring of the ODB `core` module, cf.
@@ -16,16 +16,16 @@ public class OCreateDatabaseUtil {
   public static final String TYPE_PLOCAL = ODatabaseType.PLOCAL.name().toLowerCase(); // "plocal";
   public static final String TYPE_MEMORY = ODatabaseType.MEMORY.name().toLowerCase(); // "memory";
 
-  public static OxygenDB createDatabase(
+  public static YouTrackDB createDatabase(
       final String database, final String url, final String type) {
-    final OxygenDB oxygenDB =
-        new OxygenDB(
+    final YouTrackDB youTrackDB =
+        new YouTrackDB(
             url,
-            OxygenDBConfig.builder()
+            YouTrackDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
-    if (!oxygenDB.exists(database)) {
-      oxygenDB.execute(
+    if (!youTrackDB.exists(database)) {
+      youTrackDB.execute(
           "create database "
               + database
               + " "
@@ -34,13 +34,13 @@ public class OCreateDatabaseUtil {
               + NEW_ADMIN_PASSWORD
               + "' role admin)");
     }
-    return oxygenDB;
+    return youTrackDB;
   }
 
   public static void createDatabase(
-      final String database, final OxygenDB oxygenDB, final String type) {
-    if (!oxygenDB.exists(database)) {
-      oxygenDB.execute(
+      final String database, final YouTrackDB youTrackDB, final String type) {
+    if (!youTrackDB.exists(database)) {
+      youTrackDB.execute(
           "create database "
               + database
               + " "

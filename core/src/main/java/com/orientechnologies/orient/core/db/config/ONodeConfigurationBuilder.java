@@ -6,9 +6,9 @@ public class ONodeConfigurationBuilder {
 
   private int quorum = 2;
   private String nodeName = UUID.randomUUID().toString();
-  private String groupName = "OxygenDB";
+  private String groupName = "YouTrackDB";
   private Integer tcpPort = null;
-  private String groupPassword = "OxygenDB";
+  private String groupPassword = "YouTrackDB";
   private OMulticastConfguration multicastConfguration;
   private OUDPUnicastConfiguration unicastConfiguration;
 

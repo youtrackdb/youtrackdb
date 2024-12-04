@@ -6,12 +6,12 @@ import static org.junit.Assert.assertNotNull;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import java.util.Locale;
@@ -26,10 +26,10 @@ public class MetadataPushTest {
 
   private static final String SERVER_DIRECTORY = "./target/metadata-push";
   private OServer server;
-  private OxygenDB oxygenDB;
+  private YouTrackDB youTrackDB;
   private ODatabaseSession database;
 
-  private OxygenDB secondOxygenDB;
+  private YouTrackDB secondYouTrackDB;
   private ODatabaseSessionInternal secondDatabase;
 
   @Before
@@ -39,31 +39,32 @@ public class MetadataPushTest {
     server.startup(getClass().getResourceAsStream("orientdb-server-config.xml"));
     server.activate();
 
-    oxygenDB = new OxygenDB("remote:localhost", "root", "root", OxygenDBConfig.defaultConfig());
-    oxygenDB.execute(
+    youTrackDB = new YouTrackDB("remote:localhost", "root", "root",
+        YouTrackDBConfig.defaultConfig());
+    youTrackDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         MetadataPushTest.class.getSimpleName());
-    database = oxygenDB.open(MetadataPushTest.class.getSimpleName(), "admin", "admin");
+    database = youTrackDB.open(MetadataPushTest.class.getSimpleName(), "admin", "admin");
 
-    secondOxygenDB = new OxygenDB("remote:localhost", OxygenDBConfig.defaultConfig());
+    secondYouTrackDB = new YouTrackDB("remote:localhost", YouTrackDBConfig.defaultConfig());
     secondDatabase =
         (ODatabaseSessionInternal)
-            oxygenDB.open(MetadataPushTest.class.getSimpleName(), "admin", "admin");
+            youTrackDB.open(MetadataPushTest.class.getSimpleName(), "admin", "admin");
   }
 
   @After
   public void after() {
     database.activateOnCurrentThread();
     database.close();
-    oxygenDB.close();
+    youTrackDB.close();
     secondDatabase.activateOnCurrentThread();
     secondDatabase.close();
-    secondOxygenDB.close();
+    secondYouTrackDB.close();
     server.shutdown();
 
-    Oxygen.instance().shutdown();
+    YouTrackDBManager.instance().shutdown();
     OFileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
-    Oxygen.instance().startup();
+    YouTrackDBManager.instance().startup();
   }
 
   @Test

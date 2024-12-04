@@ -22,7 +22,7 @@ public class LocalHashTableV2WALTestIT {
   //  private ODatabaseSession expectedDatabaseDocumentTx;
   //  private OWriteCache      expectedWriteCache;
   //
-  //  private OxygenDB oxygenDB;
+  //  private YouTrackDB youTrackDB;
   //
   //  @Before
   //  public void before() throws IOException {
@@ -33,13 +33,13 @@ public class LocalHashTableV2WALTestIT {
   //    final java.io.File buildDir = new java.io.File(buildDirectory);
   //    OFileUtils.deleteRecursively(buildDir);
   //
-  //    oxygenDB = new OxygenDB("plocal:" + buildDirectory, OxygenDBConfig.defaultConfig());
+  //    youTrackDB = new YouTrackDB("plocal:" + buildDirectory, YouTrackDBConfig.defaultConfig());
   //
-  //    oxygenDB.create(ACTUAL_DB_NAME, ODatabaseType.PLOCAL);
-  //    databaseDocumentTx = oxygenDB.open(ACTUAL_DB_NAME, "admin", "admin");
+  //    youTrackDB.create(ACTUAL_DB_NAME, ODatabaseType.PLOCAL);
+  //    databaseDocumentTx = youTrackDB.open(ACTUAL_DB_NAME, "admin", "admin");
   //
-  //    oxygenDB.create(EXPECTED_DB_NAME, ODatabaseType.PLOCAL);
-  //    expectedDatabaseDocumentTx = oxygenDB.open(EXPECTED_DB_NAME, "admin", "admin");
+  //    youTrackDB.create(EXPECTED_DB_NAME, ODatabaseType.PLOCAL);
+  //    expectedDatabaseDocumentTx = youTrackDB.open(EXPECTED_DB_NAME, "admin", "admin");
   //
   //    expectedStorage = ((OLocalPaginatedStorage) ((ODatabaseInternal)
   // expectedDatabaseDocumentTx).getStorage());
@@ -65,9 +65,9 @@ public class LocalHashTableV2WALTestIT {
   //
   //  @After
   //  public void after() {
-  //    oxygenDB.drop(ACTUAL_DB_NAME);
-  //    oxygenDB.drop(EXPECTED_DB_NAME);
-  //    oxygenDB.close();
+  //    youTrackDB.drop(ACTUAL_DB_NAME);
+  //    youTrackDB.drop(EXPECTED_DB_NAME);
+  //    youTrackDB.close();
   //  }
   //
   //  private void createActualHashTable() throws IOException {

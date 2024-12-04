@@ -19,7 +19,7 @@
  */
 package com.orientechnologies.orient.server.network.protocol.http.command.post;
 
-import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.server.network.protocol.http.OHttpRequest;
@@ -130,7 +130,7 @@ public class OServerCommandPostServerCommand extends OServerCommandAuthenticated
   protected OResultSet executeStatement(String language, String text, Object params) {
     OResultSet result;
 
-    OxygenDB odb = this.server.getContext();
+    YouTrackDB odb = this.server.getContext();
     if (params instanceof Map) {
       result = odb.execute(text, (Map) params);
     } else if (params instanceof Object[]) {

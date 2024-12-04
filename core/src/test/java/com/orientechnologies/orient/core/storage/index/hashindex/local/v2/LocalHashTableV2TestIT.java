@@ -4,8 +4,8 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.serialization.serializer.binary.OBinarySerializerFactory;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -19,7 +19,7 @@ import org.junit.Before;
  */
 public class LocalHashTableV2TestIT extends LocalHashTableV2Base {
 
-  private OxygenDB oxygenDB;
+  private YouTrackDB youTrackDB;
 
   private static final String DB_NAME = "localHashTableTest";
 
@@ -29,12 +29,12 @@ public class LocalHashTableV2TestIT extends LocalHashTableV2Base {
     final File dbDirectory = new File(buildDirectory, DB_NAME);
 
     OFileUtils.deleteRecursively(dbDirectory);
-    final OxygenDBConfig config = OxygenDBConfig.builder().build();
-    oxygenDB = new OxygenDB("plocal:" + buildDirectory, config);
+    final YouTrackDBConfig config = YouTrackDBConfig.builder().build();
+    youTrackDB = new YouTrackDB("plocal:" + buildDirectory, config);
 
-    oxygenDB.execute(
+    youTrackDB.execute(
         "create database " + DB_NAME + " plocal users ( admin identified by 'admin' role admin)");
-    final ODatabaseSession databaseDocumentTx = oxygenDB.open(DB_NAME, "admin", "admin", config);
+    final ODatabaseSession databaseDocumentTx = youTrackDB.open(DB_NAME, "admin", "admin", config);
     storage =
         (OAbstractPaginatedStorage) ((ODatabaseSessionInternal) databaseDocumentTx).getStorage();
     OMurmurHash3HashFunction<Integer> murmurHash3HashFunction =
@@ -60,7 +60,7 @@ public class LocalHashTableV2TestIT extends LocalHashTableV2Base {
 
   @After
   public void after() {
-    oxygenDB.drop(DB_NAME);
-    oxygenDB.close();
+    youTrackDB.drop(DB_NAME);
+    youTrackDB.close();
   }
 }

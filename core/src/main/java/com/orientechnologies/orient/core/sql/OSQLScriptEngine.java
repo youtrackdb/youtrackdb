@@ -40,7 +40,7 @@ import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 
 /**
- * Dynamic script engine for OxygenDB SQL commands. This implementation is multi-threads.
+ * Dynamic script engine for YouTrackDB SQL commands. This implementation is multi-threads.
  */
 public class OSQLScriptEngine implements ScriptEngine {
 

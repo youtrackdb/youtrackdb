@@ -29,7 +29,7 @@ import java.util.ServiceLoader;
 public class OClassLoaderHelper {
 
   /**
-   * Switch to the OxygenDB classloader before lookups on ServiceRegistry for implementation of the
+   * Switch to the YouTrackDB classloader before lookups on ServiceRegistry for implementation of the
    * given Class. Useful under OSGI and generally under applications where jars are loaded by
    * another class loader
    *

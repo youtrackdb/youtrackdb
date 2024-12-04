@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.server.OServer;
@@ -33,19 +33,19 @@ public class ODatabasePoolRemoteTest {
 
   @Test
   public void testPoolCloseTx() {
-    OxygenDB oxygenDb =
-        new OxygenDB(
+    YouTrackDB youTrackDb =
+        new YouTrackDB(
             "remote:localhost:",
             "root",
             "root",
-            OxygenDBConfig.builder().addConfig(OGlobalConfiguration.DB_POOL_MAX, 1).build());
+            YouTrackDBConfig.builder().addConfig(OGlobalConfiguration.DB_POOL_MAX, 1).build());
 
-    if (!oxygenDb.exists("test")) {
-      oxygenDb.execute(
+    if (!youTrackDb.exists("test")) {
+      youTrackDb.execute(
           "create database test memory users (admin identified by 'admin' role admin)");
     }
 
-    ODatabasePool pool = new ODatabasePool(oxygenDb, "test", "admin", "admin");
+    ODatabasePool pool = new ODatabasePool(youTrackDb, "test", "admin", "admin");
     ODatabaseSessionInternal db = (ODatabaseSessionInternal) pool.acquire();
     db.createClass("Test");
     db.begin();
@@ -55,34 +55,34 @@ public class ODatabasePoolRemoteTest {
     assertEquals(0, db.countClass("Test"));
 
     pool.close();
-    oxygenDb.close();
+    youTrackDb.close();
   }
 
   @Test
   public void testPoolDoubleClose() {
-    OxygenDB oxygenDb =
-        new OxygenDB(
+    YouTrackDB youTrackDb =
+        new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()),
-            OxygenDBConfig.builder().addConfig(OGlobalConfiguration.DB_POOL_MAX, 1).build());
+            YouTrackDBConfig.builder().addConfig(OGlobalConfiguration.DB_POOL_MAX, 1).build());
 
-    if (!oxygenDb.exists("test")) {
-      oxygenDb.execute(
+    if (!youTrackDb.exists("test")) {
+      youTrackDb.execute(
           "create database test memory users (admin identified by 'admin' role admin)");
     }
 
-    ODatabasePool pool = new ODatabasePool(oxygenDb, "test", "admin", "admin");
+    ODatabasePool pool = new ODatabasePool(youTrackDb, "test", "admin", "admin");
     var db = pool.acquire();
     db.close();
     pool.close();
-    oxygenDb.close();
+    youTrackDb.close();
   }
 
   @After
   public void after() {
 
     server.shutdown();
-    Oxygen.instance().shutdown();
+    YouTrackDBManager.instance().shutdown();
     OFileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
-    Oxygen.instance().startup();
+    YouTrackDBManager.instance().startup();
   }
 }

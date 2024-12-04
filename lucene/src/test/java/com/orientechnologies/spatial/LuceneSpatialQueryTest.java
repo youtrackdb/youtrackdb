@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.lucene.test.BaseLuceneTest;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -61,7 +61,7 @@ public class LuceneSpatialQueryTest extends BaseLuceneTest {
       while (entries.hasMoreElements()) {
         ZipEntry entry = entries.nextElement();
 
-        Oxygen.instance()
+        YouTrackDBManager.instance()
             .scheduleTask(
                 new Runnable() {
                   @Override

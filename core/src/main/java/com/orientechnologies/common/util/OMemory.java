@@ -39,16 +39,16 @@ public class OMemory {
   }
 
   /**
-   * Calculates the total configured maximum size of all OxygenDB caches.
+   * Calculates the total configured maximum size of all YouTrackDB caches.
    *
-   * @return the total maximum size of all OxygenDB caches in bytes.
+   * @return the total maximum size of all YouTrackDB caches in bytes.
    */
   private static long getMaxCacheMemorySize() {
     return OGlobalConfiguration.DISK_CACHE_SIZE.getValueAsLong() * 1024 * 1024;
   }
 
   /**
-   * Checks the OxygenDB cache memory configuration and emits a warning if configuration is
+   * Checks the YouTrackDB cache memory configuration and emits a warning if configuration is
    * invalid.
    */
   public static void checkCacheMemoryConfiguration() {
@@ -65,14 +65,14 @@ public class OMemory {
               "The sum of the configured JVM maximum heap size ("
                   + maxHeapSize
                   + " bytes) "
-                  + "and the OxygenDB maximum cache size ("
+                  + "and the YouTrackDB maximum cache size ("
                   + maxCacheSize
                   + " bytes) is larger than the available physical memory size "
                   + "("
                   + physicalMemory.memoryLimit
                   + " bytes). That may cause out of memory errors, please tune the configuration"
                   + " up. Use the -Xmx JVM option to lower the JVM maximum heap memory size or"
-                  + " storage.diskCache.bufferSize OxygenDB option to lower memory requirements of"
+                  + " storage.diskCache.bufferSize YouTrackDB option to lower memory requirements of"
                   + " the cache.");
     }
   }

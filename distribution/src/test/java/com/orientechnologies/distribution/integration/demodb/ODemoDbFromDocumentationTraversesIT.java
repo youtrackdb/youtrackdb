@@ -20,7 +20,7 @@ public class ODemoDbFromDocumentationTraversesIT extends OIntegrationTestTemplat
     OResultSet resultSet =
         db.query(
             "TRAVERSE * FROM (\n"
-                + "  SELECT FROM Profiles WHERE Name='Santo' and Surname='OxygenDB'\n"
+                + "  SELECT FROM Profiles WHERE Name='Santo' and Surname='YouTrackDB'\n"
                 + ") MAXDEPTH 3");
 
     assertThat(resultSet).hasSize(85);

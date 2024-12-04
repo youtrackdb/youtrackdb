@@ -201,7 +201,7 @@ public interface OIndex extends Comparable<OIndex> {
   int getVersion();
 
   /**
-   * Tells if the index is automatic. Automatic means it's maintained automatically by OxygenDB.
+   * Tells if the index is automatic. Automatic means it's maintained automatically by YouTrackDB.
    * This is the case of indexes created against schema properties. Automatic indexes can always
    * been rebuilt.
    *

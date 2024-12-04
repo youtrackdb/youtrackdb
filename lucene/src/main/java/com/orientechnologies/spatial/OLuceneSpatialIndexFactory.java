@@ -17,7 +17,7 @@ import static com.orientechnologies.lucene.OLuceneIndexFactory.LUCENE_ALGORITHM;
 
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.serialization.types.OBinarySerializer;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.IndexEngineData;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
@@ -64,7 +64,7 @@ public class OLuceneSpatialIndexFactory implements OIndexFactory, ODatabaseLifec
 
   public OLuceneSpatialIndexFactory(boolean manual) {
     if (!manual) {
-      Oxygen.instance().addDbLifecycleListener(this);
+      YouTrackDBManager.instance().addDbLifecycleListener(this);
     }
 
     spatialManager = new OLuceneSpatialManager(OShapeFactory.INSTANCE);

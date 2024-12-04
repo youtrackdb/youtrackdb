@@ -8,9 +8,9 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.tx.OTransactionId;
@@ -25,18 +25,18 @@ import org.junit.Test;
 
 public class TransactionMetadataTest {
 
-  private OxygenDB oxygenDB;
+  private YouTrackDB youTrackDB;
   private ODatabaseSessionInternal db;
   private static final String DB_NAME = TransactionMetadataTest.class.getSimpleName();
 
   @Before
   public void before() {
 
-    oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-        OxygenDBConfig.defaultConfig());
-    oxygenDB.execute(
+    youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig());
+    youTrackDB.execute(
         "create database `" + DB_NAME + "` plocal users(admin identified by 'admin' role admin)");
-    db = (ODatabaseSessionInternal) oxygenDB.open(DB_NAME, "admin", "admin");
+    db = (ODatabaseSessionInternal) youTrackDB.open(DB_NAME, "admin", "admin");
   }
 
   @Test
@@ -51,15 +51,15 @@ public class TransactionMetadataTest {
     db.commit();
     db.incrementalBackup("target/backup_metadata");
     db.close();
-    OxygenDBInternal.extract(oxygenDB)
+    YouTrackDBInternal.extract(youTrackDB)
         .restore(
             DB_NAME + "_re",
             null,
             null,
             ODatabaseType.PLOCAL,
             "target/backup_metadata",
-            OxygenDBConfig.defaultConfig());
-    ODatabaseSession db1 = oxygenDB.open(DB_NAME + "_re", "admin", "admin");
+            YouTrackDBConfig.defaultConfig());
+    ODatabaseSession db1 = youTrackDB.open(DB_NAME + "_re", "admin", "admin");
     Optional<byte[]> fromStorage =
         ((OAbstractPaginatedStorage) ((ODatabaseSessionInternal) db1).getStorage())
             .getLastMetadata();
@@ -71,11 +71,11 @@ public class TransactionMetadataTest {
   public void after() {
     OFileUtils.deleteRecursively(new File("target/backup_metadata"));
     db.close();
-    oxygenDB.drop(DB_NAME);
-    if (oxygenDB.exists(DB_NAME + "_re")) {
-      oxygenDB.drop(DB_NAME + "_re");
+    youTrackDB.drop(DB_NAME);
+    if (youTrackDB.exists(DB_NAME + "_re")) {
+      youTrackDB.drop(DB_NAME + "_re");
     }
-    oxygenDB.close();
+    youTrackDB.close();
   }
 
   private static class TestMetadataHolder implements OTxMetadataHolder {

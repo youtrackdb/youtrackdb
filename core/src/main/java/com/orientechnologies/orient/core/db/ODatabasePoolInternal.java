@@ -11,7 +11,7 @@ public interface ODatabasePoolInternal extends AutoCloseable {
 
   void release(ODatabaseSessionInternal database);
 
-  OxygenDBConfig getConfig();
+  YouTrackDBConfig getConfig();
 
   /**
    * Check if database pool is closed

@@ -105,11 +105,11 @@ public final class CASDiskWriteAheadLog implements OWriteAheadLog {
   static {
     commitExecutor =
         OThreadPoolExecutors.newSingleThreadScheduledPool(
-            "OxygenDB WAL Flush Task", OAbstractPaginatedStorage.storageThreadGroup);
+            "YouTrackDB WAL Flush Task", OAbstractPaginatedStorage.storageThreadGroup);
 
     writeExecutor =
         OThreadPoolExecutors.newSingleThreadPool(
-            "OxygenDB WAL Write Task Thread", OAbstractPaginatedStorage.storageThreadGroup);
+            "YouTrackDB WAL Write Task Thread", OAbstractPaginatedStorage.storageThreadGroup);
   }
 
   private final boolean keepSingleWALSegment;

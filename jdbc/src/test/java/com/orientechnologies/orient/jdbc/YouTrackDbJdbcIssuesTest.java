@@ -8,7 +8,7 @@ import org.junit.Test;
 /**
  *
  */
-public class OxygenJdbcIssuesTest extends OxygenJdbcDbPerMethodTemplateTest {
+public class YouTrackDbJdbcIssuesTest extends YouTrackDbJdbcDbPerMethodTemplateTest {
 
   @Test
   public void shouldMapNullValues_ph8555() throws Exception {

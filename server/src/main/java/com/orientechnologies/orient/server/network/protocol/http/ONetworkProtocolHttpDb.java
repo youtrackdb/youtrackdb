@@ -48,7 +48,7 @@ public class ONetworkProtocolHttpDb extends ONetworkProtocolHttpAbstract {
       throws IOException {
     server = iServer;
     setName(
-        "OxygenDB HTTP Connection "
+        "YouTrackDB HTTP Connection "
             + iSocket.getLocalAddress()
             + ":"
             + iSocket.getLocalPort()

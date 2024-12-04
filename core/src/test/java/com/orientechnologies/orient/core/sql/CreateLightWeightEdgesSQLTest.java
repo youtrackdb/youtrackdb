@@ -6,7 +6,7 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import java.util.concurrent.CountDownLatch;
@@ -17,11 +17,11 @@ import org.junit.Test;
 
 public class CreateLightWeightEdgesSQLTest {
 
-  private OxygenDB oxygenDB;
+  private YouTrackDB youTrackDB;
 
   @Before
   public void before() {
-    oxygenDB =
+    youTrackDB =
         OCreateDatabaseUtil.createDatabase(
             CreateLightWeightEdgesSQLTest.class.getSimpleName(),
             DBTestBase.embeddedDBUrl(getClass()),
@@ -31,7 +31,7 @@ public class CreateLightWeightEdgesSQLTest {
   @Test
   public void test() {
     ODatabaseSession session =
-        oxygenDB.open(
+        youTrackDB.open(
             CreateLightWeightEdgesSQLTest.class.getSimpleName(),
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -56,7 +56,7 @@ public class CreateLightWeightEdgesSQLTest {
 
     ODatabasePool pool =
         new ODatabasePool(
-            oxygenDB,
+            youTrackDB,
             CreateLightWeightEdgesSQLTest.class.getSimpleName(),
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -117,6 +117,6 @@ public class CreateLightWeightEdgesSQLTest {
 
   @After
   public void after() {
-    oxygenDB.close();
+    youTrackDB.close();
   }
 }

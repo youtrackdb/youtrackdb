@@ -7,8 +7,8 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import java.util.Optional;
@@ -18,19 +18,19 @@ import org.junit.Test;
 
 public class TransactionMetadataTest {
 
-  private OxygenDB oxygenDB;
+  private YouTrackDB youTrackDB;
   private ODatabaseSessionInternal db;
   private static final String DB_NAME = TransactionMetadataTest.class.getSimpleName();
 
   @Before
   public void before() {
-    oxygenDB =
+    youTrackDB =
         OCreateDatabaseUtil.createDatabase(
             DB_NAME, DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_PLOCAL);
     db =
         (ODatabaseSessionInternal)
-            oxygenDB.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+            youTrackDB.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
   }
 
   @Test
@@ -44,17 +44,17 @@ public class TransactionMetadataTest {
     db.save(v);
     db.commit();
     db.close();
-    oxygenDB.close();
+    youTrackDB.close();
 
-    oxygenDB =
-        new OxygenDB(
+    youTrackDB =
+        new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()),
-            OxygenDBConfig.builder()
+            YouTrackDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     db =
         (ODatabaseSessionInternal)
-            oxygenDB.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+            youTrackDB.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     Optional<byte[]> fromStorage = ((OAbstractPaginatedStorage) db.getStorage()).getLastMetadata();
     assertTrue(fromStorage.isPresent());
@@ -64,11 +64,11 @@ public class TransactionMetadataTest {
   @After
   public void after() {
     db.close();
-    oxygenDB.drop(DB_NAME);
-    if (oxygenDB.exists(DB_NAME + "_re")) {
-      oxygenDB.drop(DB_NAME + "_re");
+    youTrackDB.drop(DB_NAME);
+    if (youTrackDB.exists(DB_NAME + "_re")) {
+      youTrackDB.drop(DB_NAME + "_re");
     }
-    oxygenDB.close();
+    youTrackDB.close();
   }
 
   private static class TestMetadataHolder implements OTxMetadataHolder {

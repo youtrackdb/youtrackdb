@@ -16,37 +16,48 @@
 
   <parent>
     <groupId>io.oxygendb</groupId>
-    <artifactId>oxygendb-parent</artifactId>
+    <artifactId>youtrackdb-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>oxygendb-client</artifactId>
+  <artifactId>youtrackdb-client</artifactId>
 
-  <name>OxygenDB Client</name>
+  <name>YouTrackDB Client</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.rootdir>${project.basedir}/../</project.rootdir>
     <!--This property is updated automatically and is needed to make build reproducible-->
     <project.build.outputTimestamp>2023-01-01T00:00:00Z</project.build.outputTimestamp>
+    <argLine>
+      -ea
+      -Xmx${heapSize}
+      -Dmemory.directMemory.trackMode=true
+      -Djava.util.logging.manager=com.orientechnologies.common.log.ShutdownLogManager
+      -Dstorage.diskCache.checksumMode=storeAndThrow
+      -Dstorage.diskCache.bufferSize=4096
+      -Dsecurity.warningDefaultUsers=false
+      -Dfile.log.deletion=false
+      -Dtx.nonTxReadsWarningMode=SILENT
+    </argLine>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>io.oxygendb</groupId>
-      <artifactId>oxygendb-core</artifactId>
+      <artifactId>youtrackdb-core</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>io.oxygendb</groupId>
-      <artifactId>oxygendb-test-commons</artifactId>
+      <artifactId>youtrackdb-test-commons</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.oxygendb</groupId>
-      <artifactId>oxygendb-core</artifactId>
+      <artifactId>youtrackdb-core</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
@@ -69,62 +80,4 @@
       </plugin>
     </plugins>
   </build>
-
-  <profiles>
-    <profile>
-      <id>java17</id>
-      <activation>
-        <jdk>[17,)</jdk>
-      </activation>
-      <properties>
-        <argLine>
-          -ea
-          -Xmx${heapSize}
-          -Dmemory.directMemory.trackMode=true
-          -Djava.util.logging.manager=com.orientechnologies.common.log.ShutdownLogManager
-          -Dstorage.diskCache.checksumMode=storeAndThrow
-          -Dstorage.diskCache.bufferSize=4096
-          -Dsecurity.warningDefaultUsers=false
-          -Dfile.log.deletion=false
-          -Dtx.nonTxReadsWarningMode=SILENT
-          --add-opens jdk.unsupported/sun.misc=ALL-UNNAMED
-          --add-opens java.base/sun.security.x509=ALL-UNNAMED
-        </argLine>
-      </properties>
-    </profile>
-
-    <profile>
-      <id>crash-tests</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-failsafe-plugin</artifactId>
-            <version>${surefire.version}</version>
-            <configuration>
-              <skipTests>true</skipTests>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>secondary-tests</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <version>${surefire.version}</version>
-            <configuration>
-              <includes>
-                <include>**/*ST.java</include>
-              </includes>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
-
 </project>

@@ -1,8 +1,8 @@
 package com.orientechnologies.orient.core.db.document;
 
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 
 /**
  *
@@ -23,19 +23,19 @@ public class ODatabaseDocumentTxInternal {
     return new ODatabaseDocumentTx(database, null);
   }
 
-  public static OxygenDBInternal getOrCreateEmbeddedFactory(
-      String databaseDirectory, OxygenDBConfig config) {
+  public static YouTrackDBInternal getOrCreateEmbeddedFactory(
+      String databaseDirectory, YouTrackDBConfig config) {
     return ODatabaseDocumentTx.getOrCreateEmbeddedFactory(databaseDirectory, config);
   }
 
-  public static OxygenDBInternal getOrCreateRemoteFactory(String url) {
+  public static YouTrackDBInternal getOrCreateRemoteFactory(String url) {
     return ODatabaseDocumentTx.getOrCreateRemoteFactory(url);
   }
 
   public static void closeAllOnShutdown() {
     ODatabaseDocumentTx.embeddedLock.lock();
     try {
-      for (OxygenDBInternal factory : ODatabaseDocumentTx.embedded.values()) {
+      for (YouTrackDBInternal factory : ODatabaseDocumentTx.embedded.values()) {
         factory.internalClose();
       }
       ODatabaseDocumentTx.embedded.clear();

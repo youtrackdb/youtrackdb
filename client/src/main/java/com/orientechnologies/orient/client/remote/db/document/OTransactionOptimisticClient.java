@@ -2,7 +2,7 @@ package com.orientechnologies.orient.client.remote.db.document;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperation38Response;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -59,7 +59,7 @@ public class OTransactionOptimisticClient extends OTransactionOptimistic {
         record.unload();
       } else {
         record =
-            Oxygen.instance()
+            YouTrackDBManager.instance()
                 .getRecordFactoryManager()
                 .newInstance(operation.getRecordType(), operation.getOldId(), database);
         ORecordInternal.unsetDirty(record);

@@ -28,7 +28,7 @@ import com.orientechnologies.orient.client.remote.OStorageRemote;
 import com.orientechnologies.orient.client.remote.OStorageRemoteSession;
 import com.orientechnologies.orient.client.remote.message.ORemoteResultSet;
 import com.orientechnologies.orient.client.remote.metadata.schema.OSchemaRemote;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.cache.OLocalRecordCache;
 import com.orientechnologies.orient.core.command.script.OCommandScriptException;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
@@ -41,7 +41,7 @@ import com.orientechnologies.orient.core.db.OHookReplacedRecordThreadLocal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
 import com.orientechnologies.orient.core.db.OSharedContext;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseSessionAbstract;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
@@ -95,7 +95,7 @@ import java.util.concurrent.ExecutionException;
 public class ODatabaseSessionRemote extends ODatabaseSessionAbstract {
 
   protected OStorageRemoteSession sessionMetadata;
-  private OxygenDBConfig config;
+  private YouTrackDBConfig config;
   private OStorageRemote storage;
   private OTransactionNoTx.NonTxReadMode nonTxReadMode;
 
@@ -151,7 +151,7 @@ public class ODatabaseSessionRemote extends ODatabaseSessionAbstract {
   }
 
   public ODatabaseSession open(final String iUserName, final String iUserPassword) {
-    throw new UnsupportedOperationException("Use OxygenDB");
+    throw new UnsupportedOperationException("Use YouTrackDB");
   }
 
   @Deprecated
@@ -166,17 +166,17 @@ public class ODatabaseSessionRemote extends ODatabaseSessionAbstract {
 
   @Override
   public ODatabaseSession create(String incrementalBackupPath) {
-    throw new UnsupportedOperationException("use OxygenDB");
+    throw new UnsupportedOperationException("use YouTrackDB");
   }
 
   @Override
   public ODatabaseSession create(final Map<OGlobalConfiguration, Object> iInitialSettings) {
-    throw new UnsupportedOperationException("use OxygenDB");
+    throw new UnsupportedOperationException("use YouTrackDB");
   }
 
   @Override
   public void drop() {
-    throw new UnsupportedOperationException("use OxygenDB");
+    throw new UnsupportedOperationException("use YouTrackDB");
   }
 
   @Override
@@ -239,10 +239,10 @@ public class ODatabaseSessionRemote extends ODatabaseSessionAbstract {
 
   @Override
   public boolean exists() {
-    throw new UnsupportedOperationException("use OxygenDB");
+    throw new UnsupportedOperationException("use YouTrackDB");
   }
 
-  public void internalOpen(String user, String password, OxygenDBConfig config) {
+  public void internalOpen(String user, String password, YouTrackDBConfig config) {
     this.config = config;
     applyAttributes(config);
     applyListeners(config);
@@ -273,7 +273,7 @@ public class ODatabaseSessionRemote extends ODatabaseSessionAbstract {
     }
   }
 
-  private void applyAttributes(OxygenDBConfig config) {
+  private void applyAttributes(YouTrackDBConfig config) {
     for (Entry<ATTRIBUTES, Object> attrs : config.getAttributes().entrySet()) {
       this.set(attrs.getKey(), attrs.getValue());
     }
@@ -302,7 +302,7 @@ public class ODatabaseSessionRemote extends ODatabaseSessionAbstract {
     sharedContext.load(this);
   }
 
-  private void applyListeners(OxygenDBConfig config) {
+  private void applyListeners(YouTrackDBConfig config) {
     for (ODatabaseListener listener : config.getListeners()) {
       registerListener(listener);
     }
@@ -719,7 +719,7 @@ public class ODatabaseSessionRemote extends ODatabaseSessionAbstract {
   public ODatabaseSessionAbstract setConflictStrategy(final String iStrategyName) {
     checkIfActive();
     storage.setConflictStrategy(
-        Oxygen.instance().getRecordConflictStrategy().getStrategy(iStrategyName));
+        YouTrackDBManager.instance().getRecordConflictStrategy().getStrategy(iStrategyName));
     return this;
   }
 
@@ -903,7 +903,7 @@ public class ODatabaseSessionRemote extends ODatabaseSessionAbstract {
         .error(
             this,
             "Only local paginated storage supports freeze. If you are using remote client please"
-                + " use OxygenDB instance instead",
+                + " use YouTrackDB instance instead",
             null);
   }
 
@@ -925,7 +925,7 @@ public class ODatabaseSessionRemote extends ODatabaseSessionAbstract {
         .error(
             this,
             "Only local paginated storage supports release. If you are using remote client please"
-                + " use OxygenDB instance instead",
+                + " use YouTrackDB instance instead",
             null);
   }
 

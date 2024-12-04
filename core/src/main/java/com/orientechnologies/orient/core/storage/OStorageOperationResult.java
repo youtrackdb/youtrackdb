@@ -28,8 +28,8 @@ import java.io.ObjectOutput;
 /**
  * This class represent CRUD operation result RET is the actual result Stores addition information
  * about command execution process Flag {@code isMoved == true} indicates that operation has been
- * executed on local OxygenDB server node, {@code isMoved == false} indicates that operation has
- * been executed on remote OxygenDB node. This information will help to maintain local indexes and
+ * executed on local YouTrackDB server node, {@code isMoved == false} indicates that operation has
+ * been executed on remote YouTrackDB node. This information will help to maintain local indexes and
  * caches in consistent state
  *
  * @since 28.09.12 13:47

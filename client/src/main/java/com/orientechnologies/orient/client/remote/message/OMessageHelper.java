@@ -6,7 +6,7 @@ import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.client.remote.OCollectionNetworkSerializer;
 import com.orientechnologies.orient.client.remote.message.tx.IndexChange;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -421,7 +421,7 @@ public class OMessageHelper {
     final byte[] content = network.readBytes();
 
     ORecordAbstract record =
-        Oxygen.instance()
+        YouTrackDBManager.instance()
             .getRecordFactoryManager()
             .newInstance(rec, rid, db);
     ORecordInternal.setVersion(record, version);

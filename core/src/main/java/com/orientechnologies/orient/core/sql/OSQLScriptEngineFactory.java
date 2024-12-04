@@ -27,7 +27,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 
 /**
- * Dynamic script engine factory for OxygenDB SQL commands.
+ * Dynamic script engine factory for YouTrackDB SQL commands.
  */
 public class OSQLScriptEngineFactory implements ScriptEngineFactory {
 

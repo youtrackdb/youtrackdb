@@ -65,7 +65,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
             new String[]{"plocal", "memory"},
             this.sign.getKeys(),
             new String[]{this.sign.getAlgorithm()},
-            new String[]{"OxygenDB", "node"});
+            new String[]{"YouTrackDB", "node"});
   }
 
   protected OTokenHandlerImpl() {
@@ -262,7 +262,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
       final OrientJwtHeader header = new OrientJwtHeader();
       header.setAlgorithm(this.sign.getAlgorithm());
       header.setKeyId(this.sign.getDefaultKey());
-      header.setType("OxygenDB");
+      header.setType("YouTrackDB");
       token.setHeader(header);
       OBinaryTokenPayloadImpl payload = new OBinaryTokenPayloadImpl();
       if (db != null) {
@@ -393,7 +393,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
   }
 
   protected OJwtPayload deserializeWebPayload(final String type, final byte[] decodedPayload) {
-    if (!"OxygenDB".equals(type)) {
+    if (!"YouTrackDB".equals(type)) {
       throw new OSystemException("Payload class not registered:" + type);
     }
     final ODocument doc = new ODocument();
@@ -452,7 +452,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
     }
 
     final OrientJwtPayload payload = new OrientJwtPayload();
-    payload.setAudience("OxygenDBServer");
+    payload.setAudience("YouTrackDBServer");
     payload.setDatabase("-");
     payload.setUserRid(OImmutableRecordId.EMPTY_RECORD_ID);
 
@@ -472,7 +472,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
     }
 
     final OrientJwtPayload payload = new OrientJwtPayload();
-    payload.setAudience("OxygenDB");
+    payload.setAudience("YouTrackDB");
     payload.setDatabase(db.getName());
     payload.setUserRid(user.getIdentity(db).getIdentity());
 
@@ -487,7 +487,7 @@ public class OTokenHandlerImpl implements OTokenHandler {
   }
 
   protected String getPayloadType(final OJwtPayload payload) {
-    return "OxygenDB";
+    return "YouTrackDB";
   }
 
   private OBinaryToken deserializeBinaryToken(final InputStream bais) {

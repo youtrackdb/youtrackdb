@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.server.config.OServerConfiguration;
 import com.orientechnologies.orient.server.config.OServerNetworkConfiguration;
 import com.orientechnologies.orient.server.config.OServerNetworkListenerConfiguration;
@@ -32,8 +32,8 @@ public class OServerShutdownMainTest {
   public void startupOServer() throws Exception {
 
     OLogManager.instance().setConsoleLevel(Level.OFF.getName());
-    prevPassword = System.setProperty("OXYGENDB_ROOT_PASSWORD", "rootPassword");
-    prevOrientHome = System.setProperty("OXYGENDB_HOME", "./target/testhome");
+    prevPassword = System.setProperty("YOU_TRACK_DB_ROOT_PASSWORD", "rootPassword");
+    prevOrientHome = System.setProperty("YOU_TRACK_DB_HOME", "./target/testhome");
 
     OServerConfiguration conf = new OServerConfiguration();
     conf.network = new OServerNetworkConfiguration();
@@ -60,15 +60,15 @@ public class OServerShutdownMainTest {
       server.shutdown();
     }
 
-    Oxygen.instance().shutdown();
+    YouTrackDBManager.instance().shutdown();
     OFileUtils.deleteRecursively(new File("./target/testhome"));
-    Oxygen.instance().startup();
+    YouTrackDBManager.instance().startup();
 
     if (prevOrientHome != null) {
-      System.setProperty("OXYGENDB_HOME", prevOrientHome);
+      System.setProperty("YOU_TRACK_DB_HOME", prevOrientHome);
     }
     if (prevPassword != null) {
-      System.setProperty("OXYGENDB_ROOT_PASSWORD", prevPassword);
+      System.setProperty("YOU_TRACK_DB_ROOT_PASSWORD", prevPassword);
     }
   }
 

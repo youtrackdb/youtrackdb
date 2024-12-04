@@ -16,7 +16,7 @@ package com.orientechnologies.security.ldap;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -49,7 +49,7 @@ public class OLDAPImporter implements OSecurityComponent {
   private boolean debug = false;
   private boolean enabled = true;
 
-  private OxygenDBInternal context;
+  private YouTrackDBInternal context;
 
   private int importPeriod = 60; // Default to 60
   // seconds.
@@ -81,7 +81,7 @@ public class OLDAPImporter implements OSecurityComponent {
         importTask, 30000, importPeriod * 1000L); // Wait 30 seconds before starting
 
     OLogManager.instance().info(this, "**************************************");
-    OLogManager.instance().info(this, "** OxygenDB LDAP Importer Is Active **");
+    OLogManager.instance().info(this, "** YouTrackDB LDAP Importer Is Active **");
     OLogManager.instance().info(this, "**************************************");
   }
 
@@ -490,7 +490,7 @@ public class OLDAPImporter implements OSecurityComponent {
           // again.
           boolean deleteUsers = false;
 
-          // Retrieves all the current OxygenDB users from the specified ODatabase and stores them
+          // Retrieves all the current YouTrackDB users from the specified ODatabase and stores them
           // in usersToBeDeleted.
           retrieveAllUsers(odb, db.ignoreLocal(), usersToBeDeleted);
 

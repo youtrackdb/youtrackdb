@@ -21,7 +21,7 @@ package com.orientechnologies.orient.server.network.protocol.http;
 
 import com.orientechnologies.common.concur.resource.OSharedResourceAbstract;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.server.OServer;
 import java.security.SecureRandom;
@@ -47,7 +47,7 @@ public class OHttpSessionManager extends OSharedResourceAbstract {
             .getValueAsInteger(OGlobalConfiguration.NETWORK_HTTP_SESSION_EXPIRE_TIMEOUT)
             * 1000;
 
-    Oxygen.instance()
+    YouTrackDBManager.instance()
         .scheduleTask(
             new Runnable() {
               @Override

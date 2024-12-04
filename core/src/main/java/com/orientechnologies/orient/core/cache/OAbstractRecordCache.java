@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.cache;
 
 import com.orientechnologies.common.profiler.OAbstractProfiler.OProfilerHookValue;
 import com.orientechnologies.common.profiler.OProfiler.METRIC_TYPE;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.id.ORID;
 import java.util.HashSet;
 import java.util.Set;
@@ -130,7 +130,7 @@ public abstract class OAbstractRecordCache {
   public void startup() {
     underlying.startup();
 
-    Oxygen.instance()
+    YouTrackDBManager.instance()
         .getProfiler()
         .registerHookValue(
             profilerPrefix + "current",
@@ -150,10 +150,10 @@ public abstract class OAbstractRecordCache {
   public void shutdown() {
     underlying.shutdown();
 
-    if (Oxygen.instance().getProfiler() != null) {
-      Oxygen.instance().getProfiler().unregisterHookValue(profilerPrefix + "enabled");
-      Oxygen.instance().getProfiler().unregisterHookValue(profilerPrefix + "current");
-      Oxygen.instance().getProfiler().unregisterHookValue(profilerPrefix + "max");
+    if (YouTrackDBManager.instance().getProfiler() != null) {
+      YouTrackDBManager.instance().getProfiler().unregisterHookValue(profilerPrefix + "enabled");
+      YouTrackDBManager.instance().getProfiler().unregisterHookValue(profilerPrefix + "current");
+      YouTrackDBManager.instance().getProfiler().unregisterHookValue(profilerPrefix + "max");
     }
   }
 }

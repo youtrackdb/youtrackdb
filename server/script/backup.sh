@@ -1,5 +1,5 @@
 #!/bin/sh
-# OxygenDB Backup script
+# YouTrackDB Backup script
 #
 # Copyright (c) Orient Technologies LTD (http://www.orientechnologies.com)
 
@@ -46,9 +46,9 @@ done
 # Get standard environment variables
 PRGDIR=`dirname "$PRG"`
 
-# Only set OXYGENDB_HOME if not already set
-[ -f "$ORIENTDB_HOME"/bin/orient.sh ] || OXYGENDB_HOME=`cd "$PRGDIR/.." ; pwd`
-export OXYGENDB_HOME
+# Only set YOU_TRACK_DB_HOME if not already set
+[ -f "$ORIENTDB_HOME"/bin/orient.sh ] || YOU_TRACK_DB_HOME=`cd "$PRGDIR/.." ; pwd`
+export YOU_TRACK_DB_HOME
 
 
 if [ "$#" != "5" ] || [ "$5" = "default" ]

@@ -21,8 +21,8 @@ package com.orientechnologies.orient.core.storage;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.exception.OInvalidDatabaseNameException;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import org.junit.Assert;
@@ -35,10 +35,10 @@ public class StorageNamingTests {
 
   @Test
   public void testSpecialLettersOne() {
-    try (OxygenDB oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-        OxygenDBConfig.defaultConfig())) {
+    try (YouTrackDB youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig())) {
       try {
-        oxygenDB.create("name%", ODatabaseType.MEMORY);
+        youTrackDB.create("name%", ODatabaseType.MEMORY);
         Assert.fail();
       } catch (OInvalidDatabaseNameException e) {
         // skip
@@ -48,10 +48,10 @@ public class StorageNamingTests {
 
   @Test
   public void testSpecialLettersTwo() {
-    try (OxygenDB oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-        OxygenDBConfig.defaultConfig())) {
+    try (YouTrackDB youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig())) {
       try {
-        oxygenDB.create("na.me", ODatabaseType.MEMORY);
+        youTrackDB.create("na.me", ODatabaseType.MEMORY);
         Assert.fail();
       } catch (OInvalidDatabaseNameException e) {
         // skip
@@ -61,10 +61,10 @@ public class StorageNamingTests {
 
   @Test
   public void testSpecialLettersThree() {
-    try (OxygenDB oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-        OxygenDBConfig.defaultConfig())) {
-      oxygenDB.create("na_me$", ODatabaseType.MEMORY);
-      oxygenDB.drop("na_me$");
+    try (YouTrackDB youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig())) {
+      youTrackDB.create("na_me$", ODatabaseType.MEMORY);
+      youTrackDB.drop("na_me$");
     }
   }
 

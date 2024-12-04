@@ -4,7 +4,7 @@ import static org.junit.Assert.assertNotNull;
 
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -21,16 +21,16 @@ import org.junit.Test;
 
 public class ORecordLazyListTest {
 
-  private OxygenDB oxygenDb;
+  private YouTrackDB youTrackDb;
   private ODatabaseSessionInternal dbSession;
 
   @Before
   public void init() throws Exception {
-    oxygenDb =
+    youTrackDb =
         OCreateDatabaseUtil.createDatabase(
             ORecordLazyListTest.class.getSimpleName(), "memory:", OCreateDatabaseUtil.TYPE_MEMORY);
     dbSession =
-        (ODatabaseSessionInternal) oxygenDb.open(
+        (ODatabaseSessionInternal) youTrackDb.open(
             ORecordLazyListTest.class.getSimpleName(),
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -79,8 +79,8 @@ public class ORecordLazyListTest {
     if (dbSession != null) {
       dbSession.close();
     }
-    if (oxygenDb != null && dbSession != null) {
-      oxygenDb.drop(ORecordLazyListTest.class.getSimpleName());
+    if (youTrackDb != null && dbSession != null) {
+      youTrackDb.drop(ORecordLazyListTest.class.getSimpleName());
     }
   }
 }

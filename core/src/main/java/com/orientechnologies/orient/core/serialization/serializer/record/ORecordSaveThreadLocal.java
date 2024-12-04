@@ -21,7 +21,7 @@
 package com.orientechnologies.orient.core.serialization.serializer.record;
 
 import com.orientechnologies.orient.core.OOrientListenerAbstract;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.record.ORecord;
 
 /**
@@ -33,7 +33,7 @@ public class ORecordSaveThreadLocal extends ThreadLocal<ORecord> {
   public static ORecordSaveThreadLocal INSTANCE = new ORecordSaveThreadLocal();
 
   static {
-    Oxygen.instance()
+    YouTrackDBManager.instance()
         .registerListener(
             new OOrientListenerAbstract() {
               @Override

@@ -82,7 +82,7 @@ public interface ODatabaseSessionInternal extends ODatabaseSession {
   /**
    * Internal. Returns the factory that defines a set of components that current database should use
    * to be compatible to current version of storage. So if you open a database create with old
-   * version of OxygenDB it defines a components that should be used to provide backward
+   * version of YouTrackDB it defines a components that should be used to provide backward
    * compatibility with that version of database.
    */
   OCurrentStorageComponentsFactory getStorageVersions();
@@ -726,7 +726,7 @@ public interface ODatabaseSessionInternal extends ODatabaseSession {
    * Drops a database.
    *
    * @throws ODatabaseException if database is closed. @Deprecated use instead
-   *                            {@link OxygenDB#drop}
+   *                            {@link YouTrackDB#drop}
    */
   @Deprecated
   void drop();
@@ -799,7 +799,7 @@ public interface ODatabaseSessionInternal extends ODatabaseSession {
    * @param iName  Property name
    * @param iValue new value to set
    * @return The previous value if any, otherwise null
-   * @deprecated use <code>OxygenDBConfig.builder().setConfig(propertyName, propertyValue).build();
+   * @deprecated use <code>YouTrackDBConfig.builder().setConfig(propertyName, propertyValue).build();
    * </code> instead if you use >=3.0 API.
    */
   @Deprecated

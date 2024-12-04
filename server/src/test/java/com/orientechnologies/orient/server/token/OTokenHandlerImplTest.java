@@ -73,7 +73,7 @@ public class OTokenHandlerImplTest extends BaseMemoryInternalDatabase {
   @Test
   public void testSerializeDeserializeWebPayload() throws Exception {
     OrientJwtPayload payload = new OrientJwtPayload();
-    String ptype = "OxygenDB";
+    String ptype = "YouTrackDB";
     payload.setAudience("audiance");
     payload.setExpiry(1L);
     payload.setIssuedAt(2L);

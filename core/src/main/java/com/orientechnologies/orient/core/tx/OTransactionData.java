@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.core.tx;
 
 import com.orientechnologies.common.exception.OException;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
@@ -115,7 +115,7 @@ public class OTransactionData {
                         record = database.load(x.getId());
                       } catch (ORecordNotFoundException rnf) {
                         record =
-                            Oxygen.instance()
+                            YouTrackDBManager.instance()
                                 .getRecordFactoryManager()
                                 .newInstance(x.getRecordType(), x.getId(), database);
                       }

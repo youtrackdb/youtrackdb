@@ -13,8 +13,8 @@
  */
 package com.orientechnologies.security.auditing;
 
-import com.orientechnologies.orient.core.Oxygen;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.YouTrackDBManager;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -31,7 +31,7 @@ public class OAuditingLoggingThread extends Thread {
   private final BlockingQueue<ODocument> auditingQueue;
   private volatile boolean running = true;
   private volatile boolean waitForAllLogs = true;
-  private final OxygenDBInternal context;
+  private final YouTrackDBInternal context;
 
   private final String className;
   private final OSecuritySystem security;
@@ -39,10 +39,11 @@ public class OAuditingLoggingThread extends Thread {
   public OAuditingLoggingThread(
       final String iDatabaseName,
       final BlockingQueue auditingQueue,
-      final OxygenDBInternal context,
+      final YouTrackDBInternal context,
       OSecuritySystem security) {
     super(
-        Oxygen.instance().getThreadGroup(), "OxygenDB Auditing Logging Thread - " + iDatabaseName);
+        YouTrackDBManager.instance().getThreadGroup(),
+        "YouTrackDB Auditing Logging Thread - " + iDatabaseName);
 
     this.databaseName = iDatabaseName;
     this.auditingQueue = auditingQueue;

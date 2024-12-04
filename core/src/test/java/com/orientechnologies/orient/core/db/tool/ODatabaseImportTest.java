@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.db.tool;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -20,11 +20,11 @@ public class ODatabaseImportTest {
   public void exportImportOnlySchemaTest() throws IOException {
     String databaseName = "export";
     final String exportDbPath = "target/export_" + ODatabaseImportTest.class.getSimpleName();
-    OxygenDB oxygenDB = OxygenDB.embedded(exportDbPath, OxygenDBConfig.defaultConfig());
-    oxygenDB.createIfNotExists(databaseName, ODatabaseType.PLOCAL, "admin", "admin", "admin");
+    YouTrackDB youTrackDB = YouTrackDB.embedded(exportDbPath, YouTrackDBConfig.defaultConfig());
+    youTrackDB.createIfNotExists(databaseName, ODatabaseType.PLOCAL, "admin", "admin", "admin");
 
     final ByteArrayOutputStream output = new ByteArrayOutputStream();
-    try (final ODatabaseSession db = oxygenDB.open(databaseName, "admin", "admin")) {
+    try (final ODatabaseSession db = youTrackDB.open(databaseName, "admin", "admin")) {
       db.createClass("SimpleClass");
 
       final ODatabaseExport export =
@@ -33,15 +33,15 @@ public class ODatabaseImportTest {
       export.setOptions(" -excludeAll -includeSchema=true");
       export.exportDatabase();
     }
-    oxygenDB.drop(databaseName);
-    oxygenDB.close();
+    youTrackDB.drop(databaseName);
+    youTrackDB.close();
 
     final String importDbPath = "target/import_" + ODatabaseImportTest.class.getSimpleName();
-    oxygenDB = OxygenDB.embedded(importDbPath, OxygenDBConfig.defaultConfig());
+    youTrackDB = YouTrackDB.embedded(importDbPath, YouTrackDBConfig.defaultConfig());
     databaseName = "import";
 
-    oxygenDB.createIfNotExists(databaseName, ODatabaseType.PLOCAL, "admin", "admin", "admin");
-    try (var db = (ODatabaseSessionInternal) oxygenDB.open(databaseName, "admin",
+    youTrackDB.createIfNotExists(databaseName, ODatabaseType.PLOCAL, "admin", "admin", "admin");
+    try (var db = (ODatabaseSessionInternal) youTrackDB.open(databaseName, "admin",
         "admin")) {
       final ODatabaseImport importer =
           new ODatabaseImport(
@@ -52,7 +52,7 @@ public class ODatabaseImportTest {
       importer.importDatabase();
       Assert.assertTrue(db.getMetadata().getSchema().existsClass("SimpleClass"));
     }
-    oxygenDB.drop(databaseName);
-    oxygenDB.close();
+    youTrackDB.drop(databaseName);
+    youTrackDB.close();
   }
 }

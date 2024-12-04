@@ -84,7 +84,8 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
         (long) clientPeriod * 1000 * 60); // Wait 30 seconds before starting
 
     OLogManager.instance()
-        .debug(this, "OxygenDB Kerberos Authenticator Is Active Version: " + kerberosPluginVersion);
+        .debug(this,
+            "YouTrackDB Kerberos Authenticator Is Active Version: " + kerberosPluginVersion);
   }
 
   // OSecurityAuthenticator
@@ -302,15 +303,15 @@ public class OKerberosAuthenticator extends OSecurityAuthenticatorAbstract {
     String header = null;
 
     // SPNEGO support.
-    //		if(databaseName != null) header = "WWW-Authenticate: Negotiate realm=\"OxygenDB db-" +
+    //		if(databaseName != null) header = "WWW-Authenticate: Negotiate realm=\"YouTrackDB db-" +
     // databaseName + "\"";
-    //		else header = "WWW-Authenticate: Negotiate realm=\"OxygenDB Server\"";
+    //		else header = "WWW-Authenticate: Negotiate realm=\"YouTrackDB Server\"";
 
     header = OHttpUtils.HEADER_AUTHENTICATE_NEGOTIATE; // "WWW-Authenticate: Negotiate";
 
     //		if(databaseName != null) header = "WWW-Authenticate: Negotiate\nWWW-Authenticate: Basic
-    // realm=\"OxygenDB db-" + databaseName + "\"";
-    //		else header = "WWW-Authenticate: Negotiate\nWWW-Authenticate: Basic realm=\"OxygenDB
+    // realm=\"YouTrackDB db-" + databaseName + "\"";
+    //		else header = "WWW-Authenticate: Negotiate\nWWW-Authenticate: Basic realm=\"YouTrackDB
     // Server\"";
 
     return header;

@@ -444,7 +444,7 @@ public class OMatchStatement extends OStatement implements OCommandExecutor, OIt
       Set<PatternEdge> visitedEdges,
       Map<String, Set<String>> remainingDependencies,
       List<EdgeTraversal> resultingSchedule) {
-    // OxygenDB requires the schedule to contain all edges present in the query, which is a stronger
+    // YouTrackDB requires the schedule to contain all edges present in the query, which is a stronger
     // condition
     // than simply visiting all nodes in the query. Consider the following example query:
     //     MATCH {

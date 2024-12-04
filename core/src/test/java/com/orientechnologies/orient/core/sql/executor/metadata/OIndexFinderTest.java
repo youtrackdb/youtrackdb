@@ -6,8 +6,8 @@ import static org.junit.Assert.assertFalse;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OClass.INDEX_TYPE;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
@@ -21,19 +21,19 @@ import org.junit.Test;
 public class OIndexFinderTest {
 
   private ODatabaseSessionInternal session;
-  private OxygenDB oxygenDb;
+  private YouTrackDB youTrackDb;
 
   @Before
   public void before() {
-    this.oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-        OxygenDBConfig.defaultConfig());
-    this.oxygenDb.execute(
+    this.youTrackDb = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig());
+    this.youTrackDb.execute(
         "create database "
             + OIndexFinderTest.class.getSimpleName()
             + " memory users (admin identified by 'adminpwd' role admin)");
     this.session =
         (ODatabaseSessionInternal)
-            this.oxygenDb.open(OIndexFinderTest.class.getSimpleName(), "admin", "adminpwd");
+            this.youTrackDb.open(OIndexFinderTest.class.getSimpleName(), "admin", "adminpwd");
   }
 
   @Test
@@ -269,6 +269,6 @@ public class OIndexFinderTest {
   @After
   public void after() {
     this.session.close();
-    this.oxygenDb.close();
+    this.youTrackDb.close();
   }
 }

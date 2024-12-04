@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright OxygenDB
+ *  *  Copyright YouTrackDB
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ public class OKerberosCredentialInterceptor implements OCredentialInterceptor {
     // spn should be the SPN of the service.
     if (spn == null || spn.isEmpty()) {
       // If spn is null or an empty string, the SPN will be generated from the URL like this:
-      //		OxygenDB/host
+      //		YouTrackDB/host
       if (url == null || url.isEmpty()) {
         throw new OSecurityException(
             "OKerberosCredentialInterceptor URL and SPN cannot both be null!");
@@ -94,7 +94,7 @@ public class OKerberosCredentialInterceptor implements OCredentialInterceptor {
               "OKerberosCredentialInterceptor Could not create SPN from URL: " + url);
         }
 
-        actualSPN = "OxygenDB/" + host;
+        actualSPN = "YouTrackDB/" + host;
       } catch (URISyntaxException ex) {
         throw OException.wrapException(
             new OSecurityException(

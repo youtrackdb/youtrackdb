@@ -21,7 +21,7 @@ package com.orientechnologies;
 
 import com.orientechnologies.common.directmemory.OByteBufferPool;
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import org.junit.Assert;
 import org.junit.runner.Result;
 import org.junit.runner.notification.RunListener;
@@ -50,12 +50,12 @@ public class OJUnitTestListener extends RunListener {
     }
 
     if (result.wasSuccessful()) {
-      System.out.println("Shutting down OxygenDB engine and checking for direct memory leaks...");
-      final Oxygen oxygen = Oxygen.instance();
+      System.out.println("Shutting down YouTrackDB engine and checking for direct memory leaks...");
+      final YouTrackDBManager youTrack = YouTrackDBManager.instance();
 
-      if (oxygen != null) {
+      if (youTrack != null) {
         // state is verified during engine shutdown
-        oxygen.shutdown();
+        youTrack.shutdown();
       } else {
         OByteBufferPool.instance(null).checkMemoryLeaks();
       }

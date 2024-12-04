@@ -23,20 +23,20 @@ import java.util.Map;
 import org.apache.commons.lang.ArrayUtils;
 
 /**
- * OxygenDB management environment, it allows to connect to an environment and manipulate databases
+ * YouTrackDB management environment, it allows to connect to an environment and manipulate databases
  * or open sessions.
  *
  * <p>Usage examples: Remote Example:
  *
  * <pre>
  * <code>
- * try(OxygenDB oxygenDB = OxygenDB.remote("localhost","root","root") {
- *  oxygenDB.createIfNotExists("test",ODatabaseType.PLOCAL, "superuser", "password", "admin",
+ * try(YouTrackDB youTrackDB = YouTrackDB.remote("localhost","root","root") {
+ *  youTrackDB.createIfNotExists("test",ODatabaseType.PLOCAL, "superuser", "password", "admin",
  *  "writer" , "password2", "writer");
- *  try(ODatabaseDocument session = oxygenDB.open("test","superuser","password")) {
+ *  try(ODatabaseDocument session = youTrackDB.open("test","superuser","password")) {
  *     session.createClass("MyClass");
  *   }
- *  try(ODatabaseDocument session = oxygenDB.open("test","writer","password2")) {
+ *  try(ODatabaseDocument session = youTrackDB.open("test","writer","password2")) {
  *     //...
  *  }
  * }
@@ -47,14 +47,14 @@ import org.apache.commons.lang.ArrayUtils;
  *
  * <pre>
  * <code>
- * try(OxygenDB oxygenDB = OxygenDB.embedded("./databases/")) {
- *  oxygenDB.createIfNotExists("test",ODatabaseType.PLOCAL, "superuser", "password", "admin",
+ * try(YouTrackDB youTrackDB = YouTrackDB.embedded("./databases/")) {
+ *  youTrackDB.createIfNotExists("test",ODatabaseType.PLOCAL, "superuser", "password", "admin",
  *  "writer" , "password2", "writer");
- *   try(ODatabaseDocument session = oxygenDB.open("test","superuser","password")) {
+ *   try(ODatabaseDocument session = youTrackDB.open("test","superuser","password")) {
  *     session.createClass("MyClass");
  *   }
  *
- *   try(ODatabaseDocument session = oxygenDB.open("test","writer","password2")) {
+ *   try(ODatabaseDocument session = youTrackDB.open("test","writer","password2")) {
  *     //...
  *   }
  * }
@@ -65,15 +65,15 @@ import org.apache.commons.lang.ArrayUtils;
  *
  * <pre>
  * <code>
- * tru(OxygenDB oxygenDB = ...) {
- *  if(!oxygenDB.exists("one")) {
- *     oxygenDB.create("one",ODatabaseType.PLOCAL, "superuser", "password", "admin", "writer,
+ * tru(YouTrackDB youTrackDB = ...) {
+ *  if(!youTrackDB.exists("one")) {
+ *     youTrackDB.create("one",ODatabaseType.PLOCAL, "superuser", "password", "admin", "writer,
  *     "password2", "writer");
  *  }
- *  if(oxygenDB.exists("two")) {
- *    oxygenDB.drop("two");
+ *  if(youTrackDB.exists("two")) {
+ *    youTrackDB.drop("two");
  *  }
- *  List<tString> databases = oxygenDB.list();
+ *  List<tString> databases = youTrackDB.list();
  *  assertEquals(databases.size(),1);
  *  assertEquals(databases.get("0"),"one");
  * }
@@ -84,75 +84,75 @@ import org.apache.commons.lang.ArrayUtils;
  *
  * <p>
  */
-public class OxygenDB implements AutoCloseable {
+public class YouTrackDB implements AutoCloseable {
   private final ConcurrentLinkedHashMap<ODatabasePoolInternal, ODatabasePool> cachedPools =
       new ConcurrentLinkedHashMap.Builder<ODatabasePoolInternal, ODatabasePool>()
           .maximumWeightedCapacity(100)
           .build(); // cache for links to database pools. Avoid create database pool wrapper each
   // time when it is requested
 
-  protected OxygenDBInternal internal;
+  protected YouTrackDBInternal internal;
   protected String serverUser;
   private String serverPassword;
 
   /**
-   * Create a new OxygenDB instance for an embedded deployment with default configuration. For in
+   * Create a new YouTrackDB instance for an embedded deployment with default configuration. For in
    * memory database use any directory name, for example "mydb"
    *
    * @param directoryPath the directory where the database are stored
    */
-  public static OxygenDB embedded(String directoryPath) {
-    return embedded(directoryPath, OxygenDBConfig.defaultConfig());
+  public static YouTrackDB embedded(String directoryPath) {
+    return embedded(directoryPath, YouTrackDBConfig.defaultConfig());
   }
 
   /**
-   * Create a new OxygenDB instance for a embedded deployment with custom configuration. For in
+   * Create a new YouTrackDB instance for a embedded deployment with custom configuration. For in
    * memory database use any directory name, for example "mydb"
    *
    * @param directoryPath the directory where the database are stored
    * @param config        custom configuration for current environment
    */
-  public static OxygenDB embedded(String directoryPath, OxygenDBConfig config) {
-    return new OxygenDB(OxygenDBInternal.embedded(directoryPath, config));
+  public static YouTrackDB embedded(String directoryPath, YouTrackDBConfig config) {
+    return new YouTrackDB(YouTrackDBInternal.embedded(directoryPath, config));
   }
 
   /**
-   * Create a new OxygenDB instance for a remote deployment with default configuration.
+   * Create a new YouTrackDB instance for a remote deployment with default configuration.
    *
    * @param url            the url for the database server for example "localhost" or
    *                       "localhost:2424"
    * @param serverUser     the server user allowed to manipulate databases.
    * @param serverPassword relative to the server user.
-   * @return a new OxygenDB instance
+   * @return a new YouTrackDB instance
    */
-  public static OxygenDB remote(String url, String serverUser, String serverPassword) {
-    return remote(url, serverUser, serverPassword, OxygenDBConfig.defaultConfig());
+  public static YouTrackDB remote(String url, String serverUser, String serverPassword) {
+    return remote(url, serverUser, serverPassword, YouTrackDBConfig.defaultConfig());
   }
 
   /**
-   * Create a new OxygenDB instance for a remote deployment with custom configuration.
+   * Create a new YouTrackDB instance for a remote deployment with custom configuration.
    *
    * @param url            the url for the database server for example "localhost" or
    *                       "localhost:2424"
    * @param serverUser     the server user allowed to manipulate databases.
    * @param serverPassword relative to the server user.
    * @param config         custom configuration for current environment
-   * @return a new OxygenDB instance
+   * @return a new YouTrackDB instance
    */
-  public static OxygenDB remote(
-      String url, String serverUser, String serverPassword, OxygenDBConfig config) {
-    var oxygenDB =
-        new OxygenDB(
-            OxygenDBInternal.remote(url.substring(url.indexOf(':') + 1).split("[,;]"), config));
+  public static YouTrackDB remote(
+      String url, String serverUser, String serverPassword, YouTrackDBConfig config) {
+    var youTrackDB =
+        new YouTrackDB(
+            YouTrackDBInternal.remote(url.substring(url.indexOf(':') + 1).split("[,;]"), config));
 
-    oxygenDB.serverUser = serverUser;
-    oxygenDB.serverPassword = serverPassword;
+    youTrackDB.serverUser = serverUser;
+    youTrackDB.serverPassword = serverPassword;
 
-    return oxygenDB;
+    return youTrackDB;
   }
 
   /**
-   * Create a new OxygenDB instance for a specific environment
+   * Create a new YouTrackDB instance for a specific environment
    *
    * <p>possible kind of urls 'embedded','remote', for the case of remote and distributed can be
    * specified multiple nodes using comma.
@@ -161,11 +161,11 @@ public class OxygenDB implements AutoCloseable {
    *
    * <pre>
    * <code>
-   * OxygenDB oxygenDB = new OxygenDB("remote:localhost");
-   * ODatabaseDocument session = oxygenDB.open("test","admin","admin");
+   * YouTrackDB youTrackDB = new YouTrackDB("remote:localhost");
+   * ODatabaseDocument session = youTrackDB.open("test","admin","admin");
    * //...
    * session.close();
-   * oxygenDB.close();
+   * youTrackDB.close();
    * </code>
    * </pre>
    *
@@ -173,28 +173,28 @@ public class OxygenDB implements AutoCloseable {
    *
    * <pre>
    * <code>
-   * OxygenDB oxygenDB = new OxygenDB("embedded:./databases/");
-   * ODatabaseDocument session = oxygenDB.open("test","admin","admin");
+   * YouTrackDB youTrackDB = new YouTrackDB("embedded:./databases/");
+   * ODatabaseDocument session = youTrackDB.open("test","admin","admin");
    * //...
    * session.close();
-   * oxygenDB.close();
+   * youTrackDB.close();
    * </code>
    * </pre>
    *
    * @param url           the url for the specific environment.
    * @param configuration configuration for the specific environment for the list of option
    *                      {@see OGlobalConfiguration}.
-   * @see #embedded(String, OxygenDBConfig)
-   * @see #remote(String, String, String, OxygenDBConfig)
+   * @see #embedded(String, YouTrackDBConfig)
+   * @see #remote(String, String, String, YouTrackDBConfig)
    * @see #remote(String, String, String)
    * @see #embedded(String)
    */
-  public OxygenDB(String url, OxygenDBConfig configuration) {
+  public YouTrackDB(String url, YouTrackDBConfig configuration) {
     this(url, null, null, configuration);
   }
 
   /**
-   * Create a new OxygenDB instance for a specific environment
+   * Create a new YouTrackDB instance for a specific environment
    *
    * <p>possible kind of urls 'embedded','remote', for the case of remote and distributed can be
    * specified multiple nodes using comma.
@@ -203,12 +203,12 @@ public class OxygenDB implements AutoCloseable {
    *
    * <pre>
    * <code>
-   * OxygenDB oxygenDB = new OxygenDB("remote:localhost","root","root");
-   * oxygenDB.create("test",ODatabaseType.PLOCAL);
-   * ODatabaseDocument session = oxygenDB.open("test","admin","admin");
+   * YouTrackDB youTrackDB = new YouTrackDB("remote:localhost","root","root");
+   * youTrackDB.create("test",ODatabaseType.PLOCAL);
+   * ODatabaseDocument session = youTrackDB.open("test","admin","admin");
    * //...
    * session.close();
-   * oxygenDB.close();
+   * youTrackDB.close();
    * </code>
    * </pre>
    *
@@ -216,12 +216,12 @@ public class OxygenDB implements AutoCloseable {
    *
    * <pre>
    * <code>
-   * OxygenDB oxygenDB = new OxygenDB("embedded:./databases/",null,null);
-   * oxygenDB.create("test",ODatabaseType.MEMORY);
-   * ODatabaseDocument session = oxygenDB.open("test","admin","admin");
+   * YouTrackDB youTrackDB = new YouTrackDB("embedded:./databases/",null,null);
+   * youTrackDB.create("test",ODatabaseType.MEMORY);
+   * ODatabaseDocument session = youTrackDB.open("test","admin","admin");
    * //...
    * session.close();
-   * oxygenDB.close();
+   * youTrackDB.close();
    * </code>
    * </pre>
    *
@@ -230,13 +230,13 @@ public class OxygenDB implements AutoCloseable {
    * @param serverPassword relative to the server user.
    * @param configuration  configuration for the specific environment for the list of option
    *                       {@see OGlobalConfiguration}.
-   * @see #embedded(String, OxygenDBConfig)
-   * @see #remote(String, String, String, OxygenDBConfig)
+   * @see #embedded(String, YouTrackDBConfig)
+   * @see #remote(String, String, String, YouTrackDBConfig)
    * @see #remote(String, String, String)
    * @see #embedded(String)
    */
-  public OxygenDB(
-      String url, String serverUser, String serverPassword, OxygenDBConfig configuration) {
+  public YouTrackDB(
+      String url, String serverUser, String serverPassword, YouTrackDBConfig configuration) {
     int pos;
     String what;
     if ((pos = url.indexOf(':')) > 0) {
@@ -245,10 +245,11 @@ public class OxygenDB implements AutoCloseable {
       what = url;
     }
     if ("embedded".equals(what) || "memory".equals(what) || "plocal".equals(what)) {
-      internal = OxygenDBInternal.embedded(url.substring(url.indexOf(':') + 1), configuration);
+      internal = YouTrackDBInternal.embedded(url.substring(url.indexOf(':') + 1), configuration);
     } else if ("remote".equals(what)) {
       internal =
-          OxygenDBInternal.remote(url.substring(url.indexOf(':') + 1).split("[,;]"), configuration);
+          YouTrackDBInternal.remote(url.substring(url.indexOf(':') + 1).split("[,;]"),
+              configuration);
     } else {
       throw new IllegalArgumentException("Wrong url:`" + url + "`");
     }
@@ -257,7 +258,7 @@ public class OxygenDB implements AutoCloseable {
     this.serverPassword = serverPassword;
   }
 
-  OxygenDB(OxygenDBInternal internal) {
+  YouTrackDB(YouTrackDBInternal internal) {
     this.internal = internal;
     this.serverUser = null;
     this.serverPassword = null;
@@ -272,7 +273,7 @@ public class OxygenDB implements AutoCloseable {
    * @return the opened database
    */
   public ODatabaseSession open(String database, String user, String password) {
-    return open(database, user, password, OxygenDBConfig.defaultConfig());
+    return open(database, user, password, YouTrackDBConfig.defaultConfig());
   }
 
   /**
@@ -285,7 +286,7 @@ public class OxygenDB implements AutoCloseable {
    * @return the opened database
    */
   public ODatabaseSession open(
-      String database, String user, String password, OxygenDBConfig config) {
+      String database, String user, String password, YouTrackDBConfig config) {
     return internal.open(database, user, password, config);
   }
 
@@ -298,7 +299,7 @@ public class OxygenDB implements AutoCloseable {
    * @see #create(String, ODatabaseType, String...)
    */
   public void create(String database, ODatabaseType type) {
-    create(database, type, OxygenDBConfig.defaultConfig());
+    create(database, type, YouTrackDBConfig.defaultConfig());
   }
 
   /**
@@ -309,7 +310,7 @@ public class OxygenDB implements AutoCloseable {
    *
    * <p>For example:
    *
-   * <p>{@code oxygenDB.create("test", ODatabaseType.PLOCAL, "user1", "password1", "admin",
+   * <p>{@code youTrackDB.create("test", ODatabaseType.PLOCAL, "user1", "password1", "admin",
    * "user2", "password2", "reader"); }
    *
    * <p>The predefined roles are:
@@ -339,7 +340,7 @@ public class OxygenDB implements AutoCloseable {
    * @param type     can be plocal or memory
    * @param config   custom configuration for current database
    */
-  public void create(String database, ODatabaseType type, OxygenDBConfig config) {
+  public void create(String database, ODatabaseType type, YouTrackDBConfig config) {
     this.internal.create(database, serverUser, serverPassword, type, config);
   }
 
@@ -352,7 +353,7 @@ public class OxygenDB implements AutoCloseable {
    * @return true if the database has been created, false if already exists
    */
   public boolean createIfNotExists(String database, ODatabaseType type) {
-    return createIfNotExists(database, type, OxygenDBConfig.defaultConfig());
+    return createIfNotExists(database, type, YouTrackDBConfig.defaultConfig());
   }
 
   /**
@@ -372,7 +373,7 @@ public class OxygenDB implements AutoCloseable {
    *
    * <p>For example:
    *
-   * <p>{@code oxygenDB.createIfNotExists("test", ODatabaseType.PLOCAL, "user1", "password1",
+   * <p>{@code youTrackDB.createIfNotExists("test", ODatabaseType.PLOCAL, "user1", "password1",
    * "admin", "user2", "password2", "reader"); }
    *
    * @param database        database name
@@ -425,7 +426,7 @@ public class OxygenDB implements AutoCloseable {
    * @param config   custom configuration for current database
    * @return true if the database has been created, false if already exists
    */
-  public boolean createIfNotExists(String database, ODatabaseType type, OxygenDBConfig config) {
+  public boolean createIfNotExists(String database, ODatabaseType type, YouTrackDBConfig config) {
     if (!this.internal.exists(database, serverUser, serverPassword)) {
       this.internal.create(database, serverUser, serverPassword, type, config);
       return true;
@@ -462,7 +463,7 @@ public class OxygenDB implements AutoCloseable {
   }
 
   /**
-   * Close the current OxygenDB context with all related databases and pools.
+   * Close the current YouTrackDB context with all related databases and pools.
    */
   @Override
   public void close() {
@@ -471,7 +472,7 @@ public class OxygenDB implements AutoCloseable {
   }
 
   /**
-   * Check if the current OxygenDB context is open
+   * Check if the current YouTrackDB context is open
    *
    * @return boolean true if is open false otherwise.
    */
@@ -480,7 +481,7 @@ public class OxygenDB implements AutoCloseable {
   }
 
   ODatabasePoolInternal openPool(
-      String database, String user, String password, OxygenDBConfig config) {
+      String database, String user, String password, YouTrackDBConfig config) {
     return this.internal.openPool(database, user, password, config);
   }
 
@@ -494,12 +495,12 @@ public class OxygenDB implements AutoCloseable {
    * @param database database name
    * @param user     user name
    * @param password user password
-   * @param config   OxygenDB config for pool if need create it (in case if there is no cached
+   * @param config   YouTrackDB config for pool if need create it (in case if there is no cached
    *                 pool)
    * @return cached {@link ODatabasePool}
    */
   public ODatabasePool cachedPool(
-      String database, String user, String password, OxygenDBConfig config) {
+      String database, String user, String password, YouTrackDBConfig config) {
     ODatabasePoolInternal internalPool = internal.cachedPool(database, user, password, config);
 
     ODatabasePool pool = cachedPools.get(internalPool);
@@ -527,7 +528,7 @@ public class OxygenDB implements AutoCloseable {
         params);
   }
 
-  OxygenDBInternal getInternal() {
+  YouTrackDBInternal getInternal() {
     return internal;
   }
 }

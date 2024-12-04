@@ -9,7 +9,7 @@ import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal.ATTRIBUTES;
 import com.orientechnologies.orient.core.db.OMetadataUpdateListener;
-import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -24,16 +24,16 @@ import org.junit.Test;
 
 public class ODatabaseMetadataUpdateListener {
 
-  private OxygenDB oxygenDB;
+  private YouTrackDB youTrackDB;
   private ODatabaseSessionInternal session;
   private int count;
 
   @Before
   public void before() {
-    oxygenDB =
+    youTrackDB =
         OCreateDatabaseUtil.createDatabase("test", DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_MEMORY);
-    session = (ODatabaseSessionInternal) oxygenDB.open("test", "admin",
+    session = (ODatabaseSessionInternal) youTrackDB.open("test", "admin",
         OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     count = 0;
     OMetadataUpdateListener listener =
@@ -116,6 +116,6 @@ public class ODatabaseMetadataUpdateListener {
   @After
   public void after() {
     session.close();
-    oxygenDB.close();
+    youTrackDB.close();
   }
 }

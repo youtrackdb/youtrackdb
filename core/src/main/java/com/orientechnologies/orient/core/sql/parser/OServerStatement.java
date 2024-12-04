@@ -6,7 +6,7 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.listener.OProgressListener;
 import com.orientechnologies.orient.core.command.OServerCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.exception.OCommandExecutionException;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.OCommandSQLParsingException;
@@ -54,41 +54,41 @@ public class OServerStatement extends SimpleNode {
     throw new UnsupportedOperationException("Unsupported command: " + getClass().getSimpleName());
   }
 
-  public OResultSet execute(OxygenDBInternal db, Object[] args) {
+  public OResultSet execute(YouTrackDBInternal db, Object[] args) {
     return execute(db, args, true);
   }
 
   public OResultSet execute(
-      OxygenDBInternal db, Object[] args, OServerCommandContext parentContext) {
+      YouTrackDBInternal db, Object[] args, OServerCommandContext parentContext) {
     return execute(db, args, parentContext, true);
   }
 
-  public OResultSet execute(OxygenDBInternal db, Map args) {
+  public OResultSet execute(YouTrackDBInternal db, Map args) {
     return execute(db, args, true);
   }
 
-  public OResultSet execute(OxygenDBInternal db, Map args, OServerCommandContext parentContext) {
+  public OResultSet execute(YouTrackDBInternal db, Map args, OServerCommandContext parentContext) {
     return execute(db, args, parentContext, true);
   }
 
-  public OResultSet execute(OxygenDBInternal db, Object[] args, boolean usePlanCache) {
+  public OResultSet execute(YouTrackDBInternal db, Object[] args, boolean usePlanCache) {
     return execute(db, args, null, usePlanCache);
   }
 
   public OResultSet execute(
-      OxygenDBInternal db,
+      YouTrackDBInternal db,
       Object[] args,
       OServerCommandContext parentContext,
       boolean usePlanCache) {
     throw new UnsupportedOperationException();
   }
 
-  public OResultSet execute(OxygenDBInternal db, Map args, boolean usePlanCache) {
+  public OResultSet execute(YouTrackDBInternal db, Map args, boolean usePlanCache) {
     return execute(db, args, null, usePlanCache);
   }
 
   public OResultSet execute(
-      OxygenDBInternal db, Map args, OServerCommandContext parentContext, boolean usePlanCache) {
+      YouTrackDBInternal db, Map args, OServerCommandContext parentContext, boolean usePlanCache) {
     throw new UnsupportedOperationException();
   }
 

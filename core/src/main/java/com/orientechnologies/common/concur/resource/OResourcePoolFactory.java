@@ -4,7 +4,7 @@ import com.googlecode.concurrentlinkedhashmap.ConcurrentLinkedHashMap;
 import com.googlecode.concurrentlinkedhashmap.EvictionListener;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.OOrientListenerAbstract;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -39,8 +39,8 @@ public class OResourcePoolFactory<K, T> extends OOrientListenerAbstract {
             .listener(evictionListener)
             .build();
 
-    Oxygen.instance().registerWeakOrientStartupListener(this);
-    Oxygen.instance().registerWeakOrientShutdownListener(this);
+    YouTrackDBManager.instance().registerWeakOrientStartupListener(this);
+    YouTrackDBManager.instance().registerWeakOrientShutdownListener(this);
   }
 
   public int getMaxPoolSize() {

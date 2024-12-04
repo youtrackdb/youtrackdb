@@ -2,19 +2,19 @@ package com.orientechnologies.lucene.index;
 
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 public class OLuceneFailTest {
 
-  private OxygenDB odb;
+  private YouTrackDB odb;
 
   @Before
   public void before() {
-    odb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), OxygenDBConfig.defaultConfig());
+    odb = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()), YouTrackDBConfig.defaultConfig());
     odb.execute("create database tdb memory users (admin identified by 'admpwd' role admin)")
         .close();
   }

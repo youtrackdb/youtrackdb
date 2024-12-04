@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.util;
 
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseType;
 import com.orientechnologies.orient.core.exception.OConfigurationException;
 import java.io.File;
@@ -21,7 +21,7 @@ public class OURLHelper {
     if (typeIndex <= 0) {
       throw new OConfigurationException(
           "Error in database URL: the engine was not specified. Syntax is: "
-              + Oxygen.URL_SYNTAX
+              + YouTrackDBManager.URL_SYNTAX
               + ". URL was: "
               + url);
     }
@@ -72,7 +72,7 @@ public class OURLHelper {
     if (typeIndex <= 0) {
       throw new OConfigurationException(
           "Error in database URL: the engine was not specified. Syntax is: "
-              + Oxygen.URL_SYNTAX
+              + YouTrackDBManager.URL_SYNTAX
               + ". URL was: "
               + url);
     }

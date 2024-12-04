@@ -22,7 +22,7 @@ package com.orientechnologies.orient.core.serialization;
 import com.orientechnologies.common.profiler.OAbstractProfiler.OProfilerHookValue;
 import com.orientechnologies.common.profiler.OProfiler.METRIC_TYPE;
 import com.orientechnologies.common.util.OArrays;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
@@ -47,7 +47,7 @@ public class OMemoryStream extends OutputStream {
   private static long metricResize = 0;
 
   static {
-    Oxygen.instance()
+    YouTrackDBManager.instance()
         .getProfiler()
         .registerHookValue(
             "system.memory.stream.resize",

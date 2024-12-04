@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.server.script;
 
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.server.OServer;
 import org.junit.After;
@@ -29,12 +29,12 @@ public class JSScriptServerTest {
   @Test
   public void jsPackagesFromConfigTest() {
 
-    OxygenDB oxygenDB =
-        new OxygenDB("remote:localhost", "root", "root", OxygenDBConfig.defaultConfig());
-    oxygenDB.execute(
+    YouTrackDB youTrackDB =
+        new YouTrackDB("remote:localhost", "root", "root", YouTrackDBConfig.defaultConfig());
+    youTrackDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         name.getMethodName());
-    try (var db = oxygenDB.open(name.getMethodName(), "admin", "admin")) {
+    try (var db = youTrackDB.open(name.getMethodName(), "admin", "admin")) {
       try (OResultSet resultSet = db.execute("javascript", "new java.math.BigDecimal(1.0);")) {
         Assert.assertEquals(1, resultSet.stream().count());
       }
@@ -45,8 +45,8 @@ public class JSScriptServerTest {
 
     } finally {
 
-      oxygenDB.drop(name.getMethodName());
-      oxygenDB.close();
+      youTrackDB.drop(name.getMethodName());
+      youTrackDB.close();
     }
   }
 

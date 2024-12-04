@@ -21,7 +21,7 @@
 package com.orientechnologies.orient.core.storage.impl.local.paginated;
 
 import com.orientechnologies.orient.core.OOrientListenerAbstract;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import java.util.ArrayDeque;
@@ -36,7 +36,7 @@ public class ORecordSerializationContext {
       SERIALIZATION_CONTEXT_STACK = new SerializationContextThreadLocal();
 
   static {
-    Oxygen.instance()
+    YouTrackDBManager.instance()
         .registerListener(
             new OOrientListenerAbstract() {
               @Override

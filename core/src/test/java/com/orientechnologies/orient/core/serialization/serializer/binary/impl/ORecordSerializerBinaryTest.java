@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 OxygenDB.
+ * Copyright 2018 YouTrackDB.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ package com.orientechnologies.orient.core.serialization.serializer.binary.impl;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.impl.ODocument;
@@ -51,7 +51,7 @@ public class ORecordSerializerBinaryTest {
   private static ODatabaseSession db = null;
   private static ORecordSerializerBinary serializer;
   private final int serializerVersion;
-  private OxygenDB odb;
+  private YouTrackDB odb;
 
   @Parameterized.Parameters
   public static Collection<Object[]> generateParams() {
@@ -71,7 +71,7 @@ public class ORecordSerializerBinaryTest {
 
   @Before
   public void before() {
-    odb = new OxygenDB("memory:", OxygenDBConfig.defaultConfig());
+    odb = new YouTrackDB("memory:", YouTrackDBConfig.defaultConfig());
     odb.execute("create database test memory users ( admin identified by 'admin' role admin)");
     db = odb.open("test", "admin", "admin");
     db.createClass("TestClass");

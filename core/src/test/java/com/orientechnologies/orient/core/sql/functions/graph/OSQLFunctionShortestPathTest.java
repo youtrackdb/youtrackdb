@@ -6,7 +6,7 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.record.OVertex;
 import java.util.HashMap;
@@ -19,7 +19,7 @@ import org.junit.Test;
 
 public class OSQLFunctionShortestPathTest {
 
-  private OxygenDB oxygenDB;
+  private YouTrackDB youTrackDB;
   private ODatabaseSession graph;
 
   private Map<Integer, OVertex> vertices = new HashMap<Integer, OVertex>();
@@ -35,16 +35,17 @@ public class OSQLFunctionShortestPathTest {
   @After
   public void tearDown() throws Exception {
     graph.close();
-    oxygenDB.close();
+    youTrackDB.close();
   }
 
   private void setUpDatabase() {
-    oxygenDB =
+    youTrackDB =
         OCreateDatabaseUtil.createDatabase(
             "OSQLFunctionShortestPath", DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_MEMORY);
     graph =
-        oxygenDB.open("OSQLFunctionShortestPath", "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        youTrackDB.open("OSQLFunctionShortestPath", "admin",
+            OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
 
     graph.createEdgeClass("Edge1");
     graph.createEdgeClass("Edge2");

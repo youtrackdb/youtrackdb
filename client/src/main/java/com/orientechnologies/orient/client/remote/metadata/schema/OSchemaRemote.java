@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.client.remote.metadata.schema;
 
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseLifecycleListener;
 import com.orientechnologies.orient.core.db.ODatabaseListener;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
@@ -157,7 +157,8 @@ public class OSchemaRemote extends OSchemaShared {
       result = classes.get(className.toLowerCase(Locale.ENGLISH));
 
       // WAKE UP DB LIFECYCLE LISTENER
-      for (Iterator<ODatabaseLifecycleListener> it = Oxygen.instance().getDbLifecycleListeners();
+      for (Iterator<ODatabaseLifecycleListener> it = YouTrackDBManager.instance()
+          .getDbLifecycleListeners();
           it.hasNext(); ) {
         it.next().onCreateClass(database, result);
       }
@@ -237,7 +238,8 @@ public class OSchemaRemote extends OSchemaShared {
       result = classes.get(className.toLowerCase(Locale.ENGLISH));
 
       // WAKE UP DB LIFECYCLE LISTENER
-      for (Iterator<ODatabaseLifecycleListener> it = Oxygen.instance().getDbLifecycleListeners();
+      for (Iterator<ODatabaseLifecycleListener> it = YouTrackDBManager.instance()
+          .getDbLifecycleListeners();
           it.hasNext(); ) {
         it.next().onCreateClass(database, result);
       }
@@ -298,7 +300,8 @@ public class OSchemaRemote extends OSchemaShared {
       result = views.get(cfg.getName().toLowerCase(Locale.ENGLISH));
 
       // WAKE UP DB LIFECYCLE LISTENER
-      for (Iterator<ODatabaseLifecycleListener> it = Oxygen.instance().getDbLifecycleListeners();
+      for (Iterator<ODatabaseLifecycleListener> it = YouTrackDBManager.instance()
+          .getDbLifecycleListeners();
           it.hasNext(); ) {
         it.next().onCreateView(database, result);
       }
@@ -351,7 +354,8 @@ public class OSchemaRemote extends OSchemaShared {
       result = views.get(name.toLowerCase(Locale.ENGLISH));
 
       // WAKE UP DB LIFECYCLE LISTENER
-      for (Iterator<ODatabaseLifecycleListener> it = Oxygen.instance().getDbLifecycleListeners();
+      for (Iterator<ODatabaseLifecycleListener> it = YouTrackDBManager.instance()
+          .getDbLifecycleListeners();
           it.hasNext(); ) {
         it.next().onCreateView(database, result);
       }

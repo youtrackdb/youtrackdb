@@ -38,7 +38,7 @@ public class OrientShutdownHook extends Thread {
   @Override
   public void run() {
     try {
-      Oxygen.instance().shutdown();
+      YouTrackDBManager.instance().shutdown();
     } finally {
       OLogManager.instance().shutdown();
     }

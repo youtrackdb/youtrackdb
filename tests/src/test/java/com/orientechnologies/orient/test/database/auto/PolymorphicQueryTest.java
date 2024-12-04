@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright OxygenDB
+ *  *  Copyright YouTrackDB
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.common.profiler.OProfiler;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
@@ -110,7 +110,7 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
   public void testSubclassesIndexes() throws Exception {
     database.begin();
 
-    OProfiler profiler = Oxygen.instance().getProfiler();
+    OProfiler profiler = YouTrackDBManager.instance().getProfiler();
 
     long indexUsage = profiler.getCounter("db.demo.query.indexUsed");
     long indexUsageReverted = profiler.getCounter("db.demo.query.indexUseAttemptedAndReverted");
@@ -178,7 +178,7 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
   public void testBaseWithoutIndexAndSubclassesIndexes() throws Exception {
     database.begin();
 
-    OProfiler profiler = Oxygen.instance().getProfiler();
+    OProfiler profiler = YouTrackDBManager.instance().getProfiler();
 
     long indexUsage = profiler.getCounter("db.demo.query.indexUsed");
     long indexUsageReverted = profiler.getCounter("db.demo.query.indexUseAttemptedAndReverted");
@@ -249,7 +249,7 @@ public class PolymorphicQueryTest extends DocumentDBBaseTest {
   public void testSubclassesIndexesFailed() throws Exception {
     database.begin();
 
-    OProfiler profiler = Oxygen.instance().getProfiler();
+    OProfiler profiler = YouTrackDBManager.instance().getProfiler();
     profiler.startRecording();
 
     for (int i = 0; i < 10000; i++) {

@@ -5,8 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.exception.OConcurrentModificationException;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.OSequenceException;
@@ -28,38 +28,38 @@ import org.junit.Test;
  */
 public class OSequenceTest {
 
-  private static OxygenDB oxygenDB;
+  private static YouTrackDB youTrackDB;
 
   private ODatabaseSessionInternal db;
   private OSequenceLibrary sequences;
 
   @BeforeClass
   public static void beforeClass() {
-    var builder = OxygenDBConfig.builder();
+    var builder = YouTrackDBConfig.builder();
 
     builder.addConfig(OGlobalConfiguration.NON_TX_READS_WARNING_MODE, "EXCEPTION");
-    oxygenDB = OxygenDB.embedded("./target/databases/" + OSequenceTest.class.getSimpleName(),
+    youTrackDB = YouTrackDB.embedded("./target/databases/" + OSequenceTest.class.getSimpleName(),
         builder.build());
   }
 
   @AfterClass
   public static void afterClass() {
-    oxygenDB.close();
+    youTrackDB.close();
   }
 
   @Before
   public void setUp() throws Exception {
-    oxygenDB.create(
+    youTrackDB.create(
         OSequenceTest.class.getSimpleName(), ODatabaseType.MEMORY, "admin", "admin", "admin");
     db =
         (ODatabaseSessionInternal)
-            oxygenDB.open(OSequenceTest.class.getSimpleName(), "admin", "admin");
+            youTrackDB.open(OSequenceTest.class.getSimpleName(), "admin", "admin");
     sequences = db.getMetadata().getSequenceLibrary();
   }
 
   @After
   public void after() {
-    oxygenDB.drop(OSequenceTest.class.getSimpleName());
+    youTrackDB.drop(OSequenceTest.class.getSimpleName());
     db.close();
   }
 
@@ -213,7 +213,7 @@ public class OSequenceTest {
           () -> {
             ODatabaseSessionInternal databaseDocument =
                 (ODatabaseSessionInternal)
-                    oxygenDB.open(OSequenceTest.class.getSimpleName(), "admin", "admin");
+                    youTrackDB.open(OSequenceTest.class.getSimpleName(), "admin", "admin");
             OSequence mtSeq1 =
                 databaseDocument.getMetadata().getSequenceLibrary().getSequence("mtSeq");
 
@@ -253,7 +253,7 @@ public class OSequenceTest {
           () -> {
             ODatabaseSessionInternal databaseDocument =
                 (ODatabaseSessionInternal)
-                    oxygenDB.open(OSequenceTest.class.getSimpleName(), "admin", "admin");
+                    youTrackDB.open(OSequenceTest.class.getSimpleName(), "admin", "admin");
             OSequence mtSeq1 =
                 databaseDocument.getMetadata().getSequenceLibrary().getSequence("mtSeq");
 

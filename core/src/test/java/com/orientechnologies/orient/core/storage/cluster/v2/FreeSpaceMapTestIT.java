@@ -2,8 +2,8 @@ package com.orientechnologies.orient.core.storage.cluster.v2;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.storage.cache.OWriteCache;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
@@ -24,7 +24,7 @@ public class FreeSpaceMapTestIT {
 
   protected FreeSpaceMap freeSpaceMap;
 
-  protected static OxygenDB oxygenDB;
+  protected static YouTrackDB youTrackDB;
   protected static String dbName;
   protected static OAbstractPaginatedStorage storage;
   private static OAtomicOperationsManager atomicOperationsManager;
@@ -41,12 +41,12 @@ public class FreeSpaceMapTestIT {
 
     dbName = "freeSpaceMapTest";
 
-    oxygenDB = new OxygenDB("plocal:" + buildDirectory, OxygenDBConfig.defaultConfig());
-    oxygenDB.execute(
+    youTrackDB = new YouTrackDB("plocal:" + buildDirectory, YouTrackDBConfig.defaultConfig());
+    youTrackDB.execute(
         "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
 
     final ODatabaseSessionInternal databaseDocumentTx =
-        (ODatabaseSessionInternal) oxygenDB.open(dbName, "admin", "admin");
+        (ODatabaseSessionInternal) youTrackDB.open(dbName, "admin", "admin");
 
     storage = (OAbstractPaginatedStorage) databaseDocumentTx.getStorage();
     atomicOperationsManager = storage.getAtomicOperationsManager();
@@ -55,8 +55,8 @@ public class FreeSpaceMapTestIT {
 
   @AfterClass
   public static void afterClass() {
-    oxygenDB.drop(dbName);
-    oxygenDB.close();
+    youTrackDB.drop(dbName);
+    youTrackDB.close();
   }
 
   @Before

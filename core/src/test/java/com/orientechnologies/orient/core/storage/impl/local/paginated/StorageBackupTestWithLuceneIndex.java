@@ -3,8 +3,8 @@ package com.orientechnologies.orient.core.storage.impl.local.paginated;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -109,8 +109,8 @@ public class StorageBackupTestWithLuceneIndex {
 
     backupStorage.close(db, true);
 
-    var orientDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-        OxygenDBConfig.defaultConfig());
+    var orientDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig());
     final ODatabaseCompare compare =
         new ODatabaseCompare(
             (ODatabaseSessionInternal)
@@ -187,8 +187,8 @@ public class StorageBackupTestWithLuceneIndex {
 
     backupStorage.close(db, true);
 
-    var orientDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-        OxygenDBConfig.defaultConfig());
+    var orientDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig());
     final ODatabaseCompare compare =
         new ODatabaseCompare(
             (ODatabaseSessionInternal)

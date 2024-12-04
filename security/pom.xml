@@ -11,21 +11,19 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
-
   <parent>
     <groupId>io.oxygendb</groupId>
-    <artifactId>oxygendb-parent</artifactId>
+    <artifactId>youtrackdb-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>oxygendb-security</artifactId>
+  <artifactId>youtrackdb-security</artifactId>
 
   <packaging>jar</packaging>
 
-  <name>OxygenDB Security Plugin</name>
-  <description>OxygenDB Security Plugin</description>
+  <name>YouTrackDB Security Plugin</name>
+  <description>YouTrackDB Security Plugin</description>
   <url>http://maven.apache.org</url>
   <inceptionYear>2016</inceptionYear>
 
@@ -36,21 +34,18 @@
     <javac.target.version>${maven.compiler.target}</javac.target.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!--Overrides parent pom's location-->
-    <license.location>
-      https://github.com/orientechnologies/orientdb/raw/develop/ODB-ASL-LICENSE.txt
-    </license.location>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>io.oxygendb</groupId>
-      <artifactId>oxygendb-core</artifactId>
+      <artifactId>youtrackdb-core</artifactId>
       <version>${project.parent.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>io.oxygendb</groupId>
-      <artifactId>oxygendb-server</artifactId>
+      <artifactId>youtrackdb-server</artifactId>
       <version>${project.parent.version}</version>
       <scope>provided</scope>
     </dependency>

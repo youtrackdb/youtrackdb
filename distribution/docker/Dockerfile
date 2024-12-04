@@ -1,5 +1,5 @@
 ############################################################
-# Dockerfile to run an OxygenDB (Graph) Container
+# Dockerfile to run an YouTrackDB (Graph) Container
 # for current developed version
 ############################################################
 

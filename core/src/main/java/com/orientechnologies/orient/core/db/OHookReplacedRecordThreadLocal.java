@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.db;
 
 import com.orientechnologies.orient.core.OOrientListenerAbstract;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.record.ORecord;
 
 /**
@@ -32,7 +32,7 @@ public class OHookReplacedRecordThreadLocal extends ThreadLocal<ORecord> {
       new OHookReplacedRecordThreadLocal();
 
   static {
-    Oxygen.instance()
+    YouTrackDBManager.instance()
         .registerListener(
             new OOrientListenerAbstract() {
               @Override

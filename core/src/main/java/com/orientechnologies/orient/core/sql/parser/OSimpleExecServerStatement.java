@@ -2,7 +2,7 @@ package com.orientechnologies.orient.core.sql.parser;
 
 import com.orientechnologies.orient.core.command.OBasicServerCommandContext;
 import com.orientechnologies.orient.core.command.OServerCommandContext;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.sql.executor.OInternalExecutionPlan;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.core.sql.executor.OSingleOpServerExecutionPlan;
@@ -28,7 +28,7 @@ public abstract class OSimpleExecServerStatement extends OServerStatement {
   public abstract OExecutionStream executeSimple(OServerCommandContext ctx);
 
   public OResultSet execute(
-      OxygenDBInternal db,
+      YouTrackDBInternal db,
       Object[] args,
       OServerCommandContext parentContext,
       boolean usePlanCache) {
@@ -50,7 +50,8 @@ public abstract class OSimpleExecServerStatement extends OServerStatement {
   }
 
   public OResultSet execute(
-      OxygenDBInternal db, Map params, OServerCommandContext parentContext, boolean usePlanCache) {
+      YouTrackDBInternal db, Map params, OServerCommandContext parentContext,
+      boolean usePlanCache) {
     OBasicServerCommandContext ctx = new OBasicServerCommandContext();
     if (parentContext != null) {
       ctx.setParentWithoutOverridingChild(parentContext);

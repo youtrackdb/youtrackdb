@@ -11,8 +11,8 @@ import com.orientechnologies.orient.core.config.OStorageConfiguration;
 import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.core.serialization.serializer.record.binary.ORecordSerializerNetworkV37;
 import java.io.IOException;
@@ -45,10 +45,11 @@ public class ORemotePushMessagesTest extends DBTestBase {
 
   @Test
   public void testSchema() throws IOException {
-    OxygenDB oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-        OxygenDBConfig.defaultConfig());
-    oxygenDB.execute("create database test memory users (admin identified by 'admin' role admin)");
-    var session = (ODatabaseSessionInternal) oxygenDB.open("test", "admin", "admin");
+    YouTrackDB youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig());
+    youTrackDB.execute(
+        "create database test memory users (admin identified by 'admin' role admin)");
+    var session = (ODatabaseSessionInternal) youTrackDB.open("test", "admin", "admin");
 
     session.begin();
     ODocument schema =
@@ -67,11 +68,11 @@ public class ORemotePushMessagesTest extends DBTestBase {
 
   @Test
   public void testIndexManager() throws IOException {
-    try (OxygenDB oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-        OxygenDBConfig.defaultConfig())) {
-      oxygenDB.execute(
+    try (YouTrackDB youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig())) {
+      youTrackDB.execute(
           "create database test memory users (admin identified by 'admin' role admin)");
-      try (ODatabaseSession session = oxygenDB.open("test", "admin", "admin")) {
+      try (ODatabaseSession session = youTrackDB.open("test", "admin", "admin")) {
         session.begin();
         ODocument schema =
             ((ODatabaseSessionInternal) session).getSharedContext().getIndexManager()
@@ -93,14 +94,15 @@ public class ORemotePushMessagesTest extends DBTestBase {
 
   @Test
   public void testStorageConfiguration() throws IOException {
-    OxygenDB oxygenDB = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
-        OxygenDBConfig.defaultConfig());
-    oxygenDB.execute("create database test memory users (admin identified by 'admin' role admin)");
-    ODatabaseSession session = oxygenDB.open("test", "admin", "admin");
+    YouTrackDB youTrackDB = new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()),
+        YouTrackDBConfig.defaultConfig());
+    youTrackDB.execute(
+        "create database test memory users (admin identified by 'admin' role admin)");
+    ODatabaseSession session = youTrackDB.open("test", "admin", "admin");
     OStorageConfiguration configuration =
         ((ODatabaseSessionInternal) session).getStorage().getConfiguration();
     session.close();
-    oxygenDB.close();
+    youTrackDB.close();
     MockChannel channel = new MockChannel();
 
     OPushStorageConfigurationRequest request = new OPushStorageConfigurationRequest(configuration);

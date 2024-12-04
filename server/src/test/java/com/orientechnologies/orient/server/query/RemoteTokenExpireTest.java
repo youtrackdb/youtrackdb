@@ -4,12 +4,12 @@ import static com.orientechnologies.orient.core.config.OGlobalConfiguration.QUER
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.client.remote.OStorageRemote;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabasePool;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.sql.executor.OResultSet;
 import com.orientechnologies.orient.enterprise.channel.binary.OTokenSecurityException;
 import com.orientechnologies.orient.server.OServer;
@@ -27,7 +27,7 @@ public class RemoteTokenExpireTest {
 
   private static final String SERVER_DIRECTORY = "./target/token";
   private OServer server;
-  private OxygenDB oxygenDB;
+  private YouTrackDB youTrackDB;
   private ODatabaseSession session;
   private int oldPageSize;
 
@@ -46,22 +46,23 @@ public class RemoteTokenExpireTest {
     OTokenHandlerImpl token = (OTokenHandlerImpl) server.getTokenHandler();
     token.setSessionInMills(expireTimeout);
 
-    oxygenDB = new OxygenDB("remote:localhost", "root", "root", OxygenDBConfig.defaultConfig());
-    oxygenDB.execute(
+    youTrackDB = new YouTrackDB("remote:localhost", "root", "root",
+        YouTrackDBConfig.defaultConfig());
+    youTrackDB.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
         RemoteTokenExpireTest.class.getSimpleName());
-    session = oxygenDB.open(RemoteTokenExpireTest.class.getSimpleName(), "admin", "admin");
+    session = youTrackDB.open(RemoteTokenExpireTest.class.getSimpleName(), "admin", "admin");
     session.createClass("Some");
     oldPageSize = QUERY_REMOTE_RESULTSET_PAGE_SIZE.getValueAsInteger();
     QUERY_REMOTE_RESULTSET_PAGE_SIZE.setValue(10);
 
     session.close();
-    oxygenDB.close();
+    youTrackDB.close();
 
     var config =
-        OxygenDBConfig.builder().addConfig(OGlobalConfiguration.NETWORK_SOCKET_RETRY, 0).build();
-    oxygenDB = new OxygenDB("remote:localhost", "root", "root", config);
-    session = oxygenDB.open(RemoteTokenExpireTest.class.getSimpleName(), "admin", "admin");
+        YouTrackDBConfig.builder().addConfig(OGlobalConfiguration.NETWORK_SOCKET_RETRY, 0).build();
+    youTrackDB = new YouTrackDB("remote:localhost", "root", "root", config);
+    session = youTrackDB.open(RemoteTokenExpireTest.class.getSimpleName(), "admin", "admin");
   }
 
   private void clean() {
@@ -201,11 +202,11 @@ public class RemoteTokenExpireTest {
 
     ODatabasePool pool =
         new ODatabasePool(
-            oxygenDB,
+            youTrackDB,
             RemoteTokenExpireTest.class.getSimpleName(),
             "admin",
             "admin",
-            OxygenDBConfig.builder()
+            YouTrackDBConfig.builder()
                 .addConfig(
                     OGlobalConfiguration.CLIENT_CONNECTION_STRATEGY,
                     OStorageRemote.CONNECTION_STRATEGY.ROUND_ROBIN_CONNECT)
@@ -236,11 +237,11 @@ public class RemoteTokenExpireTest {
     QUERY_REMOTE_RESULTSET_PAGE_SIZE.setValue(oldPageSize);
     session.activateOnCurrentThread();
     session.close();
-    oxygenDB.close();
+    youTrackDB.close();
     server.shutdown();
 
-    Oxygen.instance().shutdown();
+    YouTrackDBManager.instance().shutdown();
     OFileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
-    Oxygen.instance().startup();
+    YouTrackDBManager.instance().startup();
   }
 }

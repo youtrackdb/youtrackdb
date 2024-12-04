@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright OxygenDB
+ *  *  Copyright YouTrackDB
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ public class ORemoteServerChannel {
   private final String localNodeName;
 
   private static final int MAX_RETRY = 3;
-  private static final String CLIENT_TYPE = "OxygenDB Server";
+  private static final String CLIENT_TYPE = "YouTrackDB Server";
   private static final boolean COLLECT_STATS = false;
   private int sessionId = -1;
   private byte[] sessionToken;

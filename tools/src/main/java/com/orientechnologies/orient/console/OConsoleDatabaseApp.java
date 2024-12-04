@@ -35,11 +35,11 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.client.remote.ODatabaseImportRemote;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
 import com.orientechnologies.orient.client.remote.OStorageRemote;
-import com.orientechnologies.orient.client.remote.OxygenDBRemote;
+import com.orientechnologies.orient.client.remote.YouTrackDBRemote;
 import com.orientechnologies.orient.client.remote.db.document.ODatabaseSessionRemote;
 import com.orientechnologies.orient.core.OConstants;
 import com.orientechnologies.orient.core.OSignalHandler;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandOutputListener;
 import com.orientechnologies.orient.core.command.script.OCommandExecutorScript;
@@ -50,10 +50,10 @@ import com.orientechnologies.orient.core.config.OStorageEntryConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.ODatabaseType;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
-import com.orientechnologies.orient.core.db.OxygenDBConfigBuilder;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDBConfigBuilder;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.tool.OBonsaiTreeRepair;
 import com.orientechnologies.orient.core.db.tool.ODatabaseCompare;
@@ -129,7 +129,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   protected List<OIdentifiable> currentResultSet;
   protected Object currentResult;
   protected OURLConnection urlConnection;
-  protected OxygenDB oxygenDB;
+  protected YouTrackDB youTrackDB;
   private int lastPercentStep;
   private String currentDatabaseUserName;
   private String currentDatabaseUserPassword;
@@ -168,7 +168,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       restoreTerminal(interactiveMode);
     }
 
-    Oxygen.instance().shutdown();
+    YouTrackDBManager.instance().shutdown();
     System.exit(result);
   }
 
@@ -253,19 +253,19 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       checkDefaultPassword(
           urlConnection.getDbName(), currentDatabaseUserName, currentDatabaseUserPassword);
     }
-    oxygenDB =
-        new OxygenDB(
+    youTrackDB =
+        new YouTrackDB(
             urlConnection.getType() + ":" + urlConnection.getPath(),
             iUserName,
             iUserPassword,
-            OxygenDBConfig.defaultConfig());
+            YouTrackDBConfig.defaultConfig());
 
     if (!"".equals(urlConnection.getDbName())) {
       // OPEN DB
       message("\nConnecting to database [" + iURL + "] with user '" + iUserName + "'...");
       currentDatabase =
           (ODatabaseSessionInternal)
-              oxygenDB.open(urlConnection.getDbName(), iUserName, iUserPassword);
+              youTrackDB.open(urlConnection.getDbName(), iUserName, iUserPassword);
       currentDatabaseName = currentDatabase.getName();
     }
 
@@ -298,8 +298,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       out.println();
     }
     urlConnection = null;
-    if (oxygenDB != null) {
-      oxygenDB.close();
+    if (youTrackDB != null) {
+      youTrackDB.close();
     }
   }
 
@@ -354,7 +354,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     final Map<String, String> omap = parseCommandOptions(options);
 
     urlConnection = OURLHelper.parseNew(databaseURL);
-    OxygenDBConfigBuilder config = OxygenDBConfig.builder();
+    YouTrackDBConfigBuilder config = YouTrackDBConfig.builder();
 
     ODatabaseType type;
     if (storageType != null) {
@@ -365,25 +365,26 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
     message("\nCreating database [" + databaseURL + "] using the storage type [" + type + "]...");
     String conn = urlConnection.getType() + ":" + urlConnection.getPath();
-    if (oxygenDB != null) {
-      OxygenDBInternal contectSession = OxygenDBInternal.extract(oxygenDB);
-      String user = OxygenDBInternal.extractUser(oxygenDB);
+    if (youTrackDB != null) {
+      YouTrackDBInternal contectSession = YouTrackDBInternal.extract(youTrackDB);
+      String user = YouTrackDBInternal.extractUser(youTrackDB);
       if (!contectSession.getConnectionUrl().equals(conn)
           || user == null
           || !user.equals(userName)) {
-        oxygenDB =
-            new OxygenDB(
+        youTrackDB =
+            new YouTrackDB(
                 conn, currentDatabaseUserName, currentDatabaseUserPassword, config.build());
       }
     } else {
-      oxygenDB =
-          new OxygenDB(conn, currentDatabaseUserName, currentDatabaseUserPassword, config.build());
+      youTrackDB =
+          new YouTrackDB(conn, currentDatabaseUserName, currentDatabaseUserPassword,
+              config.build());
     }
 
     final String backupPath = omap.remove("-restore");
 
     if (backupPath != null) {
-      OxygenDBInternal internal = OxygenDBInternal.extract(oxygenDB);
+      YouTrackDBInternal internal = YouTrackDBInternal.extract(youTrackDB);
       internal.restore(
           urlConnection.getDbName(),
           currentDatabaseUserName,
@@ -392,20 +393,21 @@ public class OConsoleDatabaseApp extends OConsoleApplication
           backupPath,
           config.build());
     } else {
-      OxygenDBInternal internal = OxygenDBInternal.extract(oxygenDB);
+      YouTrackDBInternal internal = YouTrackDBInternal.extract(youTrackDB);
       if (internal.isEmbedded()) {
-        oxygenDB.createIfNotExists(
+        youTrackDB.createIfNotExists(
             urlConnection.getDbName(),
             type,
             currentDatabaseUserName,
             currentDatabaseUserPassword,
             "admin");
       } else {
-        oxygenDB.create(urlConnection.getDbName(), type);
+        youTrackDB.create(urlConnection.getDbName(), type);
       }
     }
     currentDatabase =
-        (ODatabaseSessionInternal) oxygenDB.open(urlConnection.getDbName(), userName, userPassword);
+        (ODatabaseSessionInternal) youTrackDB.open(urlConnection.getDbName(), userName,
+            userPassword);
     currentDatabaseName = currentDatabase.getName();
 
     message("\nDatabase created successfully.");
@@ -437,8 +439,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       description = "List all the databases available on the connected server",
       onlineHelp = "Console-Command-List-Databases")
   public void listDatabases() throws IOException {
-    if (oxygenDB != null) {
-      final List<String> databases = oxygenDB.list();
+    if (youTrackDB != null) {
+      final List<String> databases = youTrackDB.list();
       message(String.format("\nFound %d databases:\n", databases.size()));
       for (String database : databases) {
         message(String.format("\n* %s ", database));
@@ -457,7 +459,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       onlineHelp = "Console-Command-List-Connections")
   public void listConnections() throws IOException {
     checkForRemoteServer();
-    OxygenDBRemote remote = (OxygenDBRemote) OxygenDBInternal.extract(oxygenDB);
+    YouTrackDBRemote remote = (YouTrackDBRemote) YouTrackDBInternal.extract(youTrackDB);
     final ODocument serverInfo =
         remote.getServerInfo(currentDatabaseUserName, currentDatabaseUserPassword);
 
@@ -1553,7 +1555,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       message("\n\nInvalid storage type for db: '" + storageType + "'");
       return;
     }
-    oxygenDB.drop(dbName);
+    youTrackDB.drop(dbName);
     currentDatabase = null;
     currentDatabaseName = null;
     message("\n\nDatabase '" + dbName + "' deleted successfully");
@@ -2406,7 +2408,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
       message("\nCluster status:");
       ODocument clusterStatus =
-          ((OxygenDBRemote) OxygenDBInternal.extract(oxygenDB))
+          ((YouTrackDBRemote) YouTrackDBInternal.extract(youTrackDB))
               .getClusterStatus(currentDatabaseUserName, currentDatabaseUserPassword);
       out.println(clusterStatus.toJSON("attribSameRow,alwaysFetchEmbedded,fetchPlan:*:0"));
 
@@ -2506,21 +2508,21 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       throws IOException {
     OURLConnection firstUrl = OURLHelper.parseNew(iDb1URL);
     OURLConnection secondUrl = OURLHelper.parseNew(iDb2URL);
-    OxygenDB firstContext =
-        new OxygenDB(
+    YouTrackDB firstContext =
+        new YouTrackDB(
             firstUrl.getType() + ":" + firstUrl.getPath(),
             iUserName,
             iUserPassword,
-            OxygenDBConfig.defaultConfig());
-    OxygenDB secondContext;
+            YouTrackDBConfig.defaultConfig());
+    YouTrackDB secondContext;
     if (!firstUrl.getType().equals(secondUrl.getType())
         || !firstUrl.getPath().equals(secondUrl.getPath())) {
       secondContext =
-          new OxygenDB(
+          new YouTrackDB(
               secondUrl.getType() + ":" + secondUrl.getPath(),
               iUserName,
               iUserPassword,
-              OxygenDBConfig.defaultConfig());
+              YouTrackDBConfig.defaultConfig());
     } else {
       secondContext = firstContext;
     }
@@ -2810,13 +2812,13 @@ public class OConsoleDatabaseApp extends OConsoleApplication
           name = "profiler command",
           description = "command to execute against the profiler") final String iCommandName) {
     if (iCommandName.equalsIgnoreCase("on")) {
-      Oxygen.instance().getProfiler().startRecording();
+      YouTrackDBManager.instance().getProfiler().startRecording();
       message("\nProfiler is ON now, use 'profiler off' to turn off.");
     } else if (iCommandName.equalsIgnoreCase("off")) {
-      Oxygen.instance().getProfiler().stopRecording();
+      YouTrackDBManager.instance().getProfiler().stopRecording();
       message("\nProfiler is OFF now, use 'profiler on' to turn on.");
     } else if (iCommandName.equalsIgnoreCase("dump")) {
-      out.println(Oxygen.instance().getProfiler().dump());
+      out.println(YouTrackDBManager.instance().getProfiler().dump());
     }
   }
 
@@ -2831,9 +2833,9 @@ public class OConsoleDatabaseApp extends OConsoleApplication
     }
 
     final String value;
-    if (!OxygenDBInternal.extract(oxygenDB).isEmbedded()) {
+    if (!YouTrackDBInternal.extract(youTrackDB).isEmbedded()) {
       value =
-          ((OxygenDBRemote) OxygenDBInternal.extract(oxygenDB))
+          ((YouTrackDBRemote) YouTrackDBInternal.extract(youTrackDB))
               .getGlobalConfiguration(currentDatabaseUserName, currentDatabaseUserPassword, config);
       message("\nRemote configuration: ");
     } else {
@@ -2862,8 +2864,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       throw new IllegalArgumentException("Configuration variable '" + iConfigName + "' not found");
     }
 
-    if (oxygenDB != null && !OxygenDBInternal.extract(oxygenDB).isEmbedded()) {
-      ((OxygenDBRemote) OxygenDBInternal.extract(oxygenDB))
+    if (youTrackDB != null && !YouTrackDBInternal.extract(youTrackDB).isEmbedded()) {
+      ((YouTrackDBRemote) YouTrackDBInternal.extract(youTrackDB))
           .setGlobalConfiguration(
               currentDatabaseUserName, currentDatabaseUserPassword, config, iConfigValue);
       message("\nRemote configuration value changed correctly");
@@ -2876,9 +2878,9 @@ public class OConsoleDatabaseApp extends OConsoleApplication
 
   @ConsoleCommand(description = "Return all the configuration values")
   public void config() throws IOException {
-    if (!OxygenDBInternal.extract(oxygenDB).isEmbedded()) {
+    if (!YouTrackDBInternal.extract(youTrackDB).isEmbedded()) {
       final Map<String, String> values =
-          ((OxygenDBRemote) OxygenDBInternal.extract(oxygenDB))
+          ((YouTrackDBRemote) YouTrackDBInternal.extract(youTrackDB))
               .getGlobalConfigurations(currentDatabaseUserName, currentDatabaseUserPassword);
 
       message("\nREMOTE SERVER CONFIGURATION");
@@ -3015,12 +3017,12 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       @ConsoleParameter(name = "user", description = "The database user") final String user,
       @ConsoleParameter(name = "password", description = "The database password") final String password) {
 
-    if (oxygenDB == null) {
+    if (youTrackDB == null) {
       message("Invalid context. Please use 'connect env' first");
       return;
     }
 
-    currentDatabase = (ODatabaseSessionInternal) oxygenDB.open(dbName, user, password);
+    currentDatabase = (ODatabaseSessionInternal) youTrackDB.open(dbName, user, password);
 
     currentDatabaseName = currentDatabase.getName();
 
@@ -3042,13 +3044,13 @@ public class OConsoleDatabaseApp extends OConsoleApplication
         }
         return RESULT.NOT_EXECUTED;
       }
-      if (oxygenDB != null) {
+      if (youTrackDB != null) {
         int displayLimit = 20;
         try {
           if (properties.get(OConsoleProperties.LIMIT) != null) {
             displayLimit = Integer.parseInt(properties.get(OConsoleProperties.LIMIT));
           }
-          OResultSet rs = oxygenDB.execute(iCommand);
+          OResultSet rs = youTrackDB.execute(iCommand);
           int count = 0;
           List<OIdentifiable> result = new ArrayList<>();
           while (rs.hasNext() && (displayLimit < 0 || count < displayLimit)) {
@@ -3078,7 +3080,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   }
 
   /**
-   * console command to open an OxygenDB context
+   * console command to open an YouTrackDB context
    *
    * <p>usage: <code>
    * connect env URL serverUser serverPwd
@@ -3108,7 +3110,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       pw = parts.get(4);
     }
 
-    oxygenDB = new OxygenDB(url, user, pw, OxygenDBConfig.defaultConfig());
+    youTrackDB = new YouTrackDB(url, user, pw, YouTrackDBConfig.defaultConfig());
     return RESULT.OK;
   }
 
@@ -3116,7 +3118,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
    * Should be used only by console commands
    */
   protected void checkForRemoteServer() {
-    if (oxygenDB == null || OxygenDBInternal.extract(oxygenDB).isEmbedded()) {
+    if (youTrackDB == null || YouTrackDBInternal.extract(youTrackDB).isEmbedded()) {
       throw new OSystemException(
           "Remote server is not connected. Use 'connect remote:<host>[:<port>][/<database-name>]'"
               + " to connect");
@@ -3221,8 +3223,8 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       currentDatabase.close();
       currentDatabase = null;
     }
-    if (oxygenDB != null) {
-      oxygenDB.close();
+    if (youTrackDB != null) {
+      youTrackDB.close();
     }
     currentResultSet = null;
     currentRecord = null;
@@ -3241,7 +3243,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
       if (distributedCfg != null && !distributedCfg.isEmpty()) {
         message("\n\nDISTRIBUTED CONFIGURATION:\n" + distributedCfg.toJSON("prettyPrint"));
       } else if (iForce) {
-        message("\n\nDISTRIBUTED CONFIGURATION: none (OxygenDB is running in standalone mode)");
+        message("\n\nDISTRIBUTED CONFIGURATION: none (YouTrackDB is running in standalone mode)");
       }
     }
   }
@@ -3291,7 +3293,7 @@ public class OConsoleDatabaseApp extends OConsoleApplication
   }
 
   protected void printApplicationInfo() {
-    message("\nOxygenDB console v." + OConstants.getVersion() + " " + OConstants.ORIENT_URL);
+    message("\nYouTrackDB console v." + OConstants.getVersion() + " " + OConstants.ORIENT_URL);
     message("\nType 'help' to display all the supported commands.");
   }
 

@@ -3,10 +3,10 @@ package com.orientechnologies.orient.server.network;
 import static org.junit.Assert.assertTrue;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import java.io.IOException;
@@ -34,8 +34,8 @@ public class BinaryProtocolAnyResultTest {
   @Test
   @Ignore
   public void scriptReturnValueTest() throws IOException {
-    OxygenDB orient =
-        new OxygenDB("remote:localhost", "root", "root", OxygenDBConfig.defaultConfig());
+    YouTrackDB orient =
+        new YouTrackDB("remote:localhost", "root", "root", YouTrackDBConfig.defaultConfig());
 
     if (orient.exists("test")) {
       orient.drop("test");
@@ -59,8 +59,8 @@ public class BinaryProtocolAnyResultTest {
   public void after() {
     server.shutdown();
 
-    Oxygen.instance().shutdown();
+    YouTrackDBManager.instance().shutdown();
     OFileUtils.deleteRecursively(new File(server.getDatabaseDirectory()));
-    Oxygen.instance().startup();
+    YouTrackDBManager.instance().startup();
   }
 }

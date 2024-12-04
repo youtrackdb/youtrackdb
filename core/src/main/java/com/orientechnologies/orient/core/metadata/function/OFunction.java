@@ -21,7 +21,7 @@ package com.orientechnologies.orient.core.metadata.function;
 
 import com.orientechnologies.common.concur.ONeedRetryException;
 import com.orientechnologies.common.util.OCallable;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.command.OBasicCommandContext;
 import com.orientechnologies.orient.core.command.OCommandContext;
 import com.orientechnologies.orient.core.command.OScriptExecutor;
@@ -205,7 +205,7 @@ public class OFunction extends ODocumentWrapper {
 
   @Deprecated
   public Object execute(ODatabaseSessionInternal session, final Map<Object, Object> iArgs) {
-    final long start = Oxygen.instance().getProfiler().startChrono();
+    final long start = YouTrackDBManager.instance().getProfiler().startChrono();
 
     Object result;
     while (true) {
@@ -230,8 +230,8 @@ public class OFunction extends ODocumentWrapper {
       }
     }
 
-    if (Oxygen.instance().getProfiler().isRecording()) {
-      Oxygen.instance()
+    if (YouTrackDBManager.instance().getProfiler().isRecording()) {
+      YouTrackDBManager.instance()
           .getProfiler()
           .stopChrono(
               "db." + ODatabaseRecordThreadLocal.instance().get().getName() + ".function.execute",

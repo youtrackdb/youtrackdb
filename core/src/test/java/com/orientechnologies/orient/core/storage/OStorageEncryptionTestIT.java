@@ -7,8 +7,8 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.index.OIndexManagerAbstract;
@@ -32,15 +32,16 @@ public class OStorageEncryptionTestIT {
   public void testEncryption() {
     final File dbDirectoryFile = cleanAndGetDirectory();
 
-    final OxygenDBConfig oxygenDBConfig =
-        OxygenDBConfig.builder()
+    final YouTrackDBConfig youTrackDBConfig =
+        YouTrackDBConfig.builder()
             .addConfig(OGlobalConfiguration.STORAGE_ENCRYPTION_KEY, "T1JJRU5UREJfSVNfQ09PTA==")
             .build();
-    try (final OxygenDB oxygenDB =
-        new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), oxygenDBConfig)) {
-      oxygenDB.execute(
+    try (final YouTrackDB youTrackDB =
+        new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()), youTrackDBConfig)) {
+      youTrackDB.execute(
           "create database encryption plocal users ( admin identified by 'admin' role admin)");
-      try (var session = (ODatabaseSessionInternal) oxygenDB.open("encryption", "admin", "admin")) {
+      try (var session = (ODatabaseSessionInternal) youTrackDB.open("encryption", "admin",
+          "admin")) {
         final OSchema schema = session.getMetadata().getSchema();
         final OClass cls = schema.createClass("EncryptedData");
         cls.createProperty(session, "id", OType.INTEGER);
@@ -74,11 +75,11 @@ public class OStorageEncryptionTestIT {
       }
     }
 
-    try (final OxygenDB oxygenDB =
-        new OxygenDB(
-            DBTestBase.embeddedDBUrl(getClass()), OxygenDBConfig.defaultConfig())) {
+    try (final YouTrackDB youTrackDB =
+        new YouTrackDB(
+            DBTestBase.embeddedDBUrl(getClass()), YouTrackDBConfig.defaultConfig())) {
       try {
-        try (final ODatabaseSession session = oxygenDB.open("encryption", "admin", "admin")) {
+        try (final ODatabaseSession session = youTrackDB.open("encryption", "admin", "admin")) {
           Assert.fail();
         }
       } catch (Exception e) {
@@ -86,16 +87,16 @@ public class OStorageEncryptionTestIT {
       }
     }
 
-    final OxygenDBConfig wrongKeyOneOxygenDBConfig =
-        OxygenDBConfig.builder()
+    final YouTrackDBConfig wrongKeyOneYouTrackDBConfig =
+        YouTrackDBConfig.builder()
             .addConfig(
                 OGlobalConfiguration.STORAGE_ENCRYPTION_KEY,
                 "DD0ViGecppQOx4ijWL4XGBwun9NAfbqFaDnVpn9+lj8=")
             .build();
-    try (final OxygenDB oxygenDB =
-        new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), wrongKeyOneOxygenDBConfig)) {
+    try (final YouTrackDB youTrackDB =
+        new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()), wrongKeyOneYouTrackDBConfig)) {
       try {
-        try (final ODatabaseSession session = oxygenDB.open("encryption", "admin", "admin")) {
+        try (final ODatabaseSession session = youTrackDB.open("encryption", "admin", "admin")) {
           Assert.fail();
         }
       } catch (Exception e) {
@@ -103,16 +104,16 @@ public class OStorageEncryptionTestIT {
       }
     }
 
-    final OxygenDBConfig wrongKeyTwoOxygenDBConfig =
-        OxygenDBConfig.builder()
+    final YouTrackDBConfig wrongKeyTwoYouTrackDBConfig =
+        YouTrackDBConfig.builder()
             .addConfig(
                 OGlobalConfiguration.STORAGE_ENCRYPTION_KEY,
                 "DD0ViGecppQOx4ijWL4XGBwun9NAfbqFaDnVpn9+lj8")
             .build();
-    try (final OxygenDB oxygenDB =
-        new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), wrongKeyTwoOxygenDBConfig)) {
+    try (final YouTrackDB youTrackDB =
+        new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()), wrongKeyTwoYouTrackDBConfig)) {
       try {
-        try (final ODatabaseSession session = oxygenDB.open("encryption", "admin", "admin")) {
+        try (final ODatabaseSession session = youTrackDB.open("encryption", "admin", "admin")) {
           Assert.fail();
         }
       } catch (Exception e) {
@@ -120,10 +121,10 @@ public class OStorageEncryptionTestIT {
       }
     }
 
-    try (final OxygenDB oxygenDB =
-        new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), oxygenDBConfig)) {
+    try (final YouTrackDB youTrackDB =
+        new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()), youTrackDBConfig)) {
       try (final ODatabaseSessionInternal session =
-          (ODatabaseSessionInternal) oxygenDB.open("encryption", "admin", "admin")) {
+          (ODatabaseSessionInternal) youTrackDB.open("encryption", "admin", "admin")) {
         final OIndexManagerAbstract indexManager = session.getMetadata().getIndexManagerInternal();
         final OIndex treeIndex = indexManager.getIndex(session, "EncryptedTree");
         final OIndex hashIndex = indexManager.getIndex(session, "EncryptedHash");
@@ -163,27 +164,27 @@ public class OStorageEncryptionTestIT {
   public void testEncryptionSingleDatabase() {
     final File dbDirectoryFile = cleanAndGetDirectory();
 
-    try (final OxygenDB oxygenDB =
-        new OxygenDB(
-            DBTestBase.embeddedDBUrl(getClass()), OxygenDBConfig.defaultConfig())) {
-      final OxygenDBConfig oxygenDBConfig =
-          OxygenDBConfig.builder()
+    try (final YouTrackDB youTrackDB =
+        new YouTrackDB(
+            DBTestBase.embeddedDBUrl(getClass()), YouTrackDBConfig.defaultConfig())) {
+      final YouTrackDBConfig youTrackDBConfig =
+          YouTrackDBConfig.builder()
               .addConfig(OGlobalConfiguration.STORAGE_ENCRYPTION_KEY, "T1JJRU5UREJfSVNfQ09PTA==")
               .build();
 
-      oxygenDB.execute(
+      youTrackDB.execute(
           "create database encryption plocal users ( admin identified by 'admin' role admin)");
     }
-    try (final OxygenDB oxygenDB =
-        new OxygenDB(
-            DBTestBase.embeddedDBUrl(getClass()), OxygenDBConfig.defaultConfig())) {
-      final OxygenDBConfig oxygenDBConfig =
-          OxygenDBConfig.builder()
+    try (final YouTrackDB youTrackDB =
+        new YouTrackDB(
+            DBTestBase.embeddedDBUrl(getClass()), YouTrackDBConfig.defaultConfig())) {
+      final YouTrackDBConfig youTrackDBConfig =
+          YouTrackDBConfig.builder()
               .addConfig(OGlobalConfiguration.STORAGE_ENCRYPTION_KEY, "T1JJRU5UREJfSVNfQ09PTA==")
               .build();
       try (var session =
-          (ODatabaseSessionInternal) oxygenDB.open("encryption", "admin", "admin",
-              oxygenDBConfig)) {
+          (ODatabaseSessionInternal) youTrackDB.open("encryption", "admin", "admin",
+              youTrackDBConfig)) {
         final OSchema schema = session.getMetadata().getSchema();
         final OClass cls = schema.createClass("EncryptedData");
 

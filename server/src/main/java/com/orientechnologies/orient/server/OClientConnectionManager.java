@@ -23,7 +23,7 @@ import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.profiler.OAbstractProfiler.OProfilerHookValue;
 import com.orientechnologies.common.profiler.OProfiler.METRIC_TYPE;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.command.OCommandRequestText;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.security.OParsedToken;
@@ -62,7 +62,7 @@ public class OClientConnectionManager {
     final int delay = OGlobalConfiguration.SERVER_CHANNEL_CLEAN_DELAY.getValueAsInteger();
 
     timerTask =
-        Oxygen.instance()
+        YouTrackDBManager.instance()
             .scheduleTask(
                 () -> {
                   try {
@@ -74,7 +74,7 @@ public class OClientConnectionManager {
                 delay,
                 delay);
 
-    Oxygen.instance()
+    YouTrackDBManager.instance()
         .getProfiler()
         .registerHookValue(
             "server.connections.actives",

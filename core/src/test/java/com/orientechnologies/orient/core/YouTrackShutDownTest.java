@@ -10,24 +10,24 @@ import org.junit.Test;
 /**
  *
  */
-public class OxygenShutDownTest {
+public class YouTrackShutDownTest {
 
   private int test = 0;
 
   @Before
   public void before() {
-    Oxygen.instance().startup();
+    YouTrackDBManager.instance().startup();
   }
 
   @After
   public void after() {
-    Oxygen.instance().startup();
+    YouTrackDBManager.instance().startup();
   }
 
   @Test
   public void testShutdownHandler() {
 
-    Oxygen.instance()
+    YouTrackDBManager.instance()
         .addShutdownHandler(
             new OShutdownHandler() {
               @Override
@@ -41,10 +41,10 @@ public class OxygenShutDownTest {
               }
             });
 
-    Oxygen.instance().shutdown();
+    YouTrackDBManager.instance().shutdown();
     assertEquals(1, test);
-    Oxygen.instance().startup();
-    Oxygen.instance().shutdown();
+    YouTrackDBManager.instance().startup();
+    YouTrackDBManager.instance().shutdown();
     assertEquals(1, test);
   }
 }

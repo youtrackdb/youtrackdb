@@ -2,8 +2,8 @@ package com.orientechnologies.lucene.integration;
 
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.record.OElement;
@@ -16,14 +16,14 @@ import org.junit.Test;
 public class LuceneCreateIndexIntegrationTest {
 
   private OServer server0;
-  private OxygenDB remote;
+  private YouTrackDB remote;
 
   @Before
   public void before() throws Exception {
     server0 =
         OServer.startFromClasspathConfig(
             "com/orientechnologies/lucene/integration/orientdb-simple-server-config.xml");
-    remote = new OxygenDB("remote:localhost", "root", "test", OxygenDBConfig.defaultConfig());
+    remote = new YouTrackDB("remote:localhost", "root", "test", YouTrackDBConfig.defaultConfig());
 
     remote.execute(
         "create database LuceneCreateIndexIntegrationTest plocal users(admin identified by 'admin'"

@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright OxygenDB
+ *  *  Copyright YouTrackDB
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import com.kenai.jffi.MemoryIO;
 import com.orientechnologies.common.exception.ODirectMemoryAllocationFailedException;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.types.OModifiableLong;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
@@ -90,7 +90,7 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
    * WeakReference to the allocated pointer. We use those references to track stack traces where
    * those pointers were allocated. Even if reference to the pointer will be collected we still will
    * have information where it was allocated and also presence of this pointers into the queue
-   * during OxygenDB engine shutdown indicates that direct memory was not released back and there
+   * during YouTrackDB engine shutdown indicates that direct memory was not released back and there
    * are memory leaks in application.
    */
   private final Set<TrackedPointerReference> trackedReferences;
@@ -142,7 +142,7 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
 
     if (PROFILE_MEMORY) {
       final long printInterval = (long) MEMORY_STATISTICS_PRINTING_INTERVAL * 60 * 1_000;
-      Oxygen.instance()
+      YouTrackDBManager.instance()
           .scheduleTask(new MemoryStatPrinter(consumptionMaps), printInterval, printInterval);
     }
   }
@@ -275,7 +275,7 @@ public class ODirectMemoryAllocator implements ODirectMemoryAllocatorMXBean {
     final StringBuilder stringBuilder = new StringBuilder();
     stringBuilder.append(
         "\r\n-----------------------------------------------------------------------------\r\n");
-    stringBuilder.append("Memory profiling results for OxygenDB direct memory allocation\r\n");
+    stringBuilder.append("Memory profiling results for YouTrackDB direct memory allocation\r\n");
     stringBuilder.append("Amount of memory consumed by category in bytes/Kb/Mb/Gb\r\n");
     stringBuilder.append("\r\n");
 

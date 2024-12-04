@@ -20,14 +20,14 @@
 package com.orientechnologies.orient.core.servlet;
 
 import com.orientechnologies.common.log.OLogManager;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
 
 /**
- * Listener which is used to automatically start/shutdown OxygenDB engine inside of web application
+ * Listener which is used to automatically start/shutdown YouTrackDB engine inside of web application
  * container.
  */
 @SuppressWarnings("unused")
@@ -38,22 +38,22 @@ public class OServletContextLifeCycleListener implements ServletContextListener 
   public void contextInitialized(ServletContextEvent sce) {
     if (OGlobalConfiguration.INIT_IN_SERVLET_CONTEXT_LISTENER.getValueAsBoolean()) {
       OLogManager.instance()
-          .info(this, "Start web application is detected, OxygenDB engine is staring up...");
-      Oxygen.startUp(true);
-      OLogManager.instance().info(this, "OxygenDB engine is started");
+          .info(this, "Start web application is detected, YouTrackDB engine is staring up...");
+      YouTrackDBManager.startUp(true);
+      OLogManager.instance().info(this, "YouTrackDB engine is started");
     }
   }
 
   @Override
   public void contextDestroyed(ServletContextEvent sce) {
     if (OGlobalConfiguration.INIT_IN_SERVLET_CONTEXT_LISTENER.getValueAsBoolean()) {
-      final Oxygen oxygen = Oxygen.instance();
-      if (oxygen != null) {
+      final YouTrackDBManager youTrack = YouTrackDBManager.instance();
+      if (youTrack != null) {
         OLogManager.instance()
             .info(
                 this,
-                "Shutting down of OxygenDB engine because web application is going to be stopped");
-        oxygen.shutdown();
+                "Shutting down of YouTrackDB engine because web application is going to be stopped");
+        youTrack.shutdown();
         OLogManager.instance().shutdown();
       }
     }

@@ -3,7 +3,7 @@ package com.orientechnologies.orient.core.db.document;
 import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import org.junit.Assert;
@@ -13,7 +13,7 @@ public class DefaultClusterTest {
 
   @Test
   public void defaultClusterTest() {
-    final OxygenDB context =
+    final YouTrackDB context =
         OCreateDatabaseUtil.createDatabase("test",
             DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_MEMORY);

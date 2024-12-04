@@ -24,7 +24,7 @@ import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.common.profiler.OAbstractProfiler.OProfilerHookValue;
 import com.orientechnologies.common.profiler.OProfiler;
 import com.orientechnologies.common.profiler.OProfiler.METRIC_TYPE;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.OContextConfiguration;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import java.io.IOException;
@@ -41,7 +41,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public abstract class OChannel {
 
-  private static final OProfiler PROFILER = Oxygen.instance().getProfiler();
+  private static final OProfiler PROFILER = YouTrackDBManager.instance().getProfiler();
   private static final AtomicLong metricGlobalTransmittedBytes = new AtomicLong();
   private static final AtomicLong metricGlobalReceivedBytes = new AtomicLong();
   private static final AtomicLong metricGlobalFlushes = new AtomicLong();

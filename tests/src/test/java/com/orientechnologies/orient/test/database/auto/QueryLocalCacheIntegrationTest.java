@@ -15,7 +15,7 @@
  */
 package com.orientechnologies.orient.test.database.auto;
 
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.record.ridbag.ORidBag;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -115,11 +115,12 @@ public class QueryLocalCacheIntegrationTest extends DocumentDBBaseTest {
 
   @Test
   public void queryTest() {
-    final long times = Oxygen.instance().getProfiler().getCounter("Cache.reused");
+    final long times = YouTrackDBManager.instance().getProfiler().getCounter("Cache.reused");
 
     List<ODocument> resultset =
         database.query(new OSQLSynchQuery<ODocument>("select * from FetchClass"));
-    Assert.assertEquals(Oxygen.instance().getProfiler().getCounter("Cache.reused"), times);
+    Assert.assertEquals(YouTrackDBManager.instance().getProfiler().getCounter("Cache.reused"),
+        times);
 
     ORID linked;
     for (ODocument d : resultset) {

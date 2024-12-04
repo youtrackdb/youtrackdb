@@ -254,7 +254,7 @@ public final class OWOWCache extends OAbstractWriteCache
   static {
     commitExecutor =
         OThreadPoolExecutors.newSingleThreadScheduledPool(
-            "OxygenDB Write Cache Flush Task", OAbstractPaginatedStorage.storageThreadGroup);
+            "YouTrackDB Write Cache Flush Task", OAbstractPaginatedStorage.storageThreadGroup);
   }
 
   /**

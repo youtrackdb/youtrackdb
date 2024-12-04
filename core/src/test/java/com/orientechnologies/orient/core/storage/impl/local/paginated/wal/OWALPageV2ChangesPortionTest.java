@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.storage.impl.local.paginated.wal;
 
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
@@ -17,7 +17,7 @@ public class OWALPageV2ChangesPortionTest {
 
   @Before
   public void before() {
-    Oxygen.instance();
+    YouTrackDBManager.instance();
   }
 
   @Test

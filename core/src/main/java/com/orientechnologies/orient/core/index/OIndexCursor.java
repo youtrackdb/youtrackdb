@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Presentation of OxygenDB index cursor for point and range queries. Cursor may iterate by several
+ * Presentation of YouTrackDB index cursor for point and range queries. Cursor may iterate by several
  * elements even if you do point query (query by single key). It is possible if you use not unique
  * index.
  *

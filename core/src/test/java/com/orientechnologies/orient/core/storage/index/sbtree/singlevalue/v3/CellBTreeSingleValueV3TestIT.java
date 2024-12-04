@@ -7,8 +7,8 @@ import com.orientechnologies.common.serialization.types.OUTF8Serializer;
 import com.orientechnologies.common.util.ORawPair;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.id.ORID;
 import com.orientechnologies.orient.core.id.ORecordId;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
@@ -31,7 +31,7 @@ public class CellBTreeSingleValueV3TestIT {
 
   private OAtomicOperationsManager atomicOperationsManager;
   private CellBTreeSingleValueV3<String> singleValueTree;
-  private OxygenDB oxygenDB;
+  private YouTrackDB youTrackDB;
 
   private String dbName;
 
@@ -46,13 +46,13 @@ public class CellBTreeSingleValueV3TestIT {
     final File dbDirectory = new File(buildDirectory, dbName);
     OFileUtils.deleteRecursively(dbDirectory);
 
-    final OxygenDBConfig config = OxygenDBConfig.builder().build();
-    oxygenDB = new OxygenDB("plocal:" + buildDirectory, config);
-    oxygenDB.execute(
+    final YouTrackDBConfig config = YouTrackDBConfig.builder().build();
+    youTrackDB = new YouTrackDB("plocal:" + buildDirectory, config);
+    youTrackDB.execute(
         "create database " + dbName + " plocal users ( admin identified by 'admin' role admin)");
 
     OAbstractPaginatedStorage storage;
-    try (ODatabaseSession databaseDocumentTx = oxygenDB.open(dbName, "admin", "admin")) {
+    try (ODatabaseSession databaseDocumentTx = youTrackDB.open(dbName, "admin", "admin")) {
       storage =
           (OAbstractPaginatedStorage) ((ODatabaseSessionInternal) databaseDocumentTx).getStorage();
     }
@@ -66,8 +66,8 @@ public class CellBTreeSingleValueV3TestIT {
 
   @After
   public void afterMethod() {
-    oxygenDB.drop(dbName);
-    oxygenDB.close();
+    youTrackDB.drop(dbName);
+    youTrackDB.close();
   }
 
   @Test

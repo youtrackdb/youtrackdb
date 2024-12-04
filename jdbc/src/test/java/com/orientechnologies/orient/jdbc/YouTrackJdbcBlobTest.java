@@ -31,7 +31,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.junit.Test;
 
-public class OxygenJdbcBlobTest extends OrientJdbcDbPerClassTemplateTest {
+public class YouTrackJdbcBlobTest extends OrientJdbcDbPerClassTemplateTest {
 
   private static final String TEST_WORKING_DIR = "./target/working/";
 

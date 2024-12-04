@@ -6,8 +6,8 @@ import com.orientechnologies.DBTestBase;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OType;
@@ -19,13 +19,13 @@ public class TestImmutableIndexLoad {
 
   @Test
   public void testLoadAndUseIndexOnOpen() {
-    OxygenDB oxygenDB =
+    YouTrackDB youTrackDB =
         OCreateDatabaseUtil.createDatabase(
             TestImmutableIndexLoad.class.getSimpleName(),
             DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_PLOCAL);
     ODatabaseSession db =
-        oxygenDB.open(
+        youTrackDB.open(
             TestImmutableIndexLoad.class.getSimpleName(),
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -33,16 +33,16 @@ public class TestImmutableIndexLoad {
     OProperty property = one.createProperty(db, "one", OType.STRING);
     property.createIndex(db, OClass.INDEX_TYPE.UNIQUE);
     db.close();
-    oxygenDB.close();
+    youTrackDB.close();
 
-    oxygenDB =
-        new OxygenDB(
+    youTrackDB =
+        new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()),
-            OxygenDBConfig.builder()
+            YouTrackDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
     db =
-        oxygenDB.open(
+        youTrackDB.open(
             TestImmutableIndexLoad.class.getSimpleName(),
             "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
@@ -62,7 +62,7 @@ public class TestImmutableIndexLoad {
       // EXPEXTED
     }
     db.close();
-    oxygenDB.drop(TestImmutableIndexLoad.class.getSimpleName());
-    oxygenDB.close();
+    youTrackDB.drop(TestImmutableIndexLoad.class.getSimpleName());
+    youTrackDB.close();
   }
 }

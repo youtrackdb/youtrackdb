@@ -45,7 +45,7 @@ public class OBinaryTokenSerializer implements OTokenMetaInfo {
       // if we do not support runtime compatibility with 3.1 or less
       case "node":
         return new ODistributedBinaryTokenPayloadDeserializer();
-      case "OxygenDB":
+      case "YouTrackDB":
         return new OBinaryTokenPayloadDeserializer();
     }
     throw new ODatabaseException("Unknown payload type");
@@ -56,7 +56,7 @@ public class OBinaryTokenSerializer implements OTokenMetaInfo {
         new String[]{"plocal", "memory"},
         new String[]{"dafault"},
         new String[]{"HmacSHA256"},
-        new String[]{"OxygenDB", "node"});
+        new String[]{"YouTrackDB", "node"});
   }
 
   public Map<String, Byte> createMap(String[] entries) {

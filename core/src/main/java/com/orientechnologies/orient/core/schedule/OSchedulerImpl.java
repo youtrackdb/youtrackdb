@@ -19,7 +19,7 @@ package com.orientechnologies.orient.core.schedule;
 import com.orientechnologies.common.log.OLogManager;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.exception.ODatabaseException;
 import com.orientechnologies.orient.core.exception.ORecordNotFoundException;
 import com.orientechnologies.orient.core.exception.OValidationException;
@@ -47,9 +47,9 @@ public class OSchedulerImpl {
   private final ConcurrentHashMap<String, OScheduledEvent> events =
       new ConcurrentHashMap<>();
 
-  private final OxygenDBInternal oxygenDB;
+  private final YouTrackDBInternal oxygenDB;
 
-  public OSchedulerImpl(OxygenDBInternal orientDB) {
+  public OSchedulerImpl(YouTrackDBInternal orientDB) {
     this.oxygenDB = orientDB;
   }
 

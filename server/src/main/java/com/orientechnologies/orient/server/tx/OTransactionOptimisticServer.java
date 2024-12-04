@@ -2,7 +2,7 @@ package com.orientechnologies.orient.server.tx;
 
 import com.orientechnologies.common.exception.OException;
 import com.orientechnologies.orient.client.remote.message.tx.ORecordOperationRequest;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -62,7 +62,7 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
         switch (recordStatus) {
           case ORecordOperation.CREATED:
             ORecordAbstract record =
-                Oxygen.instance()
+                YouTrackDBManager.instance()
                     .getRecordFactoryManager()
                     .newInstance(operation.getRecordType(), rid, getDatabase());
             ORecordSerializerNetworkV37.INSTANCE.fromStream(getDatabase(), operation.getRecord(),
@@ -97,7 +97,7 @@ public class OTransactionOptimisticServer extends OTransactionOptimistic {
             } else {
               int version = operation.getVersion();
               var updated =
-                  Oxygen.instance()
+                  YouTrackDBManager.instance()
                       .getRecordFactoryManager()
                       .newInstance(operation.getRecordType(), rid, getDatabase());
               ORecordSerializerNetworkV37.INSTANCE.fromStream(getDatabase(), operation.getRecord(),

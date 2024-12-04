@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2013 OxygenDB LTD (info--at--orientdb.com)
+ * Copyright 2010-2013 YouTrackDB LTD (info--at--orientdb.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import com.orientechnologies.common.serialization.types.OByteSerializer;
 import com.orientechnologies.common.serialization.types.OIntegerSerializer;
 import com.orientechnologies.common.serialization.types.OLongSerializer;
 import com.orientechnologies.common.util.ORawPairObjectInteger;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.config.OStorageClusterConfiguration;
 import com.orientechnologies.orient.core.config.OStoragePaginatedClusterConfiguration;
 import com.orientechnologies.orient.core.conflict.ORecordConflictStrategy;
@@ -1223,7 +1223,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
     acquireExclusiveLock();
     try {
       recordConflictStrategy =
-          Oxygen.instance().getRecordConflictStrategy().getStrategy(stringValue);
+          YouTrackDBManager.instance().getRecordConflictStrategy().getStrategy(stringValue);
     } finally {
       releaseExclusiveLock();
     }
@@ -1252,7 +1252,7 @@ public final class OPaginatedClusterV2 extends OPaginatedCluster {
 
     if (conflictStrategy != null) {
       this.recordConflictStrategy =
-          Oxygen.instance().getRecordConflictStrategy().getStrategy(conflictStrategy);
+          YouTrackDBManager.instance().getRecordConflictStrategy().getStrategy(conflictStrategy);
     }
 
     this.id = id;

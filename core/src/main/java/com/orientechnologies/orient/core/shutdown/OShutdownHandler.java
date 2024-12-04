@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.core.shutdown;
 
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 
 /**
  * Handler which is used inside of shutdown priority queue. The higher priority we have the earlier
@@ -9,13 +9,13 @@ import com.orientechnologies.orient.core.Oxygen;
  * <p>There are set of predefined priorities which are used for system shutdown handlers which
  * allows to add your handlers before , between and after them.
  *
- * @see Oxygen#addShutdownHandler(OShutdownHandler)
- * @see Oxygen#shutdown()
+ * @see YouTrackDBManager#addShutdownHandler(OShutdownHandler)
+ * @see YouTrackDBManager#shutdown()
  */
 public interface OShutdownHandler {
 
   /**
-   * Priority of {@link Oxygen.OShutdownWorkersHandler} handler.
+   * Priority of {@link YouTrackDBManager.OShutdownWorkersHandler} handler.
    */
   int SHUTDOWN_WORKERS_PRIORITY = 1000;
 
@@ -25,7 +25,7 @@ public interface OShutdownHandler {
   int SHUTDOWN_PENDING_THREADS_PRIORITY = 1100;
 
   /**
-   * Priority of {@link Oxygen.OShutdownOrientDBInstancesHandler} handler.
+   * Priority of {@link YouTrackDBManager.OShutdownOrientDBInstancesHandler} handler.
    */
   int SHUTDOWN_ENGINES_PRIORITY = 1200;
 
@@ -45,7 +45,7 @@ public interface OShutdownHandler {
   int getPriority();
 
   /**
-   * Code which executed during system shutdown. During call of {@link Oxygen#shutdown()} method
+   * Code which executed during system shutdown. During call of {@link YouTrackDBManager#shutdown()} method
    * which is called during JVM shutdown.
    */
   void shutdown() throws Exception;

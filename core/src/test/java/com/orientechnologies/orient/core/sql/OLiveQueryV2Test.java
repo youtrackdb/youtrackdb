@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright OxygenDB
+ *  *  Copyright YouTrackDB
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OLiveQueryResultListener;
-import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTx;
 import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.id.ORID;
@@ -133,7 +133,7 @@ public class OLiveQueryV2Test {
 
   @Test
   public void testLiveInsertOnCluster() {
-    final OxygenDB context =
+    final YouTrackDB context =
         OCreateDatabaseUtil.createDatabase(
             "testLiveInsertOnCluster", DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_MEMORY);
@@ -173,7 +173,7 @@ public class OLiveQueryV2Test {
 
   @Test
   public void testLiveWithWhereCondition() {
-    final OxygenDB context =
+    final YouTrackDB context =
         OCreateDatabaseUtil.createDatabase(
             "testLiveWithWhereCondition", DBTestBase.embeddedDBUrl(getClass()),
             OCreateDatabaseUtil.TYPE_MEMORY);

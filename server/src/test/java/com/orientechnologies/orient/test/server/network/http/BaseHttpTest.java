@@ -1,7 +1,7 @@
 package com.orientechnologies.orient.test.server.network.http;
 
 import com.orientechnologies.common.io.OFileUtils;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.server.OServer;
 import java.io.File;
 import java.io.IOException;
@@ -38,7 +38,7 @@ public abstract class BaseHttpTest {
   private final String protocol = "http";
   private final String host = "localhost";
   private final int port = 2499;
-  private String realm = "OxygenDB-";
+  private String realm = "YouTrackDB-";
   private String userName = "admin";
   private String userPassword = "admin";
   private String databaseName;
@@ -84,11 +84,11 @@ public abstract class BaseHttpTest {
       server.shutdown();
       server = null;
 
-      Oxygen.instance().shutdown();
+      YouTrackDBManager.instance().shutdown();
       if (serverDirectory != null) {
         OFileUtils.deleteRecursively(new File(serverDirectory));
       }
-      Oxygen.instance().startup();
+      YouTrackDBManager.instance().startup();
     }
   }
 

@@ -19,7 +19,7 @@ public abstract class OSingleOxygenDBServerBaseIT {
   @ClassRule
   public static GenericContainer container =
       new GenericContainer("orientdb/orientdb:latest")
-          .withEnv("OXYGENDB_ROOT_PASSWORD", "root")
+          .withEnv("YOU_TRACK_DB_ROOT_PASSWORD", "root")
           .withExposedPorts(2480, 2424)
           .waitingFor(Wait.forListeningPort());
 

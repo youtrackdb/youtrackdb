@@ -7,8 +7,8 @@ import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.serialization.serializer.binary.OBinarySerializerFactory;
 import com.orientechnologies.orient.core.storage.cache.OCacheEntry;
@@ -65,7 +65,7 @@ public class OLocalHashTableV3WALTestIT extends OLocalHashTableV3Base {
   private ODatabaseSession expectedDatabaseDocumentTx;
   private OWriteCache expectedWriteCache;
 
-  private OxygenDB oxygenDB;
+  private YouTrackDB youTrackDB;
 
   @Before
   public void before() throws IOException {
@@ -76,23 +76,24 @@ public class OLocalHashTableV3WALTestIT extends OLocalHashTableV3Base {
     final java.io.File buildDir = new java.io.File(buildDirectory);
     OFileUtils.deleteRecursively(buildDir);
 
-    oxygenDB =
-        new OxygenDB(
+    youTrackDB =
+        new YouTrackDB(
             DBTestBase.embeddedDBUrl(getClass()),
-            OxygenDBConfig.builder()
+            YouTrackDBConfig.builder()
                 .addConfig(OGlobalConfiguration.CREATE_DEFAULT_USERS, false)
                 .build());
 
-    OCreateDatabaseUtil.createDatabase(ACTUAL_DB_NAME, oxygenDB, OCreateDatabaseUtil.TYPE_PLOCAL);
-    // oxygenDB.create(ACTUAL_DB_NAME, ODatabaseType.PLOCAL);
+    OCreateDatabaseUtil.createDatabase(ACTUAL_DB_NAME, youTrackDB, OCreateDatabaseUtil.TYPE_PLOCAL);
+    // youTrackDB.create(ACTUAL_DB_NAME, ODatabaseType.PLOCAL);
     databaseDocumentTx =
-        oxygenDB.open(ACTUAL_DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        youTrackDB.open(ACTUAL_DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     ((ODatabaseSessionInternal) databaseDocumentTx).getSharedContext().getViewManager().close();
 
-    OCreateDatabaseUtil.createDatabase(EXPECTED_DB_NAME, oxygenDB, OCreateDatabaseUtil.TYPE_PLOCAL);
-    // oxygenDB.create(EXPECTED_DB_NAME, ODatabaseType.PLOCAL);
+    OCreateDatabaseUtil.createDatabase(EXPECTED_DB_NAME, youTrackDB,
+        OCreateDatabaseUtil.TYPE_PLOCAL);
+    // youTrackDB.create(EXPECTED_DB_NAME, ODatabaseType.PLOCAL);
     expectedDatabaseDocumentTx =
-        oxygenDB.open(EXPECTED_DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        youTrackDB.open(EXPECTED_DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     ((ODatabaseSessionInternal) expectedDatabaseDocumentTx)
         .getSharedContext()
         .getViewManager()
@@ -126,9 +127,9 @@ public class OLocalHashTableV3WALTestIT extends OLocalHashTableV3Base {
 
   @After
   public void after() {
-    oxygenDB.drop(ACTUAL_DB_NAME);
-    oxygenDB.drop(EXPECTED_DB_NAME);
-    oxygenDB.close();
+    youTrackDB.drop(ACTUAL_DB_NAME);
+    youTrackDB.drop(EXPECTED_DB_NAME);
+    youTrackDB.close();
   }
 
   private void createActualHashTable() throws IOException {

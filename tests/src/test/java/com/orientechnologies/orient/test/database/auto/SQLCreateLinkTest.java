@@ -35,7 +35,7 @@ public class SQLCreateLinkTest extends DocumentDBBaseTest {
 
     database.begin();
     database.command("INSERT INTO POST (id, title) VALUES ( 10, 'NoSQL movement' )").close();
-    database.command("INSERT INTO POST (id, title) VALUES ( 20, 'New OxygenDB' )").close();
+    database.command("INSERT INTO POST (id, title) VALUES ( 20, 'New YouTrackDB' )").close();
 
     database.command("INSERT INTO POST (id, title) VALUES ( 30, '(')").close();
 
@@ -90,7 +90,7 @@ public class SQLCreateLinkTest extends DocumentDBBaseTest {
     Assert.assertTrue(p1 instanceof ODocument);
     Object p2 =
         database
-            .command("INSERT INTO POST2 (id, title) VALUES ( 20, 'New OxygenDB' )")
+            .command("INSERT INTO POST2 (id, title) VALUES ( 20, 'New YouTrackDB' )")
             .next()
             .toElement();
     Assert.assertTrue(p2 instanceof ODocument);

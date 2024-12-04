@@ -1,6 +1,6 @@
 /*
  *
- *  *  Copyright OxygenDB
+ *  *  Copyright YouTrackDB
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -116,8 +116,8 @@ import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
 import com.orientechnologies.orient.core.db.OLiveQueryMonitor;
 import com.orientechnologies.orient.core.db.OSharedContext;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.db.document.ODatabaseDocumentTxInternal;
 import com.orientechnologies.orient.core.db.record.OCurrentStorageComponentsFactory;
 import com.orientechnologies.orient.core.db.record.ORecordOperation;
@@ -183,7 +183,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   @Deprecated
   public static final String PARAM_CONNECTION_STRATEGY = "connectionStrategy";
 
-  public static final String DRIVER_NAME = "OxygenDB Java";
+  public static final String DRIVER_NAME = "YouTrackDB Java";
 
   private static final AtomicInteger sessionSerialId = new AtomicInteger(-1);
 
@@ -214,7 +214,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   private final Map<Integer, OLiveQueryClientListener> liveQueryListener =
       new ConcurrentHashMap<>();
   private volatile OStorageRemotePushThread pushThread;
-  protected final OxygenDBRemote context;
+  protected final YouTrackDBRemote context;
   protected OSharedContext sharedContext = null;
   protected final String url;
   protected final ReentrantReadWriteLock stateLock;
@@ -234,10 +234,10 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   public OStorageRemote(
       final ORemoteURLs hosts,
       String name,
-      OxygenDBRemote context,
+      YouTrackDBRemote context,
       final String iMode,
       ORemoteConnectionManager connectionManager,
-      OxygenDBConfig config)
+      YouTrackDBConfig config)
       throws IOException {
     this(hosts, name, context, iMode, connectionManager, null, config);
   }
@@ -245,11 +245,11 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   public OStorageRemote(
       final ORemoteURLs hosts,
       String name,
-      OxygenDBRemote context,
+      YouTrackDBRemote context,
       final String iMode,
       ORemoteConnectionManager connectionManager,
       final STATUS status,
-      OxygenDBConfig config)
+      YouTrackDBConfig config)
       throws IOException {
 
     this.name = normalizeName(name);
@@ -2475,7 +2475,7 @@ public class OStorageRemote implements OStorageProxy, ORemotePushHandler, OStora
   }
 
   @Override
-  public OxygenDBInternal getContext() {
+  public YouTrackDBInternal getContext() {
     return context;
   }
 }

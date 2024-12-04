@@ -20,7 +20,7 @@
 package com.orientechnologies.orient.core.security;
 
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDBInternal;
+import com.orientechnologies.orient.core.db.YouTrackDBInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityInternal;
 import com.orientechnologies.orient.core.metadata.security.OSecurityUser;
 import com.orientechnologies.orient.core.metadata.security.auth.OAuthenticationInfo;
@@ -143,7 +143,7 @@ public interface OSecuritySystem {
   boolean isServerUserAuthorized(ODatabaseSessionInternal session, String username,
       String resource);
 
-  OxygenDBInternal getContext();
+  YouTrackDBInternal getContext();
 
   boolean existsUser(String defaultRootUser);
 

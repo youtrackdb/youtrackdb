@@ -1,6 +1,6 @@
 package com.orientechnologies.orient.client.remote.db.document;
 
-import com.orientechnologies.orient.client.remote.OxygenDBRemote;
+import com.orientechnologies.orient.client.remote.YouTrackDBRemote;
 import com.orientechnologies.orient.client.remote.metadata.schema.OSchemaRemote;
 import com.orientechnologies.orient.client.remote.metadata.security.OSecurityRemote;
 import com.orientechnologies.orient.core.config.OGlobalConfiguration;
@@ -18,7 +18,7 @@ import com.orientechnologies.orient.core.storage.OStorageInfo;
  */
 public class OSharedContextRemote extends OSharedContext {
 
-  public OSharedContextRemote(OStorageInfo storage, OxygenDBRemote orientDBRemote) {
+  public OSharedContextRemote(OStorageInfo storage, YouTrackDBRemote orientDBRemote) {
     stringCache =
         new OStringCache(
             orientDBRemote

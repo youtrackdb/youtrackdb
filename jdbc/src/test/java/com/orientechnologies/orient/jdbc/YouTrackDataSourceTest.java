@@ -17,8 +17,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 import com.orientechnologies.DBTestBase;
-import com.orientechnologies.orient.core.db.OxygenDB;
-import com.orientechnologies.orient.core.db.OxygenDBConfig;
+import com.orientechnologies.orient.core.db.YouTrackDB;
+import com.orientechnologies.orient.core.db.YouTrackDBConfig;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.Test;
 
-public class OxygenDataSourceTest extends OrientJdbcDbPerClassTemplateTest {
+public class YouTrackDataSourceTest extends OrientJdbcDbPerClassTemplateTest {
 
   @Test
   public void shouldConnect() throws SQLException {
@@ -140,13 +140,13 @@ public class OxygenDataSourceTest extends OrientJdbcDbPerClassTemplateTest {
     final String serverPassword = "admin";
     final String dbName = "test";
 
-    OxygenDB oxygenDB =
-        new OxygenDB(DBTestBase.embeddedDBUrl(getClass()), serverUser, serverPassword,
-            OxygenDBConfig.defaultConfig());
-    oxygenDB.execute(
+    YouTrackDB youTrackDB =
+        new YouTrackDB(DBTestBase.embeddedDBUrl(getClass()), serverUser, serverPassword,
+            YouTrackDBConfig.defaultConfig());
+    youTrackDB.execute(
         "create database ? memory users(admin identified by 'admin' role admin)", dbName);
 
-    OrientDataSource ods = new OrientDataSource(oxygenDB, dbName);
+    OrientDataSource ods = new OrientDataSource(youTrackDB, dbName);
     Connection connection = ods.getConnection(serverUser, serverPassword);
     Statement statement = connection.createStatement();
     statement.executeQuery("SELECT FROM V");

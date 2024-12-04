@@ -48,7 +48,7 @@ public class OHaSetStatement extends OSimpleExecStatement {
     OEnterpriseEndpoint ee = db.getEnterpriseEndpoint();
     if (ee == null) {
       throw new OCommandExecutionException(
-          "HA SET statements are only supported in OxygenDB Enterprise Edition");
+          "HA SET statements are only supported in YouTrackDB Enterprise Edition");
     }
     if (operation.equalsIgnoreCase("status")) {
       String finalResult;

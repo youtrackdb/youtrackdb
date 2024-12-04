@@ -208,7 +208,7 @@ public class OZIPCompressionUtil {
       int compressionLevel)
       throws IOException {
     final ZipOutputStream zipOutputStream = new ZipOutputStream(output);
-    zipOutputStream.setComment("OxygenDB Backup executed on " + new Date());
+    zipOutputStream.setComment("YouTrackDB Backup executed on " + new Date());
     try {
       zipOutputStream.setLevel(compressionLevel);
       for (Map.Entry<String, String> entry : fileNames.entrySet()) {

@@ -22,9 +22,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.common.io.OIOUtils;
-import com.orientechnologies.orient.core.Oxygen;
+import com.orientechnologies.orient.core.YouTrackDBManager;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.db.tool.ODatabaseImport;
 import com.orientechnologies.orient.core.index.OIndex;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
@@ -66,7 +66,7 @@ public class LuceneAutomaticBackupRestoreTest {
   @Rule
   public TestName name = new TestName();
 
-  private OxygenDB oxygenDB;
+  private YouTrackDB youTrackDB;
   private String URL = null;
   private String BACKUPDIR = null;
   private String BACKUFILE = null;
@@ -87,7 +87,7 @@ public class LuceneAutomaticBackupRestoreTest {
     OFileUtils.deleteRecursively(tempFolder);
     Assert.assertTrue(tempFolder.mkdirs());
 
-    System.setProperty("OXYGENDB_HOME", tempFolder.getCanonicalPath());
+    System.setProperty("YOU_TRACK_DB_HOME", tempFolder.getCanonicalPath());
 
     String path = tempFolder.getCanonicalPath() + File.separator + "databases";
     server =
@@ -101,7 +101,7 @@ public class LuceneAutomaticBackupRestoreTest {
         };
     server.startup();
 
-    oxygenDB = server.getContext();
+    youTrackDB = server.getContext();
 
     URL = "plocal:" + path + File.separator + DBNAME;
 
@@ -114,10 +114,10 @@ public class LuceneAutomaticBackupRestoreTest {
 
     dropIfExists();
 
-    oxygenDB.execute(
+    youTrackDB.execute(
         "create database ? plocal users(admin identified by 'admin' role admin) ", DBNAME);
 
-    db = (ODatabaseSessionInternal) oxygenDB.open(DBNAME, "admin", "admin");
+    db = (ODatabaseSessionInternal) youTrackDB.open(DBNAME, "admin", "admin");
 
     db.command("create class City ");
     db.command("create property City.name string");
@@ -133,8 +133,8 @@ public class LuceneAutomaticBackupRestoreTest {
 
   private void dropIfExists() {
 
-    if (oxygenDB.exists(DBNAME)) {
-      oxygenDB.drop(DBNAME);
+    if (youTrackDB.exists(DBNAME)) {
+      youTrackDB.drop(DBNAME);
     }
   }
 
@@ -150,11 +150,11 @@ public class LuceneAutomaticBackupRestoreTest {
 
   @AfterClass
   public static void afterClass() {
-    final Oxygen oxygen = Oxygen.instance();
+    final YouTrackDBManager youTrack = YouTrackDBManager.instance();
 
-    if (oxygen != null) {
-      oxygen.shutdown();
-      oxygen.startup();
+    if (youTrack != null) {
+      youTrack.shutdown();
+      youTrack.startup();
     }
   }
 
@@ -237,12 +237,12 @@ public class LuceneAutomaticBackupRestoreTest {
   }
 
   private ODatabaseSessionInternal createAndOpen() {
-    oxygenDB.execute(
+    youTrackDB.execute(
         "create database ? plocal users(admin identified by 'admin' role admin) ", DBNAME);
     return open();
   }
 
   private ODatabaseSessionInternal open() {
-    return (ODatabaseSessionInternal) oxygenDB.open(DBNAME, "admin", "admin");
+    return (ODatabaseSessionInternal) youTrackDB.open(DBNAME, "admin", "admin");
   }
 }

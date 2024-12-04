@@ -21,7 +21,7 @@ import com.orientechnologies.orient.core.db.record.OIdentifiable;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 
 /**
- * Returns the value's OxygenDB Type.
+ * Returns the value's YouTrackDB Type.
  */
 public class OSQLMethodType extends OAbstractSQLMethod {
 

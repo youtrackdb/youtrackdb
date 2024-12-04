@@ -2,8 +2,8 @@ package com.orientechnologies.orient.server;
 
 import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.client.remote.OServerAdmin;
-import com.orientechnologies.orient.core.Oxygen;
-import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.YouTrackDBManager;
+import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.hook.ODocumentHookAbstract;
 import com.orientechnologies.orient.core.record.impl.ODocument;
 import com.orientechnologies.orient.server.config.OServerConfigurationManager;
@@ -89,9 +89,9 @@ public class HookInstallServerTest {
     admin.close();
     server.shutdown();
 
-    Oxygen.instance().shutdown();
+    YouTrackDBManager.instance().shutdown();
     OFileUtils.deleteRecursively(new File(SERVER_DIRECTORY));
-    Oxygen.instance().startup();
+    YouTrackDBManager.instance().startup();
   }
 
   @Test
@@ -99,7 +99,7 @@ public class HookInstallServerTest {
     final int initValue = count;
 
     try (var pool =
-        OxygenDB.remote("remote:localhost", "root", "root")) {
+        YouTrackDB.remote("remote:localhost", "root", "root")) {
       for (int i = 0; i < 10; i++) {
         var poolInstance = pool.cachedPool("test", "admin", "admin");
         var id = i;

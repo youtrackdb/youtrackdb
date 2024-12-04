@@ -28,14 +28,14 @@
 
   <parent>
     <groupId>com.orientechnologies</groupId>
-    <artifactId>oxygendb-parent</artifactId>
+    <artifactId>youtrackdb-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
-  <artifactId>oxygendb-distributed</artifactId>
+  <artifactId>youtrackdb-distributed</artifactId>
 
-  <name>Oxygendb Distributed Server</name>
+  <name>YouTrackDB Distributed Server</name>
 
   <properties>
     <hz.version>5.5.0</hz.version>

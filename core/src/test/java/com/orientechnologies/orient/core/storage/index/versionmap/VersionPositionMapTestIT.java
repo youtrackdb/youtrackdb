@@ -5,7 +5,7 @@ import com.orientechnologies.common.io.OFileUtils;
 import com.orientechnologies.orient.core.OCreateDatabaseUtil;
 import com.orientechnologies.orient.core.db.ODatabaseSession;
 import com.orientechnologies.orient.core.db.ODatabaseSessionInternal;
-import com.orientechnologies.orient.core.db.OxygenDB;
+import com.orientechnologies.orient.core.db.YouTrackDB;
 import com.orientechnologies.orient.core.storage.impl.local.OAbstractPaginatedStorage;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperation;
 import com.orientechnologies.orient.core.storage.impl.local.paginated.atomicoperations.OAtomicOperationsManager;
@@ -22,7 +22,7 @@ public class VersionPositionMapTestIT {
 
   public static final String DIR_NAME = "/" + VersionPositionMapTestIT.class.getSimpleName();
   public static final String DB_NAME = "versionPositionMapTest";
-  private static OxygenDB oxygenDB;
+  private static YouTrackDB youTrackDB;
   private static OAtomicOperationsManager atomicOperationsManager;
   private static OAbstractPaginatedStorage storage;
   private static String buildDirectory;
@@ -39,17 +39,17 @@ public class VersionPositionMapTestIT {
     }
     OFileUtils.deleteRecursively(new File(buildDirectory));
 
-    oxygenDB =
+    youTrackDB =
         OCreateDatabaseUtil.createDatabase(
             DB_NAME, DBTestBase.embeddedDBUrl(VersionPositionMapTestIT.class),
             OCreateDatabaseUtil.TYPE_PLOCAL);
-    if (oxygenDB.exists(DB_NAME)) {
-      oxygenDB.drop(DB_NAME);
+    if (youTrackDB.exists(DB_NAME)) {
+      youTrackDB.drop(DB_NAME);
     }
-    OCreateDatabaseUtil.createDatabase(DB_NAME, oxygenDB, OCreateDatabaseUtil.TYPE_PLOCAL);
+    OCreateDatabaseUtil.createDatabase(DB_NAME, youTrackDB, OCreateDatabaseUtil.TYPE_PLOCAL);
 
     ODatabaseSession databaseSession =
-        oxygenDB.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
+        youTrackDB.open(DB_NAME, "admin", OCreateDatabaseUtil.NEW_ADMIN_PASSWORD);
     storage = (OAbstractPaginatedStorage) ((ODatabaseSessionInternal) databaseSession).getStorage();
     atomicOperationsManager = storage.getAtomicOperationsManager();
     databaseSession.close();
@@ -57,8 +57,8 @@ public class VersionPositionMapTestIT {
 
   @AfterClass
   public static void afterClass() {
-    oxygenDB.drop(DB_NAME);
-    oxygenDB.close();
+    youTrackDB.drop(DB_NAME);
+    youTrackDB.close();
     OFileUtils.deleteRecursively(new File(buildDirectory));
   }
 
@@ -119,7 +119,7 @@ public class VersionPositionMapTestIT {
   @Test
   public void testGetKeyHash() {
     Assert.assertEquals(0, versionPositionMap.getKeyHash(null));
-    Assert.assertEquals(4659, versionPositionMap.getKeyHash("OxygenDB"));
+    Assert.assertEquals(4659, versionPositionMap.getKeyHash("YouTrackDB"));
     Assert.assertEquals(
         3988,
         versionPositionMap.getKeyHash("07d_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"));

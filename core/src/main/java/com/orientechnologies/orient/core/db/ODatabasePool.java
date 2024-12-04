@@ -7,20 +7,20 @@ import com.orientechnologies.orient.core.util.OURLHelper;
 /**
  * A Pool of databases.
  *
- * <p>Example of usage with an OxygenDB context:
+ * <p>Example of usage with an YouTrackDB context:
  *
  * <p>
  *
  * <pre>
  * <code>
- * OxygenDB oxygenDb= new OxygenDB("remote:localhost","root","password");
+ * YouTrackDB youTrackDb= new YouTrackDB("remote:localhost","root","password");
  * //...
- * ODatabasePool pool = new ODatabasePool(oxygenDb,"myDb","admin","adminpwd");
+ * ODatabasePool pool = new ODatabasePool(youTrackDb,"myDb","admin","adminpwd");
  * ODatabaseDocument session = pool.acquire();
  * //....
  * session.close();
  * pool.close();
- * oxygenDb.close();
+ * youTrackDb.close();
  *
  * </code>
  * </pre>
@@ -48,7 +48,7 @@ import com.orientechnologies.orient.core.util.OURLHelper;
  */
 public class ODatabasePool implements AutoCloseable {
 
-  private final OxygenDB oxygenDb;
+  private final YouTrackDB youTrackDb;
   private final ODatabasePoolInternal internal;
   private final boolean autoclose;
 
@@ -60,8 +60,8 @@ public class ODatabasePool implements AutoCloseable {
    * @param user        the database user for the current pool of databases.
    * @param password    the password relative to the user name
    */
-  public ODatabasePool(OxygenDB environment, String database, String user, String password) {
-    this(environment, database, user, password, OxygenDBConfig.defaultConfig());
+  public ODatabasePool(YouTrackDB environment, String database, String user, String password) {
+    this(environment, database, user, password, YouTrackDBConfig.defaultConfig());
   }
 
   /**
@@ -75,14 +75,14 @@ public class ODatabasePool implements AutoCloseable {
    * @param configuration the configuration relative for the current pool.
    */
   public ODatabasePool(
-      OxygenDB environment,
+      YouTrackDB environment,
       String database,
       String user,
       String password,
-      OxygenDBConfig configuration) {
-    oxygenDb = environment;
+      YouTrackDBConfig configuration) {
+    youTrackDb = environment;
     autoclose = false;
-    internal = oxygenDb.openPool(database, user, password, configuration);
+    internal = youTrackDb.openPool(database, user, password, configuration);
   }
 
   /**
@@ -95,7 +95,7 @@ public class ODatabasePool implements AutoCloseable {
    * @param password the password relative to the user
    */
   public ODatabasePool(String url, String user, String password) {
-    this(url, user, password, OxygenDBConfig.defaultConfig());
+    this(url, user, password, YouTrackDBConfig.defaultConfig());
   }
 
   /**
@@ -108,11 +108,11 @@ public class ODatabasePool implements AutoCloseable {
    * @param password      the password relative to the user
    * @param configuration the configuration relative to the current pool.
    */
-  public ODatabasePool(String url, String user, String password, OxygenDBConfig configuration) {
+  public ODatabasePool(String url, String user, String password, YouTrackDBConfig configuration) {
     OURLConnection val = OURLHelper.parseNew(url);
-    oxygenDb = new OxygenDB(val.getType() + ":" + val.getPath(), configuration);
+    youTrackDb = new YouTrackDB(val.getType() + ":" + val.getPath(), configuration);
     autoclose = true;
-    internal = oxygenDb.openPool(val.getDbName(), user, password, configuration);
+    internal = youTrackDb.openPool(val.getDbName(), user, password, configuration);
   }
 
   /**
@@ -126,7 +126,7 @@ public class ODatabasePool implements AutoCloseable {
    * @param password    the password relative to the user
    */
   public ODatabasePool(String environment, String database, String user, String password) {
-    this(environment, database, user, password, OxygenDBConfig.defaultConfig());
+    this(environment, database, user, password, YouTrackDBConfig.defaultConfig());
   }
 
   /**
@@ -145,14 +145,14 @@ public class ODatabasePool implements AutoCloseable {
       String database,
       String user,
       String password,
-      OxygenDBConfig configuration) {
-    oxygenDb = new OxygenDB(environment, configuration);
+      YouTrackDBConfig configuration) {
+    youTrackDb = new YouTrackDB(environment, configuration);
     autoclose = true;
-    internal = oxygenDb.openPool(database, user, password, configuration);
+    internal = youTrackDb.openPool(database, user, password, configuration);
   }
 
-  ODatabasePool(OxygenDB environment, ODatabasePoolInternal internal) {
-    this.oxygenDb = environment;
+  ODatabasePool(YouTrackDB environment, ODatabasePoolInternal internal) {
+    this.youTrackDb = environment;
     this.internal = internal;
     autoclose = false;
   }
@@ -172,7 +172,7 @@ public class ODatabasePool implements AutoCloseable {
   public void close() {
     internal.close();
     if (autoclose) {
-      oxygenDb.close();
+      youTrackDb.close();
     }
   }
 

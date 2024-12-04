@@ -20,7 +20,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import org.junit.Test;
 
-public class OxygenJdbcStatementTest extends OrientJdbcDbPerClassTemplateTest {
+public class YouTrackJdbcStatementTest extends OrientJdbcDbPerClassTemplateTest {
 
   @Test
   public void shouldCreateStatement() throws Exception {
