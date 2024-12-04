@@ -422,7 +422,7 @@ public class OSecurityEngine {
       var recordCopy = ((ORecordAbstract) record).copy();
       return sessionInternal
           .getSharedContext()
-          .getOxygenDB()
+          .getYouTrackDB()
           .executeNoAuthorizationSync(
               sessionInternal,
               (db -> {
@@ -453,7 +453,7 @@ public class OSecurityEngine {
       final ODocument user = session.getUser().getIdentity(session).getRecordSilently();
       return session
           .getSharedContext()
-          .getOxygenDB()
+          .getYouTrackDB()
           .executeNoAuthorizationAsync(
               session.getName(),
               (db -> {

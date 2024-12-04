@@ -1272,7 +1272,7 @@ public class OTransactionOptimistic extends OTransactionAbstract implements OTra
             database.getSharedContext().getFunctionLibrary().droppedFunction(doc);
             database
                 .getSharedContext()
-                .getOxygenDB()
+                .getYouTrackDB()
                 .getScriptManager()
                 .close(database.getName());
           }

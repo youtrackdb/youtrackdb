@@ -165,7 +165,7 @@ public class OFunction extends ODocumentWrapper {
     OScriptExecutor executor =
         database
             .getSharedContext()
-            .getOxygenDB()
+            .getYouTrackDB()
             .getScriptManager()
             .getCommandManager()
             .getScriptExecutor(getLanguage(database));
@@ -195,7 +195,7 @@ public class OFunction extends ODocumentWrapper {
     OScriptExecutor executor =
         database
             .getSharedContext()
-            .getOxygenDB()
+            .getYouTrackDB()
             .getScriptManager()
             .getCommandManager()
             .getScriptExecutor(getLanguage(database));
@@ -217,7 +217,7 @@ public class OFunction extends ODocumentWrapper {
         OScriptExecutor executor =
             session
                 .getSharedContext()
-                .getOxygenDB()
+                .getYouTrackDB()
                 .getScriptManager()
                 .getCommandManager()
                 .getScriptExecutor(getLanguage(session));

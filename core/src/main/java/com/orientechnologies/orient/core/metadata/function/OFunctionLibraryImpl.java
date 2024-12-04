@@ -219,7 +219,7 @@ public class OFunctionLibraryImpl {
     for (OMetadataUpdateListener listener : database.getSharedContext().browseListeners()) {
       listener.onFunctionLibraryUpdate(database, database.getName());
     }
-    database.getSharedContext().getOxygenDB().getScriptManager().close(database.getName());
+    database.getSharedContext().getYouTrackDB().getScriptManager().close(database.getName());
   }
 
   public synchronized void update() {

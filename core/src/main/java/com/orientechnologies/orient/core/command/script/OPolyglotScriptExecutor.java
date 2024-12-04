@@ -63,7 +63,7 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
   @Override
   public Context createNewResource(ODatabaseSessionInternal database, Object... iAdditionalArgs) {
     final OScriptManager scriptManager =
-        database.getSharedContext().getOxygenDB().getScriptManager();
+        database.getSharedContext().getYouTrackDB().getScriptManager();
 
     final Set<String> allowedPackaged = scriptManager.getAllowedPackages();
 
@@ -126,7 +126,7 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
     preExecute(database, script, params);
 
     final OScriptManager scriptManager =
-        database.getSharedContext().getOxygenDB().getScriptManager();
+        database.getSharedContext().getYouTrackDB().getScriptManager();
 
     Context ctx = resolveContext(database);
     try {
@@ -160,7 +160,7 @@ public class OPolyglotScriptExecutor extends OAbstractScriptExecutor
         f.getName(database));
 
     final OScriptManager scriptManager =
-        database.getSharedContext().getOxygenDB().getScriptManager();
+        database.getSharedContext().getYouTrackDB().getScriptManager();
 
     Context ctx = resolveContext(database);
     try {

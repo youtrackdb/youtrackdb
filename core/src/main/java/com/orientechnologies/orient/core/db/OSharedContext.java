@@ -31,7 +31,7 @@ public abstract class OSharedContext extends OListenerManger<OMetadataUpdateList
 
   protected static final OProfiler PROFILER = YouTrackDBManager.instance().getProfiler();
 
-  protected YouTrackDBInternal oxygenDB;
+  protected YouTrackDBInternal youtrackDB;
   protected OStorageInfo storage;
   protected OSchemaShared schema;
   protected OSecurityInternal security;
@@ -106,8 +106,8 @@ public abstract class OSharedContext extends OListenerManger<OMetadataUpdateList
     return storage;
   }
 
-  public YouTrackDBInternal getOxygenDB() {
-    return oxygenDB;
+  public YouTrackDBInternal getYouTrackDB() {
+    return youtrackDB;
   }
 
   public void setStorage(OStorage storage) {

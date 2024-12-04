@@ -1,6 +1,4 @@
 /*
- *
- *
  *  *
  *  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  *  you may not use this file except in compliance with the License.
@@ -14,8 +12,6 @@
  *  *  See the License for the specific language governing permissions and
  *  *  limitations under the License.
  *  *
- *
- *
  */
 
 package com.orientechnologies.orient.client.remote;
@@ -126,7 +122,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
     timer = new Timer("Remote background operations timer", true);
     connectionManager =
         new ORemoteConnectionManager(this.configurations.getConfigurations(), timer);
-    youTrack.addOxygenDB(this);
+    youTrack.addYouTrackDB(this);
     cachedPoolFactory = createCachedDatabasePoolFactory(this.configurations);
     urls = new ORemoteURLs(hosts, this.configurations.getConfigurations());
     int size =
@@ -483,7 +479,7 @@ public class YouTrackDBRemote implements YouTrackDBInternal {
 
   @Override
   public void removeShutdownHook() {
-    youTrack.removeOxygenDB(this);
+    youTrack.removeYouTrackDB(this);
   }
 
   @Override

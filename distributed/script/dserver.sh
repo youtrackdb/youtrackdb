@@ -121,7 +121,7 @@ exec "$JAVA" $JAVA_OPTS \
     -Ddistributed=true \
     -Djava.util.logging.manager=com.orientechnologies.common.log.ShutdownLogManager \
     -Djava.util.logging.config.file="$ORIENTDB_LOG_CONF" \
-    -Dorientdb.config.file="$CONFIG_FILE" \
+    -Dyoutrackdb.config.file="$CONFIG_FILE" \
     -Dorientdb.www.path="$ORIENTDB_WWW_PATH" \
     -Dorientdb.build.number="@BUILD@" \
     -cp "$ORIENTDB_HOME/lib/orientdb-server-@VERSION@.jar:$ORIENTDB_HOME/lib/*:$ORIENTDB_HOME/plugins/*" \

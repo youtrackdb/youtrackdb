@@ -1,6 +1,6 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: OxygenDB 
-Source: https://github.com/oxygendb/oxygendb/
+Upstream-Name: YouTrackDB
+Source: https://github.com/youtrackdb/youtrackdb/
 Disclaimer: The code in this project may include calls to APIs ("API Calls") of
  SAP or third-party products or services developed outside of this project
  ("External Products").

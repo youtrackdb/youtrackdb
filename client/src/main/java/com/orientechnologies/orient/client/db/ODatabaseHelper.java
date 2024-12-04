@@ -181,7 +181,7 @@ public class ODatabaseHelper {
   @Deprecated
   protected static File getConfigurationFile(final String iDirectory) {
     // LOAD SERVER CONFIG FILE TO EXTRACT THE ROOT'S PASSWORD
-    String sysProperty = System.getProperty("orientdb.config.file");
+    String sysProperty = System.getProperty("youtrackdb.config.file");
     File file = new File(sysProperty != null ? sysProperty : "");
     if (!file.exists()) {
       sysProperty = System.getenv("CONFIG_FILE");

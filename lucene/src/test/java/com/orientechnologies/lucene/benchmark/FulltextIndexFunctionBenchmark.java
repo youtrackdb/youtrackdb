@@ -70,7 +70,7 @@ public class FulltextIndexFunctionBenchmark {
 
   private void setupDatabase() {
     final String config =
-        System.getProperty("oxygendb.test.env", ODatabaseType.MEMORY.name().toLowerCase());
+        System.getProperty("youtrackdb.test.env", ODatabaseType.MEMORY.name().toLowerCase());
     String path = DBTestBase.embeddedDBUrl(getClass());
     if ("ci".equals(config) || "release".equals(config)) {
       type = ODatabaseType.PLOCAL;

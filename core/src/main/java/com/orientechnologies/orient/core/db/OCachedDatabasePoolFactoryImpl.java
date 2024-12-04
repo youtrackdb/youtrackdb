@@ -25,7 +25,7 @@ public class OCachedDatabasePoolFactoryImpl implements OCachedDatabasePoolFactor
 
   private volatile boolean closed;
   private final ConcurrentLinkedHashMap<String, ODatabasePoolInternal> poolCache;
-  private final YouTrackDBInternal oxygenDB;
+  private final YouTrackDBInternal youTrackDB;
   private final long timeout;
 
   /**
@@ -41,13 +41,13 @@ public class OCachedDatabasePoolFactoryImpl implements OCachedDatabasePoolFactor
             .maximumWeightedCapacity(capacity)
             .listener((identity, databasePool) -> databasePool.close())
             .build();
-    this.oxygenDB = youtrackDB;
+    this.youTrackDB = youtrackDB;
     this.timeout = timeout;
     scheduleCleanUpCache(createCleanUpTask());
   }
 
   protected void scheduleCleanUpCache(TimerTask task) {
-    oxygenDB.schedule(task, timeout, timeout);
+    youTrackDB.schedule(task, timeout, timeout);
   }
 
   private TimerTask createCleanUpTask() {
@@ -107,7 +107,7 @@ public class OCachedDatabasePoolFactoryImpl implements OCachedDatabasePoolFactor
     if (parentConfig != null) {
       config.setParent(parentConfig);
     }
-    pool = new ODatabasePoolImpl(oxygenDB, database, username, password, config);
+    pool = new ODatabasePoolImpl(youTrackDB, database, username, password, config);
 
     poolCache.put(key, pool);
 

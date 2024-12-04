@@ -13,7 +13,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>io.oxygendb</groupId>
+    <groupId>com.jetbrains.youtrack.db</groupId>
     <artifactId>youtrackdb-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
@@ -233,7 +233,7 @@
 
     <!-- test -->
     <dependency>
-      <groupId>io.oxygendb</groupId>
+      <groupId>com.jetbrains.youtrack.db</groupId>
       <artifactId>youtrackdb-test-commons</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
@@ -283,18 +283,6 @@
       <artifactId>js-scriptengine</artifactId>
       <version>${graalvm.version}</version>
     </dependency>
-    <!--    <dependency>-->
-    <!--      <groupId>org.graalvm.tools</groupId>-->
-    <!--      <artifactId>profiler</artifactId>-->
-    <!--      <version>${graalvm.version}</version>-->
-    <!--      <scope>runtime</scope>-->
-    <!--    </dependency>-->
-    <!--    <dependency>-->
-    <!--      <groupId>org.graalvm.tools</groupId>-->
-    <!--      <artifactId>chromeinspector</artifactId>-->
-    <!--      <version>${graalvm.version}</version>-->
-    <!--      <scope>runtime</scope>-->
-    <!--    </dependency>-->
   </dependencies>
 
 </project>

@@ -12,9 +12,9 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.Wait;
 
-public abstract class OSingleOxygenDBServerBaseIT {
+public abstract class OSingleYouTrackDBServerBaseIT {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(OSingleOxygenDBServerBaseIT.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(OSingleYouTrackDBServerBaseIT.class);
 
   @ClassRule
   public static GenericContainer container =

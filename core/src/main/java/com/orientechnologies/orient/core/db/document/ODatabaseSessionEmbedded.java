@@ -648,7 +648,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
   public OResultSet query(String query, Object[] args) {
     checkOpenness();
     checkIfActive();
-    getSharedContext().getOxygenDB().startCommand(Optional.empty());
+    getSharedContext().getYouTrackDB().startCommand(Optional.empty());
     try {
       preQueryStart();
       OStatement statement = OSQLEngine.parse(query, this);
@@ -662,7 +662,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
       return result;
     } finally {
       cleanQueryState();
-      getSharedContext().getOxygenDB().endCommand();
+      getSharedContext().getYouTrackDB().endCommand();
     }
   }
 
@@ -670,7 +670,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
   public OResultSet query(String query, Map args) {
     checkOpenness();
     checkIfActive();
-    getSharedContext().getOxygenDB().startCommand(Optional.empty());
+    getSharedContext().getYouTrackDB().startCommand(Optional.empty());
     preQueryStart();
     try {
       OStatement statement = OSQLEngine.parse(query, this);
@@ -684,7 +684,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
       return result;
     } finally {
       cleanQueryState();
-      getSharedContext().getOxygenDB().endCommand();
+      getSharedContext().getYouTrackDB().endCommand();
     }
   }
 
@@ -693,7 +693,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
     checkOpenness();
     checkIfActive();
 
-    getSharedContext().getOxygenDB().startCommand(Optional.empty());
+    getSharedContext().getYouTrackDB().startCommand(Optional.empty());
     preQueryStart();
     try {
       OStatement statement = OSQLEngine.parse(query, this);
@@ -714,7 +714,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
       return result;
     } finally {
       cleanQueryState();
-      getSharedContext().getOxygenDB().endCommand();
+      getSharedContext().getYouTrackDB().endCommand();
     }
   }
 
@@ -723,7 +723,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
     checkOpenness();
     checkIfActive();
 
-    getSharedContext().getOxygenDB().startCommand(Optional.empty());
+    getSharedContext().getYouTrackDB().startCommand(Optional.empty());
     try {
       preQueryStart();
 
@@ -747,7 +747,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
       return result;
     } finally {
       cleanQueryState();
-      getSharedContext().getOxygenDB().endCommand();
+      getSharedContext().getYouTrackDB().endCommand();
     }
   }
 
@@ -758,12 +758,12 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
     if (!"sql".equalsIgnoreCase(language)) {
       checkSecurity(ORule.ResourceGeneric.COMMAND, ORole.PERMISSION_EXECUTE, language);
     }
-    getSharedContext().getOxygenDB().startCommand(Optional.empty());
+    getSharedContext().getYouTrackDB().startCommand(Optional.empty());
     try {
       preQueryStart();
       OScriptExecutor executor =
           getSharedContext()
-              .getOxygenDB()
+              .getYouTrackDB()
               .getScriptManager()
               .getCommandManager()
               .getScriptExecutor(language);
@@ -780,7 +780,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
       return result;
     } finally {
       cleanQueryState();
-      getSharedContext().getOxygenDB().endCommand();
+      getSharedContext().getYouTrackDB().endCommand();
     }
   }
 
@@ -811,12 +811,12 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
     if (!"sql".equalsIgnoreCase(language)) {
       checkSecurity(ORule.ResourceGeneric.COMMAND, ORole.PERMISSION_EXECUTE, language);
     }
-    getSharedContext().getOxygenDB().startCommand(Optional.empty());
+    getSharedContext().getYouTrackDB().startCommand(Optional.empty());
     try {
       preQueryStart();
       OScriptExecutor executor =
           sharedContext
-              .getOxygenDB()
+              .getYouTrackDB()
               .getScriptManager()
               .getCommandManager()
               .getScriptExecutor(language);
@@ -834,14 +834,14 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
       return result;
     } finally {
       cleanQueryState();
-      getSharedContext().getOxygenDB().endCommand();
+      getSharedContext().getYouTrackDB().endCommand();
     }
   }
 
   public OLocalResultSetLifecycleDecorator query(OExecutionPlan plan, Map<Object, Object> params) {
     checkOpenness();
     checkIfActive();
-    getSharedContext().getOxygenDB().startCommand(Optional.empty());
+    getSharedContext().getYouTrackDB().startCommand(Optional.empty());
     try {
       preQueryStart();
       OBasicCommandContext ctx = new OBasicCommandContext();
@@ -855,7 +855,7 @@ public class ODatabaseSessionEmbedded extends ODatabaseSessionAbstract
       return decorator;
     } finally {
       cleanQueryState();
-      getSharedContext().getOxygenDB().endCommand();
+      getSharedContext().getYouTrackDB().endCommand();
     }
   }
 

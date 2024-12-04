@@ -134,7 +134,7 @@ public class OScheduledEvent extends ODocumentWrapper {
     return this.running.get();
   }
 
-  public OScheduledEvent schedule(String database, String user, YouTrackDBInternal oxygenDB) {
+  public OScheduledEvent schedule(String database, String user, YouTrackDBInternal youtrackDB) {
     if (isRunning()) {
       interrupt();
     }
@@ -143,7 +143,7 @@ public class OScheduledEvent extends ODocumentWrapper {
       throw new ODatabaseExportException("Cannot schedule an unsaved event");
     }
 
-    ScheduledTimerTask task = new ScheduledTimerTask(this, database, user, oxygenDB);
+    ScheduledTimerTask task = new ScheduledTimerTask(this, database, user, youtrackDB);
     task.schedule();
 
     timer = task;
@@ -209,14 +209,15 @@ public class OScheduledEvent extends ODocumentWrapper {
     private final OScheduledEvent event;
     private final String database;
     private final String user;
-    private final YouTrackDBInternal oxygenDB;
+    private final YouTrackDBInternal youTrackDBInternal;
 
     private ScheduledTimerTask(
-        OScheduledEvent event, String database, String user, YouTrackDBInternal oxygenDB) {
+        OScheduledEvent event, String database, String user,
+        YouTrackDBInternal youTrackDBInternal) {
       this.event = event;
       this.database = database;
       this.user = user;
-      this.oxygenDB = oxygenDB;
+      this.youTrackDBInternal = youTrackDBInternal;
     }
 
     public void schedule() {
@@ -225,13 +226,13 @@ public class OScheduledEvent extends ODocumentWrapper {
         Date now = new Date();
         long time = event.cron.getNextValidTimeAfter(now).getTime();
         long delay = time - now.getTime();
-        oxygenDB.scheduleOnce(this, delay);
+        youTrackDBInternal.scheduleOnce(this, delay);
       }
     }
 
     @Override
     public void run() {
-      oxygenDB.execute(
+      youTrackDBInternal.execute(
           database,
           user,
           db -> {
@@ -288,7 +289,7 @@ public class OScheduledEvent extends ODocumentWrapper {
       } finally {
         if (event.timer != null) {
           // RE-SCHEDULE THE NEXT EVENT
-          event.schedule(database, user, oxygenDB);
+          event.schedule(database, user, youTrackDBInternal);
         }
       }
     }

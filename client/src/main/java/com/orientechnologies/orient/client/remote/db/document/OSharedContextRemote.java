@@ -24,13 +24,13 @@ public class OSharedContextRemote extends OSharedContext {
             orientDBRemote
                 .getContextConfiguration()
                 .getValueAsInteger(OGlobalConfiguration.DB_STRING_CAHCE_SIZE));
-    this.oxygenDB = orientDBRemote;
+    this.youtrackDB = orientDBRemote;
     this.storage = storage;
     schema = new OSchemaRemote();
     security = new OSecurityRemote();
     indexManager = new OIndexManagerRemote(storage);
     functionLibrary = new OFunctionLibraryImpl();
-    scheduler = new OSchedulerImpl(oxygenDB);
+    scheduler = new OSchedulerImpl(youtrackDB);
     sequenceLibrary = new OSequenceLibraryImpl();
   }
 

@@ -49,7 +49,7 @@ public class RemoteTransactionHookTest extends DBTestBase {
     var config = createConfig(builder);
 
     final String testConfig =
-        System.getProperty("oxygendb.test.env", ODatabaseType.MEMORY.name().toLowerCase());
+        System.getProperty("youtrackdb.test.env", ODatabaseType.MEMORY.name().toLowerCase());
 
     if ("ci".equals(testConfig) || "release".equals(testConfig)) {
       dbType = ODatabaseType.PLOCAL;

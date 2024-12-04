@@ -124,12 +124,12 @@
               </includes>
               <systemPropertyVariables>
                 <kubeConfig/>
-                <oxygendbLabel>oxygendb</orientdbLabel>
-                <orientdbHttpPort>2480</orientdbHttpPort>
-                <orientdbBinaryPort>2424</orientdbBinaryPort>
-                <orientdbHazelcastPort>2434</orientdbHazelcastPort>
-                <orientdbDockerImage/>
-                <orientdbVolumeSize>2</orientdbVolumeSize>
+                <youtrackdbLabel>youtrackdb</youtrackdbLabel>
+                <youtrackdbHttpPort>2480</youtrackdbHttpPort>
+                <youtrackdbBinaryPort>2424</youtrackdbBinaryPort>
+                <youtrackdbHazelcastPort>2434</youtrackdbHazelcastPort>
+                <youtrackdbDockerImage/>
+                <youtrackdbVolumeSize>2</youtrackdbVolumeSize>
                 <databaseVolumeStorageClass/>
                 <configVolumeStorageClass/>
                 <executor.debug.traceSource>true</executor.debug.traceSource>

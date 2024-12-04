@@ -14,7 +14,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>io.oxygendb</groupId>
+    <groupId>com.jetbrains.youtrack.db</groupId>
     <artifactId>youtrackdb-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
@@ -35,23 +35,23 @@
 
   <dependencies>
     <dependency>
-      <groupId>io.oxygendb</groupId>
+      <groupId>com.jetbrains.youtrack.db</groupId>
       <artifactId>youtrackdb-test-commons</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>io.oxygendb</groupId>
+      <groupId>com.jetbrains.youtrack.db</groupId>
       <artifactId>youtrackdb-client</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.oxygendb</groupId>
+      <groupId>com.jetbrains.youtrack.db</groupId>
       <artifactId>youtrackdb-tools</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>io.oxygendb</groupId>
+      <groupId>com.jetbrains.youtrack.db</groupId>
       <artifactId>youtrackdb-core</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
@@ -133,7 +133,7 @@
       <id>ci</id>
       <activation>
         <property>
-          <name>oxygendb.test.env</name>
+          <name>youtrackdb.test.env</name>
           <value>ci</value>
         </property>
       </activation>
@@ -146,7 +146,7 @@
       <id>release</id>
       <activation>
         <property>
-          <name>oxygendb.test.env</name>
+          <name>youtrackdb.test.env</name>
           <value>release</value>
         </property>
       </activation>

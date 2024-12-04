@@ -309,11 +309,11 @@ public class YouTrackDBEmbeddedTests {
 
   @Test
   public void testClosePool() {
-    try (var oxygendb = YouTrackDB.embedded(
+    try (var youTrackDB = YouTrackDB.embedded(
         DBTestBase.getDirectoryPath(getClass()) + "testClosePool",
         YouTrackDBConfig.defaultConfig())) {
-      if (!oxygendb.exists("test")) {
-        oxygendb.create("test", ODatabaseType.PLOCAL, "admin",
+      if (!youTrackDB.exists("test")) {
+        youTrackDB.create("test", ODatabaseType.PLOCAL, "admin",
             OCreateDatabaseUtil.NEW_ADMIN_PASSWORD, "admin");
       }
     }

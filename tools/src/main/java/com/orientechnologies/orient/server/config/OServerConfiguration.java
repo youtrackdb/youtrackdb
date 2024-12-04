@@ -69,7 +69,7 @@ public class OServerConfiguration {
 
   public static final String DEFAULT_CONFIG_FILE = "config/orientdb-server-config.xml";
 
-  public static final String PROPERTY_CONFIG_FILE = "orientdb.config.file";
+  public static final String PROPERTY_CONFIG_FILE = "youtrackdb.config.file";
 
   public static final String DEFAULT_ROOT_USER = "root";
   public static final String GUEST_USER = "guest";

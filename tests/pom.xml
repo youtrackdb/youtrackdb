@@ -15,7 +15,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>io.oxygendb</groupId>
+    <groupId>com.jetbrains.youtrack.db</groupId>
     <artifactId>youtrackdb-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
@@ -48,25 +48,25 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>io.oxygendb</groupId>
+      <groupId>com.jetbrains.youtrack.db</groupId>
       <artifactId>youtrackdb-client</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>io.oxygendb</groupId>
+      <groupId>com.jetbrains.youtrack.db</groupId>
       <artifactId>youtrackdb-tools</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>io.oxygendb</groupId>
+      <groupId>com.jetbrains.youtrack.db</groupId>
       <artifactId>youtrackdb-server</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>io.oxygendb</groupId>
+      <groupId>com.jetbrains.youtrack.db</groupId>
       <artifactId>youtrackdb-test-commons</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
@@ -85,14 +85,14 @@
     </dependency>
 
     <dependency>
-      <groupId>io.oxygendb</groupId>
+      <groupId>com.jetbrains.youtrack.db</groupId>
       <artifactId>youtrackdb-core</artifactId>
       <version>${project.version}</version>
       <type>jar</type>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>io.oxygendb</groupId>
+      <groupId>com.jetbrains.youtrack.db</groupId>
       <artifactId>youtrackdb-core</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
@@ -181,8 +181,8 @@
             </goals>
             <configuration>
               <systemPropertyVariables>
-                <oxygendb.config.file>target/test-classes/orientdb-server-config.xml
-                </oxygendb.config.file>
+                <youtrackdb.config.file>target/test-classes/orientdb-server-config.xml
+                </youtrackdb.config.file>
                 <YOU_TRACK_DB_HOME>${project.build.directory}/remote-server</YOU_TRACK_DB_HOME>
               </systemPropertyVariables>
               <suiteXmlFiles>

@@ -1869,7 +1869,7 @@ public class OCommandExecutorSQLSelect extends OCommandExecutorSQLResultsetAbstr
             ODatabaseRecordThreadLocal.instance().remove();
           };
 
-      jobs.add(db.getSharedContext().getOxygenDB().execute(job));
+      jobs.add(db.getSharedContext().getYouTrackDB().execute(job));
     }
 
     final int maxQueueSize =

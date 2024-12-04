@@ -488,7 +488,7 @@ public class OCommandExecutorSQLDeleteEdge extends OCommandExecutorSQLSetAware
       final OCommandExecutor executor =
           getDatabase()
               .getSharedContext()
-              .getOxygenDB()
+              .getYouTrackDB()
               .getScriptManager()
               .getCommandManager()
               .getExecutor((OCommandRequestInternal) query);

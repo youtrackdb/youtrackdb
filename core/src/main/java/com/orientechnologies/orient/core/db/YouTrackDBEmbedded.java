@@ -168,7 +168,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
 
     OMemoryAndLocalPaginatedEnginesInitializer.INSTANCE.initialize();
 
-    youTrack.addOxygenDB(this);
+    youTrack.addYouTrackDB(this);
     executor = newExecutor();
     ioExecutor = newIoExecutor();
     String timerName;
@@ -1093,7 +1093,7 @@ public class YouTrackDBEmbedded implements YouTrackDBInternal {
   }
 
   public void removeShutdownHook() {
-    youTrack.removeOxygenDB(this);
+    youTrack.removeYouTrackDB(this);
   }
 
   public synchronized Collection<OStorage> getStorages() {

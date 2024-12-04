@@ -63,7 +63,7 @@ if [ -f "$ORIENTDB_PID" ] && [ "${#PARAMS}" -eq 0 ] ; then
     rm "$ORIENTDB_PID"
 else
     echo "pid file not present or params detected"
-    "$JAVA" -client $JAVA_OPTS -Dorientdb.config.file="$CONFIG_FILE" \
+    "$JAVA" -client $JAVA_OPTS -Dyoutrackdb.config.file="$CONFIG_FILE" \
         -cp "$ORIENTDB_HOME/lib/orientdb-tools-@VERSION@.jar:$ORIENTDB_HOME/lib/*" \
         com.orientechnologies.orient.server.OServerShutdownMain $*
 

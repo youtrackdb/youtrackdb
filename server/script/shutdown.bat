@@ -49,6 +49,6 @@ set LOG_LEVEL=warning
 set WWW_PATH=%YOU_TRACK_DB_HOME%/www
 set JAVA_OPTS=-Djava.awt.headless=true
 
-call %JAVA% -client %JAVA_OPTS% -Dorientdb.config.file="%CONFIG_FILE%" -cp "%YOU_TRACK_DB_HOME%\lib\orientdb-tools-@VERSION@.jar;%YOU_TRACK_DB_HOME%\lib\*" com.orientechnologies.orient.server.OServerShutdownMain %CMD_LINE_ARGS%
+call %JAVA% -client %JAVA_OPTS% -Dyoutrackdb.config.file="%CONFIG_FILE%" -cp "%YOU_TRACK_DB_HOME%\lib\orientdb-tools-@VERSION@.jar;%YOU_TRACK_DB_HOME%\lib\*" com.orientechnologies.orient.server.OServerShutdownMain %CMD_LINE_ARGS%
 
 :end

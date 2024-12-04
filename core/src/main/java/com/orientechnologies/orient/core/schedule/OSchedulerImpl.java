@@ -47,16 +47,16 @@ public class OSchedulerImpl {
   private final ConcurrentHashMap<String, OScheduledEvent> events =
       new ConcurrentHashMap<>();
 
-  private final YouTrackDBInternal oxygenDB;
+  private final YouTrackDBInternal youtrackDB;
 
-  public OSchedulerImpl(YouTrackDBInternal orientDB) {
-    this.oxygenDB = orientDB;
+  public OSchedulerImpl(YouTrackDBInternal youtrackDB) {
+    this.youtrackDB = youtrackDB;
   }
 
   public void scheduleEvent(ODatabaseSession session, final OScheduledEvent event) {
     if (events.putIfAbsent(event.getName(session), event) == null) {
       String database = session.getName();
-      event.schedule(database, "admin", oxygenDB);
+      event.schedule(database, "admin", youtrackDB);
     }
   }
 

@@ -41,7 +41,7 @@ public abstract class BaseTest<T extends ODatabaseSessionInternal> {
 
   @Parameters(value = "remote")
   public BaseTest(boolean remote) {
-    String config = System.getProperty("oxygendb.test.env");
+    String config = System.getProperty("youtrackdb.test.env");
 
     if ("ci".equals(config) || "release".equals(config)) {
       databaseType = ODatabaseType.PLOCAL;
@@ -214,7 +214,7 @@ public abstract class BaseTest<T extends ODatabaseSessionInternal> {
   }
 
   protected static String getTestEnv() {
-    return System.getProperty("oxygendb.test.env");
+    return System.getProperty("youtrackdb.test.env");
   }
 
   protected final String getStorageType() {

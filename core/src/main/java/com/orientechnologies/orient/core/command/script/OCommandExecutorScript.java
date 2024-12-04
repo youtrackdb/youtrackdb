@@ -212,7 +212,7 @@ public class OCommandExecutorScript extends OCommandExecutorAbstract
       final String language, final OCommandContext iContext, final Map<Object, Object> iArgs) {
     ODatabaseSessionInternal db = iContext.getDatabase();
 
-    final OScriptManager scriptManager = db.getSharedContext().getOxygenDB().getScriptManager();
+    final OScriptManager scriptManager = db.getSharedContext().getYouTrackDB().getScriptManager();
     CompiledScript compiledScript = request.getCompiledScript();
 
     final ScriptEngine scriptEngine = scriptManager.acquireDatabaseEngine(db.getName(), language);

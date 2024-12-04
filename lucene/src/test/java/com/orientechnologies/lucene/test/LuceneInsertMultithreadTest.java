@@ -47,7 +47,7 @@ public class LuceneInsertMultithreadTest {
   private static String buildDirectory;
   private static final String dbName;
   private static final ODatabaseType databaseType;
-  private static final YouTrackDB OXYGEN_DB;
+  private static final YouTrackDB YOU_TRACK_DB;
 
   static {
     System.getProperty("buildDirectory", ".");
@@ -55,7 +55,7 @@ public class LuceneInsertMultithreadTest {
       buildDirectory = ".";
     }
 
-    String config = System.getProperty("oxygendb.test.env");
+    String config = System.getProperty("youtrackdb.test.env");
 
     String storageType;
     if ("ci".equals(config) || "release".equals(config)) {
@@ -67,7 +67,7 @@ public class LuceneInsertMultithreadTest {
     }
 
     dbName = "multiThread";
-    OXYGEN_DB = new YouTrackDB(storageType + ":" + buildDirectory,
+    YOU_TRACK_DB = new YouTrackDB(storageType + ":" + buildDirectory,
         YouTrackDBConfig.defaultConfig());
   }
 
@@ -77,14 +77,14 @@ public class LuceneInsertMultithreadTest {
 
   @Test
   public void testConcurrentInsertWithIndex() throws Exception {
-    if (OXYGEN_DB.exists(dbName)) {
-      OXYGEN_DB.drop(dbName);
+    if (YOU_TRACK_DB.exists(dbName)) {
+      YOU_TRACK_DB.drop(dbName);
     }
-    OXYGEN_DB.execute(
+    YOU_TRACK_DB.execute(
         "create database ? " + databaseType + " users(admin identified by 'admin' role admin)",
         dbName);
     OSchema schema;
-    try (ODatabaseSessionInternal databaseDocumentTx = (ODatabaseSessionInternal) OXYGEN_DB.open(
+    try (ODatabaseSessionInternal databaseDocumentTx = (ODatabaseSessionInternal) YOU_TRACK_DB.open(
         dbName, "admin", "admin")) {
       schema = databaseDocumentTx.getMetadata().getSchema();
 
@@ -120,7 +120,7 @@ public class LuceneInsertMultithreadTest {
           .isEqualTo(THREADS * CYCLE);
       databaseDocumentTx.commit();
     }
-    OXYGEN_DB.drop(dbName);
+    YOU_TRACK_DB.drop(dbName);
   }
 
   public static class LuceneInsertThread implements Runnable {
@@ -134,7 +134,7 @@ public class LuceneInsertMultithreadTest {
     @Override
     public void run() {
 
-      try (ODatabaseSession db = OXYGEN_DB.open(dbName, "admin", "admin")) {
+      try (ODatabaseSession db = YOU_TRACK_DB.open(dbName, "admin", "admin")) {
         db.begin();
         for (int i = 0; i < cycle; i++) {
           ODocument doc = new ODocument("City");
@@ -166,7 +166,7 @@ public class LuceneInsertMultithreadTest {
     @Override
     public void run() {
       OSchema schema;
-      try (ODatabaseSessionInternal databaseDocumentTx = (ODatabaseSessionInternal) OXYGEN_DB.open(
+      try (ODatabaseSessionInternal databaseDocumentTx = (ODatabaseSessionInternal) YOU_TRACK_DB.open(
           dbName, "admin", "admin")) {
         schema = databaseDocumentTx.getMetadata().getSchema();
 

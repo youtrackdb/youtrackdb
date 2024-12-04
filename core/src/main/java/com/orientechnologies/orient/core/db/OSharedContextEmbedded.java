@@ -34,8 +34,8 @@ public class OSharedContextEmbedded extends OSharedContext {
   protected Map<String, DistributedQueryContext> activeDistributedQueries;
   protected ViewManager viewManager;
 
-  public OSharedContextEmbedded(OStorage storage, YouTrackDBEmbedded oxygenDB) {
-    this.oxygenDB = oxygenDB;
+  public OSharedContextEmbedded(OStorage storage, YouTrackDBEmbedded youtrackDB) {
+    this.youtrackDB = youtrackDB;
     this.storage = storage;
     init(storage);
   }
@@ -48,10 +48,10 @@ public class OSharedContextEmbedded extends OSharedContext {
                 .getContextConfiguration()
                 .getValueAsInteger(OGlobalConfiguration.DB_STRING_CAHCE_SIZE));
     schema = new OSchemaEmbedded();
-    security = oxygenDB.getSecuritySystem().newSecurity(storage.getName());
+    security = youtrackDB.getSecuritySystem().newSecurity(storage.getName());
     indexManager = new OIndexManagerShared(storage);
     functionLibrary = new OFunctionLibraryImpl();
-    scheduler = new OSchedulerImpl(oxygenDB);
+    scheduler = new OSchedulerImpl(youtrackDB);
     sequenceLibrary = new OSequenceLibraryImpl();
     liveQueryOps = new OLiveQueryHook.OLiveQueryOps();
     liveQueryOpsV2 = new OLiveQueryHookV2.OLiveQueryOps();
@@ -80,7 +80,7 @@ public class OSharedContextEmbedded extends OSharedContext {
               }
             });
 
-    this.viewManager = new ViewManager(oxygenDB, storage.getName());
+    this.viewManager = new ViewManager(youtrackDB, storage.getName());
   }
 
   public synchronized void load(ODatabaseSessionInternal database) {

@@ -948,7 +948,7 @@ public class YouTrackDBManager extends OListenerManger<OOrientListener> {
     }
   }
 
-  public void addOxygenDB(YouTrackDBInternal internal) {
+  public void addYouTrackDB(YouTrackDBInternal internal) {
     engineLock.writeLock().lock();
     try {
       runningInstances.add(internal);
@@ -957,7 +957,7 @@ public class YouTrackDBManager extends OListenerManger<OOrientListener> {
     }
   }
 
-  public void removeOxygenDB(YouTrackDBInternal internal) {
+  public void removeYouTrackDB(YouTrackDBInternal internal) {
     engineLock.writeLock().lock();
     try {
       runningInstances.remove(internal);

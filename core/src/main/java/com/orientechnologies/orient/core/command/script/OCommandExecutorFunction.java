@@ -67,7 +67,7 @@ public class OCommandExecutorFunction extends OCommandExecutorAbstract {
 
     db.checkSecurity(ORule.ResourceGeneric.FUNCTION, ORole.PERMISSION_READ, f.getName(db));
 
-    final OScriptManager scriptManager = db.getSharedContext().getOxygenDB().getScriptManager();
+    final OScriptManager scriptManager = db.getSharedContext().getYouTrackDB().getScriptManager();
 
     final ScriptEngine scriptEngine =
         scriptManager.acquireDatabaseEngine(db.getName(), f.getLanguage(db));
