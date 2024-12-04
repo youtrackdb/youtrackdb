@@ -2956,27 +2956,18 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
         .save();
     database.commit();
 
-    ODocument result =
-        (ODocument)
-            database
-                .query(
-                    new OSQLSynchQuery<ODocument>(
-                        "select count(*) from CountFunctionWithNotUniqueIndexTest where a = 'a' and"
-                            + " b = 'c'"))
-                .get(0);
-
-    Assert.assertEquals(result.<Object>field("count", Long.class), 0L);
-
-    Assert.assertEquals(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage + 1);
-    Assert.assertEquals(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
+    try (var rs = database.query(
+        "select count(*) as count from CountFunctionWithNotUniqueIndexTest where a = 'a' and"
+            + " b = 'c'")) {
+      if (!remoteDB) {
+        Assert.assertEquals(indexesUsed(rs.getExecutionPlan().orElseThrow()), 1);
+      }
+      Assert.assertEquals(rs.findFirst().<Long>getProperty("count"), 0L);
+    }
   }
 
   @Test
   public void testCountFunctionWithUniqueIndex() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-
     OClass klazz =
         database.getMetadata().getSchema().getOrCreateClass("CountFunctionWithUniqueIndexTest");
     if (!klazz.existsProperty("a")) {
@@ -3008,27 +2999,21 @@ public class SQLSelectIndexReuseTest extends AbstractIndexReuseTest {
     doc.save();
     database.commit();
 
-    ODocument result =
-        (ODocument)
-            database
-                .query(
-                    new OSQLSynchQuery<ODocument>(
-                        "select count(*) from CountFunctionWithUniqueIndexTest where a = 'a' and b"
-                            + " = 'c'"))
-                .get(0);
-
-    Assert.assertEquals(result.<Object>field("count", Long.class), 2L);
+    try (var rs = database.query(
+        "select count(*) as count from CountFunctionWithUniqueIndexTest where a = 'a' and b"
+            + " = 'c'")) {
+      if (!remoteDB) {
+        Assert.assertEquals(indexesUsed(rs.getExecutionPlan().orElseThrow()), 1);
+      }
+      Assert.assertEquals(rs.findFirst().<Long>getProperty("count"), 2L);
+    }
 
     database.begin();
     database.bindToSession(doc).delete();
     database.commit();
-
-    Assert.assertEquals(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage + 1);
-    Assert.assertEquals(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
   }
 
-  private int containsDocument(final List<ODocument> docList, final ODocument document) {
+  private static int containsDocument(final List<ODocument> docList, final ODocument document) {
     int count = 0;
     for (final ODocument docItem : docList) {
       boolean containsAllFields = true;

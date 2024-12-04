@@ -121,12 +121,9 @@ public class GEOTest extends DocumentDBBaseTest {
     }
 
     result =
-        database
-            .command(
-                new OSQLSynchQuery<ODocument>(
-                    "select distance(x, y,52.20472, 0.14056 ) as distance from MapPoint order by"
-                        + " distance desc"))
-            .execute(database);
+        executeQuery(
+            "select distance(x, y,52.20472, 0.14056 ) as distance from MapPoint order by"
+                + " distance desc");
 
     Assert.assertTrue(result.size() != 0);
 

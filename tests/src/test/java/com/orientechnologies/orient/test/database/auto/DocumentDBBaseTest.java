@@ -9,6 +9,10 @@ import com.orientechnologies.orient.core.record.OEdge;
 import com.orientechnologies.orient.core.record.OElement;
 import com.orientechnologies.orient.core.record.OVertex;
 import com.orientechnologies.orient.core.record.impl.ODocument;
+import com.orientechnologies.orient.core.sql.executor.FetchFromIndexStep;
+import com.orientechnologies.orient.core.sql.executor.OExecutionPlan;
+import com.orientechnologies.orient.core.sql.executor.OExecutionStep;
+import com.orientechnologies.orient.core.sql.executor.OExecutionStepInternal;
 import com.orientechnologies.orient.core.sql.executor.OResult;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -639,5 +643,37 @@ public abstract class DocumentDBBaseTest extends BaseTest<ODatabaseSessionIntern
     }
 
     Assert.assertEquals(edge1, edge2);
+  }
+
+  public static int indexesUsed(OExecutionPlan executionPlan) {
+    var indexes = new HashSet<String>();
+    indexesUsed(indexes, executionPlan);
+
+    return indexes.size();
+  }
+
+  private static void indexesUsed(Set<String> indexes, OExecutionPlan executionPlan) {
+    var steps = executionPlan.getSteps();
+    for (var step : steps) {
+      indexesUsed(indexes, step);
+    }
+  }
+
+  private static void indexesUsed(Set<String> indexes, OExecutionStep step) {
+    if (step instanceof FetchFromIndexStep fetchFromIndexStep) {
+      indexes.add(fetchFromIndexStep.getIndexName());
+    }
+
+    var subSteps = step.getSubSteps();
+    for (var subStep : subSteps) {
+      indexesUsed(indexes, subStep);
+    }
+
+    if (step instanceof OExecutionStepInternal internalStep) {
+      var subPlans = internalStep.getSubExecutionPlans();
+      for (var subPlan : subPlans) {
+        indexesUsed(indexes, subPlan);
+      }
+    }
   }
 }

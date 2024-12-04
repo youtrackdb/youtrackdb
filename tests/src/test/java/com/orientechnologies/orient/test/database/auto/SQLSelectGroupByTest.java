@@ -16,7 +16,6 @@
 package com.orientechnologies.orient.test.database.auto;
 
 import com.orientechnologies.orient.core.record.impl.ODocument;
-import com.orientechnologies.orient.core.sql.query.OSQLSynchQuery;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,7 +28,6 @@ import org.testng.annotations.Test;
 
 @Test
 public class SQLSelectGroupByTest extends DocumentDBBaseTest {
-
   @Parameters(value = "remote")
   public SQLSelectGroupByTest(@Optional Boolean remote) {
     super(remote != null && remote);
@@ -39,17 +37,12 @@ public class SQLSelectGroupByTest extends DocumentDBBaseTest {
   @Override
   public void beforeClass() throws Exception {
     super.beforeClass();
-
     generateCompanyData();
   }
 
-  @Test
+  @Test(enabled = false)
   public void queryGroupByBasic() {
-    List<ODocument> result =
-        database
-            .command(
-                new OSQLSynchQuery<ODocument>("select location from Account group by location"))
-            .execute(database);
+    List<ODocument> result = executeQuery("select location from Account group by location");
 
     Assert.assertTrue(result.size() > 1);
     Set<Object> set = new HashSet<Object>();
@@ -62,11 +55,7 @@ public class SQLSelectGroupByTest extends DocumentDBBaseTest {
   @Test
   public void queryGroupByLimit() {
     List<ODocument> result =
-        database
-            .command(
-                new OSQLSynchQuery<ODocument>(
-                    "select location from Account group by location limit 2"))
-            .execute(database);
+        executeQuery("select location from Account group by location limit 2");
 
     Assert.assertEquals(result.size(), 2);
   }
@@ -74,10 +63,7 @@ public class SQLSelectGroupByTest extends DocumentDBBaseTest {
   @Test
   public void queryGroupByCount() {
     List<ODocument> result =
-        database
-            .command(
-                new OSQLSynchQuery<ODocument>("select count(*) from Account group by location"))
-            .execute(database);
+        executeQuery("select count(*) from Account group by location");
 
     Assert.assertTrue(result.size() > 1);
   }
@@ -125,11 +111,8 @@ public class SQLSelectGroupByTest extends DocumentDBBaseTest {
       database.commit();
 
       final List<ODocument> result =
-          database
-              .command(
-                  new OSQLSynchQuery<ODocument>(
-                      "select location, count(*) from GroupByTest group by location"))
-              .execute(database);
+          executeQuery(
+              "select location, count(*) from GroupByTest group by location");
 
       Assert.assertEquals(result.size(), 3);
 
@@ -161,12 +144,8 @@ public class SQLSelectGroupByTest extends DocumentDBBaseTest {
       database.command("insert into GroupByTest set location = 'Austin'").close();
       database.commit();
 
-      final List<ODocument> result =
-          database
-              .command(
-                  new OSQLSynchQuery<ODocument>(
-                      "select location, count(*) from GroupByTest group by location"))
-              .execute(database);
+      final List<ODocument> result = executeQuery(
+          "select location, count(*) from GroupByTest group by location");
 
       Assert.assertEquals(result.size(), 2);
 

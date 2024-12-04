@@ -60,7 +60,7 @@ public class OConnectionExecutorTransactionTest {
   @Before
   public void before() throws IOException {
     MockitoAnnotations.initMocks(this);
-    oxygenDb = new OxygenDB("embedded:" + DBTestBase.embeddedDBUrl(getClass()),
+    oxygenDb = new OxygenDB(DBTestBase.embeddedDBUrl(getClass()),
         OxygenDBConfig.defaultConfig());
     oxygenDb.execute(
         "create database ? memory users (admin identified by 'admin' role admin)",
@@ -126,7 +126,7 @@ public class OConnectionExecutorTransactionTest {
     assertFalse(database.getTransaction().isActive());
     assertTrue(commitResponse instanceof OCommit37Response);
 
-    assertEquals(((OCommit37Response) commitResponse).getUpdatedRids().size(), 1);
+    assertEquals(1, ((OCommit37Response) commitResponse).getUpdatedRids().size());
   }
 
   @Test
@@ -156,7 +156,7 @@ public class OConnectionExecutorTransactionTest {
     OBinaryResponse commitResponse = commit.execute(executor);
     assertFalse(database.getTransaction().isActive());
     assertTrue(commitResponse instanceof OCommit37Response);
-    assertEquals(((OCommit37Response) commitResponse).getUpdatedRids().size(), 2);
+    assertEquals(2, ((OCommit37Response) commitResponse).getUpdatedRids().size());
   }
 
   @Test
@@ -229,7 +229,7 @@ public class OConnectionExecutorTransactionTest {
     OBinaryResponse commitResponse = commit.execute(executor);
     assertFalse(database.getTransaction().isActive());
     assertTrue(commitResponse instanceof OCommit37Response);
-    assertEquals(((OCommit37Response) commitResponse).getUpdatedRids().size(), 3);
+    assertEquals(3, ((OCommit37Response) commitResponse).getUpdatedRids().size());
   }
 
   @Test

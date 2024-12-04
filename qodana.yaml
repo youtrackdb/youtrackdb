@@ -1,5 +1,5 @@
 version: "1.0"
-projectJDK: 17
+projectJDK: 21
 profile:
   path: .idea/inspectionProfiles/oxygendb.xml
 include:

@@ -38,9 +38,9 @@ public class RemoteTransactionHookTest extends DBTestBase {
     server.getHookManager().addHook(hookConfig);
     server.activate();
 
-    db.createClass("SomeTx");
-
     super.beforeTest();
+
+    db.createClass("SomeTx");
   }
 
   @Override
@@ -57,7 +57,7 @@ public class RemoteTransactionHookTest extends DBTestBase {
       dbType = ODatabaseType.MEMORY;
     }
 
-    return OxygenDB.embedded("remote:localhost", config);
+    return OxygenDB.remote("localhost", "root", "root", config);
   }
 
   @After

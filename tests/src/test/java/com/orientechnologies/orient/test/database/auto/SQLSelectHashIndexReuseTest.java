@@ -2583,9 +2583,6 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
 
   @Test
   public void testCountFunctionWithNotUniqueIndex() {
-    long oldIndexUsage = profiler.getCounter("db.demo.query.indexUsed");
-    long oldcompositeIndexUsed = profiler.getCounter("db.demo.query.compositeIndexUsed");
-
     OClass klazz =
         database.getMetadata().getSchema().getOrCreateClass("CountFunctionWithNotUniqueHashIndex");
     if (!klazz.existsProperty("a")) {
@@ -2603,19 +2600,15 @@ public class SQLSelectHashIndexReuseTest extends AbstractIndexReuseTest {
     doc.save();
     database.commit();
 
-    ODocument result =
-        (ODocument)
-            database
-                .query(
-                    new OSQLSynchQuery<ODocument>(
-                        "select count(*) from CountFunctionWithNotUniqueHashIndex where a = 'a' and"
-                            + " b = 'b'"))
-                .get(0);
+    try (var rs = database.query(
+        "select count(*) as count from CountFunctionWithNotUniqueHashIndex where a = 'a' and"
+            + " b = 'b'")) {
+      if (!remoteDB) {
+        Assert.assertEquals(indexesUsed(rs.getExecutionPlan().orElseThrow()), 1);
+      }
 
-    Assert.assertEquals(result.<Object>field("count", Long.class), 1L);
-    assertProfileCount(profiler.getCounter("db.demo.query.indexUsed"), oldIndexUsage, 1);
-    assertProfileCount(
-        profiler.getCounter("db.demo.query.compositeIndexUsed"), oldcompositeIndexUsed);
+      Assert.assertEquals(rs.findFirst().<Long>getProperty("count"), 1L);
+    }
 
     database.begin();
     database.bindToSession(doc).delete();

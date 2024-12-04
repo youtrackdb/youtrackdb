@@ -47,24 +47,21 @@ public class OxygenJdbcDatabaseMetaDataTest extends OrientJdbcDbPerClassTemplate
 
   @Test
   public void verifyDriverAndDatabaseVersions() throws SQLException {
-
-    //    assertEquals("memory:" + name.getMethodName(), metaData.getURL());
     assertEquals("admin", metaData.getUserName());
     assertEquals("OxygenDB", metaData.getDatabaseProductName());
     assertEquals(OConstants.getVersion(), metaData.getDatabaseProductVersion());
-    assertEquals(4, metaData.getDatabaseMajorVersion());
+    assertEquals(1, metaData.getDatabaseMajorVersion());
     assertEquals(0, metaData.getDatabaseMinorVersion());
 
     assertEquals("OxygenDB JDBC Driver", metaData.getDriverName());
     assertEquals(
         "OxygenDB " + OConstants.getVersion() + " JDBC Driver", metaData.getDriverVersion());
-    assertEquals(4, metaData.getDriverMajorVersion());
+    assertEquals(1, metaData.getDriverMajorVersion());
     assertEquals(0, metaData.getDriverMinorVersion());
   }
 
   @Test
   public void shouldRetrievePrimaryKeysMetadata() throws SQLException {
-
     ResultSet primaryKeys = metaData.getPrimaryKeys(null, null, "Item");
     assertTrue(primaryKeys.next());
     assertEquals("intKey", primaryKeys.getString(4));
